@@ -1,0 +1,472 @@
+---
+title: API Reference
+showNav: false
+layout: api
+---
+
+## Authentication
+
+## Errors
+
+## Users
+
+A user represents an individual who may need to receive a notification from Knock. They are always referenced by your internal identifier.
+
+### Identify a user
+
+Identifying a user will create or update a user in Knock, merging the properties given with what we currently have set for the user (if anything).
+
+**Endpoint**
+
+**`POST https://api.knock.app/v1/identify`**
+
+**Payload**
+
+```json
+{
+  "id": "user_1",
+  "properties": {
+    "name": "User name",
+    "email": "user@example.com",
+    "foo": "bar",
+    "baz": true
+  }
+}
+```
+
+**Properties**
+
+Properties is a map of key value pairs that can be set, and later retrieved, on a user. However, there are some keys that are required:
+
+- `email` – the user's email address
+- `name` – the user's full name
+
+### Batch sending users
+
+You can send batches of 100 users at a time to Knock to process. This is useful for when you're onboarding into Knock for the first time and need to bootstrap your data.
+
+**Endpoint**
+
+**`POST https://api.knock.app/v1/batch/users`**
+
+**Payload**
+
+```json
+{
+  "batch": [
+    {
+      "id": "user_1",
+      "properties": {
+        "name": "User name",
+        "email": "user@example.com",
+        "foo": "bar",
+        "baz": true
+      }
+    }
+  ]
+}
+```
+
+### Get a user
+
+Retrieve a user by their ID, including all properties previously set.
+
+**Endpoint**
+
+**`GET https://api.knock.app/v1/users/:user_id`**
+
+**Response**
+
+```json
+{
+  "__typename": "user",
+  "id": "user_1",
+  "properties": {
+    "name": "User name",
+    "email": "user@example.com",
+    "foo": "bar",
+    "baz": true
+  },
+  "preferences": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+### Delete a user
+
+`TODO`
+
+## Lists
+
+A list represents a collection of users. It’s used to easily send notifications to many related individuals at once.
+
+You may want to consider using lists when you have a collection of users that is unbounded in size who may need to be notified when an event occurs (like followers, or members of a project).
+
+Lists can be referenced when creating notifications so that you don't need to send specific user ids with your events. Structured data can also be captured for each user on a list.
+
+**List names**
+
+The list name is used as an identifier for the list, because of this you will need to ensure that the list name is unique and contains alphanumeric characters and `.`, `-`, and `_` only.
+
+### Creating a list
+
+To create a list you just need to use a unique identifier for the list name. If the list with the given identifier already exists, the create endpoint will return an error.
+
+**Endpoint**
+
+`POST https://api.knock.app/v1/lists`
+
+**Payload**
+
+```json
+{
+  // Name is a required field and must be unique
+  "name": "project.project_123.followers",
+  // Optionally you can create the list with users specified as well
+  "users": [],
+  // Optionally you can provide any structured data to be stored on the list
+  "properties": {
+    "foo": "bar"
+  }
+}
+```
+
+### Adding users to a list
+
+You can append new users to a list, including any metadata that needs to be kept on the user within the list. If the user already exists on the list, the metadata will be merged.
+
+**Endpoint**
+
+`POST https://api.knock.app/v1/lists/:name/users`
+
+**Payload**
+
+```json
+{
+  "users": [
+    {
+      // id is a required field per user
+      "id": "user_1",
+      // Optionally you can provide structured data to be stored
+      "properties": {
+        "role": "admin"
+      }
+    }
+  ]
+}
+```
+
+### Removing users from a list
+
+Will attempt to remove the given users from the list.
+
+**Endpoint**
+
+`DELETE https://api.knock.app/v1/lists/:name/users`
+
+**Payload**
+
+```json
+{
+  // Accepts user ids, or a user object (with an id)
+  "users": ["user_1"]
+}
+```
+
+### Get a list
+
+Will retrieve a list, including users associated. Users returned will be a `PaginatedResult` returned in ascending order of when the user was added to the list.
+
+**Endpoint**
+
+`GET https://api.knock.app/v1/lists/:name`
+
+**Response**
+
+```json
+{
+  "__typename": "list",
+  "name": "project.project_123.followers",
+  "users": {
+    "data": [
+      {
+        "__typename": "list_member",
+        "user_id": "user_1",
+        "user": {
+          "__typename": "user",
+          "id": "user_1",
+          "properties": {
+            "name": "User name",
+            "email": "user@example.com",
+            "foo": "bar",
+            "baz": true
+          },
+          "preferences": null,
+          "updated_at": "2021-03-05T12:00:00Z"
+        },
+        "properties": {
+          "role": "admin"
+        },
+        "updated_at": "2021-03-05T12:00:00Z"
+      }
+    ],
+    "page_info": {
+      "has_next_page": false,
+      "has_previous_page": false,
+      "per_page": 25,
+      "total_pages": 1,
+      "total_items": 1
+    }
+  },
+  "properties": {
+    "foo": "bar"
+  }
+}
+```
+
+### Deleting a list
+
+Removes the list and all users associated with the list.
+
+**Endpoint**
+
+`DELETE https://api.knock.app/v1/lists/:list_name`
+
+## Events
+
+An event is used as a potential trigger for a notification. It represents an action happening in your product that a user may have taken.
+
+**Naming events**
+
+Event names should clearly label what happened. Best practices for event naming can be found in the Segment guide, which typically follows a Noun Verb approach, like `User Created`.
+
+**Event Properties**
+
+Properties of an event are _important values_ – they are unstructured data that contain the attributes you will use to template your notifications. For that reason we suggest that you send a broad range of properties with your event data — great examples are things like object ids, names, and other attributes.
+
+### Registering an event with Knock
+
+**Endpoint**
+
+`POST https://api.knock.app/v1/events`
+
+**Payload**
+
+```json
+{
+  "name": "Comment Created",
+  // The user who performed the action
+  "user_id": "user_1",
+  "properties": {
+    "workspace_id": "workspace_1",
+    "document_id": "document_1",
+    "document_name": "The Soul of a New Machine",
+    "comment_id": "comment_1",
+    "comment_text": "I LOVE this part of the book"
+  },
+  // If the timestamp is omitted a value will be set once received
+  "timestamp": "2021-03-05T12:00:00.000Z"
+}
+```
+
+### Idempotent events
+
+It is **strongly recommended** that you specify an idempotency key when sending your events. This is useful in ensuring that duplicate events are not processed. Knock will guarantee to never process an event twice, unless explicitly instructed to do so.
+
+```json
+{
+  "name": "Comment Created",
+  // Here we're building an idempotency key from the document id
+  // and the comment id
+  "idempotency_key": "document_1:comment_1:created",
+  "user_id": "user_1",
+  "properties": {
+    // Omitted for brevity
+  },
+  "timestamp": "2021-03-05T12:00:00.000Z"
+}
+```
+
+### Specifying individual recipients
+
+Individual recipients can always be specified on the event, where necessary. We encourage this approach for when the number of recipients is small, like in the case of comment threads where the extra bookkeeping for list creation may be unnecessary.
+
+```json
+{
+  "name": "Comment Created",
+  "user_id": "user_1",
+  "properties": {
+    // Omitted for brevity
+  },
+  "recipients": ["user_2", "user_3"]
+}
+```
+
+### Sending to one or more lists
+
+To send to one or more lists of recipients, you can user the `recipient_lists` property on the event as follows:
+
+```json
+{
+  "name": "Comment Created",
+  "user_id": "user_1",
+  "properties": {
+    // Omitted for brevity
+  },
+  "recipient_lists": ["project.project_123.followers"]
+}
+```
+
+### Notification defined recipients
+
+Alternatively, you can omit the recipients properties all together and select recipients when you are building your notifications in the Knock Dashboard. This approach has the nice side effect of decoupling your event code from your notifications code.
+
+### Batch sending events
+
+Knock is designed to ingest a high volume of events from your service. For this reason it may be preferable to bulk send events to Knock to reduce the HTTP overhead per request.
+
+Knock can receive up to **100 events** per batch request. If a higher number is specified, then the request may be rejected with a 422 response.
+
+**Endpoint**
+
+`POST https://api.knock.app/v1/batch/events`
+
+**Payload**
+
+```json
+{
+  "batch": [
+    {
+      "name": "Comment Created",
+      "user_id": "user_1",
+      "properties": {
+        // Omitted for brevity
+      }
+    },
+    {
+      "name": "Project Created",
+      "user_id": "user_2",
+      "properties": {
+        // Omitted for brevity
+      }
+    }
+  ]
+}
+```
+
+## Activities
+
+An activity represents a change that a user may need to be notified of.
+
+### Activity bundles
+
+Activities within Knock are always presented as a 'bundle' which we use internally to perform grouping and batching of activities. We present a standardized interface to all activities as a bundle to reduce complexity when consuming the API; this means that you may receive a bundle of a single activity.
+
+An activity bundle may be updated _after being created_ (e.g. when a new activity is bundled into it) \*\*where as individual activities are immutable logs of changes.
+
+### Fetch activities for a user
+
+Returns a paginated list of bundled activities, supplied in a descending order of when the activity was generated. Will also return the stats on the number of unread / read activities for the user.
+
+**Endpoint**
+
+`GET https://api.knock.app/v1/users/:user_id/activities`
+
+**Response**
+
+```json
+{
+  "activity_bundles": {
+    "data": [
+      {
+        "__typename": "activity_bundle",
+        "id": "activity_bundle_12345",
+        "activities": [
+          {
+            "__typename": "activity",
+            "id": "activity_12345"
+          }
+        ],
+        "read_at": null,
+        "seen_at": null
+      }
+    ],
+    "page_info": {
+      "has_next_page": false,
+      "has_previous_page": false,
+      "per_page": 25,
+      "total_pages": 1,
+      "total_items": 1
+    }
+  },
+  "stats": {
+    "total_unread": 1,
+    "total_read": 0,
+    "total_unseen": 1,
+    "total_seen": 0
+  }
+}
+```
+
+### Mark as read
+
+Marks the activity as read for the user, recording an engagement event in the process.
+
+**Endpoint**
+
+`PUT https://api.knock.app/v1/activities/:id/read`
+
+**Response**
+
+### Mark as seen
+
+## Secured user keys
+
+When working with client-side features to communicate directly with the Knock API you must generate user specific keys that will be used in place of your Knock secret key. This ensures that users can only ever access their content without you needing to proxy calls via your backend.
+
+### Creating a new key
+
+To generate a new secured key you only need to supply the user id as a required scoping field. You should generate this key within your backend, and expose the result to the client-side application.
+
+**Endpoint**
+
+`POST https://api.knock.app/v1/secured_keys`
+
+**Payload**
+
+```json
+{
+  // The user id is required
+  "user_id": "user_1",
+  // Optionally you can limit to particular channels that are allowed
+  // to be queried with this key
+  "channel_ids": []
+}
+```
+
+**Response**
+
+```json
+{
+  "status": "ok",
+  "expires_at": "2021-03-07T12:00:00.000Z",
+  "key": "sk_1234567890abcdefghijklmnopqrst"
+}
+```
+
+### Using a secured key
+
+You can use a secured key in the following endpoints:
+
+- Fetching all notifications for a user, channel pair
+- Marking activities for a user as read or seen
+
+## Preferences
+
+Preferences exist on a users profile and determine whether or not they should receive certain types on notifications.
+
+## Notifications
+
+## Engagement
+
+Engagement data is all of the user interactions with notifications (clicks, opens, delivers etc).
