@@ -1,3 +1,4 @@
+
 export type SidebarPage = {
   slug: string;
   title: string;

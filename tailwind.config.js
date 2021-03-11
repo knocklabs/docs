@@ -29,6 +29,14 @@ module.exports = {
         DEFAULT: {
           css: {
             lineHeight: 1.5,
+
+            a: {
+              color: theme("colors.brand"),
+              "&:hover": {
+                color: theme("colors.brand.dark"),
+              },
+            },
+
             pre: {
               marginTop: 0,
               marginBottom: 0,
@@ -38,6 +46,13 @@ module.exports = {
         },
         sm: {
           css: {
+            a: {
+              color: theme("colors.brand"),
+              "&:hover": {
+                color: theme("colors.brand.dark"),
+              },
+            },
+
             pre: {
               marginTop: 0,
               marginBottom: 0,

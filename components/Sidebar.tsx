@@ -6,7 +6,7 @@ import cn from "classnames";
 import sidebarContent from "../data/sidebar";
 
 const Sidebar = () => {
-  const { asPath, ...rest } = useRouter();
+  const { pathname } = useRouter();
 
   return (
     <section className="w-60 border-r hidden lg:block">
@@ -29,7 +29,7 @@ const Sidebar = () => {
                           className={cn({
                             "hover:text-gray-900": true,
                             "text-brand font-medium hover:text-brand-dark":
-                              asPath === section.slug + page.slug,
+                              pathname === section.slug + page.slug,
                           })}
                         >
                           {page.title}
