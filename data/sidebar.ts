@@ -23,13 +23,16 @@ const sidebarContent : SidebarSection[] = [
     ]
   },
   {
-    title: "Sending data",
-    slug: "/sending-data",
+    title: "Send & manage data",
+    slug: "/send-and-manage-data",
     desc: "Learn the ins-and-outs of how to get data flowing into Knock to power your notifications",
     pages: [
       { slug: "/concepts", title: "Concepts" },
-      { slug: "/events", title: "Sending events" },
-      { slug: "/managing-lists", title: "Managing lists" },
+      { slug: "/users", title: "Users" },
+      { slug: "/lists", title: "Lists" },
+      { slug: "/events", title: "Events" },
+      { slug: "/environments", title: "Environments" },
+      { slug: "/integrating-via-segment", title: "Segment integration" },
     ]
   },
   {

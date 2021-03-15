@@ -1,3 +1,0 @@
----
-title: Knock data concepts
----

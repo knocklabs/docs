@@ -37,6 +37,14 @@ module.exports = {
               },
             },
 
+            code: {
+              backgroundColor: "rgb(250, 250, 250)",
+              fontWeight: 400,
+              padding: theme("p-1"),
+              "&::before": undefined,
+              "&::after": undefined,
+            },
+
             pre: {
               marginTop: 0,
               marginBottom: 0,

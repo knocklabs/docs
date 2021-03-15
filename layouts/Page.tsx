@@ -30,7 +30,7 @@ export const Page = ({ children }) => {
 
           <a
             href="mailto:founders@knock.app?subject=Docs feedback"
-            className="ml-auto text-sm text-brand font-medium"
+            className="ml-auto text-sm text-brand font-medium hover:text-brand-dark"
           >
             Send feedback →
           </a>
