@@ -15,13 +15,13 @@ of your notification messages as well.
 
 [Read more →](/send-and-manage-data/users)
 
-## Events
+<!-- ## Events
 
 An event is the main trigger for notification flows to be sent. The event represents an action that
 occurred in your system that may need to be turned into a notification. The event payload is important
 as the properties sent are used to create the notification messages that will be sent to your users.
 
-[Read more →](/send-and-manage-data/events)
+[Read more →](/send-and-manage-data/events) -->
 
 ## Lists
 
@@ -38,5 +38,4 @@ A preference indicates a users willingness to receive a particular kind of notif
 always belong to a user and can optionally be paired with an identifier that represents the account
 or tenant that the user belongs to as well (for multi-tenant applications).
 
-<!--
-[Read more →](/send-and-manage-data/managing-preferences) -->
+[Read more →](/send-and-manage-data/managing-preferences)

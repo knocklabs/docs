@@ -25,7 +25,7 @@ Knock is a full replacement for an in-house notification system. It handles:
 - Batch, aggregatation, and digesting of notifications to prevent spamming
 - Syncronizing the read stauses of your notifications across channels
 - The application of user preferences to avoid sending notifications to users who have opted out
-- Notification receipient selection and fan out
+- Notification recipient selection and fan out
 - Delivery of your notifications to your delivery providers
 
 ## Configuring Knock

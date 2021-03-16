@@ -28,11 +28,22 @@ const sidebarContent : SidebarSection[] = [
     desc: "Learn the ins-and-outs of how to get data flowing into Knock to power your notifications",
     pages: [
       { slug: "/concepts", title: "Concepts" },
-      { slug: "/users", title: "Users" },
-      { slug: "/lists", title: "Lists" },
-      { slug: "/events", title: "Events" },
+      { slug: "/users", title: "Managing users" },
+      { slug: "/lists", title: "Managing lists" },
+      { slug: "/preferences", title: "Modeling preferences" },
       { slug: "/environments", title: "Environments" },
-      { slug: "/integrating-via-segment", title: "Segment integration" },
+    ]
+  },
+  {
+    title: "Sending notifications",
+    slug: "/sending-notifications",
+    desc: "Learn the ins-and-outs of how to get data flowing into Knock to power your notifications",
+    pages: [
+      { slug: "/designing-notifications", title: "Designing flows" },
+      { slug: "/triggering-flows", title: "Triggering flows" },
+      { slug: "/applying-preferences", title: "Applying preferences" },
+      { slug: "/batching-and-throttling", title: "Batching and throttling" },
+      { slug: "/delivering-notifications", title: "Delivering notifications" },
     ]
   },
   {
@@ -46,18 +57,18 @@ const sidebarContent : SidebarSection[] = [
       { slug: "/bring-your-own-ui", title: "Bring your own UI" },
     ]
   },
-  {
-    title: "API Reference",
-    slug: "/reference",
-    pages: [
-      { slug: "/", title: "Overview" },
-      { slug: "/authentication", title: "Authentication" },
-      { slug: "/users", title: "Users" },
-      { slug: "/lists", title: "Lists" },
-      { slug: "/events", title: "Events" },
-      { slug: "/activities", title: "Activities" },
-    ]
-  }
+  // {
+  //   title: "API Reference",
+  //   slug: "/reference",
+  //   pages: [
+  //     { slug: "/", title: "Overview" },
+  //     { slug: "/authentication", title: "Authentication" },
+  //     { slug: "/users", title: "Users" },
+  //     { slug: "/lists", title: "Lists" },
+  //     { slug: "/events", title: "Events" },
+  //     { slug: "/activities", title: "Activities" },
+  //   ]
+  // }
 ];
 
 export default sidebarContent;

@@ -2,11 +2,12 @@
 title: Getting started
 ---
 
-This guide is designed to help get you setup with Knock inside of your application.
+This guide is designed to help get you setup with Knock inside of your application and start
+sending notifications.
 
 ## Introduction
 
-The Knock Notifications API enables you to introduce notifications into your application with ease, allowing you to build complex, customized notification workflows for your customers easily and without needing any code.
+The Knock Notifications API enables you to introduce notifications into your application with ease, allowing you to build complex, customized notification workflows for your customers easily.
 
 In this guide we'll take you from understanding the primitives in Knock, all the way through to sending your first notifications to your customers using the Knock.
 
@@ -32,7 +33,7 @@ KNOCK_API_KEY='sk_example_123456789'
 
 Knock needs to know some minimal information about your users so that we can send notifications to them. At a minimum we need the users name, email address and a unique id to identify them by.
 
-We suggest letting Knock know whenever a new user is created, and when any of their properties change too (you'll need to keep Knock in sync):
+We suggest letting Knock know whenever a new user is created, and when any of their properties change too (you'll need to keep Knock in-sync):
 
 ```javascript
 const Knock = require("@knocklabs/node");
@@ -51,17 +52,18 @@ app.post("/signup", async (req, res) => {
 });
 ```
 
-_Note: if you have existing users in your application, you can either bulk send over users in a migration or deliver users just-in-time. See here for more details on migrating an existing system._
+### 4. Create your notification flows
 
-### 4. Notify Knock of the events happening
+You can use the Knock dashboard in order to setup new notification flows, which determine the routing logic for the notification as well as the design of the messages themselves.
 
-All notifications in Knock are driven (for now) by triggers that occur in your product. As such, we need to know about the events that are caused by user actions so that we can use those to trigger notifications.
+The Knock dashboard gives you the power to create advanced notification flows and logic to handle
+batching/collapsing of these notifications, as well as more complex orchestration logic for delays
+and cross-channel delivery.
 
-You should note a few important things here:
+### 5. Trigger your notifications
 
-1. The `user_id` is the user who _performed_ the action (where relevant).
-2. The payload that we send to Knock is important. We'll user these properties in our notification templates.
-3. The recipients are a list of user ids who may _potentially_ need to receive a notification from this event.
+Whenever you want to trigger a notification flow for a set of users, you simple call the `notify` function to trigger the flow for the recipients you define, and pass through the data required when
+the notification was designed.
 
 ```javascript
 const Knock = require("@knocklabs/node");
@@ -70,10 +72,8 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 // In our hypothetical document collaboration app
 // we want to let Knock know about comments being created
 // which we send after the comment has been saved in a database
-knock.track({
-  event: "New Comment",
-  user_id: user.id,
-  properties: {
+await knock.notify("new-comment", {
+  data: {
     document_id: comment.document.id,
     document_name: comment.document.name,
     comment_id: comment.id,
@@ -83,8 +83,12 @@ knock.track({
 });
 ```
 
-## Create your notification flows
+## Go deeper
 
-You can use the Knock dashboard in order to setup a new notification that's triggered from the events you're sending to Knock. Your notifications can be in-app (in a notification feed), or sent via email. We'll be adding more channel support soon.
+This was a very simple overview to start using Knock to send your notifications. Keep reading to see how Knock can drive your notification needs, no matter how complex they might be.
 
-The Knock dashboard gives you the power to create advanced notification flows and logic to handle batching/collapsing of these notifications, as well as more complex orchestration logic for delays and cross-channel delivery.
+- [Sending & managing data concepts](/send-and-manage-data/concepts)
+- [Notification feeds](/notification-feeds/overview)
+- [Managing users with lists](/send-and-manage-data/lists)
+
+<br />
