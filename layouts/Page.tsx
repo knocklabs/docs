@@ -37,8 +37,39 @@ export const Page = ({ children }) => {
         </header>
         <div className="flex overflow-y-hidden h-full">
           <Sidebar />
-          <main className="p-5 lg:p-8 w-full h-full overflow-y-auto">
-            {children}
+          <main className="w-full h-full overflow-y-auto">
+            <section className="text-center py-2 px-3 border-b bg-beige-light">
+              <span className="text-sm font-medium text-gray-700">
+                <span className="mr-2">🚧</span> Our documentation is currently
+                work-in-progress so the examples here won't work{" "}
+                <span className="ml-1">🚧</span>
+              </span>
+            </section>
+            <section className="p-5 lg:p-8">{children}</section>
+            <footer className="border-t p-5 lg:p-8 flex flex-col lg:flex-row items-center justify-center">
+              <div className="text-center lg:text-left">
+                <img
+                  src="/icons/knock-wordmark.svg"
+                  alt="Knock"
+                  className="w-16 mx-auto lg:mx-0"
+                />
+                <span className="text-sm text-gray-500 leading-tight">
+                  The easiest way to send product notifications
+                </span>
+              </div>
+              <div className="lg:ml-auto mt-3">
+                <nav className="ml-auto">
+                  <ul className="flex text-sm text-gray-700">
+                    <li className="mr-5">
+                      <a href="https://knock.app">Visit website</a>
+                    </li>
+                    <li>
+                      <a href="mailto:support@knock.app">Contact us</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </footer>
           </main>
         </div>
       </div>

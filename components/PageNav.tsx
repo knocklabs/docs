@@ -72,7 +72,7 @@ const PageNav: React.FC<Props> = ({ title }) => {
   }
 
   return (
-    <aside className="fixed top-24 border-l pl-5">
+    <aside className="fixed top-30 border-l pl-5">
       <h5 className="text-xs uppercase text-gray-900 font-semibold tracking-wider mb-3">
         On this page
       </h5>

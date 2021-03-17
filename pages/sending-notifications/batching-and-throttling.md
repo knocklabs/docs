@@ -5,7 +5,7 @@ title: Batching & throttling
 To prevent sending an excessive amount of notifications to your customers, you can use batching
 and throttling of your messages.
 
-## Batching (aggregating)
+## Batching (queueing)
 
 Batching notifications involves collapsing multiple notifications of the same type for a user
 into a single message within a given window of time. You might have seen this on other applications
@@ -20,8 +20,8 @@ A batching window determines the window of time in which the notifications shoul
 the recipient. The window will be reset if either the duration is exceeded, or the notification batch
 is read.
 
-The batch window can be specified when creating the notification flow but please note, the
-maximum batch window that can currently be applied is 30 days.
+The batch window can be specified when creating the notification flow but please note, we don't recommend
+setting a batch window of a few hours as a best practice.
 
 ### Picking a batch key
 

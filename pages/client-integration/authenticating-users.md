@@ -9,7 +9,7 @@ access.
 **Note: you only need to add the authentication here if you're integrating Knock on the client-side of
 your applications and leveraging feeds or preferences.**
 
-## API endpoints that require authentication
+## API endpoints that require auth
 
 The following calls will require authentication to be used (when called from the client):
 

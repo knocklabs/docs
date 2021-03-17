@@ -7,7 +7,10 @@ A preference determines whether or not a user should receive a particular notifi
 with your notifications and stores the state for each user, removing a common part of your
 notifications stack.
 
-## Updating a user preferences
+**Please note: preferences are an active WIP area of our product. This section will be updated as
+soon as we have more to share**.
+
+<!-- ## Updating a user preferences
 
 ```js
 const Knock = require("@knocklabs/node");
@@ -24,4 +27,4 @@ await knock.users.updatePreferences(user.id, {});
 
 In a multi-tenant environment your users might need to have _different preference settings per
 tenant_ they are associated with. As a result your preferences would now be a key of
-`(user_id, tenant_id)` -- the good news is Knock is designed with this use-case in mind!
+`(user_id, tenant_id)` -- the good news is Knock is designed with this use-case in mind! -->

@@ -92,7 +92,7 @@ await knock.notify("new-comment", {
 This was a very simple overview to start using Knock to send your notifications. Keep reading to see how Knock can drive your notification needs, no matter how complex they might be.
 
 - [Sending & managing data concepts](/send-and-manage-data/concepts)
-- [Notification feeds](/notification-feeds/overview)
+- [Notification feeds](/notification-feeds/getting-started)
 - [Managing users with lists](/send-and-manage-data/lists)
 
 <br />
