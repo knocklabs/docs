@@ -18,7 +18,11 @@ const Knock = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.notify("new-user-invited", {
+  // The user who performed the action
+  actor: "user_3",
+  // The list of recipients
   recipients: ["user_1", "user_2"],
+  // Data to be passed to the template
   data: {
     invitee_name: "Jane Doe",
     invitee_email: "jane.doe@example.com",
@@ -31,6 +35,7 @@ await knock.notify("new-user-invited", {
 
 | Property       | Type     | Description                                                                      |
 | -------------- | -------- | -------------------------------------------------------------------------------- |
+| actor          | string   | The user id of the user who performed the action (when relevant)                 |
 | name\*         | string   | The human readable name of the notification flow                                 |
 | data\*         | map      | A map of properties that are required in the templates in this notification flow |
 | recipients     | string[] | A list of user ids for users that are associated with this notification flow     |
@@ -106,6 +111,7 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 const idempotencyKey = uuid();
 
 await knock.notify("new-user-invited", {
+  actor: "user_3",
   recipients: ["user_1", "user_2"],
   data: {
     invitee_name: "Jane Doe",

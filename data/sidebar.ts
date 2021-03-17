@@ -37,7 +37,7 @@ const sidebarContent : SidebarSection[] = [
   {
     title: "Sending notifications",
     slug: "/sending-notifications",
-    desc: "Learn the ins-and-outs of how to get data flowing into Knock to power your notifications",
+    desc: "See how to use Knock to start designing and sending out your notifications, including understanding more advanced workflows such as batching.",
     pages: [
       { slug: "/designing-notifications", title: "Designing flows" },
       { slug: "/triggering-flows", title: "Triggering flows" },
@@ -47,11 +47,19 @@ const sidebarContent : SidebarSection[] = [
     ]
   },
   {
+    title: "Client integration",
+    slug: "/client-integration",
+    desc: "A guide for how to integrate Knock into your clientside applications",
+    pages: [
+      { slug: "/authenticating-users", title: "Authentication" },
+      { slug: "/triggering-flows", title: "Triggering flows" },
+    ]
+  },
+  {
     title: "Notification feeds",
     slug: "/notification-feeds",
     desc: "Everything you need to know about how to display notification feeds back to your users",
     pages: [
-      { slug: "/overview", title: "Overview" },
       { slug: "/getting-started", title: "Getting started" },
       { slug: "/customizing-ui", title: "Customizing" },
       { slug: "/bring-your-own-ui", title: "Bring your own UI" },

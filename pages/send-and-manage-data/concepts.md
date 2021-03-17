@@ -38,4 +38,4 @@ A preference indicates a users willingness to receive a particular kind of notif
 always belong to a user and can optionally be paired with an identifier that represents the account
 or tenant that the user belongs to as well (for multi-tenant applications).
 
-[Read more →](/send-and-manage-data/managing-preferences)
+[Read more →](/send-and-manage-data/preferences)

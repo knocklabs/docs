@@ -73,12 +73,16 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 // we want to let Knock know about comments being created
 // which we send after the comment has been saved in a database
 await knock.notify("new-comment", {
+  // Who performed this notification
+  actor: comment.user_id,
+  // Template data we want to use
   data: {
     document_id: comment.document.id,
     document_name: comment.document.name,
     comment_id: comment.id,
     comment_text: comment.text,
   },
+  // Who should be notified
   recipients: document.followers.map((f) => f.user_id),
 });
 ```
