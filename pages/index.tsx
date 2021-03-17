@@ -20,7 +20,7 @@ export default function Home() {
           </Link>
         </header>
 
-        <section className="bg-gray-50 p-5 -ml-5 rounded">
+        <section className="bg-gray-50 p-5 lg:-ml-5 lg:-mr-5 rounded">
           <h2 className="text-xl font-semibold mb-2">What is Knock?</h2>
           <p className="text-sm text-gray-700 mb-3">
             Knock is a hosted notifications engine. Knock's
@@ -43,13 +43,13 @@ export default function Home() {
             {sidebarContent
               .filter((s) => s.desc)
               .map((s) => (
-                <div className="flex border-t pt-6">
-                  <div className="w-80">
+                <div className="flex flex-col lg:flex-row border-t pt-6">
+                  <div className="lg:w-80">
                     <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
-                    <p className="text-sm">{s.desc}</p>
+                    <p className="text-sm text-gray-600">{s.desc}</p>
                   </div>
 
-                  <ul className="ml-auto w-40 space-y-2">
+                  <ul className="mt-5 lg:mt-0 lg:ml-auto lg:w-40 space-y-2">
                     {s.pages.map((p) => (
                       <li className="text-sm text-gray-500">
                         <Link href={s.slug + p.slug}>
