@@ -52,7 +52,6 @@ const sidebarContent : SidebarSection[] = [
     desc: "A guide for how to integrate Knock into your clientside applications",
     pages: [
       { slug: "/authenticating-users", title: "Authentication" },
-      { slug: "/triggering-flows", title: "Triggering flows" },
     ]
   },
   {

@@ -16,12 +16,18 @@ import Knock from "@knocklabs/web";
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 
 // Authenticate the current user in your app lifecycle
-knockClient.authenticateUser(currentCustomer.knockApiToken);
+knockClient.authenticate(currentCustomer.knockApiToken);
 
-// Fetch the data
-const [{ data, loading, fetchMore }] = knockClient.useFeedQuery(
+// Setup the feed
+const notificationFeed = knockClient.feeds.initialize(
   process.env.KNOCK_FEED_ID
 );
+
+// Fetch the first page of the feed
+await notificationFeed.fetch({ cursor: null });
+
+// See the contents of the notification feed
+console.log(notificationFeed.items);
 ```
 
 ## Listening to real-time updates
@@ -31,15 +37,55 @@ import Knock from "@knocklabs/web";
 
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 
-const [{ events }, teardown] = knockClient.useFeedQuery(
+// Authenticate the current user in your app lifecycle
+knockClient.authenticate(currentCustomer.knockApiToken);
+
+// Setup the feed
+const notificationFeed = knockClient.feeds.initialize(
   process.env.KNOCK_FEED_ID
 );
 
-events.on("notifications.new", (notifications) => {
+// Initialize the real-time handler
+const teardown = notificationFeed.listenForUpdates();
+
+// Listen for incoming events
+notificationFeed.on("notifications.new", (notifications) => {
   console.log(notifications);
-  rerender();
 });
 
-// Cleanup feed handler
+// Cleanup handler
 teardown();
+```
+
+## Low-level usage
+
+Optionally, you can work down to the lower-level feed APIs for when you need complete control.
+
+```js
+import Knock from "@knocklabs/web";
+
+const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+
+// Authenticate the current user in your app lifecycle
+knockClient.authenticateUser(currentCustomer.knockApiToken);
+
+// Fetch feed items
+const { data } = await knockClient.feeds.fetch(
+  process.env.KNOCK_PUBLIC_API_KEY,
+  {
+    perPage: 50,
+    after: null,
+  }
+);
+
+// Listen for updates
+const [socket, dispose] = knockClient.feeds.connectToSocket(
+  process.env.KNOCK_PUBLIC_API_KEY
+);
+
+socket.on("notifications.new", (notification) => {
+  console.log(notification);
+});
+
+dispose();
 ```

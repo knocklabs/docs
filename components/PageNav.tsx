@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import cn from "classnames";
 
 export interface Props {
   title: string;
@@ -60,7 +61,7 @@ const PageNav: React.FC<Props> = ({ title }) => {
 
   useEffect(() => {
     const documentHeaders = Array.from(
-      document.querySelectorAll(".docs-content h1, h2")
+      document.querySelectorAll(".docs-content h1, h2, h3")
     ) as HTMLHeadingElement[];
 
     setHeaders(buildHeaderTree(documentHeaders));
@@ -89,9 +90,15 @@ const HeaderList: React.FC<{ headers: IHeader[]; nesting: number }> = ({
   <>
     {headers.map((h, i) => (
       <React.Fragment key={`${h.id}-${i}`}>
-        <li key={h.id}>
+        <li key={h.id} className={cn({ "ml-3": nesting === 1 })}>
           <Link href={`#${h.id}`}>
-            <a className="text-gray-600 hover:text-gray-900">{h.title}</a>
+            <a
+              className={cn({
+                "text-gray-600 hover:text-gray-900": true,
+              })}
+            >
+              {h.title}
+            </a>
           </Link>
         </li>
 
