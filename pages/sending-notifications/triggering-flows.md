@@ -67,6 +67,7 @@ const Knock = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.notify("new-comment", {
+  actor: comment.user_id,
   lists: [`project.${project.id}.followers`, `team.${project.team_id}.members`],
   data: {
     comment_id: comment.id,
