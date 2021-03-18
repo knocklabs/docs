@@ -2,7 +2,7 @@
 title: Batching & throttling
 ---
 
-To prevent sending an excessive amount of notifications to your customers, you can use batching
+To prevent sending an excessive amount of notifications to your end users, you can use batching
 and throttling of your messages.
 
 ## Batching (queueing)

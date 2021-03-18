@@ -62,7 +62,7 @@ notification feed experience with Knock providing just the data layer for you.
 
 Configurable preferences allow users to customize their notifications experience exactly as they
 want it. Knock provides out-of-the-box components and a builder for you to create delightful
-preference experiences that put your customer in control.
+preference experiences that put the end user in control.
 
 If you'd prefer to own this experience, you can use our APIs in order to syncronize the user
 preferences and trust Knock to apply the correct preference to notification mapping.

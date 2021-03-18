@@ -2,14 +2,18 @@
 title: What is Knock?
 ---
 
-Notifications provide the means to get your users back into your product. They form a vital part
-of the product engagement loop and are the primary driver of retention within a software app.
+Notifications provide a critical part of the product engagement loop, and are a primary driver of retention
+in software products today. Best-in-class product and engineering teams like LinkedIn, Dropbox, and Pinterest
+spend tens of thousands of hours each year building and maitaining in-house notification systems that
+drive engagement in their products and provide great experiences for their end users.
 
-But your company doesn't focus on notifications, you focus on whatever it is that makes your company unique and so it doesn't make sense
-for you to hire large teams of engineers to focus solely on the problem of building an industry leading notification system.
+But most teams can't afford to spend this amount of time and effort on notifcation systems, despite them
+being such a critical piece of the stack. Often notification features get deprioritzed in favor of more
+differentiated product features and your notification system becomes a ball-of-mud, grown and extended over time
+often to become a source of technical debt within the organization.
 
-This is where Knock comes in: we provide software and tools to help you implement in-app and
-out-of-app notifications that your users will love.
+**This is where Knock comes in: we provide software and tools to help you implement notifications that
+your users will love, without the effort of building and maintaining your own in-house notications system**.
 
 ## What does Knock do?
 

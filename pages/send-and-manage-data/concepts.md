@@ -2,7 +2,7 @@
 title: Core data concepts
 ---
 
-In order for Knock to generate notifications for your customers we need to have knowledge about a
+In order for Knock to generate notifications for your end users we need to have knowledge about a
 few key pieces of data from your system. This guide will give you an overview to the different types of data we need
 in order to power Knock.
 
@@ -14,14 +14,6 @@ The user object can contain other key value pairs that can be used to perform ad
 of your notification messages as well.
 
 [Read more →](/send-and-manage-data/users)
-
-<!-- ## Events
-
-An event is the main trigger for notification flows to be sent. The event represents an action that
-occurred in your system that may need to be turned into a notification. The event payload is important
-as the properties sent are used to create the notification messages that will be sent to your users.
-
-[Read more →](/send-and-manage-data/events) -->
 
 ## Lists
 
@@ -39,3 +31,11 @@ always belong to a user and can optionally be paired with an identifier that rep
 or tenant that the user belongs to as well (for multi-tenant applications).
 
 [Read more →](/send-and-manage-data/preferences)
+
+## Managing environments
+
+Knock uses a set of logically separated environments that map to your environments. This ensures that
+you can protect sensitive production data as well as being able to easily build and test new and existing
+notification flows before enabling them for your end users.
+
+[Read more →](/send-and-manage-data/environments)

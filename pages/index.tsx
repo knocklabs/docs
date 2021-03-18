@@ -25,8 +25,8 @@ export default function Home() {
           <p className="text-sm text-gray-700 mb-3">
             Knock is a hosted notifications engine. Knock's
             notifications-as-a-service and APIs help teams deliver great
-            notification experiences to their customers, driving customer
-            satisfaction and retention.
+            notification experiences to their end users, driving satisfaction
+            and retention.
           </p>
 
           <Link href="/getting-started/what-is-knock">

@@ -5,7 +5,7 @@ title: Triggering flows
 Notifications flows that you design within Knock are triggered from within your codebase by calling the notify API and telling Knock _who_ should be a potential recipient.
 
 It's important to realize that calling notify in Knock may yield no notifications to be sent; this
-is because calling `notify` will trigger a notification workflow to be executed, but your customers
+is because calling `notify` will trigger a notification workflow to be executed, but your end users
 may have indicated that they don't wish to receive the notifications inside of the workflow. Don't
 worry though, Knock will handle all of the complexities with permissions here for you :-)
 
@@ -95,12 +95,12 @@ production).
 
 ## Preventing duplicates
 
-Triggering duplicate notification flows for your customers would be less than ideal as it could mean
-that customers potentially end up with duplicate notifications being sent to them.
+Triggering duplicate notification flows for your end users would be less than ideal as it could mean
+users receiving duplicate notifications.
 
-To guard against this, you can implement idempotency into your notify calls such that subsequent
-calls with the same `idempotencyKey` will fail if any of the previous calls has succeeded. We
-recommend using something with enough entropy, like a uuid v4.
+To guard against this you can implement idempotency into your notify calls such that subsequent
+calls with the same `idempotencyKey` will fail if any of the previous calls have succeeded. We
+recommend using an idempotency key with enough entropy, like a uuid v4.
 
 We'll keep idempotency keys in our system for at least 7 days before they are purged.
 
