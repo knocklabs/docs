@@ -41,34 +41,36 @@ export const Page = ({ children }) => {
             <section className="text-center py-2 px-3 border-b bg-beige-light">
               <span className="text-sm font-medium text-gray-700">
                 <span className="mr-2">🚧</span> Our documentation is currently
-                work-in-progress so the examples here won't work{" "}
+                work-in-progress &amp; the examples here won't work just yet{" "}
                 <span className="ml-1">🚧</span>
               </span>
             </section>
-            <section className="p-5 lg:p-8">{children}</section>
-            <footer className="border-t p-5 lg:p-8 flex flex-col lg:flex-row items-center justify-center">
-              <div className="text-center lg:text-left">
-                <img
-                  src="/icons/knock-wordmark.svg"
-                  alt="Knock"
-                  className="w-16 mx-auto lg:mx-0"
-                />
-                <span className="text-sm text-gray-500 leading-tight">
-                  The easiest way to send product notifications
-                </span>
-              </div>
-              <div className="lg:ml-auto mt-3">
-                <nav className="ml-auto">
-                  <ul className="flex text-sm text-gray-700">
-                    <li className="mr-5">
-                      <a href="https://knock.app">Visit website</a>
-                    </li>
-                    <li>
-                      <a href="mailto:support@knock.app">Contact us</a>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
+            <section className="p-5 lg:p-8 min-h-full">{children}</section>
+            <footer className="border-t p-5 lg:p-8">
+              <section className="mx-auto  w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center">
+                <div className="text-center lg:text-left">
+                  <img
+                    src="/icons/knock-wordmark.svg"
+                    alt="Knock"
+                    className="w-16 mx-auto lg:mx-0"
+                  />
+                  <span className="text-sm text-gray-500 leading-tight">
+                    The easiest way to send product notifications
+                  </span>
+                </div>
+                <div className="lg:ml-auto mt-3">
+                  <nav className="ml-auto">
+                    <ul className="flex text-sm text-gray-700">
+                      <li className="mr-5">
+                        <a href="https://knock.app">Visit website</a>
+                      </li>
+                      <li>
+                        <a href="mailto:support@knock.app">Contact us</a>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </section>
             </footer>
           </main>
         </div>

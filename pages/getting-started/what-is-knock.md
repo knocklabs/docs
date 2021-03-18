@@ -9,7 +9,7 @@ But your company doesn't focus on notifications, you focus on whatever it is tha
 for you to hire large teams of engineers to focus solely on the problem of building an industry leading notification system.
 
 This is where Knock comes in: we provide software and tools to help you implement in-app and
-out-of-app notifications that your customers will love.
+out-of-app notifications that your users will love.
 
 ## What does Knock do?
 
@@ -21,18 +21,16 @@ notifications that lead to higher engagement for your product.
 ## Product vs promotional notifications
 
 At Knock we're focussed on solving the needs of product, or transactional notifications. These are
-the notifications that occur in your product as a result of a user action taking place. Those actions
+the notifications that occur in your product as a result of a user action taking place, and those actions
 may need to notify one or more of your users.
 
 In contrast, promotional or marketing notifications are much more centered around the needs of sending
-promotions to segments of you userbase, typically to prospects vs existing users, although this is
-not a hard and fast rule.
+promotions to segments of your user base, typically to prospects, although this is not a hard and fast rule.
 
 ## What can Knock do for my users?
 
 Knock can deliver the notifications experience that your users expect to find on the apps they use today;
-timely notifications, delivered to the right channel at the right time. These notifications help your users
-get back to your app and discover what they missed, while making sure they are not inundated with messages.
+timely notifications, delivered to the right channel, without receiving duplicates. These notifications help your users get back to your app and discover what they missed, while making sure they are not inundated with messages.
 
 Put simply: **we help to increase the quality of the notifications your users receive**.
 
@@ -40,19 +38,18 @@ Put simply: **we help to increase the quality of the notifications your users re
 
 Knock gives developers a set of tools that simplify the process of making a notifications engine for your product. We provide:
 
-- **Backend API clients** in many languages, to tie your notifications into your product.
-- **Prebuilt components** to build out in-app user notification feeds, and notification preference experiences with ease.
+- **Backend API clients** in many languages, to tie your notifications system into your product.
+- **Prebuilt components** to build in-app user notification feeds and notification preference experiences with ease.
 - **Delivery partner integrations** for all major providers so you can bring your current provider(s) to Knock and not incur a switching cost.
 - **Reliable, scaleable infrastructure** built from scratch to support the needs of delivering and storing high volumes of notifications.
 - **Extensive documentation**, implementation guides, and examples.
 
 ## What can Knock do for my business?
 
-**Knock provides a dashboard that allows members of your team to introduce notification flows without
-code**. The dashboard enables product and growth teams to add and iterate on the customer facing
+**Knock provides a dashboard that allows members of your team to introduce notification flows, and the content of the notifications**. The dashboard enables product and growth teams to add and iterate on the user facing
 notification experience with ease. With it you can:
 
 - Create and update existing notifications and the logic that powers them
 - Test changes to notifications easily
 - Get insights about your notification engagement
-- Debug notifications sent to customers
+- Debug notifications sent to users

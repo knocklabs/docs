@@ -9,7 +9,7 @@ const Sidebar = () => {
   const { pathname } = useRouter();
 
   return (
-    <section className="w-60 border-r hidden lg:block">
+    <section className="w-64 border-r hidden lg:block">
       <nav className="overflow-y-auto h-full  p-5">
         {sidebarContent.map((section) => {
           return (

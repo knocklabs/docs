@@ -7,15 +7,15 @@ sending notifications.
 
 ## Introduction
 
-The Knock Notifications API enables you to introduce notifications into your application with ease, allowing you to build complex, customized notification workflows for your customers easily.
+The Knock Notifications API enables you to introduce notifications into your application with ease, allowing you to build complex, customized notification workflows for your end users.
 
-In this guide we'll take you from understanding the primitives in Knock, all the way through to sending your first notifications to your customers using the Knock.
+In this guide we'll take you from understanding the primitives in Knock, all the way through to sending your first notification.
 
 ## Integrate with your app
 
 ### 1. Add the Knock SDK to your backend
 
-We have SDKs available in NodeJS, Ruby, and Python. Don't see your language listed here? Let us know!
+We have SDKs available in NodeJS, Ruby, and Python. Don't see your language listed here? [Let us know](mailto:support@knock.app)!
 
 ```bash
 npm install @knocklabs/node
@@ -33,7 +33,7 @@ KNOCK_API_KEY='sk_example_123456789'
 
 Knock needs to know some minimal information about your users so that we can send notifications to them. At a minimum we need the users name, email address and a unique id to identify them by.
 
-We suggest letting Knock know whenever a new user is created, and when any of their properties change too (you'll need to keep Knock in-sync):
+We suggest letting Knock know whenever a new user is created, and when any of their properties change as you'll need to keep Knock in-sync.
 
 ```javascript
 const Knock = require("@knocklabs/node");
@@ -62,8 +62,7 @@ and cross-channel delivery.
 
 ### 5. Trigger your notifications
 
-Whenever you want to trigger a notification flow for a set of users, you simple call the `notify` function to trigger the flow for the recipients you define, and pass through the data required when
-the notification was designed.
+Whenever you want to trigger a notification flow for a set of users, you simple call the `notify` function to trigger the flow for the recipients you define, and pass through the data required when the notification flow was designed.
 
 ```javascript
 const Knock = require("@knocklabs/node");
@@ -86,6 +85,12 @@ await knock.notify("new-comment", {
   recipients: document.followers.map((f) => f.user_id),
 });
 ```
+
+### 6. Publish to production
+
+Knock uses a [logically separated environment](/send-and-manage-data/environments) model to control the roll-out of your notifications.
+When you're happy with the way your notifications work and look, you just need to publish them to
+production to start triggering for your real users.
 
 ## Go deeper
 

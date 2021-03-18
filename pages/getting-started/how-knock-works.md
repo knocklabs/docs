@@ -6,35 +6,35 @@ Knock is a hosted notifications-as-a-service platform to power your user facing 
 Knock is made up of two components; an API you send and can receive data from, and a dashboard that
 you can use to design and create your product notifactions flows and content.
 
-The first step is to start sending user and event data into Knock, which forms the core requirement
-of the data we need in order to start generating your notification flows. From there, you can start
-creating your notification flows and the content inside the notification from the Knock dashboard.
+The first step is to populate Knock with data about your users, from there, you can start
+creating your notification flows and the content inside the notification from the Knock dashboard,
+and then finally integrate the triggers to call the notification flows you've built.
 
 You can read more on getting up and running in our [Quick Start guide](/getting-started/quick-start).
 
-## The Knock engine
+## The Knock notifications engine
 
-Knock is an event-driven notifications engine, meaning that we use event messages that represent actions occurring in
-your product as trigger conditions for notifications to be generated. Broadly, you can think of Knock
-as an event-driven data pipeline that uses configuration that you set visually in the dashboard in order
-to execute complex notification workflows and deliver them to particular channels.
-
-Knock is a full replacement for an in-house notification system. It handles:
+Knock provides a fully-featured notifications engine to replace or eliminate the need for you to build
+an in-house solution. Knock is a [trigger driven system](/sending-notifications/triggering-flows) that allows you to control precisely when a flow should be started, as well as the recipients who should be notified from your backend codebase. It handles:
 
 - Complex notification orchestration across channels
 - Batch, aggregatation, and digesting of notifications to prevent spamming
 - Syncronizing the read stauses of your notifications across channels
-- The application of user preferences to avoid sending notifications to users who have opted out
-- Notification recipient selection and fan out
-- Delivery of your notifications to your delivery providers
+- Applying user preferences to avoid sending notifications to users who have opted out
+- Reliable delivery of your notifications to your delivery providers
+- Recipient fan-out across large groups of users
+- Capturing and storing data about engagement with the notifications you send
 
 ## Configuring Knock
 
-Setting up Knock takes 3 simple steps:
+Setting up Knock is a simple task. It shouldn't take your engineering team more than a few hours
+to integrate into your product and we're happy to help with the integration.
 
-1. Sending your user and event data into Knock
-2. Configuring notification flows and designing notifications using the Knock dashboard
-3. Building or integrating an in-app notification feed (optional)
+1. Configuring the channels you wish to send notifications on and configuring your delivery providers
+2. Connecting your end user data into Knock so we know how to send users messages
+3. Configuring notification flows and designing notifications using the Knock dashboard
+4. Triggering your notification flows from within your backend
+5. Building or integrating an in-app notification feed (optional)
 
 ## Cross-channel orchestration logic
 
@@ -43,7 +43,7 @@ logic for your notifications such as:
 
 - Falling back to different notification channels if the user has not yet seen the notification
 - Time based delays (seconds, minutes, hours, days)
-- Batching together notifications on the same content into single updates
+- Batching together notifications on the same content into single updates (coming soon)
 
 ## User notification feeds
 
@@ -78,3 +78,31 @@ successfully.
 
 Notifications generate a lot of "exhaust data" about their usage; opens, link clicks, reads and more.
 Knock captures all of this engagement data and can syncronize it to your analytics pipeline (via Segment).
+
+## Managing the roll-out of notifications
+
+Knock is designed with the needs of teams of all sizes in mind. We provide logically separated
+environments, version control, and a full audit log to aid with the process of introducing new
+notifications and making changes to existing notifications.
+
+## Comprehensive logging
+
+All of the notification actions are logged in Knock for 90 days, that includes data about who was
+sent a notification, why they were sent it, and what actions they performed on the notification
+(opens, clicks, reads etc).
+
+We'd be happy to discuss longer data archiving with you, or integration into your own data warehouse.
+
+## Security & privacy
+
+We understand how sensitive user and notification data can be, which is why we built Knock from the
+ground up with best-in-class practices in mind for securing your data. Our security practices include:
+
+- Encrypting all of your data at rest, and with TLS while in transit
+- Limiting our internal access to our production database
+<!-- - An external bug-bounty program to find any issues and disclose them -->
+- Regular penetration testing (we'd be happy to share the reports with you)
+
+We also provide access controls to limit the display of user data to your staff, including obfuscating
+user information and notification content sent. We have a full role-based access control mechanism
+to ensure that you can grant the right people on your team access to data.

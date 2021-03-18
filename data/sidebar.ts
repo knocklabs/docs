@@ -59,11 +59,20 @@ const sidebarContent : SidebarSection[] = [
     slug: "/notification-feeds",
     desc: "Everything you need to know about how to display notification feeds back to your users",
     pages: [
+      { slug: "/overview", title: "Overview" },
       { slug: "/getting-started", title: "Getting started" },
-      { slug: "/customizing-ui", title: "Customizing" },
+      { slug: "/customizing-ui", title: "Customizing the UI" },
       { slug: "/bring-your-own-ui", title: "Bring your own UI" },
     ]
   },
+  {
+    title: "Preferences",
+    slug: "/preferences",
+    desc: "An overview of integrating our preference components into your product",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+    ]
+  }
   // {
   //   title: "API Reference",
   //   slug: "/reference",
