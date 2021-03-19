@@ -2,20 +2,18 @@
 title: How Knock works
 ---
 
-Knock is a hosted notifications-as-a-service platform to power your user facing product notifications.
-Knock is made up of two components; an API you send and can receive data from, and a dashboard that
-you can use to design and create your product notifactions flows and content.
+Knock is a hosted notifications-as-a-service platform to power your product notifications.
+Knock is made up of two components; an API you send and receive data from, and a dashboard that
+you use to design your product notifactions and the logical rules through which they'll flow.
 
-The first step is to populate Knock with data about your users, from there, you can start
-creating your notification flows and the content inside the notification from the Knock dashboard,
-and then finally integrate the triggers to call the notification flows you've built.
+The first step is to populate Knock with data about your users. From there, you can create your first notification
+in the Knock dashboard, and then finally integrate the triggers to call the notification flows you've built in Knock.
 
 You can read more on getting up and running in our [Quick Start guide](/getting-started/quick-start).
 
 ## The Knock notifications engine
 
-Knock provides a fully-featured notifications engine to replace or eliminate the need for you to build
-an in-house solution. Knock is a [trigger driven system](/sending-notifications/triggering-flows) that allows you to control precisely when a flow should be started, as well as the recipients who should be notified from your backend codebase. It handles:
+The Knock notifications engine is a [trigger driven system](/sending-notifications/triggering-flows) that allows you to control precisely when a notification should be sent and who it should be sent to. It handles:
 
 - Complex notification orchestration across channels
 - Batch, aggregatation, and digesting of notifications to prevent spamming
@@ -27,14 +25,13 @@ an in-house solution. Knock is a [trigger driven system](/sending-notifications/
 
 ## Configuring Knock
 
-Setting up Knock is a simple task. It shouldn't take your engineering team more than a few hours
-to integrate into your product and we're happy to help with the integration.
+Knock is easy to set up. It shouldn't take your engineering team more than a few hours
+to integrate into your product, and we're happy to help with the integration however we can. Here's how it works: 
 
-1. Configuring the channels you wish to send notifications on and configuring your delivery providers
-2. Connecting your end user data into Knock so we know how to send users messages
-3. Configuring notification flows and designing notifications using the Knock dashboard
-4. Triggering your notification flows from within your backend
-5. Building or integrating an in-app notification feed (optional)
+1. Connect your channels. Connect any channels (e.g. email) through which you plan to send notifications and enter the config details of your existing delivery providers (e.g. Sendgrid.)
+2. Start ending user data into Knock. You'll use identify calls to send user data into Knock. We use this data to know how to reach a user on a given channel.
+3. Build your first notification in Knock. You'll design the orchestration flow as well as the per-channel notification designs themselves. When finished, we'll give you the payload format to send from your backend. 
+4. Trigger your Knock notification from your backend. You'll call our Notify endpoint with the payload provided in step 3.
 
 ## Cross-channel orchestration logic
 
@@ -43,43 +40,30 @@ logic for your notifications such as:
 
 - Falling back to different notification channels if the user has not yet seen the notification
 - Time based delays (seconds, minutes, hours, days)
-- Batching together notifications on the same content into single updates (coming soon)
+- Batching together notifications on the same content into single updates
 
-## User notification feeds
+## In-app notification feeds
 
-In-app notification feeds form a vital part of a users notification access. They are integral for
-a lot of workflow products as a way for users to quickly see what requires their attention,
-and are a table-stakes feature today in collaboration products.
+A great in-app notification feed helps your users find where their attention is needed in your product, in real-time.
 
-Knock provides prebuilt components in order to build an in-app user notification feed, including
-the real-time delivery of the notifications to the feed, syncing up the badge count across devices
-and providing scaleable storage of notifications to power millions of users on your product.
+Knock offers out-of-the-box support for in-app feed functionality. Our prebuilt components give you a fully featured in-app feed you can drop into your frontend in minutes, with support for real-time delivery, accurate badge counts, and mark as read functionality. If you need to customize your experience, you can use our SDKs and API to build your own feed component. 
 
-If you want a more customized experience, you can use our SDKs and API in order to build your own
-notification feed experience with Knock providing just the data layer for you.
+You can add Knock's in-app feed channel to any notification you configure in the Knock dashboard to immediately start routing that notification to your users' in-app feed experience. 
 
 ## Notification preferences
 
-Configurable preferences allow users to customize their notifications experience exactly as they
-want it. Knock provides out-of-the-box components and a builder for you to create delightful
-preference experiences that put the end user in control.
+Users expect a notification experience that they can tailor to their workflow. We provide an out-of-the-box component you can customize to give your users the notification preferences they want. 
 
 If you'd prefer to own this experience, you can use our APIs in order to syncronize the user
 preferences and trust Knock to apply the correct preference to notification mapping.
 
 ## Integration with delivery partners
 
-Knock does not handle the delivery of your notifications directly, instead we integrate with the
-providers you're already using in order to send your notifications. We'll handle the reliable
+Knock integrates with the email delivery platforms you already use today. We handle the
 API call to these providers for you, and ensure that your notification reaches the provider
 successfully.
 
-## Analytics and engagement data
-
-Notifications generate a lot of "exhaust data" about their usage; opens, link clicks, reads and more.
-Knock captures all of this engagement data and can syncronize it to your analytics pipeline (via Segment).
-
-## Managing the roll-out of notifications
+## Notification rollout management
 
 Knock is designed with the needs of teams of all sizes in mind. We provide logically separated
 environments, version control, and a full audit log to aid with the process of introducing new
