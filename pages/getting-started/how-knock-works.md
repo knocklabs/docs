@@ -79,11 +79,10 @@ We'd be happy to discuss longer data archiving with you, or integration into you
 
 ## Security & privacy
 
-We understand how sensitive user and notification data can be, which is why we built Knock from the
-ground up with best-in-class practices in mind for securing your data. Our security practices include:
+We understand the importance of keeping your user and notification data safe. That's why we built Knock with security in mind from day one. Our security practices include:
 
 - Encrypting all of your data at rest, and with TLS while in transit
-- Limiting our internal access to our production database
+- Limiting internal access to our production database
 <!-- - An external bug-bounty program to find any issues and disclose them -->
 - Regular penetration testing (we'd be happy to share the reports with you)
 
