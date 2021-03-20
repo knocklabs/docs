@@ -5,7 +5,7 @@ title: Lists
 A list is a collection of users who are logically grouped together. Lists are useful abstractions
 for when you need to notify multiple recipients in a single batch.
 
-## Where to use lists
+## When to use lists
 
 Lists are a useful abstraction to reduce the coupling from event calls to recipients. They also stop
 you needing to enumerate user recipients in your event calls, which is useful when dealing with unbounded
@@ -19,8 +19,8 @@ are the preferred way to manage multiple recipients for notifications.**
 List targeting conditions can be selected when creating notifications in the notification flow
 builder.
 
-You can use the properties in the event payload in order to target a particular recipient list, which
-means that you can target lists like `project.{{ properties.project_id }}.followers` where `properties.project_id`
+You can use the properties in the event payload in order to target a particular recipient list. This
+means you can target lists like `project.{{ properties.project_id }}.followers` where `properties.project_id`
 is coming from the event payload and dynamically selecting the list.
 
 Examples of complex list targeting:
@@ -65,7 +65,7 @@ await knock.lists.create({
 
 ## List members
 
-List members are objects that represent a single users membership on a list. They can also contain
+List members are objects that represent a single user's membership on a list. They can also contain
 unstructured metadata that you can use to further target recipients of notifications.
 
 ```json

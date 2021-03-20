@@ -7,7 +7,7 @@ product.
 
 ## Sending user data
 
-If you've used a CDP like Segment before, sending data to Knock should be familiar to you.
+If you've used a CDP like Segment before, sending data to Knock will be familiar to you.
 
 ```js
 const Knock = require("@knocklabs/node");
@@ -44,12 +44,12 @@ that are always merged onto a user and returned to you.
 Traits are useful for when you need to perform additional personalization on a user, like denormalizing
 the current plan they're on so you can use this to determine the portion of a notification they should receive.
 
-You can nest the properties in which you send as deeply as you like, but please remember that
+You can nest the properties you send as deeply as you like, but please remember that
 we will not deep merge these keys.
 
 ## The user object
 
-Once sent to Knock, a user object returned to you in a Knock payload will look like:
+Once sent to Knock, the user object returned to you in the Knock payload looks like this:
 
 ```json
 {
