@@ -7,7 +7,7 @@ Knock is made up of two components; an API you send and receive data from, and a
 you use to design your product notifactions and the logical rules through which they'll flow.
 
 The first step is to populate Knock with data about your users. From there, you can create your first notification
-in the Knock dashboard, and then finally integrate the triggers to call the notification flows you've built in Knock.
+in the Knock dashboard, and then integrate the triggers to call the notification flows you've built in Knock.
 
 You can read more on getting up and running in our [Quick Start guide](/getting-started/quick-start).
 
