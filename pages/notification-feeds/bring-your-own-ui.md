@@ -2,10 +2,9 @@
 title: Bring your own feed UI
 ---
 
-If you're unable to leverage the pre-built feed components, or you'd rather provide a totally
-custom experience, you can use the Knock SDK or API to build a completely bespoke feed.
+If you're unable to leverage Knock's pre-built feed components, or you'd prefer to build your own feed components, you can use the Knock SDK or API to power your own bespoke feed.
 
-Note: this guide is currently written for a JS based environment. If you'd like to use the feed
+**Note:** this guide is currently written for a JS based environment. If you'd like to use the feed
 elsewhere please contact us and we'd be happy to support you.
 
 ## Fetching feed items

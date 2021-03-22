@@ -2,12 +2,12 @@
 title: Customizing the feed UI
 ---
 
-While we give a prebuilt set of React components, you may wish to provide a custom set of styles
-to better match your products design system. In this guide we'll show you how to customize the
+While we provide a pre-built set of React components, you may wish to use your own styles
+to better match your product's design system. In this guide we'll show you how to customize
 Knock components.
 
-**Note: our feed components are currently only available for React.js. Read about bringing your own
-UI or contact us if you want to discuss how to build components for other platforms.**
+**Note:** our feed components are currently only available for React.js. Read about bringing your own
+UI or contact us if you want to discuss how to build components for other platforms.
 
 ## Rendering a different notification cell in the feed
 

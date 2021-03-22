@@ -3,33 +3,30 @@ title: What is Knock?
 ---
 
 Notifications provide a critical part of the product engagement loop, and are a primary driver of retention
-in software products today. Best-in-class product and engineering teams like LinkedIn, Dropbox, and Pinterest
+in software products today. Best-in-class product and engineering teams at LinkedIn, Dropbox, and Pinterest
 spend tens of thousands of hours each year building and maitaining in-house notification systems that
 drive engagement in their products and provide great experiences for their end users.
 
-But most teams can't afford to spend this amount of time and effort on notifcation systems, despite them
+But most teams can't afford to spend that much time and effort on notifcation systems, despite them
 being such a critical piece of the stack. Often notification features get deprioritzed in favor of more
-differentiated product features and your notification system becomes a ball-of-mud, grown and extended over time
-often to become a source of technical debt within the organization.
+differentiated product features and your notification system becomes a ball-of-mud, you slap on a notifiation here a new channel there, until over time it becomes a source of technical debt within the organization.
 
-**This is where Knock comes in: we provide software and tools to help you implement notifications that
+**That's where Knock comes in. We provide software and tools to help you implement notifications that
 your users will love, without the effort of building and maintaining your own in-house notications system**.
 
 ## What does Knock do?
 
 We provide tools that make it easy for your developers to outsource the burden of building and maintaining
 a notification system. We enable product and growth teams to take ownership of the notification flows
-and experiences that your users receive, and give them the insights they need in order to build
-notifications that lead to higher engagement for your product.
+and experiences that your users receive, and give them the insights they need to build
+notifications that your users love. 
 
 ## Product vs promotional notifications
 
-At Knock we're focussed on solving the needs of product, or transactional notifications. These are
-the notifications that occur in your product as a result of a user action taking place, and those actions
-may need to notify one or more of your users.
+At Knock we're focused on solving the needs of product notifications. (Also known as transationcal notifications.) These notifications are usually triggered by a user event in your product (or a time-based query) that one or many of your other users need to be notified about.  
 
 In contrast, promotional or marketing notifications are much more centered around the needs of sending
-promotions to segments of your user base, typically to prospects, although this is not a hard and fast rule.
+promotions or campaign-based notifications to segments of your users or prospects. 
 
 ## What can Knock do for my users?
 
@@ -40,11 +37,10 @@ Put simply: **we help to increase the quality of the notifications your users re
 
 ## What can Knock do for my developers?
 
-Knock gives developers a set of tools that simplify the process of making a notifications engine for your product. We provide:
-
+Knock gives developers a set of tools that simplify the process of introducing a notifications engine into your product. We provide:
 - **Backend API clients** in many languages, to tie your notifications system into your product.
 - **Prebuilt components** to build in-app user notification feeds and notification preference experiences with ease.
-- **Delivery partner integrations** for all major providers so you can bring your current provider(s) to Knock and not incur a switching cost.
+- **Delivery partner integrations** for all major providers so you can use your current provider(s) with Knock.
 - **Reliable, scaleable infrastructure** built from scratch to support the needs of delivering and storing high volumes of notifications.
 - **Extensive documentation**, implementation guides, and examples.
 

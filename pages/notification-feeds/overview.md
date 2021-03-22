@@ -2,13 +2,11 @@
 title: Overview
 ---
 
-Notification feeds give your users a way inside of your product to see all of their notifications
-and activity that has been occurring. The feed is per user and is a reverse chronological list
-of the notifications that they have and have not seen.
+Notification feeds give your users a way to see everything they missed since they were last in your product (or a way to see something that's happening elsewhere in your product in real-time). The feed is per user and is a reverse chronological list
+of the notifications they've received. 
 
 As well as being an out-of-app notification delivery platform, Knock also gives you the ability
-to integrate in-app notification feeds for your users to deliver a best-in-class product
-experience.
+to integrate in-app notification feeds for your users.
 
 ## Features
 

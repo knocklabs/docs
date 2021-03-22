@@ -4,14 +4,13 @@ title: Triggering flows
 
 Notifications flows that you design within Knock are triggered from within your codebase by calling the notify API and telling Knock _who_ should be a potential recipient.
 
-It's important to realize that calling notify in Knock may yield no notifications to be sent; this
+It's important to realize that calling notify in Knock may yield no notifications to be sent. This
 is because calling `notify` will trigger a notification workflow to be executed, but your end users
-may have indicated that they don't wish to receive the notifications inside of the workflow. Don't
-worry though, Knock will handle all of the complexities with permissions here for you :-)
+may have indicated through their `preferences` that they don't wish to receive notifications of that type. The good news is that Knock handles all preference-based opt-outs for you automatically. 
 
 ## Triggering notification flows
 
-Notification flows can be triggered via the `notify` API which tells Knock to initiate the notification from the recipients that you pass into the call.
+Notification flows are triggered via a call to the `notify` endpoint, which tells Knock to send a specified `Notification` to the specificed `recipients` passed into the call.
 
 ```js
 const Knock = require("@knocklabs/node");
@@ -44,8 +43,8 @@ await knock.notify("new-user-invited", {
 
 ## Defining recipients
 
-You can define the recipients of your notification workflow by either specifying lists of user ids
-or by specifying one or more list names to target. If you fail to provide either of these with your
+You can define the recipients of your notification workflow by either (i) specifying an array of of users
+or (ii) by specifying an array of one or more `lists`. If you fail to provide either of these with your
 notify call your message will be rejected and an error will be returned.
 
 ### Sending to users
@@ -90,15 +89,14 @@ payload must be a valid JSON object, with nested objects and lists supported.
 
 The data requirements for the payload are determined in the notification flow builder, including
 indicating which keys are required. In the case where you try and trigger a notification workflow
-without a required key, the notify call will fail (this is configurable as may not be desired in
-production).
+without a required key, the notify call will fail (this behavior is configurable as it may not be the desired behavior in your
+production environment).
 
 ## Preventing duplicates
 
-Triggering duplicate notification flows for your end users would be less than ideal as it could mean
-users receiving duplicate notifications.
+No one likes duplicate notifications. 
 
-To guard against this you can implement idempotency into your notify calls such that subsequent
+To guard against sending duplicates you can implement idempotency into your notify calls such that subsequent
 calls with the same `idempotencyKey` will fail if any of the previous calls have succeeded. We
 recommend using an idempotency key with enough entropy, like a uuid v4.
 

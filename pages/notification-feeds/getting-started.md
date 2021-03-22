@@ -23,16 +23,16 @@ export KNOCK_FEED_ID=channel_id_123
 
 ### 2. Setup your notification flows
 
-In the Knock dashboard you will need to ensure that at least notification is routing to the in-app
-feed in order to continue with this guide. We typically suggest that the in-app channel is the first
-channel that your notifications should be sent to, so go ahead and add that on one of your flows.
+In the Knock dashboard you will need to ensure that at least one notification is routing to your in-app
+feed channel in order to continue with this guide. We typically suggest that the in-app channel is the first
+channel that your notifications should be sent to, so go ahead and add that on one of your notifications.
 
-Once your done, save your flow and we can start testing 💪
+Once you're done, save your flow and we can start testing. 💪
 
 ### 3. Integrating the in-app feed
 
 The next step is to integrate the in-app feed into your product. In this guide we're going to be
-using our React JS based library to do that.
+using our React-based library to do that.
 
 ```shell
 yarn add @knocklabs/react
