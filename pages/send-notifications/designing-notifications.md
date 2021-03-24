@@ -1,20 +1,20 @@
 ---
-title: Designing notification flows
+title: Designing notifications
 ---
 
-The Knock notification designer allows you to design notification flows that can deliver a
-notification across multiple channels for your users, all in a visual interface with a minimal amount
+The Knock notification designer allows you to design notifications that can deliver a
+message across multiple channels for your users, all in a visual interface with a minimal amount
 of coding required.
 
 ## Cross-channel notifications
 
-You can use the Knock designer to orchestrate the delivery of notifications across multiple channels, including
+You can use the Knock designer to orchestrate the delivery of messages across multiple channels, including
 in-app and out-of-app channels.
 
 ### Picking a channel
 
-You can select any channel that you've already configured inside of Knock, which can be in-app (via a feed)
-or an out-of-app channel like email.
+You can select any channel that you've already configured inside of Knock, including in-app channels (such as feeds)
+or out-of-app channels such as email.
 
 ### Trigger conditions
 
@@ -27,19 +27,19 @@ Some examples of triggers you can employ are:
 
 ### Designing messages
 
-You can use the Knock template designer to create the notifications that will be sent per
+You can use the Knock template designer to build the messages that will be sent per
 channel. The template designer includes support for variable injection so you customize your messages with data from your product.
 
 In addition to injecting custom variables, you'll also have access to data properties about the `recipient` (the user who
-is receiving the notification) as well as the `actor` (the user who performed the action that generated
-the notification.)
+is receiving the message) as well as the `actor` (the user who performed the action that generated
+the message.)
 
-The custom variables will be passed to the template via the `notify` call when triggering the notification flow.
+The custom variables will be passed to the template via the `notify` call when triggering the notification.
 
 ## Logic functions
 
 When designing your notifications you can also use pre-defined logic functions in your notification
-flows. Logic functions allow you to execute a set of logic before a channel is called.
+workflows. Logic functions allow you to execute a set of logic before a channel is called.
 
 We currently support the following logic functions:
 
@@ -49,5 +49,5 @@ We currently support the following logic functions:
 
 ## Up next
 
-Once you've created a notification flow, the next step is to trigger that flow from your backend, usually
+Once you've created a notification, the next step is to trigger that notification from your backend with a `notify` call, usually
 once a specific action has occurred.

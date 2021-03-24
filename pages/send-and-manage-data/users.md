@@ -2,7 +2,7 @@
 title: Users
 ---
 
-A user in Knock represents a person who may need to be notified of some action occurring in your
+A User represents a person who may need to be notified of some action occurring in your
 product.
 
 ## Sending user data
@@ -20,7 +20,7 @@ await knock.identify(user.id, {
 });
 ```
 
-### The user identifier
+### The User identifier
 
 The identifier for a user is important as it's the unique key that we will use to merge users and
 determine recipients for a notification. Generally, the best practice here is to use your internal
@@ -41,7 +41,7 @@ identifier for your users as the `id`.
 Knock will keep track of any `properties` (key/value pairs) that you send to us as _traits_
 that are always merged onto a user and returned to you.
 
-Traits are useful for when you need to perform additional personalization on a user, like denormalizing
+Traits are useful for when you need to perform additional personalization on a user, like de-normalizing
 the current plan they're on so you can use this to determine the portion of a notification they should receive.
 
 You can nest the properties you send as deeply as you like, but please remember that

@@ -13,10 +13,10 @@ your applications and leveraging feeds or preferences.**
 
 The following calls will require authentication to be used (when called from the client):
 
-- Fetching a users notification feed
-- Marking a notification as read or seen
-- Fetching a users preferences
-- Updating a users preferences
+- Fetching a user's notification feed
+- Marking a message as read or seen
+- Fetching a user's preferences
+- Updating a user's preferences
 
 ## JWT based authentication
 
