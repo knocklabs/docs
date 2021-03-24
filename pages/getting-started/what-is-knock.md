@@ -2,38 +2,39 @@
 title: What is Knock?
 ---
 
-Notifications provide a critical part of the product engagement loop, and are a primary driver of retention
-in software products today. Best-in-class product and engineering teams at LinkedIn, Dropbox, and Pinterest
-spend tens of thousands of hours each year building and maitaining in-house notification systems that
-drive engagement in their products and provide great experiences for their end users.
+Notifications are a critical part of how users engage with products today. They are how we interface with products when we're away from them, and how we find what we need to respond to and get done when we return to them. For product and engineering teams, notifications are how we engage with and retain our customers. 
 
-But most teams can't afford to spend that much time and effort on notifcation systems, despite them
-being such a critical piece of the stack. Often notification features get deprioritzed in favor of more
-differentiated product features and your notification system becomes a ball-of-mud, you slap on a notifiation here a new channel there, until over time it becomes a source of technical debt within the organization.
+Product and engineering teams at LinkedIn, Dropbox, and Pinterest
+dedicate entire teams to building and maitaining the in-house notification systems that drive engagement and retention. 
 
-**That's where Knock comes in. We provide software and tools to help you implement notifications that
-your users will love, without the effort of building and maintaining your own in-house notications system**.
+But most teams can't afford to spend that much time and effort on a notifcation system, despite its importance in the end user experience. Instead, notification features get deprioritzed in favor of core product features. The notifications system becomes a ball-of-mud—you slap on a notifiation here, a new channel there—until over time it becomes a source of technical debt within the organization.
+
+That's where we come in. Knock is a hosted notifications engine that helps you implement notifications your users will love, without the effort of building and maintaining your own in-house notications system.
 
 ## What does Knock do?
 
-We provide tools that make it easy for your developers to outsource the burden of building and maintaining
-a notification system. We enable product and growth teams to take ownership of the notification flows
-and experiences that your users receive, and give them the insights they need to build
-notifications that your users love. 
+Knock takes inputs from your product, runs them through notification workflows built in Knock, and delivers notifications across in-app and out-of-app channels. 
+
+The inputs come in the form of `Notify` and `Identify` calls made to the Knock API by your engineering team. We've found that engineering teams can have these calls up and running to Knock in an hour or less. 
+
+The notificaion flows built in Knock are configured by your product and/or growth teams. Once the necessary calls are being made by your API to Knock, non-technical users can create and update notification routing and design in minutes, all without the help of your engineering team. Knock also provides visibilty into logs and analytics so your team can quickly see what's working and iterate towards a notification experience that your end users love. 
+
+Knock delivers notifications across in-app and out-of-app channels. For in-app channels we offer pre-built components you can use to drop a fully functioning notification feed into your app in minutes. For out-of-app channels we integrate with the email service providers you already use today. We only support as of our initial release but have plans to release support for additional channels soon. 
+
 
 ## Product vs promotional notifications
 
-At Knock we're focused on solving the needs of product notifications. (Also known as transationcal notifications.) These notifications are usually triggered by a user event in your product (or a time-based query) that one or many of your other users need to be notified about.  
+At Knock we're focused on product notifications (sometimes referred to as transationcal notifications.) These notifications are usually triggered by a user event in your product (or a time-based query) that one or many of your other users need to be notified about.  
 
-In contrast, promotional or marketing notifications are much more centered around the needs of sending
+In contrast, promotional or marketing notifications are centered around the needs of sending
 promotions or campaign-based notifications to segments of your users or prospects. 
 
 ## What can Knock do for my users?
 
-Knock can deliver the notifications experience that your users expect to find on the apps they use today;
-timely notifications, delivered to the right channel, without receiving duplicates. These notifications help your users get back to your app and discover what they missed, while making sure they are not inundated with messages.
+Knock delivers the notifications experience your users expect from the best products they use today;
+timely notifications, delivered to the right channel, without no duplicates. These notifications help your users get back to your app and discover what they missed, while making sure they are not inundated with messages.
 
-Put simply: **we help to increase the quality of the notifications your users receive**.
+Put simply, **we help to increase the quality of the notifications your users receive**.
 
 ## What can Knock do for my developers?
 
@@ -46,7 +47,7 @@ Knock gives developers a set of tools that simplify the process of introducing a
 
 ## What can Knock do for my business?
 
-**Knock provides a dashboard that allows members of your team to introduce notification flows, and the content of the notifications**. The dashboard enables product and growth teams to add and iterate on the user facing
+**Knock provides a dashboard that allows non-technical members of your team to introduce and update notifications on their own**. The dashboard enables product and growth teams to add and iterate on the user facing
 notification experience with ease. With it you can:
 
 - Create and update existing notifications and the logic that powers them

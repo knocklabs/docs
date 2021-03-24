@@ -38,11 +38,22 @@ module.exports = {
             },
 
             code: {
-              backgroundColor: "rgb(250, 250, 250)",
+              // backgroundColor: "rgb(250, 250, 250)",
+              backgroundColor: "rgba(135,131,120,0.15)",
+              color: "#E95744", //SS: for some reason this wasn't working through the theme helper
               fontWeight: 400,
-              padding: theme("p-1"),
-              "&::before": undefined,
-              "&::after": undefined,
+              fontSize: "0.85rem",
+              //padding: theme("p-1"),
+              padding: "0.2em 0.4em",
+              borderRadius: 3,
+            },
+
+            // Need to separate these out otherwise typography plugin will override props placed in code {} above
+            "code::before": {
+              content: '""',
+            },
+            "code::after": {
+              content: '""',
             },
 
             pre: {
