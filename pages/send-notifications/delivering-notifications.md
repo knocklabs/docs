@@ -15,7 +15,7 @@ you can leverage our JS SDK otherwise you can integrate with our API directly.
 We currently support the following email providers:
 
 - Amazon SES
-- Sendgrid
+- SendGrid
 - Mailgun
 - Postmark
 

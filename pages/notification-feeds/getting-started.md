@@ -21,11 +21,11 @@ later.
 export KNOCK_FEED_ID=channel_id_123
 ```
 
-### 2. Setup your notification flows
+### 2. Setup your notifications
 
 In the Knock dashboard you will need to ensure that at least one notification is routing to your in-app
 feed channel in order to continue with this guide. We typically suggest that the in-app channel is the first
-channel that your notifications should be sent to, so go ahead and add that on one of your notifications.
+channel that your messages should be sent to, so go ahead and add that on one of your notifications.
 
 Once you're done, save your flow and we can start testing. 💪
 

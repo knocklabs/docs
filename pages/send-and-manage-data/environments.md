@@ -19,10 +19,10 @@ This means that changes have to be staged and tested before being rolled out (si
 
 A typical workflow in Knock looks like:
 
-1. Introduce any backend changes to support the new notification (users, lists, and preference properties)
-2. Build the notification flow in a dev environment in Knock
-3. Test the flow
-4. When you're ready to go live, promote the notification flow to production
+1. Introduce any backend changes to support a new Notification (users, lists, and preference properties)
+2. Build the Notification workflow in a dev environment in Knock
+3. Test the workflow
+4. When you're ready to go live, promote the Notification to production
 
 ## Environment-based access controls
 
@@ -33,7 +33,7 @@ We have a role-based access control system that allows you to control who can ac
 Additionally, each environment allows you to control:
 
 1. Whether end user details should be available or obfuscated (defaults to obfuscated in production)
-2. Whether the contents of a notification should be displayed (default disabled in production)
+2. Whether the contents of a message should be displayed (default disabled in production)
 
 These controls are useful as you'll typically want to see this data in your development/test environment for debugging purposes, while in your production you'll want to protect your real end user data from
 most, if not all, employees.

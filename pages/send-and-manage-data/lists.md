@@ -2,13 +2,13 @@
 title: Lists
 ---
 
-A list is a collection of users who are logically grouped together. Lists are useful abstractions
+A List is a collection of users who are logically grouped together. Lists are useful abstractions
 for when you need to notify multiple recipients in a single batch.
 
 ## When to use lists
 
-Lists are a useful abstraction to reduce the coupling from event calls to recipients. They also stop
-you needing to enumerate user recipients in your event calls, which is useful when dealing with unbounded
+Lists are a useful abstraction to reduce the coupling from `notify` calls to recipients. They also stop
+you needing to enumerate user recipients in your `notify` calls, which is useful when dealing with unbounded
 numbers of potential recipients.
 
 **Although implementing lists comes with some additional book keeping from your system to Knock, lists
@@ -16,12 +16,11 @@ are the preferred way to manage multiple recipients for notifications.**
 
 ## Targeting lists
 
-List targeting conditions can be selected when creating notifications in the notification flow
-builder.
+List targeting conditions can be selected when creating the workflow associated with a given Notification.
 
-You can use the properties in the event payload in order to target a particular recipient list. This
+You can use the properties in the `notify` payload to target a particular recipient list. This
 means you can target lists like `project.{{ properties.project_id }}.followers` where `properties.project_id`
-is coming from the event payload and dynamically selecting the list.
+is coming from the `notify` payload and dynamically selecting the list.
 
 Examples of complex list targeting:
 
@@ -79,7 +78,7 @@ unstructured metadata that you can use to further target recipients of notificat
 }
 ```
 
-## Addings users to a list
+## Adding users to a list
 
 Users can be added to a list at any time. If the user is already present on the list, only the metadata
 for the user will be merged (if provided).
@@ -99,7 +98,7 @@ await knock.lists.addUsers(`project.${project.id}.followers`, [
 
 ## Removing users from a list
 
-When users are no longer required to be part of a list (e.g. they unfollowed a project) they
+When users are no longer required to be part of a list (e.g. they un-followed a project) they
 can be removed using the SDK:
 
 ```js

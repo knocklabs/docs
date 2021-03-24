@@ -1,5 +1,6 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 const colors = require("tailwindcss/colors");
+const { backgroundColor } = require("tailwindcss/defaultTheme");
 
 module.exports = {
   purge: [
@@ -38,14 +39,23 @@ module.exports = {
             },
 
             code: {
-              // backgroundColor: "rgb(250, 250, 250)",
               backgroundColor: "rgba(135,131,120,0.15)",
-              color: "#E95744", //SS: for some reason this wasn't working through the theme helper
+              color: "#E95744", // TODO SS: now working through the theme helper
               fontWeight: 400,
               fontSize: "0.85rem",
-              //padding: theme("p-1"),
-              padding: "0.2em 0.4em",
               borderRadius: 3,
+            },
+
+            // Break out display + padding for code within paragraphs.
+            "p code": {
+              display: "inline-block",
+              padding: "0em 0.4em",
+            },
+
+            // Break out display + padding for code within lists.
+            "li code": {
+              display: "inline",
+              padding: "0.2em 0.4em",
             },
 
             // Need to separate these out otherwise typography plugin will override props placed in code {} above

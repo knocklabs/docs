@@ -1,16 +1,16 @@
 ---
-title: Triggering flows
+title: Triggering notifications
 ---
 
-Notifications flows that you design within Knock are triggered from within your codebase by calling the notify API and telling Knock _who_ should be a potential recipient.
+Notifications that you design within Knock are triggered from within your codebase by calling the `notify` endpoint and telling Knock _who_ should be a potential recipient.
 
-It's important to realize that calling notify in Knock may yield no notifications to be sent. This
-is because calling `notify` will trigger a notification workflow to be executed, but your end users
-may have indicated through their `preferences` that they don't wish to receive notifications of that type. The good news is that Knock handles all preference-based opt-outs for you automatically. 
+It's important to realize that calling `notify` in Knock may result in no messages being sent to your users. This
+is because calling `notify` will trigger a notification's workflow to be executed, but your end users
+may have indicated through their `preferences` that they don't wish to be notified by notifications of that type. The good news is that Knock handles all preference-based opt-outs for you automatically. 
 
-## Triggering notification flows
+## Triggering notification
 
-Notification flows are triggered via a call to the `notify` endpoint, which tells Knock to send a specified `Notification` to the specificed `recipients` passed into the call.
+Notifications are triggered via a call to the `notify` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the notification specified by the call. 
 
 ```js
 const Knock = require("@knocklabs/node");
@@ -43,7 +43,7 @@ await knock.notify("new-user-invited", {
 
 ## Defining recipients
 
-You can define the recipients of your notification workflow by either (i) specifying an array of of users
+You can define the `recipients` of your notification by either (i) specifying an array of of users
 or (ii) by specifying an array of one or more `lists`. If you fail to provide either of these with your
 notify call your message will be rejected and an error will be returned.
 
@@ -84,12 +84,12 @@ thinking through this API design.
 
 ## Passing data
 
-You can also pass the schema data required by the notification workflow into the `notify` call. The
+You can also pass the schema data required by the notification into the `notify` call. The
 payload must be a valid JSON object, with nested objects and lists supported.
 
-The data requirements for the payload are determined in the notification flow builder, including
-indicating which keys are required. In the case where you try and trigger a notification workflow
-without a required key, the notify call will fail (this behavior is configurable as it may not be the desired behavior in your
+The data requirements for the payload are determined in the notification workflow builder, including
+indicating which keys are required. In the case where you try and trigger a notification
+without a required key, the `notify` call will fail. (This behavior is configurable as it may not be the desired behavior in your
 production environment).
 
 ## Preventing duplicates
