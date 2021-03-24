@@ -34,15 +34,15 @@ We'll be going into each of these concepts in more detail throughout this guide.
 
 ## The Knock notifications engine
 
-The Knock notifications engine is a [trigger driven system](/send-notifications/triggering-flows) that allows you to control precisely when a notification should be sent and who it should be sent to. It handles:
+The Knock notifications engine is a [trigger driven system](/send-notifications/triggering-flows) that allows you to control precisely when a message should be sent and who it should be sent to. It handles:
 
-- Complex notification orchestration across channels
-- Batch, aggregation, and digesting of notifications to prevent spamming
-- Synchronizing the read statuses of your notifications across channels
-- Applying user preferences to avoid sending notifications to users who have opted out
-- Reliable delivery of your notifications to your delivery providers
+- Complex message orchestration across channels
+- Batch, aggregation, and digesting of messages to prevent spamming
+- Synchronizing the read statuses of your messages across channels
+- Applying user preferences to avoid sending messages to users who have opted out
+- Reliable delivery of your messages to your delivery providers
 - Recipient fan-out across large groups of users
-- Capturing and storing data about engagement with the notifications you send
+- Capturing and storing data about engagement with the messages you send
 
 
 
@@ -51,7 +51,7 @@ The Knock notifications engine is a [trigger driven system](/send-notifications/
 Knock is easy to set up. It shouldn't take your engineering team more than a few hours
 to integrate into your product, and we're happy to help with the integration however we can. Here's how it works: 
 
-1. Connect your channels. Connect any channels (e.g. email) through which you plan to send notifications and enter the config details of your existing delivery providers (e.g. SendGrid.)
+1. Connect your channels. Connect any channels (e.g. email) through which you plan to send messages and enter the config details of your existing delivery providers (e.g. SendGrid.)
 2. Start sending user data into Knock. You'll use identify calls to send user data into Knock. We use this data to know how to reach a user on a given channel.
 3. Build your first notification in Knock. You'll design the orchestration flow as well as the per-channel notification designs themselves. When finished, we'll give you the payload format to send from your backend. 
 4. Trigger your Knock notification from your backend. You'll call our the notify endpoint with the payload provided in step 3.
