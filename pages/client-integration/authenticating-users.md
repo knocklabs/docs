@@ -13,12 +13,27 @@ your applications and leveraging feeds or preferences.**
 
 The following calls will require authentication to be used (when called from the client):
 
-- Fetching a user's notification feed
-- Marking a message as read or seen
-- Fetching a user's preferences
-- Updating a user's preferences
+- Fetching a users notification feed
+- Marking a message as read, seen, or archived
 
-## JWT based authentication
+## Authentication (in development environments)
+
+In a Knock development environment you can freely use your public key to authenticate all users
+and do not need to implement any other security. That means you can get up and running like:
+
+```js
+import Knock from "@knocklabs/client";
+
+const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+
+// Tell Knock to use the users id
+knockClient.authenticate(currentUser.id);
+```
+
+Please note: in production environments you **will need to authenticate your users**. This ensures
+that your users content is protected and cannot be read by malicious actors.
+
+## Authentication (in production environments)
 
 Using our JWT based authentication approach means using a shared secret to sign a new JWT on your
 backend. This means you can generate the authentication token out-of-band and without
@@ -83,48 +98,12 @@ app.use((req, res, next) => {
 In your client application you can now use the JWT to authenticate with Knock:
 
 ```js
-import Knock from "@knocklabs/web";
+import Knock from "@knocklabs/client";
 
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 
-// Tell Knock to use this token for the user
-knockClient.authenticate(currentUser.knockToken);
-```
-
-## Token based authentication
-
-Our token based authentication method requires that you make a call to the Knock API to generate
-an authentication token to be used, requiring a network call in order for the call to be issued.
-
-### 1. Issue a token signing request
-
-In your backend, create a new endpoint that can generate the user token:
-
-```js
-import Knock from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-app.post("/generate-knock-token", (req, res) => {
-  const { token } = await knock.tokens.generateUserToken(req.currentUser.id);
-  res.json({ token });
-});
-```
-
-### 2. Use the token to authenticate the user
-
-On your client you can now call the new endpoint you created and authenticate with Knock
-using the token.
-
-```js
-import Knock from "@knocklabs/web";
-
-const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
-
-// Generate the token by calling your API
-const { token } = await Api.generateKnockToken();
-
-// Tell Knock to use this token for the user
-knockClient.authenticate(token);
+// Tell Knock to use the users id and the token for the user
+knockClient.authenticate(currentUser.id, currentUser.knockToken);
 ```
 
 ## Avoiding authentication

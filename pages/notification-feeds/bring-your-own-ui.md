@@ -10,7 +10,7 @@ elsewhere please contact us and we'd be happy to support you.
 ## Fetching feed items
 
 ```js
-import Knock from "@knocklabs/web";
+import Knock from "@knocklabs/client";
 
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 
@@ -32,7 +32,7 @@ console.log(notificationFeed.items);
 ## Listening to real-time updates
 
 ```js
-import Knock from "@knocklabs/web";
+import Knock from "@knocklabs/client";
 
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 
@@ -61,7 +61,7 @@ teardown();
 Optionally, you can work down to the lower-level feed APIs for when you need complete control.
 
 ```js
-import Knock from "@knocklabs/web";
+import Knock from "@knocklabs/client";
 
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 

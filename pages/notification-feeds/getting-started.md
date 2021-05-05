@@ -35,7 +35,7 @@ The next step is to integrate the in-app feed into your product. In this guide w
 using our React-based library to do that.
 
 ```shell
-yarn add @knocklabs/react
+yarn add @knocklabs/react-notification-feed
 ```
 
 ### 4. Adding the components
@@ -47,7 +47,7 @@ import {
   FeedProvider,
   NotificationBadge,
   NotificationFeed,
-} from "@knocklabs/react";
+} from "@knocklabs/react-notification-feed";
 
 const YourAppLayout = () => (
   <Header>

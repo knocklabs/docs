@@ -13,7 +13,7 @@ If you've used a CDP like Segment before, sending data to Knock will be familiar
 const Knock = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-await knock.identify(user.id, {
+await knock.users.identify(user.id, {
   name: user.name,
   email: user.email,
   avatar: user.avatar_url,
@@ -72,7 +72,7 @@ Once sent to Knock, the user object returned to you in the Knock payload looks l
 | preferences | The preference object associated with this user |
 | updated_at  | The last time in which we updated the user      |
 
-## Batch sending user data
+<!-- ## Batch sending user data
 
 You can batch send user objects, which is useful for when you're onboarding onto Knock.
 
@@ -95,4 +95,4 @@ Promise.all(
     }))
   });
 );
-```
+``` -->

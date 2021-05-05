@@ -35,20 +35,6 @@ Some example batch keys:
 - In a file sharing app, we might want to collapse all new file upload notifications into a single
   folder, and so we'd use the folder identifier as the batch key.
 
-```js
-const Knock = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-await knock.notify("new-comment", {
-  actor: comment.user_id,
-  recipients: [`project.${project}.followers`],
-  batchKey: comment.document_id,
-  data: {
-    comment_text: comment.text,
-  },
-});
-```
-
 ## Throttling
 
 Sometimes you may wish to throttle the total amount of messages that are sent to a user
@@ -64,3 +50,5 @@ after the throttling window has elapsed. In addition to the throttling window, y
 a throttle key on your notification so that we know how to throttle a particular message.
 
 Typically the subject of the notification makes for a good throttle key.
+
+**Please note: our throttling implementation is coming soon**

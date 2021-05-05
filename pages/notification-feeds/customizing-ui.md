@@ -18,7 +18,7 @@ import {
   FeedProvider,
   NotificationBadge,
   NotificationFeed,
-} from "@knocklabs/react";
+} from "@knocklabs/react-notification-feed";
 
 const MyNotificationCell = ({ notification, onClick }) => <Outer>...</Outer>;
 
@@ -38,7 +38,7 @@ import {
   FeedProvider,
   NotificationBadge,
   NotificationFeed,
-} from "@knocklabs/react";
+} from "@knocklabs/react-notification-feed";
 
 const styles = {
   base: {

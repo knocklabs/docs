@@ -21,6 +21,7 @@ or out-of-app channels such as email.
 You can use trigger conditions to control whether a given channel will be executed for the recipient.
 
 Some examples of triggers you can employ are:
+
 - Only send a push notification if the user has a registered push token
 - Only send an email if the in-app notification has not been opened or read
 - Only send an email if the event payload indicates it should be sent via email
@@ -44,7 +45,6 @@ workflows. Logic functions allow you to execute a set of logic before a channel 
 We currently support the following logic functions:
 
 - Batch (aggregate)
-- Throttle
 - Delay
 
 ## Up next

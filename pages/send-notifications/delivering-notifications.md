@@ -14,9 +14,7 @@ you can leverage our JS SDK otherwise you can integrate with our API directly.
 
 We currently support the following email providers:
 
-- Amazon SES
 - SendGrid
-- Mailgun
 - Postmark
 
 If your provider is not listed above, please [get in touch](mailto:support@knock.app).
