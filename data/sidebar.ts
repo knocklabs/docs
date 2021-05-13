@@ -70,11 +70,11 @@ const sidebarContent: SidebarSection[] = [
     pages: [{ slug: "/overview", title: "Overview" }],
   },
   {
-    title: "API Reference",
+    title: "API reference",
     slug: "/reference",
     pages: [
       { slug: "#", title: "Overview" },
-      { slug: "#api-keys", title: "API Keys" },
+      { slug: "#api-keys", title: "API keys" },
       { slug: "#authentication", title: "Authentication" },
       { slug: "#errors", title: "Errors" },
       { slug: "#users", title: "Users" },
