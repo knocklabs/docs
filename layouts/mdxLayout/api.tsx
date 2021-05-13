@@ -1,8 +1,8 @@
 import React from "react";
 import { MDXProvider } from "@mdx-js/react";
-import { DocsLayout } from "../DocsLayout";
 import { FrontMatter } from "../../types";
 import { CodeBlock } from "../../components/CodeBlock";
+import { ApiReferenceLayout } from "../ApiReferenceLayout";
 
 const components = {
   pre: CodeBlock,
@@ -10,7 +10,7 @@ const components = {
 
 const ApiLayout: React.FC<{ frontMatter: FrontMatter }> = (props) => (
   <MDXProvider components={components}>
-    <DocsLayout {...props}>{props.children}</DocsLayout>
+    <ApiReferenceLayout {...props}>{props.children}</ApiReferenceLayout>
   </MDXProvider>
 );
 

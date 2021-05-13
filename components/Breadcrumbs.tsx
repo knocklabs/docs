@@ -1,7 +1,5 @@
-import React, { useMemo } from "react";
-import { useRouter } from "next/router";
+import React from "react";
 import Link from "next/link";
-import sidebarContent from "../data/sidebar";
 
 const BreadcrumbItem = ({ title, path }) => (
   <li className="breadcrumb-item">
