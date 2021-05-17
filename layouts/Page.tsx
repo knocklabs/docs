@@ -38,13 +38,6 @@ export const Page = ({ children }) => {
         <div className="flex overflow-y-hidden h-full">
           <Sidebar />
           <main className="w-full h-full overflow-y-auto">
-            <section className="text-center py-2 px-3 border-b bg-beige-light">
-              <span className="text-sm font-medium text-gray-700">
-                <span className="mr-2">🚧</span> Our documentation is currently
-                work-in-progress &amp; the examples here won't work just yet{" "}
-                <span className="ml-1">🚧</span>
-              </span>
-            </section>
             <section className="p-5 lg:p-8 min-h-full">{children}</section>
             <footer className="border-t p-5 lg:p-8">
               <section className="mx-auto  w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center">
