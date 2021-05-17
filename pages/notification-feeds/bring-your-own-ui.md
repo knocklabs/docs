@@ -22,11 +22,17 @@ const notificationFeed = knockClient.feeds.initialize(
   process.env.KNOCK_FEED_ID
 );
 
-// Fetch the first page of the feed
-await notificationFeed.fetch({ cursor: null });
-
-// See the contents of the notification feed
-console.log(notificationFeed.items);
+const data = await feedClient.fetch({
+  // Fetch a particular status only (defaults to all)
+  status: "all" | "unread" | "unseen",
+  // Pagination options
+  after: lastItem.__cursor,
+  before: firstItem.__cursor,
+  // Defaults to 50
+  page_size: 10,
+  // Filter by a specific source
+  source: "notification-key",
+});
 ```
 
 ## Listening to real-time updates
@@ -54,37 +60,4 @@ notificationFeed.on("notifications.new", (notifications) => {
 
 // Cleanup handler
 teardown();
-```
-
-## Low-level usage
-
-Optionally, you can work down to the lower-level feed APIs for when you need complete control.
-
-```js
-import Knock from "@knocklabs/client";
-
-const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
-
-// Authenticate the current user in your app lifecycle
-knockClient.authenticateUser(currentCustomer.knockApiToken);
-
-// Fetch feed items
-const { data } = await knockClient.feeds.fetch(
-  process.env.KNOCK_PUBLIC_API_KEY,
-  {
-    perPage: 50,
-    after: null,
-  }
-);
-
-// Listen for updates
-const [socket, dispose] = knockClient.feeds.connectToSocket(
-  process.env.KNOCK_PUBLIC_API_KEY
-);
-
-socket.on("notifications.new", (notification) => {
-  console.log(notification);
-});
-
-dispose();
 ```
