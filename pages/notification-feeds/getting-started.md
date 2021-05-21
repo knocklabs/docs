@@ -12,7 +12,7 @@ the Knock API. Please read [that guide](/client-integration/authentication) firs
 ### 1. Add the in-app feed as a channel
 
 Within the Knock dashboard you will need to enable the in-app notification feed as a channel. Once
-created, make note of the `channelId` for the channel as you'll need to set this.
+created, make note of the `id` for the channel as you'll need to set this (as the `feedId`).
 
 In your client application it's best to set the feed id as an environment variable to be used
 later.
@@ -44,22 +44,37 @@ Add the components to your application, ideally wherever you render your header 
 
 ```jsx
 import {
-  FeedProvider,
-  NotificationBadge,
-  NotificationFeed,
+  KnockFeedProvider,
+  NotificationIconButton,
+  NotificationFeedPopover,
 } from "@knocklabs/react-notification-feed";
 
-const YourAppLayout = () => (
-  <Header>
-    <FeedProvider feedId={process.env.KNOCK_FEED_ID}>
-      <NotificationBadge>
-        {({ onClose }) => (
-          <NotificationFeed onNotificationClick={() => onClose()} />
-        )}
-      </NotificationBadge>
-    </FeedProvider>
-  </Header>
-);
+const YourAppLayout = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const notifButtonRef = useRef(null);
+
+  return (
+    <Header>
+      <KnockFeedProvider
+        apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+        feedId={process.env.KNOCK_FEED_ID}
+        userId={currentUser.id}
+        // Optional in non production environments
+        userToken={currentUser.knockUserToken}
+      >
+        <NotificationIconButton
+          ref={buttonRef}
+          onClick={(e) => setIsVisible(!isVisible)}
+        />
+        <NotificationFeedPopover
+          buttonRef={buttonRef}
+          isVisible={isVisible}
+          onClose={() => setIsVisible(false)}
+        />
+      </KnockFeedProvider>
+    </Header>
+  );
+};
 ```
 
 ## Next steps

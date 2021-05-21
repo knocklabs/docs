@@ -9,68 +9,60 @@ Knock components.
 **Note:** our feed components are currently only available for React.js. Read about bringing your own
 UI or contact us if you want to discuss how to build components for other platforms.
 
+## Adding an onclick handler
+
+You can customize the click handler for the notification cell as follows:
+
+```jsx
+import { NotificationFeed } from "@knocklabs/react-notification-feed";
+
+<NotificationFeed onNotificationClick={(item) => onClose()} />;
+```
+
+Both the `NotificationFeed` and the `NotificationFeedPopover` take a `onNotificationClick` prop.
+
 ## Rendering a different notification cell in the feed
 
 You can customize the rendering of a notification cell in the feed by overriding the `renderItem` prop.
 
 ```jsx
-import {
-  FeedProvider,
-  NotificationBadge,
-  NotificationFeed,
-} from "@knocklabs/react-notification-feed";
+import { NotificationFeed } from "@knocklabs/react-notification-feed";
 
-const MyNotificationCell = ({ notification, onClick }) => <Outer>...</Outer>;
+const MyNotificationCell = ({ item, onItemClick }) => <Outer>...</Outer>;
 
-<NotificationFeed
-  renderItem={(props) => <MyNotificationCell {...props} />}
-  onNotificationClick={() => onClose()}
-/>;
+<NotificationFeed renderItem={(props) => <MyNotificationCell {...props} />} />;
 ```
 
-## Customizing the `NotificationFeed` styles
+## Customizing the theme
 
-You can optionally pass a styles override to the feed components in order to adjust the styles of the
-feed itself, and for the notification cell.
+You can optionally pass a different theme to the `KnockFeedProvider` to customize the styles
+associated with the notification feed:
 
 ```jsx
 import {
-  FeedProvider,
-  NotificationBadge,
-  NotificationFeed,
+  KnockFeedProvider,
+  NotificationFeedTheme,
+  theme,
 } from "@knocklabs/react-notification-feed";
 
-const styles = {
-  base: {
-    // base styles
-    fontFamily: "Comic Sans",
-  },
-  container: {
-    // style the outer container
-  },
-  cell: {
-    // style the individual notification cell
-  },
-  cellAvatar: {
-    // style the avatar
-  },
-  cellContent: {
-    // style the cell container
+const myCustomTheme = {
+  ...theme,
+  colors: {
+    ...theme.colors,
+    brand: {
+      ...theme.colors.brand,
+      500: "hotpink",
+    },
   },
 };
 
 const YourAppLayout = () => (
   <Header>
-    <FeedProvider feedId={process.env.KNOCK_FEED_ID}>
-      <NotificationBadge>
-        {({ onClose }) => (
-          <NotificationFeed
-            styles={styles}
-            onNotificationClick={() => onClose()}
-          />
-        )}
-      </NotificationBadge>
-    </FeedProvider>
+    <KnockFeedProvider theme={myCustomTheme}>
+      {
+        // Ommitted for brevity
+      }
+    </KnockFeedProvider>
   </Header>
 );
 ```
