@@ -26,7 +26,7 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 const userInvite = await invites.approve(inviteToken);
 
 // Tell knock to cancel the running notification workflow for all recipients
-await knock.notifications.cancel("new-user-invited", userInvite.id);
+await knock.cancelNotify("new-user-invited", userInvite.id);
 ```
 
 ### Schema
@@ -46,7 +46,7 @@ by specifying the recipients list on the cancelation:
 const Knock = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-await knock.workflows.cancel("new-user-invited", userInvite.id, {
+await knock.cancelNotify("new-user-invited", userInvite.id, {
   recipients: ["user_1", "user_2"],
 });
 ```
