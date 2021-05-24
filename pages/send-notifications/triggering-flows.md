@@ -6,11 +6,11 @@ Notifications that you design within Knock are triggered from within your codeba
 
 It's important to realize that calling `notify` in Knock may result in no messages being sent to your users. This
 is because calling `notify` will trigger a notification's workflow to be executed, but your end users
-may have indicated through their `preferences` that they don't wish to be notified by notifications of that type. The good news is that Knock handles all preference-based opt-outs for you automatically. 
+may have indicated through their `preferences` that they don't wish to be notified by notifications of that type. The good news is that Knock handles all preference-based opt-outs for you automatically.
 
 ## Triggering notification
 
-Notifications are triggered via a call to the `notify` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the notification specified by the call. 
+Notifications are triggered via a call to the `notify` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the notification specified by the call.
 
 ```js
 const Knock = require("@knocklabs/node");
@@ -32,14 +32,14 @@ await knock.notify("new-user-invited", {
 
 ### Schema
 
-| Property       | Type     | Description                                                                      |
-| -------------- | -------- | -------------------------------------------------------------------------------- |
-| actor          | string   | The user id of the user who performed the action (when relevant)                 |
-| name\*         | string   | The human readable name of the notification flow                                 |
-| data\*         | map      | A map of properties that are required in the templates in this notification flow |
-| recipients     | string[] | A list of user ids for users that are associated with this notification flow     |
-| lists          | string[] | A list of names for the lists that should receive this notification flow         |
-| idempotencyKey | string   | A key to be used to ensure that this request is idempotent                       |
+| Property        | Type     | Description                                                                      |
+| --------------- | -------- | -------------------------------------------------------------------------------- |
+| key\*           | string   | The human readable key of the notification flow from the Knock dashboard         |
+| actor\*         | string   | The user id of the user who performed the action                                 |
+| data\*          | map      | A map of properties that are required in the templates in this notification flow |
+| recipients      | string[] | A list of user ids for users that are associated with this notification flow     |
+| lists           | string[] | A list of names for the lists that should receive this notification flow         |
+| cancelation_key | string   | A unique identifier to reference the notification when canceling                 |
 
 ## Defining recipients
 
@@ -54,6 +54,7 @@ const Knock = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.notify("welcome-to-knock", {
+  actor: user.id,
   recipients: [user.id],
   data: {},
 });
@@ -67,6 +68,7 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.notify("new-comment", {
   actor: comment.user_id,
+  // Here we use multiple lists where the union is done by Knock
   lists: [`project.${project.id}.followers`, `team.${project.team_id}.members`],
   data: {
     comment_id: comment.id,
@@ -79,22 +81,20 @@ await knock.notify("new-comment", {
 
 ### Advanced list targeting
 
-If you have more advanced list targeting needs please contact support@knock.app as we're currently
-thinking through this API design.
+If you have more advanced list targeting needs please contact [support@knock.app](mailto:support@knock.app)
+as we're currently thinking through this API design.
 
 ## Passing data
 
 You can also pass the schema data required by the notification into the `notify` call. The
-payload must be a valid JSON object, with nested objects and lists supported.
+payload must be a valid JSON object, with nested objects and arrays supported.
 
 The data requirements for the payload are determined in the notification workflow builder, including
-indicating which keys are required. In the case where you try and trigger a notification
-without a required key, the `notify` call will fail. (This behavior is configurable as it may not be the desired behavior in your
-production environment).
+indicating which keys are required.
 
-## Preventing duplicates
+<!-- ## Preventing duplicates
 
-No one likes duplicate notifications. 
+No one likes duplicate notifications.
 
 To guard against sending duplicates you can implement idempotency into your notify calls such that subsequent
 calls with the same `idempotencyKey` will fail if any of the previous calls have succeeded. We
@@ -119,4 +119,24 @@ await knock.notify("new-user-invited", {
   },
   idempotencyKey,
 });
-```
+``` -->
+
+## Generating a cancelation key
+
+Each `notify` call can optionally include a `cancelation_key` that allows you to uniquely identify
+it when canceling. Providing your own cancelation key means that you don't need to keep track of
+the Knock internal identifiers generated when calling `notify`.
+
+You can read more about canceling notifications [in our guide](/send-notifications/canceling-flows).
+
+**Keep the following in mind when generating a cancelation key:**
+
+1. Provide a value that allows you to uniquely identify the notify run for the batch of recipients.
+   A good example in an invite notification is the `id` of a user invite so that we can easily stop reminders
+   for that invite once a user has accepted it.
+
+2. The cancelation key represents the workflow _run_, not the notifications generated per recipient, so
+   you usually don't need to include a recipient identifier within the `cancelation_key`.
+
+3. The cancelation key is _scoped per notification_ so you don't need to include the notification key
+   in the cancelation key.

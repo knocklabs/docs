@@ -42,6 +42,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/designing-notifications", title: "Designing flows" },
       { slug: "/triggering-flows", title: "Triggering flows" },
+      { slug: "/canceling-flows", title: "Canceling flows" },
       { slug: "/applying-preferences", title: "Applying preferences" },
       { slug: "/batching-and-throttling", title: "Batching and throttling" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
