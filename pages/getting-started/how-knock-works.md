@@ -2,7 +2,7 @@
 title: How Knock works
 ---
 
-Knock is a hosted notifications-as-a-service platform to power your product notifications.
+Knock is a managed notifications-as-a-service platform to power your product notifications.
 
 
 Knock consists of two parts: an API you send and receive data from, and a dashboard that
