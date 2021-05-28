@@ -35,7 +35,11 @@ const MyNotificationCell = ({ item, onItemClick }) => <Outer>...</Outer>;
 
 ## Customizing the theme
 
-You can optionally pass a different theme to the `KnockFeedProvider` to customize the styles
+There is currently no support for changing the theme within the component, but this feature will
+be coming soon. In the meantime, should you wish to customize the feed UI we suggest using the
+JS client SDK to build your own set of components.
+
+<!-- You can optionally pass a different theme to the `KnockFeedProvider` to customize the styles
 associated with the notification feed:
 
 ```jsx
@@ -65,6 +69,6 @@ const YourAppLayout = () => (
     </KnockFeedProvider>
   </Header>
 );
-```
+``` -->
 
 ## Customizing the `NotificationBadge`
