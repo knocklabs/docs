@@ -28,13 +28,11 @@ identifier for your users as the `id`.
 
 ### Required attributes
 
-| Property   | Description                                                    |
-| ---------- | -------------------------------------------------------------- |
-| id         | An identifier for this user from your system, should be unique |
-| email      | The primary email address for this user                        |
-| name       | The full name of this user                                     |
-| first_name | Required if `name` is not given                                |
-| last_name  | Required if `name` is not given                                |
+| Property | Description                                                    |
+| -------- | -------------------------------------------------------------- |
+| id       | An identifier for this user from your system, should be unique |
+| email    | The primary email address for this user                        |
+| name     | The full name of this user                                     |
 
 ### Storing user traits
 
