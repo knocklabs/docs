@@ -6,7 +6,7 @@ Here's an overview of the core features of Knock and how you can leverage them i
 
 ## Cross-channel orchestration logic
 
-At the heart of Knock is our orchestration engine. With it you can configure NotificationWorkflows that manage complex orchestration
+At the heart of Knock is our workflow engine. With it you can configure workflows that manage complex orchestration
 logic for your notifications such as:
 
 - Sequence cross-channel delivery based on the read status of sibling notifications (e.g. only send to the email channel if all other channels are still marked as unread)
@@ -19,7 +19,7 @@ A great in-app notification feed helps your users find where their attention is 
 
 Knock offers out-of-the-box support for in-app feed functionality. Our pre-built components give you a fully featured in-app feed you can drop into your frontend in minutes, with support for real-time delivery, accurate badge counts, and mark-as-read functionality. If you need to customize your experience, you can use our SDKs and API to build your own feed component. 
 
-You can add Knock's in-app feed channel to any NotificationWorkflow to immediately start routing notifications to your users' in-app feed experience. 
+You can add Knock's in-app feed channel to any workflow to immediately start routing notifications to your users' in-app feed experience. 
 
 ## Notification preferences
 

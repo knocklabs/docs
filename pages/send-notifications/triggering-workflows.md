@@ -1,16 +1,16 @@
 ---
-title: Triggering notifications
+title: Triggering workflows
 ---
 
-Notifications that you design within Knock are triggered from within your codebase by calling the `notify` endpoint and telling Knock _who_ should be a potential recipient.
+Workflows that you design within Knock are triggered from within your codebase by calling the `notify` endpoint and telling Knock _who_ should be a potential recipient.
 
 It's important to realize that calling `notify` in Knock may result in no messages being sent to your users. This
-is because calling `notify` will trigger a notification's workflow to be executed, but your end users
-may have indicated through their `preferences` that they don't wish to be notified by notifications of that type. The good news is that Knock handles all preference-based opt-outs for you automatically.
+is because calling `notify` will trigger a workflow, but your end users
+may have indicated through their `preferences` that they don't wish to be notified by workflows of that type. The good news is that Knock handles all preference-based opt-outs for you automatically.
 
-## Triggering notification
+## Triggering workflows
 
-Notifications are triggered via a call to the `notify` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the notification specified by the call.
+Workflows are triggered via a call to the `notify` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the workflow specified by the call.
 
 ```js
 const Knock = require("@knocklabs/node");
@@ -34,16 +34,16 @@ await knock.notify("new-user-invited", {
 
 | Property        | Type     | Description                                                                      |
 | --------------- | -------- | -------------------------------------------------------------------------------- |
-| key\*           | string   | The human readable key of the notification flow from the Knock dashboard         |
+| key\*           | string   | The human readable key of the workflow from the Knock dashboard                  |
 | actor\*         | string   | The user id of the user who performed the action                                 |
-| data\*          | map      | A map of properties that are required in the templates in this notification flow |
-| recipients      | string[] | A list of user ids for users that are associated with this notification flow     |
-| lists           | string[] | A list of names for the lists that should receive this notification flow         |
-| cancelation_key | string   | A unique identifier to reference the notification when canceling                 |
+| data\*          | map      | A map of properties that are required in the templates in this workflow          |
+| recipients      | string[] | A list of user ids for users that are associated with this workflow              |
+| lists           | string[] | A list of names for the lists that should receive this workflow                  |
+| cancelation_key | string   | A unique identifier to reference the workflow when canceling                     |
 
 ## Defining recipients
 
-You can define the `recipients` of your notification by either (i) specifying an array of of users
+You can define the `recipients` of your workflow by either (i) specifying an array of of users
 or (ii) by specifying an array of one or more `lists`. If you fail to provide either of these with your
 notify call your message will be rejected and an error will be returned.
 
@@ -86,10 +86,10 @@ as we're currently thinking through this API design.
 
 ## Passing data
 
-You can also pass the schema data required by the notification into the `notify` call. The
+You can also pass the schema data required by the workflow into the `notify` call. The
 payload must be a valid JSON object, with nested objects and arrays supported.
 
-The data requirements for the payload are determined in the notification workflow builder, including
+The data requirements for the payload are determined in the workflow builder, including
 indicating which keys are required.
 
 <!-- ## Preventing duplicates
@@ -127,7 +127,7 @@ Each `notify` call can optionally include a `cancelation_key` that allows you to
 it when canceling. Providing your own cancelation key means that you don't need to keep track of
 the Knock internal identifiers generated when calling `notify`.
 
-You can read more about canceling notifications [in our guide](/send-notifications/canceling-flows).
+You can read more about canceling workflows [in our guide](/send-notifications/canceling-workflows).
 
 **Keep the following in mind when generating a cancelation key:**
 
@@ -138,5 +138,5 @@ You can read more about canceling notifications [in our guide](/send-notificatio
 2. The cancelation key represents the workflow _run_, not the notifications generated per recipient, so
    you usually don't need to include a recipient identifier within the `cancelation_key`.
 
-3. The cancelation key is _scoped per notification_ so you don't need to include the notification key
+3. The cancelation key is _scoped per workflow_ so you don't need to include the workflow key
    in the cancelation key.

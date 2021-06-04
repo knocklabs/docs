@@ -31,7 +31,7 @@ const data = await feedClient.fetch({
   // Defaults to 50
   page_size: 10,
   // Filter by a specific source
-  source: "notification-key",
+  source: "workflow-key",
 });
 ```
 
