@@ -39,7 +39,7 @@ await knock.notify("new-user-invited", {
 | data\*          | map      | A map of properties that are required in the templates in this workflow          |
 | recipients      | string[] | A list of user ids for users that are associated with this workflow              |
 | lists           | string[] | A list of names for the lists that should receive this workflow                  |
-| cancelation_key | string   | A unique identifier to reference the workflow when canceling                     |
+| cancellation_key | string   | A unique identifier to reference the workflow when canceling                     |
 
 ## Defining recipients
 
@@ -121,22 +121,22 @@ await knock.notify("new-user-invited", {
 });
 ``` -->
 
-## Generating a cancelation key
+## Generating a cancellation key
 
-Each `notify` call can optionally include a `cancelation_key` that allows you to uniquely identify
-it when canceling. Providing your own cancelation key means that you don't need to keep track of
+Each `notify` call can optionally include a `cancellation_key` that allows you to uniquely identify
+it when canceling. Providing your own cancellation key means that you don't need to keep track of
 the Knock internal identifiers generated when calling `notify`.
 
 You can read more about canceling workflows [in our guide](/send-notifications/canceling-workflows).
 
-**Keep the following in mind when generating a cancelation key:**
+**Keep the following in mind when generating a cancellation key:**
 
 1. Provide a value that allows you to uniquely identify the notify run for the batch of recipients.
    A good example in an invite notification is the `id` of a user invite so that we can easily stop reminders
    for that invite once a user has accepted it.
 
-2. The cancelation key represents the workflow _run_, not the notifications generated per recipient, so
-   you usually don't need to include a recipient identifier within the `cancelation_key`.
+2. The cancellation key represents the workflow _run_, not the notifications generated per recipient, so
+   you usually don't need to include a recipient identifier within the `cancellation_key`.
 
-3. The cancelation key is _scoped per workflow_ so you don't need to include the workflow key
-   in the cancelation key.
+3. The cancellation key is _scoped per workflow_ so you don't need to include the workflow key
+   in the cancellation key.

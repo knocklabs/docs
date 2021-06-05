@@ -11,11 +11,11 @@ recipients.
 
 ## Canceling a triggered workflow
 
-To perform a cancelation, you first need to give Knock a pointer to understand how to uniquely
-identify the triggered workflow by providing a `cancelation_key` on the `notify` call.
+To perform a cancellation, you first need to give Knock a pointer to understand how to uniquely
+identify the triggered workflow by providing a `cancellation_key` on the `notify` call.
 
-You can read about generating workflow cancelation keys and some best practices in the
-[triggering workflows guide](/send-notifications/triggering-workflows#generating-a-cancelation-key).
+You can read about generating workflow cancellation keys and some best practices in the
+[triggering workflows guide](/send-notifications/triggering-workflows#generating-a-cancellation-key).
 
 ```js
 const Knock = require("@knocklabs/node");
@@ -33,13 +33,13 @@ await knock.cancelNotify("new-user-invited", userInvite.id);
 | Property        | Type     | Description                                                           |
 | --------------- | -------- | --------------------------------------------------------------------- |
 | key\*           | string   | The human readable key of the workflow from the Knock dashboard   |
-| cancelation_key | string   | A unique identifier for the workflow run                          |
+| cancellation_key | string   | A unique identifier for the workflow run                          |
 | recipients      | string[] | A list of specific user ids to cancel the workflow for (optional) |
 
 ## Canceling for subsets of recipients
 
 In some cases you may need to cancel a workflow for a subset of recipients only. You can do this
-by specifying the recipients list on the cancelation:
+by specifying the recipients list on the cancellation:
 
 ```js
 const Knock = require("@knocklabs/node");
@@ -50,11 +50,11 @@ await knock.cancelNotify("new-user-invited", userInvite.id, {
 });
 ```
 
-## Cancelation gotchas
+## cancellation gotchas
 
-There are a few things to watch out for when using cancelations:
+There are a few things to watch out for when using cancellations:
 
-1. A cancelation cannot be performed on a specific channel step, it can only be performed against
+1. A cancellation cannot be performed on a specific channel step, it can only be performed against
    the _entire_ workflow.
 
 2. You cannot cancel a given workflow run after it has finished ; if you need to revoke messages for
