@@ -50,7 +50,7 @@ await knock.cancelNotify("new-user-invited", userInvite.id, {
 });
 ```
 
-## cancellation gotchas
+## Cancellation gotchas
 
 There are a few things to watch out for when using cancellations:
 
