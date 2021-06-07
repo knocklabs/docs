@@ -53,10 +53,10 @@ export const CodeBlock: React.FC<Props> = ({
 
   const theme = lightCodeTheme;
   const params = useMemo(() => getParams(className) as any, [className]);
-  const lang = useMemo(() => language ?? params.language ?? "shell", [
-    language,
-    params,
-  ]);
+  const lang = useMemo(
+    () => language ?? params.language ?? "shell",
+    [language, params]
+  );
 
   const [content] = useMemo(
     () =>
@@ -72,6 +72,8 @@ export const CodeBlock: React.FC<Props> = ({
     [children]
   );
 
+  const title = children.props.metastring;
+
   const [isCopied, setCopied] = useClipboard(content, {
     successDuration: 2000,
   });
@@ -81,8 +83,10 @@ export const CodeBlock: React.FC<Props> = ({
   }
 
   return (
-    <div className="text-base lg:text-sm my-5 border rounded">
+    <div className="code-block text-sm border rounded">
       <div className="bg-gray-100 border-b p-2 flex">
+        {title && <span className="text-gray-500 font-medium">{title}</span>}
+
         <button
           onClick={setCopied}
           className="text-xs uppercase text-gray-500 tracking-wider ml-auto"

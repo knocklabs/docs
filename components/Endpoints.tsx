@@ -1,5 +1,5 @@
 const Endpoints = ({ children }) => (
-  <div className="text-base lg:text-sm my-5 border rounded">
+  <div className="endpoints text-base lg:text-sm border rounded">
     <div className="bg-gray-100 border-b p-2 flex">
       <span className="mt-0 font-medium">Endpoints</span>
     </div>

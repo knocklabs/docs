@@ -6,17 +6,31 @@ layout: api
 
 import { Attributes, Attribute } from "../../components/Attributes";
 import { Endpoints, Endpoint } from "../../components/Endpoints";
+import {
+  Section,
+  ContentColumn,
+  ExampleColumn,
+} from "../../components/ApiSections";
+
+<Section title="API Reference" slug="overview">
+<ContentColumn>
 
 The Knock API enables you to add a complete notification engine to your product. This API provides
 programmatic access to integrating Knock via a REST-ful API.
 
-The API base URL for all requests is:
+</ContentColumn>
+<ExampleColumn>
 
-```
+```bash Base URL
 https://api.knock.app/v1
 ```
 
-## Client libraries
+</ExampleColumn>
+
+</Section>
+
+<Section title="Client libraries" slug="client-libraries">
+<ContentColumn>
 
 Knock offers native SDKs in several popular programming languages:
 
@@ -24,7 +38,11 @@ Knock offers native SDKs in several popular programming languages:
 - [Python](https://github.com/knocklabs/knock-python)
 - [Elixir](https://github.com/knocklabs/knock-elixir)
 
-## API keys
+</ContentColumn>
+</Section>
+
+<Section title="API keys" slug="api-keys">
+<ContentColumn>
 
 Knock authenticates your API requests using your account's API keys. API requests made without authentication or using an incorrect key will return a 401 error. Requests using a valid key but with insufficient permissions will return a 403 error.
 
@@ -36,15 +54,23 @@ You can view and manage your API keys in the Developer Dashboard. There are two 
 
 Each Environment in your account has both a publishable and secret key pair. API requests will be scoped to the provided key's Environment.
 
-## Authentication
+</ContentColumn>
+</Section>
+
+<Section title="Authentication" slug="authentication">
+<ContentColumn>
 
 You must pass your API key to Knock as a Bearer token using the following header:
 
-```
+```bash Authentication header
 Authentication: Bearer sk_test_12345
 ```
 
-## Errors
+</ContentColumn>
+</Section>
+
+<Section title="Errors" slug="errors">
+<ContentColumn>
 
 Knock uses standard [HTTP response codes](https://developer.mozilla.org/en-US/Web/HTTP/Status) to indicate the success or failure of your API requests.
 
@@ -52,7 +78,11 @@ Knock uses standard [HTTP response codes](https://developer.mozilla.org/en-US/We
 - `4xx` - Indicates an error, normally due to error caused by incorrect or missing request information (e.g. providing an incorrect API key).
 - `5xx` - Indicates a Knock server error.
 
-## Users
+</ContentColumn>
+</Section>
+
+<Section title="Users" slug="users">
+<ContentColumn>
 
 A user represents an individual who may need to receive a notification from Knock. They are always referenced by your internal identifier.
 
@@ -72,15 +102,16 @@ A user represents an individual who may need to receive a notification from Knoc
     description="Any custom properties"
   />
 </Attributes>
+</ContentColumn>
+<ExampleColumn>
 
 <Endpoints>
   <Endpoint name="identify-user" method="PUT" path="/users/:user_id" />
   <Endpoint name="get-user" method="GET" path="/users/:user_id" />
+  <Endpoint name="delete-user" method="DELETE" path="/users/:user_id" />
 </Endpoints>
 
-### Example response
-
-```json
+```json User object
 {
   "__typename": "User",
   "id": "user_1",
@@ -93,7 +124,11 @@ A user represents an individual who may need to receive a notification from Knoc
 }
 ```
 
-## Identify a user
+</ExampleColumn>
+</Section>
+
+<Section title="Identify a user" slug="identify-user">
+<ContentColumn>
 
 Identifying a user will create or update a user in Knock, merging the properties given with what we currently have set on the user (if any).
 
@@ -125,9 +160,40 @@ Identifying a user will create or update a user in Knock, merging the properties
 
 ### Returns
 
-A user.
+A User.
 
-## Get a user
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Identify user
+import Knock from "@knocklabs/node";
+
+const knock = new Knock("sk_example_123456789");
+
+const user = await knock.users.identify("jhammond", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net",
+});
+```
+
+```json Response
+{
+  "__typename": "User",
+  "id": "user_1",
+  "name": "User name",
+  "email": "user@example.com",
+  "foo": "bar",
+  "baz": true,
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get a user" slug="get-user">
+<ContentColumn>
 
 Retrieve a user by their ID, including all properties previously set.
 
@@ -147,24 +213,80 @@ Retrieve a user by their ID, including all properties previously set.
 
 ### Returns
 
-A user.
+A User.
 
-## Notify
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Get user
+import Knock from "@knocklabs/node";
+
+const knock = new Knock("sk_example_123456789");
+
+const user = await knock.users.get("jhammond");
+```
+
+```json Response
+{
+  "__typename": "User",
+  "id": "user_1",
+  "name": "User name",
+  "email": "user@example.com",
+  "foo": "bar",
+  "baz": true,
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Workflows" slug="workflows">
+<ContentColumn>
+
+A Workflow orchestrates the delivery of messages to your end users. When you configure a workflow you'll determine which channels its messages should route to, what those messages should look like on each channel, as well as any functions—batch, throttle, digest—you want applied to the messages prior to delivery. A workflow is triggered by a `notify` call, usually when something occurs in your product that you want your users to know about (e.g. a new comment.)
+
+</ContentColumn>
+<ExampleColumn>
+<Endpoints>
+  <Endpoint
+    name="trigger-workflow"
+    method="POST"
+    path="/workflows/:key/trigger"
+  />
+  <Endpoint
+    name="cancel-workflow"
+    method="POST"
+    path="/workflows/:key/cancel"
+  />
+</Endpoints>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Triggering a workflow (notify)" slug="trigger-workflow">
+<ContentColumn>
 
 A notify calls a workflow created via the Knock dashboard.
 
 ### Endpoint
 
-<Endpoint method="POST" path="/notify" />
+<Endpoint method="POST" path="/workflows/:key/trigger" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="key"
+    type="string"
+    description="The key of the workflow to call"
+  />
+</Attributes>
 
 ### Body parameters
 
 <Attributes>
-  <Attribute
-    name="name"
-    type="string"
-    description="The key of the workflow to call"
-  />
   <Attribute
     name="recipients"
     type="string[]"
@@ -189,28 +311,60 @@ A notify calls a workflow created via the Knock dashboard.
 
 ### Returns
 
-```json
+<Attributes>
+  <Attribute
+    name="workflow_run_id"
+    type="string"
+    description="A unique UUID of this workflow run"
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Trigger workflow
+import Knock from "@knocklabs/node";
+
+const knock = new Knock("sk_example_123456789");
+
+await knock.notify("dinosaurs-loose", {
+  actor: "dnedry",
+  recipients: ["jhammond", "agrant", "imalcolm", "esattler"],
+  data: {
+    type: "trex",
+    priority: 1,
+  },
+  cancellationKey: triggerAlert.id,
+});
+```
+
+```json Response
 {
-  "result_id": "some-result-id"
+  "workflow_run_id": "some-result-id"
 }
 ```
 
-## Canceling workflows
+</ExampleColumn>
+</Section>
+
+<Section title="Canceling workflows" slug="cancel-workflow">
+<ContentColumn>
 
 Cancel a delayed workflow for one or more recipients.
 
 ### Endpoint
 
-<Endpoint method="POST" path="/notify/cancel" />
+<Endpoint method="POST" path="/workflows/:key/cancel" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="key" type="string" description="The key of the workflow" />
+</Attributes>
 
 ### Body parameters
 
 <Attributes>
-  <Attribute
-    name="name"
-    type="string"
-    description="The key of the workflow to call"
-  />
   <Attribute
     name="cancellation_key"
     type="string"
@@ -219,7 +373,7 @@ Cancel a delayed workflow for one or more recipients.
   <Attribute
     name="recipients"
     type="string[]"
-    description="An optional list of user ids to cancel the notify for"
+    description="An optional list of user ids to cancel the workflow for"
   />
 </Attributes>
 
@@ -227,7 +381,261 @@ Cancel a delayed workflow for one or more recipients.
 
 `204`, with empty content.
 
-## Feeds
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Cancel workflow
+import Knock from "@knocklabs/node";
+
+const knock = new Knock("sk_example_123456789");
+
+await knock.workflows.cancel("dinosaurs-loose", triggerAlert.id);
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Preferences" slug="preferences">
+<ContentColumn>
+
+A preference determines whether a user should receive a particular type of notification. By default
+all preferences are opted in unless a preference explictly opts the user out of the notification.
+
+Preferences are always executed as channel types and then workflows. That means that if a channel type
+is set to opt the user out then no notifications will be sent on that channel.
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+  <Attribute
+    name="workflows"
+    type="object"
+    description="A set of preferences for workflows, each can resolve to a boolean or to a set of channel types"
+  />
+  <Attribute
+    name="channel_types"
+    type="object"
+    description="A set of preferences for channel types"
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint name="get-all" method="GET" path="/users/:user_id/preferences" />
+  <Endpoint
+    name="get-preferences"
+    method="GET"
+    path="/users/:user_id/preferences/:id"
+  />
+  <Endpoint
+    name="set-preferences"
+    method="PUT"
+    path="/users/:user_id/preferences/:id"
+  />
+  <Endpoint
+    name="set-channel-type-preferences"
+    method="PUT"
+    path="/users/:user_id/preferences/:id/channel_types"
+  />
+  <Endpoint
+    name="set-channel-type-preference"
+    method="PUT"
+    path="/users/:user_id/preferences/:id/channel_types/:type"
+  />
+  <Endpoint
+    name="set-workflow-preferences"
+    method="PUT"
+    path="/users/:user_id/preferences/:id/workflows"
+  />
+  <Endpoint
+    name="set-workflow-preference"
+    method="PUT"
+    path="/users/:user_id/preferences/:id/workflows/:key"
+  />
+</Endpoints>
+
+```json Preference object
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get a preference set" slug="get-preferences">
+<ContentColumn>
+
+Retrieve a users preference object. Will always return an empty preference object,
+even if it does not currently exist for the user.
+
+### Endpont
+
+<Endpoint
+  name="get-preferences"
+  method="GET"
+  path="/users/:user_id/preferences/:id"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="Unique identifier for the user"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Get preferences
+import Knock from "@knocklabs/node";
+const knock = new Knock("sk_example_123456789");
+
+// Retrieves the `default` set
+const preferences = await knock.preferences.get("jhammond");
+```
+
+```json Response
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Set preferences" slug="set-preferences">
+<ContentColumn>
+
+Sets preferences within the given preference set. This is a destructive operation and this
+will replace any existing preferences with the preferences given.
+
+### Endpont
+
+<Endpoint
+  name="set-preferences"
+  method="PUT"
+  path="/users/:user_id/preferences/:id"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="Unique identifier for the user"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="channel_types"
+    type="object"
+    description="A set of channel type preferences to set"
+  />
+  <Attribute
+    name="workflows"
+    type="object"
+    description="A set of workflow preferences, can be a boolean or an object containing channel type preferences"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Set preferences
+import Knock from "@knocklabs/node";
+const knock = new Knock("sk_example_123456789");
+
+const preferences = await knock.preferences.set("jhammond", {
+  channel_types: {
+    in_app_feed: false,
+  },
+  workflows: {
+    "dinosaurs-loose": {
+      channel_types: {
+        email: true,
+      },
+    },
+  },
+});
+```
+
+```json Response
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="In-app notification feeds" slug="feeds">
+<ContentColumn>
 
 A feed exposes the messages delivered to an in-app feed channel, formatted specially to be consumed
 in a notification feed.
@@ -237,10 +645,6 @@ all of the information needed in order to render an item within a notification f
 
 **Note: feeds are a specialized form of messages that are designed purely for in-app rendering, and
 as such return information that is required on the client to do so**
-
-<Endpoints>
-  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
-</Endpoints>
 
 ### Attributes
 
@@ -267,9 +671,14 @@ as such return information that is required on the client to do so**
   />
 </Attributes>
 
-### Example response
+</ContentColumn>
+<ExampleColumn>
 
-```json
+<Endpoints>
+  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
+</Endpoints>
+
+```json Response
 {
   "entries": [
     {
@@ -365,7 +774,11 @@ as such return information that is required on the client to do so**
 }
 ```
 
-## Get a feed
+</ExampleColumn>
+</Section>
+
+<Section title="Get feed for user" slug="get-feed">
+<ContentColumn>
 
 Retreieves a feed of items for a given `user_id` on the given `feed_id`.
 
@@ -421,15 +834,13 @@ along with a user token to make this request**
 
 A feed response.
 
-## Messages
+</ContentColumn>
+</Section>
+
+<Section title="Messages" slug="messages">
+<ContentColumn>
 
 A message is a notification delivered on a particular channel to a user.
-
-<Endpoints>
-  <Endpoint name="notify" method="PUT" path="/messages/:id/:status" />
-  <Endpoint name="notify" method="DELETE" path="/messages/:id/:status" />
-  <Endpoint name="notify" method="POST" path="/messages/batch/:status" />
-</Endpoints>
 
 ### Attributes
 
@@ -476,9 +887,16 @@ A message is a notification delivered on a particular channel to a user.
   />
 </Attributes>
 
-### Example response
+</ContentColumn>
+<ExampleColumn>
 
-```json
+<Endpoints>
+  <Endpoint method="PUT" path="/messages/:id/:status" />
+  <Endpoint method="DELETE" path="/messages/:id/:status" />
+  <Endpoint method="POST" path="/messages/batch/:status" />
+</Endpoints>
+
+```json Message object
 {
   "__typename": "Message",
   "id": "1rjI9XBgWQ6EUA3D3Ul3VjUimOD",
@@ -494,7 +912,11 @@ A message is a notification delivered on a particular channel to a user.
 }
 ```
 
-## Updating a message status
+</ExampleColumn>
+</Section>
+
+<Section title="Updating a message status" slug="update-message-status">
+<ContentColumn>
 
 Marks the given message as the `status`, recording an event in the process.
 
@@ -517,7 +939,11 @@ Marks the given message as the `status`, recording an event in the process.
 
 A Message.
 
-## Undoing a message status change
+</ContentColumn>
+</Section>
+
+<Section title="Undoing a message status change" slug="undo-message-status">
+<ContentColumn>
 
 Unmarks the given message as the `status`, recording an event in the process.
 
@@ -540,7 +966,11 @@ Unmarks the given message as the `status`, recording an event in the process.
 
 A Message.
 
-## Batch changing message statuses
+</ContentColumn>
+</Section>
+
+<Section title="Batch changing message statuses" slug="batch-update-message-status">
+<ContentColumn>
 
 Messages changes can also be made in bulk by using the batch API, where all message ids given in
 the list will have their statuses changed.
@@ -571,379 +1001,7 @@ the list will have their statuses changed.
 
 ### Returns
 
-A list of messages that were mutated during the call.
+A list of Messages that were mutated during the call.
 
-<!-- ## Lists
-
-A list represents a collection of users. It’s used to easily send notifications to many related individuals at once.
-
-You may want to consider using lists when you have a collection of users that is unbounded in size who may need to be notified when an event occurs (like followers, or members of a project).
-
-Lists can be referenced when triggering workflows so that you don't need to send specific user ids with your events. Structured data can also be captured for each user on a list.
-
-**List names**
-
-The list name is used as an identifier for the list, because of this you will need to ensure that the list name is unique and contains alphanumeric characters and `.`, `-`, and `_` only.
-
-### Creating a list
-
-To create a list you just need to use a unique identifier for the list name. If the list with the given identifier already exists, the create endpoint will return an error.
-
-**Endpoint**
-
-`POST https://api.knock.app/v1/lists`
-
-**Payload**
-
-```json
-{
-  // Name is a required field and must be unique
-  "name": "project.project_123.followers",
-  // Optionally you can create the list with users specified as well
-  "users": [],
-  // Optionally you can provide any structured data to be stored on the list
-  "properties": {
-    "foo": "bar"
-  }
-}
-```
-
-### Adding users to a list
-
-You can append new users to a list, including any metadata that needs to be kept on the user within the list. If the user already exists on the list, the metadata will be merged.
-
-**Endpoint**
-
-`POST https://api.knock.app/v1/lists/:name/users`
-
-**Payload**
-
-```json
-{
-  "users": [
-    {
-      // id is a required field per user
-      "id": "user_1",
-      // Optionally you can provide structured data to be stored
-      "properties": {
-        "role": "admin"
-      }
-    }
-  ]
-}
-```
-
-### Removing users from a list
-
-Will attempt to remove the given users from the list.
-
-**Endpoint**
-
-`DELETE https://api.knock.app/v1/lists/:name/users`
-
-**Payload**
-
-```json
-{
-  // Accepts user ids, or a user object (with an id)
-  "users": ["user_1"]
-}
-```
-
-### Get a list
-
-Will retrieve a list, including users associated. Users returned will be a `PaginatedResult` returned in ascending order of when the user was added to the list.
-
-**Endpoint**
-
-`GET https://api.knock.app/v1/lists/:name`
-
-**Response**
-
-```json
-{
-  "__typename": "list",
-  "name": "project.project_123.followers",
-  "users": {
-    "data": [
-      {
-        "__typename": "list_member",
-        "user_id": "user_1",
-        "user": {
-          "__typename": "user",
-          "id": "user_1",
-          "properties": {
-            "name": "User name",
-            "email": "user@example.com",
-            "foo": "bar",
-            "baz": true
-          },
-          "preferences": null,
-          "updated_at": "2021-03-05T12:00:00Z"
-        },
-        "properties": {
-          "role": "admin"
-        },
-        "updated_at": "2021-03-05T12:00:00Z"
-      }
-    ],
-    "page_info": {
-      "has_next_page": false,
-      "has_previous_page": false,
-      "per_page": 25,
-      "total_pages": 1,
-      "total_items": 1
-    }
-  },
-  "properties": {
-    "foo": "bar"
-  }
-}
-```
-
-### Deleting a list
-
-Removes the list and all users associated with the list.
-
-**Endpoint**
-
-`DELETE https://api.knock.app/v1/lists/:list_name`
-
-## Events
-
-An event is used as a potential trigger for a workflow. It represents an action happening in your product that a user may have taken.
-
-**Naming events**
-
-Event names should clearly label what happened. Best practices for event naming can be found in the Segment guide, which typically follows a Noun Verb approach, like `User Created`.
-
-**Event Properties**
-
-Properties of an event are _important values_ – they are unstructured data that contain the attributes you will use to template your notifications. For that reason we suggest that you send a broad range of properties with your event data — great examples are things like object ids, names, and other attributes.
-
-### Registering an event with Knock
-
-**Endpoint**
-
-`POST https://api.knock.app/v1/events`
-
-**Payload**
-
-```json
-{
-  "name": "Comment Created",
-  // The user who performed the action
-  "user_id": "user_1",
-  "properties": {
-    "workspace_id": "workspace_1",
-    "document_id": "document_1",
-    "document_name": "The Soul of a New Machine",
-    "comment_id": "comment_1",
-    "comment_text": "I LOVE this part of the book"
-  },
-  // If the timestamp is omitted a value will be set once received
-  "timestamp": "2021-03-05T12:00:00.000Z"
-}
-```
-
-### Idempotent events
-
-It is **strongly recommended** that you specify an idempotency key when sending your events. This is useful in ensuring that duplicate events are not processed. Knock will guarantee to never process an event twice, unless explicitly instructed to do so.
-
-```json
-{
-  "name": "Comment Created",
-  // Here we're building an idempotency key from the document id
-  // and the comment id
-  "idempotency_key": "document_1:comment_1:created",
-  "user_id": "user_1",
-  "properties": {
-    // Omitted for brevity
-  },
-  "timestamp": "2021-03-05T12:00:00.000Z"
-}
-```
-
-### Specifying individual recipients
-
-Individual recipients can always be specified on the event, where necessary. We encourage this approach for when the number of recipients is small, like in the case of comment threads where the extra bookkeeping for list creation may be unnecessary.
-
-```json
-{
-  "name": "Comment Created",
-  "user_id": "user_1",
-  "properties": {
-    // Omitted for brevity
-  },
-  "recipients": ["user_2", "user_3"]
-}
-```
-
-### Sending to one or more lists
-
-To send to one or more lists of recipients, you can user the `recipient_lists` property on the event as follows:
-
-```json
-{
-  "name": "Comment Created",
-  "user_id": "user_1",
-  "properties": {
-    // Omitted for brevity
-  },
-  "recipient_lists": ["project.project_123.followers"]
-}
-```
-
-### Workflow-defined recipients
-
-Alternatively, you can omit the recipients properties all together and select recipients when you are building your workflows in the Knock dashboard. This approach has the nice side effect of decoupling your event code from your notifications code.
-
-### Batch sending events
-
-Knock is designed to ingest a high volume of events from your service. For this reason it may be preferable to bulk send events to Knock to reduce the HTTP overhead per request.
-
-Knock can receive up to **100 events** per batch request. If a higher number is specified, then the request may be rejected with a 422 response.
-
-**Endpoint**
-
-`POST https://api.knock.app/v1/batch/events`
-
-**Payload**
-
-```json
-{
-  "batch": [
-    {
-      "name": "Comment Created",
-      "user_id": "user_1",
-      "properties": {
-        // Omitted for brevity
-      }
-    },
-    {
-      "name": "Project Created",
-      "user_id": "user_2",
-      "properties": {
-        // Omitted for brevity
-      }
-    }
-  ]
-}
-```
-
-## Activities
-
-An activity represents a change that a user may need to be notified of.
-
-### Activity bundles
-
-Activities within Knock are always presented as a 'bundle' which we use internally to perform grouping and batching of activities. We present a standardized interface to all activities as a bundle to reduce complexity when consuming the API; this means that you may receive a bundle of a single activity.
-
-An activity bundle may be updated _after being created_ (e.g. when a new activity is bundled into it) \*\*where as individual activities are immutable logs of changes.
-
-### Fetch activities for a user
-
-Returns a paginated list of bundled activities, supplied in a descending order of when the activity was generated. Will also return the stats on the number of unread / read activities for the user.
-
-**Endpoint**
-
-`GET https://api.knock.app/v1/users/:user_id/activities`
-
-**Response**
-
-```json
-{
-  "activity_bundles": {
-    "data": [
-      {
-        "__typename": "activity_bundle",
-        "id": "activity_bundle_12345",
-        "activities": [
-          {
-            "__typename": "activity",
-            "id": "activity_12345"
-          }
-        ],
-        "read_at": null,
-        "seen_at": null
-      }
-    ],
-    "page_info": {
-      "has_next_page": false,
-      "has_previous_page": false,
-      "per_page": 25,
-      "total_pages": 1,
-      "total_items": 1
-    }
-  },
-  "stats": {
-    "total_unread": 1,
-    "total_read": 0,
-    "total_unseen": 1,
-    "total_seen": 0
-  }
-}
-```
-
-### Mark as read
-
-Marks the activity as read for the user, recording an engagement event in the process.
-
-**Endpoint**
-
-`PUT https://api.knock.app/v1/activities/:id/read`
-
-**Response**
-
-### Mark as seen
-
-## Secured user keys
-
-When working with client-side features to communicate directly with the Knock API you must generate user specific keys that will be used in place of your Knock secret key. This ensures that users can only ever access their content without you needing to proxy calls via your backend.
-
-### Creating a new key
-
-To generate a new secured key you only need to supply the user id as a required scoping field. You should generate this key within your backend, and expose the result to the client-side application.
-
-**Endpoint**
-
-`POST https://api.knock.app/v1/secured_keys`
-
-**Payload**
-
-```json
-{
-  // The user id is required
-  "user_id": "user_1",
-  // Optionally you can limit to particular channels that are allowed
-  // to be queried with this key
-  "channel_ids": []
-}
-```
-
-**Response**
-
-```json
-{
-  "status": "ok",
-  "expires_at": "2021-03-07T12:00:00.000Z",
-  "key": "sk_1234567890abcdefghijklmnopqrst"
-}
-```
-
-### Using a secured key
-
-You can use a secured key in the following endpoints:
-
-- Fetching all notifications for a user, channel pair
-- Marking activities for a user as read or seen
-
-## Preferences
-
-Preferences exist on a users profile and determine whether or not they should receive certain types on notifications.
-
-## Notifications
-
-## Engagement
-
-Engagement data is all of the user interactions with notifications (clicks, opens, delivers etc). -->
+</ContentColumn>
+</Section>
