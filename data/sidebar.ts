@@ -38,11 +38,11 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Send notifications",
     slug: "/send-notifications",
-    desc: "See how to use Knock to start designing and sending out your notifications, including understanding more advanced workflows such as batching.",
+    desc: "See how to use Knock to start designing and sending your notifications, including understanding more advanced workflows such as batching.",
     pages: [
-      { slug: "/designing-notifications", title: "Designing flows" },
-      { slug: "/triggering-flows", title: "Triggering flows" },
-      { slug: "/canceling-flows", title: "Canceling flows" },
+      { slug: "/designing-workflows", title: "Designing workflows" },
+      { slug: "/triggering-workflows", title: "Triggering workflows" },
+      { slug: "/canceling-workflows", title: "Canceling workflows" },
       { slug: "/applying-preferences", title: "Applying preferences" },
       { slug: "/batching-and-throttling", title: "Batching and throttling" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },

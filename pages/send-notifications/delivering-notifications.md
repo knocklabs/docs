@@ -26,7 +26,7 @@ recommend the following strategy for the time being:
 
 1. Connect a webhook to notify you whenever there are new notifications triggered for your
    users
-2. Receive the webhook and use it to trigger the notification for the user from within your API
+2. Receive the webhook and use it to trigger the workflow for the user from within your API
 
 In the case where you have non user related channel needs, like Slack or Microsoft Teams, please
 contact us and we can assist.

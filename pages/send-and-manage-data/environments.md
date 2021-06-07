@@ -17,12 +17,12 @@ any issues in production they can be rolled back with ease.
 Knock uses a model whereby all changes to the production environment must be **promoted** and cannot be made directly.
 This means that changes have to be staged and tested before being rolled out (similar to a git based workflow).
 
-A typical workflow in Knock looks like:
+A typical deployment lifecycle in Knock looks like:
 
-1. Introduce any backend changes to support a new Notification (users, lists, and preference properties)
-2. Build the Notification workflow in a dev environment in Knock
+1. Introduce any backend changes to support a new workflow (users, lists, and preference properties)
+2. Build the workflow in a dev environment in Knock
 3. Test the workflow
-4. When you're ready to go live, promote the Notification to production
+4. When you're ready to go live, promote the workflow to production
 
 ## Environment-based access controls
 

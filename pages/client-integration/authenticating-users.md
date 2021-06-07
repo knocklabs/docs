@@ -13,7 +13,7 @@ your applications and leveraging feeds or preferences.**
 
 The following calls will require authentication to be used (when called from the client):
 
-- Fetching a users notification feed
+- Fetching a user's notification feed
 - Marking a message as read, seen, or archived
 
 ## Authentication (in development environments)

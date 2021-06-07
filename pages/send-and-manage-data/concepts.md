@@ -19,13 +19,13 @@ The user object can contain other key-value pairs that can be used to further pe
 A list groups users together to represent sets of individuals who may need to be notified as a group.
 Lists typically map to your relationship hierarchies such as groups, teams, or project members. Lists
 are an essential abstraction for when your system needs to notify many users at once as the result
-of a Notification (such as a new comment Notification that sends messages to all members of the parent document.)
+of a triggered workflow (such as a new comment workflow that sends messages to all members of the parent document.)
 
 [Read more →](/send-and-manage-data/lists)
 
 ## Preferences
 
-A preference indicates a user's willingness to receive a particular type of Notification. Preferences
+A preference indicates a user's willingness to receive a particular type of notification. Preferences
 always belong to a user and can be paired with an identifier that represents the account
 or tenant that the user belongs to (for multi-tenant applications).
 
@@ -34,7 +34,6 @@ or tenant that the user belongs to (for multi-tenant applications).
 ## Managing environments
 
 Knock uses a set of logically separated environments that map to your environments. This ensures that
-you can protect sensitive production data and easily build and test new and existing
-notification flows before enabling them for your end users.
+you can protect sensitive production data and easily build and test workflows before enabling them for your end users.
 
 [Read more →](/send-and-manage-data/environments)

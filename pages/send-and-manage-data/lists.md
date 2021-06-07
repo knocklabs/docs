@@ -11,12 +11,12 @@ Lists are a useful abstraction to reduce the coupling from `notify` calls to rec
 you needing to enumerate user recipients in your `notify` calls, which is useful when dealing with unbounded
 numbers of potential recipients.
 
-**Although implementing lists comes with some additional book keeping from your system to Knock, lists
+**Although implementing lists comes with some additional bookkeeping from your system to Knock, lists
 are the preferred way to manage multiple recipients for notifications.**
 
 ## Targeting lists
 
-List targeting conditions can be selected when creating the workflow associated with a given Notification.
+List targeting conditions can be selected when triggering a workflow.
 
 You can use the properties in the `notify` payload to target a particular recipient list. This
 means you can target lists like `project.{{ properties.project_id }}.followers` where `properties.project_id`

@@ -1,19 +1,19 @@
 ---
-title: Designing notifications
+title: Designing workflows
 ---
 
-The Knock notification designer allows you to design notifications that can deliver a
-message across multiple channels for your users, all in a visual interface with a minimal amount
+The Knock workflow builder allows you to design workflows that can deliver a
+notification across multiple channels for your users, all in a visual interface with a minimal amount
 of coding required.
 
 ## Cross-channel notifications
 
-You can use the Knock designer to orchestrate the delivery of messages across multiple channels, including
+You can use the Knock workflow builder to orchestrate the delivery of messages across multiple channels, including
 in-app and out-of-app channels.
 
 ### Picking a channel
 
-You can select any channel that you've already configured inside of Knock, including in-app channels (such as feeds)
+You can select any channel that you've already configured inside of Knock, including in-app channels such as feeds
 or out-of-app channels such as email.
 
 ### Trigger conditions
@@ -35,12 +35,11 @@ In addition to injecting custom variables, you'll also have access to data prope
 is receiving the message) as well as the `actor` (the user who performed the action that generated
 the message.)
 
-The custom variables will be passed to the template via the `notify` call when triggering the notification.
+The custom variables will be passed to the template via the `notify` call when triggering the workflow.
 
 ## Logic functions
 
-When designing your notifications you can also use pre-defined logic functions in your notification
-workflows. Logic functions allow you to execute a set of logic before a channel is called.
+Logic functions can be used in workflows to execute a set of logic before a channel is called.
 
 We currently support the following logic functions:
 
@@ -49,5 +48,5 @@ We currently support the following logic functions:
 
 ## Up next
 
-Once you've created a notification, the next step is to trigger that notification from your backend with a `notify` call, usually
+Once you've created a workflow, the next step is to trigger that workflow from your backend with a `notify` call, usually
 once a specific action has occurred.
