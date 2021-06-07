@@ -25,16 +25,16 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 const userInvite = await invites.approve(inviteToken);
 
 // Tell knock to cancel the running workflow for all recipients
-await knock.cancelNotify("new-user-invited", userInvite.id);
+await knock.workflows.cancel("new-user-invited", userInvite.id);
 ```
 
 ### Schema
 
-| Property        | Type     | Description                                                           |
-| --------------- | -------- | --------------------------------------------------------------------- |
-| key\*           | string   | The human readable key of the workflow from the Knock dashboard   |
+| Property         | Type     | Description                                                       |
+| ---------------- | -------- | ----------------------------------------------------------------- |
+| key\*            | string   | The human readable key of the workflow from the Knock dashboard   |
 | cancellation_key | string   | A unique identifier for the workflow run                          |
-| recipients      | string[] | A list of specific user ids to cancel the workflow for (optional) |
+| recipients       | string[] | A list of specific user ids to cancel the workflow for (optional) |
 
 ## Canceling for subsets of recipients
 
@@ -45,7 +45,7 @@ by specifying the recipients list on the cancellation:
 const Knock = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-await knock.cancelNotify("new-user-invited", userInvite.id, {
+await knock.workflows.cancel("new-user-invited", userInvite.id, {
   recipients: ["user_1", "user_2"],
 });
 ```
