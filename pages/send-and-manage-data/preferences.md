@@ -18,17 +18,17 @@ In the next section, we'll walk through each of these in more detail and outline
 
 ## The Knock preferences API
 
-As mentioned in the previous section, there are three types of preferences you can set for your users: channel types, workflow, and workflow-channel.
+As mentioned in the previous section, there are three types of preferences you can set for your users: channel type, workflow, and workflow-channel.
 
 ### Channel type preferences
 
-A channel type preference is a notification preference set for a channel type. You can set preferences for all unique channel types configured within your account. (As an example, if I have three channels configured of type `email`, two channels configured of type `push` , and one channel configured of type `in_app_feed` , we can set channel preferences for email, push, and in-app-feed.)
+A channel type preference is a notification preference set for a channel type. You can set preferences for all unique channel types configured within your account. (As an example, if I have three channels configured of type `email`, two channels configured of type `push` , and one channel configured of type `in_app_feed` , we can set channel preferences for email, push, and in_app_feed.)
 
-When a channel type's subscribed preference is false, all notifications sent across that channel will follow the preference, irrespective of the workflow they come from. We can also articulate this as, "once a user unsubscribes from a channel, they won't receive any notifications from that channel."
+When a channel type's subscribed preference is false, all notifications sent across that channel will follow the preference, irrespective of the workflow they come from. Or in other words, "once a user unsubscribes from a channel, they won't receive any notifications from that channel."
 
 When a channel type's subscribed preference is true, all notifications sent across that channel will defer to the user's workflow-level preference. More on this later. (**Note:** if a user's preference is not set for a given channel type, Knock defaults to opting the user into that channel type.)
 
-Here's an JSON example of a given user's channel preferences.
+Here's a JSON example of a given user's channel preferences.
 
 ```json Channel type preferences
 {
@@ -41,7 +41,7 @@ Here's an JSON example of a given user's channel preferences.
 
 In this example, the user wouldn't receive any notifications sent over email. The user would receive in-app notifications as long as they aren't unsubscribed from the notification being sent.
 
-In summary, channel preferences are a helpful way to give your users a way to opt-out of ALL notification sent across a given channel type, such as email or desktop push. When a user is opted into a channel type, any relevant workflow preferences are checked before sending a notification to the end user.
+In summary, channel preferences are a helpful way to give your users a way to opt-out of ALL notifications sent across a given channel type, such as email or desktop push. When a user is opted into a channel type, any relevant workflow preferences are checked before sending a notification to the end user.
 
 ### Workflow preferences
 
@@ -60,13 +60,13 @@ Here's a JSON example of a given user's workflow preferences.
 }
 ```
 
-In this example would not receive any notifications from the new-reply workflow, but would receive notifications from the new-comment workflow.
+In this example, the user would not receive any notifications from the new-reply workflow but would receive notifications from the new-comment workflow.
 
 Workflow preferences are a great way to give your users a way to opt-out of a given notification or type of notification across ALL channels.
 
-### Workflow channel preferences
+### Workflow-channel preferences
 
-In some cases, users want to unsubscribe from an entire channel altogether. In others, they want to pick and choose which notifications they receive over a given channel. This is where workflow-channel preferences come in—they enable a user to decide on which channels they want to receive a given workflow's (or workflow category's) notifications.
+In some cases, users want to unsubscribe from an entire channel altogether. In others, they want to pick and choose which notifications they receive over a given channel. This is where workflow-channel preferences come in—they enable a user to decide on which channels they want to receive a given workflow's notifications.
 
 When a workflow-channel preference is set to subscribed, the user receives all notifications sent to that channel by the specified workflow.
 
@@ -85,13 +85,12 @@ Here's a JSON example of a given user's workflow-channel preference.
 }
 ```
 
-In this example, the user would receive all in-app notifications for the new-comment workflow, but would not receive
-any emails for this workflow.
+In this example, the user would receive in-app notifications but not email notifications for the new-comment workflow.
 
 ### Preference evaluation
 
 Based on what we've discussed above, you can follow the preference evaluation rules below to understand how a given user's preferences will evaluate for a given workflow-channel combination.
 
-1. Is there a channel type preference opt-out for the user on the current channel? If so, stop don't send the notification.
-2. Is there a workflow preference opt-out for the user? If so, don't send the notification.
-3. Is there a workflow-channel opt-out for the user on the current channel? If so, don't send the notification.
+1. Is the user opted out of the current channel? If so, don't send the notification.
+2. Is the user opted out of the notifications sent by the current workflow? If so, don't send the notification.
+3. Is the user opted out of the current workflow-channel pair? If so, don't send the notification.
