@@ -32,14 +32,15 @@ await knock.notify("new-user-invited", {
 
 ### Schema
 
-| Property        | Type     | Description                                                                      |
-| --------------- | -------- | -------------------------------------------------------------------------------- |
-| key\*           | string   | The human readable key of the workflow from the Knock dashboard                  |
-| actor\*         | string   | The user id of the user who performed the action                                 |
-| data\*          | map      | A map of properties that are required in the templates in this workflow          |
-| recipients      | string[] | A list of user ids for users that are associated with this workflow              |
-| lists           | string[] | A list of names for the lists that should receive this workflow                  |
-| cancellation_key | string   | A unique identifier to reference the workflow when canceling                     |
+| Property         | Type     | Description                                                                                                 |
+| ---------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
+| key\*            | string   | The human readable key of the workflow from the Knock dashboard                                             |
+| actor\*          | string   | The user id of the user who performed the action                                                            |
+| data\*           | map      | A map of properties that are required in the templates in this workflow                                     |
+| recipients       | string[] | A list of user ids for users that are associated with this workflow                                         |
+| lists            | string[] | A list of names for the lists that should receive this workflow                                             |
+| cancellation_key | string   | A unique identifier to reference the workflow when canceling                                                |
+| tenant           | string   | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
 
 ## Defining recipients
 
@@ -140,3 +141,10 @@ You can read more about canceling workflows [in our guide](/send-notifications/c
 
 3. The cancellation key is _scoped per workflow_ so you don't need to include the workflow key
    in the cancellation key.
+
+## Multi-tenancy in notifications
+
+You can optionally pass a `tenant` to your `notify` call that allows notifications generated during
+the workflow execution to belong to that tenant.
+
+You can read more about [supporting multi-tenancy in our guide](/send-and-manage-data/multi-tenancy).
