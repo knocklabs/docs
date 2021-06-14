@@ -15,7 +15,7 @@ within each.
 
 Multi-tenancy is important in your notification system when handling in-app feeds. Lets look at an example.
 Imagine that we have a SaaS application, Collaborato, where our users can belong to one or more different
-workspaces. When one of our users in active in a current workspace, we want to make sure they only
+workspaces. When one of our users is active in a current workspace, we want to make sure they only
 see notifications that are relevant for that workspace. That is, a user in the "Acme Fish Co." workspace
 should only see their notifications that are relevant to "Acme Fish Co.".
 
