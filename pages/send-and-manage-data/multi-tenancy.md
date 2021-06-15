@@ -2,24 +2,21 @@
 title: Supporting multi-tenancy
 ---
 
-In this guide we'll look at how to support multi-tenancy within your Knock powered notifications.
+In this guide we'll look at how to support multi-tenancy within your Knock-powered notifications.
 
 ## An overview of multi-tenancy
 
-Multi-tenancy is the concept in which your users belong to one or more "tenants", which you may call
-an "account", "organization", "workspace", or similar. This is a common pattern in a lot of SaaS applications
-today, where a user will have a single profile joined to multiple tenants to represent their membership
-within each.
+Multi-tenancy is the concept in which your users belong to one or more "tenants", which you may call "accounts", "organizations", "workspaces", or similar. This is a common pattern in many SaaS applications, where users will have a single login joined to multiple tenants to represent their membership within each.
 
 ## Multi-tenancy within notifications
 
 Multi-tenancy is important in your notification system when handling in-app feeds. Lets look at an example.
-Imagine that we have a SaaS application, Collaborato, where our users can belong to one or more different
+Imagine that we have a SaaS application, Collaborato, where our users belong to one or more different
 workspaces. When one of our users is active in a current workspace, we want to make sure they only
 see notifications that are relevant for that workspace. That is, a user in the "Acme Fish Co." workspace
-should only see their notifications that are relevant to "Acme Fish Co.".
+should only see notifications that are relevant to "Acme Fish Co.".
 
-To support this use-case within Knock, we can pass a `tenant` identifier into our notify calls:
+To support this use case within Knock, we can pass a `tenant` identifier into our notify calls:
 
 ```javascript Notify call with tenant
 import Knock from "@knocklabs/node";
@@ -59,18 +56,17 @@ const feedClient = knockClient.feeds.initialize(process.env.KNOCK_FEED_ID, {
 ```
 
 By providing the `tenant` property here, we're letting Knock know that the notifications produced
-in the `notify` call belong to a particular tenant and that when we're showing the feed to our customers
-that we **only** want to see the feed that's related to that tenant.
+in the `notify` call belong to a particular tenant and that when we're showing the feed to our customers we **only** want to see the feed that's related to that tenant.
 
 Under the hood Knock will ensure that the badge counts you receive for the feed will be relevant
-only to the active workspace, and no real-time notifications will be received for any messages
+only to the active workspace, and that no real-time notifications will be received for any messages
 that aren't relevant to the user.
 
 ## Different preferences per tenant
 
-An advanced (and somewhat uncommon) use-case within Knock is also managing different sets of preferences
-per user, tenant pair. That is that a user might have different preferences configured for "Acme Fish Co."
-than they do for "Bell's Bagels", two hypothetical workspaces within our hypothetical document collaboration app,
+Another advanced (and somewhat uncommon) tenancy use case is managing different sets of preferences
+for each user-tenant pair. That is, a user may have different preferences configured for "Acme Fish Co."
+than they do for "Bell's Bagels", two hypothetical workspaces within our example collaboration app,
 Collaborato.
 
 If this is a use-case that you're looking to support with Knock, please [get in touch with us](mailto:support@knock.app) and
