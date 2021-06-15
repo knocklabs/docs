@@ -299,8 +299,13 @@ A notify calls a workflow created via the Knock dashboard.
   />
   <Attribute
     name="cancellation_key"
-    type="string"
+    type="string (optional)"
     description="The key to use for canceling the workflow"
+  />
+  <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="The id of the tenant that this workflow run should be associated with"
   />
   <Attribute
     name="data"
@@ -334,6 +339,7 @@ await knock.notify("dinosaurs-loose", {
     type: "trex",
     priority: 1,
   },
+  tenant: "jurassic-park",
   cancellationKey: triggerAlert.id,
 });
 ```
@@ -752,6 +758,7 @@ as such return information that is required on the client to do so**
         "key": "merged-changes",
         "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de"
       },
+      "tenant": null,
       "total_activities": 1,
       "total_actors": 1,
       "updated_at": "2021-05-13T02:45:28.559863Z"
@@ -824,6 +831,11 @@ along with a user token to make this request**
     description="Limits the feed to only items of the source workflow"
   />
   <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="Limits the feed to only display items with the corresponding tenant, or where the tenant is empty"
+  />
+  <Attribute
     name="status"
     type="string (optional)"
     description="One of `unread`, `unseen`, `all`"
@@ -856,7 +868,7 @@ A message is a notification delivered on a particular channel to a user.
     description="The ID of the channel for where this message was delivered"
   />
   <Attribute
-    name="recipient_id"
+    name="recipient"
     type="string"
     description="The ID of the user who received the message"
   />
@@ -864,6 +876,11 @@ A message is a notification delivered on a particular channel to a user.
     name="workflow"
     type="string"
     description="The key of the workflow that this message was generated from"
+  />
+  <Attribute
+    name="tenant"
+    type="string"
+    description="The ID of the tenant that this message belongs to"
   />
   <Attribute
     name="status"
@@ -901,8 +918,9 @@ A message is a notification delivered on a particular channel to a user.
   "__typename": "Message",
   "id": "1rjI9XBgWQ6EUA3D3Ul3VjUimOD",
   "channel_id": "0bfd9f86-56b0-41f0-ade3-dc5cc6a69bb8",
-  "recipient_id": "user_12345",
+  "recipient": "user_12345",
   "workflow": "new-comment",
+  "tenant": null,
   "status": "delivered",
   "read_at": null,
   "seen_at": null,

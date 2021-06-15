@@ -33,6 +33,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/lists", title: "Managing lists" },
       { slug: "/preferences", title: "Modeling preferences" },
       { slug: "/environments", title: "Environments" },
+      { slug: "/multi-tenancy", title: "Multi-tenancy support" },
     ],
   },
   {
