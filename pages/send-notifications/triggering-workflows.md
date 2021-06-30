@@ -36,8 +36,8 @@ await knock.notify("new-user-invited", {
 | ---------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
 | key\*            | string   | The human readable key of the workflow from the Knock dashboard                                             |
 | actor\*          | string   | The user id of the user who performed the action                                                            |
-| data\*           | map      | A map of properties that are required in the templates in this workflow                                     |
-| recipients       | string[] | A list of user ids for users that are associated with this workflow                                         |
+| recipients\*     | string[] | A list of user ids for users that are associated with this workflow                                         |
+| data             | map      | A map of properties that are required in the templates in this workflow                                     |
 | lists            | string[] | A list of names for the lists that should receive this workflow                                             |
 | cancellation_key | string   | A unique identifier to reference the workflow when canceling                                                |
 | tenant           | string   | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
