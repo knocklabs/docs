@@ -8,7 +8,7 @@ In this guide you'll integrate Knock with your application and send your first n
 
 ### 1. Add the Knock SDK to your backend
 
-We have SDKs available in [NodeJS](https://github.com/knocklabs/knock-node) and [Python](https://github.com/knocklabs/knock-python). Don't see your language listed here? [Let us know](mailto:support@knock.app)!
+We have SDKs available in [NodeJS](https://github.com/knocklabs/knock-node), [Python](https://github.com/knocklabs/knock-python), and [Elixir](https://github.com/knocklabs/knock-elixir). Don't see your language listed here? [Let us know](mailto:support@knock.app)!
 
 ```bash
 npm install @knocklabs/node
@@ -60,7 +60,7 @@ To create your first workflow, log into the [Knock dashboard](https://dashboard.
 
 ### 5. Trigger your workflow
 
-When you want to notify a set of users simply call the `notify` function to trigger the workflow you want to send. When calling the `notify` function, you'll pass in the `recipients` you want to receive messages sent by the workflow, as well as the `data` (which we received during step 4) required to populate those messages. 
+When you want to notify a set of users simply call the `notify` function to trigger the workflow you want to send. When calling the `notify` function, you'll pass in the `recipients` you want to receive messages sent by the workflow, as well as the `data` (which we received during step 4) required to populate those messages.
 
 ```javascript
 const Knock = require("@knocklabs/node");
