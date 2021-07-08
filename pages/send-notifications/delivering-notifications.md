@@ -16,6 +16,7 @@ We currently support the following email providers:
 
 - SendGrid
 - Postmark
+- AWS SES
 
 If your provider is not listed above, please [get in touch](mailto:support@knock.app).
 
