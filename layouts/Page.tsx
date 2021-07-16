@@ -3,6 +3,7 @@ import Link from "next/link";
 import React from "react";
 import Meta from "../components/Meta";
 import Sidebar from "../components/Sidebar";
+import FeedbackPopover from "../components/FeedbackPopover";
 
 export const Page = ({ children }) => {
   return (
@@ -28,12 +29,9 @@ export const Page = ({ children }) => {
             </Link>
           </div>
 
-          <a
-            href="mailto:founders@knock.app?subject=Docs feedback"
-            className="ml-auto text-sm text-brand font-medium hover:text-brand-dark"
-          >
-            Send feedback →
-          </a>
+          <div className="ml-auto">
+            <FeedbackPopover />
+          </div>
         </header>
         <div className="flex overflow-y-hidden h-full">
           <Sidebar />
