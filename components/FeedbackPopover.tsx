@@ -1,6 +1,7 @@
 // Copied over from knocklabs/control, with the following changes:
 // (1) Ignore type imports of Account and User
-// (2) Match CTA button's focus state outline style to tailwind's
+// (2) Match CTA button's focus state outline style to the rest of docs
+// (3) Match Textarea's font weight to the rest of docs
 import React, { useRef, useState } from "react";
 import { useRadio, useRadioGroup, UseRadioProps } from "@chakra-ui/react";
 import { Popover, PopoverContent, PopoverTrigger, } from "@chakra-ui/popover";
@@ -133,7 +134,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
               onClick={() => setIsOpen(true)}
               _hover={{ bg: "transparent" }}
               _active={{ bg: "transparent" }}
-              // Match focus outline style to tailwind's (2)
+              // Match focus outline style to the rest of docs (2)
               _focus={{ outline: "none", boxShadow: "0 0 0 2px #005fcc" }}
             >
               Feedback?
@@ -156,7 +157,8 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
                 p={0}
                 size="sm"
                 variant="unstyled"
-                fontWeight="medium"
+                // Match font weight to the rest of docs (3)
+                fontWeight={400}
                 color="gray.600"
                 value={feedbackBody}
                 onChange={e => setFeedbackBody(e.target.value)}
