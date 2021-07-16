@@ -1,3 +1,5 @@
+// Copied over from knocklabs/control, with the following changes:
+// (1) Removed global style customization
 import { extendTheme, flexbox } from "@chakra-ui/react";
 
 const colors = {
@@ -146,10 +148,7 @@ const components = {
 const styles = {
   global: {
     body: {
-      color: "gray.900",
-      // XXX: This changes default font weight to 500 from current 400?
-      // fontWeight: "medium",
-      overflow: "hidden",
+      // Removed global style customization (1)
     },
   },
 };

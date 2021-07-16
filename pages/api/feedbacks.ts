@@ -1,3 +1,5 @@
+// Copied over from knocklabs/control, with the following changes:
+// - Removed `withSentry` wrapper from handler
 import fetch from "isomorphic-unfetch";
 
 const API_KEY = process.env.AIRTABLE_API_KEY;

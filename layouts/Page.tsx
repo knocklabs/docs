@@ -13,7 +13,7 @@ export const Page = ({ children }) => {
         <title>Knock Docs</title>
       </Head>
       <div className="h-screen flex flex-col antialiased">
-        <header className="border-b px-5 py-3 bg-gray-50 flex items-center">
+        <header className="border-b px-5 py-2.5 bg-gray-50 flex items-center">
           <div>
             <Link href="/">
               <a className="flex justify-center items-center">

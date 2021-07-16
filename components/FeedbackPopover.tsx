@@ -1,3 +1,6 @@
+// Copied over from knocklabs/control, with the following changes:
+// (1) Ignore type imports of Account and User
+// (2) Match CTA button's focus state outline style to tailwind's
 import React, { useRef, useState } from "react";
 import { useRadio, useRadioGroup, UseRadioProps } from "@chakra-ui/react";
 import { Popover, PopoverContent, PopoverTrigger, } from "@chakra-ui/popover";
@@ -7,9 +10,14 @@ import Icon from "@chakra-ui/icon";
 import { Textarea } from "@chakra-ui/textarea";
 import { useToast } from "@chakra-ui/toast";
 import { Portal } from "@chakra-ui/portal";
+import { StringOrNumber } from "@chakra-ui/utils";
+import FocusLock from "react-focus-lock";
 import { IoMegaphone } from "react-icons/io5";
 import { motion } from "framer-motion";
 import isHotkey from 'is-hotkey'
+
+// @ts-ignore (1)
+import { Account, User } from "@/types";
 
 const FEEDBACK_CATEGORIES = new Map([
   ['😄', 'Happy'],
@@ -18,7 +26,15 @@ const FEEDBACK_CATEGORIES = new Map([
   ['💡', 'Idea'],
 ]);
 
-const FeedbackPopover: React.FC<{}> = ({ currentUser, currentAccount }) => {
+const isSubmitHotkey = isHotkey('mod+enter')
+const isEnterKey = isHotkey('enter')
+
+type Props = {
+  currentUser?: User | undefined;
+  currentAccount?: Account | undefined;
+};
+
+const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -33,7 +49,6 @@ const FeedbackPopover: React.FC<{}> = ({ currentUser, currentAccount }) => {
     onChange: setFeedbackEmoji,
   })
 
-  const isSubmitHotkey = isHotkey('mod+enter')
   const hasFeedback = !!feedbackBody.trim()
 
   const reset = () => {
@@ -116,9 +131,10 @@ const FeedbackPopover: React.FC<{}> = ({ currentUser, currentAccount }) => {
               fontSize="inherit"
               leftIcon={<Icon as={IoMegaphone} color="#8992A1" />}
               onClick={() => setIsOpen(true)}
-              // XXX:
-              _hover={{ bg: "none" }}
-              _active={{ bg: "none" }}
+              _hover={{ bg: "transparent" }}
+              _active={{ bg: "transparent" }}
+              // Match focus outline style to tailwind's (2)
+              _focus={{ outline: "none", boxShadow: "0 0 0 2px #005fcc" }}
             >
               Feedback?
             </Button>
@@ -131,54 +147,70 @@ const FeedbackPopover: React.FC<{}> = ({ currentUser, currentAccount }) => {
           flexDirection="column"
           justifyContent="space-between"
           width="372px"
-          // XXX:
-          // height="152px"
+          height="152px"
           _focus={{ outline: "none" }}
         >
-          <form onSubmit={handleSubmit}>
-            <Textarea
-              p={0}
-              size="sm"
-              variant="unstyled"
-              // fontWeight="medium"
-              color="gray.600"
-              value={feedbackBody}
-              onChange={e => setFeedbackBody(e.target.value)}
-              onKeyDown={e => isSubmitHotkey(e) && handleSubmit()}
-              ref={textAreaRef}
-              placeholder="Help us improve this page."
-              resize="none"
-            />
-            <Flex mt={3} justifyContent="space-between">
-              <HStack {...getRootProps()} spacing={1}>
-                {Array.from(FEEDBACK_CATEGORIES.keys()).map(emoji =>
-                  <EmojiRadio key={emoji} {...getRadioProps({ value: emoji })} />
-                )}
-              </HStack>
-              <Button
-                isLoading={isLoading}
-                loadingText="Sending"
-                type="submit"
+          <FocusLock returnFocus persistentFocus={false}>
+            <form onSubmit={handleSubmit}>
+              <Textarea
+                p={0}
                 size="sm"
-                colorScheme="brand"
-                isDisabled={!hasFeedback}
-              >
-                Send
-              </Button>
-            </Flex>
-          </form>
+                variant="unstyled"
+                fontWeight="medium"
+                color="gray.600"
+                value={feedbackBody}
+                onChange={e => setFeedbackBody(e.target.value)}
+                onKeyDown={e => isSubmitHotkey(e) && handleSubmit()}
+                ref={textAreaRef}
+                placeholder="Help us improve this page."
+                resize="none"
+              />
+              <Flex mt={3} justifyContent="space-between">
+                <HStack {...getRootProps()} spacing={1}>
+                  {Array.from(FEEDBACK_CATEGORIES.keys()).map(emoji =>
+                    <EmojiRadio key={emoji} {...getRadioProps({ value: emoji })} />
+                  )}
+                </HStack>
+                <Button
+                  isLoading={isLoading}
+                  loadingText="Sending"
+                  type="submit"
+                  size="sm"
+                  colorScheme="brand"
+                  isDisabled={!hasFeedback}
+                >
+                  Send
+                </Button>
+              </Flex>
+            </form>
+          </FocusLock>
         </PopoverContent>
       </Portal>
     </Popover>
   );
 };
 
-const EmojiRadio = (props: UseRadioProps) => {
-  const { getInputProps, getCheckboxProps } = useRadio(props)
+// Note(tyu): UseRadioProps from Chakra seems to have a wrong function type
+// for onChange handler, so override and patch it below; onChange should take
+// either a ChangeEvent or a value. Remove it in the future if fixed upstream.
+type RadioProps = Omit<UseRadioProps, "onChange"> & {
+  onChange?: (eventOrValue: React.ChangeEvent<HTMLInputElement> | StringOrNumber) => void;
+};
+
+const EmojiRadio = (props) => {
+  const { onChange, value } = props;
+  const { getInputProps, getCheckboxProps } = useRadio(props);
+
+  const handleEnterAsSelect = (e) => {
+    if (isEnterKey(e)) {
+      e.preventDefault();
+      onChange(value);
+    }
+  }
 
   return (
     <Box as="label">
-      <input {...getInputProps()} />
+      <input {...getInputProps()} onKeyPress={handleEnterAsSelect} />
       <Box
         {...getCheckboxProps()}
         cursor="pointer"
@@ -190,7 +222,7 @@ const EmojiRadio = (props: UseRadioProps) => {
         _checked={{ borderColor: "brand.600" }}
         _focus={{ boxShadow: "outline" }}
       >
-        {props.value}
+        {value}
       </Box>
     </Box>
   );
