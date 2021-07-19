@@ -1,5 +1,5 @@
 // Copied over from knocklabs/control, with the following changes:
-// (1) Removed global style customization
+// (1) Removed other global style customizations
 import { extendTheme, flexbox } from "@chakra-ui/react";
 
 const colors = {
@@ -148,7 +148,8 @@ const components = {
 const styles = {
   global: {
     body: {
-      // Removed global style customization (1)
+      color: "gray.900",
+      // Removed other global style customizations (1)
     },
   },
 };
