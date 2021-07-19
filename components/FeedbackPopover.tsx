@@ -2,6 +2,7 @@
 // (1) Ignore type imports of Account and User
 // (2) Match CTA button's focus state outline style to the rest of docs
 // (3) Match Textarea's font weight to the rest of docs
+// (4) Render PopoverContent without Portal
 import React, { useRef, useState } from "react";
 import { useRadio, useRadioGroup, UseRadioProps } from "@chakra-ui/react";
 import { Popover, PopoverContent, PopoverTrigger, } from "@chakra-ui/popover";
@@ -142,52 +143,49 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
           )}
         </Flex>
       </PopoverTrigger>
-      <Portal>
-        <PopoverContent
-          p={3}
-          flexDirection="column"
-          justifyContent="space-between"
-          width="372px"
-          height="152px"
-          _focus={{ outline: "none" }}
-        >
-          <FocusLock returnFocus persistentFocus={false}>
-            <form onSubmit={handleSubmit}>
-              <Textarea
-                p={0}
+      <PopoverContent p={3}
+        flexDirection="column"
+        justifyContent="space-between"
+        width="372px"
+        height="152px"
+        _focus={{ outline: "none" }}
+      >
+        <FocusLock returnFocus persistentFocus={false}>
+          <form onSubmit={handleSubmit}>
+            <Textarea
+              p={0}
+              size="sm"
+              variant="unstyled"
+              // Match font weight to the rest of docs (3)
+              fontWeight={400}
+              color="gray.600"
+              value={feedbackBody}
+              onChange={e => setFeedbackBody(e.target.value)}
+              onKeyDown={e => isSubmitHotkey(e) && handleSubmit()}
+              ref={textAreaRef}
+              placeholder="Help us improve this page."
+              resize="none"
+            />
+            <Flex mt={3} justifyContent="space-between">
+              <HStack {...getRootProps()} spacing={1}>
+                {Array.from(FEEDBACK_CATEGORIES.keys()).map(emoji =>
+                  <EmojiRadio key={emoji} {...getRadioProps({ value: emoji })} />
+                )}
+              </HStack>
+              <Button
+                isLoading={isLoading}
+                loadingText="Sending"
+                type="submit"
                 size="sm"
-                variant="unstyled"
-                // Match font weight to the rest of docs (3)
-                fontWeight={400}
-                color="gray.600"
-                value={feedbackBody}
-                onChange={e => setFeedbackBody(e.target.value)}
-                onKeyDown={e => isSubmitHotkey(e) && handleSubmit()}
-                ref={textAreaRef}
-                placeholder="Help us improve this page."
-                resize="none"
-              />
-              <Flex mt={3} justifyContent="space-between">
-                <HStack {...getRootProps()} spacing={1}>
-                  {Array.from(FEEDBACK_CATEGORIES.keys()).map(emoji =>
-                    <EmojiRadio key={emoji} {...getRadioProps({ value: emoji })} />
-                  )}
-                </HStack>
-                <Button
-                  isLoading={isLoading}
-                  loadingText="Sending"
-                  type="submit"
-                  size="sm"
-                  colorScheme="brand"
-                  isDisabled={!hasFeedback}
-                >
-                  Send
-                </Button>
-              </Flex>
-            </form>
-          </FocusLock>
-        </PopoverContent>
-      </Portal>
+                colorScheme="brand"
+                isDisabled={!hasFeedback}
+              >
+                Send
+              </Button>
+            </Flex>
+          </form>
+        </FocusLock>
+      </PopoverContent>
     </Popover>
   );
 };

@@ -72,6 +72,7 @@ const sidebarContent: SidebarSection[] = [
     desc: "Reference documentation for the Knock API",
     pages: [
       { slug: "#overview", title: "Overview" },
+      { slug: "#client-libraries", title: "Client libraries" },
       { slug: "#api-keys", title: "API keys" },
       { slug: "#authentication", title: "Authentication" },
       { slug: "#errors", title: "Errors" },
