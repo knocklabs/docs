@@ -6,7 +6,7 @@ import sidebarContent from "../data/sidebar";
 import Head from "next/head";
 
 export const ApiReferenceLayout = ({ frontMatter, children }) => {
-  const { pathname } = useRouter();
+  const { asPath: pathname } = useRouter();
   const { section, page } = useMemo(() => {
     const sectionIndex = sidebarContent.findIndex((s) =>
       s.pages.find((p) => s.slug + p.slug === pathname)
