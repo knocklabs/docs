@@ -7,7 +7,7 @@ product.
 
 ## Sending user data
 
-If you've used a CDP like Segment before, sending data to Knock will be familiar to you.
+If you've used a Customer Data Platform (CDP) like Segment before, sending data to Knock will be familiar to you.
 
 ```js
 const Knock = require("@knocklabs/node");
