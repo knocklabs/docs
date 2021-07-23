@@ -31,7 +31,7 @@ Best practice is to make an identify call to Knock when a new user is created an
 
 🔐 **Security first** 🔐
 
-We don't take your user data lightly. For more on our security practices, both in our API and in our dashboard, check out our [security documentation](/send-and-manage-data/environments#environment-based-access-controls).
+We don't take your user data lightly. For more on our security practices, contact us at [security@knock.app](mailto:security@knock.app?subject=Question%about%Knock's%security%practices).
 
 ```javascript
 const Knock = require("@knocklabs/node");
