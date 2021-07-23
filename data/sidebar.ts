@@ -30,7 +30,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/concepts", title: "Concepts" },
       { slug: "/users", title: "Managing users" },
-      { slug: "/lists", title: "Managing lists" },
+      // { slug: "/lists", title: "Managing lists" },
       { slug: "/preferences", title: "Modeling preferences" },
       { slug: "/environments", title: "Environments" },
       { slug: "/multi-tenancy", title: "Multi-tenancy support" },

@@ -14,14 +14,14 @@ The user object can contain other key-value pairs that can be used to further pe
 
 [Read more →](/send-and-manage-data/users)
 
-## Lists
+<!-- ## Lists
 
 A list groups users together to represent sets of individuals who may need to be notified as a group.
 Lists typically map to your relationship hierarchies such as groups, teams, or project members. Lists
 are an essential abstraction for when your system needs to notify many users at once as the result
 of a triggered workflow (such as a new comment workflow that sends messages to all members of the parent document.)
 
-[Read more →](/send-and-manage-data/lists)
+[Read more →](/send-and-manage-data/lists) -->
 
 ## Preferences
 
