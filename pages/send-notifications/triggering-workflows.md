@@ -38,15 +38,8 @@ await knock.notify("new-user-invited", {
 | actor\*          | string   | The user id of the user who performed the action                                                            |
 | recipients\*     | string[] | A list of user ids for users that are associated with this workflow                                         |
 | data             | map      | A map of properties that are required in the templates in this workflow                                     |
-| lists            | string[] | A list of names for the lists that should receive this workflow                                             |
 | cancellation_key | string   | A unique identifier to reference the workflow when canceling                                                |
 | tenant           | string   | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
-
-## Defining recipients
-
-You can define the `recipients` of your workflow by either (i) specifying an array of of users
-or (ii) by specifying an array of one or more `lists`. If you fail to provide either of these with your
-notify call your message will be rejected and an error will be returned.
 
 ### Sending to users
 
@@ -60,30 +53,6 @@ await knock.notify("welcome-to-knock", {
   data: {},
 });
 ```
-
-### Sending to lists
-
-```js
-const Knock = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-await knock.notify("new-comment", {
-  actor: comment.user_id,
-  // Here we use multiple lists where the union is done by Knock
-  lists: [`project.${project.id}.followers`, `team.${project.team_id}.members`],
-  data: {
-    comment_id: comment.id,
-    project_id: project.id,
-    comment_text: comment.text,
-    project_name: project.name,
-  },
-});
-```
-
-### Advanced list targeting
-
-If you have more advanced list targeting needs please contact [support@knock.app](mailto:support@knock.app)
-as we're currently thinking through this API design.
 
 ## Passing data
 

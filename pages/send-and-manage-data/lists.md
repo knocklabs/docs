@@ -2,6 +2,8 @@
 title: Lists
 ---
 
+<!-- This page is a DRAFT and should not be linked to until Lists are fully formed and available to customers. -->
+
 A List is a collection of users who are logically grouped together. Lists are useful abstractions
 for when you need to notify multiple recipients in a single batch.
 
