@@ -3,7 +3,7 @@ title: Environments
 ---
 
 Knock uses the concept of environments to ensure logical separation of your data between
-local, staging, and production environments. This means that users, lists, and preferences created
+local, staging, and production environments. This means that users, and preferences created
 in one environment are **never** accessible to another.
 
 The API key you use determines the environment into which you'll be sending data. You can find your environment specific API keys under the "Developer" section of the Knock dashboard.
@@ -19,7 +19,7 @@ This means that changes have to be staged and tested before being rolled out (si
 
 A typical deployment lifecycle in Knock looks like:
 
-1. Introduce any backend changes to support a new workflow (users, lists, and preference properties)
+1. Introduce any backend changes to support a new workflow (users and preference properties)
 2. Build the workflow in a dev environment in Knock
 3. Test the workflow
 4. When you're ready to go live, promote the workflow to production
