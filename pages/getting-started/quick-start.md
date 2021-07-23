@@ -96,6 +96,6 @@ This was a simple overview to send your first notification with Knock. Read on t
 
 - [Sending & managing data concepts](/send-and-manage-data/concepts)
 - [Notification feeds](/notification-feeds/getting-started)
-- [Managing users with lists](/send-and-manage-data/lists)
+<!-- - [Managing users with lists](/send-and-manage-data/lists) -->
 
 <br />
