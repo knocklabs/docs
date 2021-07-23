@@ -7,6 +7,16 @@ Documentation, guides, and the API reference for Knock. Built with Next.JS and T
 1. `node`
 2. `yarn`
 
+Install both with [`asdf`](https://asdf-vm.com):
+
+```bash
+brew install asdf
+asdf plugin add nodejs
+asdf plugin add yarn
+
+asdf install
+```
+
 ## Getting up-and-running
 
 - `yarn install`
