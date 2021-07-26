@@ -1,6 +1,5 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 const colors = require("tailwindcss/colors");
-const { backgroundColor } = require("tailwindcss/defaultTheme");
 
 module.exports = {
   purge: [
@@ -92,5 +91,6 @@ module.exports = {
       }),
     },
   },
+  // eslint-disable-next-line global-require
   plugins: [require("@tailwindcss/typography")],
 };

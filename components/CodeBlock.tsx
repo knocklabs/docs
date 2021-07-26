@@ -23,7 +23,7 @@ export interface Props {
 }
 
 const getParams = (
-  className = ""
+  className = "",
 ): { language?: string; for?: string; always?: boolean } => {
   const [language, params = ""] = className.split(":");
 
@@ -55,7 +55,7 @@ export const CodeBlock: React.FC<Props> = ({
   const params = useMemo(() => getParams(className) as any, [className]);
   const lang = useMemo(
     () => language ?? params.language ?? "shell",
-    [language, params]
+    [language, params],
   );
 
   const [content] = useMemo(
@@ -67,9 +67,9 @@ export const CodeBlock: React.FC<Props> = ({
           children.props.children
           ? children.props.children
           : children ?? "",
-        className
+        className,
       ),
-    [children]
+    [children],
   );
 
   const title = children.props.metastring;
@@ -88,6 +88,7 @@ export const CodeBlock: React.FC<Props> = ({
         {title && <span className="text-gray-500 font-medium">{title}</span>}
 
         <button
+          type="button"
           onClick={setCopied}
           className="text-xs uppercase text-gray-500 tracking-wider ml-auto"
         >

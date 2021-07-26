@@ -25,7 +25,7 @@ const nodeToHeader = (node: HTMLHeadingElement): IHeader => ({
 const buildHeaderTreeRec = (
   nodes: HTMLHeadingElement[],
   elm: IHeader,
-  level: number
+  level: number,
 ): IHeader[] => {
   const headers: IHeader[] = [];
   while (nodes.length > 0) {
@@ -56,33 +56,6 @@ const buildHeaderTree = (nodes: HTMLHeadingElement[]): IHeader[] => {
   return buildHeaderTreeRec(nodes, h, h.level);
 };
 
-const PageNav: React.FC<Props> = ({ title }) => {
-  const [headers, setHeaders] = useState<IHeader[]>([]);
-
-  useEffect(() => {
-    const documentHeaders = Array.from(
-      document.querySelectorAll(".docs-content h1, h2, h3")
-    ) as HTMLHeadingElement[];
-
-    setHeaders(buildHeaderTree(documentHeaders));
-  }, [title]);
-
-  if (headers.length === 0) {
-    return null;
-  }
-
-  return (
-    <aside className="fixed top-30 border-l pl-5 w-64">
-      <h5 className="text-xs uppercase text-gray-900 font-semibold tracking-wider mb-3">
-        On this page
-      </h5>
-      <ul className="space-y-2">
-        <HeaderList headers={headers} nesting={0} />
-      </ul>
-    </aside>
-  );
-};
-
 const HeaderList: React.FC<{ headers: IHeader[]; nesting: number }> = ({
   headers,
   nesting,
@@ -109,5 +82,32 @@ const HeaderList: React.FC<{ headers: IHeader[]; nesting: number }> = ({
     ))}
   </>
 );
+
+const PageNav: React.FC<Props> = ({ title }) => {
+  const [headers, setHeaders] = useState<IHeader[]>([]);
+
+  useEffect(() => {
+    const documentHeaders = Array.from(
+      document.querySelectorAll(".docs-content h1, h2, h3"),
+    ) as HTMLHeadingElement[];
+
+    setHeaders(buildHeaderTree(documentHeaders));
+  }, [title]);
+
+  if (headers.length === 0) {
+    return null;
+  }
+
+  return (
+    <aside className="fixed top-30 border-l pl-5 w-64">
+      <h5 className="text-xs uppercase text-gray-900 font-semibold tracking-wider mb-3">
+        On this page
+      </h5>
+      <ul className="space-y-2">
+        <HeaderList headers={headers} nesting={0} />
+      </ul>
+    </aside>
+  );
+};
 
 export default PageNav;

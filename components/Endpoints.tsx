@@ -7,7 +7,7 @@ const Endpoints = ({ children }) => (
   </div>
 );
 
-const Endpoint = ({ method, path, name }) => (
+const Endpoint = ({ method, path }) => (
   <div className="my-3">
     <span className="bg-blue-500 text-xs font-semibold text-white rounded p-1 center mr-2">
       {method}

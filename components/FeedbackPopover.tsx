@@ -4,32 +4,68 @@
 // (3) Match Textarea's font weight to the rest of docs
 // (4) Render PopoverContent without Portal
 import React, { useRef, useState } from "react";
-import { useRadio, useRadioGroup, UseRadioProps } from "@chakra-ui/react";
-import { Popover, PopoverContent, PopoverTrigger, } from "@chakra-ui/popover";
+import { useRadio, useRadioGroup } from "@chakra-ui/react";
+import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/popover";
 import { Box, Flex, HStack, Text } from "@chakra-ui/layout";
 import { Button } from "@chakra-ui/button";
 import Icon from "@chakra-ui/icon";
 import { Textarea } from "@chakra-ui/textarea";
 import { useToast } from "@chakra-ui/toast";
-import { Portal } from "@chakra-ui/portal";
-import { StringOrNumber } from "@chakra-ui/utils";
 import FocusLock from "react-focus-lock";
 import { IoMegaphone } from "react-icons/io5";
 import { motion } from "framer-motion";
-import isHotkey from 'is-hotkey'
+import isHotkey from "is-hotkey";
 
-// @ts-ignore (1)
-import { Account, User } from "@/types";
+interface Account {
+  id: string;
+  name: string;
+}
+
+interface User {
+  id: string;
+  email: string;
+}
 
 const FEEDBACK_CATEGORIES = new Map([
-  ['😄', 'Happy'],
-  ['🙁', 'Sad'],
-  ['🐛', 'Bug'],
-  ['💡', 'Idea'],
+  ["😄", "Happy"],
+  ["🙁", "Sad"],
+  ["🐛", "Bug"],
+  ["💡", "Idea"],
 ]);
 
-const isSubmitHotkey = isHotkey('mod+enter')
-const isEnterKey = isHotkey('enter')
+const isSubmitHotkey = isHotkey("mod+enter");
+const isEnterKey = isHotkey("enter");
+
+const EmojiRadio = (props) => {
+  const { onChange, value } = props;
+  const { getInputProps, getCheckboxProps } = useRadio(props);
+
+  const handleEnterAsSelect = (e) => {
+    if (isEnterKey(e)) {
+      e.preventDefault();
+      onChange(value);
+    }
+  };
+
+  return (
+    <Box as="label">
+      <input {...getInputProps()} onKeyPress={handleEnterAsSelect} />
+      <Box
+        {...getCheckboxProps()}
+        cursor="pointer"
+        textAlign="center"
+        borderWidth="1px"
+        borderRadius="base"
+        boxShadow="sm"
+        boxSize="28px"
+        _checked={{ borderColor: "brand.600" }}
+        _focus={{ boxShadow: "outline" }}
+      >
+        {value}
+      </Box>
+    </Box>
+  );
+};
 
 type Props = {
   currentUser?: User | undefined;
@@ -40,8 +76,8 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [feedbackBody, setFeedbackBody] = useState<string>('');
-  const [feedbackEmoji, setFeedbackEmoji] = useState<string>('');
+  const [feedbackBody, setFeedbackBody] = useState<string>("");
+  const [feedbackEmoji, setFeedbackEmoji] = useState<string>("");
 
   const toast = useToast();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -49,27 +85,27 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
     name: "feedback-category",
     value: feedbackEmoji,
     onChange: setFeedbackEmoji,
-  })
+  });
 
-  const hasFeedback = !!feedbackBody.trim()
+  const hasFeedback = !!feedbackBody.trim();
 
   const reset = () => {
-    setFeedbackBody('')
-    setFeedbackEmoji('')
-    setIsOpen(false)
-    setIsSubmitted(false)
-    setIsLoading(false)
-  }
+    setFeedbackBody("");
+    setFeedbackEmoji("");
+    setIsOpen(false);
+    setIsSubmitted(false);
+    setIsLoading(false);
+  };
 
   const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
-    if (e) e.preventDefault()
-    if (e) e.stopPropagation()
-    if (!hasFeedback) return
+    if (e) e.preventDefault();
+    if (e) e.stopPropagation();
+    if (!hasFeedback) return;
 
     // Transform to one of expected multiple choice options by Airtable field.
     const feedbackCategory = feedbackEmoji
       ? `${feedbackEmoji} ${FEEDBACK_CATEGORIES.get(feedbackEmoji)}`
-      : null
+      : null;
 
     setIsLoading(true);
 
@@ -94,14 +130,14 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
       return toast({
         title: error,
         status: "error",
-        position: "bottom-right"
+        position: "bottom-right",
       });
     }
 
     setIsOpen(false);
     setIsSubmitted(true);
     setTimeout(reset, 2000);
-  }
+  };
 
   return (
     <Popover
@@ -143,7 +179,8 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
           )}
         </Flex>
       </PopoverTrigger>
-      <PopoverContent p={3}
+      <PopoverContent
+        p={3}
         flexDirection="column"
         justifyContent="space-between"
         width="372px"
@@ -160,17 +197,20 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
               fontWeight={400}
               color="gray.600"
               value={feedbackBody}
-              onChange={e => setFeedbackBody(e.target.value)}
-              onKeyDown={e => isSubmitHotkey(e) && handleSubmit()}
+              onChange={(e) => setFeedbackBody(e.target.value)}
+              onKeyDown={(e) => isSubmitHotkey(e) && handleSubmit()}
               ref={textAreaRef}
               placeholder="Help us improve this page."
               resize="none"
             />
             <Flex mt={3} justifyContent="space-between">
               <HStack {...getRootProps()} spacing={1}>
-                {Array.from(FEEDBACK_CATEGORIES.keys()).map(emoji =>
-                  <EmojiRadio key={emoji} {...getRadioProps({ value: emoji })} />
-                )}
+                {Array.from(FEEDBACK_CATEGORIES.keys()).map((emoji) => (
+                  <EmojiRadio
+                    key={emoji}
+                    {...getRadioProps({ value: emoji })}
+                  />
+                ))}
               </HStack>
               <Button
                 isLoading={isLoading}
@@ -189,43 +229,5 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
     </Popover>
   );
 };
-
-// Note(tyu): UseRadioProps from Chakra seems to have a wrong function type
-// for onChange handler, so override and patch it below; onChange should take
-// either a ChangeEvent or a value. Remove it in the future if fixed upstream.
-type RadioProps = Omit<UseRadioProps, "onChange"> & {
-  onChange?: (eventOrValue: React.ChangeEvent<HTMLInputElement> | StringOrNumber) => void;
-};
-
-const EmojiRadio = (props) => {
-  const { onChange, value } = props;
-  const { getInputProps, getCheckboxProps } = useRadio(props);
-
-  const handleEnterAsSelect = (e) => {
-    if (isEnterKey(e)) {
-      e.preventDefault();
-      onChange(value);
-    }
-  }
-
-  return (
-    <Box as="label">
-      <input {...getInputProps()} onKeyPress={handleEnterAsSelect} />
-      <Box
-        {...getCheckboxProps()}
-        cursor="pointer"
-        textAlign="center"
-        borderWidth="1px"
-        borderRadius="base"
-        boxShadow="sm"
-        boxSize="28px"
-        _checked={{ borderColor: "brand.600" }}
-        _focus={{ boxShadow: "outline" }}
-      >
-        {value}
-      </Box>
-    </Box>
-  );
-}
 
 export default FeedbackPopover;

@@ -1,4 +1,3 @@
-import Head from "next/head";
 import Link from "next/link";
 import sidebarContent from "../data/sidebar";
 import { Page } from "../layouts/Page";

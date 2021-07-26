@@ -9,19 +9,17 @@ const BreadcrumbItem = ({ title, path }) => (
   </li>
 );
 
-const Breadcrumbs = ({ section, page }) => {
-  return (
-    <div className="mb-6">
-      <ul className="breadcrumbs">
-        <BreadcrumbItem title="Home" path="/" />
-        <BreadcrumbItem
-          title={section.title}
-          path={section.slug + section.pages[0].slug}
-        />
-        <BreadcrumbItem title={page.title} path={section.slug + page.slug} />
-      </ul>
-    </div>
-  );
-};
+const Breadcrumbs = ({ section, page }) => (
+  <div className="mb-6">
+    <ul className="breadcrumbs">
+      <BreadcrumbItem title="Home" path="/" />
+      <BreadcrumbItem
+        title={section.title}
+        path={section.slug + section.pages[0].slug}
+      />
+      <BreadcrumbItem title={page.title} path={section.slug + page.slug} />
+    </ul>
+  </div>
+);
 
 export default Breadcrumbs;
