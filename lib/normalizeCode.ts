@@ -2,7 +2,7 @@
 
 const COMMENT_START = new RegExp(`(#|\\/\\/|\\{\\/\\*|\\/\\*+|<!--)`);
 
-const createDirectiveRegExp = featureSelector =>
+const createDirectiveRegExp = (featureSelector) =>
   new RegExp(`${featureSelector}-(next-line|line|start|end|range)({([^}]+)})?`);
 
 const COMMENT_END = new RegExp(`(-->|\\*\\/\\}|\\*\\/)?`);
@@ -15,7 +15,7 @@ const END_DIRECTIVE = {
   hide: /hide-end/,
 };
 
-const stripComment = line =>
+const stripComment = (line) =>
   /**
    * This regexp does the following:
    * 1. Match a comment start, along with the accompanying PrismJS opening comment span tag;
@@ -29,8 +29,8 @@ const stripComment = line =>
     ``,
   );
 
-const containsDirective = line =>
-  [HIDE_DIRECTIVE, HIGHLIGHT_DIRECTIVE].some(expr => expr.test(line));
+const containsDirective = (line) =>
+  [HIDE_DIRECTIVE, HIGHLIGHT_DIRECTIVE].some((expr) => expr.test(line));
 
 /*
  * This parses the {1-3} syntax range that is sometimes used
@@ -42,7 +42,7 @@ const getInitialFilter = (className, split) => {
     const lookup = match.split(/,\s*/).reduce((merged, range) => {
       const [start, end = start] = range
         .split(`-`)
-        .map(num => parseInt(num, 10));
+        .map((num) => parseInt(num, 10));
       for (let i = start; i <= end; i++) {
         merged[i - 1] = true;
       }
@@ -76,14 +76,16 @@ export const normalize = (content, className = ``) => {
           case `start`: {
             const endIndex = split
               .slice(i + 1)
-              .findIndex(line => END_DIRECTIVE[keyword].test(line));
+              .findIndex((lineToTest) =>
+                END_DIRECTIVE[keyword].test(lineToTest),
+              );
 
             const end = endIndex === -1 ? split.length : endIndex + i;
 
             if (keyword === `highlight`) {
               filtered = filtered.concat(
-                split.slice(i, end + 1).reduce((merged, line) => {
-                  const code = stripComment(line);
+                split.slice(i, end + 1).reduce((merged, lineToMerge) => {
+                  const code = stripComment(lineToMerge);
                   if (code) {
                     merged.push({
                       code,
@@ -120,7 +122,7 @@ export const normalize = (content, className = ``) => {
                     code: stripComment(split[i + 1]),
                     highlighted: true,
                   },
-                ].filter(line => line.code),
+                ].filter((lineToFilter) => lineToFilter.code),
               );
             } else if (keyword === `hide` && code) {
               filtered.push({

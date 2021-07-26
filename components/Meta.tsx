@@ -33,7 +33,7 @@ export default function Meta() {
       <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
       <meta
         name="description"
-        content={`Knock is a hosted API for turning user activity into product notifications.`}
+        content="Knock is a hosted API for turning user activity into product notifications."
       />
     </Head>
   );

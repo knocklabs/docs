@@ -1,6 +1,6 @@
 // Copied over from knocklabs/control, with the following changes:
 // (1) Removed other global style customizations
-import { extendTheme, flexbox } from "@chakra-ui/react";
+import { extendTheme } from "@chakra-ui/react";
 
 const colors = {
   brand: {
@@ -132,7 +132,7 @@ const components = {
   Tooltip: {
     baseStyle: {
       borderRadius: "md",
-      padding: 2
+      padding: 2,
     },
     sizes: {
       lg: {
@@ -140,9 +140,9 @@ const components = {
         maxWidth: 60,
         margin: 2,
         fontSize: 20,
-      }
-    }
-  }
+      },
+    },
+  },
 };
 
 const styles = {

@@ -1,30 +1,30 @@
 import React, { useMemo } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import Head from "next/head";
 import { Page } from "./Page";
 import PageNav from "../components/PageNav";
 import Breadcrumbs from "../components/Breadcrumbs";
 import sidebarContent from "../data/sidebar";
-import Link from "next/link";
-import Head from "next/head";
 
 export const DocsLayout = ({ frontMatter, children }) => {
   const { pathname } = useRouter();
   const { section, page, nextPage, prevPage } = useMemo(() => {
     const sectionIndex = sidebarContent.findIndex((s) =>
-      s.pages.find((p) => s.slug + p.slug === pathname)
-    )!;
-    const section = sidebarContent[sectionIndex];
+      s.pages.find((p) => s.slug + p.slug === pathname),
+    );
+    const sidebarSection = sidebarContent[sectionIndex];
     const pageIndex = (sidebarContent[sectionIndex]?.pages || []).findIndex(
-      (p) => section.slug + p.slug === pathname
+      (p) => sidebarSection.slug + p.slug === pathname,
     );
 
-    const page = section?.pages[pageIndex];
+    const sidebarPage = sidebarSection?.pages[pageIndex];
 
     return {
-      section,
-      page,
-      nextPage: section?.pages[pageIndex + 1],
-      prevPage: section?.pages[pageIndex - 1],
+      section: sidebarSection,
+      page: sidebarPage,
+      nextPage: sidebarSection?.pages[pageIndex + 1],
+      prevPage: sidebarSection?.pages[pageIndex - 1],
     };
   }, [pathname]);
 

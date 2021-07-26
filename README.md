@@ -2,16 +2,29 @@
 
 Documentation, guides, and the API reference for Knock. Built with Next.JS and Typescript.
 
-## Requirements
+## System requirements
 
-1. `node`
-2. `yarn`
+To run docs you will need:
+
+- `node` & `yarn` (see `.tool-versions`)
 
 ## Getting up-and-running
 
-- `yarn install`
-- `yarn run dev --port 3002`
-- Open your browser to `http://localhost:3002`
+### Running both the API and Dashboard
+
+1. Install the necessary dependencies:
+
+```bash
+$ ./bin/bootstrap.sh
+```
+
+2. Start docs in development mode
+
+```bash
+$ yarn run dev
+```
+
+3. Open your browser to `http://localhost:3002`
 
 ## Deploying
 

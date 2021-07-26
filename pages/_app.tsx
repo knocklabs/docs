@@ -3,11 +3,11 @@ import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
 import { useRouter } from "next/router";
-import { ChakraProvider } from "@chakra-ui/react"
+import { ChakraProvider } from "@chakra-ui/react";
 import "../styles/index.css";
+import { useEffect } from "react";
 import theme from "../theme";
 import * as gtag from "../lib/gtag";
-import { useEffect } from "react";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();

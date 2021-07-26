@@ -70,5 +70,3 @@ const YourAppLayout = () => (
   </Header>
 );
 ``` -->
-
-## Customizing the `NotificationBadge`

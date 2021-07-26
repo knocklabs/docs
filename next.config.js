@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable global-require */
 const withPlugins = require("next-compose-plugins");
 const withMdxEnhanced = require("next-mdx-enhanced");
 
@@ -5,6 +7,10 @@ const autoLinkSettings = {
   behavior: "prepend",
   content: { type: "element", tagName: "span" },
 };
+
+function makeIdFromPath(resourcePath) {
+  return resourcePath.replace(".mdx", "").replace("/index", "");
+}
 
 module.exports = withPlugins([
   withMdxEnhanced({
@@ -26,7 +32,3 @@ module.exports = withPlugins([
     },
   })(),
 ]);
-
-function makeIdFromPath(resourcePath) {
-  return resourcePath.replace(".mdx", "").replace("/index", "");
-}
