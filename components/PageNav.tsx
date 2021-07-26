@@ -15,12 +15,14 @@ interface IHeader {
 
 const nodeNameToLevel = { H1: 1, H2: 2, H3: 3, H4: 4 };
 
-const nodeToHeader = (node: HTMLHeadingElement): IHeader => ({
-  level: nodeNameToLevel[node.nodeName],
-  title: node.innerText,
-  id: node.id,
-  subHeaders: [],
-});
+const nodeToHeader = (node: HTMLHeadingElement): IHeader => {
+  return {
+    level: nodeNameToLevel[node.nodeName],
+    title: node.innerText,
+    id: node.id,
+    subHeaders: [],
+  };
+};
 
 const buildHeaderTreeRec = (
   nodes: HTMLHeadingElement[],

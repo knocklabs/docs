@@ -23,10 +23,12 @@ module.exports = withPlugins([
     ],
     rehypePlugins: [],
     extendFrontMatter: {
-      process: (mdxContent, frontMatter) => ({
-        id: makeIdFromPath(frontMatter.__resourcePath),
-        wordCount: mdxContent.split(/\s+/g).length,
-      }),
+      process: (mdxContent, frontMatter) => {
+        return {
+          id: makeIdFromPath(frontMatter.__resourcePath),
+          wordCount: mdxContent.split(/\s+/g).length,
+        };
+      },
     },
   })(),
 ]);

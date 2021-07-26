@@ -48,10 +48,12 @@ const getInitialFilter = (className, split) => {
       }
       return merged;
     }, {});
-    return split.map((line, index) => ({
-      code: line,
-      highlighted: !!lookup[index],
-    }));
+    return split.map((line, index) => {
+      return {
+        code: line,
+        highlighted: !!lookup[index],
+      };
+    });
   }
   return [];
 };
