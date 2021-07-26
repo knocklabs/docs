@@ -14,7 +14,7 @@ If you'd rather just start building you can check out our [Quick Start guide](/g
 
 ## Overview
 
-Knock takes inputs from your product in the form of API calls: `notify`, `identify`, `lists.create`, `preferences.create`. Once in Knock, these inputs are run through `Workflows`, which orchestrate and manage the delivery of `Messages` across in-app and out-of-app `Channels`.
+Knock takes inputs from your product in the form of API calls: `notify`, `identify`, `preferences.create`. Once in Knock, these inputs are run through `Workflows`, which orchestrate and manage the delivery of `Messages` across in-app and out-of-app `Channels`.
 
 Here's a visual of how these concepts work together:
 
