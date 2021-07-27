@@ -1,8 +1,10 @@
+import SectionHeading from "./SectionHeading";
+
 export const Section = ({ title, slug, children }) => (
   <section className="api-docs-section border-b border-gray-200 py-16">
-    <h2 id={slug || title.toLowerCase()} className="mb-6">
+    <SectionHeading tag="h2" id={slug || title.toLowerCase()} className="mb-6">
       {title}
-    </h2>
+    </SectionHeading>
     <div className="flex flex-col md:flex-row">{children}</div>
   </section>
 );
