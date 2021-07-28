@@ -27,21 +27,23 @@ const SectionHeading: React.FC<Props> = ({
   const Tag = `${tag}` as keyof Pick<JSX.IntrinsicElements, HeadingTag>;
 
   return (
-    <Tag {...rest} id={id} className={cn(CLASS_SELECTOR, className)}>
+    <Tag {...rest} className={cn(CLASS_SELECTOR, className)}>
       {children}
 
-      <a
-        id={id}
-        href={targetPath}
-        style={{ color: "inherit", textDecoration: "none" }}
-        className="absolute -left-6 pr-3 cursor-pointer"
-        onClick={onCopy}
-      >
-        <span
-          className="invisible"
-          aria-label={`Jump link to ${children} section`}
-        />
-      </a>
+      {id && (
+        <a
+          id={id}
+          href={targetPath}
+          style={{ color: "inherit", textDecoration: "none" }}
+          className="absolute -left-6 pr-3 cursor-pointer"
+          onClick={onCopy}
+        >
+          <span
+            className="invisible"
+            aria-label={`Jump link to ${children} section`}
+          />
+        </a>
+      )}
     </Tag>
   );
 };
