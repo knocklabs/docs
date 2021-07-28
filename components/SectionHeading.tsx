@@ -37,7 +37,10 @@ const SectionHeading: React.FC<Props> = ({
         className="absolute -left-6 pr-3 cursor-pointer"
         onClick={onCopy}
       >
-        <span />
+        <span
+          className="invisible"
+          aria-label={`Jump link to ${children} section`}
+        />
       </a>
     </Tag>
   );
