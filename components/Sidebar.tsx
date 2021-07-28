@@ -3,10 +3,18 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import cn from "classnames";
 
-import sidebarContent from "../data/sidebar";
+import sidebarContent, { SidebarSection, SidebarPage } from "../data/sidebar";
 
 const Sidebar = () => {
-  const { pathname } = useRouter();
+  const router = useRouter();
+
+  const isHighlighted = (section: SidebarSection, page: SidebarPage) => {
+    const pathname = page.slug.startsWith("#")
+      ? router.asPath
+      : router.pathname;
+
+    return pathname === section.slug + page.slug;
+  };
 
   return (
     <section className="w-64 border-r hidden lg:block">
@@ -27,7 +35,7 @@ const Sidebar = () => {
                       className={cn({
                         "hover:text-gray-900": true,
                         "text-brand font-medium hover:text-brand-dark":
-                          pathname === section.slug + page.slug,
+                          isHighlighted(section, page),
                       })}
                     >
                       {page.title}
