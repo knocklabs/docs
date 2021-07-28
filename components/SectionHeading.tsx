@@ -1,5 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
+import { useClipboard } from "@chakra-ui/react";
 import cn from "classnames";
 
 const CLASS_SELECTOR = "section-heading";
@@ -17,9 +18,13 @@ const SectionHeading: React.FC<Props> = ({
   className,
   ...rest
 }) => {
-  const Tag = `${tag}` as keyof Pick<JSX.IntrinsicElements, HeadingTag>;
   const { pathname } = useRouter();
-  const href = id ? `#${id}` : pathname;
+  const targetPath = id ? `${pathname}#${id}` : pathname;
+
+  const targetUrl = global.window ? window.location.origin + targetPath : "";
+  const { onCopy } = useClipboard(targetUrl);
+
+  const Tag = `${tag}` as keyof Pick<JSX.IntrinsicElements, HeadingTag>;
 
   return (
     <Tag {...rest} id={id} className={cn(CLASS_SELECTOR, className)}>
@@ -27,9 +32,10 @@ const SectionHeading: React.FC<Props> = ({
 
       <a
         id={id}
-        href={href}
+        href={targetPath}
         style={{ color: "inherit", textDecoration: "none" }}
         className="absolute -left-6 pr-3 cursor-pointer"
+        onClick={onCopy}
       >
         <span />
       </a>
