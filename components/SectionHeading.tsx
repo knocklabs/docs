@@ -10,17 +10,19 @@ type Props = React.HTMLProps<HTMLHeadingElement> & {
   tag: HeadingTag;
 };
 
-const SectionHeading: React.FC<Props> = ({ id, tag, children, className, ...rest }) => {
+const SectionHeading: React.FC<Props> = ({
+  id,
+  tag,
+  children,
+  className,
+  ...rest
+}) => {
   const Tag = `${tag}` as keyof Pick<JSX.IntrinsicElements, HeadingTag>;
   const { pathname } = useRouter();
   const href = id ? `#${id}` : pathname;
 
   return (
-    <Tag
-      {...rest}
-      id={id}
-      className={cn(CLASS_SELECTOR, className)}
-    >
+    <Tag {...rest} id={id} className={cn(CLASS_SELECTOR, className)}>
       {children}
 
       <a
@@ -28,7 +30,9 @@ const SectionHeading: React.FC<Props> = ({ id, tag, children, className, ...rest
         href={href}
         style={{ color: "inherit", textDecoration: "none" }}
         className="absolute -left-6 pr-3 cursor-pointer"
-      />
+      >
+        <span />
+      </a>
     </Tag>
   );
 };
