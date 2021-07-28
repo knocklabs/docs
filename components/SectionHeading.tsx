@@ -35,7 +35,7 @@ const SectionHeading: React.FC<Props> = ({
           id={id}
           href={targetPath}
           style={{ color: "inherit", textDecoration: "none" }}
-          className="absolute -left-6 pr-3 cursor-pointer"
+          className="absolute -left-4 lg:-left-6 pr-1 lg:pr-3 cursor-pointer"
           onClick={onCopy}
         >
           <span
