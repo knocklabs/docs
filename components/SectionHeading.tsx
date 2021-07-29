@@ -27,12 +27,11 @@ const SectionHeading: React.FC<Props> = ({
   const Tag = `${tag}` as keyof Pick<JSX.IntrinsicElements, HeadingTag>;
 
   return (
-    <Tag {...rest} className={cn(CLASS_SELECTOR, className)}>
+    <Tag {...rest} id={id} className={cn(CLASS_SELECTOR, className)}>
       {children}
 
       {id && (
         <a
-          id={id}
           href={targetPath}
           style={{ color: "inherit", textDecoration: "none" }}
           className="absolute -left-4 lg:-left-6 pr-1 lg:pr-3 cursor-pointer"
