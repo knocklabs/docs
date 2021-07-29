@@ -3,6 +3,8 @@
 // (2) Match CTA button's focus state outline style to the rest of docs
 // (3) Match Textarea's font weight to the rest of docs
 // (4) Render PopoverContent without Portal
+// (5) No fixed width on PopoverContent and conditional display
+// `none` vs `flex` for responsive/mobile view
 import React, { useRef, useState } from "react";
 import { useRadio, useRadioGroup } from "@chakra-ui/react";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/popover";
@@ -183,8 +185,9 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
         p={3}
         flexDirection="column"
         justifyContent="space-between"
-        width="372px"
         height="152px"
+        // For responsive mobile view (5)
+        style={{ display: isOpen ? "flex" : "none" }}
         _focus={{ outline: "none" }}
       >
         <FocusLock returnFocus persistentFocus={false}>
