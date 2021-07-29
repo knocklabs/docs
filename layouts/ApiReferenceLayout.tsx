@@ -32,7 +32,7 @@ export const ApiReferenceLayout = ({ frontMatter, children }) => {
         <title>{frontMatter.title} | Knock Docs</title>
       </Head>
       <div className="w-full max-w-5xl lg:flex mx-auto relative">
-        <div className="overflow-x-hidden flex-auto">
+        <div className="w-full flex-auto">
           {section && page && <Breadcrumbs section={section} page={page} />}
           <h1 className="font-bold text-2xl lg:text-4xl mb-4">
             {frontMatter.title}
