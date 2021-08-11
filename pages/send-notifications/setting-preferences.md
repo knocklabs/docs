@@ -37,6 +37,7 @@ await knockClient.preferences.set("jhammond", {
       channel_types: {
         email: false,
         in_app_feed: true,
+        sms: true,
       },
     },
   },
@@ -81,6 +82,7 @@ await knockClient.preferences.set({
       channel_types: {
         email: false,
         in_app_feed: true,
+        sms: true,
       },
     },
   },
