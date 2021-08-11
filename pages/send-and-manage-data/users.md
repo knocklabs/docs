@@ -41,7 +41,7 @@ The following attributes are optional, depending on the channel types you decide
 | Property | Description                                                    |
 | -------- | -------------------------------------------------------------- |
 | avatar       | A URL for the avatar of the user |
-| phone_number   | The phone number of the user (in [E.164 format](https://www.twilio.com/docs/glossary/what-e164).) Knock needs this to send recipients SMS notifications |
+| phone_number   | The [E.164](https://www.twilio.com/docs/glossary/what-e164) phone number of the user. Knock needs this to send recipients SMS notifications |
 
 ### Storing user traits
 
