@@ -34,7 +34,8 @@ Here's a JSON example of a given user's channel preferences.
 {
   "channel_types": {
     "email": false,
-    "in_app_feed": true
+    "in_app_feed": true,
+    "sms": true
   }
 }
 ```
@@ -78,7 +79,7 @@ Here's a JSON example of a given user's workflow-channel preference.
     "new-comment": {
       "channel_types": {
         "email": false,
-        "in_app_feed": true
+        "in_app_feed": true, 
       }
     }
   }

@@ -27,6 +27,7 @@ determine recipients for a notification. Generally, the best practice here is to
 identifier for your users as the `id`.
 
 ### Required attributes
+The following attributes are required for each user you identify with Knock. 
 
 | Property | Description                                                    |
 | -------- | -------------------------------------------------------------- |
@@ -34,10 +35,17 @@ identifier for your users as the `id`.
 | email    | The primary email address for this user                        |
 | name     | The full name of this user                                     |
 
+### Optional attributes
+The following attributes are optional, depending on the channel types you decide to use with Knock.
+
+| Property | Description                                                    |
+| -------- | -------------------------------------------------------------- |
+| avatar       | A URL for the avatar of the user |
+| phone_number   | The phone number of the user. Knock needs this to send recipients SMS notifications |
+
 ### Storing user traits
 
-Knock will keep track of any `properties` (key/value pairs) that you send to us as _traits_
-that are always merged onto a user and returned to you.
+In addition to the system attributes defined on the user schema above, Knock will keep track of any `properties` (key/value pairs) that you send to us. These _traits_ are always merged onto a user and returned to you.
 
 Traits are useful for when you need to perform additional personalization on a user, like de-normalizing
 the current plan they're on so you can use this to determine the portion of a notification they should receive.
