@@ -8,7 +8,7 @@ In this guide you'll integrate Knock with your application and send your first n
 
 ### 1. Add the Knock SDK to your backend
 
-We have SDKs available in [NodeJS](https://github.com/knocklabs/knock-node), [Python](https://github.com/knocklabs/knock-python), and [Elixir](https://github.com/knocklabs/knock-elixir). Don't see your language listed here? [Let us know](mailto:support@knock.app)!
+We have SDKs available in [NodeJS](https://github.com/knocklabs/knock-node), [Python](https://github.com/knocklabs/knock-python), [Ruby](https://github.com/knocklabs/knock-ruby), and [Elixir](https://github.com/knocklabs/knock-elixir). Don't see your language listed here? [Let us know](mailto:support@knock.app)!
 
 ```bash
 npm install @knocklabs/node
