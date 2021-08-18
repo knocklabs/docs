@@ -34,7 +34,7 @@ Best practice is to make an identify call to Knock when a new user is created an
 We don't take your user data lightly. For more on our security practices, contact us at [security@knock.app](mailto:security@knock.app?subject=Question%about%Knock's%security%practices).
 
 ```javascript
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 app.post("/signup", async (req, res) => {
@@ -63,7 +63,7 @@ To create your first workflow, log into the [Knock dashboard](https://dashboard.
 When you want to notify a set of users simply call the `notify` function to trigger the workflow you want to send. When calling the `notify` function, you'll pass in the `recipients` you want to receive messages sent by the workflow, as well as the `data` (which we received during step 4) required to populate those messages.
 
 ```javascript
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 // In our hypothetical document collaboration app

@@ -10,7 +10,7 @@ product.
 If you've used a Customer Data Platform (CDP) like Segment before, sending data to Knock will be familiar to you.
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.users.identify(user.id, {
@@ -83,7 +83,7 @@ Once sent to Knock, the user object returned to you in the Knock payload looks l
 You can batch send user objects, which is useful for when you're onboarding onto Knock.
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const chunk = require("lodash.chunk");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
