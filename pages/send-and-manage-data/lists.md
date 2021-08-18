@@ -37,7 +37,7 @@ it. The name of the list can be any string identifier, however we suggest using 
 `project.project_123.followers`.
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 // Sending only user ids
@@ -86,7 +86,7 @@ Users can be added to a list at any time. If the user is already present on the 
 for the user will be merged (if provided).
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 // Users can be added in batches of 100 at a time
@@ -104,7 +104,7 @@ When users are no longer required to be part of a list (e.g. they un-followed a 
 can be removed using the SDK:
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 // Users can be removed in batches of 100 at a time
@@ -116,7 +116,7 @@ await knock.lists.removeUsers(`project.${project.id}.followers`, [user.id]);
 You can get a list as well as a paginated set of its members (in ascending order).
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 const { pageInfo, list } = await knock.lists.get(
@@ -130,7 +130,7 @@ If a list is no longer needed, the entire list can be deleted and will subsequen
 available for use:
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 // Users can be removed in batches of 100 at a time

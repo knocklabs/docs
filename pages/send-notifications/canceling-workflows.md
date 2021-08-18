@@ -18,7 +18,7 @@ You can read about generating workflow cancellation keys and some best practices
 [triggering workflows guide](/send-notifications/triggering-workflows#generating-a-cancellation-key).
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 // Some invite approval code to reference a previously created invite
@@ -42,7 +42,7 @@ In some cases you may need to cancel a workflow for a subset of recipients only.
 by specifying the recipients list on the cancellation:
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.workflows.cancel("new-user-invited", userInvite.id, {

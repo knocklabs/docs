@@ -13,7 +13,7 @@ may have indicated through their `preferences` that they don't wish to be notifi
 Workflows are triggered via a call to the `notify` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the workflow specified by the call.
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.notify("new-user-invited", {
@@ -44,7 +44,7 @@ await knock.notify("new-user-invited", {
 ### Sending to users
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.notify("welcome-to-knock", {
@@ -73,7 +73,7 @@ recommend using an idempotency key with enough entropy, like a uuid v4.
 We'll keep idempotency keys in our system for at least 7 days before they are purged.
 
 ```js
-const Knock = require("@knocklabs/node");
+const { Knock } = require("@knocklabs/node");
 const uuid = require("uuid4");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
