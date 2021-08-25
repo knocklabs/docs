@@ -50,7 +50,7 @@ export default function Home() {
 
                   <ul className="mt-5 lg:mt-0 lg:ml-auto lg:w-40 space-y-2">
                     {s.pages.map((p) => (
-                      <li className="text-sm text-gray-500">
+                      <li className="text-sm text-gray-500" key={p.slug}>
                         <Link href={s.slug + p.slug}>
                           <a className="hover:text-gray-800">{p.title}</a>
                         </Link>

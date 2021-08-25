@@ -182,8 +182,7 @@ A User.
 <ExampleColumn>
 
 ```javascript Identify user
-import Knock from "@knocklabs/node";
-
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock("sk_example_123456789");
 
 const user = await knock.users.identify("jhammond", {
@@ -235,8 +234,7 @@ A User.
 <ExampleColumn>
 
 ```javascript Get user
-import Knock from "@knocklabs/node";
-
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock("sk_example_123456789");
 
 const user = await knock.users.get("jhammond");
@@ -344,8 +342,7 @@ A notify calls a workflow created via the Knock dashboard.
 <ExampleColumn>
 
 ```javascript Trigger workflow
-import Knock from "@knocklabs/node";
-
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock("sk_example_123456789");
 
 await knock.notify("dinosaurs-loose", {
@@ -407,8 +404,7 @@ Cancel a delayed workflow for one or more recipients.
 <ExampleColumn>
 
 ```javascript Cancel workflow
-import Knock from "@knocklabs/node";
-
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock("sk_example_123456789");
 
 await knock.workflows.cancel("dinosaurs-loose", triggerAlert.id);
@@ -541,8 +537,8 @@ Returns a `PreferenceSet`.
 <ExampleColumn>
 
 ```javascript Get preferences
-import Knock from "@knocklabs/node";
-const knock = new Knock("sk_example_123456789");
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_12345679");
 
 // Retrieves the `default` set
 const preferences = await knock.preferences.get("jhammond");
@@ -621,8 +617,8 @@ Returns a `PreferenceSet`.
 <ExampleColumn>
 
 ```javascript Set preferences
-import Knock from "@knocklabs/node";
-const knock = new Knock("sk_example_123456789");
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_12345679");
 
 const preferences = await knock.preferences.set("jhammond", {
   channel_types: {
@@ -655,6 +651,162 @@ const preferences = await knock.preferences.set("jhammond", {
     "in_app_feed": true
   }
 }
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Channel data" slug="channel-data">
+<ContentColumn>
+
+Channel data is user and channel specific information that's needed in order to deliver a notification to an end provider.
+For a push channel, this includes device specific tokens that map the recipient to the device they use.
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The UUID of the channel this data belongs to"
+  />
+  <Attribute
+    name="data"
+    type="object"
+    description="The provider specific channel data (will always be set)"
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint
+    name="get-channel-data"
+    method="GET"
+    path="/users/:user_id/channel_data/:channel_id"
+  />
+  <Endpoint
+    name="set-channel-data"
+    method="PUT"
+    path="/users/:user_id/channel_data/:channel_id"
+  />
+</Endpoints>
+
+```json ChannelData object
+{
+  "__typename": "ChannelData",
+  "channel_id": "c2189f43-c732-488a-bfa0-fdf16e145cdf",
+  "data": {
+    "tokens": ["some-fcm-token"]
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Getting channel data" slug="get-channel-data">
+<ContentColumn>
+
+Retrieves the channel data for the user on the channel specified
+
+### Endpoint
+
+<Endpoint method="GET" path="/users/:user_id/channel_data/:channel_id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="The id of the user to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the channel to lookup"
+  />
+</Attributes>
+
+### Returns
+
+- `200` with a `ChannelData` object (when found)
+- `404` when not found
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Get channel data
+const { Knock } = require("@knocklabs/node");
+const knockClient = new Knock("sk_12345");
+
+// Get this value in your Knock dashboard
+const APNS_CHANNEL_ID = "some-channel-id-from-knock";
+
+const channelData = await knockClient.users.getChannelData(
+  "jhammond",
+  APNS_CHANNEL_ID,
+);
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Setting channel data" slug="set-channel-data">
+<ContentColumn>
+
+Sets the channel data for the user and the channel specified
+
+### Endpoint
+
+<Endpoint method="PUT" path="/users/:user_id/channel_data/:channel_id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="The id of the user to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the channel to lookup"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="object"
+    description="The data to set for this channel, shape of the payload varies depending on the channel"
+  />
+</Attributes>
+
+### Returns
+
+- `200` with a `ChannelData` object (when set)
+- `400` when the channel specified cannot be found
+- `422` with errors when the data is incorrectly shaped
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Set channel data
+const { Knock } = require("@knocklabs/node");
+const knockClient = new Knock("sk_12345");
+
+// Get this value in your Knock dashboard
+const APNS_CHANNEL_ID = "some-channel-id-from-knock";
+
+await knockClient.users.setChannelData("jhammond", APNS_CHANNEL_ID, {
+  tokens: ["apns-token-1"],
+});
 ```
 
 </ExampleColumn>
