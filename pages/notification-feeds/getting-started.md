@@ -84,4 +84,4 @@ pushing it to production:
 
 - [Customizing the UI in your feed](/notification-feeds/customizing-ui)
 - [Bringing your own UI](/notification-feeds/bring-your-own-ui)
-- [Batching notifications](/sending-notifications/batching-and-throttling)
+- [Batching notifications](/send-notifications/batching-and-throttling)
