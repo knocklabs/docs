@@ -17,4 +17,4 @@ asdf install
 yarn install
 
 echo "🚀 Docs dependencies are ready to go!"
-echo "Now, start the development server with `yarn run dev`"
+echo "Now, start the development server with \`yarn run dev\`"
