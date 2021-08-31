@@ -10,7 +10,7 @@ To run docs you will need:
 
 ## Getting up-and-running
 
-### Running both the API and Dashboard
+### Running docs
 
 1. Install the necessary dependencies:
 
