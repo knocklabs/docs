@@ -70,6 +70,6 @@ import { NotificationFeed } from "@knocklabs/react-notification-feed";
 
 The complete theme that controls the look and feel of the feed components can be customized for theme in a few different ways:
 
-1. **Customizing the CSS variables**. The feed is written using CSS variables, which can be modified to better match the look and feel of your product. The best way to see the possible CSS variables in use is to look at the [theme.css source code](https://github.com/knocklabs/react-notification-feed/blob/main/src/theme.css).
+1. **Customizing the CSS variables**. The feed is written using CSS variables, which you can override to better match the look and feel of your product. The best way to see the possible CSS variables in use is to look at the [theme.css source code](https://github.com/knocklabs/react-notification-feed/blob/main/src/theme.css).
 
 2. **Bringing your own CSS**. It's possible to override the Knock CSS entirely to customize the look and feel of the feed. All of the feed classes are unique and start with `rnf-`. You can see the classes in use by looking at the [source code of the components](https://github.com/knocklabs/react-notification-feed/blob/main/src/).
