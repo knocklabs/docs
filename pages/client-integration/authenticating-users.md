@@ -42,7 +42,7 @@ knockClient.authenticate(currentUser.id);
 >
 ```
 
-Please note: in production environments you **will need to authenticate your users**. This ensures
+Please note: in production environments you **will need to authenticate your users using a secure user token**. This ensures
 that your users content is protected and cannot be read by malicious actors.
 
 ## Authentication (in production environments)
