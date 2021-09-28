@@ -7,7 +7,7 @@ This guide will show you how to get up-and-running with our in-app feed in your 
 ## Integrating the feed
 
 This guide assumes you have already setup your client application with authentication against
-the Knock API. Please read [that guide](/client-integration/authentication) first if you haven't already.
+the Knock API. Please read [that guide](/client-integration/authenticating-users) first if you haven't already.
 
 ### 1. Add the in-app feed as a channel
 
@@ -49,30 +49,33 @@ import {
   NotificationFeedPopover,
 } from "@knocklabs/react-notification-feed";
 
+// Required CSS import, unless you're overriding the styling
+import "@knocklabs/react-notification-feed/dist/index.css";
+
 const YourAppLayout = () => {
   const [isVisible, setIsVisible] = useState(false);
   const notifButtonRef = useRef(null);
 
   return (
-    <Header>
-      <KnockFeedProvider
-        apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-        feedId={process.env.KNOCK_FEED_ID}
-        userId={currentUser.id}
-        // Optional in non production environments
-        userToken={currentUser.knockUserToken}
-      >
-        <NotificationIconButton
-          ref={buttonRef}
-          onClick={(e) => setIsVisible(!isVisible)}
-        />
-        <NotificationFeedPopover
-          buttonRef={buttonRef}
-          isVisible={isVisible}
-          onClose={() => setIsVisible(false)}
-        />
-      </KnockFeedProvider>
-    </Header>
+    <KnockFeedProvider
+      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+      feedId={process.env.KNOCK_FEED_ID}
+      userId={currentUser.id}
+      // Optional in non production environments
+      userToken={currentUser.knockUserToken}
+      // Optionally you can scope the feed in a particular manner
+      // tenant={currentWorkspace.id}
+    >
+      <NotificationIconButton
+        ref={notifButtonRef}
+        onClick={(e) => setIsVisible(!isVisible)}
+      />
+      <NotificationFeedPopover
+        buttonRef={notifButtonRef}
+        isVisible={isVisible}
+        onClose={() => setIsVisible(false)}
+      />
+    </KnockFeedProvider>
   );
 };
 ```

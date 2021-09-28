@@ -19,7 +19,9 @@ The following calls will require authentication to be used (when called from the
 ## Authentication (in development environments)
 
 In a Knock development environment you can freely use your public key to authenticate all users
-and do not need to implement any other security. That means you can get up and running like:
+and do not need to implement any other security mechanisms.
+
+**Client SDK example**
 
 ```js
 import Knock from "@knocklabs/client";
@@ -30,7 +32,17 @@ const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 knockClient.authenticate(currentUser.id);
 ```
 
-Please note: in production environments you **will need to authenticate your users**. This ensures
+**React notification feed example**
+
+```jsx
+<KnockFeedProvider
+  // Rest omitted for brevity
+  apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+  userId={currentUser.id}
+>
+```
+
+Please note: in production environments you **will need to authenticate your users using a secure user token**. This ensures
 that your users content is protected and cannot be read by malicious actors.
 
 ## Authentication (in production environments)
@@ -48,7 +60,7 @@ it if you lose access.
 ### 2. Sign the JWT
 
 Within your backend application you'll need to sign the JWT and make it available to your front-end
-client. Usually you'll do this by passing it down as a serialized property on the user.
+client. Usually you'll do this by passing it down as a serialized property on the user, or passing via a cookie.
 
 At a minimum the JWT to be signed must have:
 
@@ -63,7 +75,7 @@ At a minimum the JWT to be signed must have:
 }
 ```
 
-To sign your JWT as middleware:
+To sign your JWT as middleware in a NodeJS express like app:
 
 ```js
 const jwt = require("jsonwebtoken");
@@ -86,7 +98,7 @@ app.use((req, res, next) => {
       process.env.KNOCK_SIGNING_KEY,
       {
         algorithm: "RS256",
-      }
+      },
     ),
   });
   next();
@@ -97,6 +109,8 @@ app.use((req, res, next) => {
 
 In your client application you can now use the JWT to authenticate with Knock:
 
+**Client SDK example**
+
 ```js
 import Knock from "@knocklabs/client";
 
@@ -104,6 +118,17 @@ const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 
 // Tell Knock to use the users id and the token for the user
 knockClient.authenticate(currentUser.id, currentUser.knockToken);
+```
+
+**React notification feed example**
+
+```jsx
+<KnockFeedProvider
+  // Rest of props omitted for brevity
+  apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+  userId={currentUser.id}
+  userToken={currentUser.knockUserToken}
+>
 ```
 
 ## Avoiding authentication
