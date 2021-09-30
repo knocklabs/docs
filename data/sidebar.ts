@@ -83,6 +83,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#channel-data", title: "Channel data" },
       { slug: "#feeds", title: "Feeds" },
       { slug: "#messages", title: "Messages" },
+      { slug: "#bulk-operations", title: "Bulk operations" },
     ],
   },
 ];
