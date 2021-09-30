@@ -1163,10 +1163,7 @@ A Message.
 <Section title="Batch changing message statuses" slug="batch-update-message-status">
 <ContentColumn>
 
-Message changes can also for multiple resources at a time using the batch API, where all message ids given in
-the list will have their statuses changed.
-
-Please note: you can only modify a maximum of 100 messages at a time using this endpoint.
+Multiple messages can be changed at once using the batch API, where all message ids given in will have their statuses changed.
 
 ### Endpoint
 
@@ -1202,7 +1199,7 @@ A list of Messages that were mutated during the call.
 <Section title="Bulk changing message statuses in a channel" slug="bulk-update-channel-message-status">
 <ContentColumn>
 
-The bulk change endpoint allows you to modify all, or a subset of messages for a given channel. The messages
+The bulk change endpoint allows you to modify all, or a subset of messages for a given channel via an asyncronous job. The messages
 to be modified can be filtered using the properties listed below, and this operation will always return a `BulkOperation`
 which allows you to track the status of the job.
 
@@ -1269,6 +1266,10 @@ A bulk operation represents a set of changes that are to be performed across 0 o
 bulk operation resource represents the state of the operation, including recording the number of rows
 that have been modified during the operation.
 
+Please note here: the `estimated_total_rows` field may have a different value to the `processed_rows`
+field due to the asyncronous nature of the operation. If you wish to pin this job to a specific point in
+time, you can initiate it with a date filter (like `older_than`).
+
 ### Attributes
 
 <Attributes>
@@ -1324,15 +1325,15 @@ that have been modified during the operation.
 ```json BulkOperation object
 {
   "__typename": "BulkOperation",
-  "completed_at" => nil,
-  "estimated_total_rows" => 0,
-  "failed_at" => nil,
-  "id" => "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "name" => "bulk_op",
-  "processed_rows" => 0,
-  "progress_path" => "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at" => nil,
-  "status" => "queued",
+  "completed_at": nil,
+  "estimated_total_rows": 42,
+  "failed_at": nil,
+  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "name": "bulk_op",
+  "processed_rows": 0,
+  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "started_at": nil,
+  "status": "queued",
   "inserted_at": "2021-03-05T12:00:00Z",
   "updated_at": "2021-03-05T12:00:00Z"
 }
