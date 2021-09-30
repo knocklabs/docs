@@ -1083,6 +1083,7 @@ A message is a notification delivered on a particular channel to a user.
   <Endpoint method="PUT" path="/messages/:id/:status" />
   <Endpoint method="DELETE" path="/messages/:id/:status" />
   <Endpoint method="POST" path="/messages/batch/:status" />
+  <Endpoint method="POST" path="/channels/:id/messages/bulk/:status" />
 </Endpoints>
 
 ```json Message object
@@ -1162,8 +1163,10 @@ A Message.
 <Section title="Batch changing message statuses" slug="batch-update-message-status">
 <ContentColumn>
 
-Messages changes can also be made in bulk by using the batch API, where all message ids given in
+Message changes can also for multiple resources at a time using the batch API, where all message ids given in
 the list will have their statuses changed.
+
+Please note: you can only modify a maximum of 100 messages at a time using this endpoint.
 
 ### Endpoint
 
@@ -1192,6 +1195,175 @@ the list will have their statuses changed.
 ### Returns
 
 A list of Messages that were mutated during the call.
+
+</ContentColumn>
+</Section>
+
+<Section title="Bulk changing message statuses in a channel" slug="bulk-update-channel-message-status">
+<ContentColumn>
+
+The bulk change endpoint allows you to modify all, or a subset of messages for a given channel. The messages
+to be modified can be filtered using the properties listed below, and this operation will always return a `BulkOperation`
+which allows you to track the status of the job.
+
+### Endpoint
+
+<Endpoint method="POST" path="/channels/:id/messages/bulk/:status" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="The ID of a channel that you wish to modify messages under"
+  />
+  <Attribute
+    name="status"
+    type="enum"
+    description="One of `seen`, `read`, `archive` or `unseen`, `unread`, `unarchive`"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="user_ids"
+    type="string[]"
+    description="Scope the bulk update to one or more users (optional)"
+  />
+  <Attribute
+    name="older_than"
+    type="string"
+    description="An ISO-8601 timestamp to find messages created before (optional)"
+  />
+  <Attribute
+    name="newer_than"
+    type="string"
+    description="An ISO-8601 timestamp to find messages created after (optional)"
+  />
+  <Attribute
+    name="delivery_status"
+    type="enum"
+    description="Limit messages to one of `queued`, `sent`, `delivered`, `undelivered` (optional)"
+  />
+  <Attribute
+    name="engagement_status"
+    type="enum"
+    description="Limit messages to one of `seen`, `unseen`, `read`, `unread`, `archived`, `unarchived` (optional)"
+  />
+</Attributes>
+
+### Returns
+
+A `BulkOperation`
+
+</ContentColumn>
+</Section>
+
+<Section title="Bulk operations" slug="bulk-operations">
+<ContentColumn>
+
+A bulk operation represents a set of changes that are to be performed across 0 or more records. The
+bulk operation resource represents the state of the operation, including recording the number of rows
+that have been modified during the operation.
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="The unique ID of this bulk operation"
+  />
+  <Attribute
+    name="name"
+    type="string"
+    description="The type of operation being performed"
+  />
+  <Attribute
+    name="estimated_total_rows"
+    type="integer"
+    description="An approximation of the number of rows that will be mutated in this operation"
+  />
+  <Attribute
+    name="processed_rows"
+    type="integer"
+    description="The number of the rows that have been mutated in this operation"
+  />
+  <Attribute
+    name="status"
+    type="enum"
+    description="One of `queued`, `processing`, `completed`, `failed`"
+  />
+  <Attribute
+    name="started_at"
+    type="string"
+    description="An ISO-8601 datetime string for when the operation started processing"
+  />
+  <Attribute
+    name="completed_at"
+    type="string"
+    description="An ISO-8601 datetime string for when the operation completed processing"
+  />
+  <Attribute
+    name="failed_at"
+    type="string"
+    description="An ISO-8601 datetime string for when the operation failed processing"
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint method="GET" path="/bulk_operations/:id" />
+</Endpoints>
+
+```json BulkOperation object
+{
+  "__typename": "BulkOperation",
+  "completed_at" => nil,
+  "estimated_total_rows" => 0,
+  "failed_at" => nil,
+  "id" => "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "name" => "bulk_op",
+  "processed_rows" => 0,
+  "progress_path" => "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "started_at" => nil,
+  "status" => "queued",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Retrieve a bulk operation" slug="bulk-operation-status">
+<ContentColumn>
+
+Retrieve the bulk operation, revealing the current status and the number of rows processed. You can poll this endpoint
+to understand when a bulk operation has finished executing (either completed, or failed).
+
+### Endpoint
+
+<Endpoint method="GET" path="/bulk_operations/:id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="The ID of a bulk operation to retrieve"
+  />
+</Attributes>
+
+### Returns
+
+A `BulkOperation`
 
 </ContentColumn>
 </Section>
