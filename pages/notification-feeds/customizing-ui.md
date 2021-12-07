@@ -58,12 +58,106 @@ import {
 
 ## Using dark mode
 
-The feed supports an optional `colorMode` prop, that defaults to `light` but can be set as `dark` for dark mode support:
+The feed supports an optional `colorMode` prop, that defaults to `light` but can be set as `dark` for dark mode support.
 
 ```jsx
 import { NotificationFeed } from "@knocklabs/react-notification-feed";
 
 <NotificationFeed colorMode="dark" />;
+```
+
+## Adding inline actions
+
+For more advanced use cases, you may need to provide inline actions on your notifications. The `NotificationCell` component accepts a `children` prop in order for you to render actions. You'll need to override the `renderItem` prop on the `NotificationFeed` or `NotificationFeedPopover` to render the custom notification cell.
+
+### Using action buttons
+
+We ship `Button` and `ButtonGroup` components, which have a complementary set of styling for the rest of the feed. You can render the buttons in a button group so that they'll be grouped together, or can render them individually.
+
+```jsx
+import {
+  ButtonGroup,
+  Button,
+  NotificationFeed,
+  NotificationCell,
+} from "@knocklabs/react-notification-feed";
+
+<NotificationFeed
+  renderItem={({ item, ...props }) => (
+    <NotificationCell {...props} item={item}>
+      <ButtonGroup>
+        <Button variant="primary" onClick={myAcceptHandler}>
+          Accept
+        </Button>
+        <Button variant="secondary" onClick={myRejectHandler}>
+          Reject
+        </Button>
+      </ButtonGroup>
+    </NotificationCell>
+  )}
+/>;
+```
+
+**Note**: remember to call `event.stopPropagation` in your `onClick` handler to stop the notification `onClick` handler from being invoked.
+
+### Targeting a specific workflow to have buttons
+
+A common use case is to only show action buttons for certain workflows. You can achieve this via the `item.source` property, which exposes a `WorkflowSource`:
+
+```jsx
+import {
+  ButtonGroup,
+  Button,
+  NotificationFeed,
+  NotificationCell,
+} from "@knocklabs/react-notification-feed";
+
+<NotificationFeed
+  renderItem={({ item, ...props }) => (
+    <NotificationCell {...props} item={item}>
+      {item.source.key === "approval-workflow" && (
+        <ButtonGroup>
+          <Button variant="primary">Accept</Button>
+          <Button variant="secondary">Reject</Button>
+        </ButtonGroup>
+      )}
+    </NotificationCell>
+  )}
+/>;
+```
+
+### Button Props
+
+The `Button` exposes the following props.
+
+| Prop        | Description                                                                        |
+| ----------- | ---------------------------------------------------------------------------------- |
+| variant     | `primary` or `secondary` (defaults to `primary`)                                   |
+| onClick     | An event handler to be invoked on click                                            |
+| loadingText | Text to display when isLoading is true                                             |
+| isLoading   | When true, will show a spinner (defaults to `false`)                               |
+| isDisabled  | When true, will disable the button (defaults to `false`)                           |
+| isFullWidth | When true, make the button occupy the width of the container (defaults to `false`) |
+
+### Adding other inline actions
+
+If you have a more advanced use case, you can render any inline component you wish using the same technique as above.
+
+```jsx
+import {
+  NotificationFeed,
+  NotificationCell,
+} from "@knocklabs/react-notification-feed";
+
+<NotificationFeed
+  renderItem={({ item, ...props }) => (
+    <NotificationCell {...props} item={item}>
+      {item.source.key === "new-comment" && (
+        <InlineCommentingWidget item={item} />
+      )}
+    </NotificationCell>
+  )}
+/>;
 ```
 
 ## Customizing the theme
