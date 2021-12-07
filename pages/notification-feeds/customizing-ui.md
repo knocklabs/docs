@@ -72,7 +72,7 @@ For more advanced use cases, you may need to provide inline actions on your noti
 
 ### Using action buttons
 
-We ship `Button` and `ButtonGroup` components, which have a complimentary set of styling for the rest of the feed. You can render the buttons in a button group so that they'll be grouped together, or can render them individually.
+We ship `Button` and `ButtonGroup` components, which have a complementary set of styling for the rest of the feed. You can render the buttons in a button group so that they'll be grouped together, or can render them individually.
 
 ```jsx
 import {
@@ -102,7 +102,7 @@ import {
 
 ### Targeting a specific workflow to have buttons
 
-A common use case is to only show action buttons for certain workflows. You can achieve this via the `item.source` property, which exposes a `WorkflowSource`.
+A common use case is to only show action buttons for certain workflows. You can achieve this via the `item.source` property, which exposes a `WorkflowSource`:
 
 ```jsx
 import {
