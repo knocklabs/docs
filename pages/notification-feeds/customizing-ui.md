@@ -58,7 +58,7 @@ import {
 
 ## Using dark mode
 
-The feed supports an optional `colorMode` prop, that defaults to `light` but can be set as `dark` for dark mode support:
+The feed supports an optional `colorMode` prop, that defaults to `light` but can be set as `dark` for dark mode support.
 
 ```jsx
 import { NotificationFeed } from "@knocklabs/react-notification-feed";
@@ -68,11 +68,11 @@ import { NotificationFeed } from "@knocklabs/react-notification-feed";
 
 ## Adding inline actions
 
-For more advanced use cases, you may need to provide inline actions on your notifications. The `NotificationCell` component accepts a `children` prop in order for you to render actions, which you can pass a custom `renderItem` to `NotificationFeed` or `NotificationFeedPopover` to render.
+For more advanced use cases, you may need to provide inline actions on your notifications. The `NotificationCell` component accepts a `children` prop in order for you to render actions. You'll need to override the `renderItem` prop on the `NotificationFeed` or `NotificationFeedPopover` to render the custom notification cell.
 
 ### Using action buttons
 
-The feed comes with `Button` and `ButtonGroup` components, which have a complimentary set of styling for the rest of the feed. You can render the buttons in a button group so that they'll be grouped together, or can render them individually:
+We ship `Button` and `ButtonGroup` components, which have a complimentary set of styling for the rest of the feed. You can render the buttons in a button group so that they'll be grouped together, or can render them individually.
 
 ```jsx
 import {
@@ -98,7 +98,7 @@ import {
 />;
 ```
 
-**Note: remember to call `event.stopPropagation` in your `onClick` handler to stop the notification `onClick` handler from being invoked**.
+**Note**: remember to call `event.stopPropagation` in your `onClick` handler to stop the notification `onClick` handler from being invoked.
 
 ### Targeting a specific workflow to have buttons
 
@@ -141,7 +141,7 @@ The `Button` exposes the following props.
 
 ### Adding other inline actions
 
-If you have a more advanced usecase, you can render whatever inline component you wish using the same technique as above.
+If you have a more advanced use case, you can render any inline component you wish using the same technique as above.
 
 ```jsx
 import {
