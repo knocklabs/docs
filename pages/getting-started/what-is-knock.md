@@ -19,7 +19,7 @@ The inputs are `notify` and `identify` calls made to the Knock API by your engin
 
 These inputs power workflows built in Knock by your product and/or growth teams. Once the necessary calls are being made by your API to Knock, non-technical users can create and update notification routing and design in minutes, without the help of engineers. Knock also provides visibility into logs and analytics so your team can quickly see what's working and iterate towards a notification experience that your end users love.
 
-Knock delivers notifications across in-app and out-of-app channels. For in-app channels we offer pre-built components you can use to drop a fully functioning notification feed into your app in minutes. For out-of-app channels we integrate with the email service providers you already use today. We only support in-app feeds and email as of our beta release but have plans to release support for additional channels soon.
+Knock delivers notifications across in-app and out-of-app channels. For in-app channels we offer pre-built components you can use to drop a fully functioning notification feed into your app in minutes. For out-of-app channels we integrate with the downstream providers you already use today, such as email, push, and SMS service providers, as well as native platforms such as Slack and Apple Push Notification Service.
 
 ## Product vs promotional notifications
 
