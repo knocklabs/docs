@@ -11,7 +11,7 @@ Batching notifications involves collapsing multiple messages of the same type fo
 into a single message within a given window of time. "Jane and 3 others" and "Jane left 5 comments" are both examples of batched messages.
 
 Knock helps introduce batching into your notifications experience by allowing you to specify a batch
-key and a batch window in your workflow.
+key and a batch window in your workflow. 
 
 ### Batching windows
 
@@ -34,6 +34,8 @@ Some example batch keys:
   for the document so that comments within the same document are grouped together.
 - In a file sharing app, we might want to collapse all new file upload notifications into a single
   folder, and so we'd use the folder identifier as the batch key.
+  
+You can learn more about using batch functions within the Knock dashboard in [our feature guide](https://knockapp.notion.site/Workflow-functions-batch-and-delay-0cb7cbca246f44deb922aaade07ae846). 
 
 ## Throttling
 
