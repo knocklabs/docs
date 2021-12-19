@@ -8,6 +8,8 @@ in one environment are **never** accessible to another.
 
 The API key you use determines the environment into which you'll be sending data. You can find your environment specific API keys under the "Developer" section of the Knock dashboard.
 
+Note: By default, your Knock account comes with two environments: Development and Production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a Staging environment) you can add it on the "Settings" page of the Knock dashboard. 
+
 ## Promotion and rollback
 
 Knock is designed to allow large teams to create and manage notifications at scale. That means that
