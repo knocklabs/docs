@@ -66,9 +66,9 @@ To inject a variable into your notification template, enclose it with double cur
 You can use curly braces to reference a number of different variable types: 
 
 - **Data payload variables.** Variables sent in the `data` payload of your notify call are injected with curly braces and don't require a prefixed namespace.
-- **User properties.** If you want to reference a user property, such as name, use the `actor` and `recipient` namespaces. This essentially looks up the actor or a recipient of a given notification, and then finds the specified property for that user. Here's a code example where a recipient's name and plan are injected into a notification template:
+- **User properties.** If you want to reference a user property, such as `name`, use the `actor` and `recipient` namespaces. This looks up the actor or a recipient of a given notification, and then finds the specified property for that user. Here's a code example where a recipient's name and plan are injected into a notification template:
     
-    ```markdown
+    ```
     Hey there {{ recipient.name }},
     
     You just upgraded to the {{ recipient.plan }} plan. 
@@ -76,12 +76,12 @@ You can use curly braces to reference a number of different variable types:
     Thanks, 
     The team @ Knock
     ``` 
-- **Account and environment constants.** You can also set constants at an account- or environment-level in Knock for variables that won't change across your different notification workflows. (For more information see [Environments and variables](https://www.notion.so/Environments-and-variables-143018e41dd34848ba584a1f2f24f8d6).) Common use cases for constants include base URLs for routing (e.g. dashboard.knock.app v. dashboard.knock-dev.app) and product names. To access constants in your notification templates, use the `vars` namespace. Here's a code example of an action URL for an in-app feed notification that uses an environment constant: `{{ vars.app_url }}/page/{{ page_id }}`.
-- **Workflow state variables.** There are a standard set of workflow state variables you'll find useful if you start to work with batch functions. These variables are available on all workflows, and keep track of the `activities` kept within the state of a given workflow run (i.e. the number of notify calls that workflow run has received.)
+- **Account and environment constants.** You can also set constants at an account or environment level in Knock for variables that won't change across your different notification workflows. (For more information see [Environments and variables](https://www.notion.so/Environments-and-variables-143018e41dd34848ba584a1f2f24f8d6).) Common use cases for constants include base URLs for routing (e.g. dashboard.knock.app v. dashboard.knock-dev.app) and product names. To access constants in your notification templates, use the `vars` namespace. Here's a code example of an action URL for an in-app feed notification that uses an environment constant: `{{ vars.app_url }}/page/{{ page_id }}`.
+- **Workflow state variables.** There are a standard set of workflow state variables you'll find useful if you start to work with batch functions. These variables are available on all workflows and keep track of the `activities` kept within the state of a given workflow run (i.e. the number of notify calls that workflow run has received.)
 
-    - `total_activities` The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight.)
-    - `total_actors` The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification.)
-    - `activities` A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your notify call. The `activities` variable lists the *first* ten activity objects added to the batch. Each activity includes any data properties you sent along in the notify call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
+    - `total_activities` - The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight.)
+    - `total_actors` - The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification.)
+    - `activities` - A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your notify call. The `activities` variable lists the *first* ten activity objects added to the batch. Each activity includes any data properties you sent along in the notify call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
         
         ```
         {% for activity in activities %}
@@ -92,7 +92,7 @@ You can use curly braces to reference a number of different variable types:
         </blockquote>
         {% endfor %}
         ```
-    - `actors` A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the *first* ten actors added to the batch.
+    - `actors` - A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the *first* ten actors added to the batch.
 
 In addition to injecting custom variables, you'll also have access to data properties about the `recipient` (the user who
 is receiving the message) as well as the `actor` (the user who performed the action that generated
@@ -108,19 +108,18 @@ Here are a couple Liquid tag types that are commonly used in Knock notification 
 
 - **If and else-if statements.** For when you want to show different copy depending on a user property or a data variable from your notify call. In the example below, we show different copy depending on whether a batch of comments includes one or many comments.
     
-    ```markdown
+    ```
     {% if total_activities > 1 %} 
-      {{ actor.name}} left {{ total_activities }} comments on {{ page_name }}
+      {{ actor.name }} left {{ total_activities }} comments on {{ page_name }}
     {% else %}
       {{ actor.name}} left a comment on {{ page_name }}.  
-      
       > {{ comment_body }}
     {% endif %}
     ```
     
 - **For loops.** You can use Liquid's `for...in...` tag to iterate over a list of items. We can add this to our example from above to iterate over the comments in a batch and add each one to our notification.
     
-    ```markdown
+    ```
     {% if total_activities > 1 %} 
       {{ actor.name}} left {{ total_activities }} comments on {{ page_name }}
     	
@@ -130,7 +129,6 @@ Here are a couple Liquid tag types that are commonly used in Knock notification 
     
     {% else %}
       {{ actor.name}} left a comment on {{ page_name }}.  
-      
       > {{ comment_body }}
     {% endif %}
     ```
@@ -138,7 +136,7 @@ Here are a couple Liquid tag types that are commonly used in Knock notification 
 
 There are also a number of Liquid filters you can use to mutate the variables you pass into a notification template. Here's an example that uses the `split` and `first` filters to pull the first name for a given user. 
 
-```markdown
+```
 You've been invited by {{ actor.name | split: " " | first }} to 
 join {{ account_name }} on Knock.
 ```
