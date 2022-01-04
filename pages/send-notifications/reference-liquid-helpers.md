@@ -50,7 +50,7 @@ The Knock template editor uses Liquid syntax for control flow and variable decla
 | `sha256`           | Takes a string and returns an sha256 hash.                                                                                                                                                                               | <code>{{ recipient.id &#124; sha256 }}</code>                            |
 | `hmac_sha256`      | Takes a string and returns an hmac hash given a key provided to hmac_sha256 helper.                                                                                                                                      | <code>{{ recipient.id &#124; hmac_sha256: "some-key" }}</code>           |
 
-### Locale support
-A number of Knock's Liquid helpers take a `locale` parameter to tell the helper which currency or number format to use for the helper's output. You can find a list of supported locales below. If we're missing a locale that you'd like us to support, please [reach out](mailto:support@knock.app). 
+### Localization parameters
+A few of Knock's Liquid helpers (such as `currency` and `format_number`) take an optional locale parameter to format the output of the helper into a localized format. You can find a list of supported locales below. If we're missing a locale that you'd like us to support, please [reach out](mailto:support@knock.app). 
 
 **Supported locales:** `af`, `ar`, `az`, `be`, `bg`, `bn`, `bs`, `ca`, `cs`, `cy`, `da`, `de`, `el,` `en`, `eo`, `es`, `et`, `eu`, `fa`, `fi`, `fr`, `gl`, `he`, `hi`, `hr`, `hu`, `id`, `is`, `it`, `ja`, `ka`, `km`, `kn`, `ko`, `lb`, `lo`, `lt`, `lv`, `mk`, `ml`, `mn`, `mr`, `ms`, `nb`, `ne`, `nl`, `nn`, `or`, `pa`, `pl`, `pt`, `rm`, `ro`, `ru`, `sk`, `sl`, `sq`, `sr`, `sw`, `ta`, `te`, `th`, `tr`, `tt`, `ug`, `ur`, `uz`, `vi`, `wo`, `zh`
