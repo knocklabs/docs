@@ -15,7 +15,7 @@ All Knock workflows consist of three basic parts:
 
 
 ### The trigger step
-Every workflow starts with a trigger step. When you want to run a workflow, you send a notify call to the Knock API with an `actor`, a list of `recipients`, and a `data` payload with any information you want to use in the notification templates of the workflow. (More on this in [triggering workflows](/../triggering-workflows.md).) When the workflow is triggered, it creates a workflow run for each of the `recipients` passed in the notify call. 
+Every workflow starts with a trigger step. When you want to run a workflow, you send a notify call to the Knock API with an `actor`, a list of `recipients`, and a `data` payload with any information you want to use in the notification templates of the workflow. (More on this in [triggering workflows](/send-notifications/triggering-workflows).) When the workflow is triggered, it creates a workflow run for each of the `recipients` passed in the notify call. 
 
 You won't actually need to do anything with this trigger step within the workflow builder of the Knock dashboard, but it's worth calling out that we automatically generate a sample notify call based on the variable data you add downstream in your workflow. This way you can see all of the `data` you need to pass in your trigger to populate the templates of the Knock workflow.   
 
@@ -140,6 +140,8 @@ There are also a number of Liquid filters you can use to mutate the variables yo
 You've been invited by {{ actor.name | split: " " | first }} to 
 join {{ account_name }} on Knock.
 ```
+
+To learn more about the variables, Liquid keywords, and other helper functions available to you in the Knock template editor, check out our [liquid helper reference](/send-notifications/reference-liquid-helpers). 
 
 ### Previewing and testing your notification template
 
