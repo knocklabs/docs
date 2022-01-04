@@ -40,8 +40,8 @@ A function is a step in a workflow that does something to the data being passed 
 
 We currently support the following functions:
 
-- Batch (aggregate)
-- Delay
+- Batch (aggregate notify calls that have the same value for a specified batch key)
+- Delay (wait an amount of time before proceeding to the next workflow step)
 
 To learn more about functions and how to get the most out of them in the Knock dashboard, see our [feature guide](https://www.notion.so/knockapp/Workflow-functions-batch-and-delay-0cb7cbca246f44deb922aaade07ae846). 
 
