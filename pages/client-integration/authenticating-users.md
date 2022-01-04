@@ -2,24 +2,23 @@
 title: Authenticating users
 ---
 
-Authenticating ensures that your users can securely access the Knock API from the client
-applications that they are using, without you exposing your secret API key and allowing blanket
-access.
+Authentication ensures your users can securely access the Knock API from your client
+applications, without you exposing your secret API key and allowing blanket
+access. 
 
-**Note: you only need to add the authentication here if you're integrating Knock on the client-side of
-your applications and leveraging feeds or preferences.**
+**Note:** This integration guide references examples from our [client-side JS SDK](https://github.com/knocklabs/knock-client-js). You only need to add the authentication outlined in this guide if you're integrating Knock on the client-side of
+your applications to use the Knock in-app feed or the Knock preferences model.
 
 ## API endpoints that require auth
 
-The following calls will require authentication to be used (when called from the client):
+The following calls require authentication (when called from the client):
 
 - Fetching a user's notification feed
 - Marking a message as read, seen, or archived
 
 ## Authentication (in development environments)
 
-In a Knock development environment you can freely use your public key to authenticate all users
-and do not need to implement any other security mechanisms.
+In a Knock development environment you can use your public key to authenticate all users. You do not need to implement any other security mechanisms.
 
 **Client SDK example**
 
@@ -42,7 +41,7 @@ knockClient.authenticate(currentUser.id);
 >
 ```
 
-Please note: in production environments you **will need to authenticate your users using a secure user token**. This ensures
+**Note:** in production environments you **will need to authenticate your users using a secure user token**. This ensures
 that your users content is protected and cannot be read by malicious actors.
 
 ## Authentication (in production environments)
@@ -53,8 +52,8 @@ an additional network request.
 
 ### 1. Generate the signing key
 
-You can find the signing key in the Knock dashboard under the "developers" section. Save the private
-key shown to you here. Please note: you won't be shown this key again, so you'll need to regenerate
+You can find the signing key in the Knock dashboard under the "Developers" page. Save the private
+key shown to you here. Note: you won't be shown this key again, so you'll need to regenerate
 it if you lose access.
 
 ### 2. Sign the JWT
@@ -134,4 +133,4 @@ knockClient.authenticate(currentUser.id, currentUser.knockToken);
 ## Avoiding authentication
 
 You can avoid authentication altogether by proxying requests to Knock via your backend,
-although we don't recommend this approach as it will mean adding more latency for your users.
+although we don't recommend this approach as it will add more latency for your users.
