@@ -30,9 +30,9 @@ You can add any of the major channel types supported by Knock into your workflow
 For each channel step, you can use trigger conditions to control whether the channel will be executed for a given recipient.
 
 Some examples of triggers you can employ are:
-- Only send a push notification if the user has a registered push token
 - Only send an email if the in-app notification has not been opened or read
 - Only send an email if the event payload indicates it should be sent via email
+- Onle send a notification if the user has a specific custom property, e.g. plan_type = pro. 
 
 ### Function steps
 
@@ -77,7 +77,7 @@ You can use curly braces to reference a number of different variable types:
     The team @ Knock
     ``` 
 - **Account and environment constants.** You can also set constants at an account or environment level in Knock for variables that won't change across your different notification workflows. (For more information see [Environments and variables](https://www.notion.so/Environments-and-variables-143018e41dd34848ba584a1f2f24f8d6).) Common use cases for constants include base URLs for routing (e.g. dashboard.knock.app v. dashboard.knock-dev.app) and product names. To access constants in your notification templates, use the `vars` namespace. Here's a code example of an action URL for an in-app feed notification that uses an environment constant: `{{ vars.app_url }}/page/{{ page_id }}`.
-- **Workflow state variables.** There are a standard set of workflow state variables you'll find useful if you start to work with batch functions. These variables are available on all workflows and keep track of the `activities` kept within the state of a given workflow run (i.e. the number of notify calls that workflow run has received.)
+- **Workflow state variables.** There are a standard set of workflow state variables that are available on all workflow runs, but that you'll find especially useful if you start to work with batch functions. These variables are available on all workflows and keep track of the `activities` kept within the state of a given workflow run (i.e. the number of notify calls that workflow run has received.)
 
     - `total_activities` - The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight.)
     - `total_actors` - The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification.)
@@ -93,6 +93,7 @@ You can use curly braces to reference a number of different variable types:
         {% endfor %}
         ```
     - `actors` - A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the *first* ten actors added to the batch.
+    - `timestamp` - The time in which the activity occurred, as an ISO-8601 datetime string. 
 
 In addition to injecting custom variables, you'll also have access to data properties about the `recipient` (the user who
 is receiving the message) as well as the `actor` (the user who performed the action that generated
@@ -104,7 +105,7 @@ The custom variables will be passed to the template via the `notify` call when t
 
 The Knock template editor uses Liquid tags to create the logic and control flow for notification templates. To learn more about Liquid, you can check out [its documentation](https://shopify.github.io/liquid/basics/introduction/).  
 
-Here are a couple Liquid tag types that are commonly used in Knock notification templates. 
+Here are a few Liquid tag types that are commonly used in Knock notification templates. 
 
 - **If and else-if statements.** For when you want to show different copy depending on a user property or a data variable from your notify call. In the example below, we show different copy depending on whether a batch of comments includes one or many comments.
     
@@ -134,7 +135,7 @@ Here are a couple Liquid tag types that are commonly used in Knock notification 
     ```
     
 
-There are also a number of Liquid filters you can use to mutate the variables you pass into a notification template. Here's an example that uses the `split` and `first` filters to pull the first name for a given user. 
+There are also a number of [Liquid filters](/send-notifications/reference-liquid-helpers) you can use to mutate the variables you pass into a notification template. Here's an example that uses the `split` and `first` filters to pull the first name for a given user. 
 
 ```
 You've been invited by {{ actor.name | split: " " | first }} to 
