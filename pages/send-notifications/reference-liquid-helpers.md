@@ -2,7 +2,7 @@
 title: "Reference: liquid helpers"
 ---
 
-This is a reference of common Knock variables, Liquid keywords, and Knock-specific liquid helpers that you can use within the Knock template editor. 
+This is a reference of common Knock variables, Liquid syntax, and Knock-specific liquid helpers that you can use within the Knock template editor. 
 
 
 ## Common Knock variables
@@ -39,13 +39,18 @@ The Knock template editor uses Liquid syntax for control flow and variable decla
 
 | Helper             | Description               | Example     |
 |--------------------|---------------------------|-------------|
-| `timezone`         | Takes an ISO 8601 timestamp and returns it in the IANA tz  database timezone provided. | <code>{{timestamp &#124; timezone: "America/New_York"}}</code> |
-| `format_number`    | Takes an integer and formats it to the local number format of the {{format number param string}} provided to format_number helper.                                                                                       | <code>{{ 10000 &#124; format_number: "en-US" }}</code>                   |
-| `currency`         | Takes an integer and returns a USD formatted value with two decimal points. \n You can pass a currency type and a locale type through to the currency helper to tell it which currency and locale format to use.         | <code>{{ 10 &#124; currency: “GBP”, locale: “en-GB” }}</code>            |
-| `rounded_currency` | Takes an integer and returns a USD formatted value rounded to nearest whole number. \n You can pass a currency type and a locale type through to the currency helper to tell it which currency and locale format to use. | <code>{{ 10.99 &#124; rounded_currency: “GBP”, locale: “en-GB” }}</code> |
+| `timezone`         | Takes an ISO 8601 timestamp and returns it in the [IANA tz  database timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) provided. | <code>{{timestamp &#124; timezone: "America/New_York"}}</code> |
+| `format_number`    | Takes an integer and formats it to the local number format of the `locale` provided to format_number helper.                                                                                       | <code>{{ 10000 &#124; format_number: "en-US" }}</code>                   |
+| `currency`         | Takes an integer and returns a USD formatted value with two decimal points. You can pass a currency type and a `locale` through to the currency helper to tell it which currency to use.  | <code>{{ 10 &#124; currency: “GBP”, locale: “en-GB” }}</code>            |
+| `rounded_currency` | Takes an integer and returns a USD formatted value rounded to nearest whole number. \n You can pass a currency type and a `locale` through to the currency helper to tell it which currency to use. | <code>{{ 10.99 &#124; rounded_currency: “GBP”, locale: “en-GB” }}</code> |
 | `json`             | Takes a value and returns as a formatted JSON strong.                                                                                                                                                                    | <code>{{ recipient &#124; json }}</code>                                 |
 | `pluralize`        | Takes an integer and a pluralize helper with two strings. If the integer is one, the helper returns the first string. If the helper is greater than one, it returns the second string.                                   | <code>{{ total_actors &#124; pluralize: user", "users" }}</code>         |
 | `titlecase`        | Takes a string and reformats it into Title case.                                                                                                                                                                         | <code>{{ project_name &#124; titlecase }}</code>                         |
 | `md5`              | Takes a string and returns an md5 hash.                                                                                                                                                                                  | <code>{{ recipient.id &#124; md5 }}</code>                               |
 | `sha256`           | Takes a string and returns an sha256 hash.                                                                                                                                                                               | <code>{{ recipient.id &#124; sha256 }}</code>                            |
 | `hmac_sha256`      | Takes a string and returns an hmac hash given a key provided to hmac_sha256 helper.                                                                                                                                      | <code>{{ recipient.id &#124; hmac_sha256: "some-key" }}</code>           |
+
+### Locale support
+A number of Knock's Liquid helpers take a `locale` parameter to tell the helper which currency or number format to use for the helper's output. You can find a list of supported locales below. If we're missing a locale that you'd like us to support, please [reach out](mailto:support@knock.app). 
+
+**Supported locales:** `af`, `ar`, `az`, `be`, `bg`, `bn`, `bs`, `ca`, `cs`, `cy`, `da`, `de`, `el,` `en`, `eo`, `es`, `et`, `eu`, `fa`, `fi`, `fr`, `gl`, `he`, `hi`, `hr`, `hu`, `id`, `is`, `it`, `ja`, `ka`, `km`, `kn`, `ko`, `lb`, `lo`, `lt`, `lv`, `mk`, `ml`, `mn`, `mr`, `ms`, `nb`, `ne`, `nl`, `nn`, `or`, `pa`, `pl`, `pt`, `rm`, `ro`, `ru`, `sk`, `sl`, `sq`, `sr`, `sw`, `ta`, `te`, `th`, `tr`, `tt`, `ug`, `ur`, `uz`, `vi`, `wo`, `zh`
