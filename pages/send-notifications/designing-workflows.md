@@ -21,7 +21,7 @@ You won't actually need to do anything with this trigger step within the workflo
 
 ### Channel steps
 
-A channel step sends a notification to a recipient. Each channel has a notification template (designed by you in the Knock dashboard,) which takes the `data` passed in by your notify call and inserts into a styled template for that step's given channel. We get into more detail on notification templates and how to design them further down in this guide. 
+A channel step sends a notification to a recipient. Each channel has a notification template (designed by you in the Knock dashboard) which inserts the `data` from your notify call into a styled template for that step's given channel. We get into more detail on notification templates and how to design them further down in this guide. 
 
 You can add any of the major channel types supported by Knock into your workflow. By default, we show all of our supported channel types, but you'll need to configure a provider with each channel before you can actually use them in a workflow. For more information on how to configure channels in your Knock account, see our [feature guide on adding your first channel](https://www.notion.so/knockapp/Adding-your-first-channel-fa911d650cd84b059f69b08302990a10).  
 
