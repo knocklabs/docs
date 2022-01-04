@@ -38,7 +38,7 @@ Some examples of triggers you can employ are:
 
 A function is a step in a workflow that does something to the data being passed in your notify call. You can use functions by entering the workflow builder and adding function steps onto the canvas. 
 
-We currently support the following logic functions:
+We currently support the following functions:
 
 - Batch (aggregate)
 - Delay
