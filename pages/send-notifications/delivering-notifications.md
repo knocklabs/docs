@@ -2,32 +2,22 @@
 title: Delivering notifications
 ---
 
-## In-app feed support
+You can use Knock to power both in-app and out-of-app notifications. 
 
-We currently support in-app feeds via our own hosted feed solution. This provides real-time behavior
-as well as pre-built in-app components for you to use.
+## In-app notification support
 
-If you need to use a component library outside of React JS and are in the JS ecosystem,
-you can leverage our JS SDK otherwise you can integrate with our API directly.
+The Knock [Feed API](/reference#feeds) gives developers a way to deliver in-app notifications to feeds, inboxes, and other notification-based experiences. 
 
-## Email provider support
+There are a few ways to power in-app notifications in your product using Knock:
+- **Use our [React notification feed component](https://github.com/knocklabs/react-notification-feed).** The Knock notification feed component provides real-time updates, pagination, badge behavior, filtering, and more. It's a great way to quickly add an in-app feed to your product if you use React. 
+- **Leverage our [client-side JS SDK](https://github.com/knocklabs/knock-client-js).** This is a good approach if you need to use a component library outside of React JS but are still in the JS ecosystem. 
+- **Integrate with our [API directly](/reference#feeds).** If you're not working within the JS ecosystem in your client, you can integrate directly with the Knock Feed API to power your in-app notifications. 
 
-We currently support the following email providers:
 
-- SendGrid
-- Postmark
-- AWS SES
+## Out-of-app channel support
 
-If your provider is not listed above, please [get in touch](mailto:support@knock.app).
+We support notification delivery to the following out-of-app channel types: email, push, SMS, and 3rd-party chat apps (such as Slack.) You can see a list of which providers we support within each channel type in the "Channels" page of the Knock dashboard.
 
-## Other channels
+With Knock, you can integrate a provider once, and then use it across all of your Knock workflows. If you ever need to switch providers on a given channel, it's as simple as configuring the new provider within the Knock dashboard and updating your workflows to use the new provider. 
 
-In the case in which there are other channels that you need to support within your product we
-recommend the following strategy for the time being:
-
-1. Connect a webhook to notify you whenever there are new notifications triggered for your
-   users
-2. Receive the webhook and use it to trigger the workflow for the user from within your API
-
-In the case where you have non user related channel needs, like Slack or Microsoft Teams, please
-contact us and we can assist.
+If you use a provider that we don't currently support, please [get in touch](mailto:support@knock.app).
