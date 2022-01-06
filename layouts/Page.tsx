@@ -45,7 +45,7 @@ export const Page = ({ children }) => (
                   className="w-16 mx-auto lg:mx-0"
                 />
                 <span className="text-sm text-gray-500 leading-tight">
-                  The easiest way to send product notifications
+                  Notifications infrastructure for developers. 
                 </span>
               </div>
               <div className="lg:ml-auto mt-3">

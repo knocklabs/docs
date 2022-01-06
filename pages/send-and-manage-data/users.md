@@ -2,8 +2,20 @@
 title: Users
 ---
 
-A User represents a person who may need to be notified of some action occurring in your
+A [User](/reference#users) represents a person who may need to be notified of some action occurring in your
 product.
+
+## The benefits of the Knock user model
+
+If you're used to sending notifications via single-channel APIs, the idea of storing user data in a messaging platform such as Knock may sound odd to you. 
+
+Here are a few reasons why we store user data in Knock:  
+- **Multi-channel notifications.** When you're using a single-channel API, you can pass through the recipient's email address or phone number when you trigger a message. In a multi-channel platform like Knock, that would mean passing through _all_ of a user's channel information every time you trigger a notification. By keeping a user model in Knock, you can update a user's channel information once, then reference them via their user ID from that point on. We take care of the rest. 
+- **Stateful in-app notifications.** The Knock Feed API returns a stateful feed of the in-app notifications a given user has received from your product. The Knock user model is used to store a given user's notification feed and to give you a way to retrieve that feed via the user identifier you keep for them in your product. 
+- **Preferences model.** The Knock user model enables advanced functionality such as preferences support, where you store a given user's notification preferences in Knock and we reference that user's preferences during the run of a given notification workflow. 
+- **Leverage user traits in notification templates.** The Knock user model also enables you to store custom traits on a given user that you can reference in a notification template. This is helpful when you want to add conditional copy to a notification based on a user's role or plan. 
+
+We do not take storing your user data lightly. To learn more about our security posture and best practices, reach out to security@knock.app. 
 
 ## Sending user data
 
@@ -53,7 +65,7 @@ the current plan they're on so you can use this to determine the portion of a no
 You can nest the properties you send as deeply as you like, but please remember that
 we will not deep merge these keys.
 
-## The user object
+### The user object
 
 Once sent to Knock, the user object returned to you in the Knock payload looks like this:
 
@@ -78,9 +90,12 @@ Once sent to Knock, the user object returned to you in the Knock payload looks l
 | preferences | The preference object associated with this user |
 | updated_at  | The last time in which we updated the user      |
 
-<!-- ## Batch sending user data
+## When to identify users in Knock
 
-You can batch send user objects, which is useful for when you're onboarding onto Knock.
+### Initial setup: bulk add users to Knock
+When you're first getting started with Knock, you'll likely have a number of existing users that you want to migrate into Knock. The easiest way to do this is via our batch endpoints. 
+
+Here's how. 
 
 ```js
 const { Knock } = require("@knocklabs/node");
@@ -101,4 +116,26 @@ Promise.all(
     }))
   });
 );
-``` -->
+```
+
+### Identifying users on an ongoing basis
+Once you've migrated your current users into Knock, you'll want to continue to identify users in two main cases:
+1. When new users sign up for your product. 
+2. When there is a change to existing user state, such as new channel data or new traits. 
+
+```javascript
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+app.post("/signup", async (req, res) => {
+  const user = Users.signup_user(req.params);
+
+  await knock.users.identify(user.id, {
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar_url,
+  });
+
+  res.json(user.serialize());
+});
+```
