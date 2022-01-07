@@ -86,6 +86,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#feeds", title: "Feeds" },
       { slug: "#messages", title: "Messages" },
       { slug: "#bulk-operations", title: "Bulk operations" },
+      { slug: "#objects", title: "Objects" },
     ],
   },
 ];
