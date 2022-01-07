@@ -134,3 +134,5 @@ knockClient.authenticate(currentUser.id, currentUser.knockToken);
 
 You can avoid authentication altogether by proxying requests to Knock via your backend,
 although we don't recommend this approach as it will add more latency for your users.
+
+<br />
