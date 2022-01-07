@@ -43,19 +43,6 @@ Learn more about triggering workflows in [our API reference](/reference#workflow
 | cancellation_key | string   | A unique identifier to reference the workflow when canceling                                                |
 | tenant           | string   | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
 
-### Sending to users
-
-```js
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-await knock.notify("welcome-to-knock", {
-  actor: user.id,
-  recipients: [user.id],
-  data: {},
-});
-```
-
 ## Passing data
 
 You can also pass the schema data required by the workflow into the `notify` call. The
