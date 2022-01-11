@@ -6,7 +6,7 @@ An [Object](/reference#objects) represents a resource in your system that you wa
 
 In this guide we'll walk through how to use objects for a few different use cases in Knock. 
 
-We'll start with an overview of objects and how to use them, then we'll walk through two common use cases for objects: Slack channel notifications and handling mutable data on long-running notifications (such as digests.)
+We'll start with an overview of objects and how to use them, then we'll walk through two common use cases for objects: Slack channel notifications and handling mutable data on long-running notifications (such as digests).
 
 **Note:** Objects are an advanced feature within Knock. You can send multi-channel notifications across all channel types (except Slack) without touching the Objects API. If you're just getting started, we'd recommend coming back to objects when you've already started to leverage a few channels using Knock. 
 
