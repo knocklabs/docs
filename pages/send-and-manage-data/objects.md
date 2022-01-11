@@ -65,7 +65,7 @@ Here are a few guidelines when setting objects in Knock:
 
 ### Slack channel notifications
 
-A common notification use case we see in SaaS applications is the ability for users to connect a object in the product they're using to a channel in their own Slack workspace. That way when something happens in that object (e.g. a comment is left,) they receive a notification about it in their connected Slack channel. 
+A common notification use case we see in SaaS applications is the ability for users to connect a object in the product they're using to a channel in their own Slack workspace. That way when something happens in that object (e.g. a comment is left) they receive a notification about it in their connected Slack channel. 
 
 Let's take a fictional example here where we have an audio collaboration service that allows its customers to connect a Project object to a Slack channel. Once the Project and Slack channel are connected, all Comments left within the Project will result in notifications sent to the customer's Slack channel.
 
