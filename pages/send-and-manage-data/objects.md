@@ -58,7 +58,7 @@ knockClient.objects.set({
 Here are a few guidelines when setting objects in Knock:
 - The `collection` should always be a plural form of a *type* of object within your system. 
 - The `id` should be a unique string identifier within the collection.
-- `properties` accepts a dictionary of key-value pairs that can be referenced in your templates. Properties will always be shallowly merged between set calls, meaning that existing properties will be overridden.
+- `properties` accepts a dictionary of key-value pairs that can be referenced in your templates. Properties will always be shallowly merged between set calls, meaning that existing properties will be overwritten.
 
 
 ## Examples
