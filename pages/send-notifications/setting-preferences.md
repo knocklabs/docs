@@ -46,7 +46,7 @@ await knockClient.users.setPreferences("jhammond", {
 
 ### Bulk setting user preferences
 
-You can update up to 100 users preferences in a single batch by using the `users.bulkSetPreferences` method. This executes an asyncronous job which will overwrite any preferences for the users already set. You can track the progress of the `BulkOperation` returned via the bulk operation API.
+You can update the preferences of up to 100 users in a single batch by using the `users.bulkSetPreferences` method. This executes an asynchronous job which will overwrite any existing preferences for the users provided. You can track the progress of the `BulkOperation` returned via the [bulk operation API](/reference#bulk-operations).
 
 ```javascript Bulk set preferences
 const { Knock } = require("@knocklabs/node");

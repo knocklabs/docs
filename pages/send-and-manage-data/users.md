@@ -72,11 +72,11 @@ Once sent to Knock, the user object returned to you in the Knock payload looks l
 | ---------- | ------------------------------------------------------------------ |
 | id         | The unique user identifier                                         |
 | properties | Traits sent for the user are merged back onto the main user object |
-| updated_at | The last time in which we updated the user                         |
+| updated_at | The last time we updated the user                         |
 
 ## Bulk sending user data
 
-You can bulk send user objects, which is useful for when you're onboarding an existing set of data into Knock using the `users.bulkIdentify` method. We accept up to 100 users at a time.
+You can bulk send user objects, which is useful when you're onboarding an existing set of data into Knock using the `users.bulkIdentify` method. We accept up to 100 users at a time.
 
 ```js
 const { Knock } = require("@knocklabs/node");
