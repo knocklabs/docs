@@ -115,6 +115,12 @@ A user represents an individual who may need to receive a notification from Knoc
   <Endpoint name="identify-user" method="PUT" path="/users/:user_id" />
   <Endpoint name="get-user" method="GET" path="/users/:user_id" />
   <Endpoint name="delete-user" method="DELETE" path="/users/:user_id" />
+  <Endpoint
+    name="bulk-identify-users"
+    method="POST"
+    path="/users/bulk/identify"
+  />
+  <Endpoint name="bulk-delete-users" method="POST" path="/users/bulk/delete" />
 </Endpoints>
 
 ```json User object
@@ -249,6 +255,161 @@ const user = await knock.users.get("jhammond");
   "foo": "bar",
   "baz": true,
   "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Delete a user" slug="delete-user">
+<ContentColumn>
+
+Deletes a user by the id given.
+
+### Endpoint
+
+<Endpoint method="DELETE" path="/users/:user_id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier of the user"
+  />
+</Attributes>
+
+### Returns
+
+No response.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Delete user
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_123456789");
+
+const user = await knock.users.delete("jhammond");
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk identify users" slug="bulk-identify-users">
+<ContentColumn>
+
+Identifies up to 100 users at a time. Returns a `BulkOperation` that executes the job asyncronously. Progress can be tracked via the BulkOperation API.
+
+### Endpoint
+
+<Endpoint method="POST" path="/users/bulk/identify" />
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="users"
+    type="User[]"
+    description="A list of users to upsert (up to 100)"
+  />
+</Attributes>
+
+### Returns
+
+A BulkOperation.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Bulk identify users
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_123456789");
+
+const users = [
+  {
+    id: "jhammond",
+    name: "John Hammond",
+    email: "jhammond@ingen.net",
+  },
+  {
+    id: "dnedry",
+    name: "Dennis Nedry",
+    email: "dnedry@ingen.net",
+  },
+];
+
+const bulkOperation = await knock.users.bulkIdentify(users);
+```
+
+```json Response
+{
+  "__typename": "BulkOperation",
+  "completed_at": nil,
+  "estimated_total_rows": 42,
+  "failed_at": nil,
+  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "name": "bulk_op",
+  "processed_rows": 0,
+  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "started_at": nil,
+  "status": "queued",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk delete users" slug="bulk-delete-users">
+<ContentColumn>
+
+Deletes up to 100 users at a time. Returns a `BulkOperation` that executes the job asyncronously. Progress can be tracked via the BulkOperation API.
+
+### Endpoint
+
+<Endpoint method="POST" path="/users/bulk/delete" />
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="user_ids"
+    type="string[]"
+    description="Unique identifiers of the users to delete"
+  />
+</Attributes>
+
+### Returns
+
+A BulkOperation.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Bulk deletes users
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_123456789");
+
+const bulkOperation = await knock.users.bulkDelete(userIds);
+```
+
+```json Response
+{
+  "__typename": "BulkOperation",
+  "completed_at": nil,
+  "estimated_total_rows": 42,
+  "failed_at": nil,
+  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "name": "bulk_op",
+  "processed_rows": 0,
+  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "started_at": nil,
+  "status": "queued",
+  "inserted_at": "2021-03-05T12:00:00Z",
   "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
@@ -458,6 +619,11 @@ is set to opt out the user then no notifications will be sent on that channel.
     path="/users/:user_id/preferences/:id"
   />
   <Endpoint
+    name="bulk-set-preferences"
+    method="POST"
+    path="/users/bulk/preferences"
+  />
+  <Endpoint
     name="set-channel-type-preferences"
     method="PUT"
     path="/users/:user_id/preferences/:id/channel_types"
@@ -541,7 +707,7 @@ const { Knock } = require("@knocklabs/node");
 const knock = new Knock("sk_example_12345679");
 
 // Retrieves the `default` set
-const preferences = await knock.preferences.get("jhammond");
+const preferences = await knock.users.getPreferences("jhammond");
 ```
 
 ```json Response
@@ -620,7 +786,7 @@ Returns a `PreferenceSet`.
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock("sk_example_12345679");
 
-const preferences = await knock.preferences.set("jhammond", {
+const preferences = await knock.users.setPreferences("jhammond", {
   channel_types: {
     in_app_feed: false,
   },
@@ -650,6 +816,91 @@ const preferences = await knock.preferences.set("jhammond", {
   "channel_types": {
     "in_app_feed": true
   }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk set preferences" slug="bulk-set-preferences">
+<ContentColumn>
+
+Sets the preferences for the users indicated via an asyncronous `BulkOperation`. This is a destructive operation and
+will replace any existing preferences for the users given with the preferences sent.
+
+### Endpoint
+
+<Endpoint
+  name="bulk-set-preferences"
+  method="POST"
+  path="/users/bulk/preferences"
+/>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="user_ids"
+    type="string[]"
+    description="A list of user ids to set preferences for (up to 100)"
+  />
+  <Attribute
+    name="preferences.id"
+    type="string"
+    description="The preference set id"
+  />
+  <Attribute
+    name="preferences.channel_types"
+    type="object"
+    description="A set of channel type preferences to set"
+  />
+  <Attribute
+    name="preferences.workflows"
+    type="object"
+    description="A set of workflow preferences, can be a boolean or an object containing channel type preferences"
+  />
+</Attributes>
+
+### Response
+
+Returns a `BulkOperation`.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Set bulk preferences
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_12345679");
+
+const bulkOperation = await knock.users.bulkSetPreferences(userIds, {
+  channel_types: {
+    in_app_feed: false,
+  },
+  workflows: {
+    "dinosaurs-loose": {
+      channel_types: {
+        email: true,
+        sms: true,
+      },
+    },
+  },
+});
+```
+
+```json Response
+{
+  "__typename": "BulkOperation",
+  "completed_at": nil,
+  "estimated_total_rows": 42,
+  "failed_at": nil,
+  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "name": "bulk_op",
+  "processed_rows": 0,
+  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "started_at": nil,
+  "status": "queued",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
 
