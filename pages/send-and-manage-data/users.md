@@ -27,7 +27,8 @@ determine recipients for a notification. Generally, the best practice here is to
 identifier for your users as the `id`.
 
 ### Required attributes
-The following attributes are required for each user you identify with Knock. 
+
+The following attributes are required for each user you identify with Knock.
 
 | Property | Description                                                    |
 | -------- | -------------------------------------------------------------- |
@@ -36,12 +37,13 @@ The following attributes are required for each user you identify with Knock.
 | name     | The full name of this user                                     |
 
 ### Optional attributes
+
 The following attributes are optional, depending on the channel types you decide to use with Knock.
 
-| Property | Description                                                    |
-| -------- | -------------------------------------------------------------- |
-| avatar       | A URL for the avatar of the user |
-| phone_number   | The [E.164](https://www.twilio.com/docs/glossary/what-e164) phone number of the user. Knock needs this to send recipients SMS notifications |
+| Property     | Description                                                                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| avatar       | A URL for the avatar of the user                                                                                                            |
+| phone_number | The [E.164](https://www.twilio.com/docs/glossary/what-e164) phone number of the user. Knock needs this to send recipients SMS notifications |
 
 ### Storing user traits
 
@@ -60,27 +62,21 @@ Once sent to Knock, the user object returned to you in the Knock payload looks l
 ```json
 {
   "id": "user_1234567890",
-  "properties": {
-    "name": "Dummy User",
-    "email": "dummy@example.com"
-  },
-  "preferences": {
-    ...preferences
-  },
+  "name": "Dummy User",
+  "email": "dummy@example.com"
   "updated_at": "2021-03-07T12:00:00.000Z"
 }
 ```
 
-| Property    | Description                                     |
-| ----------- | ----------------------------------------------- |
-| id          | The unique user identifier                      |
-| properties  | A map containing the traits sent for this user  |
-| preferences | The preference object associated with this user |
-| updated_at  | The last time in which we updated the user      |
+| Property   | Description                                                        |
+| ---------- | ------------------------------------------------------------------ |
+| id         | The unique user identifier                                         |
+| properties | Traits sent for the user are merged back onto the main user object |
+| updated_at | The last time we updated the user                         |
 
-<!-- ## Batch sending user data
+## Bulk sending user data
 
-You can batch send user objects, which is useful for when you're onboarding onto Knock.
+You can bulk send user objects, which is useful when you're onboarding an existing set of data into Knock using the `users.bulkIdentify` method. We accept up to 100 users at a time.
 
 ```js
 const { Knock } = require("@knocklabs/node");
@@ -91,14 +87,12 @@ const USERS_PER_CHUNK = 100;
 
 Promise.all(
   chunk(users, USERS_PER_CHUNK).map(userBatch => {
-    return knock.users.batch(userBatch.map(user => ({
+    return knock.users.bulkIdentify(userBatch.map(user => ({
       id: user.id,
-      properties: {
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar_url,
-      },
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar_url,
     }))
   });
 );
-``` -->
+```
