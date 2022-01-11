@@ -8,9 +8,9 @@ You can read more about modeling preferences and preferences in general in the [
 
 In the following examples you'll see how to integrate preferences into your backend codebase:
 
-### Getting the users preferences
+### Getting the user's preferences
 
-You can retrieve the users preferences using the `users.getPreferences` method. Please note,
+You can retrieve the user's preferences using the `users.getPreferences` method. Please note
 that even if the preferences are not set for the user you will receive a `PreferenceSet` back (which will be empty).
 
 ```javascript Get preferences
@@ -21,9 +21,9 @@ const knockClient = new Knock("sk_12345");
 const preferences = await knockClient.users.getPreferences("jhammond");
 ```
 
-### Setting the users preferences
+### Setting the user's preferences
 
-You can update a users entire preference set using the `users.setPreferences` method. This will
+You can update a user's entire preferences using the `users.setPreferences` method. This will
 overwrite any existing preferences set for the user:
 
 ```javascript Set preferences
@@ -71,8 +71,8 @@ await knockClient.users.bulkSetPreferences(userIds, {
 
 ### Client integration
 
-The preference API can also be invoked from the client, providing you have authenticated a user
-first and have a valid API token. Please note: only the current users preferences can be set
+The preferences API can also be invoked from the client, providing you have authenticated a user
+first and have a valid API token. Please note only the current user's preferences can be set
 from the client.
 
 ### Retrieving the preferences for the current user
