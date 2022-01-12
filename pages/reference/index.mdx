@@ -659,8 +659,10 @@ const preferences = await knock.preferences.set("jhammond", {
 <Section title="Channel data" slug="channel-data">
 <ContentColumn>
 
-Channel data is user and channel specific information that's needed in order to deliver a notification to an end provider.
-For a push channel, this includes device specific tokens that map the recipient to the device they use.
+Channel data is channel-specific information stored on a Knock [user](/reference#users) or [object](/reference#objects) that's needed to deliver a notification to an end provider.
+
+For a push channel, this includes device-specific tokens that map the recipient to the device they use. For chat apps, such as Slack, this includes the access token used to send
+notifications to a customer's Slack channel. 
 
 ### Attributes
 
@@ -687,9 +689,14 @@ For a push channel, this includes device specific tokens that map the recipient 
     path="/users/:user_id/channel_data/:channel_id"
   />
   <Endpoint
-    name="set-channel-data"
+    name="set-user-channel-data"
     method="PUT"
     path="/users/:user_id/channel_data/:channel_id"
+  />
+  <Endpoint
+    name="set-object-channel-data"
+    method="PUT"
+    path="/object/:collection/:object_id/channel_data/:channel_id"
   />
 </Endpoints>
 
@@ -709,7 +716,7 @@ For a push channel, this includes device specific tokens that map the recipient 
 <Section title="Getting channel data" slug="get-channel-data">
 <ContentColumn>
 
-Retrieves the channel data for the user on the channel specified
+Retrieves the channel data for the provided user (or object) on the channel specified.
 
 ### Endpoint
 
@@ -754,10 +761,10 @@ const channelData = await knockClient.users.getChannelData(
 </ExampleColumn>
 </Section>
 
-<Section title="Setting channel data" slug="set-channel-data">
+<Section title="Setting user channel data" slug="set-user-channel-data">
 <ContentColumn>
 
-Sets the channel data for the user and the channel specified
+Sets channel data for the user and the channel specified.
 
 ### Endpoint
 
@@ -797,7 +804,7 @@ Sets the channel data for the user and the channel specified
 </ContentColumn>
 <ExampleColumn>
 
-```javascript Set channel data
+```javascript Set user channel data
 const { Knock } = require("@knocklabs/node");
 const knockClient = new Knock("sk_12345");
 
@@ -806,6 +813,78 @@ const APNS_CHANNEL_ID = "some-channel-id-from-knock";
 
 await knockClient.users.setChannelData("jhammond", APNS_CHANNEL_ID, {
   tokens: ["apns-token-1"],
+});
+```
+
+</ExampleColumn>
+</Section>
+
+
+<Section title="Setting object channel data" slug="set-object-channel-data">
+<ContentColumn>
+
+Sets channel data for the object and the channel specified.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/objects/:collection/:object_id/channel_data/:channel_id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the channel to lookup"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="object"
+    description="The data to set for this channel, shape of the payload varies depending on the channel"
+  />
+</Attributes>
+
+### Returns
+
+- `200` with a `ChannelData` object (when set)
+- `400` when the channel specified cannot be found
+- `422` with errors when the data is incorrectly shaped
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Set object channel data
+const { Knock } = require("@knocklabs/node");
+const knockClient = new Knock("sk_12345");
+
+await knock.objects.setChannelData({
+    // The object you want to update
+    { id: team.id, collection: "team" },
+    
+    // The ID of the Slack channel in Knock
+    process.env.KNOCK_SLACK_CHANNEL_ID,
+    
+    // The Slack incoming webhook URL we want to store on this object
+    { 
+        connections: [{
+            incoming_webhook: { url: "url-from-slack" }
+        }]
+    },  
 });
 ```
 
