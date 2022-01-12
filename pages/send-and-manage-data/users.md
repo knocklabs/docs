@@ -22,7 +22,7 @@ We do not take storing your user data lightly. To learn more about our security 
 
 If you've used a Customer Data Platform (CDP) like Segment before, sending data to Knock will be familiar to you.
 
-```js
+```js Identify a user in Knock
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
@@ -72,7 +72,7 @@ we will not deep merge these keys.
 
 Once sent to Knock, the user object returned to you in the Knock payload looks like this:
 
-```json
+```json Response
 {
   "id": "user_1234567890",
   "name": "Dummy User",
@@ -95,7 +95,7 @@ When you're first getting started with Knock, you'll likely have a number of exi
 
 [API reference →](/reference/#bulk-identify-users)
 
-```javascript Bulk identifying users
+```javascript Bulk add users
 const { Knock } = require("@knocklabs/node");
 const chunk = require("lodash.chunk");
 const knock = new Knock(process.env.KNOCK_API_KEY);
@@ -121,7 +121,8 @@ Once you've migrated your current users into Knock, you'll want to continue to i
 1. When new users sign up for your product.
 2. When data about a user changes, like a name or an email address being updated.
 
-```javascript Identifying users on signup
+```javascript Identify a user on sign up
+>>>>>>> c7e61e6 (additional changes for users improvements)
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 

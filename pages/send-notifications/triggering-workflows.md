@@ -12,7 +12,7 @@ may have indicated through their `preferences` that they don't wish to be notifi
 
 Workflows are triggered via a call to the `notify` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the workflow specified by the call.
 
-```js
+```js Trigger a Knock workflow
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
@@ -29,6 +29,8 @@ await knock.notify("new-user-invited", {
   },
 });
 ```
+
+Learn more about triggering workflows in [our API reference](/reference#workflows).
 
 ### Schema
 
@@ -113,7 +115,8 @@ You can read more about canceling workflows [in our guide](/send-notifications/c
 
 ## Multi-tenancy in notifications
 
-You can optionally pass a `tenant` to your `notify` call that allows notifications generated during
-the workflow execution to belong to that tenant.
+You can optionally pass a `tenant` to your `notify` call. If you are a product that allows users to belong to multiple tenants, 
+you'll want to pass a `tenant` to Knock in your notify calls so that you can make sure a given user's in-app feed is scoped to the
+tenants to which they belong in your product. 
 
 You can read more about [supporting multi-tenancy in our guide](/send-and-manage-data/multi-tenancy).
