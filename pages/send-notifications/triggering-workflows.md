@@ -4,15 +4,13 @@ title: Triggering workflows
 
 Workflows that you design within Knock are triggered from within your codebase by calling the `notify` endpoint and telling Knock _who_ should be a potential recipient.
 
-It's important to realize that calling `notify` in Knock may result in no messages being sent to your users. This
-is because calling `notify` will trigger a workflow, but your end users
-may have indicated through their `preferences` that they don't wish to be notified by workflows of that type. The good news is that Knock handles all preference-based opt-outs for you automatically.
+It's important to realize that calling `notify` in Knock may result in no messages being sent to your users. This is because calling `notify` will trigger a workflow, but your end users may have indicated through their `preferences` that they don't wish to be notified by workflows of that type. The good news is that Knock handles all preference-based opt-outs for you automatically.
 
 ## Triggering workflows
 
 Workflows are triggered via a call to the `notify` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the workflow specified by the call.
 
-```js
+```js Trigger a Knock workflow
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
@@ -30,6 +28,8 @@ await knock.notify("new-user-invited", {
 });
 ```
 
+Learn more about triggering workflows in [our API reference](/reference#workflows).
+
 ### Schema
 
 | Property         | Type     | Description                                                                                                 |
@@ -41,17 +41,14 @@ await knock.notify("new-user-invited", {
 | cancellation_key | string   | A unique identifier to reference the workflow when canceling                                                |
 | tenant           | string   | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
 
-### Sending to users
+### Response
 
-```js
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
+Triggering a workflow will always return a unique UUID v4 representing the workflow run.
 
-await knock.notify("welcome-to-knock", {
-  actor: user.id,
-  recipients: [user.id],
-  data: {},
-});
+```json Trigger workflow response
+{
+  "workflow_run_id": "05f8a70d-e42a-46dc-86fa-aada5752f6cf"
+}
 ```
 
 ## Passing data
@@ -113,7 +110,8 @@ You can read more about canceling workflows [in our guide](/send-notifications/c
 
 ## Multi-tenancy in notifications
 
-You can optionally pass a `tenant` to your `notify` call that allows notifications generated during
-the workflow execution to belong to that tenant.
+You can optionally pass a `tenant` to your `notify` call. If you are a product that allows users to belong to multiple tenants,
+you'll want to pass a `tenant` to Knock in your notify calls so that you can make sure a given user's in-app feed is scoped to the
+tenants to which they belong in your product.
 
 You can read more about [supporting multi-tenancy in our guide](/send-and-manage-data/multi-tenancy).
