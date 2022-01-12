@@ -8,16 +8,18 @@ In this guide we'll walk through how to use objects for a few different use case
 
 We'll start with an overview of objects and how to use them, then we'll walk through two common use cases for objects: Slack channel notifications and handling mutable data on long-running notifications (such as digests.)
 
-**Note:** objects are an advanced feature within Knock. You can send multi-channel notifications across all channel types (except Slack) without touching the Objects API. If you're just getting started, we'd recommend coming back to objects when you've already started to leverage a few channels using Knock. 
+**Note:** Objects are an advanced feature within Knock. You can send multi-channel notifications across all channel types (except Slack) without touching the Objects API. If you're just getting started, we'd recommend coming back to objects when you've already started to leverage a few channels using Knock. 
 
 ## An overview of objects
 
 Objects are a powerful and flexible way to ensure Knock always has the most up-to-date information required to send your notifications. They also enable you to send notifications to non-user recipients.
 
 You can use objects to:
-- send in-app notifications to non-user resources in your product (the activity feed you see on a Notion page is a good example)
 - send out-of-app notifications to non-user recipients (such as a Slack channels)
+- send in-app notifications to non-user resources in your product (the activity feed you see on a Notion page is a good example)
 - reference mutable data in your notification templates (such as when a user edits a comment before a notification is sent)
+
+**Note:** As of today, our objects API support for in-app notifications and mutable data referencing is in beta. If you're interested in using this functionality, please reach out and let us know via the feedback button at the top of this page. 
 
 <!-- 
 <div style="display: flex; width: 100%; border-radius: 3px; border-width: 1px; border-style: solid; border-color: transparent; background: rgba(235, 236, 237, 0.3); padding: 16px 16px 16px 12px; margin-bottom: 24px;">
@@ -127,7 +129,7 @@ await knock.workflows.trigger("new-comment", {
 Knock then executes the workflow for this Project object as it would for any user recipients sent in the workflow trigger, skipping over any steps that aren't relevant. (In this case, the Project object only has one piece of channel data mapped to it—the Slack channel—so it won't trigger notifications for any other channel steps in our `new-comment` workflow.) When the Slack step is reached, the connection information we stored earlier will be used as a means to know which channel to send a message to and how to authenticate to that channel.
 
 
-### Handle mutable data on long-lived notifications
+<!-- ### Handle mutable data on long-lived notifications
 When you're utilizing more advanced notification techniques such as long-term batching and digesting, it's common to encounter data growing stale within notifications.
 
 For instance, in an audio collaboration product where we send daily email digests of the comments left for a given user, the comment content could either a) change or b) be deleted entirely between when it was left and when we send the notification.
@@ -180,7 +182,7 @@ await knock.objects.set({
 });
 ```
 
-Within Knock, any notifications that are yet to be sent that reference this comment will have the latest version of the comment when they are executed. 🎉
+Within Knock, any notifications that are yet to be sent that reference this comment will have the latest version of the comment when they are executed. 🎉 -->
 
 
 <br />

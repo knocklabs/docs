@@ -117,15 +117,13 @@ tenants to which they belong in your product.
 You can read more about [supporting multi-tenancy in our guide](/send-and-manage-data/multi-tenancy).
 
 ## Triggering workflows with objects
-For cases when you want to notify an [object](/send-and-manage-data/objects) in your system (either because it has its own in-app feed or because it's connected to a Slack channel,) you'll include those objects in the `recipients` key of your workflow trigger. Remember that objects are identified in Knock as an id-collection pair, this means that any objects included in a recipients array must be formatted as `{id, collection}`. 
+
+For cases when you want to notify an [object](/send-and-manage-data/objects) in your system (either because it has its own in-app feed or because it's connected to a Slack channel,) you'll include those objects in the `recipients` key of your workflow trigger. Remember that objects are identified in Knock as an id-collection pair, this means that any objects included in a recipients array must be formatted as `{id, collection}`.
 
 ```javascript Workflow trigger with an object
 await knock.workflows.trigger("new-comment", {
-	actor: comment.authorId,
-	recipients: [
-		...projectUserIds,
-		{ id: project.id, collection: "projects" },
-	],
-	data: { comment },
+  actor: comment.authorId,
+  recipients: [...projectUserIds, { id: project.id, collection: "projects" }],
+  data: { comment },
 });
 ```
