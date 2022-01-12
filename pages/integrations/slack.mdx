@@ -1,0 +1,172 @@
+---
+title: How to send Slack notifications
+---
+
+import Callout from "../../components/Callout";
+
+## Overview
+
+In this guide we’ll show you how use Knock to send notifications to Slack channels. 
+
+This guide primarily focuses on the use case in which you are connecting non-user entities in your product (e.g. teams, projects, pages) to channels in your customer’s Slack workspace. 
+
+There are three steps we’ll cover to get Slack channel notifications live in your product:
+
+- Connect your Slack app to Knock as a channel
+- Use objects to store Slack channel connections for non-user entities in your product
+- Trigger notifications to those Slack channels
+
+**Note:** you can use Knock to send DMs to individuals in Slack, too, but we won’t be covering that use case in this guide. If you’re interested in learning more, please reach out.
+
+## What you’ll need before starting
+
+Before you start the process of integrating Slack into Knock, there are a few things you’ll need in place. 
+
+- **A Slack app.** This is the Slack app your customers will install in their Slack workspaces to receive notifications from your product in their Slack channels. If you haven’t built a Slack app yet, you can get started in [Slack’s app documentation](https://api.slack.com/start/planning).
+- **The App ID of that Slack app.** You can find this under the “Basic information” page of your Slack app. To find your Slack app, navigate to the [“Your apps” page](https://api.slack.com/apps) in Slack’s API docs. (Note: you are looking for your App ID, not your Client ID.)
+- **A Slack integration UX flow.** Before you can send notifications to a Slack channel, you need to give your users a way to connect a resource in your product to a channel in their Slack workspace. Here’s an example from Linear. In Linear, I can connect any one of my Teams (an object in Linear) to a Slack channel. I click the “Subscribe to Slack notifications” toggle on the left, which opens the Slack integration flow on the right, in which I choose which of my Slack channels to connect to my Linear team.
+    
+    ![Linear-Slack integration example](/images/linear-slack-integration.png)
+    
+
+If you have those three things in place, you’re ready to integrate with Knock and start sending Slack notifications. 
+
+## Connect your Slack app to Knock
+
+### Add Slack as a Knock channel
+
+The first step is to add your Slack app to Knock. With your App ID in hand, navigate to the “Channels” page within Knock and click “Create channel” to add Slack. Follow the steps to configure Slack for each of your environments.  
+
+### Adding Slack to a workflow
+
+Next you’ll add your newly minted Slack channel to a Knock workflow. You add Slack to a workflow just as you would with any other channel. Navigate into the workflow canvas and click the “Chat” channel type to add a chat step to your workflow. Then select the Slack app you configured above as the channel for that chat step. 
+
+
+<Callout 
+  emoji="🌠" 
+  text={<span><span className="font-bold">A note on Slack and workflow runs.</span><br/>
+  Remember that when a workflow is triggered, it runs once for <span className="font-bold">each recipient</span> sent in your workflow trigger call. A recipient can be either a user or an object from your product. If a recipient doesn’t have the channel information available needed for a given channel, the channel won’t execute and the workflow will proceed to the next step. 
+
+  For your Slack integration, you’ll pass object recipients in your workflow trigger that contain Slack channel data. If you’re sending user recipients in your trigger, too, that’s fine, they’ll just skip the Slack channel step in your workflow.
+  </span>
+  }
+/>
+
+You’ll edit your Slack notification template in the template editor. Note that in Knock, you can write normal markdown and we’ll compile it into [Slack’s proprietary mrkdwn format](https://api.slack.com/reference/surfaces/formatting#basics) for you. This enables you to use markdown across templates without having to worry about the nuances of Slack’s mrkdwn format. 
+
+If you want to use Slack JSON blocks in your template, let us know using the feedback button at the top of this page. We’re currently developing this feature but it isn’t available yet. 
+
+## Store Slack channel data on a Knock object
+
+Now we have our Slack app available as a channel within Knock and a workflow that uses that Slack channel. 
+
+In the “What you’ll need...” section of this guide, we mentioned a UX flow that connects a Slack channel with an object in your product. We’ll be storing those objects in Knock with the Slack channel data you receive as an output of that UX flow. This gives Knock the information it needs to understand which channel in Slack to notify when an event happens within a given object in your product. 
+
+We’ll continue to use the Linear example we mentioned above as a frame of reference. 
+
+### **Passing objects into Knock**
+
+First we’ll send Knock the objects in our product that receive Slack notifications. 
+
+In the case of our Linear example, we’ll send Knock the `teams` object. We won’t go into the details of the Knock `objects` API in this guide, but you can learn more in [our introduction to objects](https://docs.knock.app/send-and-manage-data/objects). 
+
+```jsx
+// Create an object in Knock that represents a team in Linear
+await knock.objects.set({
+	id: team.id,
+	collection: "teams",
+	properties: {
+		name: team.name,
+	}
+});
+```
+
+Now that we have our object represented in Knock, we can use it to store our Slack channel data. 
+
+### Choosing your Slack integration method
+
+There are two ways you can send messages to a Slack channel via the API:
+
+1. Via `access_token` and `channel_id`. 
+    1. If you haven’t publicly distributed your app yet, you can grab the `access_token` for your Slack workspace within the “Install app” page of your Slack app’s settings. [`https://api.slack.com/apps/{your_slack_app_id}/install-on-team`](https://api.slack.com/apps/A028JHY76AX/install-on-team)
+    2. If you’ve publicly distributed your app, you’ll receive an `access_token` when your customer completes the [OAuth flow](https://api.slack.com/authentication/oauth-v2) between your product and Slack. You’ll also need the  Slack `channel_id` your customer selected during the Slack OAuth flow. 
+2. Via `incoming_webhook` URL. 
+    1. If you haven’t publicly distributed your app, you can activate and generate an incoming_webhook URL for your workspace under the “Incoming webhooks” page of your Slack app’s settings. [`https://api.slack.com/apps/{your_slack_app_id}/incoming-webhooks`](https://api.slack.com/apps/A028JHY76AX/incoming-webhooks)
+    2. If you’re publicly distributing your app, you’ll need to generate incoming webhooks as part of your [OAuth 2.0 flow](https://api.slack.com/authentication/oauth-v2) with customers. Here’s a [how-to guide from Slack](https://api.slack.com/messaging/webhooks#incoming_webhooks_programmatic) on this topic. 
+
+We recommend using an `incoming_webhook` as it means you don’t have to deal with OAuth and just manage a single piece of data from Slack.  
+
+### **Storing Slack channel data on an object**
+
+Depending on the Slack connection option you chose above, you’ll follow one of the steps below to store that Slack channel data on your object in Knock. 
+
+For an incoming webhook
+
+```jsx
+await knock.objects.setChannelData({
+	// The team object we created earlier
+	{ id: team.id, collection: "team" },
+	
+	// The ID of the Slack channel we created in Knock
+	process.env.KNOCK_SLACK_CHANNEL_ID,
+	
+	// The Slack incoming webhook URL we want to store on this object
+	{ 
+		connections: [{
+			incoming_webhook: { url: "url-from-slack" }
+		}]
+	},  
+})
+
+```
+
+For access token and channel ID
+
+```jsx
+await knock.objects.setChannelData({
+	// The team object we created earlier
+	{ id: team.id, collection: "team" },
+	
+	// The ID of the Slack channel we created in Knock
+	process.env.KNOCK_SLACK_CHANNEL_ID,
+	
+	// The Slack access token and channel ID we want to store on this object 
+	{ 
+		connections: [{
+			channel_id: slackConnection.channel_id,
+			access_token: slackConnection.access_token
+		}]
+	},  
+})
+```
+
+Now we have an object in Knock with our Slack channel data in place. We’re ready to move on to the final step. 
+
+## Trigger a workflow and notify Slack
+
+At this point you have (i) your Slack channel configured in the Knock dashboard, (ii) a workflow with a Slack channel step, and (iii) an object in Knock with a stored Slack channel connection. We’re ready to go. 
+
+To notify your customer when something happens in our connected object, you include that `object` as a `recipient` in your workflow trigger. This tells the Knock workflow engine, “run this object through the workflow and notify any of its connected channels” — in this case, Slack. 
+
+If you’re already using an existing workflow trigger in your backend to notify users directly about what’s happening in that object, you can just append your object to the recipients list of the workflow trigger. 
+
+Remember: objects behave just as users do when they’re sent as a recipient to a workflow. The workflow will execute each step for that recipient (in this case, the object) and bypass channel steps where the recipient doesn’t have a configured channel. 
+
+To finish our Linear example, here’s us notifying the members of that Linear team directly on their channels (email, in-app) as well as notifying the Slack channel connected to our Linear team.
+
+```jsx
+await knock.workflows.trigger("issue-created", {
+	actor: issue.authorId,
+	recipients: [
+
+		// The array of user IDs that are members of the current team. 
+		...teamUserIds,
+		
+		//The team object I created earlier to store my Slack channel connection. 
+		{ id: team.id, collection: "teams" },
+	],
+	data: { issue },
+});
+```
+
+You’re all set. What did you think of this guide? Did we miss any key steps? Did you run into a blocker? Let us know using the feedback component at the top of this page.
