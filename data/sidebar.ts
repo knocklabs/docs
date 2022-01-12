@@ -70,11 +70,11 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
-    title: "Integrations",
+    title: "Integration guides",
     slug: "/integrations",
     desc: "Learn how to connect your notification providers to Knock.",
     pages: [
-      { slug: "/overview", title: "Overview" },
+      // { slug: "/overview", title: "Overview" },
       { slug: "/slack", title: "Slack" },
       { slug: "/twilio-sms", title: "Twilio SMS" },
       { slug: "/sendgrid", title: "SendGrid" },
