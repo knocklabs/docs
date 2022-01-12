@@ -1620,28 +1620,26 @@ A `BulkOperation`
 </ContentColumn>
 </Section>
 
-
-
 <Section title="Objects" slug="objects">
 <ContentColumn>
 
-An Object represents a resource in your system that you've stored in Knock. 
+An Object represents a resource in your system that you've stored in Knock.
 
-The most common use case for objects is as a store for non-user [channel data](/send-notifications/setting-channel-data) 
-when sending [Slack notifications](/integrations/slack). 
+The most common use case for objects is as a store for non-user [channel data](/send-notifications/setting-channel-data)
+when sending [Slack notifications](/integrations/slack).
 
 ### Attributes
 
 <Attributes>
   <Attribute
-    name="id"
-    type="string"
-    description="A unique identifier for the object within the collection."
-  />
-  <Attribute
     name="collection"
     type="string"
     description="The type of object you are storing in Knock."
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the object within the collection."
   />
   <Attribute
     name="properties"
@@ -1655,40 +1653,63 @@ when sending [Slack notifications](/integrations/slack).
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint name="get-all" method="GET" path="/objects" />
-  <Endpoint name="chris-to-update" method="GET" path="chris-to-update" />
+  <Endpoint name="get-object" method="GET" path="/objects/:collection/:id" />
+  <Endpoint name="set-object" method="PUT" path="/objects/:collection/:id" />
+  <Endpoint
+    name="delete-object"
+    method="DELETE"
+    path="/objects/:collection/:id"
+  />
+  <Endpoint
+    name="bulk-set-object"
+    method="POST"
+    path="/objects/:collection/bulk/set"
+  />
+  <Endpoint
+    name="bulk-delete-object"
+    method="POST"
+    path="/objects/:collection/bulk/delete"
+  />
 </Endpoints>
 
-```json Object object
+```json Object
 {
   "__typename": "Object",
-  "id": "project123",
-  "collection": "project",
+  "id": "project-123",
+  "collection": "projects",
   "properties": {
-    ...
-  }
+    "name": "My project"
+  },
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
 
 </ExampleColumn>
 </Section>
 
-<Section title="Get an object" slug="get-objects">
+<Section title="Get an object" slug="get-object">
 <ContentColumn>
 
-Retrieve an object. 
+Retrieve an object in a collection by the id.
 
 ### Endpoint
 
-<Endpoint
-  name="get-object"
-  method="GET"
-  path="/objects/:object_id"
-/>
+<Endpoint name="get-object" method="GET" path="/objects/:collection/:id" />
 
 ### Path parameters
 
 <Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The type of object you are storing in Knock."
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the object within the collection."
+  />
 </Attributes>
 
 ### Response
@@ -1698,22 +1719,284 @@ Returns an `Object`.
 </ContentColumn>
 <ExampleColumn>
 
-```javascript Get objects
+```javascript Get an object
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock("sk_example_12345679");
 
-// Retrieves the `default` set
-const preferences = await knock.preferences.get("jhammond");
+const project = await knock.objects.get("projects", "project-123");
 ```
 
 ```json Response
 {
   "__typename": "Object",
-  "id": "default",
-  "collection": :project,
+  "id": "project-123",
+  "collection": "projects",
   "properties": {
-    ...
-  }
+    "name": "My project"
+  },
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Set an object" slug="get-object">
+<ContentColumn>
+
+Sets an object within a collection, performing an upsert operation. Any existing properties will be merged with the incoming properties.
+
+### Endpoint
+
+<Endpoint name="set-object" method="PUT" path="/objects/:collection/:id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The type of object you are storing in Knock."
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the object within the collection."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attribute
+  name="*"
+  type="any"
+  description="A collection of key value pairs to set as properties for this object."
+/>
+
+### Response
+
+Returns an `Object`.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Set an object
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_12345679");
+
+await knock.objects.set("projects", "project-123", {
+  name: "My project",
+});
+```
+
+```json Response
+{
+  "__typename": "Object",
+  "id": "project-123",
+  "collection": "projects",
+  "properties": {
+    "name": "My project"
+  },
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Delete an object" slug="delete-object">
+<ContentColumn>
+
+Deletes an object from a collection by the id provided.
+
+### Endpoint
+
+<Endpoint
+  name="delete-object"
+  method="DELETE"
+  path="/objects/:collection/:id"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The type of object you are storing in Knock."
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the object within the collection."
+  />
+</Attributes>
+
+### Response
+
+No response.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Delete an object
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_12345679");
+
+await knock.objects.delete("projects", "project-123");
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk set objects in a collection" slug="bulk-set-objects">
+<ContentColumn>
+
+Bulk sets up to 100 objects at a time within a collection, returning an asynchronous `BulkOperation` that can be used to monitor the progress of the operation.
+
+### Endpoint
+
+<Endpoint
+  name="bulk-set-objects"
+  method="POST"
+  path="/objects/:collection/bulk/set"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The type of object you are storing in Knock."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="objects[].id"
+    type="string"
+    description="The id of the object to set."
+  />
+  <Attribute
+    name="objects[].*"
+    type="any"
+    description="Key value pairs to set as properties on this object."
+  />
+</Attributes>
+
+### Response
+
+Returns a `BulkOperation`.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Bulk set objects
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_12345679");
+
+const objects = [
+  {
+    id: "project-1",
+    name: "Project one",
+  },
+  {
+    id: "project-2",
+    name: "Project two",
+  },
+];
+
+await knock.objects.bulkSet("projects", objects);
+```
+
+```json Response
+{
+  "__typename": "BulkOperation",
+  "completed_at": nil,
+  "estimated_total_rows": 2,
+  "failed_at": nil,
+  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "name": "object.projects.set",
+  "processed_rows": 0,
+  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "started_at": nil,
+  "status": "queued",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk delete objects in a collection" slug="bulk-set-objects">
+<ContentColumn>
+
+Bulk deletes up to 100 objects at a time within a collection, returning an asynchronous `BulkOperation` that can be used to monitor the progress of the operation.
+
+### Endpoint
+
+<Endpoint
+  name="bulk-delete-objects"
+  method="POST"
+  path="/objects/:collection/bulk/delete"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The type of object you are storing in Knock."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="object_ids"
+    type="string[]"
+    description="The ids of the objects to delete within the collection"
+  />
+</Attributes>
+
+### Response
+
+Returns a `BulkOperation`.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Bulk delete objects
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_12345679");
+
+const objectIds = ["project-1", "project-2"];
+
+await knock.objects.bulkDelete("projects", objectIds);
+```
+
+```json Response
+{
+  "__typename": "BulkOperation",
+  "completed_at": nil,
+  "estimated_total_rows": 2,
+  "failed_at": nil,
+  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "name": "object.projects.delete",
+  "processed_rows": 0,
+  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "started_at": nil,
+  "status": "queued",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
 
