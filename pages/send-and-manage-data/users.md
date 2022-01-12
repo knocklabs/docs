@@ -16,7 +16,7 @@ Here are a few reasons why we store user data in Knock:
 - **Preferences model.** The Knock user model enables advanced functionality such as preferences support, where you store a given user's notification preferences in Knock and we reference that user's preferences during the run of a given notification workflow.
 - **Leverage user traits in notification templates.** The Knock user model also enables you to store custom traits on a given user that you can reference in a notification template. This is helpful when you want to add conditional copy to a notification based on a user's role or plan.
 
-We do not take storing your user data lightly. To learn more about our security posture and best practices, reach out to security@knock.app.
+We do not take storing your user data lightly. To learn more about our security posture and best practices, reach out to [security@knock.app](mailto:security@knock.app?subject=Question%about%Knock's%security%practices).
 
 ## Sending user data
 
