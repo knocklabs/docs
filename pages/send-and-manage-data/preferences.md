@@ -1,10 +1,12 @@
 ---
-title: Modeling preferences
+title: Preferences
 ---
+
+A [Preference](/reference#preferences) determines whether a given user will receive a notification for a given workflow, channel, or workflow-channel pair. 
 
 In this guide we'll walk through how to set notification preferences for your users in Knock.
 
-We'll start with a quick overview of the preferences model and how it ties into the rest of Knock, then walkthrough how to set notification preferences for notifications, channels, and notification-channel pairs using the preferences endpoint.
+We'll start with a quick overview of the preferences model and how it ties into the rest of Knock, then walk through how to set notification preferences for notifications, channels, and notification-channel pairs using the preferences endpoint.
 
 ## An overview of preferences
 
