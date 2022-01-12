@@ -39,6 +39,8 @@ The identifier for a user is important as it's the unique key that we will use t
 determine recipients for a notification. Generally, the best practice here is to use your internal
 identifier for your users as the `id`.
 
+**Please note: you cannot change a user's id once it has been set, so we recommend you use an non-transient `id` like a primary key rather than a phone number or email address**.
+
 ### Required attributes
 
 The following attributes are required for each user you identify with Knock.
@@ -72,12 +74,14 @@ we will not deep merge these keys.
 
 Once sent to Knock, the user object returned to you in the Knock payload looks like this:
 
-```json Response
+```json User object
 {
   "id": "user_1234567890",
   "name": "Dummy User",
-  "email": "dummy@example.com"
-  "updated_at": "2021-03-07T12:00:00.000Z"
+  "email": "dummy@example.com",
+  "updated_at": "2021-03-07T12:00:00.000Z",
+  "created_at": null,
+  "__typename": "User"
 }
 ```
 
@@ -85,6 +89,7 @@ Once sent to Knock, the user object returned to you in the Knock payload looks l
 | ---------- | ------------------------------------------------------------------ |
 | id         | The unique user identifier                                         |
 | properties | Traits sent for the user are merged back onto the main user object |
+| created_at | The created at time (provided by you)                              |
 | updated_at | The last time we updated the user                                  |
 
 ## When to identify users in Knock
