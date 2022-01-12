@@ -30,11 +30,11 @@ await knock.workflows.cancel("new-user-invited", userInvite.id);
 
 ### Schema
 
-| Property         | Type     | Description                                                       |
-| ---------------- | -------- | ----------------------------------------------------------------- |
-| key\*            | string   | The human readable key of the workflow from the Knock dashboard   |
-| cancellation_key | string   | A unique identifier for the workflow run                          |
-| recipients       | string[] | A list of specific user ids to cancel the workflow for (optional) |
+| Property         | Type                  | Description                                                                    |
+| ---------------- | --------------------- | ------------------------------------------------------------------------------ |
+| key\*            | string                | The human readable key of the workflow from the Knock dashboard                |
+| cancellation_key | string                | A unique identifier for the workflow run                                       |
+| recipients       | RecipientIdentifier[] | A list of specific recipient identifiers to cancel the workflow for (optional) |
 
 ## Canceling for subsets of recipients
 

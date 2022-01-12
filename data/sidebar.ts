@@ -29,10 +29,11 @@ const sidebarContent: SidebarSection[] = [
     desc: "Learn how to get data flowing into Knock to power your notifications.",
     pages: [
       { slug: "/concepts", title: "Concepts" },
-      { slug: "/users", title: "Managing users" },
-      // { slug: "/lists", title: "Managing lists" },
-      { slug: "/preferences", title: "Modeling preferences" },
+      { slug: "/users", title: "Users" },
+      // { slug: "/lists", title: "Lists" },
+      { slug: "/preferences", title: "Preferences" },
       { slug: "/environments", title: "Environments" },
+      { slug: "/objects", title: "Objects" },
       { slug: "/multi-tenancy", title: "Multi-tenancy support" },
     ],
   },
@@ -85,6 +86,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#feeds", title: "Feeds" },
       { slug: "#messages", title: "Messages" },
       { slug: "#bulk-operations", title: "Bulk operations" },
+      { slug: "#objects", title: "Objects" },
     ],
   },
 ];

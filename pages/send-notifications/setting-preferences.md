@@ -6,12 +6,11 @@ You can read more about modeling preferences and preferences in general in the [
 
 ## Backend integration
 
-In the following examples you'll see how to integrate preferences into your backend codebase:
+In the following examples you'll see how to integrate preferences into your backend codebase.
 
 ### Getting the user's preferences
 
-You can retrieve the user's preferences using the `users.getPreferences` method. Please note
-that even if the preferences are not set for the user you will receive a `PreferenceSet` back (which will be empty).
+You can retrieve a given user's preferences using the `users.getPreferences` method. Please note that even if the preferences are not set for the user you will receive an empty `PreferenceSet` in response.
 
 ```javascript Get preferences
 const { Knock } = require("@knocklabs/node");
@@ -23,8 +22,7 @@ const preferences = await knockClient.users.getPreferences("jhammond");
 
 ### Setting the user's preferences
 
-You can update a user's entire preferences using the `users.setPreferences` method. This will
-overwrite any existing preferences set for the user:
+You can update a user's entire preferences using the `users.setPreferences` method. This will overwrite any existing preferences set for the user:
 
 ```javascript Set preferences
 const { Knock } = require("@knocklabs/node");
@@ -71,11 +69,9 @@ await knockClient.users.bulkSetPreferences(userIds, {
 
 ### Client integration
 
-The preferences API can also be invoked from the client, providing you have authenticated a user
-first and have a valid API token. Please note only the current user's preferences can be set
-from the client.
+The preferences API can also be invoked from the client, providing you have authenticated a user first and have a valid API token. Please note only the current user's preferences can be set
 
-### Retrieving the preferences for the current user
+### Retrieve the preferences for the current user
 
 ```javascript Get preferences
 import Knock from "@knocklabs/client";
@@ -87,7 +83,7 @@ knockClient.authenticate(currentUser.id, currentUser.knockToken);
 const preferences = await knockClient.preferences.get();
 ```
 
-### Setting the preferences for the current user
+### Set the preferences for the current user
 
 Preferences can also be updated from the client:
 
@@ -121,3 +117,7 @@ await knockClient.preferences.setWorkflow("dinosaurs-loose", {
   channel_types: { email: true },
 });
 ```
+
+### Set preferences for an object
+
+The ability to set notification preferences for an [object](/send-and-manage-data/objects) is not currently supported. If you're interested in us supporting this functionality, please let us know by using the feedback form at the top of this site.

@@ -32,14 +32,21 @@ Learn more about triggering workflows in [our API reference](/reference#workflow
 
 ### Schema
 
-| Property         | Type     | Description                                                                                                 |
-| ---------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
-| key\*            | string   | The human readable key of the workflow from the Knock dashboard                                             |
-| actor\*          | string   | The user id of the user who performed the action                                                            |
-| recipients\*     | string[] | A list of user ids for users that are associated with this workflow                                         |
-| data             | map      | A map of properties that are required in the templates in this workflow                                     |
-| cancellation_key | string   | A unique identifier to reference the workflow when canceling                                                |
-| tenant           | string   | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
+| Property         | Type                  | Description                                                                                                 |
+| ---------------- | --------------------- | ----------------------------------------------------------------------------------------------------------- |
+| key\*            | string                | The human readable key of the workflow from the Knock dashboard                                             |
+| actor\*          | RecipientIdentifier   | An identifier of who or what performed this action                                                          |
+| recipients\*     | RecipientIdentifier[] | A list of user ids, or object references of who to notify for this workflow                                 |
+| data             | map                   | A map of properties that are required in the templates in this workflow                                     |
+| cancellation_key | string                | A unique identifier to reference the workflow when canceling                                                |
+| tenant           | string                | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
+
+### Recipient identifiers
+
+When you want to identify a recipient in a workflow, either as an actor or as a recipient you can send either:
+
+- A string indicating a user that you have previously identified to Knock (e.g. `user-1`).
+- A reference of an object that you have previously set within Knock (e.g. `{ id: "project-1", collection: "projects" }`).
 
 ### Response
 
@@ -115,3 +122,17 @@ you'll want to pass a `tenant` to Knock in your notify calls so that you can mak
 tenants to which they belong in your product.
 
 You can read more about [supporting multi-tenancy in our guide](/send-and-manage-data/multi-tenancy).
+
+## Triggering workflows with objects
+
+For cases when you want to notify an [object](/send-and-manage-data/objects) in your system (either because it has its own in-app feed or because it's connected to a Slack channel), you'll include those objects in the `recipients` key of your workflow trigger.
+
+An object reference always comes in the form of a dictionary with `id` and `collection` properties.
+
+```javascript Workflow trigger with an object
+await knock.workflows.trigger("new-comment", {
+  actor: comment.authorId,
+  recipients: [...projectUserIds, { id: project.id, collection: "projects" }],
+  data: { comment },
+});
+```
