@@ -14,7 +14,7 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Getting started",
     slug: "/getting-started",
-    desc: "A technical and non-technical introduction to the features of Knock, and a step-by-step guide to get you going in minutes.",
+    desc: "A technical and non-technical introduction to the basics of Knock, and a step-by-step guide to get you going in minutes.",
     pages: [
       { slug: "/what-is-knock", title: "What is Knock?" },
       { slug: "/how-knock-works", title: "How Knock works" },
@@ -26,7 +26,7 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Send & manage data",
     slug: "/send-and-manage-data",
-    desc: "Learn the ins-and-outs of how to get data flowing into Knock to power your notifications",
+    desc: "Learn how to get data flowing into Knock to power your notifications.",
     pages: [
       { slug: "/concepts", title: "Concepts" },
       { slug: "/users", title: "Managing users" },
@@ -39,7 +39,7 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Send notifications",
     slug: "/send-notifications",
-    desc: "See how to use Knock to start designing and sending your notifications, including understanding more advanced workflows such as batching.",
+    desc: "Learn how to design and send notifications using Knock, then explore advanced features such as batching, delays, and more.",
     pages: [
       { slug: "/designing-workflows", title: "Designing workflows" },
       { slug: "/triggering-workflows", title: "Triggering workflows" },
@@ -54,13 +54,13 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Client integration",
     slug: "/client-integration",
-    desc: "A guide for how to integrate Knock into your clientside applications",
+    desc: "A guide for how to integrate Knock into your client-side applications.",
     pages: [{ slug: "/authenticating-users", title: "Authentication" }],
   },
   {
     title: "Notification feeds",
     slug: "/notification-feeds",
-    desc: "Everything you need to know about how to display notification feeds back to your users",
+    desc: "Power real-time, in-app notifications in minutes using Knock's Feed API and pre-built React components.",
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/getting-started", title: "Getting started" },

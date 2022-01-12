@@ -14,6 +14,8 @@ The user object can contain other key-value pairs that can be used to further pe
 
 [Read more →](/send-and-manage-data/users)
 
+[API reference →](/reference#users)
+
 <!-- ## Lists
 
 A list groups users together to represent sets of individuals who may need to be notified as a group.
@@ -30,6 +32,8 @@ always belong to a user and can be paired with an identifier that represents the
 or tenant that the user belongs to (for multi-tenant applications).
 
 [Read more →](/send-and-manage-data/preferences)
+
+[API reference →](/reference#preferences)
 
 ## Managing environments
 

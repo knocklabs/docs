@@ -4,11 +4,9 @@ title: Quick start
 
 In this guide you'll integrate Knock with your application and send your first notification using Knock.
 
-## Integrate with your app
-
 ### 1. Add the Knock SDK to your backend
 
-We have SDKs available in [NodeJS](https://github.com/knocklabs/knock-node), [Python](https://github.com/knocklabs/knock-python), [Ruby](https://github.com/knocklabs/knock-ruby), and [Elixir](https://github.com/knocklabs/knock-elixir). Don't see your language listed here? [Let us know](mailto:support@knock.app)!
+We have SDKs available in [NodeJS](https://github.com/knocklabs/knock-node), [Python](https://github.com/knocklabs/knock-python), [Ruby](https://github.com/knocklabs/knock-ruby), [.NET](https://github.com/knocklabs/knock-dotnet), and [Elixir](https://github.com/knocklabs/knock-elixir). Don't see your language listed here? [Let us know](mailto:support@knock.app)!
 
 ```bash
 npm install @knocklabs/node
@@ -24,10 +22,12 @@ KNOCK_API_KEY='sk_example_123456789'
 
 ### 3. Tell Knock about your users
 
-Knock needs to know about your users to be able to send them messages. At a minimum we need the user's name, email address, and a unique id with which to identify them.
+Knock needs to know about your users to send them notifications. At a minimum we need the user's name, email address, and a unique id with which to identify them. 
 
 You'll keep user information up to date in Knock using the `identify` call.
-Best practice is to make an identify call to Knock when a new user is created and when any Knock-relevant user property changes. This way your user data is always up to date in Knock and we have what we need to send them messages.
+Best practice is to make an identify call to Knock when a new user is created and when any Knock-relevant user property changes. This way your user data is always up to date in Knock and we have what we need to send them notifications. 
+
+You can learn more about how and why Knock uses user data to power your notifications system, as well as how to migrate your current users into Knock, in our guide on [managing user data](/send-and-manage-data/users). 
 
 🔐 **Security first** 🔐
 
@@ -60,7 +60,7 @@ To create your first workflow, log into the [Knock dashboard](https://dashboard.
 
 ### 5. Trigger your workflow
 
-When you want to notify a set of users simply call the `notify` function to trigger the workflow you want to send. When calling the `notify` function, you'll pass in the `recipients` you want to receive messages sent by the workflow, as well as the `data` (which we received during step 4) required to populate those messages.
+When you want to notify a set of users simply call the `notify` function to trigger the workflow you want to send. When calling the `notify` function, you'll pass in the `recipients` you want to receive messages sent by the workflow, as well as the `data` (which we received during step 4) required to populate those messages. You'll also pass `actor`, the user in your product that triggered the workflow. 
 
 ```javascript
 const { Knock } = require("@knocklabs/node");
@@ -70,7 +70,7 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 // we want to let Knock know about comments being created.
 // We send this after the comment has been saved to the database
 await knock.notify("new-comment", {
-  // The user that triggered this workflow
+  // The user in your application that triggered this workflow
   actor: comment.user_id,
   // Template data we want to use
   data: {
@@ -86,16 +86,16 @@ await knock.notify("new-comment", {
 
 ### 6. Publish to production
 
-Knock uses a [logically separated environment](/send-and-manage-data/environments) model to control the roll-out of your notifications.
-When you're happy with the way your workflows work and look, you just need to publish them to
+Knock uses a [logically separated environments](/send-and-manage-data/environments) to control the roll-out of your notifications.
+When you're happy with the way your workflows work and look, you just need to push them to
 production to start sending notifications to your real users.
 
 ## Go deeper
 
-This was a simple overview to send your first notification with Knock. Read on to see how Knock can drive your notification needs, no matter how complex they might be.
+This was a simple overview to send your first notification with Knock. Read on to see how Knock can drive your notification needs, no matter their complexity.
 
-- [Sending & managing data concepts](/send-and-manage-data/concepts)
-- [Notification feeds](/notification-feeds/getting-started)
+- [Learn about Knock's core data concepts](/send-and-manage-data/concepts)
+- [Learn how to set up a real-time, in-app notification feed in minutes](/notification-feeds/getting-started)
 <!-- - [Managing users with lists](/send-and-manage-data/lists) -->
 
 <br />
