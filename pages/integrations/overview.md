@@ -5,6 +5,7 @@ title: Overview
 You can use Knock to power sophisticated cross-channel notification workflow for your end users. 
 
 We support the following out-of-app channel types today:
+
 - Email
 - Push 
 - SMS 
@@ -16,7 +17,7 @@ In the pages that follow, we provide in-depth guides for a few of our most popul
 Below you'll find a complete list of the integrations we support, as well as a few general tips about channel integrations to keep in mind as you dig into powering your cross-channel notifications with Knock. 
 
 ## Per environment channel configurations
-Unlike most parts of the Knock model, your channels live at the account-level. This means that when you create a new channel in Knock (say, SendGrid,) you only have to create it once. 
+Unlike most parts of the Knock model, your channels live at the account-level. This means that when you create a new channel in Knock (say, SendGrid), you only have to create it once. 
 
 Once a channel is created, you can then configure it for each of your environments. There are a couple reasons we enable per-environment configuration for each channel. 
 - If you use different instances of a service for each of your environments, you can use the respective API key of each within your different Knock environments. 
@@ -32,7 +33,7 @@ Sandbox mode enables you to generate and preview messages for a given channel, w
 Sandbox mode is supported across all channel types and can be enabled from the environment configuration view of a channel. 
 
 ## Channel groups
-You may encounter a use case where you consistently want to send the same template to two providers across all of your workflows. Push is a good example. If you're sending notifications directly to iOS and Android devices (through APNS and Firebase, respectively,) you don't want to have to replicate templates across channel steps for each of those providers in all of your workflows. 
+You may encounter a use case where you consistently want to send the same template to two providers across all of your workflows. Push is a good example. If you're sending notifications directly to iOS and Android devices (through APNS and Firebase, respectively), you don't want to have to replicate templates across channel steps for each of those providers in all of your workflows. 
 
 Channel groups solve this problem. With a channel group, you can combine multiple providers into a single channel that you can use to send the a single notification template across multiple providers. As an example, I could have a "Push" channel group that hosts my connections for APNS and FCM, then use that single "Push" step for any workflows where I want to notify users across my mobile apps. 
 
@@ -43,20 +44,20 @@ Channel groups solve this problem. With a channel group, you can combine multipl
 
 Here are the providers we currently support across each channel type within Knock. We're adding more each week. If you want us to add a new provider to this list, please let us know through the feedback button at the top of this page. 
 
-**Email**
+### Email
 - Postmark
-- SendGrid
+- [SendGrid](/integrations/sendgrid)
 - Mailgun
 - AWS SES
 
-**Push**
+### Push
 - Apple Push Notification service
 - Firebase Cloud Messaging
 - Expo
 
-**SMS**
-- Twilio
+### SMS
+- [Twilio](/integrations/twilio-sms)
 - Telnyx
 
-**Chat apps**
-- Slack 
+### Chat apps
+- [Slack](/integrations/slack)

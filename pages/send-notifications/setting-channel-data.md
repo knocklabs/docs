@@ -8,7 +8,7 @@ At Knock we call this concept `ChannelData`. `ChannelData` lives under a [user](
 
 ## Things to know about channel data
 
-- For channel types that require channel data (such as push and Slack,) the channel step will be skipped in a workflow run if the required channel data is not stored on the recipient.
+- For channel types that require channel data (such as push and Slack), the channel step will be skipped in a workflow run if the required channel data is not stored on the recipient.
 - Knock stores channel data for you but makes no assumptions about whether the stored channel data is valid. That means that if a push token expires, it's your responsibility to omit/update that token for the future notifications.
 
 ## Setting channel data

@@ -64,7 +64,7 @@ Here are the key scopes to know about when you’re thinking about notifications
 - `chat:write.public` Send messages to channels @your_slack_app isn't a member of. If your app doesn’t have this scope, you’ll need to use the [`conversations.joins`](https://api.slack.com/methods/conversations.join) method to join a public channel before sending it messages.
 - `im:write` Start direct messages with people.
 
-Note that unlike `incoming-webhook` (which just requires a webhook URL,) the scopes above will require an access token from Slack in order to function. This access token is received during the [OAuth process](https://api.slack.com/authentication/oauth-v2) with a Slack workspace. 
+Note that unlike `incoming-webhook` (which just requires a webhook URL), the scopes above will require an access token from Slack in order to function. This access token is received during the [OAuth process](https://api.slack.com/authentication/oauth-v2) with a Slack workspace. 
 
 ## Connect your Slack app to Knock
 
@@ -84,7 +84,11 @@ You can support all of these use cases using the `incoming-webhook` scope we men
 
 <Callout 
   emoji="🌠" 
-  text={<span><span className="font-bold">Remember:</span> for any customer-facing use cases, you’ll need to give your customers a way to install your Slack app. The simplest way to do this is with <a href="https://api.slack.com/docs/slack-button">the Add to Slack button</a> though Slack now recommends installing with <a href="https://api.slack.com/authentication/oauth-v2">their v2 OAuth flow</a>.</span>}
+  text={
+    <>
+      <span className="font-bold">Remember:</span> for any customer-facing use cases, you’ll need to give your customers a way to install your Slack app. The simplest way to do this is with <a href="https://api.slack.com/docs/slack-button">the Add to Slack button</a> though Slack now recommends installing with <a href="https://api.slack.com/authentication/oauth-v2">their v2 OAuth flow</a>.
+    </>
+  }
 />
 
 ### Sending notifications to a channel in your customer’s Slack workspace
@@ -98,11 +102,11 @@ For these types of resource-to-channel integrations, you’ll use Knock [objects
 ```javascript Creating an object
 // Create an object in Knock that represents a team in Linear
 await knock.objects.set({
-	id: team.id,
-	collection: "teams",
-	properties: {
-		name: team.name,
-	}
+  id: team.id,
+  collection: "teams",
+  properties: {
+    name: team.name,
+  }
 });
 ```
 
@@ -110,16 +114,14 @@ When you want to notify the Slack channel about something that took place in tha
 
 ```javascript Object recipient in a workflow trigger
 await knock.workflows.trigger("issue-created", {
-	actor: issue.authorId,
-	recipients: [
-
-		// The array of user IDs that are members of the current team. 
-		...teamUserIds,
-		
-		//The team object I created earlier to store my Slack channel connection. 
-		{ id: team.id, collection: "teams" },
-	],
-	data: { issue },
+  actor: issue.authorId,
+  recipients: [
+  // The array of user IDs that are members of the current team. 
+  ...teamUserIds,
+    //The team object I created earlier to store my Slack channel connection. 
+    { id: team.id, collection: "teams" },
+  ],
+  data: { issue },
 });
 ```
 
@@ -146,7 +148,11 @@ An example: at Knock we notify a support channel when a user in our dashboard su
 
 <Callout 
   emoji="🌠" 
-  text={<span><span className="font-bold">Slack dashboard shortcut.</span> If you’re using a Slack app to message your internal Slack workspace, you can just grab your webhook URL from the Incoming Webhooks section of your <a href="https://api.slack.com/apps">app’s management page</a>.</span>}
+  text={
+    <>
+      <span className="font-bold">Slack dashboard shortcut.</span> If you’re using a Slack app to message your internal Slack workspace, you can just grab your webhook URL from the Incoming Webhooks section of your <a href="https://api.slack.com/apps">app’s management page</a>.
+    </>
+  }
 />
 
 ## Advanced Slack use cases
@@ -161,9 +167,9 @@ This means that whether you’re storing a given Slack connection on a Knock `us
 
 ```javascript Incoming webhook channel data 
 { 
-	connections: [{
-		incoming_webhook: { url: "url-from-slack" }
-	}]
+  connections: [{
+    incoming_webhook: { url: "url-from-slack" }
+  }]
 }
 ```
 
@@ -171,10 +177,10 @@ to this...
 
 ```javascript Access token channel data
 { 
-	connections: [{
-		channel_id: "C02TRDGMQCV"
-		access_token: "xoxb-........."
-	}]
+  connections: [{
+    channel_id: "C02TRDGMQCV"
+    access_token: "xoxb-........."
+  }]
 } 
 ```
 
