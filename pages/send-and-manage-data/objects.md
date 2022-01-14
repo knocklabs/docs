@@ -87,10 +87,7 @@ await knock.objects.setChannelData(
   {
     connections: [
       {
-        // The Slack channel id
-        channel_id: slackConnection.channel_id,
-        // The Slack access token
-        access_token: slackConnection.access_token,
+        incoming_webhook: { url: "url-from-slack" }
       },
     ],
   },
