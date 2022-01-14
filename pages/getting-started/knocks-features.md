@@ -42,12 +42,4 @@ sent a notification, why they were sent it, and what actions they performed on t
 
 ## Security & privacy
 
-We understand the importance of keeping your user and notification data safe. That's why we built Knock with security in mind from day one. Our security practices include:
-
-- Encrypting all of your data at rest, and with TLS while in transit
-- Limiting internal access to our production database
-- Regular penetration testing (we're happy to share the reports)
-
-We also provide access controls to limit the display of user data to your staff, including obfuscating
-user information and notification content sent. We have a full role-based access control mechanism
-to ensure that you can grant the right people on your team access to data.
+We understand the importance of keeping your user and notification data safe. That's why we built Knock with security in mind from day one. You can learn more about our security practices [here](/send-and-manage-data/security).

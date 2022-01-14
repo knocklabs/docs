@@ -1,0 +1,34 @@
+---
+title: Security at Knock
+---
+
+Knock was built with security and privacy in mind from day one.
+
+Below you can learn more about our security credentials, our internal security practices, and how to disclose security issues to our team. If you're looking to learn more about how we think about data privacy at Knock, you can read our [privacy policy](https://knock.app/legal/privacy-policy). 
+
+
+## Our security posture
+Knock is SOC 2 Type 2 compliant and we perform regular penetration tests. If you'd like copies of either, please let us know at [security@knock.app](mailto:security@knock.app).
+
+Here's a little more about our security practices at Knock:
+- We implement best practices around least privilege, with limited access to production data for our employees.
+- Access to all systems is enforced by 2FA for our employees.
+- All of our code changes are signed off by at least one other person, and tested in a staging environment before being deployed.
+- We retain server logs for a maximum of 1 year, after which time they are permanently deleted.
+
+
+
+## More information and responsible disclosure
+We're always improving the security of our product. If you’d like to learn more about our data protection processes, you can email us as [security@knock.app](mailto:security@knock.app).
+
+If you are a security researcher and would like to disclose an issue, contact [security@knock.app](mailto:security@knock.app). We are strong advocates for responsible disclosure by independent security researchers. We believe the best way to protect current and future customers is to encourage researchers to come forward with issues and reply promptly.
+
+Our promise to you is:
+- We will read and respond to all reported vulnerabilities.
+- We will not take any harmful acton (including legal action) against researchers who act ethically and in good faith.
+- We will highlight the contributions of security researchers who make significant reports.
+
+In return we ask:
+- That you do not attempt to access, modify, or delete data belonging to Knock customers.
+- That you report issues promptly once discovered.
+- That you do not attempt denial of service against the Knock service.

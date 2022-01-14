@@ -31,7 +31,7 @@ You can learn more about how and why Knock uses user data to power your notifica
 
 🔐 **Security first** 🔐
 
-We don't take your user data lightly. For more on our security practices, contact us at [security@knock.app](mailto:security@knock.app?subject=Question%about%Knock's%security%practices).
+We don't take your user data lightly. For more on our security practices, take a look at our [security page](/send-and-manage-data/security). 
 
 ```javascript Identify a user in Knock
 const { Knock } = require("@knocklabs/node");
