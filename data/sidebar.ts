@@ -44,10 +44,10 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/designing-workflows", title: "Designing workflows" },
       { slug: "/triggering-workflows", title: "Triggering workflows" },
+      { slug: "/workflow-functions", title: "Workflow functions" },
       { slug: "/canceling-workflows", title: "Canceling workflows" },
       { slug: "/setting-preferences", title: "Setting preferences" },
       { slug: "/setting-channel-data", title: "Setting channel data" },
-      { slug: "/batching-and-throttling", title: "Batching and throttling" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/reference-liquid-helpers", title: "Reference: liquid helpers" },
     ],

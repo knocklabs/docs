@@ -1,0 +1,163 @@
+---
+title: Workflow functions
+---
+
+import Callout from "../../components/Callout";
+
+
+The functions steps available in the Knock workflow builder and how they work. 
+
+## Overview
+
+In this guide we'll talk about the different function steps available to you when building workflows in Knock. 
+
+At a high-level, a function is a step in a workflow that does something to the data being passed in your notify call. You can use functions by entering the workflow builder and adding function steps to the canvas. 
+
+Today we support three functions: batch, delay, and throttle.
+
+
+## How the Knock notification engine works
+As you start to dig into workflow functions, it's helpful to understand the basics of what happens in Knock when you [trigger a workflow](/send-notifications/triggering-workflows).
+
+When Knock receives a workflow trigger (like the one below) for one of your workflows, it will produce a **workflow run** for **each recipient** you send in your workflow trigger. 
+
+```js A workflow trigger for three recipients
+await knock.notify("comment-created", {
+  // The user who performed the action
+  actor: "user_0",
+  // The list of recipients
+  recipients: ["user_1", "user_2", "user_3"],
+  // Data to be passed to the template
+  data: {
+    page_name: "Marketing brief",
+    comment_body: "Hey team — can we take another look at this?",
+  },
+});
+```
+In the example above we've included three recipients, so our workflow trigger will produce three separate workflow runs. Keep this in mind when you're thinking about how to use functions in your workflow run. 
+
+<Callout 
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Knock dashboard tip.</span> You can use the Knock debugger to see each of these workflows and their step-by-step execution.
+      <br/><br/>
+      In the Knock dashboard, go to the Developers page, click Debugger, and then find the API call that triggered your workflow. Select it, then click the Workflow runs tab to see each of the workflow runs produced by your workflow trigger. You can click into each one to see the step-by-step execution of that workflow run.
+    </>
+  }
+/>
+
+
+## Batch
+
+A batch function batches together notifications that have to do with the same subject, so you can send fewer notifications to your users. 
+
+Batch functions are helpful when a user needs to be notified about a lot of activity happening at once, but doesn't need a notification for every single activity within the batch. 
+Commenting is a common use case. If a user leaves ten comments in a page in fifteen minutes, you don't want to send the user ten separate notifications. You want to send them one notification about the ten comments they just received. 
+
+Here's a step-by-step breakdown of how a batch function works: 
+* When a given per-recipient workflow run hits a batch step, the batch function will stay open for an interval of time provided by you (the **batch window**). 
+* While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient** that match the **batch key** you provided in your batch function step. (Any workflow triggers for that recipient with a different batch key will open a new batch.)
+* Any aggregated workflow triggers are appended to a group of **batch workflow variables** that you can use to format your notifications. You can read more in the ["using batch variables" section](/send-notifications/workflow-functions#using-batch-variables) of this guide. 
+* When the batch window interval closes, the workflow continues to the next step. 
+
+In the example below, the batch key is page_id, meaning notifications will be batched according to the page_id on which they are left. Remember that this takes place for each recipient sent to the workflow. 
+
+![Using the batch function to batch new comment notifications by page. ](/images/functions/functions_batch_page.png)
+<figcaption>Using the batch function to batch new comment notifications by page.</figcaption>
+
+
+
+### Selecting a batch key
+Batches are applied per recipient but you'll need to pick a batch key that allows you to logically group messages together. This typically means you'll want to pick a batch key
+that relates to the subject of the notification.
+
+Some example batch keys:
+* In a document editing app where comments are left on documents, we'd want to use an identifier for the document so that comments within the same document are grouped together.
+* In a file sharing app, we may want to collapse all new file upload notifications into a single folder, and so we'd use the folder identifier as the batch key.
+
+
+### Using batch variables
+Another important aspect of batch functions is that they generate state that can be used in your templates. Let's continue the commenting example we used above. 
+In this scenario, we'll want different copy in our notification for when a batch includes one item ("Jane left a comment") v. when a batch includes more than one item ("Jane left *n* comments"). 
+
+We can address use cases like this by referencing the `total_activities` variable within our workflow. 
+Here's an example of a message template that uses this variable to determine what type of copy to use:
+
+```markdown
+{% if total_activities > 1 %} 
+  {{ actor.name}} left {{ total_activities }} comments on {{ page_name }}
+{% else %}
+  {{ actor.name}} left a comment on {{ page_name }}.
+```
+
+Here's a list of the variables that you can use to work with batch-related state. 
+
+- `total_activities`. The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight.)
+- `total_actors`. The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification.)
+- `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your notify call. The `activities` variable lists the *first* ten activity objects added to the batch. Each activity includes any data properties you sent along in the notify call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
+    
+    ```
+    {% for activity in activities %}
+    <p>{{ activity.actor.name }} commented on {{ activity.pageName }} with:</p>
+    
+    <blockquote>
+    {{ activity.content }}
+    </blockquote>
+    {% endfor %}
+    ```
+    
+- `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the *first* ten actors added to the batch.
+
+
+## Delay
+
+A delay function does just what it sounds like: it delays for some amount of time, then proceeds to the next step. There are two types of delays we support in Knock today: "wait for set interval" and "wait until timestamp". 
+
+### Wait for set interval
+
+The "wait for set interval" delay type waits for an interval of time (provided by you in the workflow editor) and then proceeds to the next step. 
+
+Set interval delay functions are helpful for the following use cases:
+
+- Check to see if a user's seen or read an in-app message before sending an email
+- Remind a user about a pending invite they haven't accepted
+
+![A workflow using the "wait for set interval" delay function to wait to see if a user's read an in-app message before notifying via email.](/images/functions/functions_delay_interval.png)
+
+<figcaption>A workflow using the "wait for set interval" delay function to wait to see if a user's read an in-app message before notifying via email.</figcaption>
+
+### Wait until timestamp
+
+The "wait until timestamp" delay type waits until a specific point in time provided by you in the `data` of your notify call, then proceeds to the next step. 
+
+Timestamp-based delays are helpful for reminders about resources in your product that need to be completed or addressed by a specific point in time. As an example, if a user has a task that's due three days from now and you want to remind them 24 hours before it's due, you can set a timestamp delay for the task's due date minus 24 hours. 
+
+![A workflow using the "wait until timestamp" delay function to remind a user about a pending task. If the task is completed before the workflow resumes, we cancel the workflow so the user doesn't receive an additional notification. ](/images/functions/functions_delay_timestamp.png)
+
+<figcaption>A workflow using the "wait until timestamp" delay function to remind a user about a pending task. If the task is completed before the workflow resumes, we cancel the workflow so the user doesn't receive an additional notification.</figcaption>
+
+### Using workflow cancellation with delays
+
+In cases where you're waiting to see if a user will complete an action before sending a notification, you can use our [workflow cancellation API](https://docs.knock.app/send-notifications/canceling-workflows) to ensure a user doesn't receive an unnecessary reminder. 
+
+If the user completes the action you were going to remind them about, cancel the workflow to keep any additional notifications from being sent. 
+
+
+## Throttle
+
+**In beta**
+
+A throttle function behaves similarly to a batch function. It waits for a given interval of time (the **throttle window**) and aggregates any triggers to the workflow run's workflow and recipient. 
+It differs from batch functions in a few ways:
+- When the throttle window is opened, the first workflow trigger it receives is immediately sent to the next step of the workflow. 
+- Any subsequent workflow triggers the throttle receives will be closed. Their workflows will not be run. 
+- The throttle function takes an optional `throttle_key`. This enables you to throttle on a given key in your product.
+
+Throttling is helpful when you want to ensure that a message for a specific workflow is only
+delivered once within the throttling window. Common use cases include sign ups, access requests, or alerts, where a given event may happen multiple times in your product, but you only want to send the user a single notification. 
+
+Throttling is currently in beta. If you're interested in trying it out, please reach out via the feedback button at the top of this page. 
+
+
+
