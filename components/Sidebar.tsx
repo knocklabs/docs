@@ -30,7 +30,13 @@ const Sidebar = () => {
             <ul className="space-y-2 mt-2">
               {section.pages.map((page) => (
                 <li key={page.slug} className="text-gray-500 text-sm">
-                  <Link href={section.slug + page.slug}>
+                  <Link
+                    href={
+                      page.slug === "/security"
+                        ? page.slug
+                        : section.slug + page.slug
+                    }
+                  >
                     <a
                       className={cn({
                         "hover:text-gray-900": true,
