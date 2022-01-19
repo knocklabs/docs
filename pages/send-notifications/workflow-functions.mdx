@@ -50,16 +50,16 @@ In the example above we've included three recipients, so our workflow trigger wi
 
 ## Batch
 
-A batch function batches together notifications that have to do with the same subject, so you can send fewer notifications to your users. 
+A batch function collects notifications that have to do with the same subject, so you can send fewer notifications to your users. 
 
-Batch functions are helpful when a user needs to be notified about a lot of activity happening at once, but doesn't need a notification for every single activity within the batch. 
+Batch functions are helpful when a recipient needs to be notified about a lot of activity happening at once, but doesn't need a notification for every single activity within the batch. 
 Commenting is a common use case. If a user leaves ten comments in a page in fifteen minutes, you don't want to send the user ten separate notifications. You want to send them one notification about the ten comments they just received. 
 
 Here's a step-by-step breakdown of how a batch function works: 
 * When a given per-recipient workflow run hits a batch step, the batch function will stay open for an interval of time provided by you (the **batch window**). 
-* While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient** that match the **batch key** you provided in your batch function step. (Any workflow triggers for that recipient with a different batch key will open a new batch.)
+* While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient** that match the **batch key** you provided in your batch function step. (Any workflow triggers for that recipient with a different batch key will open a new batch).
 * Any aggregated workflow triggers are appended to a group of **batch workflow variables** that you can use to format your notifications. You can read more in the ["using batch variables" section](/send-notifications/workflow-functions#using-batch-variables) of this guide. 
-* When the batch window interval closes, the workflow continues to the next step. 
+* When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch.
 
 In the example below, the batch key is page_id, meaning notifications will be batched according to the page_id on which they are left. Remember that this takes place for each recipient sent to the workflow. 
 
@@ -93,8 +93,8 @@ Here's an example of a message template that uses this variable to determine wha
 
 Here's a list of the variables that you can use to work with batch-related state. 
 
-- `total_activities`. The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight.)
-- `total_actors`. The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification.)
+- `total_activities`. The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight).
+- `total_actors`. The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification).
 - `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your notify call. The `activities` variable lists the *first* ten activity objects added to the batch. Each activity includes any data properties you sent along in the notify call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
     
     ```
@@ -109,10 +109,14 @@ Here's a list of the variables that you can use to work with batch-related state
     
 - `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the *first* ten actors added to the batch.
 
+### Using workflow cancellation with batches
+
+If you want to remove an item from a batch (example: a user deletes a comment), you can use our [workflow cancellation API](https://docs.knock.app/send-notifications/canceling-workflows) to cancel a batched item, thereby removing it from the batch. 
+
 
 ## Delay
 
-A delay function does just what it sounds like: it delays for some amount of time, then proceeds to the next step. There are two types of delays we support in Knock today: "wait for set interval" and "wait until timestamp". 
+A delay function does just what it sounds like: it delays the execution of the workflow for some amount of time, then proceeds to the next step. There are two types of delays we support in Knock today: "wait for set interval" and "wait until timestamp". 
 
 ### Wait for set interval
 
@@ -144,7 +148,7 @@ In cases where you're waiting to see if a user will complete an action before se
 If the user completes the action you were going to remind them about, cancel the workflow to keep any additional notifications from being sent. 
 
 
-## Throttle
+<!-- ## Throttle
 
 **In beta**
 
@@ -157,7 +161,7 @@ It differs from batch functions in a few ways:
 Throttling is helpful when you want to ensure that a message for a specific workflow is only
 delivered once within the throttling window. Common use cases include sign ups, access requests, or alerts, where a given event may happen multiple times in your product, but you only want to send the user a single notification. 
 
-Throttling is currently in beta. If you're interested in trying it out, please reach out via the feedback button at the top of this page. 
+Throttling is currently in beta. If you're interested in trying it out, please reach out via the feedback button at the top of this page.  -->
 
 
 
