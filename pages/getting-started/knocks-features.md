@@ -42,4 +42,4 @@ sent a notification, why they were sent it, and what actions they performed on t
 
 ## Security & privacy
 
-We understand the importance of keeping your user and notification data safe. That's why we built Knock with security in mind from day one. You can learn more about our security practices [here](/send-and-manage-data/security).
+We understand the importance of keeping your user and notification data safe. That's why we built Knock with security in mind from day one. You can learn more about [our security practices here](/security).
