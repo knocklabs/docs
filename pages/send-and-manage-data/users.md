@@ -127,7 +127,6 @@ Once you've migrated your current users into Knock, you'll want to continue to i
 2. When data about a user changes, like a name or an email address being updated.
 
 ```javascript Identify a user on sign up
->>>>>>> c7e61e6 (additional changes for users improvements)
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
@@ -143,3 +142,55 @@ app.post("/signup", async (req, res) => {
   res.json(user.serialize());
 });
 ```
+
+## Retrieving users
+
+Users can be retrieved from Knock to see the current state of their properties using the `users.get` method.
+
+```javascript Delete user
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const user = await knock.users.get(user.id);
+```
+
+## Deleting users
+
+Users can be deleted from Knock via the `users.delete` method. Deleting a user from Knock will have the following effect:
+
+- The user will no longer be able to be a recipient or an actor in a workflow
+- The user will no longer appear in the dashboard under the "Users" list
+- Any in-app messages that reference the user will be replaced by a "missing user" marker
+
+```javascript Delete user
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+await knock.users.delete(user.id);
+```
+
+## Merging users
+
+You might run into the scenario where you've identified an invited user to send them a notification and then that user "graduates" to a fully fledged user after they sign up, leaving you with two users in Knock. That's where the merge users method comes in handy.
+
+Merging two users will merge the `secondary` user (the invited user in our example) into the `primary` user (the signed up user), and the secondary user will be deleted in the process.
+
+```javascript Merge users
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+// We want to merge the invited user onto the user, keeping only the user
+await knock.users.merge(user.id, invitedUser.id);
+```
+
+**Please note that merging is a destructive operation and cannot be undone.**
+
+### What's merged?
+
+- **Properties**: Properties are deep merged, but if there are any conflicts between the secondary and primary user then the value is selected from the primary user.
+- **Preferences**: Preference sets are shallow merged between the users. Any preference sets that don't exist on the primary from the secondary are added.
+- **Channel data**: Channel data is shallow merged from the secondary to the primary. Any channel data that doesn't exist on the primary from the secondary is added, determined by the channel_id.
+- **Message history**: The past 30 days of message history of the secondary user will now be owned by the primary recipient.
+- **Activities**: Any activities from the past 30 days that the secondary user was an `actor` or `recipient` of will be transferred to the primary user.
+
+If you need to retain more than 30 days worth of history, please contact us.
