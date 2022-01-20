@@ -40,6 +40,7 @@ Knock offers native SDKs in several popular programming languages:
 - [Node JS](https://github.com/knocklabs/knock-node)
 - [Python](https://github.com/knocklabs/knock-python)
 - [Ruby](https://github.com/knocklabs/knock-ruby)
+- [C# (dot net)](https://github.com/knocklabs/knock-dot-net)
 - [Elixir](https://github.com/knocklabs/knock-elixir)
 
 </ContentColumn>
@@ -115,6 +116,7 @@ A user represents an individual who may need to receive a notification from Knoc
   <Endpoint name="identify-user" method="PUT" path="/users/:user_id" />
   <Endpoint name="get-user" method="GET" path="/users/:user_id" />
   <Endpoint name="delete-user" method="DELETE" path="/users/:user_id" />
+  <Endpoint name="merge-user" method="POST" path="/users/:user_id/merge" />
   <Endpoint
     name="bulk-identify-users"
     method="POST"
@@ -293,6 +295,67 @@ const { Knock } = require("@knocklabs/node");
 const knock = new Knock("sk_example_123456789");
 
 const user = await knock.users.delete("jhammond");
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Merge users" slug="merge-user">
+<ContentColumn>
+
+Merges the two users together, merging the user specified in the `from_user_id` into the `user_id`.
+
+[Read more on how merging works →](/send-and-manage-data/users#merging-users)
+
+### Endpoint
+
+<Endpoint method="POST" path="/users/:user_id/merge" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier of the user to merge into"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="from_user_id"
+    type="string"
+    description="Unique identifier of the user to merge from"
+  />
+</Attributes>
+
+### Returns
+
+The merged `User`.
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Merge user
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock("sk_example_123456789");
+
+const user = await knock.users.merge("jhammond", "jhammond-fake");
+```
+
+```json Response
+{
+  "__typename": "User",
+  "id": "user_1",
+  "name": "User name",
+  "email": "user@example.com",
+  "foo": "bar",
+  "baz": true,
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
 ```
 
 </ExampleColumn>
@@ -913,7 +976,7 @@ const bulkOperation = await knock.users.bulkSetPreferences(userIds, {
 Channel data is channel-specific information stored on a Knock [user](/reference#users) or [object](/reference#objects) that's needed to deliver a notification to an end provider.
 
 For a push channel, this includes device-specific tokens that map the recipient to the device they use. For chat apps, such as Slack, this includes the access token used to send
-notifications to a customer's Slack channel. 
+notifications to a customer's Slack channel.
 
 ### Attributes
 
@@ -1070,7 +1133,6 @@ await knockClient.users.setChannelData("jhammond", APNS_CHANNEL_ID, {
 </ExampleColumn>
 </Section>
 
-
 <Section title="Setting object channel data" slug="set-object-channel-data">
 <ContentColumn>
 
@@ -1078,7 +1140,10 @@ Sets channel data for the object and the channel specified.
 
 ### Endpoint
 
-<Endpoint method="PUT" path="/objects/:collection/:object_id/channel_data/:channel_id" />
+<Endpoint
+  method="PUT"
+  path="/objects/:collection/:object_id/channel_data/:channel_id"
+/>
 
 ### Path parameters
 
@@ -1126,16 +1191,16 @@ const knockClient = new Knock("sk_12345");
 await knock.objects.setChannelData({
     // The object you want to update
     { id: team.id, collection: "team" },
-    
+
     // The ID of the Slack channel in Knock
     process.env.KNOCK_SLACK_CHANNEL_ID,
-    
+
     // The Slack incoming webhook URL we want to store on this object
-    { 
+    {
         connections: [{
             incoming_webhook: { url: "url-from-slack" }
         }]
-    },  
+    },
 });
 ```
 
