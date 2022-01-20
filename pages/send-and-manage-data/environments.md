@@ -42,3 +42,5 @@ most, if not all, employees.
 
 ## Account and environment variables
 You can use variables to set global values to use across your workflows and layouts. Variables can be defined at the account-level in Knock, meaning they apply across all workflows, or can be defined/overridden at the environment-level. When a variable is defined, it is available under the `vars` namespace in any notification templates where you want to use it. 
+
+You can set account-level variables in the settings page of the Knock dashboard. You can set environment-level variables under the developers page of a given environment within the Knock dashboard. 
