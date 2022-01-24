@@ -8,7 +8,7 @@ in one environment are **never** accessible to another.
 
 The API key you use determines the environment into which you'll be sending data. You can find your environment specific API keys under the "Developer" section of the Knock dashboard.
 
-Note: By default, your Knock account comes with two environments: Development and Production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a Staging environment) you can add it on the "Settings" page of the Knock dashboard. 
+Note: By default, your Knock account comes with two environments: Development and Production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a Staging environment) you can add it on the settings page of the Knock dashboard. 
 
 ## Promotion and rollback
 
@@ -39,3 +39,8 @@ Additionally, each environment allows you to control:
 
 These controls are useful as you'll typically want to see this data in your development/test environment for debugging purposes, while in your production you'll want to protect your real end user data from
 most, if not all, employees.
+
+## Account and environment variables
+You can use variables to set global values to use across your workflows and layouts. Variables can be defined at the account-level in Knock, meaning they apply across all workflows, or can be defined/overridden at the environment-level. When a variable is defined, it is available under the `vars` namespace in any notification templates where you want to use it. 
+
+You can set account-level variables in the settings page of the Knock dashboard. You can set environment-level variables under the developers page of a given environment within the Knock dashboard. 
