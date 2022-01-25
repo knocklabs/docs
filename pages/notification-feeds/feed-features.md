@@ -2,7 +2,7 @@
 title: Feed feature guide
 ---
 
-Whether you’re using our [pre-built feed component](https://github.com/knocklabs/react-notification-feed) or working directly with the Knock [Feeds API](/reference#feeds), there are a number of features we provide out-of-the-box that you can use in your notifications. 
+Whether you’re using our [pre-built feed component](https://github.com/knocklabs/react-notification-feed) or working directly with the Knock [Feeds API](/reference#feeds) there are a number of features we provide out-of-the-box that you can use in your notifications. 
 
 In this guide we'll provide an overview of these feed-related features and how to make the most of them. 
 
