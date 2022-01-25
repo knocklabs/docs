@@ -18,7 +18,7 @@ Here's more context on each status:
 Message status is used to power a number of different features in the in-app feed. 
 - **Badge counting.** By default, the Knock in-app feed badge counter will show users a count of how many `unseen` messages they have waiting for them in the feed. This means that as soon as they open the feed and see them the messages will be marked as `seen` and the badge count will go back to zero. Some apps prefer to show a count of `unread` messages on their badge counter; we default to `unseen` as it results in less noise and disruption for the user. 
 - **Mark as read.** The Knock in-app feed lets users mark notifications as read in one of two ways. They can mark an individual item as read by clicking on it (which takes them to the URL assigned to that notification) or they can click "mark all as read" to mark all notifications in the feed as `read`. 
-- **Filtering.** You can use the filter button at the top of the feed to filter messages based on their status. This helps users quickly access notifications they've read or haven't read, so that they can quickly get to the high priority items in their feed. 
+- **Filtering.** You can use the filter button at the top of the feed to filter messages based on their status. This helps users quickly access notifications they've read or haven't read so that they can quickly get to the high priority items in their feed. 
 
 Note that the functionality above is just the default for what we've provided in our in-app feed. If you'd like to use our message statuses in a different way, you can fork the Knock in-app feed as you need to and customize its behavior. 
 
