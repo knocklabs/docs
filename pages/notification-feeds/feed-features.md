@@ -11,7 +11,7 @@ Every in-app feed notification sent by Knock has a status of `unseen`, `seen`, o
 
 Here's more context on each status:
 - **Unseen.** The notification has not been rendered in the user's in-app feed, meaning the user hasn't seen the notification yet. 
-- **Seen.** The notification has been rendered in the user's in-app feed, meaning the user opened the feed and saw the notification. If a notification has a status of `seen`, it means that it has not yet been marked as read by the user. 
+- **Seen.** The notification has been rendered in the user's in-app feed, meaning the user opened the feed and saw the notification. If a notification has a status of `seen` it means that it has not yet been marked as read by the user. 
 - **Read.** The notification has been marked as read by the user. There are a few ways notifications can be marked as read by users depending on the behavior you'd like to provide. We cover how this works in our own feed in the section below. 
 
 ### How the Knock in-app feed uses status
