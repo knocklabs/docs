@@ -1,0 +1,33 @@
+---
+title: Feed feature guide
+---
+
+Whether you’re using our [pre-built feed component](https://github.com/knocklabs/react-notification-feed) or working directly with the Knock [Feeds API](/reference#feeds) there are a number of features we provide out-of-the-box that you can use in your notifications. 
+
+In this guide we'll provide an overview of these feed-related features and how to make the most of them. 
+
+## Using message status
+Every in-app feed notification sent by Knock has a status of `unseen`, `seen`, or `read`. You can use these statuses to power notification badge counts, filtering, and mark-as-read functionality. 
+
+Here's more context on each status:
+- **Unseen.** The notification has not been rendered in the user's in-app feed, meaning the user hasn't seen the notification yet. 
+- **Seen.** The notification has been rendered in the user's in-app feed, meaning the user opened the feed and saw the notification. If a notification has a status of `seen` it means that it has not yet been marked as read by the user. 
+- **Read.** The notification has been marked as read by the user. There are a few ways notifications can be marked as read by users depending on the behavior you'd like to provide. We cover how this works in our own feed in the section below. 
+
+### How the Knock in-app feed uses status
+Message status is used to power a number of different features in the in-app feed. 
+- **Badge counting.** By default, the Knock in-app feed badge counter will show users a count of how many `unseen` messages they have waiting for them in the feed. This means that as soon as they open the feed and see them the messages will be marked as `seen` and the badge count will go back to zero. Some apps prefer to show a count of `unread` messages on their badge counter; we default to `unseen` as it results in less noise and disruption for the user. 
+- **Mark as read.** The Knock in-app feed lets users mark notifications as read in one of two ways. They can mark an individual item as read by clicking on it (which takes them to the URL assigned to that notification) or they can click "mark all as read" to mark all notifications in the feed as `read`. 
+- **Filtering.** You can use the filter button at the top of the feed to filter messages based on their status. This helps users quickly access notifications they've read or haven't read so that they can quickly get to the high priority items in their feed. 
+
+Note that the functionality above is just the default for what we've provided in our in-app feed. If you'd like to use our message statuses in a different way, you can fork the Knock in-app feed and customize its behavior as you need to. 
+
+
+## Archiving messages
+Sometimes a user wants to remove a notification from their feed altogether. This is where notification archiving comes in. When a notification is archived, it is removed from the feed and is no longer visible to the end user.
+
+In the Knock in-app feed, a message can be archived by clicking the "x" in the top-right corner of a given notification. The in-app feed component doesn't give users a way to see their archived notifications out-of-the-box, but if you'd like to incorporate this into your own in-app feed you can use the `include_archived` parameter on the [GET feed](/reference#get-feed) endpoint.
+
+
+
+

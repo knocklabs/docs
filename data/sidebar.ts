@@ -68,6 +68,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/getting-started", title: "Getting started" },
       { slug: "/customizing-ui", title: "Customizing the UI" },
       { slug: "/bring-your-own-ui", title: "Bring your own UI" },
+      { slug: "/feed-features", title: "Feed feature guide" },
     ],
   },
   {
