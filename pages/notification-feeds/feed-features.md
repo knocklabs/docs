@@ -7,7 +7,7 @@ Whether you’re using our [pre-built feed component](https://github.com/knockla
 In this guide we'll provide an overview of these feed-related features and how to make the most of them. 
 
 ## Using message status
-Every in-app feed notification sent by Knock has a status of `unseen`, `seen`, or `read`. You can use these statuses to power notification badge counts, filtering, and mark as read functionality. 
+Every in-app feed notification sent by Knock has a status of `unseen`, `seen`, or `read`. You can use these statuses to power notification badge counts, filtering, and mark-as-read functionality. 
 
 Here's more context on each status:
 - **Unseen.** The notification has not been rendered in the user's in-app feed, meaning the user hasn't seen the notification yet. 
