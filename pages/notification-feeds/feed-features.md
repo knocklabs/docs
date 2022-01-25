@@ -20,7 +20,7 @@ Message status is used to power a number of different features in the in-app fee
 - **Mark as read.** The Knock in-app feed lets users mark notifications as read in one of two ways. They can mark an individual item as read by clicking on it (which takes them to the URL assigned to that notification) or they can click "mark all as read" to mark all notifications in the feed as `read`. 
 - **Filtering.** You can use the filter button at the top of the feed to filter messages based on their status. This helps users quickly access notifications they've read or haven't read so that they can quickly get to the high priority items in their feed. 
 
-Note that the functionality above is just the default for what we've provided in our in-app feed. If you'd like to use our message statuses in a different way, you can fork the Knock in-app feed as you need to and customize its behavior. 
+Note that the functionality above is just the default for what we've provided in our in-app feed. If you'd like to use our message statuses in a different way, you can fork the Knock in-app feed and customize its behavior as you need to. 
 
 
 ## Archiving messages
