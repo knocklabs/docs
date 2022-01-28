@@ -15,8 +15,6 @@ const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.notify("new-user-invited", {
-  // The user who performed the action
-  actor: "user_3",
   // The list of recipients
   recipients: ["user_1", "user_2"],
   // Data to be passed to the template
@@ -35,7 +33,7 @@ Learn more about triggering workflows in [our API reference](/reference#workflow
 | Property         | Type                  | Description                                                                                                 |
 | ---------------- | --------------------- | ----------------------------------------------------------------------------------------------------------- |
 | key\*            | string                | The human readable key of the workflow from the Knock dashboard                                             |
-| actor\*          | RecipientIdentifier   | An identifier of who or what performed this action                                                          |
+| actor            | RecipientIdentifier   | An identifier of who or what performed this action (optional)                                               |
 | recipients\*     | RecipientIdentifier[] | A list of user ids, or object references of who to notify for this workflow                                 |
 | data             | map                   | A map of properties that are required in the templates in this workflow                                     |
 | cancellation_key | string                | A unique identifier to reference the workflow when canceling                                                |
@@ -57,6 +55,29 @@ Triggering a workflow will always return a unique UUID v4 representing the workf
   "workflow_run_id": "05f8a70d-e42a-46dc-86fa-aada5752f6cf"
 }
 ```
+
+## Attributing the action to a user or object
+
+Knock supports passing an `actor` in your workflow trigger calls, which allows you to attribute the workflow trigger to an individual recipient (user or object).
+
+```js Triggering a Knock workflow with an actor
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+await knock.notify("new-user-invited", {
+  actor: "user_0",
+  recipients: ["user_1", "user_2"],
+  data: {
+    invitee_name: "Jane Doe",
+  },
+});
+```
+
+Calling a workflow trigger with an actor will have the following effect:
+
+- The `actor` property will be available within your message templates including the full user or object that performed this action.
+- When a workflow being triggered includes a batch step, the actor will be recorded as one actor who performed an action in the batch, which you can access via the `actors` key in your template.
+- Any workflows that contain an in-app feed channel step will produce a message that links the actor, and the actor will be loaded in any requests to this feed.
 
 ## Passing data
 
@@ -129,10 +150,19 @@ For cases when you want to notify an [object](/send-and-manage-data/objects) in 
 
 An object reference always comes in the form of a dictionary with `id` and `collection` properties.
 
-```javascript Workflow trigger with an object
+```javascript Workflow trigger with an object as a recipient
 await knock.workflows.trigger("new-comment", {
-  actor: comment.authorId,
   recipients: [...projectUserIds, { id: project.id, collection: "projects" }],
+  data: { comment },
+});
+```
+
+Remember, an object can also be an `actor` of a workflow as well!
+
+```javascript Workflow trigger with an object as an actor
+await knock.workflows.trigger("new-comment", {
+  actor: { id: project.id, collection: "projects" },
+  recipients: projectUserIds,
   data: { comment },
 });
 ```
