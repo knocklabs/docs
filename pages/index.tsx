@@ -1,10 +1,11 @@
 import Link from "next/link";
+import DocsSidebar from "../components/DocsSidebar";
 import sidebarContent from "../data/sidebar";
 import { Page } from "../layouts/Page";
 
 export default function Home() {
   return (
-    <Page>
+    <Page pageType="Docs" sidebar={<DocsSidebar />}>
       <div className="space-y-12 max-w-3xl mx-auto">
         <header className="py-5">
           <h1 className="text-4xl font-bold mb-2">Documentation</h1>
@@ -12,11 +13,19 @@ export default function Home() {
             Explore our guides and examples to integrate Knock.
           </p>
 
-          <Link href="/getting-started/what-is-knock">
-            <a className="bg-brand hover:bg-brand-dark text-white py-2 px-4 rounded-md font-semibold">
-              Get started →
-            </a>
-          </Link>
+          <div className="flex items-center space-x-2">
+            <Link href="/getting-started/what-is-knock">
+              <a className="bg-brand hover:bg-brand-dark text-white py-2 px-4 rounded-md font-semibold">
+                Get started
+              </a>
+            </Link>
+
+            <Link href="/reference">
+              <a className="text-gray-600 py-2 px-3 rounded-md font-medium">
+                API reference
+              </a>
+            </Link>
+          </div>
         </header>
 
         <section className="bg-gray-50 p-5 lg:-ml-5 lg:-mr-5 rounded">

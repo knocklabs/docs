@@ -1,14 +1,4 @@
-export type SidebarPage = {
-  slug: string;
-  title: string;
-};
-
-export type SidebarSection = {
-  title: string | null;
-  slug: string;
-  desc?: string;
-  pages: SidebarPage[];
-};
+import { SidebarSection } from "./types";
 
 const sidebarContent: SidebarSection[] = [
   {
@@ -21,7 +11,6 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
       { slug: "/security", title: "Security" },
-      // { slug: "/knocks-features", title: "Knock's features" }, // Taking this out for now.
     ],
   },
   {
@@ -31,7 +20,6 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/concepts", title: "Concepts" },
       { slug: "/users", title: "Users" },
-      // { slug: "/lists", title: "Lists" },
       { slug: "/preferences", title: "Preferences" },
       { slug: "/environments", title: "Environments" },
       { slug: "/objects", title: "Objects" },
@@ -81,26 +69,6 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/twilio-sms", title: "Twilio SMS" },
       { slug: "/sendgrid", title: "SendGrid" },
       { slug: "/aws-ses", title: "AWS SES" },
-    ],
-  },
-  {
-    title: "API reference",
-    slug: "/reference",
-    desc: "Reference documentation for the Knock API",
-    pages: [
-      { slug: "#overview", title: "Overview" },
-      { slug: "#client-libraries", title: "Client libraries" },
-      { slug: "#api-keys", title: "API keys" },
-      { slug: "#authentication", title: "Authentication" },
-      { slug: "#errors", title: "Errors" },
-      { slug: "#users", title: "Users" },
-      { slug: "#workflows", title: "Workflows" },
-      { slug: "#preferences", title: "Preferences" },
-      { slug: "#channel-data", title: "Channel data" },
-      { slug: "#feeds", title: "Feeds" },
-      { slug: "#messages", title: "Messages" },
-      { slug: "#bulk-operations", title: "Bulk operations" },
-      { slug: "#objects", title: "Objects" },
     ],
   },
 ];
