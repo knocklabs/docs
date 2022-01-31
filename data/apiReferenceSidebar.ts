@@ -73,9 +73,9 @@ const sidebarContent: SidebarSection[] = [
     slug: "/reference",
     pages: [
       { slug: "#objects", title: "Overview" },
-      { slug: "#get-object", title: "Get object" },
-      { slug: "#set-object", title: "Set object" },
-      { slug: "#delete-object", title: "Delete object" },
+      { slug: "#get-object", title: "Get an object" },
+      { slug: "#set-object", title: "Set an object" },
+      { slug: "#delete-object", title: "Delete an object" },
       { slug: "#bulk-set-objects", title: "Bulk set objects" },
       { slug: "#bulk-delete-objects", title: "Bulk delete objects" },
     ],
