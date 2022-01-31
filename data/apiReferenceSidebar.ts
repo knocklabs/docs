@@ -48,13 +48,24 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Preferences",
     slug: "/reference",
-    pages: [{ slug: "#preferences", title: "Overview" }],
+    pages: [
+      { slug: "#preferences", title: "Overview" },
+      { slug: "#get-preferences", title: "Get preferences" },
+      { slug: "#set-preferences", title: "Set preferences" },
+      { slug: "#bulk-set-preferences", title: "Bulk set preferences" },
+    ],
   },
 
   {
     title: "Channel data",
     slug: "/reference",
-    pages: [{ slug: "#channel-data", title: "Overview" }],
+    pages: [
+      { slug: "#channel-data", title: "Overview" },
+      { slug: "#get-user-channel-data", title: "Get user channel data" },
+      { slug: "#set-user-channel-data", title: "Set user channel data" },
+      { slug: "#get-object-channel-data", title: "Get object channel data" },
+      { slug: "#set-object-channel-data", title: "Set object channel data" },
+    ],
   },
 
   {

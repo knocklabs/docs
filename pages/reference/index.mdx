@@ -998,7 +998,7 @@ notifications to a customer's Slack channel.
 
 <Endpoints>
   <Endpoint
-    name="get-channel-data"
+    name="get-user-channel-data"
     method="GET"
     path="/users/:user_id/channel_data/:channel_id"
   />
@@ -1006,6 +1006,11 @@ notifications to a customer's Slack channel.
     name="set-user-channel-data"
     method="PUT"
     path="/users/:user_id/channel_data/:channel_id"
+  />
+  <Endpoint
+    name="get-object-channel-data"
+    method="GET"
+    path="/object/:collection/:object_id/channel_data/:channel_id"
   />
   <Endpoint
     name="set-object-channel-data"
@@ -1027,7 +1032,7 @@ notifications to a customer's Slack channel.
 </ExampleColumn>
 </Section>
 
-<Section title="Getting channel data" slug="get-channel-data">
+<Section title="Getting user channel data" slug="get-user-channel-data">
 <ContentColumn>
 
 Retrieves the channel data for the provided user (or object) on the channel specified.
@@ -1059,7 +1064,7 @@ Retrieves the channel data for the provided user (or object) on the channel spec
 </ContentColumn>
 <ExampleColumn>
 
-```javascript Get channel data
+```javascript Get user channel data
 const { Knock } = require("@knocklabs/node");
 const knockClient = new Knock("sk_12345");
 
@@ -1133,6 +1138,62 @@ await knockClient.users.setChannelData("jhammond", APNS_CHANNEL_ID, {
 </ExampleColumn>
 </Section>
 
+<Section title="Getting object channel data" slug="get-object-channel-data">
+<ContentColumn>
+
+Retrieves the channel data for the provided user (or object) on the channel specified.
+
+### Endpoint
+
+<Endpoint
+  method="GET"
+  path="/objects/:collection/:object_id/channel_data/:channel_id"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the channel to lookup"
+  />
+</Attributes>
+
+### Returns
+
+- `200` with a `ChannelData` (when found)
+- `404` when not found
+
+</ContentColumn>
+<ExampleColumn>
+
+```javascript Get object channel data
+const { Knock } = require("@knocklabs/node");
+const knockClient = new Knock("sk_12345");
+
+// Get this value in your Knock dashboard
+const KNOCK_SLACK_CHANNEL_ID = "some-channel-id-from-knock";
+
+const channelData = await knockClient.objects.getChannelData(
+  { id: "project-1", collection: "projects" },
+  KNOCK_SLACK_CHANNEL_ID,
+);
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="Setting object channel data" slug="set-object-channel-data">
 <ContentColumn>
 
@@ -1188,20 +1249,17 @@ Sets channel data for the object and the channel specified.
 const { Knock } = require("@knocklabs/node");
 const knockClient = new Knock("sk_12345");
 
-await knock.objects.setChannelData({
-    // The object you want to update
-    { id: team.id, collection: "team" },
-
-    // The ID of the Slack channel in Knock
-    process.env.KNOCK_SLACK_CHANNEL_ID,
-
-    // The Slack incoming webhook URL we want to store on this object
-    {
-        connections: [{
-            incoming_webhook: { url: "url-from-slack" }
-        }]
-    },
-});
+await knock.objects.setChannelData(
+  { id: team.id, collection: "teams" },
+  process.env.KNOCK_SLACK_CHANNEL_ID,
+  {
+    connections: [
+      {
+        incoming_webhook: { url: "url-from-slack" },
+      },
+    ],
+  },
+);
 ```
 
 </ExampleColumn>
