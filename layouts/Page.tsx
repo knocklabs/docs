@@ -1,11 +1,15 @@
 import Head from "next/head";
 import Link from "next/link";
-import React from "react";
+import React, { ReactElement } from "react";
 import Meta from "../components/Meta";
-import Sidebar from "../components/Sidebar";
 import FeedbackPopover from "../components/FeedbackPopover";
 
-export const Page = ({ children }) => (
+type Props = {
+  pageType: string;
+  sidebar?: ReactElement;
+};
+
+export const Page: React.FC<Props> = ({ children, pageType, sidebar }) => (
   <>
     <Meta />
     <Head>
@@ -22,7 +26,7 @@ export const Page = ({ children }) => (
                 className="w-16 lg:w-20"
               />
               <span className="text-gray-500 ml-1 lg:text-lg mt-1 lg:mt-2">
-                Docs
+                {pageType}
               </span>
             </a>
           </Link>
@@ -33,7 +37,8 @@ export const Page = ({ children }) => (
         </div>
       </header>
       <div className="flex overflow-y-hidden h-full">
-        <Sidebar />
+        {sidebar}
+
         <main className="w-full h-full overflow-y-auto">
           <section className="p-5 lg:p-8 min-h-full">{children}</section>
           <footer className="border-t p-5 lg:p-8">

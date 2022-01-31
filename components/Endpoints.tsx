@@ -1,3 +1,5 @@
+import cn from "classnames";
+
 const Endpoints = ({ children }) => (
   <div className="endpoints text-base lg:text-sm border rounded">
     <div className="bg-gray-100 border-b p-2 flex">
@@ -9,10 +11,18 @@ const Endpoints = ({ children }) => (
 
 const Endpoint = ({ method, path }) => (
   <div className="my-3">
-    <span className="bg-blue-500 text-xs font-semibold text-white rounded p-1 center mr-2">
+    <span
+      className={cn({
+        "text-xs font-medium text-gray-500 rounded p-1 center mr-3": true,
+        "bg-blue-100": method === "GET",
+        "bg-green-100": method === "POST",
+        "bg-yellow-100": method === "PUT",
+        "bg-red-100": method === "DELETE",
+      })}
+    >
       {method}
     </span>
-    <span className="text-sm">{path}</span>
+    <span className="text-sm text-gray-700">{path}</span>
   </div>
 );
 

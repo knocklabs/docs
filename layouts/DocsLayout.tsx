@@ -6,9 +6,11 @@ import { Page } from "./Page";
 import PageNav from "../components/PageNav";
 import Breadcrumbs from "../components/Breadcrumbs";
 import sidebarContent from "../data/sidebar";
+import DocsSidebar from "../components/DocsSidebar";
 
 export const DocsLayout = ({ frontMatter, children }) => {
   const { pathname } = useRouter();
+
   const { section, page, nextPage, prevPage } = useMemo(() => {
     const sectionIndex = sidebarContent.findIndex((s) =>
       s.pages.find((p) => s.slug + p.slug === pathname),
@@ -29,7 +31,7 @@ export const DocsLayout = ({ frontMatter, children }) => {
   }, [pathname]);
 
   return (
-    <Page>
+    <Page pageType="Docs" sidebar={<DocsSidebar />}>
       <Head>
         <title>{frontMatter.title} | Knock Docs</title>
       </Head>

@@ -3,7 +3,10 @@ import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import javascript from "react-syntax-highlighter/dist/cjs/languages/hljs/javascript";
 import ruby from "react-syntax-highlighter/dist/cjs/languages/hljs/ruby";
 import shell from "react-syntax-highlighter/dist/cjs/languages/hljs/shell";
+import { Icon, Tooltip } from "@chakra-ui/react";
+import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
+
 import { lightCodeTheme } from "../styles/codeThemes";
 import { normalize } from "../lib/normalizeCode";
 import { useIsMounted } from "../hooks/useIsMounted";
@@ -87,13 +90,22 @@ export const CodeBlock: React.FC<Props> = ({
       <div className="bg-gray-100 border-b p-2 flex">
         {title && <span className="text-gray-500 font-medium">{title}</span>}
 
-        <button
-          type="button"
-          onClick={setCopied}
-          className="text-xs uppercase text-gray-500 tracking-wider ml-auto"
+        <Tooltip
+          label="Copy this example"
+          fontSize={12}
+          px={1}
+          py={1}
+          lineHeight={1}
+          placement="left-start"
         >
-          {isCopied ? "Copied" : "Copy"}
-        </button>
+          <button
+            type="button"
+            onClick={setCopied}
+            className="text-xs uppercase text-gray-500 tracking-wider px-1 ml-auto"
+          >
+            <Icon as={isCopied ? IoCheckmark : IoCopy} boxSize="12px" />
+          </button>
+        </Tooltip>
       </div>
       <SyntaxHighlighter
         showLineNumbers
