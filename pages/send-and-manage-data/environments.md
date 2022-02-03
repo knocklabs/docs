@@ -13,18 +13,28 @@ Note: By default, your Knock account comes with two environments: Development an
 ## Promotion and rollback
 
 Knock is designed to allow large teams to create and manage notifications at scale. That means that
-notifications changes must be versioned, tested, and rolled out with controls such that if there are
-any issues in production they can be rolled back with ease.
+notifications changes must be versioned, tested, and promoted to production environments, so that if there are
+any issues they can be rolled back with ease.
 
-Knock uses a model whereby all changes to the production environment must be **promoted** and cannot be made directly.
-This means that changes have to be staged and tested before being rolled out (similar to a git based workflow).
+Knock uses a model where all changes to the production environment must be **promoted** and cannot be made directly.
+This means that changes must be made in the development environment, then staged and tested before being rolled out (similar to a git-based workflow).
 
 A typical deployment lifecycle in Knock looks like:
 
 1. Introduce any backend changes to support a new workflow (users and preference properties)
-2. Build the workflow in a dev environment in Knock
+2. Build the workflow in a dev environment in Knock and commit it to that environment 
 3. Test the workflow
 4. When you're ready to go live, promote the workflow to production
+
+## Commits
+
+To version the changes you make in your environments, Knock uses a commit model. When you make a change to a workflow or a layout in the Knock dashboard, you'll need to commit it to your development environment before those changes will appear in workflows triggered via the API. 
+
+There is one exception to this rule: the active/inactive status on a given workflow. This status lives independently from the commit model so that you can immediately enable or disable a workflow in any environment without needing to go through environment promotion. This is your kill switch for a given workflow should you need it. 
+
+A couple other things to note:
+- Channel configurations, branding, and variables do not need to be committed, as they live at the account-level. This means that if you make a change to a channel configuration, it will update immediately on notifications sent in that environment. 
+- Any changes you have not yet committed to your current environment **will** apply when you're using the test runner. This way you can test your latest changes before you commit them to your environment.  
 
 ## Environment-based access controls
 
