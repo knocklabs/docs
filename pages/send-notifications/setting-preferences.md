@@ -2,7 +2,7 @@
 title: Setting preferences
 ---
 
-You can read more about modeling preferences and preferences in general in the [Modeling Preferences](/send-and-manage-data/preferences) guide.
+You can read more about modeling preferences and preferences in general in the [Preferences](/send-and-manage-data/preferences) guide. In the guide below, we walk through the technical details of integrating the Knock preferences model into your product. 
 
 ## Backend integration
 
