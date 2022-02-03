@@ -664,6 +664,11 @@ is set to opt out the user then no notifications will be sent on that channel.
     type="object"
     description="A set of preferences for channel types"
   />
+  <Attribute
+    name="categories"
+    type="object"
+    description="A set of preferences for workflow categories, each can resolve to a boolean or to a set of channel types"
+  />
 </Attributes>
 
 </ContentColumn>
@@ -706,6 +711,16 @@ is set to opt out the user then no notifications will be sent on that channel.
     method="PUT"
     path="/users/:user_id/preferences/:id/workflows/:key"
   />
+  <Endpoint
+    name="set-category-preferences"
+    method="PUT"
+    path="/users/:user_id/preferences/:id/categories"
+  />
+  <Endpoint
+    name="set-category-preference"
+    method="PUT"
+    path="/users/:user_id/preferences/:id/categories/:key"
+  />
 </Endpoints>
 
 ```json Preference object
@@ -722,6 +737,13 @@ is set to opt out the user then no notifications will be sent on that channel.
   "channel_types": {
     "in_app_feed": true,
     "sms": false
+  },
+  "categories": {
+    "park-wide": {
+      "channel_types": {
+        "sms": false
+      }
+    }
   }
 }
 ```
@@ -787,6 +809,13 @@ const preferences = await knock.users.getPreferences("jhammond");
   "channel_types": {
     "in_app_feed": true,
     "sms": true
+  },
+  "categories": {
+    "park-wide": {
+      "channel_types": {
+        "sms": false
+      }
+    }
   }
 }
 ```
@@ -836,6 +865,11 @@ will replace any existing preferences with the preferences given.
     type="object"
     description="A set of workflow preferences, can be a boolean or an object containing channel type preferences"
   />
+  <Attribute
+    name="categories"
+    type="object"
+    description="A set of category preferences, can be a boolean or an object containing channel type preferences"
+  />
 </Attributes>
 
 ### Response
@@ -861,6 +895,13 @@ const preferences = await knock.users.setPreferences("jhammond", {
       },
     },
   },
+  categories: {
+    "park-wide": {
+      channel_types: {
+        sms: false,
+      },
+    },
+  },
 });
 ```
 
@@ -878,6 +919,11 @@ const preferences = await knock.users.setPreferences("jhammond", {
   },
   "channel_types": {
     "in_app_feed": true
+  },
+  "categories": {
+    "park-wide": {
+      "sms": false
+    }
   }
 }
 ```
@@ -922,6 +968,11 @@ will replace any existing users' preferences with the preferences sent.
     type="object"
     description="A set of workflow preferences, can be a boolean or an object containing channel type preferences"
   />
+  <Attribute
+    name="preferences.categories"
+    type="object"
+    description="A set of categories preferences, can be a boolean or an object containing channel type preferences"
+  />
 </Attributes>
 
 ### Response
@@ -944,6 +995,13 @@ const bulkOperation = await knock.users.bulkSetPreferences(userIds, {
       channel_types: {
         email: true,
         sms: true,
+      },
+    },
+  },
+  categories: {
+    "park-wide": {
+      channel_types: {
+        sms: false,
       },
     },
   },
