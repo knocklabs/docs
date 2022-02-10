@@ -65,6 +65,7 @@ const sidebarContent: SidebarSection[] = [
     desc: "Learn how to connect your notification providers to Knock.",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/email-attachments", title: "Email attachments" },
       { slug: "/slack", title: "Slack" },
       { slug: "/twilio-sms", title: "Twilio SMS" },
       { slug: "/sendgrid", title: "SendGrid" },
