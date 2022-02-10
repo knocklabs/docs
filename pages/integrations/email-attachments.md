@@ -4,9 +4,9 @@ title: Email attachments
 
 ## How attachments work in Knock
 
-1. Set the attachment key in your email template to tell Knock how to resolve your attachments from your data payload.
-2. Include one or more attachment objects in the `data` payload for your notify call. Each attachment object should have the content of the file to be attached as a base64 encoded value.
-3. Your attachment will be automatically added to your call to your email provider 🎉.
+1. Set an attachment key in your email template to tell Knock how to resolve attachments you send in the data payload of your notify call. To set an attachment key, click the "..." menu in the top right corner of the email template editor. 
+2. Include one or more attachment objects in the `data` payload of your notify call. Each attachment object should have the content of the file to be attached as a base64 encoded value.
+3. Knock automatically adds any attachments included in the attachment key of your notify call to the emails sent by your email provider 🎉.
 
 ## The attachment object
 
@@ -26,11 +26,11 @@ Every attachment you send to Knock in your `data` payload should have the follow
 }
 ```
 
-**Note**: each attachment object must be less than 10mb but there may be lower limits from your email provider.
+**Note**: each attachment object must be less than 10mb but check with your email provider to see if they set a lower limit.
 
 ## Sending attachments in your notify call
 
-Once you've specified your attachment key in your eamil template, the last step is to send the data along to Knock. Remember that you need to base64 encode the contents of the file!
+Once you've specified your attachment key in your email template, the last step is to send the data along to Knock. Remember that you need to base64 encode the contents of the file.
 
 ```js Sending attachment data
 import { Knock } from "@knocklabs/node";
@@ -56,7 +56,7 @@ knock.notify("a-workflow-with-an-email", {
 });
 ```
 
-**Note**: you can send multiple attachments for an email by including an array of attachment objects under your attachment key in your data payload.
+**Note**: you can send multiple attachments for an email by including an array of attachment objects under the attachment key in your data payload.
 
 ## Handling a different attachment per recipient
 
