@@ -57,7 +57,13 @@ export const DocsLayout = ({ frontMatter, children }) => {
 
               {nextPage && (
                 <div className="ml-auto text-right">
-                  <Link href={section.slug + nextPage.slug}>
+                  <Link
+                    href={
+                      nextPage.slug === "/security"
+                        ? nextPage.slug
+                        : section.slug + nextPage.slug
+                    }
+                  >
                     <a className="text-gray-500 hover:text-gray-800">
                       {nextPage.title} →
                     </a>
