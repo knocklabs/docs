@@ -24,6 +24,10 @@ module.exports = {
           DEFAULT: "#EEE6DA",
           dark: "#DACFBF",
         },
+        code: {
+          DEFAULT: "#E95744",
+          background: "rgba(135,131,120,0.15)",
+        },
       },
       typography: (theme) => {
         return {
