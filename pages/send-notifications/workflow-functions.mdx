@@ -64,7 +64,7 @@ Commenting is a common use case. If a user leaves ten comments in a page in fift
 Here's a step-by-step breakdown of how a batch function works:
 
 - When a given per-recipient workflow run hits a batch step, the batch function will stay open for an interval of time provided by you (the **batch window**).
-- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient** that match the **batch key** you provided in your batch function step. (Any workflow triggers for that recipient with a different batch key will open a new batch).
+- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient**. If a **batch key** is provided in your batch step, the incoming triggers **for that recipient** will be will be grouped into **separate batches based on batch key.**
 - Any aggregated workflow triggers are appended to a group of **batch workflow variables** that you can use to format your notifications. You can read more in the ["using batch variables" section](/send-notifications/workflow-functions#using-batch-variables) of this guide.
 - When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch.
 
@@ -80,7 +80,15 @@ In the example below, the batch key is page_id, meaning notifications will be ba
 
 By default, a batch function batches all incoming notifications **per recipient**. If you do not provide a batch key, this is the behavior your batch function will default to.
 
-You may want to batch a recipient's notifications into subsets based on the contents of a given notification. In these cases you can provide a batch key to tell Knock to group the notifications within a batch. 
+You may want to batch a recipient's notifications into subsets based on the contents of a given notification. In these cases you can provide a batch key to tell Knock to batch each recipient's notifications by a batch key. 
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Batching mental model tip.</span> Here's a helpful way to think about batch. By default the batch function batches on a key of <code>recipient_id</code>. When a batch key is provided, it batches on a key of <code>concat(recipient_id, batch_key)</code>.  
+  }
+/>
 
 As an example, in a document editing app where a recipient is receiving notifications about activity across different pages, you can provide a batch key of `page_id` and the user will receive different batch notifications about each page that was included in the batch. 
 
