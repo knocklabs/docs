@@ -23,7 +23,7 @@ You won't actually need to do anything with this trigger step within the workflo
 
 A channel step sends a notification to a recipient. Each channel has a notification template (designed by you in the Knock dashboard) which inserts the `data` from your notify call into a styled template for that step's given channel. We get into more detail on notification templates and how to design them further down in this guide. 
 
-You can add any of the major channel types supported by Knock into your workflow. By default, we show all of our supported channel types, but you'll need to configure a provider with each channel before you can actually use them in a workflow. For more information on how to configure channels in your Knock account, see our [feature guide on adding your first channel](https://www.notion.so/knockapp/Adding-your-first-channel-fa911d650cd84b059f69b08302990a10).  
+You can add any of the major channel types supported by Knock into your workflow. By default, we show all of our supported channel types, but you'll need to configure a provider with each channel before you can actually use them in a workflow. For more information on how to configure channels in your Knock account, see our [integration guides](/integrations/overview).  
 
 #### Trigger conditions
 
@@ -43,7 +43,7 @@ We currently support the following functions:
 - Batch (aggregate notify calls that have the same value for a specified batch key)
 - Delay (wait an amount of time before proceeding to the next workflow step)
 
-To learn more about functions and how to get the most out of them in the Knock dashboard, see our [feature guide](https://www.notion.so/knockapp/Workflow-functions-batch-and-delay-0cb7cbca246f44deb922aaade07ae846). 
+To learn more about functions and how to get the most out of them in the Knock dashboard, read our [workflow functions docs](/send-notifications/workflow-functions). 
 
 
 ## The template editor
@@ -76,7 +76,7 @@ You can use curly braces to reference a number of different variable types:
     Thanks, 
     The team @ Knock
     ``` 
-- **Account and environment constants.** You can also set constants at an account or environment level in Knock for variables that won't change across your different notification workflows. (For more information see [Environments and variables](https://www.notion.so/Environments-and-variables-143018e41dd34848ba584a1f2f24f8d6).) Common use cases for constants include base URLs for routing (e.g. dashboard.knock.app v. dashboard.knock-dev.app) and product names. To access constants in your notification templates, use the `vars` namespace. Here's a code example of an action URL for an in-app feed notification that uses an environment constant: `{{ vars.app_url }}/page/{{ page_id }}`.
+- **Account and environment constants.** You can also set constants at an account or environment level in Knock for variables that won't change across your different notification workflows. (For more information read our guide on [environments](/send-and-manage-data/environments).) Common use cases for constants include base URLs for routing (e.g. dashboard.knock.app v. dashboard.knock-dev.app) and product names. To access constants in your notification templates, use the `vars` namespace. Here's a code example of an action URL for an in-app feed notification that uses an environment constant: `{{ vars.app_url }}/page/{{ page_id }}`.
 - **Workflow state variables.** There are a standard set of workflow state variables that are available on all workflow runs, but that you'll find especially useful if you start to work with batch functions. These variables are available on all workflows and keep track of the `activities` kept within the state of a given workflow run (i.e. the number of notify calls that workflow run has received.)
 
     - `total_activities` - The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight.)
