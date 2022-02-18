@@ -78,13 +78,15 @@ In the example below, the batch key is page_id, meaning notifications will be ba
 
 ### Selecting a batch key
 
-Batches are applied per recipient but you'll need to pick a batch key that allows you to logically group messages together. This typically means you'll want to pick a batch key
-that relates to the subject of the notification.
+By default, a batch function batches all incoming notifications **per recipient**. If you do not provide a batch key, this is the behavior your batch function will default to.
 
-Some example batch keys:
+You may want to batch a recipient's notifications into subsets based on the contents of a given notification. In these cases you can provide a batch key to tell Knock to group the notifications within a batch. As an example, in a document editing app where a recipient is receiving notifications about activity across different pages, you can provide a batch key of `page_id` and the user will receive different batch notifications about each page that was included in the batch. 
 
-- In a document editing app where comments are left on documents, we'd want to use an identifier for the document so that comments within the same document are grouped together.
-- In a file sharing app, we may want to collapse all new file upload notifications into a single folder, and so we'd use the folder identifier as the batch key.
+Here's a walkthrough of a detailed example: 
+* You have a `new-comment` workflow that includes a batch step. 
+* You send six notify calls to that workflow: three about `page A` and three about `page B`. The notify calls are all for the same recipient Elmo.
+* If your batch step does not have a batch key, Elmo will receive a batched notification about six activities. 
+* If your batch step includes a batch key of `page_id`, Elmo will receive two notifications: one for the three activities about `page A` and one for the three activities about `page B`.
 
 ### Using batch variables
 
