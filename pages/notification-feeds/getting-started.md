@@ -2,7 +2,7 @@
 title: Getting started
 ---
 
-This guide will show you how to get up-and-running with our in-app feed in your application.
+This guide will show you how to get up-and-running with our [in-app feed component](https://github.com/knocklabs/react-notification-feed) in your application. 
 
 ## Integrating the feed
 
@@ -32,7 +32,7 @@ Once you're done, save your workflow and we can start testing. 💪
 ### 3. Integrating the in-app feed
 
 The next step is to integrate the in-app feed into your product. In this guide we're going to be
-using our React-based library to do that.
+using our [React-based library](https://github.com/knocklabs/react-notification-feed) to do that.
 
 ```shell
 yarn add @knocklabs/react-notification-feed
