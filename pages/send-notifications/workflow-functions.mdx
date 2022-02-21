@@ -64,7 +64,7 @@ Commenting is a common use case. If a user leaves ten comments in a page in fift
 Here's a step-by-step breakdown of how a batch function works:
 
 - When a given per-recipient workflow run hits a batch step, the batch function will stay open for an interval of time provided by you (the **batch window**).
-- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient** that match the **batch key** you provided in your batch function step. (Any workflow triggers for that recipient with a different batch key will open a new batch).
+- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient**. If a **batch key** is provided in your batch step, the incoming triggers **for that recipient** will be will be grouped into **separate batches based on batch key.**
 - Any aggregated workflow triggers are appended to a group of **batch workflow variables** that you can use to format your notifications. You can read more in the ["using batch variables" section](/send-notifications/workflow-functions#using-batch-variables) of this guide.
 - When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch.
 
@@ -78,13 +78,24 @@ In the example below, the batch key is page_id, meaning notifications will be ba
 
 ### Selecting a batch key
 
-Batches are applied per recipient but you'll need to pick a batch key that allows you to logically group messages together. This typically means you'll want to pick a batch key
-that relates to the subject of the notification.
+A batch function always batches incoming notifications **per recipient**. If you do not provide a batch key, your batch function will just batch per recipient. If you do provide a batch key, your batch function will batch by recipient and then by your batch key. A batch key resolves to a value in your `data` payload by which to group incoming notifications.
 
-Some example batch keys:
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">A quick tip.</span> Here's a helpful way to think about batching. By default the batch function batches on a key of <code>recipient_id</code>. When a batch key is provided, it batches on a key of <code>concat(recipient_id, batch_key)</code>.  
+    </>
+  }
+/>
 
-- In a document editing app where comments are left on documents, we'd want to use an identifier for the document so that comments within the same document are grouped together.
-- In a file sharing app, we may want to collapse all new file upload notifications into a single folder, and so we'd use the folder identifier as the batch key.
+As an example, in a document editing app where a recipient is receiving notifications about activity across different pages, you can provide a batch key of `page_id` and the user will receive different batch notifications about each page that was included in the batch. 
+
+Here's a detailed walkthrough of how this example might work in practice: 
+* You have a `new-comment` workflow that includes a batch step. 
+* You send six notify calls to that workflow: three about `page A` and three about `page B`. The notify calls are all for the same recipient Elmo.
+* If your batch step does not have a batch key, Elmo will receive a batched notification about six activities. 
+* If your batch step includes a batch key of `page_id`, Elmo will receive two notifications: one for the three activities about `page A` and one for the three activities about `page B`.
 
 ### Using batch variables
 
