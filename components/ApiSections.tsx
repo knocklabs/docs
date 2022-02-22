@@ -20,3 +20,12 @@ export const ExampleColumn = ({ children }) => (
     {children}
   </div>
 );
+
+export const ErrorExample = ({ title, description }) => (
+  <div className="flex-col pt-6 mt-6 border-gray-200 border-t">
+    <span className="bg-code-background text-code rounded text-sm font-normal py-0.75 px-1.5 font-mono inline-block">
+      {title}
+    </span>
+    <span className="block pt-0 mt-1 text-gray-700 text-sm">{description}</span>
+  </div>
+);
