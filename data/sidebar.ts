@@ -67,6 +67,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/email-attachments", title: "Email attachments" },
       { slug: "/slack", title: "Slack" },
+      { slug: "/microsoft-teams", title: "Microsoft Teams" },
       { slug: "/twilio-sms", title: "Twilio SMS" },
       { slug: "/sendgrid", title: "SendGrid" },
       { slug: "/aws-ses", title: "AWS SES" },
