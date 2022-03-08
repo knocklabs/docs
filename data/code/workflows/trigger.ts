@@ -1,4 +1,4 @@
-const code = {
+const languages = {
   javascript: `
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
@@ -74,4 +74,4 @@ Knock.Workflows.trigger("new-comment", %{
 `,
 };
 
-export default code;
+export default languages;

@@ -1,4 +1,4 @@
-const code = {
+const languages = {
   javascript: `
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
@@ -31,4 +31,4 @@ await knockClient.Users.Get(user.Id);
 `,
 };
 
-export default code;
+export default languages;

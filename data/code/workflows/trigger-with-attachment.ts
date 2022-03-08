@@ -1,4 +1,4 @@
-const code = {
+const languages = {
   javascript: `
 import { Knock } from "@knocklabs/node";
 import fs from "fs";
@@ -97,4 +97,4 @@ Knock.Workflows.trigger("invoice-paid", %{
 `,
 };
 
-export default code;
+export default languages;

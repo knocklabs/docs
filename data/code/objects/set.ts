@@ -1,4 +1,4 @@
-const code = {
+const languages = {
   javascript: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock(process.env.KNOCK_API_KEY);
@@ -55,4 +55,4 @@ await knockClient.Objects.Set("projects", "project-1", objectParams)
 `,
 };
 
-export default code;
+export default languages;
