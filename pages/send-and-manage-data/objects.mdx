@@ -2,6 +2,8 @@
 title: Objects
 ---
 
+import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
+
 An [Object](/reference#objects) represents a resource in your system that you want to map into Knock.
 
 In this guide we'll walk through how to use objects for a few different use cases in Knock.
@@ -28,16 +30,7 @@ All objects belong to `collections`, which group objects of the same type togeth
 
 Objects follow the same rules as all other items in Knock in that they are unique and logically separated per Knock environment.
 
-```javascript Set an object in Knock
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
-
-knockClient.objects.set("projects", "project-1", {
-  name: "My project",
-  total_assets: 10,
-  tags: ["cool", "fun", "project"],
-});
-```
+<MultiLangCodeBlock snippet="objects.set" title="Set an object in Knock" />
 
 ## Guidelines for use
 
@@ -67,32 +60,19 @@ Here's how we'd use Knock objects to solve this.
 
 Typically whenever the project is created or updated we'll want to send it through to Knock.
 
-```javascript Send project object to Knock
-await knock.objects.set("projects", project.id, {
-  name: project.name,
-});
-```
+<MultiLangCodeBlock
+  snippet="objects.set"
+  title="Send project object to Knock"
+/>
 
 2. **Store the Slack connection information for the Project**
 
 Once our customer chooses to connect their Slack channel to the Project, we have a callback that then adds the Slack information as Channel Data.
 
-```javascript Store Slack connection on object
-// Connect Slack data to our Project object in Knock so that we can
-// send notifications about this project to our customer's Slack channel
-await knock.objects.setChannelData(
-  "projects",
-  project.id,
-  process.env.KNOCK_SLACK_CHANNEL_ID,
-  {
-    connections: [
-      {
-        incoming_webhook: { url: "url-from-slack" }
-      },
-    ],
-  },
-);
-```
+<MultiLangCodeBlock
+  snippet="objects.setChannelData"
+  title="Store Slack connection on object"
+/>
 
 3. **Add Slack as a step to our workflow**
 
@@ -102,12 +82,9 @@ Inside of the Knock dashboard, we're going to add a new Slack step to our `new-c
 
 Now when we trigger our `new-comment` workflow, we also want to add our Project object as a recipient so that the newly added Slack step will be triggered.
 
-```javascript Workflow trigger with an object
-await knock.workflows.trigger("new-comment", {
-  actor: comment.authorId,
-  recipients: [...projectUserIds, { id: project.id, collection: "projects" }],
-  data: { comment },
-});
-```
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-object-as-recipient"
+  title="Triggering a workflow with an object as a recipient"
+/>
 
 Knock then executes the workflow for this Project object as it would for any user recipients sent in the workflow trigger, skipping over any steps that aren't relevant. (In this case, the Project object only has one piece of channel data mapped to it—the Slack channel—so it won't trigger notifications for any other channel steps in our `new-comment` workflow.) When the Slack step is reached, the connection information we stored earlier will be used as a means to know which channel to send a message to and how to authenticate to that channel.

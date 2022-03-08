@@ -1,6 +1,10 @@
 import { useRouter } from "next/router";
 import { ChakraProvider } from "@chakra-ui/react";
 import { useEffect } from "react";
+import {
+  EventEmitterContext,
+  useEventEmitterInstance,
+} from "@byteclaw/use-event-emitter";
 
 import "../styles/index.css";
 import theme from "../theme";
@@ -8,6 +12,7 @@ import * as gtag from "../lib/gtag";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
+  const eventEmitter = useEventEmitterInstance();
 
   useEffect(() => {
     const handleRouteChange = (url: URL) => {
@@ -22,7 +27,9 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ChakraProvider theme={theme}>
-      <Component {...pageProps} />
+      <EventEmitterContext.Provider value={eventEmitter}>
+        <Component {...pageProps} />
+      </EventEmitterContext.Provider>
     </ChakraProvider>
   );
 }

@@ -2,6 +2,8 @@
 title: Quick start
 ---
 
+import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
+
 In this guide you'll integrate Knock with your application and send your first notification using Knock.
 
 ### 1. Add the Knock SDK to your backend
@@ -33,22 +35,7 @@ You can learn more about how and why Knock uses user data to power your notifica
 
 We don't take storing your user data lightly. For more on our security practices, take a look at [our security page](/security).
 
-```javascript Identify a user in Knock
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-app.post("/signup", async (req, res) => {
-  const user = Users.signup_user(req.params);
-
-  await knock.users.identify(user.id, {
-    name: user.name,
-    email: user.email,
-    avatar: user.avatar_url,
-  });
-
-  res.json(user.serialize());
-});
-```
+<MultiLangCodeBlock snippet="users.identify" title="Identify a user in Knock" />
 
 ### 4. Create your workflow in Knock
 
@@ -70,25 +57,7 @@ When you want to notify a set of users simply call the `notify` function to trig
 
 When calling the `notify` function, you'll pass in the `recipients` you want to receive messages sent by the workflow, as well as the `data` (which we received during step 4) required to populate those messages.
 
-```javascript Trigger your workflow
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-// In our hypothetical document collaboration app
-// we want to let Knock know about comments being created.
-// We send this after the comment has been saved to the database
-await knock.notify("new-comment", {
-  // Template data we want to use
-  data: {
-    document_id: comment.document.id,
-    document_name: comment.document.name,
-    comment_id: comment.id,
-    comment_text: comment.text,
-  },
-  // Who should be notified
-  recipients: document.followers.map((f) => f.user_id),
-});
-```
+<MultiLangCodeBlock snippet="workflows.trigger" title="Trigger your workflow" />
 
 Learn more about notify calls in our [API reference](/reference#workflows).
 

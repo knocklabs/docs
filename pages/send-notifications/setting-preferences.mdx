@@ -2,7 +2,9 @@
 title: Setting preferences
 ---
 
-You can read more about modeling preferences and preferences in general in the [Preferences](/send-and-manage-data/preferences) guide. In the guide below, we walk through the technical details of integrating the Knock preferences model into your product. 
+import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
+
+You can read more about modeling preferences and preferences in general in the [Preferences](/send-and-manage-data/preferences) guide. In the guide below, we walk through the technical details of integrating the Knock preferences model into your product.
 
 ## Backend integration
 
@@ -12,60 +14,28 @@ In the following examples you'll see how to integrate preferences into your back
 
 You can retrieve a given user's preferences using the `users.getPreferences` method. Please note that even if the preferences are not set for the user you will receive an empty `PreferenceSet` in response.
 
-```javascript Get preferences
-const { Knock } = require("@knocklabs/node");
-const knockClient = new Knock("sk_12345");
-
-// Retrieves the `PreferenceSet` for the user given
-const preferences = await knockClient.users.getPreferences("jhammond");
-```
+<MultiLangCodeBlock
+  title="Get preferences for a user"
+  snippet="users.getPreferences"
+/>
 
 ### Setting the user's preferences
 
 You can update a user's entire preferences using the `users.setPreferences` method. This will overwrite any existing preferences set for the user:
 
-```javascript Set preferences
-const { Knock } = require("@knocklabs/node");
-const knockClient = new Knock("sk_12345");
-
-await knockClient.users.setPreferences("jhammond", {
-  channel_types: { email: true, sms: false },
-  workflows: {
-    "dinosaurs-loose": {
-      channel_types: {
-        email: false,
-        in_app_feed: true,
-        sms: true,
-      },
-    },
-  },
-});
-```
+<MultiLangCodeBlock
+  title="Set preferences for a user"
+  snippet="users.setPreferences"
+/>
 
 ### Bulk setting user preferences
 
 You can update the preferences of up to 100 users in a single batch by using the `users.bulkSetPreferences` method. This executes an asynchronous job which will overwrite any existing preferences for the users provided. You can track the progress of the `BulkOperation` returned via the [bulk operation API](/reference#bulk-operations).
 
-```javascript Bulk set preferences
-const { Knock } = require("@knocklabs/node");
-const knockClient = new Knock("sk_12345");
-
-// You can send up to 100 user ids at a time
-const userIds = ["jhammond", "dnedry", "imalcolm", "esattler"];
-
-await knockClient.users.bulkSetPreferences(userIds, {
-  channel_types: { email: true, sms: false },
-  workflows: {
-    "dinosaurs-loose": {
-      channel_types: {
-        email: false,
-        in_app_feed: true,
-        sms: true,
-      },
-    },
-  },
-});
-```
+<MultiLangCodeBlock
+  title="Bulk set preferences for many users"
+  snippet="users.bulkSetPreferences"
+/>
 
 ### Client integration
 
