@@ -61,7 +61,7 @@ var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
 // Set preference set for user
-var preferenceSetUpdate = new SetPreferenceSet {
+var preferenceSetUpdate = new SetPreferencesOptions {
   ChannelTypes = new Dictionary<string, boolean> {
     {"email", false}
   }
