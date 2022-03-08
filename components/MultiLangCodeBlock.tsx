@@ -66,6 +66,8 @@ const snippets = {
 };
 /* eslint-enable */
 
+const DEFAULT_LANGUAGES = ["javascript", "ruby", "python", "csharp", "elixir"];
+
 const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
   const isMounted = useIsMounted();
   const eventEmitter = useEventEmitter();
@@ -105,7 +107,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
   return (
     <CodeBlock
       language={language}
-      languages={["javascript", "ruby", "python", "csharp", "elixir"]}
+      languages={DEFAULT_LANGUAGES}
       setLanguage={setLanguage}
     >
       {content}
