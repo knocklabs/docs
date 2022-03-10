@@ -37,11 +37,14 @@ export type SupportedLanguage =
   | "json";
 
 const LanguageLabel = {
-  javascript: "Javascript",
+  javascript: "JavaScript",
+  node: "Node",
   ruby: "Ruby",
   elixir: "Elixir",
   csharp: "C#",
   python: "Python",
+  shell: "Shell",
+  json: "JSON",
 };
 
 export interface Props {

@@ -26,7 +26,9 @@ client.objects.set(
   collection="projects",
   id="project-1", 
   data={
-    "name": "My project"
+    "name": "My project",
+    "total_assets": 10,
+    "tags": ["cool", "fun", "project"]
   }
 )
   `,
@@ -39,7 +41,9 @@ Knock::Objects.set(
   collection: "projects",
   id: "project-1",
   data: {
-    name: "My project"
+    name: "My project",
+    total_assets: 10,
+    tags: ["cool", "fun", "project"],
   }
 )  
 `,
@@ -48,7 +52,11 @@ var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
 var objectParams = new Dictionary<string, object>{
-  { "name", "Project one" }
+  { "name", "Project one" },
+  { "total_assets", 10 },
+  { "tags", new List { 
+    "cool", "fun", "project"
+  }}
 };
 
 await knockClient.Objects.Set("projects", "project-1", objectParams)  

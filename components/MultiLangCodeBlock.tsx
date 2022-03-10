@@ -66,7 +66,13 @@ const snippets = {
 };
 /* eslint-enable */
 
-const DEFAULT_LANGUAGES = ["javascript", "ruby", "python", "csharp", "elixir"];
+const DEFAULT_LANGUAGES: SupportedLanguage[] = [
+  "javascript",
+  "ruby",
+  "python",
+  "csharp",
+  "elixir",
+];
 
 const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
   const isMounted = useIsMounted();

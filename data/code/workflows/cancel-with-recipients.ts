@@ -3,10 +3,8 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-// Some invite approval code to reference a previously created invite
 const userInvite = await invites.approve(inviteToken);
 
-// Tell knock to cancel the running workflow for all recipients
 await knock.workflows.cancel("new-user-invited", userInvite.id, {
   recipients: ["user_1", "user_2"],
 });

@@ -3,7 +3,7 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knockClient = new Knock("sk_12345");
 
-const preferences = await knockClient.users.getPreferences("jhammond");
+const preferences = await knockClient.users.getPreferences(user.id);
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
