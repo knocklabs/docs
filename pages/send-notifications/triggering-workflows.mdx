@@ -3,6 +3,7 @@ title: Triggering workflows
 ---
 
 import Callout from "../../components/Callout";
+import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
 
 Workflows that you design within Knock are triggered from within your codebase by calling the `notify` endpoint and telling Knock _who_ should be a potential recipient.
 
@@ -10,10 +11,15 @@ Workflows that you design within Knock are triggered from within your codebase b
   emoji="🌠"
   text={
     <>
-      <span className="font-bold">Knock terminology clarification.</span> Throughout our documentation you'll see us refer to notify calls and workflow triggers. These terms are synonymous. 
-      <br/>
-      <br/>
-      If you use our SDKs, you'll be using <code>.notify()</code> which calls the workflow trigger endpoint you'll find in <a href="/reference#trigger-workflow">our API reference</a>.
+      <span className="font-bold">Knock terminology clarification.</span>{" "}
+      Throughout our documentation you'll see us refer to notify calls and
+      workflow triggers. These terms are synonymous.
+      <br />
+      <br />
+      If you use our SDKs, you'll be using <code>.notify()</code> which calls the
+      workflow trigger endpoint you'll find in <a href="/reference#trigger-workflow">
+        our API reference
+      </a>.
     </>
   }
 />
@@ -24,21 +30,10 @@ It's important to realize that calling `notify` in Knock may result in no messag
 
 Workflows are triggered via a call to the `notify` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the workflow specified by the call.
 
-```js Trigger a Knock workflow
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-await knock.notify("new-user-invited", {
-  // The list of recipients
-  recipients: ["user_1", "user_2"],
-  // Data to be passed to the template
-  data: {
-    invitee_name: "Jane Doe",
-    invitee_email: "jane.doe@example.com",
-    invitee_role: "member",
-  },
-});
-```
+<MultiLangCodeBlock
+  snippet="workflows.trigger"
+  title="Trigger a Knock workflow"
+/>
 
 Learn more about triggering workflows in [our API reference](/reference#workflows).
 
@@ -74,18 +69,10 @@ Triggering a workflow will always return a unique UUID v4 representing the workf
 
 Knock supports passing an `actor` in your workflow trigger calls, which allows you to attribute the workflow trigger to an individual recipient (user or object).
 
-```js Triggering a Knock workflow with an actor
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-await knock.notify("new-user-invited", {
-  actor: "user_0",
-  recipients: ["user_1", "user_2"],
-  data: {
-    invitee_name: "Jane Doe",
-  },
-});
-```
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-actor"
+  title="Triggering a Knock workflow with an actor"
+/>
 
 Calling a workflow trigger with an actor will have the following effect:
 
@@ -100,35 +87,6 @@ payload must be a valid JSON object, with nested objects and arrays supported.
 
 The data requirements for the payload are determined in the workflow builder, including
 indicating which keys are required.
-
-<!-- ## Preventing duplicates
-
-No one likes duplicate notifications.
-
-To guard against sending duplicates you can implement idempotency into your notify calls such that subsequent
-calls with the same `idempotencyKey` will fail if any of the previous calls have succeeded. We
-recommend using an idempotency key with enough entropy, like a uuid v4.
-
-We'll keep idempotency keys in our system for at least 7 days before they are purged.
-
-```js
-const { Knock } = require("@knocklabs/node");
-const uuid = require("uuid4");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-const idempotencyKey = uuid();
-
-await knock.notify("new-user-invited", {
-  actor: "user_3",
-  recipients: ["user_1", "user_2"],
-  data: {
-    invitee_name: "Jane Doe",
-    invitee_email: "jane.doe@example.com",
-    invitee_role: "member",
-  },
-  idempotencyKey,
-});
-``` -->
 
 ## Generating a cancellation key
 
@@ -164,19 +122,14 @@ For cases when you want to notify an [object](/send-and-manage-data/objects) in 
 
 An object reference always comes in the form of a dictionary with `id` and `collection` properties.
 
-```javascript Workflow trigger with an object as a recipient
-await knock.workflows.trigger("new-comment", {
-  recipients: [...projectUserIds, { id: project.id, collection: "projects" }],
-  data: { comment },
-});
-```
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-object-as-recipient"
+  title="Workflow trigger with an object as a recipient"
+/>
 
 Remember, an object can also be an `actor` of a workflow as well!
 
-```javascript Workflow trigger with an object as an actor
-await knock.workflows.trigger("new-comment", {
-  actor: { id: project.id, collection: "projects" },
-  recipients: projectUserIds,
-  data: { comment },
-});
-```
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-object-as-actor"
+  title="Workflow trigger with an object as an actor"
+/>

@@ -2,7 +2,11 @@ import React, { useMemo } from "react";
 import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import javascript from "react-syntax-highlighter/dist/cjs/languages/hljs/javascript";
 import ruby from "react-syntax-highlighter/dist/cjs/languages/hljs/ruby";
+import elixir from "react-syntax-highlighter/dist/cjs/languages/hljs/elixir";
+import python from "react-syntax-highlighter/dist/cjs/languages/hljs/python";
+import dotnet from "react-syntax-highlighter/dist/cjs/languages/hljs/csharp";
 import shell from "react-syntax-highlighter/dist/cjs/languages/hljs/shell";
+import liquid from "react-syntax-highlighter/dist/cjs/languages/hljs/handlebars";
 import { Icon, Tooltip } from "@chakra-ui/react";
 import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
@@ -11,16 +15,42 @@ import { lightCodeTheme } from "../styles/codeThemes";
 import { normalize } from "../lib/normalizeCode";
 import { useIsMounted } from "../hooks/useIsMounted";
 
+SyntaxHighlighter.registerLanguage("node", javascript);
 SyntaxHighlighter.registerLanguage("javascript", javascript);
 SyntaxHighlighter.registerLanguage("jsx", javascript);
 SyntaxHighlighter.registerLanguage("js", javascript);
 SyntaxHighlighter.registerLanguage("ruby", ruby);
+SyntaxHighlighter.registerLanguage("elixir", elixir);
+SyntaxHighlighter.registerLanguage("csharp", dotnet);
+SyntaxHighlighter.registerLanguage("python", python);
 SyntaxHighlighter.registerLanguage("shell", shell);
+SyntaxHighlighter.registerLanguage("liquid", liquid);
 
-export type SupportedLanguage = "javascript" | "shell" | "ruby" | "json";
+export type SupportedLanguage =
+  | "javascript"
+  | "node"
+  | "shell"
+  | "ruby"
+  | "elixir"
+  | "csharp"
+  | "python"
+  | "json";
+
+const LanguageLabel = {
+  javascript: "JavaScript",
+  node: "Node",
+  ruby: "Ruby",
+  elixir: "Elixir",
+  csharp: "C#",
+  python: "Python",
+  shell: "Shell",
+  json: "JSON",
+};
 
 export interface Props {
   language?: string;
+  languages?: string[];
+  setLanguage?: (lang: SupportedLanguage) => void;
   className?: string;
   children?: any;
 }
@@ -51,6 +81,8 @@ export const CodeBlock: React.FC<Props> = ({
   children,
   className = children.props ? children.props.className : "",
   language,
+  languages,
+  setLanguage,
 }) => {
   const isMounted = useIsMounted();
 
@@ -87,25 +119,43 @@ export const CodeBlock: React.FC<Props> = ({
 
   return (
     <div className="code-block text-sm border rounded">
-      <div className="bg-gray-100 border-b p-2 flex">
-        {title && <span className="text-gray-500 font-medium">{title}</span>}
+      <div className="bg-gray-100 border-b p-2 flex items-center">
+        {title && (
+          <span className="text-gray-500 text-xs font-medium">{title}</span>
+        )}
 
-        <Tooltip
-          label="Copy this example"
-          fontSize={12}
-          px={1}
-          py={1}
-          lineHeight={1}
-          placement="left-start"
-        >
-          <button
-            type="button"
-            onClick={setCopied}
-            className="text-xs uppercase text-gray-500 tracking-wider px-1 ml-auto"
+        <div className="flex items-center ml-auto">
+          {languages && setLanguage && (
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+              className="ml-auto bg-transparent text-xs font-medium text-gray-500 mr-2 mt-0.5"
+            >
+              {languages.map((l) => (
+                <option key={l} value={l}>
+                  {LanguageLabel[l] || l}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <Tooltip
+            label="Copy this example"
+            fontSize={12}
+            px={1}
+            py={1}
+            lineHeight={1}
+            placement="left-start"
           >
-            <Icon as={isCopied ? IoCheckmark : IoCopy} boxSize="12px" />
-          </button>
-        </Tooltip>
+            <button
+              type="button"
+              onClick={setCopied}
+              className="text-xs uppercase text-gray-500 tracking-wider px-1"
+            >
+              <Icon as={isCopied ? IoCheckmark : IoCopy} boxSize="12px" />
+            </button>
+          </Tooltip>
+        </div>
       </div>
       <SyntaxHighlighter
         showLineNumbers

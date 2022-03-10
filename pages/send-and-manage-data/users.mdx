@@ -2,6 +2,8 @@
 title: Users
 ---
 
+import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
+
 A [User](/reference#users) represents a person who may need to be notified of some action occurring in your
 product.
 
@@ -22,16 +24,7 @@ We do not take storing your user data lightly. You can learn more about our secu
 
 If you've used a Customer Data Platform (CDP) like Segment before, sending data to Knock will be familiar to you.
 
-```js Identify a user in Knock
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-await knock.users.identify(user.id, {
-  name: user.name,
-  email: user.email,
-  avatar: user.avatar_url,
-});
-```
+<MultiLangCodeBlock snippet="users.identify" title="Identify a user in Knock" />
 
 ### The User identifier
 
@@ -100,24 +93,7 @@ When you're first getting started with Knock, you'll likely have a number of exi
 
 [API reference →](/reference/#bulk-identify-users)
 
-```javascript Bulk add users
-const { Knock } = require("@knocklabs/node");
-const chunk = require("lodash.chunk");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-const USERS_PER_CHUNK = 100;
-
-Promise.all(
-  chunk(users, USERS_PER_CHUNK).map(userBatch => {
-    return knock.users.bulkIdentify(userBatch.map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      avatar: user.avatar_url,
-    }))
-  });
-);
-```
+<MultiLangCodeBlock snippet="users.bulkIdentify" title="Bulk add users" />
 
 ### Identifying users on an ongoing basis
 
@@ -126,33 +102,11 @@ Once you've migrated your current users into Knock, you'll want to continue to i
 1. When new users sign up for your product.
 2. When data about a user changes, like a name or an email address being updated.
 
-```javascript Identify a user on sign up
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-app.post("/signup", async (req, res) => {
-  const user = Users.signup_user(req.params);
-
-  await knock.users.identify(user.id, {
-    name: user.name,
-    email: user.email,
-    avatar: user.avatar_url,
-  });
-
-  res.json(user.serialize());
-});
-```
-
 ## Retrieving users
 
 Users can be retrieved from Knock to see the current state of their properties using the `users.get` method.
 
-```javascript Delete user
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-const user = await knock.users.get(user.id);
-```
+<MultiLangCodeBlock snippet="users.get" title="Get a user" />
 
 ## Deleting users
 
@@ -162,12 +116,7 @@ Users can be deleted from Knock via the `users.delete` method. Deleting a user f
 - The user will no longer appear in the dashboard under the "Users" list
 - Any in-app messages that reference the user will be replaced by a "missing user" marker
 
-```javascript Delete user
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-await knock.users.delete(user.id);
-```
+<MultiLangCodeBlock snippet="users.delete" title="Delete a user" />
 
 ## Merging users
 
@@ -175,13 +124,7 @@ You might run into the scenario where you've identified an invited user to send 
 
 Merging two users will merge the `secondary` user (the invited user in our example) into the `primary` user (the signed up user), and the secondary user will be deleted in the process.
 
-```javascript Merge users
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-// We want to merge the invited user onto the user, keeping only the user
-await knock.users.merge(user.id, invitedUser.id);
-```
+<MultiLangCodeBlock snippet="users.merge" title="Merge two users together" />
 
 **Please note that merging is a destructive operation and cannot be undone.**
 
