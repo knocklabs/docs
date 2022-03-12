@@ -7,13 +7,14 @@ import PageNav from "../components/PageNav";
 import Breadcrumbs from "../components/Breadcrumbs";
 import sidebarContent from "../data/sidebar";
 import DocsSidebar from "../components/DocsSidebar";
+import { SidebarPage } from "../data/types";
 
 export const DocsLayout = ({ frontMatter, children }) => {
   const { pathname } = useRouter();
 
   const { section, page, nextPage, prevPage } = useMemo(() => {
     const sectionIndex = sidebarContent.findIndex((s) =>
-      s.pages.find((p) => s.slug + p.slug === pathname),
+      (s.pages as SidebarPage[]).find((p) => s.slug + p.slug === pathname),
     );
     const sidebarSection = sidebarContent[sectionIndex];
     const pageIndex = (sidebarContent[sectionIndex]?.pages || []).findIndex(
@@ -45,7 +46,7 @@ export const DocsLayout = ({ frontMatter, children }) => {
           <div className="docs-content prose-sm lg:prose">{children}</div>
           {(prevPage || nextPage) && (
             <div className="flex border-t mt-8 pt-8 text-sm">
-              {prevPage && (
+              {prevPage && !("pages" in prevPage) && (
                 <div className="text-left">
                   <Link href={section.slug + prevPage.slug}>
                     <a className="text-gray-500 hover:text-gray-800">
@@ -55,7 +56,7 @@ export const DocsLayout = ({ frontMatter, children }) => {
                 </div>
               )}
 
-              {nextPage && (
+              {nextPage && !("pages" in nextPage) && (
                 <div className="ml-auto text-right">
                   <Link
                     href={
