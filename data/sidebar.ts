@@ -10,7 +10,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/how-knock-works", title: "How Knock works" },
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
-      { slug: "/security", title: "Security" },
+      { slug: "/security", title: "Security", path: "/security" },
     ],
   },
   {
@@ -65,12 +65,28 @@ const sidebarContent: SidebarSection[] = [
     desc: "Learn how to connect your notification providers to Knock.",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/email-attachments", title: "Email attachments" },
-      { slug: "/slack", title: "Slack" },
-      { slug: "/microsoft-teams", title: "Microsoft Teams" },
-      { slug: "/twilio-sms", title: "Twilio SMS" },
-      { slug: "/sendgrid", title: "SendGrid" },
-      { slug: "/aws-ses", title: "AWS SES" },
+      {
+        title: "Email",
+        slug: "/email",
+        pages: [
+          { slug: "/attachments", title: "Attachments" },
+          { slug: "/aws-ses", title: "AWS SES" },
+          { slug: "/sendgrid", title: "SendGrid" },
+        ],
+      },
+      {
+        title: "SMS",
+        slug: "/sms",
+        pages: [{ slug: "/twilio-sms", title: "Twilio SMS" }],
+      },
+      {
+        title: "Chat",
+        slug: "/chat",
+        pages: [
+          { slug: "/slack", title: "Slack" },
+          { slug: "/microsoft-teams", title: "Microsoft Teams" },
+        ],
+      },
     ],
   },
 ];
