@@ -1,8 +1,7 @@
-import React from "react";
-import Link from "next/link";
+import React, { useLayoutEffect } from "react";
 import { useRouter } from "next/router";
-import cn from "classnames";
-import { SidebarSection, SidebarPage } from "../data/types";
+import { SidebarSection } from "../data/types";
+import SidebarSectionList from "./Sidebar/SidebarSectionList";
 
 type Props = {
   content: SidebarSection[];
@@ -11,13 +10,15 @@ type Props = {
 const Sidebar: React.FC<Props> = ({ content, children }) => {
   const router = useRouter();
 
-  const isHighlighted = (section: SidebarSection, page: SidebarPage) => {
-    const pathname = page.slug.startsWith("#")
-      ? router.asPath
-      : router.pathname;
-
-    return pathname === section.slug + page.slug;
-  };
+  useLayoutEffect(() => {
+    // Need a slight delay here to ensure the element is always selected and visible
+    // before we scroll it into view.
+    setTimeout(() => {
+      document
+        .getElementsByClassName("selected-sidebar-content")[0]
+        ?.parentElement?.parentElement?.scrollIntoView();
+    }, 5);
+  }, []);
 
   return (
     <section className="w-64 border-r hidden lg:block">
@@ -32,39 +33,7 @@ const Sidebar: React.FC<Props> = ({ content, children }) => {
               </span>
             )}
 
-            <ul className="space-y-2 mt-2">
-              {section.pages.map((page) => {
-                const isSelected = isHighlighted(section, page);
-
-                return (
-                  <li
-                    key={page.slug}
-                    className={cn({
-                      "text-gray-500 text-sm": true,
-                      "selected-sidebar-content": isSelected,
-                    })}
-                  >
-                    <Link
-                      href={
-                        page.slug === "/security"
-                          ? page.slug
-                          : section.slug + page.slug
-                      }
-                    >
-                      <a
-                        className={cn({
-                          "hover:text-gray-900": true,
-                          "text-brand font-medium hover:text-brand-dark":
-                            isSelected,
-                        })}
-                      >
-                        {page.title}
-                      </a>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            <SidebarSectionList section={section} router={router} />
           </div>
         ))}
       </nav>
