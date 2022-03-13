@@ -16,8 +16,8 @@ const Sidebar: React.FC<Props> = ({ content, children }) => {
     setTimeout(() => {
       document
         .getElementsByClassName("selected-sidebar-content")[0]
-        ?.scrollIntoView();
-    }, 25);
+        ?.parentElement?.parentElement?.scrollIntoView();
+    }, 5);
   }, []);
 
   return (

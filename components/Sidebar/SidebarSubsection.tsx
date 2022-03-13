@@ -1,7 +1,12 @@
 import { Icon } from "@chakra-ui/react";
-import { route } from "next/dist/next-server/server/router";
 import { NextRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { IoChevronDown } from "react-icons/io5";
 import { SidebarSubsection } from "../../data/types";
 import { isHighlighted, pagePath } from "./helpers";
@@ -19,6 +24,7 @@ const SidebarSubsectionList: React.FC<Props> = ({
   path: parentPath,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   const sectionPath = parentPath + section.slug;
 
   // Determines whether a page under this section is selected
@@ -29,12 +35,17 @@ const SidebarSubsectionList: React.FC<Props> = ({
 
   useEffect(() => setIsOpen(isSubPageSelected), []);
 
+  const toggleSection = useCallback(() => {
+    ref.current?.scrollIntoView();
+    setIsOpen(!isOpen);
+  }, [isOpen, ref]);
+
   return (
-    <>
+    <div ref={ref}>
       <button
         type="button"
         className="flex items-center text-gray-500 text-sm"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleSection}
       >
         <Icon
           as={IoChevronDown}
@@ -43,23 +54,21 @@ const SidebarSubsectionList: React.FC<Props> = ({
         <span className="text-gray-500 text-sm ml-0.5">{section.title}</span>
       </button>
 
-      {isOpen && (
-        <ul className="ml-4 space-y-2 mt-2">
-          {(section.pages || []).map((page) => {
-            const fullPath = pagePath(sectionPath, page);
-            const isSelected = isHighlighted(sectionPath, page.slug, router);
+      <ul className={`ml-4 space-y-2 mt-2 ${isOpen ? "block" : "hidden"}`}>
+        {(section.pages || []).map((page) => {
+          const fullPath = pagePath(sectionPath, page);
+          const isSelected = isHighlighted(sectionPath, page.slug, router);
 
-            return (
-              <SidebarLink
-                title={page.title}
-                path={fullPath}
-                isSelected={isSelected}
-              />
-            );
-          })}
-        </ul>
-      )}
-    </>
+          return (
+            <SidebarLink
+              title={page.title}
+              path={fullPath}
+              isSelected={isSelected}
+            />
+          );
+        })}
+      </ul>
+    </div>
   );
 };
 
