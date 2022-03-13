@@ -36,9 +36,11 @@ const SidebarSubsectionList: React.FC<Props> = ({
   useEffect(() => setIsOpen(isSubPageSelected), []);
 
   const toggleSection = useCallback(() => {
-    ref.current?.scrollIntoView();
     setIsOpen(!isOpen);
-  }, [isOpen, ref]);
+    setTimeout(() => {
+      ref.current?.scrollIntoView();
+    }, 5);
+  }, [isOpen, ref.current]);
 
   return (
     <div ref={ref}>
