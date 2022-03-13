@@ -37,6 +37,11 @@ module.exports = withPlugins(
     async redirects() {
       return [
         {
+          source: "/integrations/email",
+          destination: "/integrations/email/attachments",
+          permanent: false,
+        },
+        {
           source: "/integrations/email-attachments",
           destination: "/integrations/email/attachments",
           permanent: true,
@@ -52,6 +57,11 @@ module.exports = withPlugins(
           permanent: true,
         },
         {
+          source: "/integrations/chat",
+          destination: "/integrations/chat/slack",
+          permanent: false,
+        },
+        {
           source: "/integrations/slack",
           destination: "/integrations/chat/slack",
           permanent: true,
@@ -60,6 +70,11 @@ module.exports = withPlugins(
           source: "/integrations/microsoft-teams",
           destination: "/integrations/chat/microsoft-teams",
           permanent: true,
+        },
+        {
+          source: "/integrations/sms",
+          destination: "/integrations/sms/twilio",
+          permanent: false,
         },
         {
           source: "/integrations/twilio-sms",
