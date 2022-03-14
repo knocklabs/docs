@@ -62,6 +62,11 @@ module.exports = withPlugins(
           permanent: false,
         },
         {
+          source: "/integrations/push",
+          destination: "/integrations/push/overview",
+          permanent: false,
+        },
+        {
           source: "/integrations/slack",
           destination: "/integrations/chat/slack",
           permanent: true,

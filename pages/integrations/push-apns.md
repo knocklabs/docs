@@ -1,0 +1,21 @@
+---
+title: How to send push notifications to Apple Push Notifications service
+---
+
+In this guide we'll walk through how to configure an Apple Push Notifications service (APNS) provider in Knock. This guide assumes that you've already created an APNS channel in the Knock dashboard. 
+
+## How to configure Apple Push Notifications service with Knock
+
+There are two ways to configure APNS with Knock. You can use a token-based authentication scheme or a certificate-based authentication scheme. Depending on which you choose, you'll need to get different information from Xcode and your Apple developer account.
+
+**Token v. cert-based authentication**
+
+[We should include a quick blurb on which we recommend and tradeoffs between the two.]  
+
+**Token-based authentication configuration**
+
+[not sure where we get these or best way to direct user. check w chris] 
+
+**Certificate-based authentication configuration**
+
+[not sure where we get these or best way to direct user. check w chris] 
