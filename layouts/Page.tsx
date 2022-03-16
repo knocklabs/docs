@@ -32,8 +32,14 @@ export const Page: React.FC<Props> = ({ children, pageType, sidebar }) => (
           </Link>
         </div>
 
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center space-x-2">
           <FeedbackPopover />
+
+          <Link href="https://dashboard.knock.app">
+            <a className="text-sm text-brand hover:text-brand-dark font-semibold">
+              Go to dashboard &rarr;
+            </a>
+          </Link>
         </div>
       </header>
       <div className="flex overflow-y-hidden h-full">
