@@ -18,7 +18,7 @@ const IS_DEV = process.env.NODE_ENV === "development";
 
 const SITE_URL = new URL(
   process.env.NEXT_PUBLIC_SITE_URL ??
-    (IS_DEV ? "http://localhost:3001" : "https://knock.app/"),
+    (IS_DEV ? "http://localhost:3001" : "https://docs.knock.app"),
 );
 
 const SITE_ORIGIN = SITE_URL.origin;
