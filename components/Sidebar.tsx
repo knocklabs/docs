@@ -13,11 +13,12 @@ const Sidebar: React.FC<Props> = ({ content, children }) => {
   useLayoutEffect(() => {
     // Need a slight delay here to ensure the element is always selected and visible
     // before we scroll it into view.
-    setTimeout(() => {
-      document
-        .getElementsByClassName("selected-sidebar-content")[0]
-        ?.parentElement?.parentElement?.scrollIntoView();
-    }, 5);
+    // TODO: need to stop this happening on every link click
+    // setTimeout(() => {
+    //   document
+    //     .getElementsByClassName("selected-sidebar-content")[0]
+    //     ?.parentElement?.parentElement?.scrollIntoView();
+    // }, 5);
   }, []);
 
   return (

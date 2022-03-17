@@ -36,7 +36,7 @@ export const Page: React.FC<Props> = ({ children, pageType, sidebar }) => (
           <FeedbackPopover />
 
           <Link href="https://dashboard.knock.app">
-            <a className="text-sm text-brand hover:text-brand-dark font-semibold">
+            <a className="text-sm text-brand hover:text-brand-dark font-semibold hidden md:block">
               Go to dashboard &rarr;
             </a>
           </Link>
