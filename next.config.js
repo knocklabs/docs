@@ -73,7 +73,7 @@ module.exports = withPlugins(
         },
         {
           source: "/integrations/sms",
-          destination: "/integrations/sms/twilio",
+          destination: "/integrations/sms/twilio-sms",
           permanent: false,
         },
         {
