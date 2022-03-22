@@ -1,0 +1,187 @@
+---
+title: How to send Discord notifications
+---
+
+import Callout from "../../../components/Callout";
+import MultiLangCodeBlock from "../../../components/MultiLangCodeBlock";
+
+In this guide you’ll learn how to use Knock to send notifications to Discord.
+
+We’ll cover:
+
+- Setting up a bot and app for your Knock integration
+- How to connect your Slack app to Knock
+- Common Slack use cases
+- Advanced Slack use cases
+
+## Your Discord bot and app
+
+You'll need to set up a bot and app to handle incoming messages from Knock. You can see the documentation on [creating the bot](https://discord.com/developers/docs/topics/oauth2#bots) and [creating the app](https://discord.com/developers/applications) (note: you'll need to be logged in to access the applications docs).
+
+You’ll need to create a Slack app to send notifications from Knock to a Slack workspace. If you haven’t built a Slack app yet, you can get started in [Slack’s app documentation](https://api.slack.com/authentication/basics).
+
+Once you create your Slack app, you’ll be routed to its app management page within the Slack dashboard. It looks like this.
+
+![Slack app management page](/images/slack-app-management-page.png)
+
+Before your Slack app can actually do anything, you’ll need to tell it which Bot Token Scopes it needs to request when it joins a Slack workspace.
+
+If you are new to Slack apps, a few key concepts to understand:
+
+- A [scope](https://api.slack.com/scopes) is a permission granted to a Slack app when it joins a Slack workspace. You configure which scopes your app asks for in the **OAuth & Permissions** sidebar of your [app management page](https://api.slack.com/apps).
+- A Slack app is installed to a workspace through the [Slack OAuth flow](https://api.slack.com/authentication/oauth-v2). In this flow, the app requests scopes and the user installing the app confirms which scopes to grant. You’ll need to surface this OAuth flow to your users wherever you want them to install your Slack app.
+- A Slack app can have bot token scopes and user token scopes. For almost all use cases, you’ll be using bot token scopes. ([This Slack doc explains why.](https://api.slack.com/authentication/basics)) When you add bot token scopes to an app, you will **also** need to make sure your app has its display information configured. You can do this under the **App Home** sidebar on the [app management page](https://api.slack.com/apps).
+
+With all of this mind the next question becomes, “which scopes do I need to grant my Slack app for my use case?”
+
+### Scopes for basic use cases
+
+We have waded through the intricacies of Slack scopes on your behalf and here is our take: for most simple messaging use cases, the only scope your app needs is `incoming-webhook` .
+
+When a Slack app has the `incoming-webhook` scope, the user installing it decides which channel the app can send messages to via an `incoming_webhook.url` returned in the OAuth flow response. (If you are just using Slack to message an internal workspace, you can find these webhook URLs in the **Incoming Webhook** section of the app management page.)
+
+During the OAuth flow for an `incoming-webhook` Slack app, your user can connect to any channel they have access to in their Slack workspace. This means public channels, private channels, or even the direct message channel for that individual user.
+
+This makes the `incoming-webhook` scope a quick and simple way to set up use cases such as:
+
+- A Slack integration that notifies a Slack channel whenever something happens in your product
+- A Slack integration that notifies a #new-signups channel in your internal workspace when new users sign up in your product
+- A Slack integration that notifies an individual of everything happening in your product
+
+You can even let a given customer install your `incoming-webhook` app multiple times to map different objects in your product to different Slack channels in their workspace.
+
+Take the Linear example below. Under “Team notification” I can see a record for each of my teams in Linear — when I toggle a Team on for Slack notifications, Linear starts a Slack OAuth flow that asks for a single scope: `incoming-webhook`. During that OAuth flow, I choose which Slack channel I want to receive notifications about that particular team.
+
+![An example of multiple Slack OAuth points in Linear](/images/linear-slack-start-oauth-flow.png)
+
+We get into more detail how to support these use cases using Knock in the “how to” sections of this guide.
+
+### Scopes for advanced use cases
+
+If you venture out of the world of simple Slack channel messaging and into the realm of slash command responses, user mentions, and at-will public channel messaging, you’ll need to move away from the `incoming-webhook` scope.
+
+Here are the key scopes to know about when you’re thinking about notifications in Slack:
+
+- `chat:write` Post messages in approved channels & conversations. At a minimum your app needs this scope to send notifications to a Slack workspace.
+- `channels:read` View basic information about public channels in a workspace. If your app will be sending messages to channels other than the one its been invited to upon installation into a workspace, you’ll need this scope. Learn more in Slack’s docs on [sending messages](https://api.slack.com/messaging/sending).
+- `chat:write.public` Send messages to channels @your_slack_app isn't a member of. If your app doesn’t have this scope, you’ll need to use the [`conversations.joins`](https://api.slack.com/methods/conversations.join) method to join a public channel before sending it messages.
+- `im:write` Start direct messages with people.
+
+Note that unlike `incoming-webhook` (which just requires a webhook URL), the scopes above will require an access token from Slack in order to function. This access token is received during the [OAuth process](https://api.slack.com/authentication/oauth-v2) with a Slack workspace.
+
+## Connect your Slack app to Knock
+
+Once you have your Slack app created, you’ll need to add it to Knock as a channel before you can start using it in your notification workflows. Go to your [app’s management page](https://api.slack.com/apps) and scroll down to the “App credentials” header of the **Basic Information** sidebar section to find your App ID.
+
+With your App ID in hand, navigate to the “Channels” page within Knock and click “Create channel” to add Slack. Follow the steps to configure Slack for each of your environments.
+
+## How to send basic Slack notifications using Knock
+
+There are three use cases we’ll cover in this section:
+
+- Sending channel notifications to your customer’s Slack workspace
+- Sending direct messages in your customer’s Slack workspace
+- Sending notifications to a channel in your own internal Slack workspace
+
+You can support all of these use cases using the `incoming-webhook` scope we mentioned above, you’ll just store that connection on different parts of the Knock model depending on what you’re trying to do.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Remember:</span> for any customer-facing use
+      cases, you’ll need to give your customers a way to install your Slack app.
+      The simplest way to do this is with{" "}
+      <a href="https://api.slack.com/docs/slack-button">
+        the Add to Slack button
+      </a>{" "}
+      though Slack now recommends installing with{" "}
+      <a href="https://api.slack.com/authentication/oauth-v2">
+        their v2 OAuth flow
+      </a>
+      .
+    </>
+  }
+/>
+
+### Sending notifications to a channel in your customer’s Slack workspace
+
+When you are notifying a **_channel_** in your customer’s Slack workspace (and not an individual user) it’s usually because that channel maps to the notification stream of a specific resource in your product.
+
+The Linear example we mentioned above is a good example of this, in which customers can connect each `team` in their Linear account to a `channel` in their Slack workspace.
+
+For these types of resource-to-channel integrations, you’ll use Knock [objects](https://docs.knock.app/send-and-manage-data/objects) to store the `incoming_webhook.url` received from Slack. Here’s an example from the Linear example we mentioned above.
+
+<MultiLangCodeBlock snippet="objects.set" title="Creating an object" />
+
+When you want to notify the Slack channel about something that took place in that object, you send the object as a recipient in your relevant workflow trigger.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-object-as-recipient"
+  title="Object recipient in a workflow trigger"
+/>
+
+To learn more about how to use objects to power Slack channel notifications, see [the Slack example](https://docs.knock.app/send-and-manage-data/objects#slack-channel-notifications) in our object documentation.
+
+### Sending notifications to a user in your customer’s Slack workspace
+
+If you want to notify a user in Slack via direct message instead of through a channel, you can still accomplish this through a simple Slack app with the `incoming-webhook` scope. (This is possible because during the OAuth flow for an app with the `incoming-webhook` scope, the installing user can select their own Direct Message channel for the integration.)
+
+![An example of selecting a Direct Message in an OAuth flow](/images/slack-oauth-flow-select-channel.png)
+
+Just surface your Slack OAuth flow to users in their personal notification settings and store the webhook URL received from the OAuth process on the relevant `user` in Knock.
+
+You can learn more users and channel data in our docs on [how to set channel data](https://docs.knock.app/send-notifications/setting-channel-data).
+
+### Sending notifications to a channel in your own Slack workspace
+
+There are certain cases where you want to notify a channel in your own internal Slack workspace when something happens in your product. In these scenarios, use your best judgement as to whether the Slack connection data (the `incoming_webhook.url`) should live on a [user](https://docs.knock.app/reference#users) or an [object](https://docs.knock.app/reference#objects) in Knock.
+
+An example: at Knock we notify a support channel when a user in our dashboard submits a feedback ticket. Since these support tickets all come into the same Slack channel regardless of which account they come from in Knock, we store our Slack connection data on a support bot `user` within Knock.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Slack dashboard shortcut.</span> If you’re
+      using a Slack app to message your internal Slack workspace, you can just
+      grab your webhook URL from the Incoming Webhooks section of your{" "}
+      <a href="https://api.slack.com/apps">app’s management page</a>.
+    </>
+  }
+/>
+
+## Advanced Slack use cases
+
+If you start to move past simple notification use cases and into interactive Slack apps that respond to [slash commands](https://api.slack.com/interactivity/slash-commands) or use [interactive components](https://api.slack.com/interactivity/components), you’ll have moved beyond what’s possible with a humble `incoming-webhook` Slack app.
+
+### Access tokens
+
+For all other Slack app scopes, you’ll need to move from using an incoming webhook URL in your Slack connection data to using an access token.
+
+This means that whether you’re storing a given Slack connection on a Knock `user` or `object`, you’ll go from storing this...
+
+```javascript Incoming webhook channel data
+{
+  connections: [
+    {
+      incoming_webhook: { url: "url-from-slack" },
+    },
+  ];
+}
+```
+
+to this...
+
+```javascript Access token channel data
+{
+  connections: [{
+    channel_id: "C02TRDGMQCV"
+    access_token: "xoxb-........."
+  }]
+}
+```
+
+You’ll also need to move into more advanced Slack scopes, such as `channels:read` and `chat:write.public`. To understand the full extent of what’s possible with your Slack app, check out Slack’s documentation. If you have any questions about how to enable a certain with Knock, please reach out via the feedback button at the top of this page.
+
+What did you think of this guide? Did we miss any key steps? Did you run into a blocker? Let us know using the feedback component at the top of this page.
