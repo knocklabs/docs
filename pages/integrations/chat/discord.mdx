@@ -12,8 +12,8 @@ We’ll cover:
 - Setting up a bot and app for your Knock integration on Discord
 - Setting up the Discord channel and bot Object in Knock
 - Triggering the notification to your Discord channel
-- Common Slack use cases
-- Advanced Slack use cases
+- Common Discord use cases
+- Advanced Discord use cases
 
 Note: this guide assumes you already have an application with an action you want to trigger a workflow in Knock. For this, we'll be using an example app that will trigger a Knock workflow when a user leaves a new comment.
 
@@ -27,9 +27,7 @@ You'll need to set up a bot and app to handle incoming messages from Knock. You 
 
 Once you have a bot created for your app in Discord, you can set permissions and authorize it to join your Discord server.
 
-`https://discord.com/developers/applications/<your application id>/oauth2/url-generator`
-
-Within the Application you've created on Discord, find the URL Generator under `OAuth2`.
+Within the Application you've created on Discord, find the URL Generator under `OAuth2`. The URL for this is `https://discord.com/developers/applications/<your application id>/oauth2/url-generator`.
 
 <Callout
   emoji="🌠"
@@ -59,8 +57,14 @@ Within the Application you've created on Discord, find the URL Generator under `
   }
 />
 
-The URL Generator will build our bot invitation link for us. Under `Scopes` check "bot" and under `Bot permissions` check "Send Messages". Scroll down and copy the generated URL, and paste it into your browser. You will see a prompt to allow it access to the Discord servers you are an administrator of. Select your desired server and proceed to authorize it.
+The URL Generator will build our bot invitation link for us. Under `Scopes` check "bot" and under `Bot permissions` check "Send Messages".
 
+![Accessing OAuth in Discord](/images/discord_walkthrough/discord-oauth1.png)
+![Accessing OAuth in Discord 2](/images/discord_walkthrough/discord-oauth2.png)
+
+Scroll down and copy the generated URL, and **paste it into your browser**. You will see a prompt to allow it access to the Discord servers you are an administrator of. Select your desired server and proceed to authorize it.
+
+![Accessing OAuth in Discord 2](/images/discord_walkthrough/copy-url.png)
 Now you should see your new bot enter your Discord server! We can move on to configuring your channel in Knock.
 
 ## Part 2: Configuring Knock
@@ -71,25 +75,44 @@ For this, you'll need your bot's token. In your Discord account in the browser, 
 
 If you don't see a token, click "Reset token" and copy the result.
 
+![Getting a token from the Discord bot](/images/discord_walkthrough/reset-token.png)
+
 Now you can go to your Knock channels and create a new `Chat` channel, selecting Discord as the type.
 
 Once it's created, click `Edit configuration` and paste in the Discord bot token you just created/copied above.
 
 ### 4. Identify your bot as an Object
 
-For your bot to be a "recipient" of your workflow, you'll need to identify it as an object in Knock. You can take a look at the [Object documentation here]() to read more about Objects in Knock, but we'll walk through how to do this through an SDK agnostic method first: making direct REST calls to the Knock API.
+For your bot to be a "recipient" of your workflow, you'll need to identify it as an object in Knock. You can take a look at the [Object documentation here](https://docs.knock.app/reference#objects) to read more about Objects in Knock, but we'll walk through how to do this through an SDK agnostic method first: making direct REST calls to the Knock API.
 
-To add this bot as an object, we'll create a unique ID for it and give it a `collection` as well. (You can read more about collections [here]().)
+To add this bot as an object, we'll create a unique ID for it and give it a `collection` as well. (You can read more about collections [here](https://docs.knock.app/send-and-manage-data/objects#the-knock-objects-api).)
 
-For this example, let's call our bot `notifications-bot` and its collection will be `projects. We can then make a `PUT`call to `https://api.knock.app/v1/objects/projects/notifications-bot`.
+For this example, let's call our bot `notifications-bot` and its collection will be `projects`. Our API call would look like this:
 
-If we check the Objects tab in our Knock dashboard, we can see the bot exists there. Now we can give it specific channel information so it knows where to post in Discord.
+```
+Method: PUT
+URL: `https://api.knock.app/v1/objects/projects/notifications-bot`.
+```
+
+If we check the Objects tab in our Knock dashboard, we can see the bot exists there.
+
+![Bot in Objects list](/images/discord_walkthrough/objects-bot-exists.png)
+
+Now we can give it specific channel information so it knows where to post in Discord.
 
 ### 5. Set Discord channel data in Knock
 
-For the bot to know what Discord channel it's posting to, we need to get that channel's ID. To do this, open Discord, navigate to `Preferences` in the main menu, and go to the `Advanced` tab under `App Settings`. From here you'll see a toggle for Developer Mode. Make sure that's turned on, then navigate back to your Discord server. Now if you right-click on a channel, you'll see "Copy ID" as an option in the list. Copy the ID for the channel you want to post to. For clarity, we'll call this the "Discord channel ID".
+For the bot to know what Discord channel it's posting to, we need to get that channel's ID. To do this, open Discord, navigate to `Preferences` in the main menu, and go to the `Advanced` tab under `App Settings`. From here you'll see a toggle for Developer Mode.
 
-We'll also need the ID for the Knock chat channel we set up in step 3. We'll refer to this as the "Knock chat channel ID", which you can get in the channels tab of your Knock dashboard.
+![Turn on developer mode in Discord](/images/discord_walkthrough/dev-mode-toggle.png)
+
+Make sure that's turned on, then navigate back to your Discord server. Now if you right-click on a channel, you'll see "Copy ID" as an option in the list. Copy the ID for the channel you want to post to. For clarity, we'll call this the `Discord channel ID`.
+
+![Copy Discord channel ID](/images/discord_walkthrough/discord-channel-id.png)
+
+We'll also need the ID for the Knock chat channel we set up in step 3. We'll refer to this as the `Knock chat channel ID`, which you can get in the channels tab of your Knock dashboard.
+
+![Copy Knock chat channel ID](/images/discord_walkthrough/knock-chat-id.png)
 
 Now, we'll need to make a second API call to set channel data for our bot.
 
@@ -108,6 +131,8 @@ Body: {
 ```
 
 Once you get a successful response from this call, you can navigate back to your Objects dashboard and verify that your bot has a Discord channel in its channel data tab.
+
+![Bot with Discord channel data](/images/discord_walkthrough/bot-channel-data.png)
 
 Now we've finished the Knock and Discord configurations and it's time to test triggering a workflow!
 
