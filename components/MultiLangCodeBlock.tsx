@@ -34,6 +34,8 @@ const snippets = {
     .default,
   "users.setChannelData": require("../data/code/users/set-channel-data")
     .default,
+  "users.setChannelData-push":
+    require("../data/code/users/set-channel-data-push").default,
 
   // Objects
   "objects.set": require("../data/code/objects/set").default,

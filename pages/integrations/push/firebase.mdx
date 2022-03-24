@@ -2,17 +2,56 @@
 title: How to send push notifications to Firebase Cloud Messaging
 ---
 
+import MultiLangCodeBlock from "../../../components/MultiLangCodeBlock";
+
 In this guide we'll walk through how to configure a Firebase Cloud Messaging (FCM) provider in Knock. This guide assumes that you've already created an FCM channel in the Knock dashboard.
 
-## How to configure Firebase with Knock
+## How to configure FCM with Knock
 
 To configure FCM with Knock, you'll need your Firebase Project ID and the complete contents of your Service Account JSON file.
 
 You can get both of these by logging into the [Firebase console](https://console.firebase.google.com/) and navigating to project settings. Once you have them, go back to the environment configuration for your FCM channel, enter in your Project ID and Service Account JSON file, and you're good to go.
 
+## Using FCM with Knock
+
+In order to use FCM with Knock you'll need to synchronize your users device tokens retrieved from the FCM SDK in either Android, iOS, or Web to Knock by [setting channel data](/send-notifications/setting-channel-data) for your recipient.
+
+You can follow the appropriate [quickstart guide for your platform](https://firebase.google.com/docs/cloud-messaging#next-steps) on FCM to see how to get the device token.
+
+<MultiLangCodeBlock
+  snippet="users.setChannelData-push"
+  title="Set FCM channel data for a user"
+/>
+
+## Managing tokens
+
+Knock makes no assumptions about managing your device tokens for you. Meaning if a recipient opts-out of receiving notifications on a device, or the token expires, it is up to you to remove the token from the recipients channel data. This behavior is subject to change in the future.
+
+## Data passed to FCM
+
+When sending a notification to FCM, we also pass through the following attributes:
+
+| Property           | Type   | Description                                                                           |
+| ------------------ | ------ | ------------------------------------------------------------------------------------- |
+| knock_message_id\* | string | The message ID of the corresponding Knock message                                     |
+| data \*            | string | Any key/value data passed through in your notify call, formatted for FCM (as strings) |
+
+## Customizing your notifications
+
+If you need to further customize the payload sent to FCM when issuing your notification like adding custom badges or sounds, please reach out to us.
+
+## Common FCM errors
+
+The following are common FCM errors you may see in your message delivery logs:
+
+| Error              | Meaning / action to take                                                                       |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+| `UNREGISTERED`     | The device token provided is not valid and should be removed from the recipients channel data. |
+| `INVALID_ARGUMENT` | The device token given may be incorrect.                                                       |
+
 ## Channel data requirements
 
-In order to use a configured FCM channel you must store a list of one or more device tokens for the user or the object that you wish to deliver a notification to. You can retrieve a device token by following the guide on the [FCM developer documentation](https://firebase.google.com/docs/cloud-messaging/android/client).
+In order to use a configured FCM channel you must store a list of one or more device tokens for the user or the object that you wish to deliver a notification to. If you use multiple device tokens for a single user or object, Knock will generate and try and deliver a notification for each unique token.
 
 | Property | Type     | Description               |
 | -------- | -------- | ------------------------- |
