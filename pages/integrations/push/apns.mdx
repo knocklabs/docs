@@ -1,0 +1,64 @@
+---
+title: How to send push notifications to Apple Push Notifications service
+---
+
+import MultiLangCodeBlock from "../../../components/MultiLangCodeBlock";
+
+In this guide we'll walk through how to configure an Apple Push Notifications service (APNS) provider in Knock. This guide assumes that you've already created an APNS channel in the Knock dashboard.
+
+## How to configure Apple Push Notifications service with Knock
+
+There are two ways to configure APNS with Knock. You can use a token-based authentication scheme or a certificate-based authentication scheme. Depending on which you choose, you'll need to get different information from Xcode and your Apple developer account.
+
+### Token-based authentication configuration
+
+**Note**: Knock recommends token-based authentication for all APNS channel connections.
+
+You can read about how to setup a token connection to APNS [in the documentation](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_token-based_connection_to_apns). For your Knock channel configuration, you will need:
+
+1. A provider token signing key (a private key)
+2. The key identifier (a 10 digit identifier from your Apple developer account)
+3. The team identifier (a 10 digit identifier from your Apple developer account)
+
+### Certificate-based authentication configuration
+
+You can read aout how to setup a certificate connection to APNS [in the documentation](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/establishing_a_certificate-based_connection_to_apns). For your Knock channel configuration, you will need:
+
+1. A provider certificate (from your Apple developer account)
+2. A private key (generated in the process above)
+
+## Using APNS with Knock
+
+In order to use APNS with Knock you'll need to synchronize your users device tokens retrieved from the APNS SDK to Knock by [setting channel data](/send-notifications/setting-channel-data) for your recipient.
+
+You can follow the [quickstart guide](https://developer.apple.com/documentation/usernotifications/registering_your_app_with_apns) on APNS to see how to get the device token.
+
+<MultiLangCodeBlock
+  snippet="users.setChannelData-push"
+  title="Set APNS channel data for a user"
+/>
+
+## Managing tokens
+
+Knock makes no assumptions about managing your device tokens for you. Meaning if a recipient opts-out of receiving notifications on a device, or the token expires, it is up to you to remove the token from the recipients channel data. This behavior is subject to change in the future.
+
+## Data passed to APNS
+
+When sending a notification to APNS, we also pass through the following attributes:
+
+| Property           | Type   | Description                                           |
+| ------------------ | ------ | ----------------------------------------------------- |
+| knock_message_id\* | string | The message ID of the corresponding Knock message     |
+| data \*            | string | Any key/value data passed through in your notify call |
+
+## Customizing your notifications
+
+If you need to further customize the payload sent to APNS when issuing your notification like adding custom badges or sounds, please reach out to us.
+
+## Channel data requirements
+
+In order to use a configured APNS channel you must store a list of one or more device tokens for the user or the object that you wish to deliver a notification to. You can retrieve a device token by following the guide on the [Apple developer documentation](https://developer.apple.com/documentation/usernotifications/registering_your_app_with_apns).
+
+| Property | Type     | Description               |
+| -------- | -------- | ------------------------- |
+| tokens\* | string[] | One or more device tokens |

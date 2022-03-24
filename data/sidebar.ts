@@ -75,6 +75,16 @@ const sidebarContent: SidebarSection[] = [
         ],
       },
       {
+        title: "Push",
+        slug: "/push",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/apns", title: "Apple (APNS)" },
+          { slug: "/firebase", title: "Firebase (FCM)" },
+          { slug: "/expo", title: "Expo (React Native)" },
+        ],
+      },
+      {
         title: "SMS",
         slug: "/sms",
         pages: [{ slug: "/twilio-sms", title: "Twilio SMS" }],

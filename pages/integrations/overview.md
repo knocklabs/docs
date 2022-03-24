@@ -5,7 +5,6 @@ title: Overview
 You can use Knock to power sophisticated cross-channel notification workflow for your end users.
 
 We support the following out-of-app channel types today:
-
 - Email
 - Push
 - SMS
