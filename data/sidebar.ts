@@ -85,6 +85,7 @@ const sidebarContent: SidebarSection[] = [
         pages: [
           { slug: "/slack", title: "Slack" },
           { slug: "/microsoft-teams", title: "Microsoft Teams" },
+          { slug: "/discord", title: "Discord" },
         ],
       },
     ],
