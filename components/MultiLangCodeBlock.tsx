@@ -43,10 +43,14 @@ const snippets = {
   "objects.delete": require("../data/code/objects/delete").default,
   "objects.bulkSet": require("../data/code/objects/bulk-set").default,
   "objects.bulkDelete": require("../data/code/objects/bulk-delete").default,
-  "objects.setChannelData": require("../data/code/objects/set-channel-data")
-    .default,
-  "objects.setChannelData-ms-teams":
+  "objects.setChannelData.slack":
+    require("../data/code/objects/set-channel-data-slack").default,
+  "objects.setChannelData.msTeams":
     require("../data/code/objects/set-channel-data-ms-teams").default,
+  "objects.setChannelData.discord.webhook":
+    require("../data/code/objects/set-channel-data-discord-webhook").default,
+  "objects.setChannelData.discord.bot":
+    require("../data/code/objects/set-channel-data-discord-bot").default,
   "objects.getChannelData": require("../data/code/objects/get-channel-data")
     .default,
 
