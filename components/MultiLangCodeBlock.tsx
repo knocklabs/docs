@@ -40,7 +40,8 @@ const snippets = {
 
   // Messages
   "messages.get": require("../data/code/messages/get").default,
-  "messages.getActivities": require("../data/code/messages/get-activities").default,
+  "messages.getActivities": require("../data/code/messages/get-activities")
+    .default,
   "messages.getContent": require("../data/code/messages/get-content").default,
   "messages.getEvents": require("../data/code/messages/get-events").default,
 
