@@ -88,6 +88,7 @@ const sidebarContent: SidebarSection[] = [
     slug: "/reference",
     pages: [
       { slug: "#messages", title: "Overview" },
+      { slug: "#list-messages", title: "List messages" },
       { slug: "#get-a-message", title: "Get a message" },
       { slug: "#get-message-events", title: "Get events" },
       { slug: "#get-message-activities", title: "Get activities" },

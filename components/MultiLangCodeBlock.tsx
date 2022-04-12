@@ -39,6 +39,7 @@ const snippets = {
     require("../data/code/users/set-channel-data-push").default,
 
   // Messages
+  "messages.list": require("../data/code/messages/list").default,
   "messages.get": require("../data/code/messages/get").default,
   "messages.getActivities": require("../data/code/messages/get-activities")
     .default,

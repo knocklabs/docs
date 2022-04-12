@@ -1681,6 +1681,7 @@ A message is a notification delivered on a particular channel to a user.
 <ExampleColumn>
 
 <Endpoints>
+  <Endpoint method="GET" path="/messages" />
   <Endpoint method="GET" path="/messages/:id" />
   <Endpoint method="GET" path="/messages/:id/activities" />
   <Endpoint method="GET" path="/messages/:id/events" />
@@ -1718,6 +1719,107 @@ A message is a notification delivered on a particular channel to a user.
 
 </ExampleColumn>
 </Section>
+
+<Section title="Listing messages" slug="list-messages">
+<ContentColumn>
+
+Returns a paginated list of messages.
+
+### Endpoint
+
+<Endpoint method="GET" path="/messages" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="source"
+    type="string (optional)"
+    description="Limits the results to only items of the source workflow"
+  />
+  <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="Limits the results to items with the corresponding tenant, or where the tenant is empty"
+  />
+  <Attribute
+    name="status"
+    type="string[] (optional)"
+    description="One or more of `queued`, `sent`, `delivered`, `undelivered`, `not_sent`. Limits results to items in the given status(es)"
+  />
+  <Attribute
+    name="channel_id"
+    type="string (optional)"
+    description="Limits the results to only items that belong to the channel"
+  />
+</Attributes>
+
+
+### Returns
+
+A paginated list of Message records
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="messages.list" title="List messages" />
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "Message",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "1rjI9XBgWQ6EUA3D3Ul3VjUimOD",
+      "channel_id": "0bfd9f86-56b0-41f0-ade3-dc5cc6a69bb8",
+      "recipient": {
+        "id": "project_1",
+        "collection": "projects"
+      },
+      "workflow": "merged-changes",
+      "tenant": null,
+      "status": "delivered",
+      "read_at": null,
+      "seen_at": null,
+      "archived_at": null,
+      "inserted_at": "2021-03-05T12:00:00Z",
+      "updated_at": "2021-03-05T12:00:00Z",
+      "source": {
+        "__typename": "WorkflowSource",
+        "key": "merged-changes",
+        "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de"
+      },
+      "data": {
+        "foo": "bar"
+      }
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+</ExampleColumn>
+</Section>
+
 
 <Section title="Fetching a message" slug="get-a-message">
 <ContentColumn>
