@@ -26,6 +26,7 @@ const snippets = {
   "users.get": require("../data/code/users/get").default,
   "users.delete": require("../data/code/users/delete").default,
   "users.merge": require("../data/code/users/merge").default,
+  "users.messages": require("../data/code/users/messages").default,
   "users.setPreferences": require("../data/code/users/set-preferences").default,
   "users.bulkSetPreferences": require("../data/code/users/bulk-set-preferences")
     .default,
@@ -37,12 +38,19 @@ const snippets = {
   "users.setChannelData-push":
     require("../data/code/users/set-channel-data-push").default,
 
+  // Messages
+  "messages.get": require("../data/code/messages/get").default,
+  "messages.getActivities": require("../data/code/messages/get-activities").default,
+  "messages.getContent": require("../data/code/messages/get-content").default,
+  "messages.getEvents": require("../data/code/messages/get-events").default,
+
   // Objects
   "objects.set": require("../data/code/objects/set").default,
   "objects.get": require("../data/code/objects/get").default,
   "objects.delete": require("../data/code/objects/delete").default,
   "objects.bulkSet": require("../data/code/objects/bulk-set").default,
   "objects.bulkDelete": require("../data/code/objects/bulk-delete").default,
+  "objects.messages": require("../data/code/objects/messages").default,
   "objects.setChannelData.slack":
     require("../data/code/objects/set-channel-data-slack").default,
   "objects.setChannelData.msTeams":
