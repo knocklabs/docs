@@ -19,6 +19,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#users", title: "Overview" },
       { slug: "#identify-user", title: "Identify a user" },
       { slug: "#get-user", title: "Get a user" },
+      { slug: "#get-user-messages", title: "Get messages" },
       { slug: "#delete-user", title: "Delete a user" },
       { slug: "#merge-user", title: "Merge users" },
       { slug: "#bulk-identify-users", title: "Bulk identify users" },
@@ -74,6 +75,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "#objects", title: "Overview" },
       { slug: "#get-object", title: "Get an object" },
+      { slug: "#get-object-messages", title: "Get messages" },
       { slug: "#set-object", title: "Set an object" },
       { slug: "#delete-object", title: "Delete an object" },
       { slug: "#bulk-set-objects", title: "Bulk set objects" },
@@ -86,6 +88,11 @@ const sidebarContent: SidebarSection[] = [
     slug: "/reference",
     pages: [
       { slug: "#messages", title: "Overview" },
+      { slug: "#list-messages", title: "List messages" },
+      { slug: "#get-a-message", title: "Get a message" },
+      { slug: "#get-message-events", title: "Get events" },
+      { slug: "#get-message-activities", title: "Get activities" },
+      { slug: "#get-message-content", title: "Get content" },
       { slug: "#update-message-status", title: "Update status" },
       { slug: "#batch-update-message-status", title: "Batch change status" },
       {

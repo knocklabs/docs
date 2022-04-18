@@ -218,6 +218,7 @@ A user represents an individual who may need to receive a notification from Knoc
 <Endpoints>
   <Endpoint name="identify-user" method="PUT" path="/users/:user_id" />
   <Endpoint name="get-user" method="GET" path="/users/:user_id" />
+  <Endpoint name="get-user-messages" method="GET" path="/users/:user_id/messages" />
   <Endpoint name="delete-user" method="DELETE" path="/users/:user_id" />
   <Endpoint name="merge-user" method="POST" path="/users/:user_id/merge" />
   <Endpoint
@@ -351,6 +352,109 @@ A User.
 }
 ```
 
+</ExampleColumn>
+</Section>
+
+<Section title="User messages" slug="get-user-messages">
+<ContentColumn>
+
+Retrieve a paginated list of messages for a user. Will return most recent messages first.
+
+### Endpoint
+
+<Endpoint method="GET" path="/users/:id/messages" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="id" type="string" description="The ID of the user" />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="source"
+    type="string (optional)"
+    description="Limits the results to only items of the source workflow"
+  />
+  <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="Limits the results to items with the corresponding tenant, or where the tenant is empty"
+  />
+  <Attribute
+    name="status"
+    type="string[] (optional)"
+    description="One or more of `queued`, `sent`, `delivered`, `undelivered`, `not_sent`. Limits results to items in the given status(es)"
+  />
+  <Attribute
+    name="channel_id"
+    type="string (optional)"
+    description="Limits the results to only items that belong to the channel"
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of Message records
+
+</ContentColumn>
+
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="users.messages" title="Get user messages" />
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "Message",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "1rjI9XBgWQ6EUA3D3Ul3VjUimOD",
+      "channel_id": "0bfd9f86-56b0-41f0-ade3-dc5cc6a69bb8",
+      "recipient": "user_12345",
+      "workflow": "merged-changes",
+      "tenant": null,
+      "status": "delivered",
+      "read_at": null,
+      "seen_at": null,
+      "archived_at": null,
+      "inserted_at": "2021-03-05T12:00:00Z",
+      "updated_at": "2021-03-05T12:00:00Z",
+      "source": {
+        "__typename": "WorkflowSource",
+        "key": "merged-changes",
+        "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de"
+      },
+      "data": {
+        "foo": "bar"
+      }
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
 </ExampleColumn>
 </Section>
 
@@ -1518,8 +1622,8 @@ A message is a notification delivered on a particular channel to a user.
   />
   <Attribute
     name="recipient"
-    type="string"
-    description="The ID of the user who received the message"
+    type="string or RecipientIdentifier"
+    description="The ID of the user who received the message. If the recipient is an object, the result will be an object containing its id and collection"
   />
   <Attribute
     name="workflow"
@@ -1551,12 +1655,37 @@ A message is a notification delivered on a particular channel to a user.
     type="string (optional)"
     description="When the message was archived"
   />
+  <Attribute
+    name="inserted_at"
+    type="string"
+    description="When the message was created"
+  />
+  <Attribute
+    name="updated_at"
+    type="string"
+    description="When the message was last updated"
+  />
+  <Attribute
+    name="source"
+    type="object"
+    description="The workflow which is the message source"
+  />
+  <Attribute
+    name="data"
+    type="object"
+    description="Data from the activities linked to the message"
+  />
 </Attributes>
 
 </ContentColumn>
 <ExampleColumn>
 
 <Endpoints>
+  <Endpoint method="GET" path="/messages" />
+  <Endpoint method="GET" path="/messages/:id" />
+  <Endpoint method="GET" path="/messages/:id/activities" />
+  <Endpoint method="GET" path="/messages/:id/events" />
+  <Endpoint method="GET" path="/messages/:id/content" />
   <Endpoint method="PUT" path="/messages/:id/:status" />
   <Endpoint method="DELETE" path="/messages/:id/:status" />
   <Endpoint method="POST" path="/messages/batch/:status" />
@@ -1569,17 +1698,358 @@ A message is a notification delivered on a particular channel to a user.
   "id": "1rjI9XBgWQ6EUA3D3Ul3VjUimOD",
   "channel_id": "0bfd9f86-56b0-41f0-ade3-dc5cc6a69bb8",
   "recipient": "user_12345",
-  "workflow": "new-comment",
+  "workflow": "merged-changes",
   "tenant": null,
   "status": "delivered",
   "read_at": null,
   "seen_at": null,
   "archived_at": null,
   "inserted_at": "2021-03-05T12:00:00Z",
-  "updated_at": "2021-03-05T12:00:00Z"
+  "updated_at": "2021-03-05T12:00:00Z",
+  "source": {
+    "__typename": "WorkflowSource",
+    "key": "merged-changes",
+    "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de"
+  },
+  "data": {
+    "foo": "bar"
+  }
 }
 ```
 
+</ExampleColumn>
+</Section>
+
+<Section title="Listing messages" slug="list-messages">
+<ContentColumn>
+
+Returns a paginated list of messages.
+
+### Endpoint
+
+<Endpoint method="GET" path="/messages" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="source"
+    type="string (optional)"
+    description="Limits the results to only items of the source workflow"
+  />
+  <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="Limits the results to items with the corresponding tenant, or where the tenant is empty"
+  />
+  <Attribute
+    name="status"
+    type="string[] (optional)"
+    description="One or more of `queued`, `sent`, `delivered`, `undelivered`, `not_sent`. Limits results to items in the given status(es)"
+  />
+  <Attribute
+    name="channel_id"
+    type="string (optional)"
+    description="Limits the results to only items that belong to the channel"
+  />
+</Attributes>
+
+
+### Returns
+
+A paginated list of Message records
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="messages.list" title="List messages" />
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "Message",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "1rjI9XBgWQ6EUA3D3Ul3VjUimOD",
+      "channel_id": "0bfd9f86-56b0-41f0-ade3-dc5cc6a69bb8",
+      "recipient": {
+        "id": "project_1",
+        "collection": "projects"
+      },
+      "workflow": "merged-changes",
+      "tenant": null,
+      "status": "delivered",
+      "read_at": null,
+      "seen_at": null,
+      "archived_at": null,
+      "inserted_at": "2021-03-05T12:00:00Z",
+      "updated_at": "2021-03-05T12:00:00Z",
+      "source": {
+        "__typename": "WorkflowSource",
+        "key": "merged-changes",
+        "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de"
+      },
+      "data": {
+        "foo": "bar"
+      }
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+</ExampleColumn>
+</Section>
+
+
+<Section title="Fetching a message" slug="get-a-message">
+<ContentColumn>
+
+Retrieve a message by the id.
+
+### Endpoint
+
+<Endpoint method="GET" path="/messages/:id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="id" type="string" description="The ID of the message" />
+</Attributes>
+
+### Returns
+
+A Message
+</ContentColumn>
+
+<ExampleColumn>
+  <MultiLangCodeBlock snippet="messages.get" title="Get a message" />
+</ExampleColumn>
+
+</Section>
+
+<Section title="Events" slug="get-message-events">
+<ContentColumn>
+
+Returns a paginated list of events for a message.
+
+### Endpoint
+
+<Endpoint method="GET" path="/messages/:id/events" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="id" type="string" description="The ID of the message" />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of MessageEvent records
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="messages.getEvents" title="Get message events" />
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "MessageEvent",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "25cQpkVBUTbzKKug0qVEDqcAJxm",
+      "environment_id": "a49e3beb-f654-4f2f-8963-f69cc1f7e6dc",
+      "recipient": "e62cbb03-86a0-47d6-84fe-f49981906267",
+      "data": {},
+      "type": "enqueued",
+      "inserted_at": "2021-04-06T12:00:00Z",
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+</ExampleColumn>
+</Section>
+
+<Section title="Activities" slug="get-message-activities">
+<ContentColumn>
+
+Returns a paginated list of activities associated with the message. Note: for non batched messages this will always return a single activity. For messages produced after a batch step, this will contain one or more activities.
+
+### Endpoint
+
+<Endpoint method="GET" path="/messages/:id/activities" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="id" type="string" description="The ID of the message" />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of Activity records
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="messages.getActivities" title="Get message activities" />
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "Activity",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "25cQpkVBUTbzKKug0qVEDqcAJxm",
+      "data": {
+        "notification_payload": "foobar"
+      },
+      "actor": {
+        "__typename": "User",
+        "id": "7b553fc3-eb65-4ad8-8836-d1224dad703b",
+        "created_at": "2022-04-07T12:00:00.00Z",
+        "email": "actor@example.com",
+        "name": "Actor",
+        "updated_at": "2022-04-07T12:00:00.00Z"
+      },
+      "recipient": {
+        "__typename": "Object",
+        "id": "f7a84d87-7b9e-4128-82a8-cde38593817f",
+        "collection": "projects",
+        "properties": {
+          "name": "Project 1"
+        },
+        "created_at": "2022-04-07T12:00:00.00Z",
+        "updated_at": "2022-04-07T12:00:00.00Z"
+      },
+      "inserted_at": "2021-04-06T12:00:00Z",
+      "updated_at": "2021-04-06T12:00:00Z",
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+</ExampleColumn>
+</Section>
+
+<Section title="Content" slug="get-message-content">
+<ContentColumn>
+
+Retrieves the contents of a message, generated and sent to the end provider.
+
+### Endpoint
+
+<Endpoint method="GET" path="/messages/:id/content" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="id" type="string" description="The ID of the message" />
+</Attributes>
+
+### Returns
+
+A MessageContent.
+
+**Note: the `data` attribute of the MessageContent payload will vary based on the type
+of message being sent (email, chat, in-app feed, sms and push).**
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="messages.getContent" title="Get message content" />
+
+```json Response
+{
+  "__typename": "MessageContent",
+  "id": "264os2yt574e1T3jblzjbh7Qa69",
+  "data": {
+    "bcc": bcc@example.com,
+    "cc": cc@example.com,
+    "from": {
+      "email": "info-app@example.com",
+      "name": "Example App"
+    },
+    "html_body": "<p>example</p>",
+    "reply_to": "reply-to@example.com",
+    "subject": "Example Notification",
+    "text_body": "example",
+    "to": "user@example.com"
+  },
+  "inserted_at": "2021-04-06T12:00:00Z",
+}
+```
 </ExampleColumn>
 </Section>
 
@@ -1880,6 +2350,7 @@ when sending [Slack notifications](/integrations/slack).
 
 <Endpoints>
   <Endpoint name="get-object" method="GET" path="/objects/:collection/:id" />
+  <Endpoint name="get-object-messages" method="GET" path="/objects/:collection/:id/messages" />
   <Endpoint name="set-object" method="PUT" path="/objects/:collection/:id" />
   <Endpoint
     name="delete-object"
@@ -1960,6 +2431,112 @@ Returns an `Object`.
 }
 ```
 
+</ExampleColumn>
+</Section>
+
+<Section title="Object messages" slug="get-object-messages">
+<ContentColumn>
+
+Returns a paginated list of messages for an object. Will return newest messages first.
+
+### Endpoint
+
+<Endpoint method="GET" path="/objects/:collection/:id/messages" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="collection" type="string" description="The collection of the object" />
+  <Attribute name="id" type="string" description="The ID of the object" />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="source"
+    type="string (optional)"
+    description="Limits the results to only items of the source workflow"
+  />
+  <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="Limits the results to items with the corresponding tenant, or where the tenant is empty"
+  />
+  <Attribute
+    name="status"
+    type="string[] (optional)"
+    description="One or more of `queued`, `sent`, `delivered`, `undelivered`, `not_sent`. Limits results to items in the given status(es)"
+  />
+  <Attribute
+    name="channel_id"
+    type="string (optional)"
+    description="Limits the results to only items that belong to the channel"
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of Message records
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="objects.messages" title="Get object messages" />
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "Message",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "1rjI9XBgWQ6EUA3D3Ul3VjUimOD",
+      "channel_id": "0bfd9f86-56b0-41f0-ade3-dc5cc6a69bb8",
+      "recipient": {
+        "id": "project_1",
+        "collection": "projects"
+      },
+      "workflow": "merged-changes",
+      "tenant": null,
+      "status": "delivered",
+      "read_at": null,
+      "seen_at": null,
+      "archived_at": null,
+      "inserted_at": "2021-03-05T12:00:00Z",
+      "updated_at": "2021-03-05T12:00:00Z",
+      "source": {
+        "__typename": "WorkflowSource",
+        "key": "merged-changes",
+        "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de"
+      },
+      "data": {
+        "foo": "bar"
+      }
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
 </ExampleColumn>
 </Section>
 
