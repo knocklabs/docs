@@ -28,6 +28,8 @@ const snippets = {
   "users.merge": require("../data/code/users/merge").default,
   "users.messages": require("../data/code/users/messages").default,
   "users.setPreferences": require("../data/code/users/set-preferences").default,
+  "users.setPreferences.conditions":
+    require("../data/code/users/set-preferences-with-conditions").default,
   "users.bulkSetPreferences": require("../data/code/users/bulk-set-preferences")
     .default,
   "users.getPreferences": require("../data/code/users/get-preferences").default,
