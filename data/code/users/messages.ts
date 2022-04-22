@@ -3,13 +3,10 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knockClient = new Knock("sk_12345");
 
-const channelData = await knockClient.users.getMessages(
-  "jhammond",
-);
+await knockClient.users.getMessages("jhammond");
 
 // supports pagination parameters and filters
-
-const channelData = await knockClient.users.getMessages(
+await knockClient.users.getMessages(
   "jhammond",
   {
     page_size: 20,
