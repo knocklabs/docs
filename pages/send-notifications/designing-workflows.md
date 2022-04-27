@@ -51,7 +51,7 @@ To learn more about functions and how to get the most out of them in the Knock d
 
 Each channel step you add to a workflow will have its own notification template. This template is what determines what the notifications sent to your user look like for a given channel.
 
-In this section we'll walk through the key features of the Knock notification template editor and how you can use them to design your notifications.
+In this section we'll walk through the key features of the Knock template editor and how you can use them to design your notifications.
 
 We'll cover:
 
