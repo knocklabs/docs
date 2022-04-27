@@ -51,7 +51,7 @@ To learn more about functions and how to get the most out of them in the Knock d
 
 Each channel step you add to a workflow will have its own notification template. This template is what determines what the notifications sent to your user look like for a given channel.
 
-In this section we'll walk through the key features of the Knock template editor and how you can use them to design your notifications.
+In this section we'll walk through the key features of the Knock notification template editor and how you can use them to design your notifications.
 
 We'll cover:
 
@@ -143,6 +143,28 @@ join {{ account_name }} on Knock.
 ```
 
 To learn more about the variables, Liquid keywords, and other helper functions available to you in the Knock template editor, check out our [liquid helper reference](/send-notifications/reference-liquid-helpers).
+
+### Visual editing with drag-and-drop components
+
+The Knock template editor supports visual editing that allows you to compose a notification template with components you can drag and drop into the template document. **Please note: currently available for email templates only.**
+
+In the visual template editor, in addition to the **Variables data** pane on the left, you have the **Components** panel on the right, where you can access available components. Drag and drop a new component from the Components pane into the template document in the middle, or click to append to the bottom of the document.
+
+Once you add a new component to the document, the Components pane will automatically switch to the **Inspect** mode, where you can edit various attributes of the newly added component. You can hit the `esc` key or click outside the pane anywhere to quit out of the Inspect mode. You can always click on any of the components in the document to inspect it again. While inspecting, you can quickly remove the component by clicking the `x` icon in the top-right corner of the component or access additional menu items from the Inspect pane header.
+
+<video width="100%" class="mb-12" autoPlay loop muted playsInline>
+  <source src="/videos/visual-template-editor.mp4" type="video/mp4" />
+</video>
+
+As a reminder, **you still have full access to the variables data as well as liquid tags** when editing any of the text content fields of any components. The visual template editor aims to lower the frictions in easily and quickly crafting a notification template while giving you the full flexibility and the power of code.
+
+Moreover, please note the following features of the components:
+
+* **Markdown (and Blockquote) components** not only support the liquid syntax but also support the Markdown basic syntax. To learn more about Markdown and the supported syntax, check out [its documentation here](https://www.markdownguide.org/basic-syntax/).
+* **Button components** can be configured to use your brand colors by default, so you can ensure your brand elements are consistent across all of your product messaging. To configure your brand colors, head over to the branding settings page in your dashboard. ("Settings" page → "Branding" tab)
+* **HTML components** can contain any valid HTML markup and provide an "escape hatch" for advanced use cases where more complex markups are needed.
+
+Lastly, if you ever want to take complete control of the notification template and manually edit in the code editor, you can do so via the "Enter code editor" button found at the bottom of the editor. When opting out of the visual template editor, any components used in the template document will be translated into the equivalent HTML for you to take over.
 
 ### Previewing and testing your notification template
 
