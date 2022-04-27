@@ -144,6 +144,28 @@ join {{ account_name }} on Knock.
 
 To learn more about the variables, Liquid keywords, and other helper functions available to you in the Knock template editor, check out our [liquid helper reference](/send-notifications/reference-liquid-helpers).
 
+### Visual editing with drag-and-drop components
+
+The Knock template editor supports visual editing that allows you to compose a notification template with components you can drag and drop into the template document. **Please note: currently available for email templates only.**
+
+In the visual template editor, in addition to the **Variables data** pane on the left, you have the **Components** panel on the right, where you can access available components.
+
+Once you add a new component to the document, the Components pane will automatically switch to the **Inspect** mode, where you can edit various attributes of the newly added component. While in inspect mode, you can remove the component by clicking the `x` icon in the top-right corner of the component or access additional menu items from the Inspect pane header.
+
+<video width="100%" class="mb-12" autoPlay loop muted playsInline>
+  <source src="/videos/visual-template-editor.mp4" type="video/mp4" />
+</video>
+
+As a reminder, **you still have full access to the variables data as well as liquid tags** when editing any of the text content fields of any components. The visual template editor makes it easier to introduce elements into your notification template while still giving you the full flexibility and power of code.
+
+Moreover, please note the following features of the components:
+
+* **Markdown (and Blockquote) components** support liquid and basic Markdown syntax. To learn more about Markdown, check out [its documentation](https://www.markdownguide.org/basic-syntax/).
+* **Button components** can be configured to use your brand colors by default, so you can ensure your brand elements are consistent across all of your product messaging. To configure your brand colors, head over to the branding settings page in your dashboard. ("Settings" page → "Branding" tab)
+* **HTML components** can contain any valid HTML markup and provide an "escape hatch" for advanced use cases where more complex markups are needed.
+
+Lastly, if you ever want to take complete control of the notification template and manually edit in the code editor, you can do so via the "Enter code editor" button found at the bottom of the editor. When opting out of the visual template editor, any components used in the template document will be translated into the equivalent HTML for you to take over.
+
 ### Previewing and testing your notification template
 
 Once you've finished editing your notification template, you can click "preview" in the top-left corner of the editor to enter preview mode.
