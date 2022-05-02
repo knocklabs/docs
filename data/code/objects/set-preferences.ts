@@ -64,7 +64,17 @@ var knockClient = new KnockClient(
 
 var preferenceSetUpdate = new SetPreferencesOptions {
   ChannelTypes = new Dictionary<string, boolean> {
-    {"email", false}
+    {"email", false},
+    {"sms", false}
+  },
+  Workflows = new Dictionary<string, object> {
+    {"dinosaurs-loose", new Dictionary<string, object> {
+      {"channel_types", new Dictionary<string, boolean> {
+        {"email", false},
+        {"in_app_feed", true},
+        {"sms", true}
+      }}
+    }}
   }
 };
   
