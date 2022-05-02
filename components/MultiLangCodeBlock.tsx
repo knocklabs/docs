@@ -65,6 +65,10 @@ const snippets = {
     require("../data/code/objects/set-channel-data-discord-bot").default,
   "objects.getChannelData": require("../data/code/objects/get-channel-data")
     .default,
+  "objects.getPreferences": require("../data/code/objects/get-preferences")
+    .default,
+  "objects.setPreferences": require("../data/code/objects/set-preferences")
+    .default,
 
   // Workflows
   "workflows.cancel": require("../data/code/workflows/cancel").default,

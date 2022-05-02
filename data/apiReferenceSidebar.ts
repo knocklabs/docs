@@ -51,9 +51,11 @@ const sidebarContent: SidebarSection[] = [
     slug: "/reference",
     pages: [
       { slug: "#preferences", title: "Overview" },
-      { slug: "#get-preferences", title: "Get preferences" },
-      { slug: "#set-preferences", title: "Set preferences" },
-      { slug: "#bulk-set-preferences", title: "Bulk set preferences" },
+      { slug: "#get-preferences-user", title: "Get user preferences" },
+      { slug: "#set-preferences-user", title: "Set user preferences" },
+      { slug: "#bulk-set-preferences", title: "Bulk set user preferences" },
+      { slug: "#get-preferences-object", title: "Get object preferences" },
+      { slug: "#set-preferences-object", title: "Set object preferences" },
     ],
   },
 

@@ -6,31 +6,47 @@ import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
 
 You can read more about modeling preferences and preferences in general in the [Preferences](/send-and-manage-data/preferences) guide. In the guide below, we walk through the technical details of integrating the Knock preferences model into your product.
 
+Preferences live under a [user](/send-and-manage-data/users) or an [object](/send-and-manage-data/objects) and are used to structure a set of rules about what notifications a recipient should receive (called a `PreferenceSet`). They are designed to be flexible and expressive to accommodate complex scenarios like per-resource, channel preferences (like opting out of an individual Slack channel).
+
 ## Backend integration
 
 In the following examples you'll see how to integrate preferences into your backend codebase.
 
-### Getting the user's preferences
+### Getting preferences
 
-You can retrieve a given user's preferences using the `users.getPreferences` method. Please note that even if the preferences are not set for the user you will receive an empty `PreferenceSet` in response.
+You can retrieve a given set of preferences using the `getPreferences` method. Please note that even if the preferences are not set, you will receive an empty `PreferenceSet` in response.
 
 <MultiLangCodeBlock
   title="Get preferences for a user"
   snippet="users.getPreferences"
 />
 
-### Setting the user's preferences
+<br />
 
-You can update a user's entire preferences using the `users.setPreferences` method. This will overwrite any existing preferences set for the user:
+<MultiLangCodeBlock
+  title="Get preferences for an object"
+  snippet="objects.getPreferences"
+/>
+
+### Setting preferences
+
+You can update an entire set of preferences using the `setPreferences` method. This will overwrite any existing preferences set:
 
 <MultiLangCodeBlock
   title="Set preferences for a user"
   snippet="users.setPreferences"
 />
 
-### Setting the user's preferences with conditions
+<br />
 
-You can use the `users.setPreferences` method to also set preferences with conditions that are evaluated. Please refer to the [documentation on preference conditions](/send-and-manage-data/preferences#preference-conditions) to learn more.
+<MultiLangCodeBlock
+  title="Set preferences for an object"
+  snippet="objects.setPreferences"
+/>
+
+### Setting preferences with conditions
+
+You can use the `setPreferences` method to also set preferences with conditions that are evaluated. Please refer to the [documentation on preference conditions](/send-and-manage-data/preferences#preference-conditions) to learn more.
 
 <MultiLangCodeBlock
   title="Set preferences with conditions for a user"
@@ -46,9 +62,11 @@ You can update the preferences of up to 100 users in a single batch by using the
   snippet="users.bulkSetPreferences"
 />
 
-### Client integration
+## Client integration
 
-The preferences API can also be invoked from the client, providing you have authenticated a user first and have a valid API token. Please note only the current user's preferences can be set
+The preferences API can also be invoked from the client, providing you have authenticated a user first and have a valid API token.
+
+**Note**: at this time only the current user's preferences can be retrieved or updated.
 
 ### Retrieve the preferences for the current user
 
@@ -63,8 +81,6 @@ const preferences = await knockClient.preferences.get();
 ```
 
 ### Set the preferences for the current user
-
-Preferences can also be updated from the client:
 
 ```javascript Setting preferences
 import Knock from "@knocklabs/client";
@@ -96,7 +112,3 @@ await knockClient.preferences.setWorkflow("dinosaurs-loose", {
   channel_types: { email: true },
 });
 ```
-
-### Set preferences for an object
-
-The ability to set notification preferences for an [object](/send-and-manage-data/objects) is not currently supported. If you're interested in us supporting this functionality, please let us know by using the feedback form at the top of this site.
