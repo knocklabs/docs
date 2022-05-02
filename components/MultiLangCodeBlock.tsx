@@ -39,6 +39,8 @@ const snippets = {
     .default,
   "users.setChannelData-push":
     require("../data/code/users/set-channel-data-push").default,
+  "users.unsetChannelData": require("../data/code/users/unset-channel-data")
+    .default,
 
   // Messages
   "messages.list": require("../data/code/messages/list").default,
@@ -63,6 +65,8 @@ const snippets = {
     require("../data/code/objects/set-channel-data-discord-webhook").default,
   "objects.setChannelData.discord.bot":
     require("../data/code/objects/set-channel-data-discord-bot").default,
+  "objects.unsetChannelData": require("../data/code/objects/unset-channel-data")
+    .default,
   "objects.getChannelData": require("../data/code/objects/get-channel-data")
     .default,
   "objects.getPreferences": require("../data/code/objects/get-preferences")

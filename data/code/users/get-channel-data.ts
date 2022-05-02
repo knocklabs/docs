@@ -14,7 +14,7 @@ const channelData = await knockClient.users.getChannelData(
   elixir: `
 knock_client = MyApp.Knock.client()
 
-// Get this value in your Knock dashboard
+# Get this value in your Knock dashboard
 apns_channel_id = "some-channel-id-from-knock"
 
 Knock.Users.get_channel_data(knock_client, user.id, apns_channel_id)

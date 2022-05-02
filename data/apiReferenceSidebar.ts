@@ -66,8 +66,13 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#channel-data", title: "Overview" },
       { slug: "#get-user-channel-data", title: "Get user channel data" },
       { slug: "#set-user-channel-data", title: "Set user channel data" },
+      { slug: "#unset-user-channel-data", title: "Remove user channel data" },
       { slug: "#get-object-channel-data", title: "Get object channel data" },
       { slug: "#set-object-channel-data", title: "Set object channel data" },
+      {
+        slug: "#unset-object-channel-data",
+        title: "Remove object channel data",
+      },
     ],
   },
 

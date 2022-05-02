@@ -22,7 +22,7 @@ const Sidebar: React.FC<Props> = ({ content, children }) => {
   }, []);
 
   return (
-    <section className="w-64 border-r hidden lg:block">
+    <section className="w-72 border-r hidden lg:block">
       <nav className="overflow-y-auto h-full p-5">
         {children && <div className="mb-4">{children}</div>}
 
