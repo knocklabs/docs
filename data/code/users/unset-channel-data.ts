@@ -5,7 +5,7 @@ const knockClient = new Knock("sk_12345");
 
 const APNS_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-await knockClient.users.unsetChannelData("jhammond", APNS_CHANNEL_ID);
+await knockClient.users.unsetChannelData(user.id, APNS_CHANNEL_ID);
   `,
   python: `
 from knockapi import Knock

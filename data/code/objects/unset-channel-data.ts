@@ -1,12 +1,12 @@
 const languages = {
   javascript: `
 import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+const knockClient = new Knock("sk_12345");
 
 await knockClient.objects.unsetChannelData(
   "projects",
   project.id,
-  process.env.KNOCK_SLACK_CHANNEL_ID
+  "knock-slack-channel-id"
 );
 `,
   elixir: `
