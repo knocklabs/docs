@@ -218,7 +218,11 @@ A user represents an individual who may need to receive a notification from Knoc
 <Endpoints>
   <Endpoint name="identify-user" method="PUT" path="/users/:user_id" />
   <Endpoint name="get-user" method="GET" path="/users/:user_id" />
-  <Endpoint name="get-user-messages" method="GET" path="/users/:user_id/messages" />
+  <Endpoint
+    name="get-user-messages"
+    method="GET"
+    path="/users/:user_id/messages"
+  />
   <Endpoint name="delete-user" method="DELETE" path="/users/:user_id" />
   <Endpoint name="merge-user" method="POST" path="/users/:user_id/merge" />
   <Endpoint
@@ -455,6 +459,7 @@ A paginated list of Message records
   }
 }
 ```
+
 </ExampleColumn>
 </Section>
 
@@ -785,11 +790,10 @@ Cancel a delayed workflow for one or more recipients.
 <Section title="Preferences" slug="preferences">
 <ContentColumn>
 
-A preference determines whether a user should receive a particular type of notification. By default
-all preferences are opted in unless a preference explicitly opts the user out of the notification.
+A preference determines whether a recipient should receive a particular type of notification. By default
+all preferences are opted in unless a preference explicitly opts the recipient out of the notification.
 
-Preferences are always executed as channel types and then workflows. That means that if a channel type
-is set to opt out the user then no notifications will be sent on that channel.
+[Read more about Preferences](/send-and-manage-data/preferences).
 
 ### Attributes
 
@@ -802,7 +806,7 @@ is set to opt out the user then no notifications will be sent on that channel.
   <Attribute
     name="workflows"
     type="object"
-    description="A set of preferences for workflows, each can resolve to a boolean or to a set of channel types"
+    description="A set of preferences for workflows, each can resolve to a boolean, to a set of channel types, or to a set of conditions"
   />
   <Attribute
     name="channel_types"
@@ -812,7 +816,7 @@ is set to opt out the user then no notifications will be sent on that channel.
   <Attribute
     name="categories"
     type="object"
-    description="A set of preferences for workflow categories, each can resolve to a boolean or to a set of channel types"
+    description="A set of preferences for workflow categories, each can resolve to a boolean, to a set of channel types, or to a set of conditions"
   />
 </Attributes>
 
@@ -820,55 +824,44 @@ is set to opt out the user then no notifications will be sent on that channel.
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint name="get-all" method="GET" path="/users/:user_id/preferences" />
   <Endpoint
-    name="get-preferences"
+    name="get-all-preferences-user"
+    method="GET"
+    path="/users/:user_id/preferences"
+  />
+  <Endpoint
+    name="get-all-preferences-object"
+    method="GET"
+    path="/objects/:collection/:id/preferences"
+  />
+  <Endpoint
+    name="get-preferences-user"
     method="GET"
     path="/users/:user_id/preferences/:id"
   />
   <Endpoint
-    name="set-preferences"
+    name="get-preferences-object"
+    method="GET"
+    path="/objects/:collection/:id/preferences/:id"
+  />
+  <Endpoint
+    name="set-preferences-user"
     method="PUT"
     path="/users/:user_id/preferences/:id"
+  />
+  <Endpoint
+    name="set-preferences-object"
+    method="PUT"
+    path="/objects/:collection/:id/preferences/:id"
   />
   <Endpoint
     name="bulk-set-preferences"
     method="POST"
     path="/users/bulk/preferences"
   />
-  <Endpoint
-    name="set-channel-type-preferences"
-    method="PUT"
-    path="/users/:user_id/preferences/:id/channel_types"
-  />
-  <Endpoint
-    name="set-channel-type-preference"
-    method="PUT"
-    path="/users/:user_id/preferences/:id/channel_types/:type"
-  />
-  <Endpoint
-    name="set-workflow-preferences"
-    method="PUT"
-    path="/users/:user_id/preferences/:id/workflows"
-  />
-  <Endpoint
-    name="set-workflow-preference"
-    method="PUT"
-    path="/users/:user_id/preferences/:id/workflows/:key"
-  />
-  <Endpoint
-    name="set-category-preferences"
-    method="PUT"
-    path="/users/:user_id/preferences/:id/categories"
-  />
-  <Endpoint
-    name="set-category-preference"
-    method="PUT"
-    path="/users/:user_id/preferences/:id/categories/:key"
-  />
 </Endpoints>
 
-```json Preference object
+```json PreferenceSet object
 {
   "__typename": "PreferenceSet",
   "id": "default",
@@ -896,16 +889,16 @@ is set to opt out the user then no notifications will be sent on that channel.
 </ExampleColumn>
 </Section>
 
-<Section title="Get a preference set" slug="get-preferences">
+<Section title="Getting user preferences" slug="get-preferences-user">
 <ContentColumn>
 
-Retrieve a user's preference object. Will always return an empty preference object,
+Retrieve a user's preference set. Will always return an empty preference set object,
 even if it does not currently exist for the user.
 
 ### Endpoint
 
 <Endpoint
-  name="get-preferences"
+  name="get-preferences-user"
   method="GET"
   path="/users/:user_id/preferences/:id"
 />
@@ -965,7 +958,7 @@ Returns a `PreferenceSet`.
 </ExampleColumn>
 </Section>
 
-<Section title="Set preferences" slug="set-preferences">
+<Section title="Setting user preferences" slug="set-preferences-user">
 <ContentColumn>
 
 Sets preferences within the given preference set. This is a destructive operation and
@@ -1005,12 +998,12 @@ will replace any existing preferences with the preferences given.
   <Attribute
     name="workflows"
     type="object"
-    description="A set of workflow preferences, can be a boolean or an object containing channel type preferences"
+    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
   />
   <Attribute
     name="categories"
     type="object"
-    description="A set of category preferences, can be a boolean or an object containing channel type preferences"
+    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
   />
 </Attributes>
 
@@ -1128,6 +1121,172 @@ Returns a `BulkOperation`.
 </ExampleColumn>
 </Section>
 
+<Section title="Getting object preferences" slug="get-preferences-object">
+<ContentColumn>
+
+Retrieve an object's preference set. Will always return an empty preference set object,
+even if it does not currently exist for the object.
+
+### Endpoint
+
+<Endpoint
+  name="get-preferences-object"
+  method="GET"
+  path="/objects/:collection/:object_id/preferences/:id"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.getPreferences"
+  title="Get an objects preferences"
+/>
+
+```json Response
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true,
+    "sms": true
+  },
+  "categories": {
+    "park-wide": {
+      "channel_types": {
+        "sms": false
+      }
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Setting object preferences" slug="set-preferences-object">
+<ContentColumn>
+
+Sets preferences within the given preference set. This is a destructive operation and
+will replace any existing preferences with the preferences given.
+
+### Endpoint
+
+<Endpoint
+  name="set-preferences-object"
+  method="PUT"
+  path="/objects/:collection/:object_id/preferences/:id"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="channel_types"
+    type="object"
+    description="A set of channel type preferences"
+  />
+  <Attribute
+    name="workflows"
+    type="object"
+    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+  <Attribute
+    name="categories"
+    type="object"
+    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.setPreferences"
+  title="Set an objects preferences"
+/>
+
+```json Response
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true,
+        "sms": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true
+  },
+  "categories": {
+    "park-wide": {
+      "sms": false
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="Channel data" slug="channel-data">
 <ContentColumn>
 
@@ -1166,6 +1325,11 @@ notifications to a customer's Slack channel.
     path="/users/:user_id/channel_data/:channel_id"
   />
   <Endpoint
+    name="unset-user-channel-data"
+    method="DELETE"
+    path="/users/:user_id/channel_data/:channel_id"
+  />
+  <Endpoint
     name="get-object-channel-data"
     method="GET"
     path="/object/:collection/:object_id/channel_data/:channel_id"
@@ -1173,6 +1337,11 @@ notifications to a customer's Slack channel.
   <Endpoint
     name="set-object-channel-data"
     method="PUT"
+    path="/object/:collection/:object_id/channel_data/:channel_id"
+  />
+  <Endpoint
+    name="unset-object-channel-data"
+    method="DELETE"
     path="/object/:collection/:object_id/channel_data/:channel_id"
   />
 </Endpoints>
@@ -1267,7 +1436,7 @@ Sets channel data for the user and the channel specified.
 ### Returns
 
 - `200` with a `ChannelData` object (when set)
-- `400` when the channel specified cannot be found
+- `404` when the channel specified cannot be found
 - `422` with errors when the data is incorrectly shaped
 
 </ContentColumn>
@@ -1276,6 +1445,46 @@ Sets channel data for the user and the channel specified.
 <MultiLangCodeBlock
   snippet="users.setChannelData"
   title="Set a users channel data"
+/>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Unsetting user channel data" slug="unset-user-channel-data">
+<ContentColumn>
+
+Unsets (removes) channel data for the user and the channel specified.
+
+### Endpoint
+
+<Endpoint method="DELETE" path="/users/:user_id/channel_data/:channel_id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="The id of the user to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the channel to lookup"
+  />
+</Attributes>
+
+### Returns
+
+- `204` no content
+- `404` when the channel specified cannot be found
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.unsetChannelData"
+  title="Unset a users channel data"
 />
 
 </ExampleColumn>
@@ -1374,7 +1583,7 @@ Sets channel data for the object and the channel specified.
 ### Returns
 
 - `200` with a `ChannelData` object (when set)
-- `400` when the channel specified cannot be found
+- `404` when the channel specified cannot be found
 - `422` with errors when the data is incorrectly shaped
 
 </ContentColumn>
@@ -1383,6 +1592,54 @@ Sets channel data for the object and the channel specified.
 <MultiLangCodeBlock
   snippet="objects.setChannelData.slack"
   title="Set an object's channel data"
+/>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Unsetting object channel data" slug="unset-object-channel-data">
+<ContentColumn>
+
+Unsets (removes) channel data for the object and the channel specified.
+
+### Endpoint
+
+<Endpoint
+  method="DELETE"
+  path="/objects/:collection/:object_id/channel_data/:channel_id"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the channel to lookup"
+  />
+</Attributes>
+
+### Returns
+
+- `204` no content
+- `404` when the channel specified cannot be found
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.unsetChannelData"
+  title="Unsets an object's channel data"
 />
 
 </ExampleColumn>
@@ -1769,7 +2026,6 @@ Returns a paginated list of messages.
   />
 </Attributes>
 
-
 ### Returns
 
 A paginated list of Message records
@@ -1817,9 +2073,9 @@ A paginated list of Message records
   }
 }
 ```
+
 </ExampleColumn>
 </Section>
-
 
 <Section title="Fetching a message" slug="get-a-message">
 <ContentColumn>
@@ -1839,6 +2095,7 @@ Retrieve a message by the id.
 ### Returns
 
 A Message
+
 </ContentColumn>
 
 <ExampleColumn>
@@ -1902,7 +2159,7 @@ A paginated list of MessageEvent records
       "recipient": "e62cbb03-86a0-47d6-84fe-f49981906267",
       "data": {},
       "type": "enqueued",
-      "inserted_at": "2021-04-06T12:00:00Z",
+      "inserted_at": "2021-04-06T12:00:00Z"
     }
   ],
   "page_info": {
@@ -1913,6 +2170,7 @@ A paginated list of MessageEvent records
   }
 }
 ```
+
 </ExampleColumn>
 </Section>
 
@@ -1958,7 +2216,10 @@ A paginated list of Activity records
 </ContentColumn>
 <ExampleColumn>
 
-<MultiLangCodeBlock snippet="messages.getActivities" title="Get message activities" />
+<MultiLangCodeBlock
+  snippet="messages.getActivities"
+  title="Get message activities"
+/>
 
 ```json Response
 {
@@ -1989,7 +2250,7 @@ A paginated list of Activity records
         "updated_at": "2022-04-07T12:00:00.00Z"
       },
       "inserted_at": "2021-04-06T12:00:00Z",
-      "updated_at": "2021-04-06T12:00:00Z",
+      "updated_at": "2021-04-06T12:00:00Z"
     }
   ],
   "page_info": {
@@ -2000,6 +2261,7 @@ A paginated list of Activity records
   }
 }
 ```
+
 </ExampleColumn>
 </Section>
 
@@ -2050,6 +2312,7 @@ of message being sent (email, chat, in-app feed, sms and push).**
   "inserted_at": "2021-04-06T12:00:00Z",
 }
 ```
+
 </ExampleColumn>
 </Section>
 
@@ -2350,7 +2613,11 @@ when sending [Slack notifications](/integrations/slack).
 
 <Endpoints>
   <Endpoint name="get-object" method="GET" path="/objects/:collection/:id" />
-  <Endpoint name="get-object-messages" method="GET" path="/objects/:collection/:id/messages" />
+  <Endpoint
+    name="get-object-messages"
+    method="GET"
+    path="/objects/:collection/:id/messages"
+  />
   <Endpoint name="set-object" method="PUT" path="/objects/:collection/:id" />
   <Endpoint
     name="delete-object"
@@ -2446,7 +2713,11 @@ Returns a paginated list of messages for an object. Will return newest messages 
 ### Path parameters
 
 <Attributes>
-  <Attribute name="collection" type="string" description="The collection of the object" />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The collection of the object"
+  />
   <Attribute name="id" type="string" description="The ID of the object" />
 </Attributes>
 
@@ -2537,6 +2808,7 @@ A paginated list of Message records
   }
 }
 ```
+
 </ExampleColumn>
 </Section>
 

@@ -51,9 +51,11 @@ const sidebarContent: SidebarSection[] = [
     slug: "/reference",
     pages: [
       { slug: "#preferences", title: "Overview" },
-      { slug: "#get-preferences", title: "Get preferences" },
-      { slug: "#set-preferences", title: "Set preferences" },
-      { slug: "#bulk-set-preferences", title: "Bulk set preferences" },
+      { slug: "#get-preferences-user", title: "Get user preferences" },
+      { slug: "#set-preferences-user", title: "Set user preferences" },
+      { slug: "#bulk-set-preferences", title: "Bulk set user preferences" },
+      { slug: "#get-preferences-object", title: "Get object preferences" },
+      { slug: "#set-preferences-object", title: "Set object preferences" },
     ],
   },
 
@@ -64,8 +66,13 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#channel-data", title: "Overview" },
       { slug: "#get-user-channel-data", title: "Get user channel data" },
       { slug: "#set-user-channel-data", title: "Set user channel data" },
+      { slug: "#unset-user-channel-data", title: "Remove user channel data" },
       { slug: "#get-object-channel-data", title: "Get object channel data" },
       { slug: "#set-object-channel-data", title: "Set object channel data" },
+      {
+        slug: "#unset-object-channel-data",
+        title: "Remove object channel data",
+      },
     ],
   },
 
