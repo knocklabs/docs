@@ -41,12 +41,12 @@ In the example above we've included three recipients, so our workflow trigger wi
   text={
     <>
       <span className="font-bold">Knock dashboard tip.</span> You can use the
-      Knock workflow engine logs to see each of these workflows and their step-by-step
-      execution.
+      Knock workflow engine logs to see each of these workflows and their
+      step-by-step execution.
       <br />
       <br />
-      In the Knock dashboard, go to the Developers page, click Logs, and then
-      find the API call that triggered your workflow. Select it, then click the Workflow
+      In the Knock dashboard, go to the Developers page, click Logs, and then find
+      the API call that triggered your workflow. Select it, then click the Workflow
       runs tab to see each of the workflow runs produced by your workflow trigger.
       You can click into each one to see the step-by-step execution of that workflow
       run.
@@ -84,18 +84,22 @@ A batch function always batches incoming notifications **per recipient**. If you
   emoji="🌠"
   text={
     <>
-      <span className="font-bold">A quick tip.</span> Here's a helpful way to think about batching. By default the batch function batches on a key of <code>recipient_id</code>. When a batch key is provided, it batches on a key of <code>concat(recipient_id, batch_key)</code>.  
+      <span className="font-bold">A quick tip.</span> Here's a helpful way to
+      think about batching. By default the batch function batches on a key of{" "}
+      <code>recipient_id</code>. When a batch key is provided, it batches on a
+      key of <code>concat(recipient_id, batch_key)</code>.
     </>
   }
 />
 
-As an example, in a document editing app where a recipient is receiving notifications about activity across different pages, you can provide a batch key of `page_id` and the user will receive different batch notifications about each page that was included in the batch. 
+As an example, in a document editing app where a recipient is receiving notifications about activity across different pages, you can provide a batch key of `page_id` and the user will receive different batch notifications about each page that was included in the batch.
 
-Here's a detailed walkthrough of how this example might work in practice: 
-* You have a `new-comment` workflow that includes a batch step. 
-* You send six notify calls to that workflow: three about `page A` and three about `page B`. The notify calls are all for the same recipient Elmo.
-* If your batch step does not have a batch key, Elmo will receive a batched notification about six activities. 
-* If your batch step includes a batch key of `page_id`, Elmo will receive two notifications: one for the three activities about `page A` and one for the three activities about `page B`.
+Here's a detailed walkthrough of how this example might work in practice:
+
+- You have a `new-comment` workflow that includes a batch step.
+- You send six notify calls to that workflow: three about `page A` and three about `page B`. The notify calls are all for the same recipient Elmo.
+- If your batch step does not have a batch key, Elmo will receive a batched notification about six activities.
+- If your batch step includes a batch key of `page_id`, Elmo will receive two notifications: one for the three activities about `page A` and one for the three activities about `page B`.
 
 ### Using batch variables
 
@@ -118,6 +122,7 @@ Here's a list of the variables that you can use to work with batch-related state
 - `total_activities`. The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight).
 - `total_actors`. The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification).
 - `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your notify call. The `activities` variable lists the _first_ ten activity objects added to the batch. Each activity includes any data properties you sent along in the notify call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
+
   ```
   {% for activity in activities %}
   <p>{{ activity.actor.name }} commented on {{ activity.pageName }} with:</p>
@@ -127,11 +132,55 @@ Here's a list of the variables that you can use to work with batch-related state
   </blockquote>
   {% endfor %}
   ```
+
 - `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the _first_ ten actors added to the batch.
 
 ### Using workflow cancellation with batches
 
 If you want to remove an item from a batch (example: a user deletes a comment), you can use our [workflow cancellation API](https://docs.knock.app/send-notifications/canceling-workflows) to cancel a batched item, thereby removing it from the batch.
+
+### Setting the batch window
+
+The batch window can be a set duration (e.g. 30 minutes for each batch), or it can be a dynamic window.
+
+The "batch for a fixed window" option waits for an interval of time (provided by you in the workflow editor) and then proceeds to the next step.
+
+![Setting a fixed batch window.](/images/functions/functions_batch_interval.png)
+
+<figcaption>
+  Setting a fixed batch window of 15 minutes for a workflow batch step.
+</figcaption>
+
+This fixed interval is useful for most batching functions, however if you want to set when your batch window will close dynamically, you can use the "batch for a dynamic window" option.
+
+![Setting a dynamic batch window.](/images/functions/functions_batch_dynamic.png)
+
+<figcaption>
+  Setting a dynamic batch window to look at the `batch_duration` key of the
+  notify `data` when this workflow is triggered.
+</figcaption>
+
+The "batch for a dynamic window" option waits for an interval of time provided by you in the `data` of your notify call under a key you set when you create your workflow.
+The key you specify in the workflow editor can be dot-delimited (`nested.path.to.window`) to reach nested attributes.
+When this workflow step runs, Knock will use this value to set when your batch window will close.
+
+This value can be either an [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`),
+or it can be a relative duration in the following format:
+
+```js A workflow trigger using a dynamic duration
+await knock.notify("comment-created", {
+  recipients: ["user_1", "user_2", "user_3"],
+  // Data to be passed to the template
+  data: {
+    batch_duration: {
+      unit: "minutes", // Must be one of seconds, minutes, hours, days, weeks, or months
+      value: 10, // Any non-negative integer
+    },
+    page_name: "Marketing brief",
+    comment_body: "Hey team — can we take another look at this?",
+  },
+});
+```
 
 ## Delay
 
