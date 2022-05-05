@@ -101,44 +101,6 @@ Here's a detailed walkthrough of how this example might work in practice:
 - If your batch step does not have a batch key, Elmo will receive a batched notification about six activities.
 - If your batch step includes a batch key of `page_id`, Elmo will receive two notifications: one for the three activities about `page A` and one for the three activities about `page B`.
 
-### Using batch variables
-
-Another important aspect of batch functions is that they generate state that can be used in your templates. Let's continue the commenting example we used above.
-In this scenario, we'll want different copy in our notification for when a batch includes one item ("Jane left a comment") v. when a batch includes more than one item ("Jane left _n_ comments").
-
-We can address use cases like this by referencing the `total_activities` variable within our workflow.
-Here's an example of a message template that uses this variable to determine what type of copy to use:
-
-```markdown
-{% if total_activities > 1 %}
-{{ actor.name}} left {{ total_activities }} comments on {{ page_name }}
-{% else %}
-{{ actor.name}} left a comment on {{ page_name }}.
-{% endif %}
-```
-
-Here's a list of the variables that you can use to work with batch-related state.
-
-- `total_activities`. The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight).
-- `total_actors`. The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification).
-- `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your notify call. The `activities` variable lists the _first_ ten activity objects added to the batch. Each activity includes any data properties you sent along in the notify call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
-
-  ```
-  {% for activity in activities %}
-  <p>{{ activity.actor.name }} commented on {{ activity.pageName }} with:</p>
-
-  <blockquote>
-  {{ activity.content }}
-  </blockquote>
-  {% endfor %}
-  ```
-
-- `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the _first_ ten actors added to the batch.
-
-### Using workflow cancellation with batches
-
-If you want to remove an item from a batch (example: a user deletes a comment), you can use our [workflow cancellation API](https://docs.knock.app/send-notifications/canceling-workflows) to cancel a batched item, thereby removing it from the batch.
-
 ### Setting the batch window
 
 The batch window can be a set duration (e.g. 30 minutes for each batch), or it can be a dynamic window.
@@ -181,6 +143,47 @@ await knock.notify("comment-created", {
   },
 });
 ```
+
+
+### Using batch variables
+
+Another important aspect of batch functions is that they generate state that can be used in your templates. Let's continue the commenting example we used above.
+In this scenario, we'll want different copy in our notification for when a batch includes one item ("Jane left a comment") v. when a batch includes more than one item ("Jane left _n_ comments").
+
+We can address use cases like this by referencing the `total_activities` variable within our workflow.
+Here's an example of a message template that uses this variable to determine what type of copy to use:
+
+```markdown
+{% if total_activities > 1 %}
+{{ actor.name}} left {{ total_activities }} comments on {{ page_name }}
+{% else %}
+{{ actor.name}} left a comment on {{ page_name }}.
+{% endif %}
+```
+
+Here's a list of the variables that you can use to work with batch-related state.
+
+- `total_activities`. The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight).
+- `total_actors`. The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification).
+- `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your notify call. The `activities` variable lists the _first_ ten activity objects added to the batch. Each activity includes any data properties you sent along in the notify call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
+
+  ```
+  {% for activity in activities %}
+  <p>{{ activity.actor.name }} commented on {{ activity.pageName }} with:</p>
+
+  <blockquote>
+  {{ activity.content }}
+  </blockquote>
+  {% endfor %}
+  ```
+
+- `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the _first_ ten actors added to the batch.
+
+### Using workflow cancellation with batches
+
+If you want to remove an item from a batch (example: a user deletes a comment), you can use our [workflow cancellation API](https://docs.knock.app/send-notifications/canceling-workflows) to cancel a batched item, thereby removing it from the batch.
+
+
 
 ## Delay
 
