@@ -39,6 +39,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/setting-channel-data", title: "Setting channel data" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/reference-liquid-helpers", title: "Reference: liquid helpers" },
+      { slug: "/reference-email-layout", title: "Reference: email layout" },
     ],
   },
   {

@@ -164,6 +164,8 @@ Moreover, please note the following features of the components:
 * **Button components** can be configured to use your brand colors by default, so you can ensure your brand elements are consistent across all of your product messaging. To configure your brand colors, head over to the branding settings page in your dashboard. ("Settings" page → "Branding" tab)
 * **HTML components** can contain any valid HTML markup and provide an "escape hatch" for advanced use cases where more complex markups are needed.
 
+When using the visual template editor, a handful of CSS styles are auto-generated and included in the email layout to provide base styles for certain components. Refer to the [reference guide](/send-notifications/reference-email-layout#generated-css-styles) for more details.
+
 Lastly, if you ever want to take complete control of the notification template and manually edit in the code editor, you can do so via the "Enter code editor" button found at the bottom of the editor. When opting out of the visual template editor, any components used in the template document will be translated into the equivalent HTML for you to take over.
 
 ### Previewing and testing your notification template
