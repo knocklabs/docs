@@ -2,6 +2,8 @@
 title: Getting started
 ---
 
+import Callout from "../../components/Callout";
+
 This guide will show you how to get up-and-running with our [in-app feed component](https://github.com/knocklabs/react-notification-feed) in your application. 
 
 ## Integrating the feed
@@ -79,6 +81,20 @@ const YourAppLayout = () => {
   );
 };
 ```
+
+<br />
+
+<Callout
+  emoji="👩‍💻"
+  text={
+    <>
+      <span className="font-bold">Example code.</span> Here you can check
+      how <a href="https://github.com/knocklabs/example-collaboration-app/">these components</a>{" "}
+      are used in our example app.
+    </>
+  }
+/>
+
 
 ## Next steps
 
