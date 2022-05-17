@@ -7,8 +7,10 @@ Learn more about how Knock works and get up and running quickly using our [Node.
 ## Introduction
 
 The Knock example app is a simple collaboration product where users can create assets and collaborate on them with comments. It includes a number of common notification use cases such as batching high-frequency notifications, managing notification preferences on behalf of users, and mapping a resource to a Slack channel.
-Here's a brief overview of the model of the Knock example app. The app has Users which belong to Workspaces. Each workspace has a number of Projects, which contain Assets. Users upload assets to projects, and then leave Comments on those assets to collaborate with their workspace members. 
+Here's a brief overview of the model of the Knock example app. The app has Users which belong to Workspaces. Each workspace has a number of Projects, which contain Assets. Users upload assets to projects, and then leave Comments on those assets to collaborate with their workspace members.
 
+The example app uses Knock to power its notifications 😁.
+As you explore the app, you'll find its using Knock to support the following features:
 
 1. Send a welcome email when a user signs up (includes how to identify users on Knock)
 2. Display notifications to users in-app with Knock's real-time feed
@@ -25,10 +27,16 @@ You can setup workflows in your Knock account in order for the app to work as ex
 You will need to create:
 
 1. Email and in-app feed channels
-2. Worklow called "welcome" which must include an email step with a welcome email
-3. Workflow called "new-comment" which includes an Email step and a In-app feed step
-4. Workflow called "new-asset" which includes an Email step an a In-app feed step
+2. Create a workflow in Knock with the key `welcome`. It should include an email step for your welcome email template.
+3. Create a workflow in Knock with the key `new-comment`. It should include: an in-app feed step and an email step. On these steps templates you can use the following variables which will sent as arguments on the trigger call:
+    1. `comment_content`: The content of the created comment.
+    2. `asset_name`: The name of the commented asset.
+    3. `asset_url`: The url of the commented asset.
+    4. `project_name`: The name of the project that the comment asset belongs to.
+4. Create a workflow in Knock with the key `new-asset`. It should include: an in-app feed step and an email step. On these steps templates you can use the following variables which will sent as arguments on the trigger call:
+    1. `asset_url`: The url of the commented asset.
+    2. `project_name`: The name of the project that the comment asset belongs to.
 
 The README also covers initial data setup, such as syncing your local users to your Knock account.
 Once this seed data is present and the workflows are created on Knock, you can use the app locally and see
-trigger Knock workflows to send notifications from the example app. 
+trigger Knock workflows to send notifications from the example app.
