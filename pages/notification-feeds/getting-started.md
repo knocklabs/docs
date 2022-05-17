@@ -88,9 +88,9 @@ const YourAppLayout = () => {
   emoji="👩‍💻"
   text={
     <>
-      <span className="font-bold">Example code.</span> Here you can check
-      how <a href="https://github.com/knocklabs/example-collaboration-app/">these components</a>{" "}
-      are used in our example app.
+      <span className="font-bold">See an example.</span> You can check out
+      <a href="https://github.com/knocklabs/example-collaboration-app/">our example app</a>{" "}
+      to see how our in-app components are used to power notification feeds in a real application.
     </>
   }
 />
