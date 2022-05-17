@@ -6,6 +6,17 @@ import Callout from "../../components/Callout";
 
 This guide will show you how to get up-and-running with our [in-app feed component](https://github.com/knocklabs/react-notification-feed) in your application. 
 
+<Callout
+  emoji="👩‍💻"
+  text={
+    <>
+      <span className="font-bold">See an example.</span> You can check out
+      <a href="https://github.com/knocklabs/example-collaboration-app/">our example app</a>{" "}
+      to see how our in-app components are used to power notification feeds in a real application.
+    </>
+  }
+/>
+
 ## Integrating the feed
 
 This guide assumes you have already setup your client application with authentication against
@@ -83,17 +94,6 @@ const YourAppLayout = () => {
 ```
 
 <br />
-
-<Callout
-  emoji="👩‍💻"
-  text={
-    <>
-      <span className="font-bold">See an example.</span> You can check out
-      <a href="https://github.com/knocklabs/example-collaboration-app/">our example app</a>{" "}
-      to see how our in-app components are used to power notification feeds in a real application.
-    </>
-  }
-/>
 
 
 ## Next steps
