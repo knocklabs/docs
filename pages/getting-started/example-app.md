@@ -2,22 +2,20 @@
 title: Example app
 ---
 
-Learn more about how Knock works and get up and running quickly using our [Nodejs example app](https://github.com/knocklabs/example-collaboration-app/) as reference.
+Learn more about how Knock works and get up and running quickly using our [Node.js example app](https://github.com/knocklabs/example-collaboration-app/).
 
 ## Introduction
 
-The example application is a classic collaboration application that covers common notification features.
-Users on the app belong to workspaces, and can be members of different projects within a workspace.
-Within projects, assets can be created and commented.
+The Knock example app is a simple collaboration product where users can create assets and collaborate on them with comments. It includes a number of common notification use cases such as batching high-frequency notifications, managing notification preferences on behalf of users, and mapping a resource to a Slack channel.
+Here's a brief overview of the model of the Knock example app. The app has Users which belong to Workspaces. Each workspace has a number of Projects, which contain Assets. Users upload assets to projects, and then leave Comments on those assets to collaborate with their workspace members. 
 
-## Features
 
-1. Sign up with welcome email (includes how to identify users on Knock)
-2. In-app feed to see notifications
-3. Notifications via email when activities happen on projects (new comments and new assets)
-4. Integrate Slack on projects so all activity regarding them is available on a Slack channel
-5. Mute projects (allow the user to disabled all notifications for a particular project)
-6. Support preferences: let the use select how do they want to get notified of each action (email, in-app feed, or both)
+1. Send a welcome email when a user signs up (includes how to identify users on Knock)
+2. Display notifications to users in-app with Knock's real-time feed
+3. Send email notifications when new comments and assets are added to projects
+4. Connect a project to a Slack channel so that all project activity sends notifications to the connected channel
+5. Enable a user to mute notifications for a specific project
+6. Enable users to manage their notification preferences across all notification types for each channel (email, in-app feed, or both)
 
 ## How to run it locally
 
@@ -26,11 +24,11 @@ You can setup workflows in your Knock account in order for the app to work as ex
 
 You will need to create:
 
-1. Email and In-app feed channels
+1. Email and in-app feed channels
 2. Worklow called "welcome" which must include an email step with a welcome email
 3. Workflow called "new-comment" which includes an Email step and a In-app feed step
 4. Workflow called "new-asset" which includes an Email step an a In-app feed step
 
-The README also covers the creation of seed data, which also includes syncing your local users to your Knock account.
-Once the seed data is present and the workflows are created on Knock, you will be able to use the app locally and see
-triggered workflows messages.
+The README also covers initial data setup, such as syncing your local users to your Knock account.
+Once this seed data is present and the workflows are created on Knock, you can use the app locally and see
+trigger Knock workflows to send notifications from the example app. 
