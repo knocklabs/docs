@@ -2,7 +2,7 @@
 title: Example app
 ---
 
-Learn more about how Knock works and get up and running quickly using our [Node.js example app](https://github.com/knocklabs/example-collaboration-app/).
+Learn more about how Knock works and get up and running quickly using our [Node.js example app](https://github.com/knocklabs/knock-node-example-app/).
 
 ## Introduction
 

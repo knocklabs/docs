@@ -11,7 +11,7 @@ This guide will show you how to get up-and-running with our [in-app feed compone
   text={
     <>
       <span className="font-bold">See an example.</span> You can check out
-      <a href="https://github.com/knocklabs/example-collaboration-app/">our example app</a>{" "}
+      <a href="https://github.com/knocklabs/knock-node-example-app/">our example app</a>{" "}
       to see how our in-app components are used to power notification feeds in a real application.
     </>
   }
