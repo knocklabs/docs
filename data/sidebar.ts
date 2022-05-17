@@ -27,7 +27,7 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
-    title: "Sending notifications",
+    title: "Send notifications",
     slug: "/send-notifications",
     desc: "Learn how to design and send notifications using Knock, then explore advanced features such as batching, delays, and more.",
     pages: [
