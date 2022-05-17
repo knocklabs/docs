@@ -9,6 +9,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/what-is-knock", title: "What is Knock?" },
       { slug: "/how-knock-works", title: "How Knock works" },
       { slug: "/quick-start", title: "Quick start" },
+      { slug: "/example-app", title: "Example app" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
       { slug: "/security", title: "Security", path: "/security" },
     ],
