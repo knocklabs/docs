@@ -27,7 +27,7 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
-    title: "Send notifications",
+    title: "Sending notifications",
     slug: "/send-notifications",
     desc: "Learn how to design and send notifications using Knock, then explore advanced features such as batching, delays, and more.",
     pages: [
@@ -38,6 +38,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/setting-preferences", title: "Setting preferences" },
       { slug: "/setting-channel-data", title: "Setting channel data" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
+      { slug: "/debugging-workflows", title: "Debugging workflows" },
       { slug: "/reference-liquid-helpers", title: "Reference: liquid helpers" },
       { slug: "/reference-email-layout", title: "Reference: email layout" },
     ],
