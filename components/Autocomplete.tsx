@@ -8,6 +8,8 @@ import { render } from 'react-dom';
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+import { useHotkeys } from 'react-hotkeys-hook'
+
 import '@algolia/autocomplete-theme-classic';
 
 import {
@@ -15,6 +17,7 @@ import {
 } from "react-instantsearch-hooks-web";
 
 import { Box } from "@chakra-ui/layout";
+import { Text } from "@chakra-ui/react";
 import Icon from "@chakra-ui/icon";
 
 import { IoIosSearch } from "react-icons/io";
@@ -86,6 +89,16 @@ const Autocomplete = () => {
     []
   );
 
+  console.log(autocompleteState)
+
+  useHotkeys('/', () => {
+    // adding small timeout so event doesn't get to the focused input resulting
+    // in "/" being diplayed on the input
+    setTimeout(() => {
+      inputRef.current.focus();
+    }, 20)
+  })
+
   return (
     <Box
       ml="20px"
@@ -112,6 +125,9 @@ const Autocomplete = () => {
             {...autocomplete.getInputProps({})}
           />
         </div>
+        <Box borderWidth="1px" borderColor="gray.100" borderRadius={4} bg="#F7F7F8" mr="8px" w="25px" h="22px" className="aa-InputWrapperSuffix">
+          <Text w="100%" textAlign="center">/</Text>
+        </Box>
       </form>
 
       {autocompleteState.isOpen &&
