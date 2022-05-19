@@ -3,6 +3,7 @@ import Link from "next/link";
 import React, { ReactElement } from "react";
 import Meta from "../components/Meta";
 import FeedbackPopover from "../components/FeedbackPopover";
+import Autocomplete from "../components/Autocomplete";
 
 type Props = {
   pageType: string;
@@ -31,6 +32,8 @@ export const Page: React.FC<Props> = ({ children, pageType, sidebar }) => (
             </a>
           </Link>
         </div>
+
+        <Autocomplete />
 
         <div className="ml-auto flex items-center space-x-2">
           <FeedbackPopover />
