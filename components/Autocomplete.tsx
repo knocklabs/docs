@@ -117,9 +117,10 @@ const Autocomplete = () => {
     [],
   );
 
-  useHotkeys("/", () => {
+  useHotkeys("/", (e) => {
     // adding small timeout so event doesn't get to the focused input resulting
     // in "/" being diplayed on the input
+    e.preventDefault();
     setTimeout(() => {
       if (inputRef && inputRef.current) {
         (inputRef!.current! as HTMLElement).focus();
@@ -163,6 +164,7 @@ const Autocomplete = () => {
           <input
             className="aa-Input"
             ref={inputRef}
+            placeholder="Search the docs..."
             {...(inputProps as React.DetailedHTMLProps<
               React.InputHTMLAttributes<HTMLInputElement>,
               HTMLInputElement
