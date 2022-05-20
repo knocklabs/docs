@@ -178,9 +178,9 @@ const Autocomplete = () => {
                           source,
                         })}
                       >
-                        <Link href={`/${item.path}`} className="aa-ItemLink">
+                        <a onClick={() => router.push(`/${item.path}`)}>
                           <Highlight hit={item} attribute="title" />
-                        </Link>
+                        </a>
                       </li>
                     ))}
                   </ul>
