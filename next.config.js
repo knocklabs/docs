@@ -2,7 +2,7 @@
 /* eslint-disable global-require */
 const withPlugins = require("next-compose-plugins");
 const withMdxEnhanced = require("next-mdx-enhanced");
-const algoliasearch = require('algoliasearch');
+const algoliasearch = require("algoliasearch");
 
 const autoLinkSettings = {
   behavior: "prepend",
@@ -10,7 +10,10 @@ const autoLinkSettings = {
 };
 
 function makeIdFromPath(resourcePath) {
-  return resourcePath.replace(".mdx", "").replace(".md", "").replace("/index", "");
+  return resourcePath
+    .replace(".mdx", "")
+    .replace(".md", "")
+    .replace("/index", "");
 }
 
 module.exports = withPlugins(
@@ -51,20 +54,22 @@ module.exports = withPlugins(
 
               // Once we add tags are added to pages, Algolia records
               // will be updated with them, so we can enhance the search experience
-              tags: c.tags || []
-            })
+              tags: c.tags || [],
+            });
           } catch (e) {
-            console.error(e)
+            console.error(e);
           }
         } else {
-          console.info("Algolia configuration variables not present. Skipping indexing.")
+          console.info(
+            "Algolia configuration variables not present. Skipping indexing.",
+          );
         }
 
         return c;
       },
       extendFrontMatter: {
         process: (mdxContent, frontMatter) => {
-          const id = makeIdFromPath(frontMatter.__resourcePath)
+          const id = makeIdFromPath(frontMatter.__resourcePath);
 
           return {
             id,

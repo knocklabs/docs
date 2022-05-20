@@ -1,16 +1,21 @@
-import { autocomplete } from '@algolia/autocomplete-js';
-import { createAutocomplete, BaseItem, AutocompleteState } from '@algolia/autocomplete-core';
-import { getAlgoliaResults, parseAlgoliaHitHighlight } from '@algolia/autocomplete-preset-algolia';
-import algoliasearch from 'algoliasearch/lite';
+import {
+  createAutocomplete,
+  BaseItem,
+  AutocompleteState,
+} from "@algolia/autocomplete-core";
+import {
+  getAlgoliaResults,
+  parseAlgoliaHitHighlight,
+} from "@algolia/autocomplete-preset-algolia";
+import algoliasearch from "algoliasearch/lite";
 
-import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { render } from 'react-dom';
-import Link from "next/link";
+import React, { useMemo, useState, useRef } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
-import { useHotkeys } from 'react-hotkeys-hook'
+import { useHotkeys } from "react-hotkeys-hook";
 
-import '@algolia/autocomplete-theme-classic';
+import "@algolia/autocomplete-theme-classic";
 
 import { Box } from "@chakra-ui/layout";
 import { Text } from "@chakra-ui/react";
@@ -28,29 +33,25 @@ import { IoIosSearch } from "react-icons/io";
 // This component is inspired heavily on https://github.com/algolia/autocomplete/blob/next/packages/autocomplete-js/src/components/Highlight.ts#L5.
 // It's not exposed publicly for import, that's why we keep our version here.
 
-const Highlight = ({
-  hit,
-  attribute,
-}) => {
-  return <p>
+const Highlight = ({ hit, attribute }) => (
+  <p>
     {parseAlgoliaHitHighlight({ hit, attribute }).map((x, index) => {
       if (x.isHighlighted) {
         const markStyles = {
           color: "#485CC7",
           fontWeight: 600,
-          background: "transparent"
-        }
+          background: "transparent",
+        };
         return (
           <mark key={index} style={markStyles}>
             {x.value}
           </mark>
-        )
-      } else {
-        return x.value;
+        );
       }
+      return x.value;
     })}
   </p>
-}
+);
 
 interface ResultItem extends BaseItem {
   objectID: string;
@@ -59,22 +60,21 @@ interface ResultItem extends BaseItem {
 }
 
 const Autocomplete = () => {
-  const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID
+  const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID;
   const algoliaSearchApiKey = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY;
   const algoliaIndex = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME;
-  const [autocompleteState, setAutocompleteState] = useState<AutocompleteState<BaseItem> | null>(null);
+  const [autocompleteState, setAutocompleteState] =
+    useState<AutocompleteState<BaseItem> | null>(null);
 
   if (!algoliaAppId || !algoliaSearchApiKey || !algoliaIndex) {
     return null;
   }
   const inputRef = useRef(null);
   const router = useRouter();
-  const searchClient = useMemo(() => {
-    return algoliasearch(
-      algoliaAppId,
-      algoliaSearchApiKey
-    );
-  }, [])
+  const searchClient = useMemo(
+    () => algoliasearch(algoliaAppId, algoliaSearchApiKey),
+    [],
+  );
   const autocomplete = useMemo(
     () =>
       createAutocomplete({
@@ -84,8 +84,8 @@ const Autocomplete = () => {
         getSources() {
           return [
             {
-              sourceId: 'docSearchResults',
-              getItemInputValue({ item, state } : { item: BaseItem, state: AutocompleteState<BaseItem>}): string {
+              sourceId: "docSearchResults",
+              getItemInputValue({ item }: { item: BaseItem }): string {
                 return (item as ResultItem).title;
               },
               getItems({ query }) {
@@ -102,7 +102,7 @@ const Autocomplete = () => {
                   ],
                 });
               },
-              getItemUrl({ item } : { item: BaseItem}): string {
+              getItemUrl({ item }: { item: BaseItem }): string {
                 return (item as ResultItem).path;
               },
             },
@@ -112,20 +112,20 @@ const Autocomplete = () => {
           navigate({ itemUrl }) {
             router.push(`/${itemUrl}`);
           },
-        }
+        },
       }),
-    []
+    [],
   );
 
-  useHotkeys('/', () => {
+  useHotkeys("/", () => {
     // adding small timeout so event doesn't get to the focused input resulting
     // in "/" being diplayed on the input
     setTimeout(() => {
       if (inputRef && inputRef.current) {
         (inputRef!.current! as HTMLElement).focus();
       }
-    }, 20)
-  })
+    }, 20);
+  });
 
   type FormProps = {
     action: string;
@@ -133,10 +133,14 @@ const Autocomplete = () => {
     role: string;
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onReset: (e: React.FormEvent<HTMLFormElement>) => void;
-  }
+  };
 
-  const formProps: unknown = autocomplete.getFormProps({ inputElement: inputRef.current });
-  const inputProps: unknown = autocomplete.getInputProps({ inputElement: inputRef.current });
+  const formProps: unknown = autocomplete.getFormProps({
+    inputElement: inputRef.current,
+  });
+  const inputProps: unknown = autocomplete.getInputProps({
+    inputElement: inputRef.current,
+  });
 
   return (
     <Box
@@ -144,38 +148,40 @@ const Autocomplete = () => {
       h="38px"
       w="500px"
       className="aa-Autocomplete"
-      {...autocomplete.getRootProps({})}>
-      <form
-        className="h-10 aa-Form"
-        {...(formProps as FormProps)}
-      >
+      {...autocomplete.getRootProps({})}
+    >
+      <form className="h-10 aa-Form" {...(formProps as FormProps)}>
         <Box w="38px" className="aa-InputWrapperPrefix">
-          <Icon
-            h="28px"
-            fontSize="20px"
-            ml="12px"
-            as={IoIosSearch}
-          />
+          <Icon h="28px" fontSize="20px" ml="12px" as={IoIosSearch} />
         </Box>
         <div className="aa-InputWrapper">
           <input
             className="aa-Input"
             ref={inputRef}
-            {...(inputProps as React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>)}
+            {...(inputProps as React.DetailedHTMLProps<
+              React.InputHTMLAttributes<HTMLInputElement>,
+              HTMLInputElement
+            >)}
           />
         </div>
-        <Box borderWidth="1px" borderColor="gray.100" borderRadius={4} bg="#F7F7F8" mr="8px" w="25px" h="22px" className="aa-InputWrapperSuffix">
-          <Text w="100%" textAlign="center">/</Text>
+        <Box
+          borderWidth="1px"
+          borderColor="gray.100"
+          borderRadius={4}
+          bg="#F7F7F8"
+          mr="8px"
+          w="25px"
+          h="22px"
+          className="aa-InputWrapperSuffix"
+        >
+          <Text w="100%" textAlign="center">
+            /
+          </Text>
         </Box>
       </form>
 
-      {autocompleteState?.isOpen &&
-        <Box
-          w="500px"
-          bg="white"
-          zIndex="100"
-          className="aa-Panel"
-          >
+      {autocompleteState?.isOpen && (
+        <Box w="500px" bg="white" zIndex="100" className="aa-Panel">
           {autocompleteState.collections.map((collection, index) => {
             const { source, items } = collection;
 
@@ -183,19 +189,21 @@ const Autocomplete = () => {
               <div key={`source-${index}`} className="aa-Source">
                 {items.length > 0 && (
                   <ul className="aa-List" {...autocomplete.getListProps()}>
-                    {items.map((item, index) => (
+                    {items.map((item) => (
                       <li
-                        style={{padding: "16px"}}
+                        style={{ padding: "16px" }}
                         key={(item as ResultItem).objectID}
                         className="aa-Item hover:text-blue-600 cursor-pointer"
-                        {...((autocomplete.getItemProps({
+                        {...(autocomplete.getItemProps({
                           item,
                           source,
-                        }) as unknown) as React.LiHTMLAttributes<HTMLLIElement>)}
+                        }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
                       >
-                        <a onClick={() => router.push(`/${item.path}`)}>
-                          <Highlight hit={item} attribute="title" />
-                        </a>
+                        <Link href={`/${item.path}`} passHref>
+                          <a href="replace">
+                            <Highlight hit={item} attribute="title" />
+                          </a>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -204,9 +212,9 @@ const Autocomplete = () => {
             );
           })}
         </Box>
-      }
+      )}
     </Box>
   );
-}
+};
 
 export default Autocomplete;
