@@ -1,9 +1,9 @@
 import { autocomplete } from '@algolia/autocomplete-js';
 import { createAutocomplete } from '@algolia/autocomplete-core';
-import { getAlgoliaResults } from '@algolia/autocomplete-preset-algolia';
+import { getAlgoliaResults, parseAlgoliaHitHighlight } from '@algolia/autocomplete-preset-algolia';
 import algoliasearch from 'algoliasearch/lite';
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { render } from 'react-dom';
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -12,21 +12,45 @@ import { useHotkeys } from 'react-hotkeys-hook'
 
 import '@algolia/autocomplete-theme-classic';
 
-import {
-  Highlight,
-} from "react-instantsearch-hooks-web";
-
 import { Box } from "@chakra-ui/layout";
 import { Text } from "@chakra-ui/react";
 import Icon from "@chakra-ui/icon";
 
 import { IoIosSearch } from "react-icons/io";
 
-// This component was created following:
+// This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
 //
 // It has a few customizations when compared with algolia's autocomplete, but it already
 // support customizations in case we want to implement future enhancements.
+//
+
+// This component is inspired heavily on https://github.com/algolia/autocomplete/blob/next/packages/autocomplete-js/src/components/Highlight.ts#L5.
+// It's not exposed publicly for import, that's why we keep our version here.
+
+const Highlight = ({
+  hit,
+  attribute,
+}) => {
+  return <p>
+    {parseAlgoliaHitHighlight({ hit, attribute }).map((x, index) => {
+      if (x.isHighlighted) {
+        const markStyles = {
+          color: "#485CC7",
+          fontWeight: 600,
+          background: "transparent"
+        }
+        return (
+          <mark key={index} style={markStyles}>
+            {x.value}
+          </mark>
+        )
+      } else {
+        return x.value;
+      }
+    })}
+  </p>
+}
 
 const Autocomplete = () => {
   const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID
