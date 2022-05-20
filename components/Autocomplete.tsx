@@ -140,6 +140,7 @@ const Autocomplete = () => {
   });
   const inputProps: unknown = autocomplete.getInputProps({
     inputElement: inputRef.current,
+    placeholder: "Search the docs...",
   });
 
   return (
@@ -150,7 +151,11 @@ const Autocomplete = () => {
       className="aa-Autocomplete"
       {...autocomplete.getRootProps({})}
     >
-      <form className="h-10 aa-Form" {...(formProps as FormProps)}>
+      <form
+        className="h-10 aa-Form"
+        style={{ boxShadow: "none", borderColor: "#E4E8EE" }}
+        {...(formProps as FormProps)}
+      >
         <Box w="38px" className="aa-InputWrapperPrefix">
           <Icon h="28px" fontSize="20px" ml="12px" as={IoIosSearch} />
         </Box>
