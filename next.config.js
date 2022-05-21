@@ -45,9 +45,7 @@ module.exports = withPlugins(
             // Given we only have ~40 items to be indexed right now, we are just saving
             // entries one by one.
             await index.saveObject({
-              // The path to the page will be the identifier in Algolia. This means that if
-              // a page changes its path, we will have an outdated entry in Algolia we need to
-              // delete.
+              // The path to the page will be the identifier in Algolia.
               objectID: c.id,
               path: c.id,
               title: c.title,
