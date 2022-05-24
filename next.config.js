@@ -55,12 +55,16 @@ module.exports = withPlugins(
               tags: c.tags || [],
             });
           } catch (e) {
+            /* eslint-disable no-console */
             console.error(e);
+            /* eslint-enable no-console */
           }
         } else {
+          /* eslint-disable no-console */
           console.info(
             "Algolia configuration variables not present. Skipping indexing.",
           );
+          /* eslint-enable no-console */
         }
 
         return c;

@@ -33,17 +33,18 @@ import { IoIosSearch } from "react-icons/io";
 // This component is inspired heavily on https://github.com/algolia/autocomplete/blob/next/packages/autocomplete-js/src/components/Highlight.ts#L5.
 // It's not exposed publicly for import, that's why we keep our version here.
 
+const highlightingStyles = {
+  color: "#485CC7",
+  fontWeight: 600,
+  background: "transparent",
+};
+
 const Highlight = ({ hit, attribute }) => (
   <p>
     {parseAlgoliaHitHighlight({ hit, attribute }).map((x, index) => {
       if (x.isHighlighted) {
-        const markStyles = {
-          color: "#485CC7",
-          fontWeight: 600,
-          background: "transparent",
-        };
         return (
-          <mark key={index} style={markStyles}>
+          <mark key={index} style={highlightingStyles}>
             {x.value}
           </mark>
         );
@@ -122,8 +123,10 @@ const Autocomplete = () => {
     // in "/" being diplayed on the input
     e.preventDefault();
     setTimeout(() => {
-      if (inputRef && inputRef.current) {
-        (inputRef!.current! as HTMLElement).focus();
+      const ref = inputRef.current;
+
+      if (ref) {
+        (ref as HTMLElement).focus();
       }
     }, 20);
   });
