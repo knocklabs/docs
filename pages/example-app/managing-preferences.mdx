@@ -1,0 +1,56 @@
+---
+title: Managing preferences
+---
+
+The functionality described here can be found in our [Node.js example app's](https://github.com/knocklabs/knock-node-example-app/) repository.
+
+## Overview
+
+Building applications with extensive notification coverage eventually results in complexity for users on how to manage their preferences.
+Users will be notified from different workflows and types of channels so providing a flexible yet simple method of setting preferences
+becomes important for their experience to be pleasant.
+
+## Implementation
+
+In our example application, users are notified when a new comment or asset gets added to a project they are a member of.
+Assuming the `new-comment` and `new-asset` workflows notify recipients both through email and in app feed notifications, we
+want users to be able to select for each workflow, on which channel or channels they want to get notified (email, in app feed, or both).
+
+One way of implementing UI to support this functionality is to build a grid component where each row represents a workflow and each column
+represents a channel type. On each cell of the grid, we could display a checkbox that would indicate if the user wants to receive notification
+for a particular workflow on a particular channel.
+
+A great advantage of this UI pattern, is that it aligns very well on how preferences for workflows can be stored in Knock, you can read more about this on the
+preferences [docs](/send-and-manage-data/preferences#workflow-preferences). Workflows preferences support the following structure:
+
+```json
+{
+  "new-comment": {
+    "channel_types": {
+      "in_app_feed": true,
+      "email": true
+    }
+  },
+
+  "new-asset": {
+    "channel_types": {
+      "in_app_feed": true,
+      "email": true
+    }
+  },
+
+  ...
+}
+```
+
+The [user notification preference modal](https://github.com/knocklabs/knock-node-example-app/blob/main/app/users/components/NotificationPreferencesModal.tsx) is built following
+the pattern described above.
+
+Using [Knock's JS client SDK](https://github.com/knocklabs/knock-client-js), the modal [fetches the preferences](https://github.com/knocklabs/knock-node-example-app/blob/main/app/users/components/NotificationPreferencesModal.tsx#L42) for the current user which then later are used to populate the grid on the modal, as you can see [here](https://github.com/knocklabs/knock-node-example-app/blob/main/app/users/components/NotificationPreferencesModal.tsx#L120). For each key found on the preferences, the modal rendes a new row with two checkboxes (one per type of of channel).
+
+
+When the user updates their preference, the modal uses the client SDK to set the workflow preferences. You can read more on this [here](/send-notifications/setting-preferences).
+
+## Conclusions
+
+Supporting a large number of workflows and managing preferences for them make look complicated at first, but as you have just seen, it doesn't have to be hard if you use the correct patterns.
