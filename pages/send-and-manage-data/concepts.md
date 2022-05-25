@@ -1,5 +1,6 @@
 ---
 title: Core data concepts
+tags: ["how knock works"]
 ---
 
 In order for Knock to generate messages for your end users we need to have knowledge about a
@@ -47,6 +48,7 @@ you can protect sensitive production data and easily build and test workflows be
 An object represents a resource in your system that you want to map into Knock. Objects are a powerful and flexible way to ensure Knock always has the most up-to-date information required to send your notifications. They also enable you to send notifications to non-user recipients.
 
 You can use objects to:
+
 - send in-app notifications to non-user resources in your product (the activity feed you see on a Notion page is a good example)
 - send out-of-app notifications to non-user recipients (such as a Slack channels)
 - reference mutable data in your notification templates (such as when a user edits a comment before a notification is sent)

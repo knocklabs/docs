@@ -1,5 +1,6 @@
 ---
 title: Customizing the feed
+tags: ["inbox", "feeds", "toasts"]
 ---
 
 While we provide a pre-built set of React components, you may wish to use your own styles

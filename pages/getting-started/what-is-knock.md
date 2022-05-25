@@ -1,5 +1,6 @@
 ---
 title: What is Knock?
+tags: ["getting started", "explainer", "explained"]
 ---
 
 Notifications are a critical part of how users engage with products today. They are how we interface with products when we're away from them, and how we find what we need to respond to and get done when we return to them. For product and engineering teams, notifications are how we engage with and retain our customers.

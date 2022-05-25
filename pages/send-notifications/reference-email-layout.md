@@ -1,5 +1,6 @@
 ---
 title: "Reference: email layout"
+tags: ["templates"]
 ---
 
 This is a reference guide of special Knock variables, and generated CSS styles that are used in email layouts.
@@ -8,15 +9,14 @@ This is a reference guide of special Knock variables, and generated CSS styles t
 
 There are a few special variables used in email layouts to populate and assemble the final email notification template.
 
-| Variable           | Description                                                                                                                                                                                                                          |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `content`          | A notification template defined in an email channel step will be inserted into this variable. **This is a required variable, and must be present somewhere in every layout.**                                                        |
-| `footer_links`     | A list of footer links, as configured in the layout editor, will be injected into this variable.                                                                                                                                     |
+| Variable       | Description                                                                                                                                                                   |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `content`      | A notification template defined in an email channel step will be inserted into this variable. **This is a required variable, and must be present somewhere in every layout.** |
+| `footer_links` | A list of footer links, as configured in the layout editor, will be injected into this variable.                                                                              |
 
 ## Generated CSS styles
 
 When you use the [visual template editor](/send-notifications/designing-workflows#visual-editing-with-drag-and-drop-components) to build your email notification template, we auto-generate and include the following CSS styles in the email layout. They provide base styles for certain components, which you can override or extend them as needed.
-
 
 ```css Base component styles
 /* Button components */
@@ -41,7 +41,7 @@ When you use the [visual template editor](/send-notifications/designing-workflow
 
 /* Divider component */
 .block-row.block-row--divider-v1 .block-divider {
-  border-bottom: 1px solid #DDDEE1;
+  border-bottom: 1px solid #dddee1;
 }
 
 /* Markdown components */

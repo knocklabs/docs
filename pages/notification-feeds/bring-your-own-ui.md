@@ -1,5 +1,6 @@
 ---
 title: Bring your own feed UI
+tags: ["inbox", "feeds", "toasts"]
 ---
 
 If you're unable to leverage Knock's pre-built feed components, or you'd prefer to build your own feed components, you can use the Knock SDK or API to power your own bespoke feed.
@@ -19,7 +20,7 @@ knockClient.authenticate(currentCustomer.knockApiToken);
 
 // Setup the feed
 const notificationFeed = knockClient.feeds.initialize(
-  process.env.KNOCK_FEED_ID
+  process.env.KNOCK_FEED_ID,
 );
 
 const data = await feedClient.fetch({
@@ -47,7 +48,7 @@ knockClient.authenticate(currentCustomer.knockApiToken);
 
 // Setup the feed
 const notificationFeed = knockClient.feeds.initialize(
-  process.env.KNOCK_FEED_ID
+  process.env.KNOCK_FEED_ID,
 );
 
 // Initialize the real-time handler

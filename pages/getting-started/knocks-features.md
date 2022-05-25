@@ -1,8 +1,9 @@
 ---
 title: Knock's features
+tags: ["getting started"]
 ---
 
-Here's an overview of the core features of Knock and how you can leverage them in the notification system you design with our product. 
+Here's an overview of the core features of Knock and how you can leverage them in the notification system you design with our product.
 
 ## Cross-channel orchestration logic
 
@@ -17,13 +18,13 @@ logic for your notifications such as:
 
 A great in-app notification feed helps your users find where their attention is needed in your product, in real-time.
 
-Knock offers out-of-the-box support for in-app feed functionality. Our pre-built components give you a fully featured in-app feed you can drop into your frontend in minutes, with support for real-time delivery, accurate badge counts, and mark-as-read functionality. If you need to customize your experience, you can use our SDKs and API to build your own feed component. 
+Knock offers out-of-the-box support for in-app feed functionality. Our pre-built components give you a fully featured in-app feed you can drop into your frontend in minutes, with support for real-time delivery, accurate badge counts, and mark-as-read functionality. If you need to customize your experience, you can use our SDKs and API to build your own feed component.
 
-You can add Knock's in-app feed channel to any workflow to immediately start routing notifications to your users' in-app feed experience. 
+You can add Knock's in-app feed channel to any workflow to immediately start routing notifications to your users' in-app feed experience.
 
 ## Notification preferences
 
-Users expect a notifications experience they can tailor to the way they want to work. We provide an out-of-the-box component you can customize to give your users the notification preferences they want. 
+Users expect a notifications experience they can tailor to the way they want to work. We provide an out-of-the-box component you can customize to give your users the notification preferences they want.
 
 If you'd prefer to own this experience, you can use our APIs to synchronize your user
 preferences to the Knock model, in which case we'll still leverage those preferences to route notifications to users.

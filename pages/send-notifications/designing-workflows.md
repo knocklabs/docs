@@ -1,5 +1,6 @@
 ---
 title: Designing workflows
+tags: ["template", "liquid", "steps"]
 ---
 
 The Knock workflow builder enables you to craft notification workflows that combine functions, channels, and conditional logic to determine which of your users to notify across which channels when a given event takes place in your product.
@@ -34,7 +35,7 @@ Some examples of triggers you can employ are:
 
 - Only send an email if the in-app notification has not been opened or read
 - Only send an email if the event payload indicates it should be sent via email
-- Onle send a notification if the user has a specific custom property, e.g. plan_type = pro.
+- Only send a notification if the user has a specific custom property, e.g. plan_type = pro.
 
 ### Function steps
 
@@ -160,9 +161,9 @@ As a reminder, **you still have full access to the variables data as well as liq
 
 Moreover, please note the following features of the components:
 
-* **Markdown (and Blockquote) components** support liquid and basic Markdown syntax. To learn more about Markdown, check out [its documentation](https://www.markdownguide.org/basic-syntax/).
-* **Button components** can be configured to use your brand colors by default, so you can ensure your brand elements are consistent across all of your product messaging. To configure your brand colors, head over to the branding settings page in your dashboard. ("Settings" page → "Branding" tab)
-* **HTML components** can contain any valid HTML markup and provide an "escape hatch" for advanced use cases where more complex markups are needed.
+- **Markdown (and Blockquote) components** support liquid and basic Markdown syntax. To learn more about Markdown, check out [its documentation](https://www.markdownguide.org/basic-syntax/).
+- **Button components** can be configured to use your brand colors by default, so you can ensure your brand elements are consistent across all of your product messaging. To configure your brand colors, head over to the branding settings page in your dashboard. ("Settings" page → "Branding" tab)
+- **HTML components** can contain any valid HTML markup and provide an "escape hatch" for advanced use cases where more complex markups are needed.
 
 When using the visual template editor, a handful of CSS styles are auto-generated and included in the email layout to provide base styles for certain components. Refer to the [reference guide](/send-notifications/reference-email-layout#generated-css-styles) for more details.
 

@@ -1,5 +1,6 @@
 ---
 title: Example app
+tags: ["nodejs", "using knock", "getting started"]
 ---
 
 Learn more about how Knock works and get up and running quickly using our [Node.js example app](https://github.com/knocklabs/knock-node-example-app/).
@@ -25,16 +26,17 @@ As you explore the app, you'll find it using Knock to support the following feat
 Follow the app's [README file](https://github.com/knocklabs/knock-node-example-app/blob/main/README.md) to configure and run the app locally.
 
 To use the app with your Knock account, you'll need to configure channels and workflows for the app to work as expected. You will need to create:
+
 1. Email and in-app feed channels
 2. Create a workflow in Knock with the key `welcome`. It should include an email step for your welcome email template.
 3. Create a workflow in Knock with the key `new-comment`. It should include: an in-app feed step and an email step. On these steps templates you can use the following variables which will sent as arguments on the trigger call:
-    1. `comment_content`: The content of the created comment.
-    2. `asset_name`: The name of the commented asset.
-    3. `asset_url`: The url of the commented asset.
-    4. `project_name`: The name of the project that the comment asset belongs to.
+   1. `comment_content`: The content of the created comment.
+   2. `asset_name`: The name of the commented asset.
+   3. `asset_url`: The url of the commented asset.
+   4. `project_name`: The name of the project that the comment asset belongs to.
 4. Create a workflow in Knock with the key `new-asset`. It should include: an in-app feed step and an email step. On these steps templates you can use the following variables which will sent as arguments on the trigger call:
-    1. `asset_url`: The url of the commented asset.
-    2. `project_name`: The name of the project that the comment asset belongs to.
+   1. `asset_url`: The url of the commented asset.
+   2. `project_name`: The name of the project that the comment asset belongs to.
 
 The README also covers initial data setup, such as syncing your local users to your Knock account.
 Once this seed data is present and the workflows are created on Knock, you can use the app locally and see
