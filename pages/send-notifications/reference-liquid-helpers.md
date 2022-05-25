@@ -1,5 +1,6 @@
 ---
 title: "Reference: liquid helpers"
+tags: ["liquid", "template", "variables"]
 ---
 
 This is a reference of common Knock variables, Liquid syntax, and Knock-specific liquid helpers that you can use within the Knock template editor.
@@ -37,18 +38,18 @@ The Knock template editor uses Liquid syntax for control flow and variable decla
 
 ## Knock-specific Liquid helpers
 
-| Helper             | Description                                                                                                                                                                                         | Example                                                                  |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `timezone`         | Takes an ISO 8601 timestamp and returns it in the [IANA tz database timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) provided.                                               | <code>{{timestamp &#124; timezone: "America/New_York"}}</code>           |
-| `format_number`    | Takes an integer and formats it to the local number format of the `locale` provided to format_number helper.                                                                                        | <code>{{ 10000 &#124; format_number: "en" }}</code>                      |
-| `currency`         | Takes an integer and returns a USD formatted value with two decimal points. You can pass a currency type and a `locale` through to the currency helper to tell it which currency to use.            | <code>{{ 10 &#124; currency: “GBP”, "en" }}</code>                       |
-| `rounded_currency` | Takes an integer and returns a USD formatted value rounded to nearest whole number. You can pass a currency type and a `locale` through to the currency helper to tell it which currency to use.    | <code>{{ 10.99 &#124; rounded_currency: "GBP", "en" }}</code>            |
-| `json`             | Takes a value and returns as a formatted JSON string.                                                                                                                                               | <code>{{ recipient &#124; json }}</code>                                 |
-| `pluralize`        | Takes an integer and a pluralize helper with two strings. If the integer is one, the helper returns the first string. If the helper is greater than one, it returns the second string.              | <code>{{ total_actors &#124; pluralize: "user", "users" }}</code>        |
-| `titlecase`        | Takes a string and reformats it into Title case.                                                                                                                                                    | <code>{{ project_name &#124; titlecase }}</code>                         |
-| `md5`              | Takes a string and returns an md5 hash.                                                                                                                                                             | <code>{{ recipient.id &#124; md5 }}</code>                               |
-| `sha256`           | Takes a string and returns an sha256 hash.                                                                                                                                                          | <code>{{ recipient.id &#124; sha256 }}</code>                            |
-| `hmac_sha256`      | Takes a string and returns an hmac hash given a key provided to hmac_sha256 helper.                                                                                                                 | <code>{{ recipient.id &#124; hmac_sha256: "some-key" }}</code>           |
+| Helper             | Description                                                                                                                                                                                      | Example                                                           |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `timezone`         | Takes an ISO 8601 timestamp and returns it in the [IANA tz database timezone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) provided.                                            | <code>{{timestamp &#124; timezone: "America/New_York"}}</code>    |
+| `format_number`    | Takes an integer and formats it to the local number format of the `locale` provided to format_number helper.                                                                                     | <code>{{ 10000 &#124; format_number: "en" }}</code>               |
+| `currency`         | Takes an integer and returns a USD formatted value with two decimal points. You can pass a currency type and a `locale` through to the currency helper to tell it which currency to use.         | <code>{{ 10 &#124; currency: “GBP”, "en" }}</code>                |
+| `rounded_currency` | Takes an integer and returns a USD formatted value rounded to nearest whole number. You can pass a currency type and a `locale` through to the currency helper to tell it which currency to use. | <code>{{ 10.99 &#124; rounded_currency: "GBP", "en" }}</code>     |
+| `json`             | Takes a value and returns as a formatted JSON string.                                                                                                                                            | <code>{{ recipient &#124; json }}</code>                          |
+| `pluralize`        | Takes an integer and a pluralize helper with two strings. If the integer is one, the helper returns the first string. If the helper is greater than one, it returns the second string.           | <code>{{ total_actors &#124; pluralize: "user", "users" }}</code> |
+| `titlecase`        | Takes a string and reformats it into Title case.                                                                                                                                                 | <code>{{ project_name &#124; titlecase }}</code>                  |
+| `md5`              | Takes a string and returns an md5 hash.                                                                                                                                                          | <code>{{ recipient.id &#124; md5 }}</code>                        |
+| `sha256`           | Takes a string and returns an sha256 hash.                                                                                                                                                       | <code>{{ recipient.id &#124; sha256 }}</code>                     |
+| `hmac_sha256`      | Takes a string and returns an hmac hash given a key provided to hmac_sha256 helper.                                                                                                              | <code>{{ recipient.id &#124; hmac_sha256: "some-key" }}</code>    |
 
 ### Localization parameters
 

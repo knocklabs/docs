@@ -1,9 +1,10 @@
 ---
 title: Overview
+tags: ["inbox", "feeds", "toasts", "javascript", "react"]
 ---
 
 Notification feeds give your users a way to see everything they missed since they were last in your product (or a way to see something that's happening elsewhere in your product in real-time). The feed is per user and is a reverse chronological list
-of the messages they've received. 
+of the messages they've received.
 
 As well as being an out-of-app notification delivery platform, Knock also gives you the ability
 to integrate in-app notification feeds for your users.
