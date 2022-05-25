@@ -134,6 +134,42 @@ module.exports = withPlugins(
           destination: "/integrations/sms/twilio-sms",
           permanent: true,
         },
+        // Old feed docs
+        {
+          source: "/client-integration/authenticating-users",
+          destination: "/in-app-ui/security-and-authentication",
+          permanent: true,
+        },
+        {
+          source: "/notification-feeds/overview",
+          destination: "/in-app-ui/react/overview",
+          permanent: true,
+        },
+        {
+          source: "/notification-feeds/getting-started",
+          destination: "/in-app-ui/react/getting-started",
+          permanent: true,
+        },
+        {
+          source: "/notification-feeds/getting-started",
+          destination: "/in-app-ui/react/notification-feed",
+          permanent: true,
+        },
+        {
+          source: "/notification-feeds/customizing-ui",
+          destination: "/in-app-ui/react/customizing-notification-feed",
+          permanent: true,
+        },
+        {
+          source: "/notification-feeds/bring-your-own-ui",
+          destination: "/in-app-ui/react/build-your-own-feed-ui",
+          permanent: true,
+        },
+        {
+          source: "/notification-feeds/feed-features",
+          destination: "/in-app-ui/react/overview",
+          permanent: true,
+        },
       ];
     },
   },

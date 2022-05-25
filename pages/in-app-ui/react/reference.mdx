@@ -1,0 +1,265 @@
+---
+title: "Reference"
+---
+
+import { Attributes, Attribute } from "../../../components/Attributes";
+
+In this section, you'll find the complete documentation for the components exposed in `@knocklabs/react-notification-feed`, including the props available.
+
+**Note**: You can see a reference for the methods available for the `Knock` class, as well as a `Feed` instance under the [client JS docs](/in-app-ui/javascript/reference).
+
+## `KnockFeedProvider`
+
+The top level feed provider that connects to Knock with the given API key, authenticates a user, and then connects to a feed for that user.
+
+### Props
+
+Accepts `KnockFeedProviderProps`:
+
+<Attributes>
+  <Attribute
+    name="apiKey"
+    type="string*"
+    description="The public API key for the environment"
+  />
+  <Attribute
+    name="userId"
+    type="string*"
+    description="The authenticated user to retrieve a feed for"
+  />
+  <Attribute name="userToken" type="string" description="TODO" />
+  <Attribute
+    name="feedId"
+    type="string"
+    description="The feed channel ID to query"
+  />
+  <Attribute
+    name="host"
+    type="string"
+    description="A custom API host for Knock"
+  />
+  <Attribute
+    name="source"
+    type="string"
+    description="When set, will only return feed items produced on the given workflow key"
+  />
+  <Attribute
+    name="tenant"
+    type="string"
+    description="When set, will only return feed items that have either an empty tenant value or one that is set as this tenant identifier."
+  />
+  <Attribute
+    name="colorMode"
+    type="ColorMode"
+    description="Sets the theme as either light or dark mode (defaults to light)."
+  />
+  <Attribute
+    name="rootless"
+    type="boolean"
+    description="When set as false, doesn't wrap the children in a `<KnockFeedContainer>`"
+  />
+</Attributes>
+
+### Hooks
+
+The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components which can be used. The hook returns the following as an object (`KnockFeedProviderState`):
+
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="The instance of the Knock client"
+  />
+  <Attribute
+    name="feedClient"
+    type="Feed"
+    description="The instance of the authenticated Feed"
+  />
+  <Attribute
+    name="useFeedStore"
+    type="UseStore<FeedStoreState>"
+    description="A zustand store containing the FeedStoreState"
+  />
+  <Attribute
+    name="status"
+    type="FilterStatus"
+    description="Current value of the filter status for the Feed"
+  />
+  <Attribute
+    name="setStatus"
+    type="function"
+    description="A function to set the current FilterStatus"
+  />
+  <Attribute
+    name="colorMode"
+    type="ColorMode"
+    description="The current theme color"
+  />
+</Attributes>
+
+## `NotificationFeed`
+
+### Props
+
+<Attributes>
+  <Attribute
+    name="EmptyComponent*"
+    type="ReactNode"
+    description="The empty component to render, when not set defaults to <EmptyFeed />."
+  />
+  <Attribute
+    name="renderItem"
+    type="function"
+    description="A function invoked per `FeedItem` to be rendered that should return a cell to be rendered in the feed. Useful when you want to render a custom feed cell. Defaults to rendering a `NotificationCell`."
+  />
+  <Attribute
+    name="onNotificationClick"
+    type="function"
+    description="A custom function to be invoked when a notification cell is clicked."
+  />
+  <Attribute
+    name="onMarkAllAsReadClick"
+    type="function"
+    description="A custom function to be invoked when the `Mark all as read` button is clicked."
+  />
+</Attributes>
+
+## `NotificationFeedPopover`
+
+Renders a `NotificationFeed` in a floating popover, rendered by `popper-js`.
+
+### Props
+
+Accepts the same base props as `NotificationFeed`, and overrides with the following:
+
+<Attributes>
+  <Attribute
+    name="isVisible*"
+    type="boolean"
+    description="Whether or not to show the popover."
+  />
+  <Attribute
+    name="onClose*"
+    type="function"
+    description="The function to be invoked when the popover is closed."
+  />
+  <Attribute
+    name="buttonRef*"
+    type="RefObject<HTMLElement>"
+    description="A ref of the button to position the popover adjacent to."
+  />
+  <Attribute
+    name="closeOnClickOutside"
+    type="boolean"
+    description="When true, will close the popover whenever any area outside of the popover is clicked."
+  />
+  <Attribute
+    name="placement"
+    type="Placement"
+    description="Determines the popper-js position of the popover (defaults to `bottom-end`)."
+  />
+</Attributes>
+
+## `NotificationCell`
+
+### Props
+
+<Attributes>
+  <Attribute
+    name="item*"
+    type="FeedItem"
+    description="The feed item (notification) to render"
+  />
+  <Attribute
+    name="onItemClick"
+    type="function"
+    description="The function to be invoked when the row is clicked"
+  />
+  <Attribute
+    name="avatar"
+    type="ReactNode"
+    description="Render a custom avatar for the feed item"
+  />
+  <Attribute
+    name="archiveButton"
+    type="ReactNode"
+    description="Render a custom archive button for the feed item"
+  />
+  <Attribute
+    name="children"
+    type="ReactNode"
+    description="A set of children to render inside of the cell, will be rendered under the main content in a `rnf-notification-cell__child-content` div. Useful for rendering action buttons."
+  />
+</Attributes>
+
+## `NotificationIconButton`
+
+Renders a notification bell icon, with a badge showing the number of unseen items present in the notification feed.
+
+### Props
+
+<Attributes>
+  <Attribute
+    name="onClick*"
+    type="function"
+    description="The function to be invoked when the IconButton is clicked"
+  />
+</Attributes>
+
+## `Button`
+
+A generic Button component that can be used to add action buttons to items in a notifcation feed.
+
+### Props
+
+<Attributes>
+  <Attribute
+    name="variant"
+    type="string"
+    description="The variant of the button; either `primary` or `secondary`. Defaults to `primary`."
+  />
+  <Attribute
+    name="loadingText"
+    type="string"
+    description="Text to display while the button is loading."
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="When true, will display a spinner next to the `loadingText` (if present)."
+  />
+  <Attribute
+    name="isDisabled"
+    type="boolean"
+    description="When true, will mark the button as disabled."
+  />
+  <Attribute
+    name="isFullWidth"
+    type="boolean"
+    description="When true, will make the button occupy 100% of the parent container."
+  />
+  <Attribute
+    name="onClick*"
+    type="function"
+    description="The click handler to be invoked when the button is clicked."
+  />
+  <Attribute
+    name="children"
+    type="ReactNode"
+    description="The text to display inside of the button."
+  />
+</Attributes>
+
+## `ButtonGroup`
+
+Used to group and space multiple `Button` components into a single line.
+
+### Props
+
+<Attributes>
+  <Attribute
+    name="children*"
+    type="ReactNode"
+    description="One or more `Button` components"
+  />
+</Attributes>

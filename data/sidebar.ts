@@ -47,7 +47,7 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Building in-app UI",
     slug: "/in-app-ui",
-    desc: "Learn how to connect your notification providers to Knock.",
+    desc: "Use the Knock in-app experiences APIs and components to build rich notifications experiences inside of your product.",
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/use-cases", title: "Use cases" },
@@ -59,8 +59,10 @@ const sidebarContent: SidebarSection[] = [
         title: "React",
         slug: "/react",
         pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/getting-started", title: "Getting started" },
+          {
+            slug: "/overview",
+            title: "Overview + quick start",
+          },
           { slug: "/notification-feed", title: "Notification feed" },
           { slug: "/toasts", title: "Toasts" },
           { slug: "/inbox", title: "Inbox" },
@@ -70,9 +72,10 @@ const sidebarContent: SidebarSection[] = [
       },
       {
         title: "Javascript",
-        slug: "/js",
+        slug: "/javascript",
         pages: [
           { slug: "/overview", title: "Overview" },
+          { slug: "/getting-started", title: "Getting started" },
           { slug: "/reference", title: "Reference" },
         ],
       },
