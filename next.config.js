@@ -147,27 +147,22 @@ module.exports = withPlugins(
         },
         {
           source: "/notification-feeds/getting-started",
-          destination: "/in-app-ui/react/getting-started",
-          permanent: true,
-        },
-        {
-          source: "/notification-feeds/getting-started",
-          destination: "/in-app-ui/react/notification-feed",
+          destination: "/in-app-ui/react/feed",
           permanent: true,
         },
         {
           source: "/notification-feeds/customizing-ui",
-          destination: "/in-app-ui/react/customizing-notification-feed",
+          destination: "/in-app-ui/react/feed",
           permanent: true,
         },
         {
           source: "/notification-feeds/bring-your-own-ui",
-          destination: "/in-app-ui/react/build-your-own-feed-ui",
+          destination: "/in-app-ui/react/custom-notifications-ui",
           permanent: true,
         },
         {
           source: "/notification-feeds/feed-features",
-          destination: "/in-app-ui/react/overview",
+          destination: "/integrations/in-app-feed/overview",
           permanent: true,
         },
       ];
