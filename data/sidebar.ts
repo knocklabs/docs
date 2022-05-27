@@ -15,15 +15,6 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
-    slug: "/example-app",
-    title: "Example app",
-    pages: [
-      { slug: "/slack-integration", title: "Slack integration" },
-      { slug: "/mute-resource", title: "Mute resource" },
-      { slug: "/managing-preferences", title: "Managing preferences" },
-    ],
-  },
-  {
     title: "Send & manage data",
     slug: "/send-and-manage-data",
     desc: "Learn how to get data flowing into Knock to power your notifications.",
