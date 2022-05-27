@@ -149,6 +149,7 @@ const Autocomplete = () => {
 
   return (
     <Box
+      display={{ base: "none", sm: "none", md: "block" }}
       ml="20px"
       h="38px"
       w="500px"
