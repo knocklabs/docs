@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { useMediaQuery } from "@chakra-ui/react";
 import Meta from "../components/Meta";
 import FeedbackPopover from "../components/FeedbackPopover";
@@ -12,7 +12,12 @@ type Props = {
 };
 
 export const Page: React.FC<Props> = ({ children, pageType, sidebar }) => {
+  const [displaySearch, setDisplaySearch] = useState(false);
   const [isMobile] = useMediaQuery("(max-width: 768px)");
+
+  useEffect(() => {
+    setDisplaySearch(!isMobile);
+  }, []);
 
   return (
     <>
@@ -37,7 +42,7 @@ export const Page: React.FC<Props> = ({ children, pageType, sidebar }) => {
             </Link>
           </div>
 
-          {!isMobile && <Autocomplete />}
+          {displaySearch && <Autocomplete />}
 
           <div className="ml-auto flex items-center space-x-2">
             <FeedbackPopover />
