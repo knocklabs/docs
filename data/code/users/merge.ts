@@ -35,6 +35,15 @@ var knockClient = new KnockClient(
 
 await knockClient.Users.Merge(user.Id, "user-to-merge-from")  
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->users()->merge($user->id(), [
+  'from_user_id' => 'user-to-merge-from'
+]);
+`,
 };
 
 export default languages;

@@ -53,6 +53,19 @@ var users = new List<Dictionary>{
 
 await knockClient.Users.BulkIdentify(users);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->users()->bulkIdentify([
+  [
+    'id' => 'jane',
+    'email' => 'jane@example.com',
+    'name' => 'Jane Doe'
+  ]
+]);
+`,
 };
 
 export default languages;

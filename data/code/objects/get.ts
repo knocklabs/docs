@@ -35,6 +35,13 @@ var knockClient = new KnockClient(
 
 await knockClient.Objects.Get("projects", "project-1");
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->get('projects', 'project-1');
+`,
 };
 
 export default languages;

@@ -77,6 +77,22 @@ Knock.Workflows.trigger("new-comment", %{
   tenant: comment.workspace.id,
 })
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->workflows()->trigger('new-comment', [
+  'data' => [
+    'document_id' => $comment->document()->id(),
+    'document_name' => $comment->document()->name(),
+    'comment_id' => $comment->id(),
+    'comment_text' => $comment->text()
+  ],
+  'recipients' => $followerIds,
+  tenant: $comment->workspace->id(),
+]);
+`,
 };
 
 export default languages;

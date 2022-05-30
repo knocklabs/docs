@@ -28,6 +28,13 @@ var knockClient = new KnockClient(
 
 await knockClient.Users.GetPreferences(user.Id);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->users()->getPreferences($user->id());
+`,
 };
 
 export default languages;

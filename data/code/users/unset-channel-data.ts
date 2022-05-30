@@ -39,6 +39,13 @@ knock_client = MyApp.Knock.client()
 
 Knock.Users.unset_channel_data(knock_client, user.id, "8209f26c-62a5-461d-95e2-a5716a26e652")
   `,
+  php: `
+  use Knock\\KnockSdk\\Client;
+    
+  $client = new Client('sk_12345');
+
+  $client->users()->unsetChannelData($user->id(), "8209f26c-62a5-461d-95e2-a5716a26e652");
+`,
 };
 
 export default languages;

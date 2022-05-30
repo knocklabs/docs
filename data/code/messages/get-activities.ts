@@ -57,6 +57,15 @@ var params = new Dictionary<string, string> {
 
 await knockClient.Messages.GetActivities(message.id, params);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->messages()->getActivities($message->id(), [
+  'page_size' => 10
+]);
+`,
 };
 
 export default languages;

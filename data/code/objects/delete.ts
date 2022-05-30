@@ -35,6 +35,13 @@ var knockClient = new KnockClient(
 
 await knockClient.Objects.Delete("projects", "project-1");
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->delete('projects', 'project-1');
+`,
 };
 
 export default languages;

@@ -34,6 +34,13 @@ var userIds = new List<string> {
 
 await knockClient.Users.BulkDelete(userIds);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->users()->bulkDelete(['user-1', 'user-2']);
+`,
 };
 
 export default languages;

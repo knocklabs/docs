@@ -85,6 +85,21 @@ await knockClient.Objects.SetChannelData(
   channelData
 );
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->setChannelData('projects', 'project-1', 'knock-discord-channel-id', [
+  'connections' => [
+    [
+      'incoming_webhook' => [
+        'url' => 'url-from-discord'
+      ]
+    ]
+  ]
+]);
+`,
 };
 
 export default languages;

@@ -88,6 +88,27 @@ Knock.Users.set_preferences(knock_client, user.id, %{
   }
 })
   `,
+  php: `
+use Knock\\KnockSdk\\Client;
+  
+$client = new Client('sk_12345');
+  
+$client->users()->setPreferences($user->id(), [
+  'channel_types' => [
+    'email' => true,
+    'sms' => false
+  ],
+  'workflows' => [
+    'dinosaurs-loose' => [
+      'channel_types' => [
+        'email' => false,
+        'in_app_feed' => true,
+        'sms' => true
+      ]
+    ]
+  ]
+]);
+  `,
 };
 
 export default languages;

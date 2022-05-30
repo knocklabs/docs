@@ -28,6 +28,13 @@ var knockClient = new KnockClient(
 
 await knockClient.Messages.GetContent(message.Id);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->messages()->getContent($message->id());
+`,
 };
 
 export default languages;
