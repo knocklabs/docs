@@ -1,0 +1,182 @@
+---
+title: "Building preference UIs in React"
+---
+
+In this guide we'll look at building a simple preference center UI for our users in Knock using the preference APIs available in Knock to do so.
+
+**Quick links**
+
+- [Modeling preferences in Knock](/send-and-manage-data/preferences)
+- [Setting preferences](/send-notifications/setting-preferences#client-integration)
+- [Preference reference in `@knocklabs/client`]()
+
+## Getting started
+
+To use this example, you'll need [an account on Knock](https://dashboard.knock.app) and you'll need to have [identified a user](/send-and-manage-data/users). You'll also need:
+
+- A public API key for the Knock environment (set as `KNOCK_PUBLIC_API_KEY`)
+
+## Installing dependencies
+
+```bash Installing dependencies
+npm install @knocklabs/client
+```
+
+## Modeling our preferences
+
+In this example we'll use a `PreferenceSet` that contains multiple workflows, each with it's own channel type settings. We'll expose this to our users as a "cross-hatch" so that they can set a preference per workflow, for each channel type.
+
+```json Preference object
+{
+  "workflows": {
+    "comment": {
+      "channel_types": {
+        "sms": false,
+        "push": true,
+        "email": true
+      }
+    },
+    "like": {
+      "channel_types": {
+        "sms": false,
+        "push": false,
+        "email": false
+      }
+    },
+    "alert": {
+      "channel_types": {
+        "sms": true,
+        "push": true,
+        "email": true
+      }
+    }
+  }
+}
+```
+
+## Creating our preference center
+
+The next step here is to create our preference center. What we'll do here is:
+
+1. Read the set of preferences from Knock for the authenticated user and use that to drive the UI.
+2. Whenever a preference is changed, we'll update the preferences in Knock with the new value.
+
+The nice thing about this approach is we don't need to store any notification preferences in our application, and we can use Knock as the source of truth for the notification preferences a user currently has set.
+
+```jsx
+import React, { useEffect, useState, useCallback } from "react";
+import { Knock } from "@knocklabs/client";
+
+import { useCurrentUser } from "./hooks";
+
+const workflowLabels = {
+  comment: "New comments",
+  like: "Document likes",
+  alert: "Alerts",
+};
+
+const channelTypeLabels = {
+  sms: "SMS",
+  email: "Email",
+  push: "Push",
+};
+
+const PreferenceCenter = () => {
+  const { user } = useCurrentUser();
+  const [preferences, setPreferences] = useState();
+
+  // Setup our Knock client
+  const knockClient = useMemo(() => {
+    const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+    knockClient.authenticate(user.id);
+    return knockClient;
+  }, [user]);
+
+  // Read the preferences for the current user
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      const preferences = await knockClient.preferences.get();
+      setPreferences(preferences);
+    };
+
+    fetchPreferences();
+  }, [knockClient]);
+
+  const onPreferenceChange = async (workflowKey, channelType, setting) => {
+    const preferenceUpdate = {
+      {
+        [workflowKey]: {
+          channel_types: {
+            [channelType]: setting
+          }
+        }
+      }
+    };
+
+    const preferences = await knockClient.preferences.set(preferenceUpdate);
+
+    // Set the updated preferences
+    setPreferences(preferences);
+  };
+
+  // Display our UI
+  if (!preferences) {
+    return <Spinner />;
+  }
+
+  return (
+    <div className="preferences">
+      <h2>Preferences</h2>
+
+      {Object.keys(preferences.workflows).map((workflowKey) => {
+        const workflowChannelPreferences =
+          preferences.workflows[workflowKey].channel_types;
+
+        return (
+          <div className="preferences__row" key={workflowKey}>
+            <div className="preferences__row-workflow">
+              {workflowLabels[workflowKey]}
+            </div>
+
+            <div className="preferences__row-channel-types">
+              {Object.keys(workflowChannelPreferences).map((channelType) => {
+                // Loop over all the channel types and render a checkbox and a label
+                // per channel type setting in the workflow.
+                const preferenceSetting =
+                  workflowChannelPreferences[channelType];
+
+                return (
+                  <div
+                    className="preferences__row-channel-type"
+                    key={channelType}
+                  >
+                    <label>
+                      {channelTypeLabels[channelType]}
+
+                      <input
+                        type="checkbox"
+                        value={preferenceSetting}
+                        onChange={() =>
+                          onPreferenceChange(
+                            workflowKey,
+                            channelType,
+                            !preferenceSetting,
+                          )
+                        }
+                      />
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+```
+
+## Wrapping up
+
+The example above serves as a simple starting point for building in-app preference center UIs. You can also take a look at our [example application](https://github.com/knocklabs/knock-node-example-app/blob/main/app/users/components/NotificationPreferencesModal.tsx) for another, more complex preference center example.

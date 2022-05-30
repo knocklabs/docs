@@ -1,16 +1,72 @@
 ---
-title: Customizing the feed
-tags: ["inbox", "feeds", "toasts"]
+title: "Building notification feeds with React"
 ---
 
-While we provide a pre-built set of React components, you may wish to use your own styles
-to better match your product's design system. In this guide we'll show you how to customize
-Knock components.
+Our `@knocklabs/react-notification-feed` library comes pre-built with a real-time feed component that you can drop into your application. In this guide, you'll find common recipes to help you work with the Knock feed component.
 
-**Note:** our feed components are currently only available for React.js. Read about bringing your own
-UI or contact us if you want to discuss how to build components for other platforms.
+**Quick links**:
 
-## Adding an onclick handler to the notification cell
+- [Quick start guide on adding a notification feed](/in-app-ui/react/quick-start)
+- [`@knocklabs/react-notification-feed` library reference](/in-app-ui/react/reference)
+- [`@knocklabs/client` library reference](/in-app-ui/javascript/reference)
+
+## Getting started
+
+To use this example, you'll need [an account on Knock](https://dashboard.knock.app), as well as an in-app feed channel with a workflow that produces in-app feed messages. You'll also need:
+
+- A public API key for the Knock environment (set as `KNOCK_PUBLIC_API_KEY`)
+- The channel ID for the in-app feed (set as `KNOCK_FEED_CHANNEL_ID`)
+
+## Installing dependencies
+
+```bash Installing dependencies
+npm install @knocklabs/react-notification-feed
+```
+
+## Rendering a notification feed
+
+To add a real-time notifications feed to your product, you can use the out-of-the-box components that the `@knocklabs/react-notification-feed` library offers.
+
+```jsx
+import { useState, useRef } from "react";
+import {
+  KnockFeedProvider,
+  NotificationIconButton,
+  NotificationFeedPopover,
+} from "@knocklabs/react-notification-feed";
+
+// Required CSS import, unless you're overriding the styling
+import "@knocklabs/react-notification-feed/dist/index.css";
+
+const YourAppLayout = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const notifButtonRef = useRef(null);
+
+  return (
+    <KnockFeedProvider
+      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+      feedId={process.env.KNOCK_FEED_ID}
+      userId={currentUser.id}
+    >
+      <>
+        <NotificationIconButton
+          ref={notifButtonRef}
+          onClick={(e) => setIsVisible(!isVisible)}
+        />
+        <NotificationFeedPopover
+          buttonRef={notifButtonRef}
+          isVisible={isVisible}
+          onClose={() => setIsVisible(false)}
+        />
+      </>
+    </KnockFeedProvider>
+  );
+};
+```
+
+## Common recipes
+
+### Adding an `onClick` handler to the notification cell
 
 You can customize the click handler for the notification cell as follows:
 
@@ -22,7 +78,7 @@ import { NotificationFeed } from "@knocklabs/react-notification-feed";
 
 Both the `NotificationFeed` and the `NotificationFeedPopover` take a `onNotificationClick` prop.
 
-## Rendering a different notification cell in the feed
+#### Rendering a different notification cell in the feed
 
 You can customize the rendering of a notification cell in the feed by overriding the `renderItem` prop.
 
@@ -34,7 +90,7 @@ const MyNotificationCell = ({ item, onItemClick }) => <Outer>...</Outer>;
 <NotificationFeed renderItem={(props) => <MyNotificationCell {...props} />} />;
 ```
 
-## Overriding the avatar
+### Overriding the avatar
 
 You can customize the `Avatar` component rendered within the `NotificationCell` by passing a different `avatar` component into the `NotificationCell` in the `renderItem` function passed to the feed:
 
@@ -57,7 +113,7 @@ import {
 />;
 ```
 
-## Using dark mode
+### Using dark mode
 
 The feed supports an optional `colorMode` prop, that defaults to `light` but can be set as `dark` for dark mode support.
 
@@ -67,11 +123,11 @@ import { NotificationFeed } from "@knocklabs/react-notification-feed";
 <NotificationFeed colorMode="dark" />;
 ```
 
-## Adding inline actions
+### Adding inline actions
 
 For more advanced use cases, you may need to provide inline actions on your notifications. The `NotificationCell` component accepts a `children` prop in order for you to render actions. You'll need to override the `renderItem` prop on the `NotificationFeed` or `NotificationFeedPopover` to render the custom notification cell.
 
-### Using action buttons
+#### Using action buttons
 
 We ship `Button` and `ButtonGroup` components, which have a complementary set of styling for the rest of the feed. You can render the buttons in a button group so that they'll be grouped together, or can render them individually.
 
@@ -101,7 +157,7 @@ import {
 
 **Note**: remember to call `event.stopPropagation` in your `onClick` handler to stop the notification `onClick` handler from being invoked.
 
-### Targeting a specific workflow to have buttons
+#### Targeting a specific workflow to have buttons
 
 A common use case is to only show action buttons for certain workflows. You can achieve this via the `item.source` property, which exposes a `WorkflowSource`:
 
@@ -127,41 +183,9 @@ import {
 />;
 ```
 
-### Button Props
+You can find a full list of the props available for the [`Button` component here](/in-app-ui/react/reference#button).
 
-The `Button` exposes the following props.
-
-| Prop        | Description                                                                        |
-| ----------- | ---------------------------------------------------------------------------------- |
-| variant     | `primary` or `secondary` (defaults to `primary`)                                   |
-| onClick     | An event handler to be invoked on click                                            |
-| loadingText | Text to display when isLoading is true                                             |
-| isLoading   | When true, will show a spinner (defaults to `false`)                               |
-| isDisabled  | When true, will disable the button (defaults to `false`)                           |
-| isFullWidth | When true, make the button occupy the width of the container (defaults to `false`) |
-
-### Adding other inline actions
-
-If you have a more advanced use case, you can render any inline component you wish using the same technique as above.
-
-```jsx
-import {
-  NotificationFeed,
-  NotificationCell,
-} from "@knocklabs/react-notification-feed";
-
-<NotificationFeed
-  renderItem={({ item, ...props }) => (
-    <NotificationCell {...props} item={item}>
-      {item.source.key === "new-comment" && (
-        <InlineCommentingWidget item={item} />
-      )}
-    </NotificationCell>
-  )}
-/>;
-```
-
-## Customizing the theme
+## Customizing the feed styling
 
 The complete theme that controls the look and feel of the feed components can be customized for theme in a few different ways:
 

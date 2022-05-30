@@ -45,21 +45,55 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
-    title: "Client integration",
-    slug: "/client-integration",
-    desc: "A guide for how to integrate Knock into your client-side applications.",
-    pages: [{ slug: "/authenticating-users", title: "Authentication" }],
-  },
-  {
-    title: "Notification feeds",
-    slug: "/notification-feeds",
-    desc: "Power real-time, in-app notifications in minutes using Knock's Feed API and pre-built React components.",
+    title: "Building in-app UI",
+    slug: "/in-app-ui",
+    desc: "Use the Knock in-app experiences APIs and components to build rich notifications experiences inside of your product.",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/getting-started", title: "Getting started" },
-      { slug: "/customizing-ui", title: "Customizing the UI" },
-      { slug: "/bring-your-own-ui", title: "Bring your own UI" },
-      { slug: "/feed-features", title: "Feed feature guide" },
+      {
+        slug: "/security-and-authentication",
+        title: "Security & authentication",
+      },
+      {
+        title: "React",
+        slug: "/react",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/feed", title: "Feeds" },
+          { slug: "/toasts", title: "Toasts" },
+          { slug: "/inbox", title: "Inbox" },
+          {
+            slug: "/custom-notifications-ui",
+            title: "Custom notifications UI",
+          },
+          { slug: "/preferences", title: "Preferences" },
+          { slug: "/reference", title: "API reference" },
+        ],
+      },
+      {
+        title: "Javascript",
+        slug: "/javascript",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick start" },
+          { slug: "/reference", title: "API reference" },
+        ],
+      },
+      {
+        title: "React Native",
+        slug: "/react-native",
+        pages: [{ slug: "/overview", title: "Overview" }],
+      },
+      {
+        title: "iOS (Swift)",
+        slug: "/ios",
+        pages: [{ slug: "/overview", title: "Overview" }],
+      },
+      {
+        title: "Android (Kotlin)",
+        slug: "/android",
+        pages: [{ slug: "/overview", title: "Overview" }],
+      },
     ],
   },
   {
@@ -76,6 +110,11 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/aws-ses", title: "AWS SES" },
           { slug: "/sendgrid", title: "SendGrid" },
         ],
+      },
+      {
+        title: "In-app feeds",
+        slug: "/in-app-feed",
+        pages: [{ slug: "/overview", title: "Overview" }],
       },
       {
         title: "Push",

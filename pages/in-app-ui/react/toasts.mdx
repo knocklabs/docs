@@ -1,0 +1,84 @@
+---
+title: "Building notification toasts with React"
+---
+
+While there are no out-of-the-box components in the `@knocklabs/react-notification-feed` library, it's easy to build toasts on top of the primitives exposed. In this guide, we'll show you just how to do that using the `react-hot-toasts` library as our "toaster".
+
+## Getting started
+
+To use this example, you'll need [an account on Knock](https://dashboard.knock.app), as well as an in-app feed channel with a workflow that produces in-app feed messages. You'll also need:
+
+- A public API key for the Knock environment (set as `KNOCK_PUBLIC_API_KEY`)
+- The channel ID for the in-app feed (set as `KNOCK_FEED_CHANNEL_ID`)
+
+## Installing dependencies
+
+```bash Installing dependencies
+npm install @knocklabs/react-notification-feed react-hot-toast
+```
+
+## Adding the `KnockFeedProvider`
+
+We'll need to wrap our toast producing component in a `KnockFeedProvider` to setup a connection to Knock and connect to the authenticated user's feed. You can read more about the available props for the feed provider in [the reference](/in-app-ui/react/reference#knockfeedprovider).
+
+```jsx
+import { KnockFeedProvider } from "@knocklabs/react-notification-feed";
+
+// We'll write this next
+import NotificationToaster from "./NotificationToaster";
+
+const NotificationToastProducer = () => {
+  // An example of fetching the current authenticated user
+  const { user } = useCurrentUser();
+
+  return (
+    <KnockFeedProvider
+      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+      feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+      userId={user.id}
+    >
+      <NotificationToaster />
+    </KnockFeedProvider>
+  );
+};
+```
+
+## Rendering toasts when new notifications come in
+
+Our `KnockFeedProvider` exposes a `useKnockFeed` hook, which will return a `feedClient` we can use to bind to and receive real-time notifications being received on our feed.
+
+```jsx
+import toast, { Toaster } from "react-hot-toast";
+import { useKnockFeed } from "@knocklabs/react-notification-feed";
+
+const NotificationToaster = () => {
+  const { feedClient } = useKnockFeed();
+
+  const onNotificationsReceived = ({ items }) => {
+    // Whenever we receive a new notification from our real-time stream, show a toast
+    // (note here that we can receive > 1 items in a batch)
+    items.forEach((notification) => {
+      toast(notification.blocks[0].rendered, { id: notification.id });
+    });
+
+    // Optionally, you may want to mark them as "seen" as well
+    feedClient.markAsSeen(items);
+  });
+
+  useEffect(() => {
+    // Receive all real-time notifications on our feed
+    feedClient.on("items.received.realtime", onNotificationsReceived);
+
+    // Cleanup
+    return () => feedClient.off("items.received.realtime", onNotificationsReceived);
+  }, [feedClient]);
+
+  return <Toaster />;
+};
+
+export default NotificationToaster;
+```
+
+## Wrapping up
+
+We can then test our workflow using the built-in test runner in Knock to produce messages, which will be received and displayed as a toast in your application.
