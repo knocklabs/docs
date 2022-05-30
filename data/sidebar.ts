@@ -67,7 +67,7 @@ const sidebarContent: SidebarSection[] = [
             title: "Custom notifications UI",
           },
           { slug: "/preferences", title: "Preferences" },
-          { slug: "/reference", title: "Reference" },
+          { slug: "/reference", title: "API reference" },
         ],
       },
       {
@@ -76,7 +76,7 @@ const sidebarContent: SidebarSection[] = [
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/quick-start", title: "Quick start" },
-          { slug: "/reference", title: "Reference" },
+          { slug: "/reference", title: "API reference" },
         ],
       },
       {

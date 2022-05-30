@@ -1,5 +1,5 @@
 ---
-title: "Reference (@knocklabs/client)"
+title: "API Reference (@knocklabs/client)"
 ---
 
 import { Attributes, Attribute } from "../../../components/Attributes";
@@ -8,40 +8,432 @@ In this section, you'll find the documentation for the classes and methods avail
 
 ## `Knock`
 
-The top level `Knock` class
+The top level `Knock` class, used to interact with a client instance.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="apiKey"
+    type="string*"
+    description="The public API key for the Knock environment."
+  />
+  <Attribute
+    name="options"
+    type="KnockOptions"
+    description="Additional options to pass through."
+  />
+</Attributes>
+
+**Example**:
+
+```javascript
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+```
+
+### `userId`
+
+Returns the user ID of the authenticated user.
+
+**Returns**: `string`
+
+### `feeds`
+
+Returns a `FeedClient` instance that can be initialized to return a feed.
+
+**Returns**: `Feed` instance
+
+**Example**:
+
+```javascript
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+// knockFeed is now a `Feed` instance.
+const knockFeed = knock.feeds.initialize(process.env.KNOCK_FEED_CHANNEL_ID);
+```
+
+### `preferences`
+
+Returns a `Preferences` instance to interact with the preferences API for the current, authenticated user.
+
+**Returns**: `Preferences` instance
+
+**Example**:
+
+```javascript
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+// Returns a `Preferences` instance that can be invoked.
+await knock.preferences.getAll();
+```
+
+### `client`
+
+Returns an instance of an authenticated `ApiClient` that can be used to make HTTP and Websocket requests to Knock.
+
+**Returns**: `ApiClient` instance
+
+### `authenticate`
+
+Authenticates the current user and creates a new Knock session.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="userId"
+    type="string*"
+    description="The authenticated user to retrieve a feed for"
+  />
+  <Attribute
+    name="userToken"
+    type="string"
+    description="JWT for the authenticated user. Not required in development environments."
+  />
+</Attributes>
+
+**Returns**: `void`
+
+**Example**:
+
+```javascript
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id, user.knockUserToken);
+```
+
+### `teardown`
+
+Tearsdown a current session and disconnects any connected sockets.
+
+**Returns**: `void`
 
 ## `ApiClient`
 
 The API client exposes direct functions for communicating with the Knock API over HTTP and websocket.
 
+### `socket`
+
+**Returns**: a `Socket`
+
+### `connectSocket`
+
+Connects the socket instance to Knock's realtime server.
+
+**Returns**: void
+
+### `disconnectSocket`
+
+Disconnects the socket from Knock's realtime server.
+
+**Returns**: void
+
+### `makeRequest`
+
 ## `Feed`
+
+Represents the connection between a user and a feed, including methods for interacting with the items on that feed. Also includes a stateful store that can be used to build in-app notification experiences easily. See [`FeedStoreState`](#feedstorestate) for more on the shape of the store.
+
+### `store`
+
+**Returns**: `StoreApi<FeedStoreState>`
+
+### `listenForUpdates`
+
+Connects the feed instance to the realtime socket so that any new items published to the feed are received over the websocket.
+
+**Returns**: a teardown function.
+
+**Example**:
+
+```javascript Connecting to a realtime stream
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const knockFeed = knock.feeds.initialize(process.env.KNOCK_FEED_CHANNEL_ID);
+
+// Listen for updates
+const teardown = knockFeed.listenForUpdates();
+
+// Teardown the connection when done
+teardown();
+```
+
+**Returns**: void
+
+### `on`
+
+Binds an event handler to be invoked when the event is triggered.
+
+**Events**:
 
 <Attributes>
   <Attribute
-    name="apiKey"
-    type="string*"
-    description="The public API key for the environment"
+    name="items.received.realtime"
+    type="event"
+    description="Invoked whenever items are received in realtime from the socket."
+  />
+  <Attribute
+    name="items.received.page"
+    type="event"
+    description="Invoked whenever items are from performing a fetch. Will be invoked for the initial fetch as well."
   />
 </Attributes>
 
-## `FeedStoreState`
-
-The feed store is a stateful store built with `zustand` that's exposed via a `Feed` instance.
+**Params**:
 
 <Attributes>
   <Attribute
-    name="apiKey"
-    type="string*"
-    description="The public API key for the environment"
+    name="eventName"
+    type="enum of `messages.new` | `items.received.realtime` | `items.received.page` | `items.received.*`"
+    description="The type of event to bind to."
+  />
+  <Attribute
+    name="callback"
+    type="function"
+    description="A function to be invoked when the event is triggered."
+  />
+</Attributes>
+
+**Returns**: `void`.
+
+**Example**:
+
+```javascript Listening to items being received
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const knockFeed = knock.feeds.initialize(process.env.KNOCK_FEED_CHANNEL_ID);
+
+knockFeed.on("items.received.page", ({ items }) => {
+  console.log(items);
+});
+```
+
+### `off`
+
+Unbinds an existing event handler previously bound with `on`. Use this method to cleanup bound event handlers.
+
+**Returns**: `void`.
+
+### `getState`
+
+Programatically access the current `FeedStoreState`.
+
+**Returns**: `FeedStoreState`.
+
+### `markAsSeen`
+
+Marks the given items as `seen`. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsUnseen`
+
+Removes the `seen` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsRead`
+
+Sets the `read` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsUnread`
+
+Removes the `read` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsArchived`
+
+Sets the `archived` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsUnarchived`
+
+Removes the `archived` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `fetch`
+
+Fetches
+
+Emits `items.received.page` events on a successful fetch.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="options"
+    type="FetchFeedOptions"
+    description="Options to pass through to the feed request"
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `fetchNextPage`
+
+Fetches the next page of the feed items (if there are any more to fetch). Note: this will
+
+## `FeedStoreState`
+
+A **[zustand](https://github.com/pmndrs/zustand) state store** that holds the current feed state, including item counts, for easy notification feed rendering within your application. The FeedStoreState is entirely managed by the `Feed` instance, and any calls to `fetch()`, `markAsX`, or `fetchNextPage` will update the state accordingly.
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="FeedItem[]"
+    description="An ordered list of feed items to be rendered."
+  />
+  <Attribute
+    name="pageInfo"
+    type="PageInfo"
+    description="The page info of the last successful fetch."
+  />
+  <Attribute
+    name="metadata"
+    type="FeedMetadata"
+    description="The current feed metadata including unread, unseen, read, and total counts of items in the feed."
+  />
+  <Attribute
+    name="loading"
+    type="boolean"
+    description="Whether or not the feed is currently loading."
+  />
+  <Attribute
+    name="networkStatus"
+    type="NetworkStatus"
+    description="Represents the various network states the feed can be in, including differentiating between 'fetching more' and 'fetching'."
   />
 </Attributes>
 
 ## `Preferences`
 
+### `get`
+
+Retrieves a preference set for the authenticated user by calling the [get preferences endpoint](/reference#get-preferences-user) directly from the client.
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript Getting preferences for the user
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const preferenceSet = await knock.preferences.get();
+```
+
+### `set`
+
+Updates the authenticated users preferences by calling the [set preferences endpoint](/reference#set-preferences-user) directly from the client.
+
+**Params**:
+
 <Attributes>
   <Attribute
-    name="apiKey"
-    type="string*"
-    description="The public API key for the environment"
+    name="preferenceSet"
+    type="SetPreferencesProperties"
+    description="The preferences to set for the current user."
   />
 </Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript Setting preferences for the user
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const preferenceSet = await knock.preferences.set({
+  channel_types: { email: true, sms: false },
+  workflows: {
+    "dinosaurs-loose": {
+      channel_types: { email: false, in_app_feed: true },
+    },
+  },
+});
+```

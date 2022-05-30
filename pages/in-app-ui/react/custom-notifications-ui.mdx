@@ -43,8 +43,21 @@ const NotificationsPage = () => {
 
 ## Creating a custom notifications page
 
+In our notifications page, we'll use the store exposed by the `KnockFeedProvider` in order to render the list of notifications that ewe have available.
+
 ```jsx
-const NotificationsList = () => {};
+const NotificationsList = () => {
+  const { useFeedStore } = useKnockFeed();
+  const items = useFeedStore((state) => state.items);
+
+  return (
+    <div className="notifications">
+      {items.map((item) => (
+        <NotificationCell key={item.id} item={item} />
+      ))}
+    </div>
+  );
+};
 ```
 
 ## Creating a notification cell
@@ -57,7 +70,29 @@ type Props = {
 };
 
 const NotificationCell: React.FC<Props> = ({ item }) => {
-  return <div className="notification-cell"></div>;
+  // Group the content blocks by the name for easy lookup
+  const blocksByName = useMemo(() => {
+    return item.blocks.reduce((acc, block) => {
+      return { ...acc, [block.name]: block };
+    }, {});
+  }, [item]);
+
+  const maybeActor = item.actors[0];
+
+  return (
+    <div className="notification-cell">
+      {maybeActor && (
+        <span class="notification-cell__actor">{maybeActor.name}</span>
+      )}
+
+      {blocksByName.body && (
+        <div
+          className="notification-cell__content"
+          dangerouslySetInnerHTML={{ __html: blocksByName.body.rendered }}
+        />
+      )}
+    </div>
+  );
 };
 ```
 
