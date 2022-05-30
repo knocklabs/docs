@@ -1,6 +1,7 @@
 ---
 title: Knock's features
 tags: ["getting started"]
+section: Getting started
 ---
 
 Here's an overview of the core features of Knock and how you can leverage them in the notification system you design with our product.

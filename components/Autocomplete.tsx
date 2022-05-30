@@ -58,6 +58,7 @@ interface ResultItem extends BaseItem {
   objectID: string;
   path: string;
   title: string;
+  section: string;
 }
 
 const Autocomplete = () => {
@@ -213,6 +214,14 @@ const Autocomplete = () => {
                         <Link href={`/${item.path}`} passHref>
                           <a href="replace">
                             <Highlight hit={item} attribute="title" />
+                            <Text
+                              mt={2}
+                              color="gray.400"
+                              fontWeight="500"
+                              fontSize="12px"
+                            >
+                              {(item as ResultItem).section}
+                            </Text>
                           </a>
                         </Link>
                       </li>

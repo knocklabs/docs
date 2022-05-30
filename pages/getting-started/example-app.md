@@ -1,6 +1,7 @@
 ---
 title: Example app
 tags: ["nodejs", "using knock", "getting started"]
+section: Getting started
 ---
 
 Learn more about how Knock works and get up and running quickly using our [Node.js example app](https://github.com/knocklabs/knock-node-example-app/).

@@ -65,6 +65,7 @@ module.exports = withPlugins(
                 objectID: `reference#${slug}`,
                 path: `reference#${slug}`,
                 title,
+                section: "API reference",
                 tags: [],
               };
             });
@@ -91,7 +92,7 @@ module.exports = withPlugins(
                 objectID: c.id,
                 path: c.id,
                 title: c.title,
-
+                section: c.section,
                 // Once we add tags are added to pages, Algolia records
                 // will be updated with them, so we can enhance the search experience
                 tags: c.tags || [],

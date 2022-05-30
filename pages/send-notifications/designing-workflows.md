@@ -1,6 +1,7 @@
 ---
 title: Designing workflows
 tags: ["template", "liquid", "steps"]
+section: Send notifications
 ---
 
 The Knock workflow builder enables you to craft notification workflows that combine functions, channels, and conditional logic to determine which of your users to notify across which channels when a given event takes place in your product.

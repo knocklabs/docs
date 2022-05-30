@@ -1,6 +1,7 @@
 ---
 title: Core data concepts
 tags: ["how knock works"]
+section: Send & manage data
 ---
 
 In order for Knock to generate messages for your end users we need to have knowledge about a

@@ -1,6 +1,7 @@
 ---
 title: "Reference: email layout"
 tags: ["templates"]
+section: Send notifications
 ---
 
 This is a reference guide of special Knock variables, and generated CSS styles that are used in email layouts.

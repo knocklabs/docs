@@ -1,6 +1,7 @@
 ---
 title: Delivering notifications
 tags: ["delivery", "channels"]
+section: Send notifications
 ---
 
 You can use Knock to power both in-app and out-of-app notifications.

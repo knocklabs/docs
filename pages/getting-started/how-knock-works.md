@@ -1,6 +1,7 @@
 ---
 title: How Knock works
 tags: ["getting started"]
+section: Getting started
 ---
 
 Knock is a managed notifications-as-a-service platform to power your product notifications.

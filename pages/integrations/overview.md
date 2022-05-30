@@ -1,5 +1,6 @@
 ---
 title: Overview
+Section: Integrations
 ---
 
 You can use Knock to power sophisticated cross-channel notification workflow for your end users.

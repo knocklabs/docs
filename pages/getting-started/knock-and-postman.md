@@ -1,6 +1,7 @@
 ---
 title: Using Knock with Postman
 tags: ["postman", "api", "getting started"]
+section: Getting started
 ---
 
 Our Postman collection is a good way to get familiar with the Knock API. Here's how to get started.
