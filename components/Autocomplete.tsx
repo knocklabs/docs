@@ -97,7 +97,7 @@ const Autocomplete = () => {
                       indexName: algoliaIndex,
                       query,
                       params: {
-                        hitsPerPage: 4,
+                        hitsPerPage: 8,
                       },
                     },
                   ],
