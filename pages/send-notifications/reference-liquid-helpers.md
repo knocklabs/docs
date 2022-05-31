@@ -1,6 +1,7 @@
 ---
 title: "Reference: liquid helpers"
 tags: ["liquid", "template", "variables"]
+section: Send notifications
 ---
 
 This is a reference of common Knock variables, Liquid syntax, and Knock-specific liquid helpers that you can use within the Knock template editor.

@@ -1,6 +1,7 @@
 ---
 title: Environments
 tags: ["how knock works"]
+section: Send & manage data
 ---
 
 Knock uses the concept of environments to ensure logical separation of your data between

@@ -1,6 +1,7 @@
 ---
 title: How to send email with AWS SES
 tags: ["simple email service"]
+section: Integrations
 ---
 
 Here's how to configure AWS SES for use with Knock.

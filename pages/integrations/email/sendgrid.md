@@ -1,5 +1,6 @@
 ---
 title: How to send email with SendGrid
+section: Integrations
 ---
 
 In this guide we’ll cover how to start sending emails through your SendGrid account using Knock.
