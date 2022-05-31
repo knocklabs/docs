@@ -46,6 +46,13 @@ var options = new BulkDeleteObjectsOptions {
 
 await knockClient.Objects.BulkDelete("projects", options);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->bulkDelete('projects', ['project-1', 'project-2']);
+`,
 };
 
 export default languages;

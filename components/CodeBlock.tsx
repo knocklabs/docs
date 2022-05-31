@@ -4,6 +4,7 @@ import javascript from "react-syntax-highlighter/dist/cjs/languages/hljs/javascr
 import ruby from "react-syntax-highlighter/dist/cjs/languages/hljs/ruby";
 import elixir from "react-syntax-highlighter/dist/cjs/languages/hljs/elixir";
 import python from "react-syntax-highlighter/dist/cjs/languages/hljs/python";
+import php from "react-syntax-highlighter/dist/cjs/languages/hljs/php";
 import dotnet from "react-syntax-highlighter/dist/cjs/languages/hljs/csharp";
 import shell from "react-syntax-highlighter/dist/cjs/languages/hljs/shell";
 import liquid from "react-syntax-highlighter/dist/cjs/languages/hljs/handlebars";
@@ -23,6 +24,7 @@ SyntaxHighlighter.registerLanguage("ruby", ruby);
 SyntaxHighlighter.registerLanguage("elixir", elixir);
 SyntaxHighlighter.registerLanguage("csharp", dotnet);
 SyntaxHighlighter.registerLanguage("python", python);
+SyntaxHighlighter.registerLanguage("php", php);
 SyntaxHighlighter.registerLanguage("shell", shell);
 SyntaxHighlighter.registerLanguage("liquid", liquid);
 
@@ -34,6 +36,7 @@ export type SupportedLanguage =
   | "elixir"
   | "csharp"
   | "python"
+  | "php"
   | "json";
 
 const LanguageLabel = {
@@ -43,6 +46,7 @@ const LanguageLabel = {
   elixir: "Elixir",
   csharp: "C#",
   python: "Python",
+  php: "PHP",
   shell: "Shell",
   json: "JSON",
 };

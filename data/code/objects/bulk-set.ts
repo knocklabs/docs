@@ -62,6 +62,18 @@ var options = new BulkSetObjectsOptions {
 
 await knockClient.Objects.BulkSet("projects", options);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->bulkSet('projects', [
+  [
+    'id' => 'project-1',
+    'name' => 'Project one'
+  ]
+])
+`,
 };
 
 export default languages;

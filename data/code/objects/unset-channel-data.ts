@@ -47,6 +47,13 @@ await knockClient.Objects.SetChannelData(
   "knock-slack-channel-id"
 );
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->unsetChannelData('projects', 'project-1', 'knock-slack-channel-id');
+`,
 };
 
 export default languages;

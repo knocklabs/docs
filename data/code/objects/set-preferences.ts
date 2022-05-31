@@ -99,6 +99,27 @@ Knock.Objects.set_preferences(knock_client, "projects", "project-1", %{
   }
 })
   `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->setPreferences('projects', 'project-1', [
+  'channel_types' => [
+    'email' => true,
+    'sms' => false
+  ],
+  'workflows' => [
+    'dinosaurs-loose' => [
+      'channel_types' => [
+        'email' => false,
+        'in_app_feed' => true,
+        'sms' => true
+      ]
+    ]
+  ]
+]);
+`,
 };
 
 export default languages;

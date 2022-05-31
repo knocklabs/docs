@@ -61,6 +61,17 @@ var objectParams = new Dictionary<string, object>{
 
 await knockClient.Objects.Set("projects", "project-1", objectParams)  
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->set('projects', 'project-1', [
+  'name' => 'Project one',
+  'total_assets' => 10,
+  'tags' => ['cool', 'fun', 'project']
+]);
+`,
 };
 
 export default languages;

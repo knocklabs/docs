@@ -54,6 +54,16 @@ var params = new Dictionary<string, object>{
 
 var user = await knockClient.Users.Identify(user.Id, params)  
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->users()->identify('jhammond', [
+  'name' => 'John Hammond',
+  'email' => 'jhammond@ingen.net',
+]);
+`,
 };
 
 export default languages;

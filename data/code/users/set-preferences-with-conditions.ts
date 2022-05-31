@@ -93,6 +93,25 @@ Knock.Users.set_preferences(knock_client, user.id, %{
   }
 })
   `,
+  php: `
+use Knock\\KnockSdk\\Client;
+  
+$client = new Client('sk_12345');
+  
+$client->users()->setPreferences($user->id(), [
+  'workflows' => [
+    'dinosaurs-loose' => [
+      'conditions' => [
+        [
+          'variable' => 'recipient.muted_alert_ids',
+          'operator' => 'not_contains',
+          'argument' => 'data.alert_id'
+        ]
+      ]
+    ]
+  ]
+]);
+  `,
 };
 
 export default languages;

@@ -29,6 +29,13 @@ var knockClient = new KnockClient(
 
 await knockClient.Users.Delete(user.Id);  
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->users()->delete($user->id());
+`,
 };
 
 export default languages;

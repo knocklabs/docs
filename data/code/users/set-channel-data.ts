@@ -53,6 +53,15 @@ Knock.Users.set_channel_data(knock_client, user.id, "8209f26c-62a5-461d-95e2-a57
   tokens: [user_device_token],
 })
   `,
+  php: `
+use Knock\\KnockSdk\\Client;
+  
+$client = new Client('sk_12345');
+  
+$client->users()->setChannelData($user->id(), '8209f26c-62a5-461d-95e2-a5716a26e652', [
+  'tokens' => [$userDeviceToken]
+]);
+  `,
 };
 
 export default languages;

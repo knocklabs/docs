@@ -95,6 +95,22 @@ Knock.Workflows.trigger("invoice-paid", %{
   recipients: recipient_ids,
 })
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->workflows()->trigger('invoice-paid', [
+  'data' => [
+    'attachments' => [
+      'name' => 'Invoice.pdf',
+      'content_type' => 'application/pdf',
+      'content' => $fileContents
+    ]
+  ],
+  'recipients' => $recipient_ids,
+]);
+`,
 };
 
 export default languages;

@@ -60,6 +60,19 @@ var options = new BulkSetUserPreferencesOptions {
 
 await knockClient.Users.BulkSetPreferences(options);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->users()->bulkSetPreferences([
+  'user_ids' => ['jhammond', 'dnedry'],
+  'channel_types' => [
+    'email' => true,
+    'sms' => false
+  ]
+]);
+`,
 };
 
 export default languages;

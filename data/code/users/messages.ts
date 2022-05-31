@@ -49,7 +49,7 @@ Knock::Users.get_messages(
 
 Knock::Users.get_messages(
   id: user.id,
-  options={'page_size': 10, 'tenant': 10}
+  options={'page_size': 10, 'tenant': 'my_tenant'}
 )
 `,
   csharp: `
@@ -66,6 +66,16 @@ var params = new Dictionary<string, string> {
              };
 
 await knockClient.Users.GetMessages(user.Id, params);
+`,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->users()->getMessages($user->id(), [
+  'page_size' => 10,
+  'tenant' => 'my_tenant'
+]);
 `,
 };
 

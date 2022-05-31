@@ -43,6 +43,15 @@ var knockClient = new KnockClient(
 
 await knockClient.Users.GetChannelData(user.Id, "some-channel-id-from-knock");
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->users()->getChannelData($user->id(), [
+  'channel_id' => 'some-channel-id-from-knock'
+]);
+`,
 };
 
 export default languages;

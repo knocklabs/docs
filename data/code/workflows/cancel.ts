@@ -40,6 +40,15 @@ knock_client = MyApp.Knock.client()
 
 Knock.Workflows.cancel("new-user-invited", user-invite.id)
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->workflows()->cancel('new-user-invited', [
+  'cancellation_key' => $userInvite->id(),
+]);
+`,
 };
 
 export default languages;

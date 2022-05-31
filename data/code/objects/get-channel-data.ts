@@ -44,6 +44,13 @@ var knockClient = new KnockClient(
 
 await knockClient.Objects.GetChannelData("projects", project.Id, "some-channel-id-from-knock"); 
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->getChannelData('projects', 'project-1', 'some-channel-id-from-knock');
+`,
 };
 
 export default languages;

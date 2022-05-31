@@ -50,6 +50,16 @@ Knock.Workflows.trigger("new-comment", %{
   recipients: follower_ids,
 })
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+
+$client = new Client('sk_12345');
+
+$client->workflows()->trigger('new-comment', [
+  'actor' => ['id' => $project->id(), 'collection' => 'projects'],
+  'recipients' => $follower_ids,
+]);
+`,
 };
 
 export default languages;

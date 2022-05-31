@@ -80,6 +80,16 @@ var params = new Dictionary<string, string> {
 
 await knockClient.Objects.GetMessages("projecs", project.id, params);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->objects()->getMessages('projects', 'project-1', [
+  'page_size' => 10,
+  'tenant' => 'my_tenant'
+]);
+`,
 };
 
 export default languages;

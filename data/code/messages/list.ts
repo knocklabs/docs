@@ -61,6 +61,16 @@ var params = new Dictionary<string, string> {
 
 await knockClient.Messages.List(params);
 `,
+  php: `
+use Knock\\KnockSdk\\Client;
+    
+$client = new Client('sk_12345');
+
+$client->messages()->list([
+  'page_size' => 10,
+  'tenant' => 'my_tenant'
+]);
+`,
 };
 
 export default languages;
