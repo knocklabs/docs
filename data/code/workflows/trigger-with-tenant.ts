@@ -90,7 +90,7 @@ $client->workflows()->trigger('new-comment', [
     'comment_text' => $comment->text()
   ],
   'recipients' => $followerIds,
-  tenant: $comment->workspace->id(),
+  'tenant' => $comment->workspace->id(),
 ]);
 `,
 };
