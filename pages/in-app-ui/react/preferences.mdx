@@ -65,7 +65,7 @@ The next step here is to create our preference center. What we'll do here is:
 The nice thing about this approach is we don't need to store any notification preferences in our application, and we can use Knock as the source of truth for the notification preferences a user currently has set.
 
 ```jsx
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { Knock } from "@knocklabs/client";
 
 import { useCurrentUser } from "./hooks";
@@ -105,13 +105,13 @@ const PreferenceCenter = () => {
 
   const onPreferenceChange = async (workflowKey, channelType, setting) => {
     const preferenceUpdate = {
-      {
+      workflows: {
         [workflowKey]: {
           channel_types: {
-            [channelType]: setting
-          }
-        }
-      }
+            [channelType]: setting,
+          },
+        },
+      },
     };
 
     const preferences = await knockClient.preferences.set(preferenceUpdate);
@@ -120,9 +120,9 @@ const PreferenceCenter = () => {
     setPreferences(preferences);
   };
 
-  // Display our UI
+  // Show a spinner here or something to indicate prefs are loading
   if (!preferences) {
-    return <Spinner />;
+    return null;
   }
 
   return (
