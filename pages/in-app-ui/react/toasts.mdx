@@ -50,6 +50,7 @@ Our `KnockFeedProvider` exposes a `useKnockFeed` hook, which will return a `feed
 
 ```jsx
 import toast, { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
 import { useKnockFeed } from "@knocklabs/react-notification-feed";
 
 const NotificationToaster = () => {
@@ -64,14 +65,15 @@ const NotificationToaster = () => {
 
     // Optionally, you may want to mark them as "seen" as well
     feedClient.markAsSeen(items);
-  });
+  };
 
   useEffect(() => {
     // Receive all real-time notifications on our feed
     feedClient.on("items.received.realtime", onNotificationsReceived);
 
     // Cleanup
-    return () => feedClient.off("items.received.realtime", onNotificationsReceived);
+    return () =>
+      feedClient.off("items.received.realtime", onNotificationsReceived);
   }, [feedClient]);
 
   return <Toaster />;
