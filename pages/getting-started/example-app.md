@@ -4,9 +4,11 @@ tags: ["nodejs", "using knock", "getting started", "react"]
 section: Getting started
 ---
 
+Below you'll find a number of Knock example apps to learn from or incorporate into your project.
+
 ## React in-app notifications example app
 
-Learn more about integrating Knock into your web application to power in-app notification feed and toasts experiences using our [React example app](https://github.com/knocklabs/in-app-notifications-example-nextjs).
+Learn more about integrating Knock into your web application to power in-app notification feed and toast experiences using our [React example app](https://github.com/knocklabs/in-app-notifications-example-nextjs), written in Next.js.
 
 [See a live demo](http://knock-in-app-notifications-react.vercel.app/)
 
