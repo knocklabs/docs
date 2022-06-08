@@ -1,5 +1,5 @@
 ---
-title: Example app
+title: Knock example apps
 tags: ["nodejs", "using knock", "getting started", "react"]
 section: Getting started
 ---
