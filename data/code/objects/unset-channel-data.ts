@@ -54,6 +54,15 @@ $client = new Client('sk_12345');
 
 $client->objects()->unsetChannelData('projects', 'project-1', 'knock-slack-channel-id');
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+response, _ := knockClient.Objects.DeleteChannelData(ctx, &knock.DeleteObjectChannelDataRequest{
+  Collection: "projects",
+  ID:         "project-1"
+})
+`,
 };
 
 export default languages;

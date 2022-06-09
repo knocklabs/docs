@@ -66,6 +66,20 @@ $client->users()->bulkIdentify([
   ]
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Users.BulkIdentify(ctx, &knock.&BulkIdentifyUserRequest{
+  Users: []*User{
+    {
+      ID:     "jane",
+      Email:  "jane@example.com",
+      Name:   "Jane Doe"
+    }
+  }
+})
+`,
 };
 
 export default languages;

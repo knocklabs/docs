@@ -52,6 +52,14 @@ $client->users()->getChannelData($user->id(), [
   'channel_id' => 'some-channel-id-from-knock'
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+channel_data, _ := knockClient.Users.GetChannelData(ctx, &knock.GetUserChannelDataRequest{
+  UserID: user.ID,
+})
+`,
 };
 
 export default languages;

@@ -97,6 +97,7 @@ const DEFAULT_LANGUAGES: SupportedLanguage[] = [
   "ruby",
   "python",
   "php",
+  "go",
   "csharp",
   "elixir",
 ];

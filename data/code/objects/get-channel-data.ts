@@ -51,6 +51,16 @@ $client = new Client('sk_12345');
 
 $client->objects()->getChannelData('projects', 'project-1', 'some-channel-id-from-knock');
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+channelData, _ := knockClient.Objects.GetChannelData(ctx, &knock.GetObjectChannelDataRequest{
+  Collection: "projects",
+  ObjectID:   "project-1",
+  ChannelID:  "some-channel-id-from-knock"
+})
+`,
 };
 
 export default languages;

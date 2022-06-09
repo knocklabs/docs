@@ -64,6 +64,19 @@ $client->users()->identify('jhammond', [
   'email' => 'jhammond@ingen.net',
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
+  ID:   "jhammond",
+  Name: "John Hammond",
+  Email: "jhammond@ingen.net",
+  CustomProperties: map[string]interface{}{
+    "welcome": "to jurassic park",
+  },
+})
+`,
 };
 
 export default languages;

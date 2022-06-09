@@ -36,6 +36,14 @@ $client = new Client('sk_12345');
 
 $client->users()->delete($user->id());
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Users.Delete(ctx, &knock.DeleteUserRequest{
+  ID: user.ID,
+})
+`,
 };
 
 export default languages;

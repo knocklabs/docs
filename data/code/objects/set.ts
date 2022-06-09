@@ -72,6 +72,20 @@ $client->objects()->set('projects', 'project-1', [
   'tags' => ['cool', 'fun', 'project']
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
+  CollectionID: "projects",
+  ID:           "project-1",
+  Properties:   map[string]interface{
+    "name":         "Project One",
+    "total_assets": 10,
+    "tags":         string[]{ "cool", "fun", "project" }
+  }
+})
+`,
 };
 
 export default languages;

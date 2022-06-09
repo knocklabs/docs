@@ -60,6 +60,12 @@ $client->workflows()->trigger('new-comment', [
   'recipients' => $follower_ids,
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+// The Go SDK doesn't currently support this example
+`,
 };
 
 export default languages;

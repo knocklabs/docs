@@ -44,6 +44,15 @@ $client->users()->merge($user->id(), [
   'from_user_id' => 'user-to-merge-from'
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Users.Merge(ctx, &knock.MergeUserRequest{
+  ID:         user.ID,
+  FromUserID: "user-to-merge-from",
+})
+`,
 };
 
 export default languages;
