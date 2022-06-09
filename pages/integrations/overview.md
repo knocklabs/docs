@@ -73,4 +73,4 @@ Here are the providers we currently support across each channel type within Knoc
 
 ### In-app
 
-- [Knock feed](/integrations/in-app/knock-feed)
+- [Knock in-app](/integrations/in-app/knock-feed)

@@ -150,7 +150,7 @@ module.exports = withPlugins(
         },
         {
           source: "/integrations/in-app-feed",
-          destination: "/integrations/in-app/feed-features",
+          destination: "/integrations/in-app/knock",
           permanent: true,
         },
         {
@@ -160,7 +160,7 @@ module.exports = withPlugins(
         },
         {
           source: "/integrations/in-app-feed/overview",
-          destination: "/integrations/in-app/feed-features",
+          destination: "/integrations/in-app/knock",
           permanent: true,
         },
         {
