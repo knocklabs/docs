@@ -9,7 +9,7 @@ const BreadcrumbItem = ({ title, path }) => (
   </li>
 );
 
-const Breadcrumbs = ({ section, page }) => (
+const Breadcrumbs = ({ section, pages }) => (
   <div className="mb-6">
     <ul className="breadcrumbs">
       <BreadcrumbItem title="Home" path="/" />
@@ -17,7 +17,16 @@ const Breadcrumbs = ({ section, page }) => (
         title={section.title}
         path={section.slug + section.pages[0].slug}
       />
-      <BreadcrumbItem title={page.title} path={section.slug + page.slug} />
+      {pages &&
+        pages.map((page) =>
+          page ? (
+            <BreadcrumbItem
+              key={page.slug}
+              title={page.title}
+              path={section.slug + page.slug}
+            />
+          ) : null,
+        )}
     </ul>
   </div>
 );

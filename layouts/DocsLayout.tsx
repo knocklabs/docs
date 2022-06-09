@@ -7,15 +7,17 @@ import PageNav from "../components/PageNav";
 import Breadcrumbs from "../components/Breadcrumbs";
 import sidebarContent from "../data/sidebar";
 import DocsSidebar from "../components/DocsSidebar";
-import { SidebarPage } from "../data/types";
 
 export const DocsLayout = ({ frontMatter, children }) => {
   const { pathname } = useRouter();
+  const paths = useMemo(() => pathname.substring(1).split("/"), [pathname]);
 
-  const { section, page, nextPage, prevPage } = useMemo(() => {
-    const sectionIndex = sidebarContent.findIndex((s) =>
-      (s.pages as SidebarPage[]).find((p) => s.slug + p.slug === pathname),
+  const { section, pages, nextPage, prevPage } = useMemo(() => {
+    const [sectionPath] = paths;
+    const sectionIndex = sidebarContent.findIndex(
+      (s) => s.slug === `/${sectionPath}`,
     );
+
     const sidebarSection = sidebarContent[sectionIndex];
     const pageIndex = (sidebarContent[sectionIndex]?.pages || []).findIndex(
       (p) => sidebarSection.slug + p.slug === pathname,
@@ -25,11 +27,11 @@ export const DocsLayout = ({ frontMatter, children }) => {
 
     return {
       section: sidebarSection,
-      page: sidebarPage,
+      pages: [sidebarPage],
       nextPage: sidebarSection?.pages[pageIndex + 1],
       prevPage: sidebarSection?.pages[pageIndex - 1],
     };
-  }, [pathname]);
+  }, [paths, pathname]);
 
   return (
     <Page pageType="Docs" sidebar={<DocsSidebar />}>
@@ -38,7 +40,7 @@ export const DocsLayout = ({ frontMatter, children }) => {
       </Head>
       <div className="w-full max-w-5xl lg:flex mx-auto relative">
         <div className="max-w-prose flex-auto">
-          {section && page && <Breadcrumbs section={section} page={page} />}
+          {section && <Breadcrumbs section={section} pages={pages} />}
 
           <h1 className="font-bold text-2xl lg:text-4xl mb-4">
             {frontMatter.title}

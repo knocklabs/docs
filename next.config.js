@@ -149,6 +149,21 @@ module.exports = withPlugins(
           permanent: true,
         },
         {
+          source: "/integrations/in-app-feed",
+          destination: "/integrations/in-app/feed-features",
+          permanent: true,
+        },
+        {
+          source: "/integrations/in-app",
+          destination: "/integrations/in-app/overview",
+          permanent: true,
+        },
+        {
+          source: "/integrations/in-app-feed/overview",
+          destination: "/integrations/in-app/feed-features",
+          permanent: true,
+        },
+        {
           source: "/integrations/chat",
           destination: "/integrations/chat/slack",
           permanent: false,
@@ -176,6 +191,11 @@ module.exports = withPlugins(
         {
           source: "/integrations/twilio-sms",
           destination: "/integrations/sms/twilio-sms",
+          permanent: true,
+        },
+        {
+          source: "/integrations/sms/twilio-sms",
+          destination: "/integrations/sms/twilio",
           permanent: true,
         },
         // Old feed docs

@@ -57,12 +57,13 @@ const SidebarSubsectionList: React.FC<Props> = ({
       </button>
 
       <ul className={`ml-4 space-y-2 mt-2 ${isOpen ? "block" : "hidden"}`}>
-        {(section.pages || []).map((page) => {
+        {(section.pages || []).map((page, idx) => {
           const fullPath = pagePath(sectionPath, page);
           const isSelected = isHighlighted(sectionPath, page.slug, router);
 
           return (
             <SidebarLink
+              key={idx}
               title={page.title}
               path={fullPath}
               isSelected={isSelected}
