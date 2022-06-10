@@ -1,5 +1,6 @@
 ---
 title: Integrations overview
+description: Learn more about the integrations that Knock supports to send notifications to Email, SMS, Push, and Chat apps like Slack with a single API call
 Section: Integrations
 ---
 

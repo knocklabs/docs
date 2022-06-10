@@ -1,5 +1,6 @@
 ---
 title: Delivering notifications
+description: Knock powers in-app and out-of-app notifications to email, SMS, push, and chat channels like Slack
 tags: ["delivery", "channels"]
 section: Send notifications
 ---

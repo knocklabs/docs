@@ -1,4 +1,3 @@
-import Head from "next/head";
 import Link from "next/link";
 import React, { ReactElement } from "react";
 import Meta from "../components/Meta";
@@ -8,14 +7,21 @@ import Autocomplete from "../components/Autocomplete";
 type Props = {
   pageType: string;
   sidebar?: ReactElement;
+  metaProps?: {
+    title: string;
+    description?: string;
+    ogImage?: string;
+  };
 };
 
-export const Page: React.FC<Props> = ({ children, pageType, sidebar }) => (
+export const Page: React.FC<Props> = ({
+  children,
+  pageType,
+  sidebar,
+  metaProps = {},
+}) => (
   <>
-    <Meta />
-    <Head>
-      <title>Knock Docs</title>
-    </Head>
+    <Meta {...metaProps} />
     <div className="h-screen flex flex-col antialiased">
       <header className="border-b px-5 h-16 bg-gray-50 flex items-center">
         <div>

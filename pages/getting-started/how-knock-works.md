@@ -1,5 +1,6 @@
 ---
 title: How Knock works
+description: Understand the basic concepts of Knock and how to configure it
 tags: ["getting started"]
 section: Getting started
 ---
