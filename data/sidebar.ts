@@ -107,15 +107,22 @@ const sidebarContent: SidebarSection[] = [
         title: "Email",
         slug: "/email",
         pages: [
-          { slug: "/attachments", title: "Attachments" },
+          { slug: "/overview", title: "Overview" },
           { slug: "/aws-ses", title: "AWS SES" },
+          { slug: "/mailjet", title: "Mailjet" },
+          { slug: "/mailgun", title: "Mailgun" },
+          { slug: "/postmark", title: "Postmark" },
           { slug: "/sendgrid", title: "SendGrid" },
+          { slug: "/attachments", title: "Sending attachments" },
         ],
       },
       {
-        title: "In-app feeds",
-        slug: "/in-app-feed",
-        pages: [{ slug: "/overview", title: "Overview" }],
+        title: "In-app",
+        slug: "/in-app",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/knock", title: "Knock" },
+        ],
       },
       {
         title: "Push",
@@ -130,12 +137,17 @@ const sidebarContent: SidebarSection[] = [
       {
         title: "SMS",
         slug: "/sms",
-        pages: [{ slug: "/twilio-sms", title: "Twilio SMS" }],
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/twilio", title: "Twilio" },
+          { slug: "/telnyx", title: "Telnyx" },
+        ],
       },
       {
         title: "Chat",
         slug: "/chat",
         pages: [
+          { slug: "/overview", title: "Overview" },
           { slug: "/slack", title: "Slack" },
           { slug: "/microsoft-teams", title: "Microsoft Teams" },
           { slug: "/discord", title: "Discord" },

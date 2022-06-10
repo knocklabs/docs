@@ -1,10 +1,21 @@
 ---
 title: How to send email with AWS SES
 tags: ["simple email service"]
-section: Integrations
+section: Integrations > Email
 ---
 
-Here's how to configure AWS SES for use with Knock.
+import { Attributes, Attribute } from "../../../components/Attributes";
+
+Knock integrates with [AWS Simple Email Service (SES)](https://aws.amazon.com/ses/) to send emails to your recipients.
+
+## Features
+
+- Attachments support
+- Link and open tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
 
 You'll need to take the following steps in AWS before you can configure your SES channel within Knock.
 
@@ -13,7 +24,7 @@ You'll need to take the following steps in AWS before you can configure your SES
 
 Once you've completed both of those steps, you'll be able to configure an AWS SES channel in the Knock dashboard under the "Channels" page.
 
-## Configure an AWS SES API key
+### Configure an AWS SES API key
 
 To send notifications via AWS SES, Knock requires the **access key ID** and a **secret access key** of an AWS user with SES send permissions. (Specifically, the `ses:SendEmail` and `ses:SendRawEmail` permissions.)
 
@@ -36,11 +47,11 @@ Once you've created your new IAM user, you'll need to provision them with the po
 
 Now that you have an AWS user created and provisioned with SES send access, grab the **access key ID** and a **secret access key** of the user—we'll use these later when configuring the SES channel within Knock.
 
-## Verify a "From" address within AWS SES
+### Verify a "From" address within AWS SES
 
 Next, you'll need to verify the **"From" email address** you plan on using to send emails with AWS if you haven't already. To do so, follow the steps outlined in AWS's guide to [creating and verifying an email address identity](https://docs.aws.amazon.com/ses/latest/dg/creating-identities.html#verify-email-addresses-procedure).
 
-## Configuring SES in Knock
+### Configuring SES in Knock
 
 Now that you have you SES access key ID, secret access key, and verified "From" address, you're ready to configure your SES channel within Knock.
 
@@ -48,3 +59,77 @@ Here are a few other things to keep in mind once you have your SES channel confi
 
 - **SES sandbox mode.** By default, AWS places all new accounts in the SES sandbox. While your account is in the sandbox, you can only send emails to verified email address—keep this in mind if you're testing in development before you've moved your account out of the SES sandbox. For more information on the SES sandbox and how to move your account out of it, see the [SES sandbox documentation](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html).
 - **Deliverability tracking.** We cannot currently track deliverability through SES channels. This means that all notifications sent through SES will show up as "Sent" in the Knock messages log, but not "Delivered".
+
+## Provider configuration
+
+<Attributes>
+  <Attribute
+    name="Access key ID"
+    type="string*"
+    description="The access key ID from your AWS account"
+  />
+  <Attribute
+    name="Secret access key"
+    type="string*"
+    description="The secret access key from your AWS account"
+  />
+  <Attribute
+    name="AWS region"
+    type="string*"
+    description="The region your AWS account is in"
+  />
+  <Attribute
+    name="Open tracking"
+    type="boolean"
+    description="Should the provider track opens on their service?"
+  />
+  <Attribute
+    name="Link tracking"
+    type="boolean"
+    description="Should the provider track link clicks on their service?"
+  />
+  <Attribute
+    name="From email address"
+    type="string | liquid*"
+    description="The sender email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="From name"
+    type="string | liquid"
+    description="The sender name (can use Liquid tags)"
+  />
+</Attributes>
+
+## Environment default settings
+
+The following fields are optional and if set, will be applied to all email message sent via this channel within the environment:
+
+<Attributes>
+  <Attribute
+    name="Reply to address"
+    type="string | liquid"
+    description="The reply-to email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="CC address"
+    type="string | liquid"
+    description="The cc email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="BCC address"
+    type="string | liquid"
+    description="The bcc email address (can use Liquid tags)"
+  />
+</Attributes>
+
+## Additional data sent
+
+Knock sends the following attributes along with your emails (all as `Tags`):
+
+- `Sender`: always set to `knock.app`
+- `knock_message_id`: the ID of the message this email is associated with
+- `knock_workflow`: the key of the workflow this message was generated from
+
+## Recipient data requirements
+
+In order to send an email notification you'll need a valid `email` property set on your recipient.
