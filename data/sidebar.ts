@@ -112,7 +112,7 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/mailjet", title: "Mailjet" },
           { slug: "/mailgun", title: "Mailgun" },
           { slug: "/postmark", title: "Postmark" },
-          { slug: "/sendgrid", title: "Sendgrid" },
+          { slug: "/sendgrid", title: "SendGrid" },
           { slug: "/attachments", title: "Sending attachments" },
         ],
       },
