@@ -1,5 +1,6 @@
 ---
 title: Environments
+description: Learn about how Knock's isolated environment model works and how it fits into your system development lifecycle
 tags: ["how knock works"]
 section: Send & manage data
 ---

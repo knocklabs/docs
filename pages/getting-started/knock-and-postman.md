@@ -1,5 +1,6 @@
 ---
 title: Using Knock with Postman
+description: A Postman collection for the Knock API
 tags: ["postman", "api", "getting started"]
 section: Getting started
 ---

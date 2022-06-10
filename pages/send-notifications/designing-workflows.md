@@ -1,5 +1,6 @@
 ---
 title: Designing workflows
+description: Learn more about how to design and create powerful cross-channel notification workflows in Knock
 tags: ["template", "liquid", "steps"]
 section: Send notifications
 ---

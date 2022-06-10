@@ -34,10 +34,14 @@ export const DocsLayout = ({ frontMatter, children }) => {
   }, [paths, pathname]);
 
   return (
-    <Page pageType="Docs" sidebar={<DocsSidebar />}>
-      <Head>
-        <title>{frontMatter.title} | Knock Docs</title>
-      </Head>
+    <Page
+      pageType="Docs"
+      sidebar={<DocsSidebar />}
+      metaProps={{
+        title: `${frontMatter.title} | Knock Docs`,
+        description: frontMatter.description,
+      }}
+    >
       <div className="w-full max-w-5xl lg:flex mx-auto relative">
         <div className="max-w-prose flex-auto">
           {section && <Breadcrumbs section={section} pages={pages} />}

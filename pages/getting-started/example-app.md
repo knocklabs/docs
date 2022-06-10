@@ -1,5 +1,6 @@
 ---
 title: Knock example apps
+description: Example applications for the Knock API written in Node.JS and React.
 tags: ["nodejs", "using knock", "getting started", "react"]
 section: Getting started
 ---
