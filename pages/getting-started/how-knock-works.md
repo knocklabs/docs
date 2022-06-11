@@ -63,3 +63,10 @@ Here's how it works:
 4. **Trigger your Knock workflow from your backend.** You'll call our the notify endpoint with the payload provided in step 3.
 
 On the next page, you'll walk through our quick start guide to send your first notification with Knock.
+
+## A five minute demo
+
+Here's a five minute demo of how to use Knock to add an in-app feed and a cross-channel notification to an example app. 
+
+<div className="relative h-0" style={{paddingBottom: "56.25%"}}><iframe src="https://www.loom.com/embed/2865bc7d3bd04fcea9a527030c0f72b1" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen className="absolute top-0 left-0 w-full h-full"></iframe></div>
+
