@@ -95,9 +95,9 @@ ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 response, _ := knockClient.Objects.GetMessages(ctx, &knock.GetObjectMessagesRequest{
-  CollectionID: "projects",
-  ObjectID:     "project-1",
-  PageSize:     10
+  Collection: "projects",
+  ObjectID:   "project-1",
+  PageSize:   10
 })
 `,
 };

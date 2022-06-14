@@ -84,7 +84,7 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 messages, _ := knockClient.Users.GetMessages(ctx, &knock.GetUserMessagesRequest{
   ID:       user.ID,
   PageSize: 10,
-  TenantL   "my_tenant"
+  Tenant    "my_tenant"
 })
 `,
 };

@@ -134,7 +134,7 @@ preferenceSet, _ := knockClient.Objects.SetPreferences(ctx, &knock.SetObjectPref
     },
     "workflows": map[string]interface{}{
       "dinosaurs-loose": map[string]interface{}{
-        "channel_types": map[string]interface{}{ // note underscore
+        "channel_types": map[string]interface{}{
           "email":       false,
           "in_app_feed": true,
           "sms":         false

@@ -40,8 +40,8 @@ ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 preferenceSet, _ := knockClient.Objects.GetPreferences(ctx, &knock.GetObjectPreferencesRequest{
-  CollectionID: "projects",
-  Id: "project-1"
+  Collection: "projects",
+  ID:         "project-1"
 })
 `,
 };

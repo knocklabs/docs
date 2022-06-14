@@ -77,9 +77,9 @@ ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
-  CollectionID: "projects",
-  ID:           "project-1",
-  Properties:   map[string]interface{
+  Collection: "projects",
+  ID:         "project-1",
+  Properties: map[string]interface{
     "name":         "Project One",
     "total_assets": 10,
     "tags":         string[]{ "cool", "fun", "project" }

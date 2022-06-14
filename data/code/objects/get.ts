@@ -47,8 +47,8 @@ ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 object, _ := knockClient.Objects.Get(ctx, &knock.GetObjectRequest{
-  CollectionID: "projects",
-  Id: "project-1"
+  Collection: "projects",
+  ID:         "project-1"
 })
 `,
 };

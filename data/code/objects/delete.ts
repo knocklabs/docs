@@ -47,8 +47,8 @@ ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 response, _ := knockClient.Objects.Delete(ctx, &knock.DeleteObjectRequest{
-  CollectionID: "projects",
-  ID:           "project-1"
+  Collection: "projects",
+  ID:         "project-1"
 })
 `,
 };
