@@ -40,7 +40,7 @@ ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 result, _ := knockClient.Messages.GetContent(ctx, &knock.GetMessageContentRequest{
-  Id: message.ID,
+  ID: message.ID,
 })
 `,
 };

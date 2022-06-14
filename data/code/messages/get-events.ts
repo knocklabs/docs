@@ -71,7 +71,7 @@ ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 result, _ := knockClient.Messages.GetEvents(ctx, &knock.GetMessageEventsRequest{
-  Id: message.ID,
+  ID: message.ID,
   PageSize: 10,
 })
 `,
