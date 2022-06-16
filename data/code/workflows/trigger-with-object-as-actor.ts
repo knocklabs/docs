@@ -60,6 +60,22 @@ $client->workflows()->trigger('new-comment', [
   'recipients' => $follower_ids,
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+request := &knock.TriggerWorkflowRequest{
+  Workflow:   "new-comment",
+  Recipients: followerIds,
+}
+
+request.AddActorByEntity(map[string]interface{}{
+  "collection": "projects",
+  "id":         project.ID 
+})
+
+result, _ := knockClient.Workflows.Trigger(ctx, request)
+`,
 };
 
 export default languages;

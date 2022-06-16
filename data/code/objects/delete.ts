@@ -42,6 +42,15 @@ $client = new Client('sk_12345');
 
 $client->objects()->delete('projects', 'project-1');
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+response, _ := knockClient.Objects.Delete(ctx, &knock.DeleteObjectRequest{
+  Collection: "projects",
+  ID:         "project-1"
+})
+`,
 };
 
 export default languages;

@@ -42,6 +42,15 @@ $client = new Client('sk_12345');
 
 $client->objects()->get('projects', 'project-1');
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+object, _ := knockClient.Objects.Get(ctx, &knock.GetObjectRequest{
+  Collection: "projects",
+  ID:         "project-1"
+})
+`,
 };
 
 export default languages;

@@ -73,6 +73,20 @@ $client->users()->bulkSetPreferences([
   ]
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Users.BulkSetPreferences(ctx, &knock.&BulkSetUserPreferencesRequest{
+  UserIDs:     []string{"jhammond", "dnedry"},
+  Preferences: map[string]interface{}{
+    "channel_types": map[string]interface{}{
+      "email": true,
+      "sms":   false,
+    }
+  }
+})
+`,
 };
 
 export default languages;

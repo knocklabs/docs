@@ -94,6 +94,23 @@ $client->objects()->setChannelData('projects', 'project-1', 'knock-discord-chann
   ]
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
+  Collection: "projects",
+  ObjectID:   "project-1",
+  ChannelID:  "knock-discord-channel-id",
+  Data: map[string]interface{}{
+    "connections": []interface{}{
+      map[string]interface{}{
+        "channel_id": "discord-channel-id"
+      }
+    },
+  },
+})
+`,
 };
 
 export default languages;

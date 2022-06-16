@@ -41,6 +41,14 @@ $client = new Client('sk_12345');
 
 $client->users()->bulkDelete(['user-1', 'user-2']);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Users.BulkDelete(ctx, &knock.&BulkDeleteUserRequest{
+  UserIDs: []string{"user-1", "user-2"}
+})
+`,
 };
 
 export default languages;

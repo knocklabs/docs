@@ -71,6 +71,15 @@ $client->messages()->list([
   'tenant' => 'my_tenant'
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Messages.List(ctx, &knock.ListMessagesRequest{
+  PageSize: 10,
+  Tenant: "my_tenant",
+})
+`,
 };
 
 export default languages;

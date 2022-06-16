@@ -35,6 +35,14 @@ $client = new Client('sk_12345');
 
 $client->users()->getPreferences($user->id());
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+preferences, _ := knockClient.Users.GetPreferences(ctx, &knock.GetUserPreferencesRequest{
+  UserID: user.ID,
+})
+`,
 };
 
 export default languages;

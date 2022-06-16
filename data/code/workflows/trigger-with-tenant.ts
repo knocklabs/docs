@@ -93,6 +93,22 @@ $client->workflows()->trigger('new-comment', [
   'tenant' => $comment->workspace->id(),
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+  Workflow:   "new-comment",
+  Recipients: followerIds,
+  Data: map[string]interface{}{
+    "document_id":   document.ID,
+    "document_name": document.Name,
+    "comment_id":    comment.ID,
+    "comment_text":  comment.Text,
+  },
+  Tenant: workspace.ID
+})
+`,
 };
 
 export default languages;

@@ -35,6 +35,14 @@ $client = new Client('sk_12345');
 
 $client->messages()->getContent($message->id());
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Messages.GetContent(ctx, &knock.GetMessageContentRequest{
+  ID: message.ID,
+})
+`,
 };
 
 export default languages;

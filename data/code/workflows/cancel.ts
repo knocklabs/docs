@@ -38,7 +38,7 @@ await knockClient.Workflows.Cancel("new-user-invited", options);
   elixir: `
 knock_client = MyApp.Knock.client()  
 
-Knock.Workflows.cancel("new-user-invited", user-invite.id)
+Knock.Workflows.cancel("new-user-invited", user_invite.id)
 `,
   php: `
 use Knock\\KnockSdk\\Client;
@@ -48,6 +48,15 @@ $client = new Client('sk_12345');
 $client->workflows()->cancel('new-user-invited', [
   'cancellation_key' => $userInvite->id(),
 ]);
+`,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Workflows.Cancel(ctx, &knock.CancelWorkflowRequest{
+  Workflow:         "new-user-invited",
+  CancellationKey:  userInvite.ID,
+})
 `,
 };
 

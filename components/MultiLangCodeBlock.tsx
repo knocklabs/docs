@@ -97,6 +97,7 @@ const DEFAULT_LANGUAGES: SupportedLanguage[] = [
   "ruby",
   "python",
   "php",
+  "go",
   "csharp",
   "elixir",
 ];
@@ -122,13 +123,13 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
 
   const content = useMemo(() => {
     const snippetCode = snippets[snippet];
-    const code = snippetCode ? snippetCode[language] : "\n";
+    const code = (snippetCode && snippetCode[language]) || "\n";
 
     return {
       props: {
         metastring: title,
         children: code,
-        className: "language-bash",
+        className: `language-${language}`,
         originalType: "code",
         mdxType: "code",
       },

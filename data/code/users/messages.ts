@@ -77,6 +77,16 @@ $client->users()->getMessages($user->id(), [
   'tenant' => 'my_tenant'
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+messages, _ := knockClient.Users.GetMessages(ctx, &knock.GetUserMessagesRequest{
+  ID:       user.ID,
+  PageSize: 10,
+  Tenant    "my_tenant"
+})
+`,
 };
 
 export default languages;

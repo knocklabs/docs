@@ -66,6 +66,15 @@ $client->messages()->getActivities($message->id(), [
   'page_size' => 10
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Messages.GetActivities(ctx, &knock.GetMessageActivitiesRequest{
+  ID: message.ID,
+  PageSize: 10
+})
+`,
 };
 
 export default languages;

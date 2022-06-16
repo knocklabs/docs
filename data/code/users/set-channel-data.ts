@@ -62,6 +62,20 @@ $client->users()->setChannelData($user->id(), '8209f26c-62a5-461d-95e2-a5716a26e
   'tokens' => [$userDeviceToken]
 ]);
   `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+channelData, _ := knockClient.Users.SetChannelData(ctx, &knock.SetUserChannelDataRequest{
+  UserID:    user.ID,
+  ChannelID: "8209f26c-62a5-461d-95e2-a5716a26e652",
+  Data: map[string]interface{}{
+    "tokens": []string{}{
+      userDeviceToken
+    },
+  },
+})
+  `,
 };
 
 export default languages;

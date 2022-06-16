@@ -111,6 +111,24 @@ $client->workflows()->trigger('invoice-paid', [
   'recipients' => $recipient_ids,
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+  Workflow:   "invoice-paid",
+  Recipients: followerIds,
+  Data: map[string]interface{}{
+    "attachments": []map[string]interface{
+      {
+        "name": "Invoice.pdf",
+        "content": fileContents,
+        "content_type": "application/pdf"
+      }
+    },
+  },
+})
+`,
 };
 
 export default languages;

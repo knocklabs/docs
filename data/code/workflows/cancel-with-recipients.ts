@@ -60,6 +60,16 @@ $client->workflows()->cancel('new-user-invited', [
   'recipients' => ['user_1'],
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+result, _ := knockClient.Workflows.Cancel(ctx, &knock.CancelWorkflowRequest{
+  Workflow:        "new-user-invited",
+  CancellationKey: userInvite.ID,
+  Recipients:      []string{"user_1"},
+})
+`,
 };
 
 export default languages;

@@ -36,6 +36,14 @@ $client = new Client('sk_12345');
 
 $client->users()->get($user->id());
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+user, _ = knockClient.Users.Get(ctx, &knock.GetUserRequest{
+  ID: user.ID,
+})
+`,
 };
 
 export default languages;

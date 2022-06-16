@@ -8,6 +8,7 @@ import php from "react-syntax-highlighter/dist/cjs/languages/hljs/php";
 import dotnet from "react-syntax-highlighter/dist/cjs/languages/hljs/csharp";
 import shell from "react-syntax-highlighter/dist/cjs/languages/hljs/shell";
 import liquid from "react-syntax-highlighter/dist/cjs/languages/hljs/handlebars";
+import go from "react-syntax-highlighter/dist/cjs/languages/hljs/go";
 import { Icon, Tooltip } from "@chakra-ui/react";
 import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
@@ -27,6 +28,7 @@ SyntaxHighlighter.registerLanguage("python", python);
 SyntaxHighlighter.registerLanguage("php", php);
 SyntaxHighlighter.registerLanguage("shell", shell);
 SyntaxHighlighter.registerLanguage("liquid", liquid);
+SyntaxHighlighter.registerLanguage("go", go);
 
 export type SupportedLanguage =
   | "javascript"
@@ -37,18 +39,20 @@ export type SupportedLanguage =
   | "csharp"
   | "python"
   | "php"
-  | "json";
+  | "json"
+  | "go";
 
 const LanguageLabel = {
   javascript: "JavaScript",
   node: "Node",
   ruby: "Ruby",
   elixir: "Elixir",
-  csharp: "C#",
+  csharp: ".NET (C#)",
   python: "Python",
   php: "PHP",
   shell: "Shell",
   json: "JSON",
+  go: "Go",
 };
 
 export interface Props {
@@ -133,7 +137,7 @@ export const CodeBlock: React.FC<Props> = ({
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
-              className="ml-auto bg-transparent text-xs font-medium text-gray-500 mr-2 mt-0.5"
+              className="ml-auto bg-transparent text-xs font-medium text-gray-500 mr-2 mt-0.5 text-right"
             >
               {languages.map((l) => (
                 <option key={l} value={l}>

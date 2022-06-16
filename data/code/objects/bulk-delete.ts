@@ -53,6 +53,12 @@ $client = new Client('sk_12345');
 
 $client->objects()->bulkDelete('projects', ['project-1', 'project-2']);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+// The Go SDK doesn't currently support this example
+`,
 };
 
 export default languages;

@@ -120,6 +120,32 @@ $client->objects()->setPreferences('projects', 'project-1', [
   ]
 ]);
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+request := &knock.SetObjectPreferencesRequest{
+  Collection: "projects",
+  ObjectID:   "project-1",
+}
+
+request.AddChannelTypesPreference(map[string]interface{}{
+  "email": true,
+  "sms":   false,
+})
+
+request.AddWorkflowsPreference(map[string]interface{}{
+  "dinosaurs-loose": map[string]interface{}{
+    "channel_types": map[string]interface{}{
+      "email":       false,
+      "in_app_feed": true,
+      "sms":         false
+    },
+  }
+})
+
+preferenceSet, _ := knockClient.Objects.SetPreferences(ctx, request)
+`,
 };
 
 export default languages;
