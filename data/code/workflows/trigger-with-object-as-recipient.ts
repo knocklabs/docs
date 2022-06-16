@@ -70,7 +70,19 @@ $client->workflows()->trigger('new-comment', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-// The Go SDK doesn't currently support this example
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+request := &knock.TriggerWorkflowRequest{
+  Workflow: "new-comment",
+}
+
+request.AddRecipientByEntity(map[string]interface{}{
+  "collection": "projects",
+  "id":         project.ID 
+})
+
+result, _ := knockClient.Workflows.Trigger(ctx, request)
 `,
 };
 
