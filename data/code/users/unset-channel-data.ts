@@ -46,6 +46,15 @@ Knock.Users.unset_channel_data(knock_client, user.id, "8209f26c-62a5-461d-95e2-a
 
   $client->users()->unsetChannelData($user->id(), "8209f26c-62a5-461d-95e2-a5716a26e652");
 `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+channelData, _ := knockClient.Users.DeleteChannelData(ctx, &knock.DeleteUserChannelDataRequest{
+  UserID:    user.ID,
+  ChannelID: "8209f26c-62a5-461d-95e2-a5716a26e652",
+})
+`,
 };
 
 export default languages;

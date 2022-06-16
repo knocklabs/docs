@@ -109,6 +109,29 @@ $client->users()->setPreferences($user->id(), [
   ]
 ]);
   `,
+  go: `
+ctx := context.Background()
+knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+
+request := &knock.SetUserPreferencesRequest{UserID: user.ID}
+
+request.AddChannelTypesPreference(map[string]interface{}{
+  "email": true,
+  "sms": false
+})
+
+request.AddWorkflowsPreference(map[string]interface{}{
+  "dinosaurs-loose": map[string]interface{}{
+    "channel_types": map[string]interface{}{
+      "email":       false,
+      "in_app_feed": true,
+      "sms":         true,
+    },
+  },
+})
+
+preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request)
+  `,
 };
 
 export default languages;

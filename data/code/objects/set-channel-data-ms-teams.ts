@@ -104,7 +104,7 @@ $client->objects()->setChannelData('projects', 'project-1', 'knock-teams-channel
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectSetChannelDataRequest{
+channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
   Collection: "projects",
   ObjectID:   "project-1",
   ChannelID:  "knock-teams-channel-id",
