@@ -7,8 +7,7 @@ section: Send & manage data
 
 import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
 
-A [User](/reference#users) represents a person who may need to be notified of some action occurring in your
-product.
+A [User](/reference#users) represents a person who may need to be notified of some action occurring in your product.
 
 ## The benefits of the Knock user model
 
@@ -23,17 +22,43 @@ Here are a few reasons why we store user data in Knock:
 
 We do not take storing your user data lightly. You can learn more about our security posture and best practices on [our security page](/security).
 
-## Sending user data
+## Sending user data to Knock
 
-If you've used a Customer Data Platform (CDP) like Segment before, sending data to Knock will be familiar to you.
+We support three approaches for sending your user data to Knock: individual identification, bulk identification, and inline identification.
+
+In all three cases, we manage your user data via upsertion. In other words, we provide a single set of APIs for both creating new users in Knock and updating existing user data.
+
+### 1. Individual identification
+
+You can use the identify user API to send us data for a single user. If you've used a Customer Data Platform (CDP) like Segment before, this will be familiar to you.
+
+[API reference ->](/reference#identify-user)
 
 <MultiLangCodeBlock snippet="users.identify" title="Identify a user in Knock" />
 
-### The User identifier
+### 2. Bulk identification
 
-The identifier for a user is important as it's the unique key that we will use to merge users and
-determine recipients for a notification. Generally, the best practice here is to use your internal
-identifier for your users as the `id`.
+You can use the bulk identify API to send us data for many users at once. This endpoint allows you to identify up to 100 users at a time.
+
+[API reference →](/reference/#bulk-identify-users)
+
+<MultiLangCodeBlock snippet="users.bulkIdentify" title="Bulk identify users" />
+
+### 3. Inline identification
+
+Lastly, you can also integrate user identification into your workflow trigger calls. Rather than provide a list of user ids in the `recipients` field, you can instead provide a list of maps of user metadata. Knock will perform an asynchronous action to identify these users as part of processing the workflow.
+
+[API reference ->](/reference#trigger-workflow)
+
+<MultiLangCodeBlock snippet="workflows.trigger-with-identification" title="Trigger a workflow with inlined identification data" />
+
+See below for further discussion on [how and when to identify users in Knock](#when-to-identify-users-in-knock).
+
+## User data
+
+### The user identifier
+
+The identifier for a user is important as it's the unique key that we will use to merge users and determine recipients for a notification. Generally, the best practice here is to use your internal identifier for your users as the `id`.
 
 **Please note: you cannot change a user's id once it has been set, so we recommend you use an non-transient `id` like a primary key rather than a phone number or email address**.
 
@@ -60,11 +85,9 @@ The following attributes are optional, depending on the channel types you decide
 
 In addition to the system attributes defined on the user schema above, Knock will keep track of any `properties` (key/value pairs) that you send to us. These _traits_ are always merged onto a user and returned to you.
 
-Traits are useful for when you need to perform additional personalization on a user, like de-normalizing
-the current plan they're on so you can use this to determine the portion of a notification they should receive.
+Traits are useful for when you need to perform additional personalization on a user, like de-normalizing the current plan they're on so you can use this to determine the portion of a notification they should receive.
 
-You can nest the properties you send as deeply as you like, but please remember that
-we will not deep merge these keys.
+You can nest the properties you send as deeply as you like, but please remember that we will not deep merge these keys.
 
 ### The user object
 
@@ -90,20 +113,26 @@ Once sent to Knock, the user object returned to you in the Knock payload looks l
 
 ## When to identify users in Knock
 
-### Initial setup: bulk add users to Knock
+Knock provides a flexible set of APIs for you to manage your user data as you scale with us. Ultimately, it's up to you to decide upon the best approach for how you manage your user data with Knock.
 
-When you're first getting started with Knock, you'll likely have a number of existing users that you want to migrate into Knock. The easiest way to do this is via our bulk endpoints, which allow 100 users at a time to be identified.
+Below we discuss some common scenarios to consider.
 
-[API reference →](/reference/#bulk-identify-users)
+### Initial setup: inline vs. bulk identification
 
-<MultiLangCodeBlock snippet="users.bulkIdentify" title="Bulk add users" />
+When you're first getting started with Knock, you'll likely have a number of existing users that you want to migrate into Knock. If you're looking to get started with Knock quickly, you can use [inline identification](#3-inline-identification) to start calling your workflows without any prerequisite calls to the Knock API.
 
-### Identifying users on an ongoing basis
+If you first want to get all your users into Knock, the easiest path forward would be via our [bulk identification flow](#2-bulk-identification).
 
-Once you've migrated your current users into Knock, you'll want to continue to identify users in two main cases:
+### Identifying users on an ongoing basis: jobs vs. inline identification
+
+Once you've migrated your current users into Knock, you'll want to continue to update this data in Knock for two key cases:
 
 1. When new users sign up for your product.
-2. When data about a user changes, like a name or an email address being updated.
+2. When Knock-relevant data about a user changes, like a name or an email address.
+
+One common approach is to make subequent calls to the Knock's user identify API following such events. You could do this via an ad hoc or recurring job in your backend systems.
+
+Another option is to offload these updates to your workflow trigger calls via inline identification. If you always send Knock the full set of data for your users via workflow trigger calls, you can keep your user data up to date in Knock without any ad hoc logic on your end.
 
 ## Retrieving users
 

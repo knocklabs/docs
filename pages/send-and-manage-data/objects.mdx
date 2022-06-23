@@ -21,19 +21,43 @@ Objects are a powerful and flexible way to ensure Knock always has the most up-t
 
 You can use objects to:
 
-- send out-of-app notifications to non-user recipients (such as a Slack channels)
+- send out-of-app notifications to non-user recipients (such as a Slack channel)
 - send in-app notifications to non-user resources in your product (the activity feed you see on a Notion page is a good example)
 - reference mutable data in your notification templates (such as when a user edits a comment before a notification is sent)
 
 **Note:** As of today, our objects API support for in-app notifications and mutable data referencing is in beta. If you're interested in using this functionality, please reach out and let us know via the feedback button at the top of this page.
 
-## The Knock objects API
+## Sending object data to Knock
 
-All objects belong to `collections`, which group objects of the same type together. An object should be unique within a collection, identified by the `id` given. We use the `{collection, id}` pair to know when to create or update an object.
+All objects belong to a `collection`, which groups objects of the same type together. An object should be unique within a collection, identified by the `id` given. We use the `{collection, id}` pair to know when to create or update an object.
 
 Objects follow the same rules as all other items in Knock in that they are unique and logically separated per Knock environment.
 
+The way you manage object data in Knock is largely the same as [how you manage your user data](/send-and-manage-data/users#sending-user-data-to-knock). As with users, we support three approaches for managing Knock objects: individual, bulk, and inline.
+
+### 1. Set individual objects
+
+You can use the set object API to send us data for a single object.
+
+[API reference ->](/reference#set-object)
+
 <MultiLangCodeBlock snippet="objects.set" title="Set an object in Knock" />
+
+### 2. Bulk set objects
+
+You can use the bulk set objects API to send us data for many objects at once. This endpoint allows you to identify up to 100 users at a time.
+
+[API reference ->](/reference#bulk-set-objects)
+
+<MultiLangCodeBlock snippet="objects.bulkSet" title="Bulk set objects in Knock" />
+
+### 3. Set objects inline
+
+Lastly, you can also integrate object management into your workflow trigger calls. If you include additional object metadata (other than `id` and `collection`) in a workflow trigger call, Knock will perform an asynchronous action to upsert these objects as part of processing the workflow.
+
+[API reference ->](/reference#trigger-workflow)
+
+<MultiLangCodeBlock snippet="workflows.trigger-with-object-identification" title="Trigger a workflow with inlined identification data" />
 
 ## Guidelines for use
 
