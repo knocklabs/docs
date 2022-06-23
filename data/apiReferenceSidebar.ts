@@ -33,6 +33,10 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "#workflows", title: "Overview" },
       { slug: "#trigger-workflow", title: "Trigger a workflow" },
+      {
+        slug: "#trigger-workflow-inline-identify",
+        title: "Trigger a workflow with identifications",
+      },
       { slug: "#cancel-workflow", title: "Cancel a workflow" },
     ],
   },

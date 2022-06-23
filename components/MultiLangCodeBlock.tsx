@@ -81,6 +81,8 @@ const snippets = {
   "workflows.trigger": require("../data/code/workflows/trigger").default,
   "workflows.trigger-with-identification":
     require("../data/code/workflows/trigger-with-identification").default,
+  "workflows.trigger-with-user-identification":
+    require("../data/code/workflows/trigger-with-user-identification").default,
   "workflows.trigger-with-object-identification":
     require("../data/code/workflows/trigger-with-object-identification")
       .default,

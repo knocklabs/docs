@@ -5,18 +5,11 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.notify("new-comment", {
   data: { project_name: "My Project" },
-  actor: {
-    id: "1",
-    name: "John Hammond",
-    email: "jhammond@ingen.net",
-  },
   recipients: [
     {
-      id: "project-1",
-      collection: "projects",
-      name: "My project",
-      total_assets: 10,
-      tags: ["cool", "fun", "project"],
+      id: "1",
+      name: "John Hammond",
+      email: "jhammond@ingen.net",
     },
     {
       id: "2",
@@ -33,18 +26,11 @@ client = Knock(api_key="sk_12345")
 client.notify(
     key="new-comment",
     data={ "project_name": "My Project" },
-    actor={
-        "id": "1",
-        "name": "John Hammond",
-        "email": "jhammond@ingen.net"
-    },
     recipients=[
         {
-            "id": "project-1",
-            "collection": "projects",
-            "name": "My project",
-            "total_assets": 10,
-            "tags": ["cool", "fun", "project"],
+            "id": "1",
+            "name": "John Hammond",
+            "email": "jhammond@ingen.net"
         },
         {
             "id": "2",
@@ -61,18 +47,11 @@ Knock.key = "sk_12345"
 Knock::Workflows.trigger(
   key: "new-comment",
   data: { project_name: "My Project" },
-  actor: {
-    id: "1",
-    name: "John Hammond",
-    email: "jhammond@ingen.net"
-  },
   recipients: [
     {
-      id: "project-1",
-      collection: "projects",
-      name: "My project",
-      total_assets: 10,
-      tags: ["cool", "fun", "project"]
+      id: "1",
+      name: "John Hammond",
+      email: "jhammond@ingen.net"
     },
     {
       id: "2",
@@ -91,20 +70,13 @@ var workflowTriggerOpts = new TriggerWorkflow {
   Data = new Dictionary<string, string>{
     {"project_name", "My Project"}
   },
-  Actor=new Dictionary<string, string>{
-    {"id", "1"},
-    {"name", "John Hammond"},
-    {"email", "jhammond@ingen.net"}
-  },
-  Recipients = new List<Dictionary<string, object>>{
-    new Dictionary<string, object>{
-      { "id", "project-1" },
-      { "collection", "projects" },
-      { "name", "My project" },
-      { "total_assets", 10 },
-      { "tags", new List { "cool", "fun", "project" }}
+  Recipients = new List<Dictionary<string, string>>{
+    new Dictionary<string, string>{
+      {"id", "1"},
+      {"name", "John Hammond"},
+      {"email", "jhammond@ingen.net"}
     },
-    new Dictionary<string, object>{
+    new Dictionary<string, string>{
       {"id", "2"},
       {"name", "Ellie Sattler"},
       {"email", "esattler@ingen.net"}
@@ -119,18 +91,11 @@ knock_client = MyApp.Knock.client()
 
 Knock.Workflows.trigger("new-comment", %{
   data: %{project_name: "My Project"},
-  actor: %{
-    id: "1",
-    name: "John Hammond",
-    email: "jhammond@ingen.net"
-  },
   recipients: [
     %{
-      id: "project-1",
-      collection: "projects",
-      name: "My project",
-      total_assets: 10,
-      tags: ["cool", "fun", "project"],
+      id: "1",
+      name: "John Hammond",
+      email: "jhammond@ingen.net"
     },
     %{
       id: "2",
@@ -147,18 +112,11 @@ $client = new Client('sk_12345');
 
 $client->workflows()->trigger('new-comment', [
   'data' => ['project_name' => 'My Project'],
-  'actor' => [
-    'id' => '1',
-    'name' => 'John Hammond',
-    'email' => 'jhammond@ingen.net'
-  ],
   'recipients' => [
     [
-      'id' => 'project-1',
-      'collection' => 'projects',
-      'name' => 'My project',
-      'total_assets' => 10,
-      'tags' => ['cool', 'fun', 'project'],
+      'id' => '1',
+      'name' => 'John Hammond',
+      'email' => 'jhammond@ingen.net'
     ],
     [
       'id' => '2',
@@ -175,20 +133,13 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
   Data: map[string]string{"project_name": "My Project"},
-  Actor: map[string]interface{}{
-    "id": "1",
-    "name": "John Hammond",
-    "email": "jhammond@ingen.net"
-  },
-  Recipients: []map[string]interface{}{
-    map[string]interface{}{
-      "id": "project-1",
-      "collection": "projects",
-      "name": "My project",
-      "total_assets": 10,
-      "tags": []string{"cool", "fun", "project"},
+  Recipients: []map[string]string{
+    map[string]string{
+      "id": "1",
+      "name": "John Hammond",
+      "email": "jhammond@ingen.net"
     },
-    map[string]interface{}{
+    map[string]string{
       "id": "2",
       "name": "Ellie Sattler",
       "email": "esattler@ingen.net"
