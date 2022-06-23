@@ -3,19 +3,17 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-await knock.users.identify(user.id, {
-  name: user.name,
-  email: user.email,
-  avatar: user.avatar_url,
+await knock.users.identify("1", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net",
 });
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
 
-Knock.Users.identify(knock_client, user.id, %{
-  name: user.name,
-  email: user.email,
-  avatar: user.avatar_url,
+Knock.Users.identify(knock_client, "1", %{
+  name: "John Hammond",
+  email: "jhammond@ingen.net"
 })
   `,
   python: `
@@ -23,10 +21,10 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.users.identify(
-  id=user.id, 
+  id="1",
   data={
-    "name": user.name,
-    "email": user.email
+    "name": "John Hammond",
+    "email": "jhammond@ingen.net"
   }
 )
   `,
@@ -36,30 +34,31 @@ require "knockapi"
 Knock.key = "sk_12345"
 
 Knock::Users.identify(
-  id: user.id,
+  id: "1",
   data: {
-    name: user.name,
-    email: user.email,
+    name: "John Hammond",
+    email: "jhammond@ingen.net"
   }
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
-  new KnockOptions { ApiKey = "sk_12345" });
+  new KnockOptions { ApiKey = "sk_12345" }
+);
 
-var params = new Dictionary<string, object>{
-  { "name", user.Name },
-  { "email", user.Email }
+var params = new Dictionary<string, string>{
+  {"name", "John Hammond"},
+  {"email", "jhammond@ingen.net"}
 };
 
-var user = await knockClient.Users.Identify(user.Id, params)  
+var user = await knockClient.Users.Identify("1", params)
 `,
   php: `
 use Knock\\KnockSdk\\Client;
 
 $client = new Client('sk_12345');
 
-$client->users()->identify('jhammond', [
+$client->users()->identify('1', [
   'name' => 'John Hammond',
   'email' => 'jhammond@ingen.net',
 ]);
@@ -69,12 +68,9 @@ ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
-  ID:   "jhammond",
+  ID: "1",
   Name: "John Hammond",
-  Email: "jhammond@ingen.net",
-  CustomProperties: map[string]interface{}{
-    "welcome": "to jurassic park",
-  },
+  Email: "jhammond@ingen.net"
 })
 `,
 };

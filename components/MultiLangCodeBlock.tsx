@@ -79,6 +79,8 @@ const snippets = {
   "workflows.cancel-with-recipients":
     require("../data/code/workflows/cancel-with-recipients").default,
   "workflows.trigger": require("../data/code/workflows/trigger").default,
+  "workflows.trigger-with-identification":
+    require("../data/code/workflows/trigger-with-identification").default,
   "workflows.trigger-with-actor":
     require("../data/code/workflows/trigger-with-actor").default,
   "workflows.trigger-with-object-as-recipient":
