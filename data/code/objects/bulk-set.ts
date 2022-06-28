@@ -3,23 +3,37 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock("sk_example_12345679");
 
-const objects = [
+await knock.objects.bulkSet("projects", [
   {
     id: "project-1",
-    name: "Project one",
+    name: "My project",
+    total_assets: 10,
+    tags: ["cool", "fun", "project"],
   },
-];
-
-await knock.objects.bulkSet("projects", objects);
+  {
+    id: "project-2",
+    name: "My second project",
+    total_assets: 5,
+    tags: ["very", "cool", "project"],
+  }
+]);
 `,
   elixir: `
-knock_client = MyApp.Knock.client()
-
-objects = [
-  %{ id: "project-1", name: "Project one" }
-]
-
-Knock.Objects.bulk_set(knock_client, "projects", objects)
+MyApp.Knock.client()
+|> Knock.Objects.bulk_set("projects", [
+  %{
+    id: "project-1",
+    name: "My project",
+    total_assets: 10,
+    tags: ["cool", "fun", "project"],
+  },
+  %{
+    id: "project-2",
+    name: "My second project",
+    total_assets: 5,
+    tags: ["very", "cool", "project"],
+  }
+])
   `,
   python: `
 from knockapi import Knock
@@ -28,7 +42,18 @@ client = Knock(api_key="sk_12345")
 client.objects.bulk_set(
   collection="projects",
   objects=[
-    { "id": "project-1", "name": "Project one" }
+    {
+      "id": "project-1",
+      "name": "My project",
+      "total_assets": 10,
+      "tags": ["cool", "fun", "project"],
+    },
+    {
+      "id": "project-2",
+      "name": "My second project",
+      "total_assets": 5,
+      "tags": ["very", "cool", "project"],
+    }
   ]
 )
   `,
@@ -40,7 +65,18 @@ Knock.key = "sk_12345"
 Knock::Objects.bulk_set(
   collection: "projects",
   objects: [
-    { id: "project-1", name: "Project one" }
+    {
+      id: "project-1",
+      name: "My project",
+      total_assets: 10,
+      tags: ["cool", "fun", "project"],
+    },
+    {
+      id: "project-2",
+      name: "My second project",
+      total_assets: 5,
+      tags: ["very", "cool", "project"],
+    }
   ]
 )
 `,
@@ -48,11 +84,18 @@ Knock::Objects.bulk_set(
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
-var objects = new List<Dictionary>
-{
+var objects = new List<Dictionary<string, object>>{
   new Dictionary<string, object>{
-    {"id", "project-1"},
-    {"name", "Project one"}
+    { "id", "project-1" },
+    { "name", "My project" },
+    { "total_assets", 10 },
+    { "tags", new List { "cool", "fun", "project" }}
+  },
+  new Dictionary<string, object>{
+    { "id", "project-2" },
+    { "name", "My second project" },
+    { "total_assets", 10 },
+    { "tags", new List { "very", "cool", "project" }}
   }
 };
 
@@ -64,13 +107,21 @@ await knockClient.Objects.BulkSet("projects", options);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->objects()->bulkSet('projects', [
   [
     'id' => 'project-1',
-    'name' => 'Project one'
+    'name' => 'My project',
+    'total_assets' => 10,
+    'tags' => ['cool', 'fun', 'project'],
+  ],
+  [
+    'id' => 'project-2',
+    'name' => 'My second project',
+    'total_assets' => 5,
+    'tags' => ['very', 'cool', 'project'],
   ]
 ])
 `,
