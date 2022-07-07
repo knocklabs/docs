@@ -3,14 +3,14 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knockClient = new Knock("sk_12345");
 
-const channelData = await knockClient.objects.getMessages(
+const messages = await knockClient.objects.getMessages(
   "projects",
   project.id
 );
 
 // supports pagination parameters and filters
 
-const channelData = await knockClient.objects.getMessages(
+const messages = await knockClient.objects.getMessages(
   "projects",
   project.id,
   {

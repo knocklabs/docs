@@ -3,98 +3,83 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knockClient = new Knock("sk_12345");
 
-const messages = await knockClient.messages.list()
+const tenants = await knockClient.tenants.list()
 
 // supports pagination parameters and filters
 
-const messages = await knockClient.messages.list(
+const tenants = await knockClient.tenants.list(
   {
     page_size: 20,
-    tenant: "my-tenant"
+    name: "Tenant 1"
   }
 );
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
 
-Knock.Messages.list(knock_client)
+Knock.Tenants.list(knock_client)
 
 # supports pagination parameters and filters
 
-Knock.Messages.list(
+Knock.Tenants.list(
   knock_client,
-  page_size: 20, tenant: "my_tenant"
+  page_size: 20, name: "Tenant 1"
 )
   `,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.messages.list()
+client.tenants.list()
 
 # supports pagination parameters and filters
 
-client.messages.list({'page_size': 20, 'tenant': "my_tenant"})
+client.tenants.list({'page_size': 20, 'name': "Tenant 1"})
   `,
   ruby: `
 require "knockapi"
 Knock.key = "sk_12345"
 
-Knock::Messages.list()
+Knock::Tenants.list()
 
 # supports pagination parameters and filters
 
-Knock::Messages.list(options: {'page_size': 20, 'tenant': "my_tenant"})
+Knock::Tenants.list(options: {'page_size': 20, 'name': "Tenant 1"})
 `,
   csharp: `
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
-await knockClient.Messages.List();
+await knockClient.Tenants.List();
 
 // supports pagination parameters and filters
 
 var params = new Dictionary<string, string> {
                 {"page_size", "20"},
-                {"tenant", "my_tenant"}
+                {"name", "Tenant 1"}
              };
 
-await knockClient.Messages.List(params);
+await knockClient.Tenants.List(params);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
     
 $client = new Client('sk_12345');
 
-$client->messages()->list([
+$client->tenants()->list([
   'page_size' => 20,
-  'tenant' => 'my_tenant'
+  'name' => 'Tenant 1'
 ]);
 `,
   go: `
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Messages.List(ctx, &knock.ListMessagesRequest{
+result, _ := knockClient.Tenants.List(ctx, &knock.ListTenantsRequest{
   PageSize: 20,
-  Tenant: "my_tenant",
+  Tenant: "Tenant 1",
 })
 `,
-  java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
-
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
-    .build();
-
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
-
-queryParams.pageSize(10);
-queryParams.tenant("my_tenant");
-
-CursorResult<KnockMessage> result = client.messages().list(queryParams);
-  `,
 };
 
 export default languages;

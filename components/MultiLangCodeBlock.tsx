@@ -74,6 +74,12 @@ const snippets = {
   "objects.setPreferences": require("../data/code/objects/set-preferences")
     .default,
 
+  // Tenants
+  "tenants.list": require("../data/code/tenants/list").default,
+  "tenants.get": require("../data/code/tenants/get").default,
+  "tenants.set": require("../data/code/tenants/set").default,
+  "tenants.delete": require("../data/code/tenants/delete").default,
+
   // Workflows
   "workflows.cancel": require("../data/code/workflows/cancel").default,
   "workflows.cancel-with-recipients":
