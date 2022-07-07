@@ -117,7 +117,7 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
   Workflow:   "invoice-paid",
-  Recipients: followerIds,
+  Recipients: recipientIds,
   Data: map[string]interface{}{
     "attachments": []map[string]interface{
       {
@@ -128,6 +128,28 @@ result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
     },
   },
 })
+`,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+    .key("invoice-paid")
+    .recipients(recipientIds)
+    .data("attachments", List.of(
+      Map.of(
+        "name", "Invoice.pdf",
+        "content", fileContents,
+        "content_type", "application/pdf"
+      )
+    ))
+    .build();
+
+WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
 `,
 };
 

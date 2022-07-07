@@ -84,6 +84,25 @@ request.AddRecipientByEntity(map[string]interface{}{
 
 result, _ := knockClient.Workflows.Trigger(ctx, request)
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+    .key("new-comment")
+    .addRecipient(WorkflowTriggerRequest.ObjectRecipientIdentifier.builder()
+      .id(project.getId())
+      .collection("projects")
+      .build()
+    )
+    .build();
+
+WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+`,
 };
 
 export default languages;

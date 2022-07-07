@@ -58,6 +58,21 @@ result, _ := knockClient.Workflows.Cancel(ctx, &knock.CancelWorkflowRequest{
   CancellationKey:  userInvite.ID,
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+    .key("new-user-invited")
+    .cancellationKey(userInvite.getId())
+    .build();
+
+client.workflows().cancel(WorkflowCancelRequest.from(workflowTrigger));
+`,
 };
 
 export default languages;
