@@ -9,6 +9,7 @@ import dotnet from "react-syntax-highlighter/dist/cjs/languages/hljs/csharp";
 import shell from "react-syntax-highlighter/dist/cjs/languages/hljs/shell";
 import liquid from "react-syntax-highlighter/dist/cjs/languages/hljs/handlebars";
 import go from "react-syntax-highlighter/dist/cjs/languages/hljs/go";
+import java from "react-syntax-highlighter/dist/cjs/languages/hljs/java";
 import { Icon, Tooltip } from "@chakra-ui/react";
 import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
@@ -29,6 +30,7 @@ SyntaxHighlighter.registerLanguage("php", php);
 SyntaxHighlighter.registerLanguage("shell", shell);
 SyntaxHighlighter.registerLanguage("liquid", liquid);
 SyntaxHighlighter.registerLanguage("go", go);
+SyntaxHighlighter.registerLanguage("java", java);
 
 export type SupportedLanguage =
   | "javascript"
@@ -40,11 +42,12 @@ export type SupportedLanguage =
   | "python"
   | "php"
   | "json"
-  | "go";
+  | "go"
+  | "java";
 
 const LanguageLabel = {
   javascript: "JavaScript",
-  node: "Node",
+  node: "Node.js",
   ruby: "Ruby",
   elixir: "Elixir",
   csharp: ".NET (C#)",
@@ -53,6 +56,7 @@ const LanguageLabel = {
   shell: "Shell",
   json: "JSON",
   go: "Go",
+  java: "Java",
 };
 
 export interface Props {
