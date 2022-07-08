@@ -131,7 +131,7 @@ Map<String, Object> data = Map.of(
   "connections", List.of(
     Map.of("incoming_webhook", Map.of("url", "url-from-slack"))
   )
-)
+);
 
 ChannelData channelData = client.objects().setChannelData(
   "projects",

@@ -144,7 +144,7 @@ PreferenceSetRequest request = PreferenceSetRequest.builder()
   .workflow("dinosaurs-loose", 
     new PreferenceSetBuilder()
       .condition("recipient.muted_alert_ids", "not_contains", "data.alert_id")
-      .build();
+      .build()
   )
   .build();
 

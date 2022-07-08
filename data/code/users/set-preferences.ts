@@ -148,7 +148,7 @@ PreferenceSetRequest request = PreferenceSetRequest.builder()
       .email(false)
       .inAppFeed(true)
       .sms(true)
-      .build();
+      .build()
   )
   .build();
 
