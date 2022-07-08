@@ -44,6 +44,16 @@ result, _ := knockClient.Users.Delete(ctx, &knock.DeleteUserRequest{
   ID: user.ID,
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+client.users().delete(user.getId());
+`,
 };
 
 export default languages;

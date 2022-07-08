@@ -44,6 +44,16 @@ user, _ = knockClient.Users.Get(ctx, &knock.GetUserRequest{
   ID: user.ID,
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+UserIdentity user = client.users().get(user.getId());
+`,
 };
 
 export default languages;

@@ -87,6 +87,16 @@ result, _ := knockClient.Users.BulkSetPreferences(ctx, &knock.&BulkSetUserPrefer
   }
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+  
+// This example is currently not supported in the Java SDK
+`,
 };
 
 export default languages;

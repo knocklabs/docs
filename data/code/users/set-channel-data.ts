@@ -76,6 +76,20 @@ channelData, _ := knockClient.Users.SetChannelData(ctx, &knock.SetUserChannelDat
   },
 })
   `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+ChannelData channelData = client.users().setChannelData(
+  user.getId(), 
+  "8209f26c-62a5-461d-95e2-a5716a26e652", 
+  Map.of("tokens", List.of(userDeviceToken)
+);
+`,
 };
 
 export default languages;

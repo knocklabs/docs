@@ -110,16 +110,39 @@ result, _ := knockClient.Users.BulkIdentify(ctx, &knock.&BulkIdentifyUserRequest
   Users: []*User{
     {
       ID:     "1",
-      Email:  "John Hammond",
-      Name:   "jhammond@ingen.net"
+      Name:   "John Hammond",
+      Email:  "jhammond@ingen.net"
     },
     {
       ID:     "2",
-      Email:  "Ellie Sattler",
-      Name:   "esattler@ingen.net"
+      Name:   "Ellie Sattler",
+      Email:  "esattler@ingen.net"
     }
   }
 })
+`,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+List<UserIdentity> userIdentities = List.of(
+  UserIdentity.builder()
+    .id("1")
+    .name("John Hammond")
+    .email("jhammond@ingen.net")
+    .build(),
+  UserIdentity.builder()
+    .id("2")
+    .name("Ellie Sattler")
+    .email("esattler@ingen.net")
+    .build()
+);
+
+BulkOperation result = client.users().bulkIdentify(userIdentities);
 `,
 };
 
