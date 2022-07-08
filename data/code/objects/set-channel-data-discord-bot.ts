@@ -111,6 +111,27 @@ channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChanne
   },
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+Map<String, Object> data = Map.of(
+  "connections", List.of(
+    Map.of("channel_id", "discord-channel-id")
+  )
+)
+
+ChannelData channelData = client.objects().setChannelData(
+  "projects",
+  "project-1",
+  "knock-discord-channel-id",
+  data
+);
+`,
 };
 
 export default languages;

@@ -51,6 +51,16 @@ response, _ := knockClient.Objects.Delete(ctx, &knock.DeleteObjectRequest{
   ID:         "project-1"
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+client.objects().delete("projects", "project-1");
+`,
 };
 
 export default languages;

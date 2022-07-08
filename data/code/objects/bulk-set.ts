@@ -131,6 +131,31 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 // The Go SDK doesn't currently support this example
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+List<Map<String, Object>> objectsToSet = List.of(
+  Map.of(
+    "id", "project-1",
+    "name", "My project",
+    "total_assets", 10,
+    "tags", List.of("cool", "fun", "project")
+  ),
+  Map.of(
+    "id", "project-2",
+    "name", "My second project",
+    "total_assets", 5,
+    "tags", List.of("very", "cool", "project")
+  )
+)
+
+BulkOperation bulkOp = client.objects().bulkSetInCollection("projects", objectsToSet);
+`,
 };
 
 export default languages;

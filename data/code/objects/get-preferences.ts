@@ -44,6 +44,16 @@ preferenceSet, _ := knockClient.Objects.GetPreferences(ctx, &knock.GetObjectPref
   ID:         "project-1"
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+PreferenceSet prefs = client.objects().getPreferencesById("projects", "project-1", "default");
+`,
 };
 
 export default languages;
