@@ -43,6 +43,16 @@ preferences, _ := knockClient.Users.GetPreferences(ctx, &knock.GetUserPreference
   UserID: user.ID,
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+PreferenceSet preferences = client.users().getDefaultPreferences(user.getId());
+`,
 };
 
 export default languages;

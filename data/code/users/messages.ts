@@ -87,6 +87,21 @@ messages, _ := knockClient.Users.GetMessages(ctx, &knock.GetUserMessagesRequest{
   Tenant    "my_tenant"
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
+
+queryParams.pageSize(10);
+queryParams.tenant("my_tenant");
+
+CursorResult<KnockMessage> result = client.users().getMessages(user.getId(), queryParams);
+`,
 };
 
 export default languages;

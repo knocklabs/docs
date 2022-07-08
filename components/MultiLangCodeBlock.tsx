@@ -100,11 +100,12 @@ const snippets = {
 /* eslint-enable */
 
 const DEFAULT_LANGUAGES: SupportedLanguage[] = [
-  "javascript",
+  "node",
   "ruby",
   "python",
   "php",
   "go",
+  "java",
   "csharp",
   "elixir",
 ];
@@ -114,7 +115,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
   const eventEmitter = useEventEmitter();
   const [language, setLanguage] = useLocalStorage<SupportedLanguage>(
     LOCAL_STORAGE_KEY,
-    "javascript",
+    "node",
   );
 
   useEffect(() => {
@@ -130,7 +131,8 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
 
   const content = useMemo(() => {
     const snippetCode = snippets[snippet];
-    const code = (snippetCode && snippetCode[language]) || "\n";
+    const actualLanguage = language === "node" ? "javascript" : language;
+    const code = (snippetCode && snippetCode[actualLanguage]) || "\n";
 
     return {
       props: {

@@ -75,6 +75,19 @@ result, _ := knockClient.Messages.GetEvents(ctx, &knock.GetMessageEventsRequest{
   PageSize: 10,
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
+queryParams.pageSize(10);
+
+CursorResult<KnockMessageEvent> eventResult = client.messages().events(messageId, queryParams);
+  `,
 };
 
 export default languages;

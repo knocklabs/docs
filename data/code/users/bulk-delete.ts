@@ -49,6 +49,16 @@ result, _ := knockClient.Users.BulkDelete(ctx, &knock.&BulkDeleteUserRequest{
   UserIDs: []string{"user-1", "user-2"}
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+BulkOperation result = client.users().bulkDelete(List.of("user-1", "user-2"));
+`,
 };
 
 export default languages;

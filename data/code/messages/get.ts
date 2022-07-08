@@ -43,6 +43,16 @@ result, _ := knockClient.Messages.Get(ctx, &knock.GetMessageRequest{
   Id: message.ID
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+KnockMessage message = client.messages().get(messageId);
+  `,
 };
 
 export default languages;

@@ -53,6 +53,16 @@ result, _ := knockClient.Users.Merge(ctx, &knock.MergeUserRequest{
   FromUserID: "user-to-merge-from",
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+UserIdentity user = client.users().identify(user.getId(), "user-to-merge-from");
+`,
 };
 
 export default languages;

@@ -132,6 +132,24 @@ request.AddWorkflowsPreference(map[string]interface{}{
 
 preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request) 
   `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+PreferenceSetRequest request = PreferenceSetRequest.builder()
+  .workflow("dinosaurs-loose", 
+    new PreferenceSetBuilder()
+      .condition("recipient.muted_alert_ids", "not_contains", "data.alert_id")
+      .build()
+  )
+  .build();
+
+PreferenceSet preferences = client.users().setPreferences(user.getId(), request);
+`,
 };
 
 export default languages;

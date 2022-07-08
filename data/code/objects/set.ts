@@ -86,6 +86,20 @@ object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
   }
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+KnockObject object = client.objects().set("projects", "project-1", Map.of(
+  "name", "Project one",
+  "total_assets", 10,
+  "tags", List.of("cool", "fun", "project")
+));
+`,
 };
 
 export default languages;

@@ -59,6 +59,16 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 // The Go SDK doesn't currently support this example
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+client.objects().bulkDeleteInCollection("projects", List.of("project-1", "project-2"));
+`,
 };
 
 export default languages;

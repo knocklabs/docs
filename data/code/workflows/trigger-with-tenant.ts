@@ -109,6 +109,26 @@ result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
   Tenant: workspace.ID
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+    .key("new-comment")
+    .recipients(followerIds)
+    .data("document_id", document.getId())
+    .data("document_name", document.getName())
+    .data("comment_id", comment.getId())
+    .data("comment_text", comment.getText())
+    .tenant(workspace.getId())
+    .build();
+
+WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+`,
 };
 
 export default languages;

@@ -73,6 +73,19 @@ user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
   Email: "jhammond@ingen.net"
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+UserIdentity user = client.users().identify("1", UserIdentity.builder()
+  .name("John Hammond")
+  .email("jhammond@ingen.net")
+  .build());
+`,
 };
 
 export default languages;

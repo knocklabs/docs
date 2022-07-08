@@ -55,6 +55,19 @@ channelData, _ := knockClient.Users.DeleteChannelData(ctx, &knock.DeleteUserChan
   ChannelID: "8209f26c-62a5-461d-95e2-a5716a26e652",
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+client.users().unsetChannelData(
+  user.getId(), 
+  "8209f26c-62a5-461d-95e2-a5716a26e652"
+);
+`,
 };
 
 export default languages;

@@ -61,6 +61,16 @@ channelData, _ := knockClient.Objects.GetChannelData(ctx, &knock.GetObjectChanne
   ChannelID:  "some-channel-id-from-knock"
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+ChannelData channelData = client.objects().getChannelData("projects", "project-1", "some-channel-id-from-knock");
+`,
 };
 
 export default languages;

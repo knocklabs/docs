@@ -57,8 +57,19 @@ ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 channel_data, _ := knockClient.Users.GetChannelData(ctx, &knock.GetUserChannelDataRequest{
-  UserID: user.ID,
+  UserID:    user.ID,
+  ChannelID: "some-channel-id-from-knock"
 })
+`,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+ChannelData channelData = client.users().getUserChannelData(user.getId(), "some-channel-id-from-knock");
 `,
 };
 

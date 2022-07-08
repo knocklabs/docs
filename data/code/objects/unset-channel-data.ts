@@ -60,8 +60,19 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 response, _ := knockClient.Objects.DeleteChannelData(ctx, &knock.DeleteObjectChannelDataRequest{
   Collection: "projects",
-  ID:         "project-1"
+  ID:         "project-1",
+  ChannelID:  "knock-slack-channel-id"
 })
+`,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+client.objects().unsetChannelData("projects", "project-1", "knock-slack-channel-id");
 `,
 };
 

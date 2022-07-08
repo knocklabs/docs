@@ -196,6 +196,44 @@ result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
   }
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+    .key("new-comment")
+    .data("project_name", "My project")
+    .actor(
+      Map.of(
+        "id", "1",
+        "name", "John Hammond",
+        "email", "jhammond@ingen.net"
+      )
+    )
+    .addRecipient(
+      Map.of(
+        "id", "project-1",
+        "collection", "projects",
+        "name", "My project",
+        "total_assets", 10,
+        "tags", List.of("cool", "fun", "project")
+      )
+    )
+    .addRecipient(
+      Map.of(
+        "id", "2",
+        "name", "Ellie Sattler",
+        "email", "esattler@ingen.net"
+      )
+    )
+    .build();
+
+WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+`,
 };
 
 export default languages;

@@ -70,6 +70,22 @@ result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
   Recipients: []string{"1", "2"}
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+    .key("new-comment")
+    .recipients(List.of("1", "2"))
+    .data("prokect_name", "My project")
+    .build();
+
+WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+`,
 };
 
 export default languages;

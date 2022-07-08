@@ -80,6 +80,21 @@ result, _ := knockClient.Messages.List(ctx, &knock.ListMessagesRequest{
   Tenant: "my_tenant",
 })
 `,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
+
+queryParams.pageSize(10);
+queryParams.tenant("my_tenant");
+
+CursorResult<KnockMessage> result = client.messages().list(queryParams);
+  `,
 };
 
 export default languages;
