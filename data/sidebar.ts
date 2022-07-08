@@ -25,7 +25,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/preferences", title: "Preferences" },
       { slug: "/environments", title: "Environments" },
       { slug: "/objects", title: "Objects" },
-      { slug: "/multi-tenancy", title: "Multi-tenancy support" },
+      { slug: "/tenants", title: "Tenants" },
       { slug: "/outbound-webhooks", title: "Outbound webhooks" },
     ],
   },
