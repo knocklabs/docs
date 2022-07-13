@@ -1,0 +1,118 @@
+---
+title: Tenants
+description: Learn how to use tenants to segment your in-app feed and custom brand email notifications
+tags:
+  ["tenant", "tenancy", "saas", "how knock works", "custom brand", "branding"]
+section: Send & manage data
+---
+
+import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
+import Callout from "../../components/Callout";
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <div className="font-bold mb-4">
+        Note: some features described here are not enabled for all accounts.
+      </div>
+      <div>Advanced features not included:</div>
+      <ul>
+        <li>Per-tenant custom branding</li>
+        <li>Per-tenant preferences</li>
+      </ul>
+      <div>Enabled for all accounts:</div>
+      <ul>
+        <li>In-app feed segmentation</li>
+      </ul>
+      <div>
+        If custom branding or per-tenant preferences are use-cases that you're
+        looking to support with Knock, please{" "}
+        <a href="mailto:support@knock.app">get in touch with us</a>.
+      </div>
+    </>
+  }
+/>
+
+## An overview
+
+Tenants represent segments your users belong to. You might call these "accounts," "organizations," "workspaces," or similar. This is a common pattern in many SaaS applications: users have a single login joined to multiple tenants to represent their membership within each.
+
+Within Knock you can model your tenant objects as first-class entities so you can use them to scope features like the in-app feed for a user that may belong to more than one tenant within your product. We also use tenants to store default branding settings for users that may differ from your account-level settings.
+
+## How to configure tenants
+
+To use multi-tenancy with the in-app feed, you won't need to do anything to set these tenants up beforehand. You can just pass a unique ID along with the trigger workflow call and it will scope it for you. See the example below for more details.
+
+If custom branding is enabled for your account, you can add a tenant directly to the environment you want via the `Tenants` tab in the main sidebar in your Knock dashboard. Once added and configured, you can reference the tenant in your workflow triggers as described above.
+
+## Guides for using tenants
+
+### Scoping in-app feeds
+
+Multi-tenancy is important in your notification system when handling in-app feeds. Lets look at an example.
+Imagine that we have a SaaS application, Collaborato, where our users belong to one or more different
+workspaces. When one of our users is active in a current workspace, we want to make sure they only
+see notifications that are relevant for that workspace. That is, a user in the "Acme Fish Co." workspace
+should only see notifications that are relevant to "Acme Fish Co.".
+
+#### Example
+
+To support this use case within Knock, we can pass a `tenant` identifier into our notify calls. This `tenant` does not have to be configured in any way beforehand, it can simply be a unique identifier you choose to represent this group.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-tenant"
+  title="Notify with tenant"
+/>
+
+When retrieving our feed to be displayed, we can then scope the feed to only show items relevant
+to the tenant:
+
+```jsx Client-side feed scoping
+// If you're using our `client-js` SDK:
+import Knock from "@knocklabs/client";
+const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+
+const feedClient = knockClient.feeds.initialize(process.env.KNOCK_FEED_ID, {
+  // Scope all requests to the current workspace
+  tenant: currentWorkspace.id,
+});
+
+// Or if you're using the React SDK:
+<KnockFeedProvider
+  apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+  feedId={process.env.KNOCK_FEED_ID}
+  userId={currentUser.id}
+  tenant={currentWorkspace.id}
+>
+  ...
+</KnockFeedProvider>;
+```
+
+By providing the `tenant` property here, we're letting Knock know that the notifications produced
+in the `notify` call belong to a particular tenant and that when we're showing the feed to our customers we **only** want to see the feed that's related to that tenant.
+
+Under the hood Knock will ensure that the badge counts you receive for the feed will be relevant
+only to the active workspace, and that no real-time notifications will be received for any messages
+that aren't relevant to the user.
+
+### Custom branding `[advanced feature]`
+
+You can use tenants to define default branding settings when sending email notifications that override your account-level brand settings. When you trigger a workflow with a `tenant`, it will use any settings defined on that tenant in place of the account-level brand settings to style your email layout steps.
+
+#### Example
+
+Let’s say you’re a hospitality company and own two boutique hotels, “The Black Lodge” and “The Great Northern.” Both want custom branding for their reservation update emails.
+
+First, we’ll want to add both of these hotels as `Tenants`. Navigate to the “Tenants” tab on the main sidebar of your dashboard and click “Create tenant." There, you’ll add a name and unique ID by which you'll reference the tenant when triggering notifications. You can also upload a logo, an icon, and select primary colors directly from the interface here.
+
+Now that the tenant is set up, when you trigger a workflow with an email step you can pass the ID for one of these tenants. It will override the account branding settings with the settings you configured for your tenant. If you want to send a reservation reminder to the guests of The Black Lodge, you can pass the ID you set for that hotel, `black-lodge`, into the tenant field of the workflow trigger option to override default account settings with those you've created for this tenant.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-branding-tenant"
+  title="Send notification with custom branding"
+/>
+
+### Custom preferences `[advanced feature]`
+
+Another advanced tenancy use case is managing different sets of preferences for each user-tenant pair. That is, a user may have different preferences configured for "Acme Fish Co." than they do for "Bell's Bagels", two hypothetical workspaces within our example collaboration app, Collaborato.

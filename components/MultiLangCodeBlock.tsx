@@ -94,6 +94,8 @@ const snippets = {
     require("../data/code/workflows/trigger-with-object-as-actor").default,
   "workflows.trigger-with-tenant":
     require("../data/code/workflows/trigger-with-tenant").default,
+  "workflows.trigger-with-branding-tenant":
+    require("../data/code/workflows/trigger-with-branding-tenant").default,
   "workflows.trigger-with-attachment":
     require("../data/code/workflows/trigger-with-attachment").default,
 };

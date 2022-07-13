@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import Head from "next/head";
 import { Page } from "./Page";
 import PageNav from "../components/PageNav";
 import Breadcrumbs from "../components/Breadcrumbs";
