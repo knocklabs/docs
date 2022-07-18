@@ -95,6 +95,18 @@ const sidebarContent: SidebarSection[] = [
   },
 
   {
+    title: "Tenants",
+    slug: "/reference",
+    pages: [
+      { slug: "#tenants", title: "Overview" },
+      { slug: "#list-tenants", title: "List tenants" },
+      { slug: "#get-tenant", title: "Get an tenant" },
+      { slug: "#set-tenant", title: "Set an tenant" },
+      { slug: "#delete-tenant", title: "Delete an tenant" },
+    ],
+  },
+
+  {
     title: "Messages",
     slug: "/reference",
     pages: [

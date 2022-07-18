@@ -2939,7 +2939,7 @@ Returns an `Object`.
 ```json Response
 {
   "__typename": "Object",
-  "id": "project-123",
+  "id": "project-1",
   "collection": "projects",
   "properties": {
     "name": "My project"
@@ -3124,5 +3124,268 @@ Returns a `BulkOperation`.
 }
 ```
 
+</ExampleColumn>
+</Section>
+
+<Section title="Tenants" slug="tenants">
+<ContentColumn>
+
+A Tenant represents a grouping with configurable settings that can be applied to a workflow when it's triggered in order to override account-level settings such as branding.
+
+Use tenants when sending a notification to user(s) that you want to configure specific brand elements for, such as a separate organization logo.
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the tenant."
+  />
+  <Attribute
+    name="properties"
+    type="object"
+    description="An object of key-value pairs for attributes you want to associate with the tenant. Currently only name is accepted as an attribute for tenants."
+  />
+  <Attribute
+    name="settings"
+    type="object"
+    description="An object of key-value pairs for configurable settings on a tenant. Currently settings only contain a branding key which points to the following configurable values: primary_color, primary_color_contrast, icon_url, and logo_url."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint name="list-tenants" method="GET" path="/tenants" />
+  <Endpoint name="get-tenant" method="GET" path="/tenants/:id" />
+  <Endpoint name="set-tenant" method="PUT" path="/tenants/:id" />
+  <Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" />
+</Endpoints>
+
+```json Tenant
+{
+  "__typename": "Tenant",
+  "id": "tenant-1",
+  "properties": {
+    "name": "Tenant 1"
+  },
+  "settings": {
+    "branding": {
+      "primary_color": "#33FF5B",
+      "primary_color_contrast": "#ffffff",
+      "logo_url": "www.example.com/path-to-logo-asset-url",
+      "icon_url": "www.example.com/path-to-icon-asset-url"
+    }
+  },
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List tenants for envrionment" slug="list-tenants">
+<ContentColumn>
+
+Lists tenants for the environment of the API key
+
+### Endpoint
+
+<Endpoint name="list-tenants" method="GET" path="/tenants" />
+
+### Response
+
+Returns a list of `Tenant` objects.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="tenants.list"
+  title="List tenants in an environment"
+/>
+
+```json Response
+[
+  {
+    "__typename": "Tenant",
+    "id": "tenant-1",
+    "properties": {
+      "name": "Tenant 1"
+    },
+    "settings": {
+      "branding": {
+        "primary_color": "#33FF5B",
+        "primary_color_contrast": "#ffffff",
+        "logo_url": "www.example.com/path-to-logo-asset-url",
+        "icon_url": "www.example.com/path-to-icon-asset-url"
+      }
+    },
+    "created_at": null,
+    "updated_at": "2021-03-05T12:00:00Z"
+  }
+]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get a tenant" slug="get-tenant">
+<ContentColumn>
+
+Retrieve a tenant by its id.
+
+### Endpoint
+
+<Endpoint name="get-tenant" method="GET" path="/tenants/:id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the tenant."
+  />
+</Attributes>
+
+### Response
+
+Returns a `Tenant`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="tenants.get"
+  title="Get tenant in an environment"
+/>
+
+```json Response
+{
+  "__typename": "Tenant",
+  "id": "tenant-1",
+  "properties": {
+    "name": "Tenant 1"
+  },
+  "settings": {
+    "branding": {
+      "primary_color": "#33FF5B",
+      "primary_color_contrast": "#ffffff",
+      "logo_url": "www.example.com/path-to-logo-asset-url",
+      "icon_url": "www.example.com/path-to-icon-asset-url"
+    }
+  },
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Set a tenant" slug="set-tenant">
+<ContentColumn>
+
+Sets a tenant within an environment, performing an upsert operation. Any existing properties will be merged with the incoming properties.
+
+### Endpoint
+
+<Endpoint name="set-tenant" method="PUT" path="/tenants/:id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the tenant."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="name"
+    type="string"
+    description="The name to set on the tenant's name property."
+  />
+  <Attribute
+    name="settings"
+    type="object"
+    description="An object of key-value pairs for configurable settings on a tenant. See example for possible key-value pairs."
+/>
+
+</Attributes>
+
+### Response
+
+Returns a `Tenant`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="tenants.set"
+  title="Set tenant in an environment"
+/>
+
+```json Response
+{
+  "__typename": "Tenant",
+  "id": "tenant-1",
+  "properties": {
+    "name": "Tenant 1"
+  },
+  "settings": {
+    "branding": {
+      "primary_color": "#33FF5B",
+      "primary_color_contrast": "#ffffff",
+      "logo_url": "www.example.com/path-to-logo-asset-url",
+      "icon_url": "www.example.com/path-to-icon-asset-url"
+    }
+  },
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Delete a tenant" slug="delete-tenant">
+<ContentColumn>
+
+Deletes a tenant by the id provided.
+
+### Endpoint
+
+<Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the tenant within the collection."
+  />
+</Attributes>
+
+### Response
+
+No response.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="tenants.delete"
+  title="Delete tenant from an environment"
+/>
 </ExampleColumn>
 </Section>

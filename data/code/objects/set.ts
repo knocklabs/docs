@@ -52,7 +52,7 @@ var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
 var objectParams = new Dictionary<string, object>{
-  { "name", "Project one" },
+  { "name", "My project" },
   { "total_assets", 10 },
   { "tags", new List { 
     "cool", "fun", "project"
@@ -67,7 +67,7 @@ use Knock\\KnockSdk\\Client;
 $client = new Client('sk_12345');
 
 $client->objects()->set('projects', 'project-1', [
-  'name' => 'Project one',
+  'name' => 'My project',
   'total_assets' => 10,
   'tags' => ['cool', 'fun', 'project']
 ]);
@@ -80,7 +80,7 @@ object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
   Collection: "projects",
   ID:         "project-1",
   Properties: map[string]interface{
-    "name":         "Project One",
+    "name":         "My project",
     "total_assets": 10,
     "tags":         string[]{ "cool", "fun", "project" }
   }
