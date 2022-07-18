@@ -43,14 +43,9 @@ Accepts `KnockFeedProviderProps`:
     description="A custom API host for Knock"
   />
   <Attribute
-    name="source"
-    type="string"
-    description="When set, will only return feed items produced on the given workflow key"
-  />
-  <Attribute
-    name="tenant"
-    type="string"
-    description="When set, will only return feed items that have either an empty tenant value or one that is set as this tenant identifier."
+    name="defaultFeedOptions"
+    type="FeedClientOptions"
+    description="Set defaults for `tenant`, `source`, or `archived` to scope all subsequent feed queries"
   />
   <Attribute
     name="colorMode"
@@ -277,3 +272,60 @@ Used to group and space multiple `Button` components into a single line.
     description="One or more `Button` components"
   />
 </Attributes>
+
+## Hooks
+
+The following hooks are exposed so that you can build headless in-app experiences, without rendering components.
+
+### `useAuthenticatedKnockClient`
+
+Creates an authenticated Knock client.
+
+**Returns**: `Knock` instance, authenticated against the user
+
+**Example**:
+
+```jsx
+import { useAuthenticatedKnockClient } from "@knocklabs/react-notification-feed";
+
+const MyComponent = () => {
+  const knock = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+    user.knockToken,
+  );
+
+  return null;
+};
+```
+
+### `useNotifications`
+
+Creates a `Feed` instance for the provided `Knock` client which creates a stateful, real-time connection to Knock to build in-app experiences.
+
+```js
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+} from "@knocklabs/react-notification-feed";
+import create from "zustand";
+
+const MyComponent = () => {
+  const knock = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+    user.knockToken,
+  );
+
+  const notificationFeed = useNotifications(knock, process.env.KNOCK_FEED_ID);
+
+  const useNotificationStore = create(notificationFeed.store);
+  const { metadata } = useNotificationStore();
+
+  useEffect(() => {
+    notificationFeed.fetch();
+  }, [notificationFeed]);
+
+  return <span>Total unread: {metadata.unread_count}</span>;
+};
+```
