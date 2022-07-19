@@ -7,7 +7,27 @@ section: Send notifications
 
 The Knock workflow builder enables you to craft notification workflows that combine functions, channels, and conditional logic to determine which of your users to notify across which channels when a given event takes place in your product.
 
-In this section we'll walk you through (i) how to use the **workflow canvas** to build workflows that send cross-channel notifications and (ii) how to use the **template editor** to create the per-channel notifications sent by those workflows.
+## How the Knock notification engine works
+
+As you start to dig into workflows, it's helpful to understand the basics of what happens in Knock when you [trigger a workflow](/send-notifications/triggering-workflows).
+
+When Knock receives a workflow trigger (like the one below) for one of your workflows, it will produce a **workflow run** for **each recipient** you send in your workflow trigger.
+
+```js A workflow trigger for three recipients
+await knock.notify("comment-created", {
+  // The user who performed the action (optional)
+  actor: "user_0",
+  // The list of recipients
+  recipients: ["user_1", "user_2", "user_3"],
+  // Data to be passed to the template
+  data: {
+    page_name: "Marketing brief",
+    comment_body: "Hey team — can we take another look at this?",
+  },
+});
+```
+
+In the example above we've included three recipients, so our workflow trigger will produce three separate workflow runs.
 
 ## The workflow canvas
 
