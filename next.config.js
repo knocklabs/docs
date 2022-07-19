@@ -229,6 +229,11 @@ module.exports = withPlugins(
           destination: "/integrations/in-app-feed/overview",
           permanent: true,
         },
+        {
+          source: "/send-and-manage-data/multi-tenancy",
+          destination: "/send-and-manage-data/tenants",
+          permanent: true,
+        },
       ];
     },
   },
