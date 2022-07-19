@@ -100,9 +100,9 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "#tenants", title: "Overview" },
       { slug: "#list-tenants", title: "List tenants" },
-      { slug: "#get-tenant", title: "Get an tenant" },
-      { slug: "#set-tenant", title: "Set an tenant" },
-      { slug: "#delete-tenant", title: "Delete an tenant" },
+      { slug: "#get-tenant", title: "Get a tenant" },
+      { slug: "#set-tenant", title: "Set a tenant" },
+      { slug: "#delete-tenant", title: "Delete a tenant" },
     ],
   },
 
