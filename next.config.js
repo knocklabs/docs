@@ -234,6 +234,23 @@ module.exports = withPlugins(
           destination: "/send-and-manage-data/tenants",
           permanent: true,
         },
+        {
+          source: "/send-notifications/workflow-functions",
+          destination: "/send-notifications/designing-workflows#function-steps",
+          permanent: true,
+        },
+        {
+          source: "/send-notifications/reference-email-layout",
+          destination:
+            "/send-notifications/designing-workflows/reference-email-layout",
+          permanent: true,
+        },
+        {
+          source: "/send-notifications/reference-liquid-helpers",
+          destination:
+            "/send-notifications/designing-workflows/reference-liquid-helpers",
+          permanent: true,
+        },
       ];
     },
   },

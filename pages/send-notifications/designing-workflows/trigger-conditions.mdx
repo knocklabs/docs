@@ -1,0 +1,73 @@
+---
+title: Trigger conditions
+description: Learn more about how to use Trigger Conditions within the Knock workflow builder
+tags: ["triggers", "conditionals", "steps"]
+section: Send notifications
+---
+
+Trigger conditions allow you to specify if a given step will execute at workflow execution time. They provide a powerful way to create more advanced notification workflow logic.
+
+Some examples of triggers you can employ are:
+
+- Only send an email if an in-app notification was not previously read or seen
+- Only send an in-app notification if the `recipient.plan == "pro"`
+- Only execute a delay step if `delay == true` in the workflow trigger
+
+## Building trigger conditions
+
+Trigger conditions are created and edited on each step by selecting the step in the workflow canvas. Each trigger condition is made up of a `variable`, `operator`, `argument` triple.
+
+### Available variables
+
+A trigger can be set on any of the following variables:
+
+- **data**: Target a property within the `data` payload of the workflow trigger
+- **recipient**: Target a property of the current `recipient` of the workflow run
+- **actor**: Target a property of the current `actor` of the workflow run
+- **refs**: Target the message status of a previously executed channel step in the workflow
+
+### Available operators
+
+You can use any of the following operators in condition comparisons:
+
+| Operator                   | Description                      |
+| -------------------------- | -------------------------------- |
+| `equal_to`                 | `==`                             |
+| `not_equal_to`             | `!=`                             |
+| `greater_than`             | `>`                              |
+| `greater_than_or_equal_to` | `>=`                             |
+| `less_than`                | `<`                              |
+| `less_than_or_equal_to`    | `<=`                             |
+| `contains`                 | `argument in variable`           |
+| `not_contains`             | `argument not in variable`       |
+| `empty`                    | `variable in ["", null, []]`     |
+| `not_empty`                | `variable not in ["", null, []]` |
+
+### Available arguments
+
+Arguments can be static (like fixed strings, numbers, or booleans) or dynamic properties. All of the following are valid arguments:
+
+**Static properties**
+
+- Fixed strings (`foo`, `bar`, `baz`)
+- Fixed floats and numbers (`1.0`, `2`, `10000`)
+- `true`, `false`, `null`
+
+**Dynamic properties**
+
+- `data.*`: Selects a property within the data payload of the workflow trigger (falling back to an empty string)
+- `recipient.*`: Selects a property on the current `recipient` (falling back to an empty string)
+- `actor.*`: Selects a property on the current `actor` (falling back to an empty string)
+
+## Combining trigger conditions
+
+One or more trigger conditions can be combined as either 'AND' or 'OR' operators when building conditions on the step.
+
+- `AND` combined conditions require all conditions to be true before the step executes
+- `OR` combined conditions require at least one condition to be true before the step executes
+
+## Debugging trigger conditions
+
+You can debug trigger conditions on each step in the [workflow debugger](/send-notifications/debugging-workflows). You'll see a log line that indicates that the step did not execute because one or more trigger conditions were not met.
+
+## Example: conditionally sending an email if an in-app notification was not seen
