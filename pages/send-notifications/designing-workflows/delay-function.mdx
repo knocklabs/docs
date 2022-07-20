@@ -1,0 +1,44 @@
+---
+title: Delay function
+description: Learn more about the delay workflow function within Knock's notification engine
+tags: ["steps", "delays", "wait", "functions"]
+section: Send notifications
+---
+
+A delay function does just what it sounds like: it delays the execution of the workflow for some amount of time, then proceeds to the next step. There are two types of delays we support in Knock today: "wait for set interval" and "wait until timestamp".
+
+## Wait for set interval
+
+The "wait for set interval" delay type waits for an interval of time (provided by you in the workflow editor) and then proceeds to the next step.
+
+Set interval delay functions are helpful for the following use cases:
+
+- Check to see if a user's seen or read an in-app message before sending an email
+- Remind a user about a pending invite they haven't accepted
+
+![A workflow using the "wait for set interval" delay function to wait to see if a user's read an in-app message before notifying via email.](/images/functions/functions_delay_interval.png)
+
+<figcaption>
+  A workflow using the "wait for set interval" delay function to wait to see if
+  a user's read an in-app message before notifying via email.
+</figcaption>
+
+## Wait until timestamp
+
+The "wait until timestamp" delay type waits until a specific point in time provided by you in the `data` of your notify call, then proceeds to the next step.
+
+Timestamp-based delays are helpful for reminders about resources in your product that need to be completed or addressed by a specific point in time. As an example, if a user has a task that's due three days from now and you want to remind them 24 hours before it's due, you can set a timestamp delay for the task's due date minus 24 hours.
+
+![A workflow using the "wait until timestamp" delay function to remind a user about a pending task. If the task is completed before the workflow resumes, we cancel the workflow so the user doesn't receive an additional notification. ](/images/functions/functions_delay_timestamp.png)
+
+<figcaption>
+  A workflow using the "wait until timestamp" delay function to remind a user
+  about a pending task. If the task is completed before the workflow resumes, we
+  cancel the workflow so the user doesn't receive an additional notification.
+</figcaption>
+
+## Using workflow cancellation with delays
+
+In cases where you're waiting to see if a user will complete an action before sending a notification, you can use our [workflow cancellation API](/send-notifications/canceling-workflows) to ensure a user doesn't receive an unnecessary reminder.
+
+If the user completes the action you were going to remind them about, cancel the workflow to keep any additional notifications from being sent.

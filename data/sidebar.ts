@@ -34,16 +34,28 @@ const sidebarContent: SidebarSection[] = [
     slug: "/send-notifications",
     desc: "Learn how to design and send notifications using Knock, then explore advanced features such as batching, delays, and more.",
     pages: [
-      { slug: "/designing-workflows", title: "Designing workflows" },
+      {
+        slug: "/designing-workflows",
+        title: "Designing workflows",
+        pages: [
+          { slug: "/", title: "Overview" },
+          { slug: "/template-editor", title: "Template editor" },
+          { slug: "/batch-function", title: "Batch function" },
+          { slug: "/delay-function", title: "Delay function" },
+          { slug: "/trigger-conditions", title: "Trigger conditions" },
+          {
+            slug: "/reference-liquid-helpers",
+            title: "Reference: liquid helpers",
+          },
+          { slug: "/reference-email-layout", title: "Reference: email layout" },
+        ],
+      },
       { slug: "/triggering-workflows", title: "Triggering workflows" },
-      { slug: "/workflow-functions", title: "Workflow functions" },
       { slug: "/canceling-workflows", title: "Canceling workflows" },
       { slug: "/setting-preferences", title: "Setting preferences" },
       { slug: "/setting-channel-data", title: "Setting channel data" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/debugging-workflows", title: "Debugging workflows" },
-      { slug: "/reference-liquid-helpers", title: "Reference: liquid helpers" },
-      { slug: "/reference-email-layout", title: "Reference: email layout" },
     ],
   },
   {
