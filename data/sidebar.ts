@@ -42,6 +42,7 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/template-editor", title: "Template editor" },
           { slug: "/batch-function", title: "Batch function" },
           { slug: "/delay-function", title: "Delay function" },
+          { slug: "/fetch-function", title: "Fetch function" },
           { slug: "/trigger-conditions", title: "Trigger conditions" },
           {
             slug: "/reference-liquid-helpers",
