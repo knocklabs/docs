@@ -1,11 +1,11 @@
 import cn from "classnames";
 
 const Endpoints = ({ children }) => (
-  <div className="endpoints text-base lg:text-sm border rounded">
-    <div className="bg-gray-100 border-b p-2 flex">
+  <div className="endpoints text-base lg:text-sm border dark:border-gray-700 rounded">
+    <div className="bg-gray-100 dark:bg-gray-600 border-b dark:border-b-gray-700 p-2 flex">
       <span className="mt-0 font-medium">Endpoints</span>
     </div>
-    <div className="m-0 px-4">{children}</div>
+    <div className="m-0 py-2 px-4 dark:bg-gray-900">{children}</div>
   </div>
 );
 
@@ -22,7 +22,9 @@ const Endpoint = ({ method, path }) => (
     >
       {method}
     </span>
-    <span className="text-sm text-gray-700">{path}</span>
+    <span className="font-mono text-xs text-gray-700 dark:text-gray-200">
+      {path}
+    </span>
   </div>
 );
 

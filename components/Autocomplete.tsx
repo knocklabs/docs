@@ -17,10 +17,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import "@algolia/autocomplete-theme-classic";
 
-import { Box } from "@chakra-ui/layout";
-import { Text } from "@chakra-ui/react";
-import Icon from "@chakra-ui/icon";
-
 import { IoIosSearch } from "react-icons/io";
 
 // This Autocomplete component was created following:
@@ -68,15 +64,13 @@ const Autocomplete = () => {
   const [autocompleteState, setAutocompleteState] =
     useState<AutocompleteState<BaseItem> | null>(null);
 
-  if (!algoliaAppId || !algoliaSearchApiKey || !algoliaIndex) {
-    return null;
-  }
   const inputRef = useRef(null);
   const router = useRouter();
   const searchClient = useMemo(
     () => algoliasearch(algoliaAppId, algoliaSearchApiKey),
     [],
   );
+
   const autocomplete = useMemo(
     () =>
       createAutocomplete({
@@ -149,25 +143,20 @@ const Autocomplete = () => {
   });
 
   return (
-    <Box
-      display={{ base: "none", sm: "none", md: "block" }}
-      ml="20px"
-      h="38px"
-      w="500px"
-      className="aa-Autocomplete"
+    <div
+      className="aa-Autocomplete hidden md:block"
       {...autocomplete.getRootProps({})}
     >
       <form
-        className="h-10 aa-Form"
-        style={{ boxShadow: "none", borderColor: "#E4E8EE" }}
+        className="aa-Form shadow-none !border-[#E4E8EE] dark:!border-gray-700 !bg-white dark:!bg-gray-800"
         {...(formProps as FormProps)}
       >
-        <Box w="38px" className="aa-InputWrapperPrefix">
-          <Icon h="28px" fontSize="20px" ml="12px" as={IoIosSearch} />
-        </Box>
+        <div className="aa-InputWrapperPrefix px-2 !h-auto flex items-center justify-center">
+          <IoIosSearch className="w-5 h-5 dark:text-gray-300" />
+        </div>
         <div className="aa-InputWrapper">
           <input
-            className="aa-Input"
+            className="aa-Input !h-9 !w-[300px] !text-[14px] dark:!text-white"
             ref={inputRef}
             placeholder="Search the docs..."
             {...(inputProps as React.DetailedHTMLProps<
@@ -176,25 +165,14 @@ const Autocomplete = () => {
             >)}
           />
         </div>
-        <Box
-          borderWidth="1px"
-          borderColor="gray.100"
-          borderRadius={4}
-          bg="#F7F7F8"
-          mr="8px"
-          w="25px"
-          h="22px"
-          className="aa-InputWrapperSuffix"
-        >
-          <Text w="100%" textAlign="center">
-            /
-          </Text>
-        </Box>
+        <div className="aa-InputWrapperSuffix !bg-[#F7F7F8] dark:!bg-gray-600 text-gray-600 dark:text-white mr-2 !w-6 !h-6 rounded border border-gray-200 dark:border-gray-600">
+          <span className="w-full text-center">/</span>
+        </div>
       </form>
 
       {autocompleteState?.isOpen && (
-        <Box w="500px" bg="white" zIndex="100" className="aa-Panel">
-          {autocompleteState.collections.map((collection, index) => {
+        <div className="!w-[500px] !bg-white z-50 aa-Panel">
+          {autocompleteState?.collections.map((collection, index) => {
             const { source, items } = collection;
 
             return (
@@ -214,14 +192,9 @@ const Autocomplete = () => {
                         <Link href={`/${item.path}`} passHref>
                           <a href="replace">
                             <Highlight hit={item} attribute="title" />
-                            <Text
-                              mt={2}
-                              color="gray.400"
-                              fontWeight="500"
-                              fontSize="12px"
-                            >
+                            <span className="mt-2 text-gray-400 font-medium text-[12px]">
                               {(item as ResultItem).section}
-                            </Text>
+                            </span>
                           </a>
                         </Link>
                       </li>
@@ -231,9 +204,9 @@ const Autocomplete = () => {
               </div>
             );
           })}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

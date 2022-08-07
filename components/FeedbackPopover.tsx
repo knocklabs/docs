@@ -6,7 +6,7 @@
 // (5) No fixed width on PopoverContent and conditional display
 // `none` vs `flex` for responsive/mobile view
 import React, { useRef, useState } from "react";
-import { useRadio, useRadioGroup } from "@chakra-ui/react";
+import { ChakraProvider, useRadio, useRadioGroup } from "@chakra-ui/react";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/popover";
 import { Box, Flex, HStack, Text } from "@chakra-ui/layout";
 import { Button } from "@chakra-ui/button";
@@ -17,6 +17,7 @@ import FocusLock from "react-focus-lock";
 import { IoMegaphone } from "react-icons/io5";
 import { motion } from "framer-motion";
 import isHotkey from "is-hotkey";
+import theme from "../theme";
 
 interface Account {
   id: string;

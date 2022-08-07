@@ -69,7 +69,8 @@ const HeaderList: React.FC<{ headers: IHeader[]; nesting: number }> = ({
           <Link href={`#${h.id}`}>
             <a
               className={cn({
-                "text-gray-600 hover:text-gray-900": true,
+                "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100":
+                  true,
               })}
             >
               {h.title}
@@ -102,10 +103,10 @@ const PageNav: React.FC<Props> = ({ title }) => {
 
   return (
     <aside
-      className="fixed top-30 border-l pl-5 w-64 overflow-y-auto"
+      className="fixed top-30 pl-5 w-64 overflow-y-auto"
       style={{ height: "calc(100vh - 225px)" }}
     >
-      <h5 className="text-xs uppercase text-gray-900 font-semibold tracking-wider mb-3">
+      <h5 className="text-xs uppercase text-gray-900 dark:text-gray-500 font-semibold tracking-wider mb-3">
         On this page
       </h5>
       <ul className="space-y-2">
