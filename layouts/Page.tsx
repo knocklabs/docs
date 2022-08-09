@@ -1,10 +1,11 @@
 import Link from "next/link";
 import React, { ReactElement } from "react";
+import { IoMoon, IoSunny } from "react-icons/io5";
+import { useTheme } from "next-themes";
+
 import Meta from "../components/Meta";
 import FeedbackPopover from "../components/FeedbackPopover";
 import Autocomplete from "../components/Autocomplete";
-import { IoMoon, IoSunny } from "react-icons/io5";
-import { useTheme } from "next-themes";
 
 type Props = {
   pageType: string;
