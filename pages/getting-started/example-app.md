@@ -123,7 +123,7 @@ The example app uses the [Objects API](/send-and-manage-data/objects) to create 
 
 First, we add a [connect to Slack button](https://api.slack.com/docs/slack-button) which will trigger the OAuth flow that will enable the user to select a channel on their organization. You can see how the example application implements the button on the project page [here](https://github.com/knocklabs/knock-node-example-app/blob/main/app/projects/components/AddSlackBtn.tsx#L4). After the user selects a channel, Slack will call the callback URI used on the button with the provided state. The state that is sent is the project id that will be used in the callback to connect the selected channel with the proper project on the app.
 
-The callback implementation in the example application can be found [here](https://github.com/knocklabs/knock-node-example-app/blob/main/app/api/slack-cb.ts#L1). The callback then does an authenticated call to Slack to fetch an incoming wehbook URL, which we will use on Knock's side to power our Slack integration.
+The callback implementation in the example application can be found [here](https://github.com/knocklabs/knock-node-example-app/blob/main/app/api/slack-cb.ts#L1). The callback then does an authenticated call to Slack to fetch an incoming webhook URL, which we will use on Knock's side to power our Slack integration.
 
 First, we need to create a representation of the project on Knock. You can find this implementation in the example app [here](https://github.com/knocklabs/knock-node-example-app/blob/main/app/api/slack-cb.ts#L50).
 
@@ -152,7 +152,7 @@ await knockClient.objects.setChannelData(
 )
 ```
 
-The last bit of this implementation is to add the project as a recipient whenever a workflow trigger call happens. In the case of objects, you need to specifiy their collection and id. You can see how the example applications does it [here](https://github.com/knocklabs/knock-node-example-app/blob/main/app/comments/mutations/createComment.ts#L80).
+The last bit of this implementation is to add the project as a recipient whenever a workflow trigger call happens. In the case of objects, you need to specify their collection and id. You can see how the example applications does it [here](https://github.com/knocklabs/knock-node-example-app/blob/main/app/comments/mutations/createComment.ts#L80).
 
 #### Managing user notification preferences
 

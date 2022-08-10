@@ -69,7 +69,7 @@ Knock::Objects.get_messages(
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
-await knockClient.Objects.GetMessages("projecs", project.id);
+await knockClient.Objects.GetMessages("projects", project.id);
 
 // supports pagination parameters and filters
 
@@ -78,11 +78,11 @@ var params = new Dictionary<string, string> {
                 {"tenant", "my_tenant"}
              };
 
-await knockClient.Objects.GetMessages("projecs", project.id, params);
+await knockClient.Objects.GetMessages("projects", project.id, params);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->objects()->getMessages('projects', 'project-1', [

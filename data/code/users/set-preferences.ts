@@ -54,7 +54,7 @@ Knock::Users.set_preferences(
       }
     }
   }
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -66,7 +66,7 @@ var preferenceSetUpdate = new SetPreferencesOptions {
     {"email", false}
   }
 };
-  
+
 await knockClient.Users.SetPreferences("jhammond", preferenceSetUpdate);
 `,
   elixir: `
@@ -78,7 +78,7 @@ Knock.Users.set_preferences(knock_client, user.id, %{
     sms: false
   },
   workflows: %{
-    "diosaurs-loose" => %{
+    "dinosaurs-loose" => %{
       channel_types: {
         email: false,
         in_app_feed: true,
@@ -90,9 +90,9 @@ Knock.Users.set_preferences(knock_client, user.id, %{
   `,
   php: `
 use Knock\\KnockSdk\\Client;
-  
+
 $client = new Client('sk_12345');
-  
+
 $client->users()->setPreferences($user->id(), [
   'channel_types' => [
     'email' => true,
@@ -143,7 +143,7 @@ KnockClient client = KnockClient.builder()
 PreferenceSetRequest request = PreferenceSetRequest.builder()
   .email(true)
   .sms(false)
-  .workflow("dinosaurs-loose", 
+  .workflow("dinosaurs-loose",
     new PreferenceSetBuilder()
       .email(false)
       .inAppFeed(true)

@@ -56,7 +56,7 @@ Knock::Objects.set_preferences(
       }
     }
   }
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -77,7 +77,7 @@ var preferenceSetUpdate = new SetPreferencesOptions {
     }}
   }
 };
-  
+
 await knockClient.Objects.SetPreferences("projects", "project-1", preferenceSetUpdate);
 `,
   elixir: `
@@ -89,7 +89,7 @@ Knock.Objects.set_preferences(knock_client, "projects", "project-1", %{
     sms: false
   },
   workflows: %{
-    "diosaurs-loose" => %{
+    "dinosaurs-loose" => %{
       channel_types: {
         email: false,
         in_app_feed: true,
@@ -101,7 +101,7 @@ Knock.Objects.set_preferences(knock_client, "projects", "project-1", %{
   `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->objects()->setPreferences('projects', 'project-1', [
@@ -157,7 +157,7 @@ KnockClient client = KnockClient.builder()
 PreferenceSetRequest request = PreferenceSetRequest.builder()
   .email(true)
   .sms(false)
-  .workflow("dinosaurs-loose", 
+  .workflow("dinosaurs-loose",
     new PreferenceSetBuilder()
       .email(false)
       .inAppFeed(true)

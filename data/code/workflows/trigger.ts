@@ -81,7 +81,7 @@ KnockClient client = KnockClient.builder()
 WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
     .key("new-comment")
     .recipients(List.of("1", "2"))
-    .data("prokect_name", "My project")
+    .data("project_name", "My project")
     .build();
 
 WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
