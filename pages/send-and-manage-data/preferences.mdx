@@ -189,3 +189,38 @@ You can use any of the following operators in condition comparisons:
 | `not_contains`             | `argument not in variable`       |
 | `empty`                    | `variable in ["", null, []]`     |
 | `not_empty`                | `variable not in ["", null, []]` |
+
+## Default preferences
+
+By default if no preferences are set, your recipients will have preferences that are "on" for all channel types. This means they will always receive notifications across these channels.
+
+```json Default preferences for a recipient
+{
+  "id": "default",
+  "workflows": null,
+  "categories": null,
+  "channel_types": {
+    "email": true,
+    "sms": true,
+    "push": true,
+    "chat": true
+  }
+}
+```
+
+In the event you need to update this set of default preferences, you can do so from the "Developers > Defaults" section of the dashboard. From here you can specify a default set of preferences **per environment** that will be applied to **all recipients** when executing a notification workflow.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Important note</span> Your recipients
+      preferences will always be merged against the default preferences set on
+      the environment. The recipient preferences will always take precedence.
+    </>
+  }
+/>
+
+The default preferences set in the dashboard follow the same shape as any [preferences you set via the API](send-notifications/setting-preferences) and will be validated before being saved.
+
+Default preferences are useful when you need to rollout preferences across all your recipients or to migrate recipients from one preference model to another. It's important to remember that for more complex preference migrations you may still need to update any stored preferences for your recipients, which you can do via the [batch preference update API](/reference#bulk-set-preferences).
