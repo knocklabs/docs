@@ -91,6 +91,23 @@ All other errors or unexpected responses are immediately fatal. These include:
 
 After two failed retries for a retryable error or any non-retryable error, Knock will mark the fetch function step as a failure and halt your workflow run.
 
+## Testing fetch functions
+
+As you develop, you can execute test runs of your fetch step from right within the template editor. This should look and feel similar to executing test runs of your workflows, but here Knock will execute just your fetch step, ignoring any other steps that may exist before or after.
+
+To run a fetch step test:
+
+1. Click the button that sits to the right of the URL field in the template editor. This should open the Knock test runner modal.
+2. Specify the appropriate trigger parameters (actor, recipient, notify data, and tenant) for the test run. **NOTE:** If your fetch step expects data from a preceding batch step or fetch step, you'll need to explicitly include it here in the "Data" field. Since Knock will test this step in isolation, it cannot know what preceding data may be present when the full workflow runs.
+3. Click the "Run test" button in the modal. The modal will close and the test console should display a loading state as Knock executes the test.
+4. When the test run has completed, Knock will load the result into the test console for your review. You can then use use the "Request" and "Response" buttons to toggle between the two views in the test console. The "Response" section will show any data returned by the request that would be made accessible to subsequent steps in your workflow.
+
+<video width="100%" class="mb-12" autoPlay loop muted playsInline>
+  <source src="/videos/http_step_test_runner.mp4" type="video/mp4" />
+</video>
+
+**When running fetch step tests, Knock will not retry a failed request on any error.** For the retryable errors [outlined above](#error-handling), Knock will indicate in the test console result that they would be retried during a full workflow run.
+
 ## Debugging fetch functions
 
 You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug your fetch function steps. For each fetch function, you can expect to see in the logs:
