@@ -110,6 +110,9 @@ const Autocomplete = () => {
             },
           ];
         },
+        shouldPanelOpen({ state }) {
+          return !!state.query;
+        },
         navigator: {
           navigate({ itemUrl }) {
             router.push(`/${itemUrl}`);
@@ -199,7 +202,7 @@ const Autocomplete = () => {
 
             return (
               <div key={`source-${index}`} className="aa-Source">
-                {items.length > 0 && (
+                {items.length > 0 ? (
                   <ul className="aa-List" {...autocomplete.getListProps()}>
                     {items.map((item) => (
                       <li
@@ -227,6 +230,10 @@ const Autocomplete = () => {
                       </li>
                     ))}
                   </ul>
+                ) : (
+                  <Text p={4} color="gray.400" fontWeight="500" fontSize="14px">
+                    No results
+                  </Text>
                 )}
               </div>
             );
