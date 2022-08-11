@@ -1,0 +1,72 @@
+---
+title: Email layouts
+description: Learn more about how to use layouts with your email templates in Knock
+section: Integrations
+---
+
+import MultiLangCodeBlock from "../../../components/MultiLangCodeBlock";
+import Callout from "../../../components/Callout";
+
+In this guide we cover how to use email layouts and templates in Knock to send great looking notifications to your users.
+
+## An intro to email layouts and templates in Knock
+When you use Knock to power your email notifications, you use two main concepts to build the notifications that will be sent to your users: layouts and templates.
+
+The **layout** typically includes the header and footer of your email, as well as any other HTML or CSS that will be used across all (or multiple) templates. You can think of your email layout as the "frame" of your email notifications, where you define the shared structure and styles once for all your email notifications so they can look and feel consistently without having to repeat them in every template.
+
+The **template** is the actual body and content of your email. When you add an email step to a workflow, the content that you edit within the template editor is the template that will be wrapped by the layout mentioned above. Under the hood, Knock is injecting this template into the `{{content}}` variable of the email layout.
+
+Here's an example of a transactional email we send at Knock, complete with the template content merged into the layout. The area shaded in green is the template. The area shaded in blue is the layout.
+
+![An example of a layout and template within an email notification](/images/layouts/layout-template-example.png)
+
+## The Knock default layout
+Your Knock account starts with a pre-built default layout. If you navigate into the layouts page of the sidebar, you'll find this default layout. This default layout will be used by all new email templates when they're initially created, so if you want to change the default layout used by your emails, this is the layout to update.
+
+Click on the "Default" layout in your layouts list to enter the layout editor. You'll start by looking at the pre-built layout that Knock gives you out of the box. You'll find a footer design option in this visual builder where you can add footer links to this pre-built layout for HTML emails. You can update the logo, icon, and brand color of your email layout by going to "Settings > Branding" and updating these attributes.
+
+If you'd rather create your own layout from scratch, you can click "Edit in code editor" in the top right corner of the layout editor to enter our custom layout editor. You can learn more about custom layouts in the [custom layouts and styling section](/layouts#custom-layouts-and-styling) of this guide.
+
+Every layout includes the text layout for plaintext emails, and the concept works the same as the HTML layout where the text content of your email template will be injected into the `{{content}}` variable. Click the "Text" tab to switch to the text layout, and edit it as you see fit.
+
+## Working with multiple layouts
+You can create multiple layouts in Knock for cases when you want different email notifications to have different styling. As an example, you may want to use one layout for the transactional notifications you send and another layout for any onboarding emails you send users when they first sign up for your product.
+
+### Creating new layouts
+To create a new layout, go to the layouts page and click "Create layout". All new layouts start in Knock's visual layout editor but you can override this default by clicking "Edit in code editor".
+
+### Selecting a layout for a given email template
+When you have multiple email layouts in Knock, all new email templates created within workflows will use your `default` email layout by default. To change the layout used by a given step, go to the template editor, click the "..." menu in the top right corner, and select "Manage template overrides". You'll see a layout select dropdown in the modal that opens. Once you've selected your layout, you can navigate to the preview tab of the template editor to see how your template looks within the context of your selected layout.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Note:</span> Email layouts follow the Knock environment commit model, so you'll need to commit them to your current environment before you'll see them appear in your email notifications.
+    </>
+  }
+/>
+
+## Custom layouts and styling
+If you want to create your own custom email layouts, you can go into the layout editor and click "Edit in code editor" to go to an HTML and CSS editor for your email layout. The important thing to remember here is that your layout needs a `{{content}}` somewhere in its `body` tag for the email template to be injected into the layout.
+
+### Using variables and brand attributes in a custom layout
+It's helpful to remember that you can use variables you create at the account and environment-levels by injecting them into your layout with the `vars.*` namespace. This is a great tool for global values that will be the same across all emails you send, such as base URL for embedded links in your email notifications.
+
+You can also use the `vars.branding.*` namespace for injecting the branding properties you set in account settings. The following branding properties are available for use in custom layouts.
+- vars.branding.logo_url
+- vars.branding.icon_url
+- vars.branding.primary_color
+- vars.branding.primary_color_contrast
+
+If you use [per-tenant branding](/send-and-manage-data/tenants#custom-branding-advanced-feature), remember that Knock automatically evaluates these properties and shows the relevant branding elements based on the `tenant_id` associated with a given workflow run. As an example: if I trigger a workflow that includes a tenant_id with custom branding elements set on their `tenant`, the layout will use those branding elements. If no custom branding elements are set on the `tenant`, then the account default branding elements will be used.
+
+### Injecting workflow run scope into a layout at runtime
+If you have a workflow run scoped variable that you'd like to inject into your layouts, you can do so by invoking the `content.*` namespace within your layout. As an example, let's say my email template is using Liquid's capture tag to create a variable called `formatted_price` within the email template. If I'd rather inject that `formatted_price` value into the footer of my layout, I can do so with `{{content.formatted_price}}`.
+
+### Using the Knock visual template editor
+Whether you are using the default layout provided by Knock or a custom layout you created yourself, you will be able to use the [visual template editor](/send-notifications/designing-workflows/template-editor#visual-editing-with-drag-and-drop-components) to quickly and easily compose your HTML email template by dragging and dropping markdown, button, divider and other components into the template document.
+
+For each component you drop into the template document, under the hood Knock automatically generates a HTML representation of that component and injects it into the `{{content}}` variable in the email layout, just as it would for a raw HTML markup template.
+
+Note, when you use the visual template editor to build your email notification template, Knock includes a set of [auto-generated CSS styles](/send-notifications/designing-workflows/reference-email-layout#generated-css-styles) into the layout on the fly. They provide base styles for certain components, but you can override or extend them as needed.
