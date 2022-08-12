@@ -124,7 +124,7 @@ const Autocomplete = () => {
 
   useHotkeys("/", (e) => {
     // adding small timeout so event doesn't get to the focused input resulting
-    // in "/" being diplayed on the input
+    // in "/" being displayed on the input
     e.preventDefault();
     setTimeout(() => {
       const ref = inputRef.current;

@@ -53,7 +53,7 @@ Knock::Users.set_preferences(
       }]
     }
   }
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -62,7 +62,7 @@ var knockClient = new KnockClient(
 // Set preference set for user
 var preferenceSetUpdate = new SetPreferencesOptions {
   Workflows = new Dictionary<string, object> {
-    {"dinosaurs-loose", new Dicitonary<string, object> {
+    {"dinosaurs-loose", new Dictionary<string, object> {
       {"conditions", new List<Dictionary<string, object>> {
         new Dictionary<string, string>{
           {"variable", "recipient.muted_alert_ids"},
@@ -73,7 +73,7 @@ var preferenceSetUpdate = new SetPreferencesOptions {
     }}
   }
 };
-  
+
 await knockClient.Users.SetPreferences("jhammond", preferenceSetUpdate);
 `,
   elixir: `
@@ -95,9 +95,9 @@ Knock.Users.set_preferences(knock_client, user.id, %{
   `,
   php: `
 use Knock\\KnockSdk\\Client;
-  
+
 $client = new Client('sk_12345');
-  
+
 $client->users()->setPreferences($user->id(), [
   'workflows' => [
     'dinosaurs-loose' => [
@@ -130,7 +130,7 @@ request.AddWorkflowsPreference(map[string]interface{}{
   },
 })
 
-preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request) 
+preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request)
   `,
   java: `
 import app.knock.api.KnockClient;
@@ -141,7 +141,7 @@ KnockClient client = KnockClient.builder()
     .build();
 
 PreferenceSetRequest request = PreferenceSetRequest.builder()
-  .workflow("dinosaurs-loose", 
+  .workflow("dinosaurs-loose",
     new PreferenceSetBuilder()
       .condition("recipient.muted_alert_ids", "not_contains", "data.alert_id")
       .build()
