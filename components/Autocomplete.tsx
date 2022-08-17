@@ -205,9 +205,9 @@ const Autocomplete = () => {
                     ))}
                   </ul>
                 ) : (
-                  <Text p={4} color="gray.400" fontWeight="500" fontSize="14px">
+                  <span className="text-gray-400 dark:text-gray-200 font-medium p-4 text-[14px]">
                     No results
-                  </Text>
+                  </span>
                 )}
               </div>
             );
