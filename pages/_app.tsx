@@ -1,16 +1,16 @@
 import { useRouter } from "next/router";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ThemeProvider } from "next-themes";
 import { useEffect } from "react";
 import {
   EventEmitterContext,
   useEventEmitterInstance,
 } from "@byteclaw/use-event-emitter";
 
-import "../styles/index.css";
-import theme from "../theme";
 import * as gtag from "../lib/gtag";
 
-function MyApp({ Component, pageProps }) {
+import "../styles/index.css";
+
+function App({ Component, pageProps }) {
   const router = useRouter();
   const eventEmitter = useEventEmitterInstance();
 
@@ -26,12 +26,18 @@ function MyApp({ Component, pageProps }) {
   }, [router.events]);
 
   return (
-    <ChakraProvider theme={theme}>
+    <ThemeProvider
+      defaultTheme="light"
+      enableSystem={false}
+      forcedTheme={Component.forcedTheme}
+      attribute="class"
+      disableTransitionOnChange
+    >
       <EventEmitterContext.Provider value={eventEmitter}>
         <Component {...pageProps} />
       </EventEmitterContext.Provider>
-    </ChakraProvider>
+    </ThemeProvider>
   );
 }
 
-export default MyApp;
+export default App;

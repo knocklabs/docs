@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useTheme } from "next-themes";
 import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import javascript from "react-syntax-highlighter/dist/cjs/languages/hljs/javascript";
 import ruby from "react-syntax-highlighter/dist/cjs/languages/hljs/ruby";
@@ -10,11 +11,10 @@ import shell from "react-syntax-highlighter/dist/cjs/languages/hljs/shell";
 import liquid from "react-syntax-highlighter/dist/cjs/languages/hljs/handlebars";
 import go from "react-syntax-highlighter/dist/cjs/languages/hljs/go";
 import java from "react-syntax-highlighter/dist/cjs/languages/hljs/java";
-import { Icon, Tooltip } from "@chakra-ui/react";
 import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
 
-import { lightCodeTheme } from "../styles/codeThemes";
+import { lightCodeTheme, darkCodeTheme } from "../styles/codeThemes";
 import { normalize } from "../lib/normalizeCode";
 import { useIsMounted } from "../hooks/useIsMounted";
 
@@ -97,8 +97,8 @@ export const CodeBlock: React.FC<Props> = ({
   setLanguage,
 }) => {
   const isMounted = useIsMounted();
+  const { theme } = useTheme();
 
-  const theme = lightCodeTheme;
   const params = useMemo(() => getParams(className) as any, [className]);
   const lang = useMemo(
     () => language ?? params.language ?? "shell",
@@ -130,18 +130,16 @@ export const CodeBlock: React.FC<Props> = ({
   }
 
   return (
-    <div className="code-block text-sm border rounded">
-      <div className="bg-gray-100 border-b p-2 flex items-center">
-        {title && (
-          <span className="text-gray-500 text-xs font-medium">{title}</span>
-        )}
+    <div className="code-block text-sm border dark:border-gray-800 rounded overflow-hidden">
+      <div className="bg-gray-100 dark:bg-[#2E2F34] text-gray-500 dark:text-gray-300 border-b dark:border-b-transparent p-2 flex items-center">
+        {title && <span className="text-xs font-medium">{title}</span>}
 
         <div className="flex items-center ml-auto">
           {languages && setLanguage && (
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
-              className="ml-auto bg-transparent text-xs font-medium text-gray-500 mr-2 mt-0.5 text-right"
+              className="ml-auto bg-transparent text-xs font-medium  mr-2 mt-0.5 text-right"
             >
               {languages.map((l) => (
                 <option key={l} value={l}>
@@ -151,22 +149,13 @@ export const CodeBlock: React.FC<Props> = ({
             </select>
           )}
 
-          <Tooltip
-            label="Copy this example"
-            fontSize={12}
-            px={1}
-            py={1}
-            lineHeight={1}
-            placement="left-start"
+          <button
+            type="button"
+            onClick={setCopied}
+            className="text-xs uppercase  tracking-wider px-1"
           >
-            <button
-              type="button"
-              onClick={setCopied}
-              className="text-xs uppercase text-gray-500 tracking-wider px-1"
-            >
-              <Icon as={isCopied ? IoCheckmark : IoCopy} boxSize="12px" />
-            </button>
-          </Tooltip>
+            {isCopied ? <IoCheckmark /> : <IoCopy />}
+          </button>
         </div>
       </div>
       <SyntaxHighlighter
@@ -175,7 +164,7 @@ export const CodeBlock: React.FC<Props> = ({
           color: "#ccc",
         }}
         language={lang}
-        style={theme}
+        style={theme === "light" ? lightCodeTheme : darkCodeTheme}
       >
         {content}
       </SyntaxHighlighter>

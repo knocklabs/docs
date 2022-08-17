@@ -11,16 +11,15 @@ type Props = {
 const SidebarLink: React.FC<Props> = ({ title, path, isSelected }) => (
   <li
     key={path}
-    className={cn({
-      "text-gray-500 text-sm": true,
+    className={cn("text-gray-500 dark:text-gray-200 text-sm", {
       "selected-sidebar-content": isSelected,
     })}
   >
     <Link href={path}>
       <a
-        className={cn({
-          "hover:text-gray-900": true,
-          "text-brand font-medium hover:text-brand-dark": isSelected,
+        className={cn("transition-colors", {
+          "hover:text-gray-900 dark:hover:text-gray-100": true,
+          "text-brand font-medium hover:!text-brand-dark": isSelected,
         })}
       >
         {title}

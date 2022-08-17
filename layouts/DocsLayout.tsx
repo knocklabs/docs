@@ -45,12 +45,14 @@ export const DocsLayout = ({ frontMatter, children }) => {
         <div className="max-w-prose flex-auto">
           {section && <Breadcrumbs section={section} pages={pages} />}
 
-          <h1 className="font-bold text-2xl lg:text-4xl mb-4">
+          <h1 className="font-semibold text-2xl lg:text-4xl mb-4">
             {frontMatter.title}
           </h1>
-          <div className="docs-content prose-sm lg:prose">{children}</div>
+          <div className="docs-content prose-sm lg:prose dark:prose-invert">
+            {children}
+          </div>
           {(prevPage || nextPage) && (
-            <div className="flex border-t mt-8 pt-8 text-sm">
+            <div className="flex border-t dark:border-t-gray-700 mt-8 pt-8 text-sm">
               {prevPage && !("pages" in prevPage) && (
                 <div className="text-left">
                   <Link href={section.slug + prevPage.slug}>
@@ -70,7 +72,7 @@ export const DocsLayout = ({ frontMatter, children }) => {
                         : section.slug + nextPage.slug
                     }
                   >
-                    <a className="text-gray-500 hover:text-gray-800">
+                    <a className="text-gray-500 hover:text-gray-80">
                       {nextPage.title} →
                     </a>
                   </Link>

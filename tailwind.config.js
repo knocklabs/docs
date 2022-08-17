@@ -2,9 +2,10 @@ const defaultTheme = require("tailwindcss/defaultTheme");
 const colors = require("tailwindcss/colors");
 
 module.exports = {
-  purge: [
-    "./pages/**/*.{js,ts,jsx,tsx}",
+  darkMode: "class",
+  content: [
     "./layouts/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
@@ -13,7 +14,7 @@ module.exports = {
         sans: ["Inter", ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        gray: colors.blueGray,
+        gray: colors.zinc,
         brand: {
           light: "#F98576",
           DEFAULT: "#E95744",
@@ -98,5 +99,5 @@ module.exports = {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [require("@tailwindcss/typography")],
+  plugins: [require("@tailwindcss/typography"), require("tailwindcss-radix")()],
 };
