@@ -172,7 +172,7 @@ const Autocomplete = () => {
       </form>
 
       {autocompleteState?.isOpen && (
-        <div className="!w-[500px] !bg-white z-50 aa-Panel">
+        <div className="!w-[500px] !bg-white dark:!bg-gray-800 z-50 aa-Panel">
           {autocompleteState?.collections.map((collection, index) => {
             const { source, items } = collection;
 
@@ -184,7 +184,7 @@ const Autocomplete = () => {
                       <li
                         style={{ padding: "16px" }}
                         key={(item as ResultItem).objectID}
-                        className="aa-Item hover:text-blue-600 cursor-pointer"
+                        className="aa-Item !text-gray-800 dark:!text-gray-200 hover:text-blue-600 cursor-pointer"
                         {...(autocomplete.getItemProps({
                           item,
                           source,
@@ -193,7 +193,7 @@ const Autocomplete = () => {
                         <Link href={`/${item.path}`} passHref>
                           <a href="replace">
                             <Highlight hit={item} attribute="title" />
-                            <span className="mt-2 text-gray-400 font-medium text-[12px]">
+                            <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
                               {(item as ResultItem).section}
                             </span>
                           </a>

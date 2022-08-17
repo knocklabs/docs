@@ -1,6 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { useClipboard } from "@chakra-ui/react";
+import useClipboard from "react-use-clipboard";
 import cn from "classnames";
 
 const CLASS_SELECTOR = "section-heading";
@@ -22,7 +22,7 @@ const SectionHeading: React.FC<Props> = ({
   const targetPath = id ? `${pathname}#${id}` : pathname;
 
   const targetUrl = global.window ? window.location.origin + targetPath : "";
-  const { onCopy } = useClipboard(targetUrl);
+  const [isCopied, onCopy] = useClipboard(targetUrl, { successDuration: 2000 });
 
   const Tag = `${tag}` as keyof Pick<JSX.IntrinsicElements, HeadingTag>;
 

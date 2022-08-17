@@ -27,8 +27,8 @@ function App({ Component, pageProps }) {
 
   return (
     <ThemeProvider
-      defaultTheme="system"
-      enableSystem
+      defaultTheme="light"
+      enableSystem={false}
       forcedTheme={Component.forcedTheme}
       attribute="class"
       disableTransitionOnChange

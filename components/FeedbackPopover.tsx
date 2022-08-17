@@ -1,23 +1,10 @@
-// Copied over from knocklabs/control, with the following changes:
-// (1) Ignore type imports of Account and User
-// (2) Match CTA button's focus state outline style to the rest of docs
-// (3) Match Textarea's font weight to the rest of docs
-// (4) Render PopoverContent without Portal
-// (5) No fixed width on PopoverContent and conditional display
-// `none` vs `flex` for responsive/mobile view
 import React, { useRef, useState } from "react";
-import { ChakraProvider, useRadio, useRadioGroup } from "@chakra-ui/react";
-import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/popover";
-import { Box, Flex, HStack, Text } from "@chakra-ui/layout";
-import { Button } from "@chakra-ui/button";
-import Icon from "@chakra-ui/icon";
-import { Textarea } from "@chakra-ui/textarea";
-import { useToast } from "@chakra-ui/toast";
+import * as Popover from "@radix-ui/react-popover";
+import * as RadioGroup from "@radix-ui/react-radio-group";
 import FocusLock from "react-focus-lock";
 import { IoMegaphone } from "react-icons/io5";
 import { motion } from "framer-motion";
 import isHotkey from "is-hotkey";
-import theme from "../theme";
 
 interface Account {
   id: string;
@@ -37,38 +24,6 @@ const FEEDBACK_CATEGORIES = new Map([
 ]);
 
 const isSubmitHotkey = isHotkey("mod+enter");
-const isEnterKey = isHotkey("enter");
-
-const EmojiRadio = (props) => {
-  const { onChange, value } = props;
-  const { getInputProps, getCheckboxProps } = useRadio(props);
-
-  const handleEnterAsSelect = (e) => {
-    if (isEnterKey(e)) {
-      e.preventDefault();
-      onChange(value);
-    }
-  };
-
-  return (
-    <Box as="label">
-      <input {...getInputProps()} onKeyPress={handleEnterAsSelect} />
-      <Box
-        {...getCheckboxProps()}
-        cursor="pointer"
-        textAlign="center"
-        borderWidth="1px"
-        borderRadius="base"
-        boxShadow="sm"
-        boxSize="28px"
-        _checked={{ borderColor: "brand.600" }}
-        _focus={{ boxShadow: "outline" }}
-      >
-        {value}
-      </Box>
-    </Box>
-  );
-};
 
 type Props = {
   currentUser?: User | undefined;
@@ -82,13 +37,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
   const [feedbackBody, setFeedbackBody] = useState<string>("");
   const [feedbackEmoji, setFeedbackEmoji] = useState<string>("");
 
-  const toast = useToast();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const { getRootProps, getRadioProps } = useRadioGroup({
-    name: "feedback-category",
-    value: feedbackEmoji,
-    onChange: setFeedbackEmoji,
-  });
 
   const hasFeedback = !!feedbackBody.trim();
 
@@ -112,7 +61,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
 
     setIsLoading(true);
 
-    const resp = await fetch("/api/feedbacks", {
+    await fetch("/api/feedbacks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -127,110 +76,75 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
     });
 
     setIsLoading(false);
-
-    const { error } = await resp.json();
-    if (error) {
-      return toast({
-        title: error,
-        status: "error",
-        position: "bottom-right",
-      });
-    }
-
     setIsOpen(false);
     setIsSubmitted(true);
     setTimeout(reset, 2000);
   };
 
   return (
-    <Popover
-      isOpen={isOpen}
-      initialFocusRef={textAreaRef}
-      onClose={() => setIsOpen(false)}
-      placement="bottom-end"
-    >
-      <PopoverTrigger>
-        <Flex
-          height="100%"
-          alignItems="center"
-          fontWeight="medium"
-          fontSize={14}
-          lineHeight={1.5}
+    <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+      <Popover.Trigger asChild>
+        {isSubmitted ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <span className="text-[#248F54] text-[14px]">
+              Thanks for the feedback!
+            </span>
+          </motion.div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            className="flex h-full items-center font-medium text-[14px] leading-[21px] text-gray-500 dark:text-gray-400"
+          >
+            <IoMegaphone className="mr-2" /> Feedback?
+          </button>
+        )}
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          align="end"
+          sideOffset={12}
+          className="p-3 flex flex-col justify-between w-[300px] h-[152px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
         >
-          {isSubmitted ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <Text px={4} color="#248F54">
-                Thanks for the feedback!
-              </Text>
-            </motion.div>
-          ) : (
-            <Button
-              aria-label="Send feedback"
-              variant="ghost"
-              color="gray.500"
-              size="md"
-              fontSize="inherit"
-              leftIcon={<Icon as={IoMegaphone} color="#8992A1" />}
-              onClick={() => setIsOpen(true)}
-              _hover={{ bg: "transparent" }}
-              _active={{ bg: "transparent" }}
-              // Match focus outline style to the rest of docs (2)
-              _focus={{ outline: "none", boxShadow: "0 0 0 2px #005fcc" }}
-            >
-              Feedback?
-            </Button>
-          )}
-        </Flex>
-      </PopoverTrigger>
-      <PopoverContent
-        p={3}
-        flexDirection="column"
-        justifyContent="space-between"
-        height="152px"
-        // For responsive mobile view (5)
-        style={{ display: isOpen ? "flex" : "none" }}
-        _focus={{ outline: "none" }}
-      >
-        <FocusLock returnFocus persistentFocus={false}>
-          <form onSubmit={handleSubmit}>
-            <Textarea
-              p={0}
-              size="sm"
-              variant="unstyled"
-              // Match font weight to the rest of docs (3)
-              fontWeight={400}
-              color="gray.600"
-              value={feedbackBody}
-              onChange={(e) => setFeedbackBody(e.target.value)}
-              onKeyDown={(e) => isSubmitHotkey(e) && handleSubmit()}
-              ref={textAreaRef}
-              placeholder="Help us improve this page."
-              resize="none"
-            />
-            <Flex mt={3} justifyContent="space-between">
-              <HStack {...getRootProps()} spacing={1}>
-                {Array.from(FEEDBACK_CATEGORIES.keys()).map((emoji) => (
-                  <EmojiRadio
-                    key={emoji}
-                    {...getRadioProps({ value: emoji })}
-                  />
-                ))}
-              </HStack>
-              <Button
-                isLoading={isLoading}
-                loadingText="Sending"
-                type="submit"
-                size="sm"
-                colorScheme="brand"
-                isDisabled={!hasFeedback}
-              >
-                Send
-              </Button>
-            </Flex>
-          </form>
-        </FocusLock>
-      </PopoverContent>
-    </Popover>
+          <FocusLock>
+            <form onSubmit={handleSubmit}>
+              <textarea
+                className="text-gray-600 font-normal p-2 text-[14px] w-full bg-transparent h-[80px] focus:border-none border-none focus-visible:outline-none dark:text-white"
+                value={feedbackBody}
+                onChange={(e) => setFeedbackBody(e.target.value)}
+                onKeyDown={(e) => isSubmitHotkey(e) && handleSubmit()}
+                ref={textAreaRef}
+                placeholder="Help us improve this page."
+              />
+
+              <div className="flex mt-3 justify-between">
+                <RadioGroup.Root
+                  name="feedback-category"
+                  className="flex space-x-1"
+                >
+                  {Array.from(FEEDBACK_CATEGORIES.keys()).map((emoji) => (
+                    <RadioGroup.Item
+                      value={emoji}
+                      className="text-center w-7 h-7 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-blue-400 radix-state-checked:!border-brand"
+                    >
+                      {emoji}
+                    </RadioGroup.Item>
+                  ))}
+                </RadioGroup.Root>
+
+                <button
+                  type="submit"
+                  disabled={!hasFeedback}
+                  className="bg-brand text-white text-[14px] px-2 py-1 rounded-md disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Sending" : "Send"}
+                </button>
+              </div>
+            </form>
+          </FocusLock>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   );
 };
 
