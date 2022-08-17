@@ -43,14 +43,14 @@ const SidebarSubsectionList: React.FC<Props> = ({
   }, [isOpen, ref.current]);
 
   return (
-    <li ref={ref}>
+    <li ref={ref} className="-ml-[16px]">
       <button
         type="button"
         className="flex items-center text-gray-500 dark:text-gray-300 text-sm w-full"
         onClick={toggleSection}
       >
         <IoChevronUp
-          className={cn("", {
+          className={cn("text-gray-300 dark:text-gray-600", {
             "-rotate-180": isOpen,
             "rotate-90": !isOpen,
           })}
@@ -59,7 +59,7 @@ const SidebarSubsectionList: React.FC<Props> = ({
       </button>
 
       <div
-        className={cn("pl-3 ml-[6px] border-l-2 border-l-gray-700", {
+        className={cn("pl-3 ml-[12px]", {
           block: isOpen,
           hidden: !isOpen,
         })}

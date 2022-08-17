@@ -6,7 +6,7 @@ import Sidebar from "./Sidebar";
 const ApiReferenceSidebar = () => (
   <Sidebar content={sidebarContent}>
     <Link href="/" passHref>
-      <a className="text-sm block font-medium text-gray-500 hover:text-gray-900">
+      <a className="text-sm block font-medium text-gray-500 hover:text-gray-900 dark:hover:text-gray-300">
         &#8592; Back to docs
       </a>
     </Link>

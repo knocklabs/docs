@@ -22,7 +22,7 @@ export const ExampleColumn = ({ children }) => (
 );
 
 export const ErrorExample = ({ title, description }) => (
-  <div className="flex-col pt-6 mt-6 border-gray-200 border-t">
+  <div className="flex-col pt-6 mt-6 border-gray-200 border-t dark:border-gray-700">
     <span className="bg-code-background dark:bg-gray-800 text-code rounded text-sm font-normal py-0.75 px-1.5 font-mono inline-block">
       {title}
     </span>
