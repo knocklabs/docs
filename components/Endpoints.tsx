@@ -15,7 +15,7 @@ const Endpoint = ({ method, path }) => (
   <div className="my-3">
     <span
       className={cn({
-        "text-xs font-medium text-gray-500 dark:text-gray-300 border border-transparent rounded p-1 center mr-3":
+        "text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center mr-3":
           true,
         "bg-blue-100 dark:bg-transparent dark:border-blue-600":
           method === "GET",
