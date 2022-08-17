@@ -131,7 +131,7 @@ export const CodeBlock: React.FC<Props> = ({
 
   return (
     <div className="code-block text-sm border dark:border-gray-800 rounded overflow-hidden">
-      <div className="bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-300 border-b dark:border-b-gray-800 p-2 flex items-center">
+      <div className="bg-gray-100 dark:bg-[#2E2F34] text-gray-500 dark:text-gray-300 border-b dark:border-b-gray-800 p-2 flex items-center">
         {title && <span className="text-xs font-medium">{title}</span>}
 
         <div className="flex items-center ml-auto">
