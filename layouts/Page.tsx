@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React, { ReactElement } from "react";
-import { IoLaptop, IoLaptopOutline, IoMoon, IoSunny } from "react-icons/io5";
+import { IoMoon, IoSunny } from "react-icons/io5";
 import { useTheme } from "next-themes";
 
 import Meta from "../components/Meta";
@@ -66,7 +66,6 @@ export const Page: React.FC<Props> = ({
               className="p-2 -mr-2 text-gray-400 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
-              {theme === "system" && <IoLaptopOutline />}
               {theme === "dark" && <IoMoon />}
               {theme === "light" && <IoSunny />}
             </button>
