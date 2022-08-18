@@ -9,10 +9,12 @@ import {
 import * as gtag from "../lib/gtag";
 
 import "../styles/index.css";
+import { DocsLayout } from "../layouts/DocsLayout";
 
 function App({ Component, pageProps }) {
   const router = useRouter();
   const eventEmitter = useEventEmitterInstance();
+  let getLayout = Component.getLayout || ((page) => page);
 
   useEffect(() => {
     const handleRouteChange = (url: URL) => {
@@ -25,6 +27,11 @@ function App({ Component, pageProps }) {
     };
   }, [router.events]);
 
+  // Any docs pages we want to force to have the correct layout wrapper
+  if (!router.asPath.startsWith("/reference")) {
+    getLayout = DocsLayout.getLayout;
+  }
+
   return (
     <ThemeProvider
       defaultTheme="light"
@@ -34,7 +41,7 @@ function App({ Component, pageProps }) {
       disableTransitionOnChange
     >
       <EventEmitterContext.Provider value={eventEmitter}>
-        <Component {...pageProps} />
+        {getLayout(<Component {...pageProps} />)}
       </EventEmitterContext.Provider>
     </ThemeProvider>
   );
