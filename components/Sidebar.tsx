@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { useRouter } from "next/router";
 import { SidebarSection } from "../data/types";
 import SidebarSectionList from "./Sidebar/SidebarSectionList";
@@ -9,6 +9,16 @@ type Props = {
 
 const Sidebar: React.FC<Props> = ({ content, children }) => {
   const router = useRouter();
+
+  useLayoutEffect(() => {
+    setTimeout(() => {
+      document.querySelector(".selected-sidebar-content")?.scrollIntoView({
+        behavior: "auto",
+        block: "center",
+        inline: "center",
+      });
+    }, 50);
+  }, []);
 
   return (
     <section className="w-72 border-r dark:border-r-gray-800 hidden lg:block">
