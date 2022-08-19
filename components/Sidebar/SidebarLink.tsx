@@ -15,7 +15,7 @@ const SidebarLink: React.FC<Props> = ({ title, path, isSelected }) => (
       "selected-sidebar-content": isSelected,
     })}
   >
-    <Link href={path}>
+    <Link href={path} scroll={false} passHref>
       <a
         className={cn("transition-colors", {
           "hover:text-gray-900 dark:hover:text-gray-100": true,

@@ -170,6 +170,16 @@ const sidebarContent: SidebarSection[] = [
       },
     ],
   },
+  {
+    title: "Manage your account",
+    slug: "/manage-your-account",
+    pages: [
+      { slug: "/authentication-methods", title: "Authentication methods" },
+      { slug: "/managing-members", title: "Managing members" },
+      { slug: "/roles-and-permissions", title: "Roles and permissions" },
+      { slug: "/audit-logs", title: "Audit logs" },
+    ],
+  },
 ];
 
 export default sidebarContent;

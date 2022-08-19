@@ -82,7 +82,7 @@ export const Page: React.FC<Props> = ({
         <div className="flex overflow-y-hidden h-full">
           {sidebar}
 
-          <main className="w-full h-full overflow-y-auto">
+          <main className="w-full h-full overflow-y-auto main-content">
             <section className="p-5 lg:p-8 min-h-full">{children}</section>
             <footer className="border-t dark:border-t-gray-800 p-5 lg:p-8">
               <section className="mx-auto w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center">

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { Page } from "./Page";
@@ -6,10 +6,21 @@ import PageNav from "../components/PageNav";
 import Breadcrumbs from "../components/Breadcrumbs";
 import sidebarContent from "../data/sidebar";
 import DocsSidebar from "../components/DocsSidebar";
+import Meta from "../components/Meta";
 
-export const DocsLayout = ({ frontMatter, children }) => {
+const DocsLayout = ({ frontMatter, children }) => {
   const { pathname } = useRouter();
   const paths = useMemo(() => pathname.substring(1).split("/"), [pathname]);
+
+  useEffect(() => {
+    const content = document.querySelector(".main-content");
+
+    // Right now we need this hack to ensure that we scroll the main content to
+    // the top of the view when navigating.
+    if (content) {
+      content.scrollTop = 0;
+    }
+  }, []);
 
   const { section, pages, nextPage, prevPage } = useMemo(() => {
     const [sectionPath] = paths;
@@ -33,14 +44,12 @@ export const DocsLayout = ({ frontMatter, children }) => {
   }, [paths, pathname]);
 
   return (
-    <Page
-      pageType="Docs"
-      sidebar={<DocsSidebar />}
-      metaProps={{
-        title: `${frontMatter.title} | Knock Docs`,
-        description: frontMatter.description,
-      }}
-    >
+    <>
+      <Meta
+        title={`${frontMatter.title} | Knock Docs`}
+        description={frontMatter.description}
+      />
+
       <div className="w-full max-w-5xl lg:flex mx-auto relative">
         <div className="max-w-prose flex-auto">
           {section && <Breadcrumbs section={section} pages={pages} />}
@@ -88,6 +97,14 @@ export const DocsLayout = ({ frontMatter, children }) => {
           )}
         </div>
       </div>
-    </Page>
+    </>
   );
 };
+
+DocsLayout.getLayout = (page) => (
+  <Page pageType="Docs" sidebar={<DocsSidebar />}>
+    {page}
+  </Page>
+);
+
+export { DocsLayout };
