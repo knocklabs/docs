@@ -1,0 +1,147 @@
+---
+title: Designing Slack notification templates
+description: How to configure basic and interactive Slack notification templates in Knock.
+tags: ["slack", "chat"]
+section: Integrations > Slack
+layout: integrations
+---
+
+import Callout from "../../../../components/Callout";
+import MultiLangCodeBlock from "../../../../components/MultiLangCodeBlock";
+import { Attributes, Attribute } from "../../../../components/Attributes";
+
+In this guide we'll cover how to design Slack notification templates within Knock.
+
+When you're creating a template for a Slack step within a Knock workflow, you have two options:
+
+- **Knock markdown editor.** For simple messages that just use markdown, you can use regular markdown in Knock to write your template.
+- **Knock JSON block editor.** For advanced messages built using Slack's block kit UI framework, you can switch to our JSON editor to paste in your Slack JSON blocks. Liquid syntax is supported.
+
+## Markdown templates
+
+Editing a markdown template for Slack is just like editing any other markdown-based template in Knock. You can use [liquid](https://shopify.github.io/liquid/) to inject variables and add control tags (e.g. if-then, for-loop) into your template.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Knock fun fact.</span> Slack uses a
+      markdown-variant syntax called{" "}
+      <a href="https://api.slack.com/reference/surfaces/formatting#basics">
+        mrkdwn
+      </a>
+      , but Knock handles this for you automatically, so you can write your templates
+      in good old <a href="https://daringfireball.net/projects/markdown/">
+        {" "}
+        markdown{" "}
+      </a>.
+    </>
+  }
+/>
+
+Here's an example Slack template written in Knock using markdown.
+
+```markdown A markdown-based Slack template with for-loop iteration
+Hi **{{ recipient.name | split:" " | first }}**,
+
+There are {{ total_activities }} comments left on {{ page_name }}.
+
+{% for activity in activities %}
+
+- From **{{activity.actor.name}}**: "{{activity.comment.body}}""
+  {% endfor %}
+
+[**View page**]({{vars.base_url}}/{{account_id}}/pages/{{ page_id }})
+```
+
+In the example above we're using [liquid's for-loop tag](https://shopify.github.io/liquid/tags/iteration/) to iterate over the activities array produced by a Knock batch function. You can learn more about Knock batch functions and the state they produce in our [batch function guide](/send-notifications/designing-workflows/batch-function).
+
+## Block-based templates
+
+For more advanced layouts in your Slack messages, including images and buttons, you'll need to use Slack's [block kit UI framework](https://api.slack.com/block-kit) to build your notification templates. The block kit framework is a set of different JSON objects you can use together and arrange to create Slack app and notification layouts.
+
+### Designing block kit templates
+
+To start you'll want to design your block-based Slack message template. The best way to do this today is to use [Slack's block kit builder](https://app.slack.com/block-kit-builder/). It gives you a drag-and-drop interface for building out your Slack templates, and outputs the JSON you'll need to bring into your Knock template.
+
+<Callout
+  emoji="🛣"
+  text={
+    <>
+      <span className="font-bold">Knock roadmap alert.</span> In the future
+      you'll be able to use a visual, drag-and-drop editor within Knock to build
+      these block-based Slack templates without having to leave the Knock
+      product. <br />
+      <br /> If you're interested in trying this functionality, please shoot us a
+      note at <a href="mailto:support@knock.app">support@knock.app</a> or use the
+      feedback button at the top of this page.
+    </>
+  }
+/>
+
+Once you've designed your Slack template, copy the JSON from the block kit builder and bring it into your Knock notification template. You'll use the "Switch to JSON editor" button at the bottom right of the Knock template editor page to switch to our JSON editor, and then paste in the JSON you copied from the block kit builder.
+
+### Knock's JSON template editor
+
+You can use liquid in the Knock JSON template editor just as you would in the markdown editor. This is helpful for both injecting variables into the text of your Slack UI blocks, as well as for for using liquid control tags to control when certain blocks should be displayed and for iterating through an array and mapping its items into a list of Slack blocks.
+
+Here's an example of a block kit UI template with liquid syntax added to iterate through a list of items.
+
+```json A block kit UI template in Knock with for-loop iteration
+{
+	"blocks": [
+		{
+			"type": "header",
+			"text": {
+				"type": "plain_text",
+				"text": "Users marked for onboarding",
+				"emoji": true
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Hi John,\n\n The following users have been assigned to you for onboarding today:"
+			}
+		},
+		{% for activity in activities %}
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*{{activity.assigned_user.name}}* \n {{activity.assigned_user.email}} \n _{{activity.assigned_user.title}}_"
+			},
+			"accessory": {
+				"type": "image",
+				"image_url": "{{activity.assigned_user.avatar_url}}",
+				"alt_text": "avatar image"
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{% endfor %}
+		{
+			"type": "actions",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "View in dashboard",
+						"emoji": true
+					},
+					"value": "{{dashboard_url}}"
+				}
+			]
+		}
+	]
+}
+```
+
+In the template above, we're using the `activities` array produced by a [batch function](/send-notifications/designing-workflows/batch-function) to iterate over a number of items that we want to display in our Slack message. For each one of those items, we're producing a `section` that includes both `text` and an `image`, both of which are injected with variables from the `activity` from our `activities` array.
+
+Here's an example of a Slack message produced with this template. **Note:** this template was produced by three separate workflow trigger calls to the Knock API, all of which were batched into a single message automatically using our batch function.
+
+![An example Slack message built with block kit UI](/images/slack-json-block-example.png)
