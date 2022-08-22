@@ -159,11 +159,35 @@ const sidebarContent: SidebarSection[] = [
         ],
       },
       {
-        title: "Chat",
+        title: "Slack",
+        slug: "/slack",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/how-knock-slacks",
+            title: "The Knock-Slack model",
+          },
+          { slug: "/slack-apps-and-scopes", title: "Slack apps and scopes" },
+          { slug: "/building-oauth-flow", title: "Build your OAuth flow" },
+          {
+            slug: "/designing-slack-templates",
+            title: "Designing Slack templates",
+          },
+          {
+            slug: "/slack-interactivity",
+            title: "Slack interactivity",
+          },
+          {
+            slug: "/slack-examples",
+            title: "Example use cases",
+          },
+        ],
+      },
+      {
+        title: "Additional chat providers",
         slug: "/chat",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/slack", title: "Slack" },
           { slug: "/microsoft-teams", title: "Microsoft Teams" },
           { slug: "/discord", title: "Discord" },
         ],

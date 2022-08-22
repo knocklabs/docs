@@ -1,0 +1,59 @@
+---
+title: Slack integration examples
+description: A number of examples you can reference for how to power different types of Slack notifications with Knock. 
+tags: ["slack", "chat"]
+section: Integrations > Slack
+---
+
+In this guide we'll cover a number of use cases you can support with Knock's Slack integration. 
+
+- Sending channel notifications to your customer’s Slack workspace
+- Sending direct messages in your customer’s Slack workspace
+- Sending notifications to a channel in your own internal Slack workspace
+
+You can support these use cases using either standard Slack OAuth or through the `incoming-webhook` scope we mentioned above. In the examples below we use `incoming-webhook` to keep things simple. 
+
+## Sending notifications to a channel in your customer’s Slack workspace
+
+When you are notifying a **_channel_** in your customer’s Slack workspace (and not an individual user) it’s usually because that channel maps to the notification stream of a specific resource in your product.
+
+For these types of resource-to-channel integrations, you’ll use Knock [objects](https://docs.knock.app/send-and-manage-data/objects) to store the `incoming_webhook.url` received from Slack. Here’s an example from the Linear example we mentioned above.
+
+<MultiLangCodeBlock snippet="objects.set" title="Creating an object" />
+
+When you want to notify the Slack channel about something that took place in that object, you send the object as a recipient in your relevant workflow trigger.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-object-as-recipient"
+  title="Object recipient in a workflow trigger"
+/>
+
+To learn more about how to use objects to power Slack channel notifications, see [the Slack example](https://docs.knock.app/send-and-manage-data/objects#slack-channel-notifications) in our object documentation.
+
+## Sending notifications to a user in your customer’s Slack workspace
+
+If you want to notify a user in Slack via direct message instead of through a channel, you can still accomplish this through a simple Slack app with the `incoming-webhook` scope. (This is possible because during the OAuth flow for an app with the `incoming-webhook` scope, the installing user can select their own Direct Message channel for the integration.)
+
+![An example of selecting a Direct Message in an OAuth flow](/images/slack-oauth-flow-select-channel.png)
+
+Just surface your Slack OAuth flow to users in their personal notification settings and store the webhook URL received from the OAuth process on the relevant `user` in Knock.
+
+You can learn more users and channel data in our docs on [how to set channel data](https://docs.knock.app/send-notifications/setting-channel-data).
+
+## Sending notifications to a channel in your own Slack workspace
+
+There are certain cases where you want to notify a channel in your own internal Slack workspace when something happens in your product. In these scenarios, use your best judgement as to whether the Slack connection data (the `incoming_webhook.url`) should live on a [user](https://docs.knock.app/reference#users) or an [object](https://docs.knock.app/reference#objects) in Knock.
+
+An example: at Knock we notify a support channel when a user in our dashboard submits a feedback ticket. Since these support tickets all come into the same Slack channel regardless of which account they come from in Knock, we store our Slack connection data on a support bot `user` within Knock.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Slack dashboard shortcut.</span> If you’re
+      using a Slack app to message your internal Slack workspace, you can just
+      grab your webhook URL from the Incoming Webhooks section of your{" "}
+      <a href="https://api.slack.com/apps">app’s management page</a>.
+    </>
+  }
+/>
