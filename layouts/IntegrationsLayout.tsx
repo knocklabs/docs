@@ -1,17 +1,27 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import { Page } from "./Page";
 import PageNav from "../components/PageNav";
 import Breadcrumbs from "../components/Breadcrumbs";
-import sidebarContent from "../data/sidebar";
+import sidebarContent from "../data/integrationsSidebar";
 import IntegrationsSidebar from "../components/IntegrationsSidebar";
+import Meta from "../components/Meta";
 
-export const IntegrationsLayout = ({ frontMatter, children }) => {
+const IntegrationsLayout = ({ frontMatter, children }) => {
   const { pathname } = useRouter();
   const paths = useMemo(() => pathname.substring(1).split("/"), [pathname]);
 
-  const { section, pages, nextPage, prevPage } = useMemo(() => {
+  useEffect(() => {
+    const content = document.querySelector(".main-content");
+
+    // Right now we need this hack to ensure that we scroll the main content to
+    // the top of the view when navigating.
+    if (content) {
+      content.scrollTop = 0;
+    }
+  }, []);
+
+  const { section, pages } = useMemo(() => {
     const [sectionPath] = paths;
     const sectionIndex = sidebarContent.findIndex(
       (s) => s.slug === `/${sectionPath}`,
@@ -33,14 +43,11 @@ export const IntegrationsLayout = ({ frontMatter, children }) => {
   }, [paths, pathname]);
 
   return (
-    <Page
-      pageType="Docs"
-      sidebar={<IntegrationsSidebar />}
-      metaProps={{
-        title: `${frontMatter.title} | Knock Docs`,
-        description: frontMatter.description,
-      }}
-    >
+    <>
+      <Meta
+        title={`${frontMatter.title} | Knock Docs`}
+        description={frontMatter.description}
+      />
       <div className="w-full max-w-5xl lg:flex mx-auto relative">
         <div className="max-w-prose flex-auto">
           {section && <Breadcrumbs section={section} pages={pages} />}
@@ -59,6 +66,14 @@ export const IntegrationsLayout = ({ frontMatter, children }) => {
           )}
         </div>
       </div>
-    </Page>
+    </>
   );
 };
+
+IntegrationsLayout.getLayout = (page) => (
+  <Page pageType="Docs" sidebar={<IntegrationsSidebar />}>
+    {page}
+  </Page>
+);
+
+export { IntegrationsLayout };

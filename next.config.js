@@ -129,6 +129,11 @@ module.exports = withPlugins(
     async redirects() {
       return [
         {
+          source: "/integrations",
+          destination: "/integrations/overview",
+          permanent: false,
+        },
+        {
           source: "/integrations/email",
           destination: "/integrations/email/attachments",
           permanent: false,
@@ -250,6 +255,11 @@ module.exports = withPlugins(
           destination:
             "/send-notifications/designing-workflows/reference-liquid-helpers",
           permanent: true,
+        },
+        {
+          source: "/in-app-ui/:section",
+          destination: "/in-app-ui/:section/overview",
+          permanent: false,
         },
       ];
     },

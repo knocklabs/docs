@@ -73,7 +73,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "SMS",
-    slug: "/sms",
+    slug: "/integrations/sms",
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/twilio", title: "Twilio" },
