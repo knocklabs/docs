@@ -133,18 +133,39 @@ Take an example of an app that wants to give per-channel preferences to its reci
 When you [set a given user's preferences](/reference#set-preferences-user) in Knock you can either set a user's `default` preferences or create a per-tenant preference set. 
 
 ### The `default` preference set
-If you do not specify a `tenant_id` when you create a preference set for a given user, you will be updating the user's `default` preference set. 
+A user's `default` preference set is used to define the preference set that the Knock notification engine will default to when evaluating whether to send a notification to a given user across a given channel. (**Note:** If you're using a Knock SDK and don't specify an `id` when creating/updating a preference set, the `default` preference set will be used.)
 
-A user's `default` preference set is what the Knock notification engine uses to evaluate a user's notification preferences when:
+The Knock notification engine uses the `default` preference set for preference evaluation when:
 * No `tenant` was specified on the workflow trigger that started the workflow run
-* OR the `tenant` that was specified on the workflow trigger does not have a specified preference set for that recipient
+* **OR** the `tenant` that was specified on the workflow trigger does not have a specified preference set for that recipient
 
 If your product just gives users a single set of notification preferences to configure across all tenants in your product, you'll just be using the `default` scope for your users' preferences. 
 
-### Per-tenant preference sets
-If you do specify a `tenant_id` when you create a preference set for a given user, you will be creating a new preference set for that user scoped to that tenant_id. 
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Object preferences.</span> A quick reminder: the guide above references <code>user</code> preferences but all of this applies to <a href="/reference#set-preferences-object"><code>object</code> preferences</a> as well.
+    </>
+  }
+/>
 
-A per-tenant preference set is evaluated when (i) the user is included as a `recipient` on a workflow trigger AND (ii) this `tenant_id` is specified as the `tenant` on that same workflow trigger. This tells Knock that this user is being notified within that tenant, and we'll use the preference set you have stored for that user-tenant combination as a result.  
+
+### Per-tenant preference sets
+In some cases you may want to set an additional preference set for a given user that pertains to a specific tenant within your product. (A well-known example of this: in Slack, your notification preferences are set _per Slack workspace_, not as a global preference set that applies across all of your Slack workspaces.)
+
+To create a preference set scoped to a particular [Tenant](/send-and-manage-data/tenants), you'll set the `id` of the preference set equal to `tenant.id` when you create the preference set for your user. 
+
+The Knock notification engine uses a per-tenant preference set for preference evaluation when the `recipient` of the workflow run has a preference set with an `id` equal to the `tenant.id` defined on the workflow trigger. 
+
+<Callout
+  emoji="🛣"
+  text={
+    <>
+      <span className="font-bold">Beta feature.</span> Per-tenant preferences are currently in beta. If you're interested in trying this functionality please reach out at <a href="mailto:support@knock.app">support@knock.app</a>. 
+    </>
+  }
+/>
 
 
 ## Preference conditions
@@ -258,7 +279,7 @@ In some cases you may want to extend preference default behavior to your tenant 
   emoji="🛣"
   text={
     <>
-      <span className="font-bold">Beta feature.</span> Per-tenant preference defaults are in beta and currently under development. If you're interested in trying it out please reach out at <a href="mailto:support@knock.app">support@knock.app</a>. 
+      <span className="font-bold">Beta feature.</span> Per-tenant preference defaults are in beta and currently under development. If you're interested in trying this functionality please reach out at <a href="mailto:support@knock.app">support@knock.app</a>. 
     </>
   }
 />
