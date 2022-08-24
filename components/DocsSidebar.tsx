@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IoCode, IoLogoSlack, IoTerminal } from "react-icons/io5";
+import { IoSwapHorizontal, IoLogoSlack, IoTerminal } from "react-icons/io5";
 import sidebarContent from "../data/sidebar";
 import Sidebar from "./Sidebar";
 
@@ -16,7 +16,7 @@ const DocsSidebar = () => (
 
       <Link href="/integrations/overview" passHref>
         <a className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-200">
-          <IoCode className="mr-2" />
+          <IoSwapHorizontal className="mr-2" />
           Integration guides
           <span className="ml-auto">&#8594;</span>
         </a>
