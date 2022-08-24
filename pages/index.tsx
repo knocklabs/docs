@@ -1,7 +1,5 @@
 import Link from "next/link";
-import DocsSidebar from "../components/DocsSidebar";
 import sidebarContent from "../data/sidebar";
-import { Page } from "../layouts/Page";
 
 export default function Home() {
   return (

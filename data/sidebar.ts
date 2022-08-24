@@ -112,65 +112,6 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
-    title: "Integration guides",
-    slug: "/integrations",
-    desc: "Learn how to connect your notification providers to Knock.",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      {
-        title: "Email",
-        slug: "/email",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/layouts", title: "Layouts" },
-          { slug: "/aws-ses", title: "AWS SES" },
-          { slug: "/mailjet", title: "Mailjet" },
-          { slug: "/mailgun", title: "Mailgun" },
-          { slug: "/postmark", title: "Postmark" },
-          { slug: "/sendgrid", title: "SendGrid" },
-          { slug: "/attachments", title: "Sending attachments" },
-        ],
-      },
-      {
-        title: "In-app",
-        slug: "/in-app",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/knock", title: "Knock" },
-        ],
-      },
-      {
-        title: "Push",
-        slug: "/push",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/apns", title: "Apple (APNS)" },
-          { slug: "/firebase", title: "Firebase (FCM)" },
-          { slug: "/expo", title: "Expo (React Native)" },
-        ],
-      },
-      {
-        title: "SMS",
-        slug: "/sms",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/twilio", title: "Twilio" },
-          { slug: "/telnyx", title: "Telnyx" },
-        ],
-      },
-      {
-        title: "Chat",
-        slug: "/chat",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/slack", title: "Slack" },
-          { slug: "/microsoft-teams", title: "Microsoft Teams" },
-          { slug: "/discord", title: "Discord" },
-        ],
-      },
-    ],
-  },
-  {
     title: "Manage your account",
     slug: "/manage-your-account",
     pages: [

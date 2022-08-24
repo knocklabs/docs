@@ -1,0 +1,65 @@
+---
+title: Configuring your Slack app + OAuth scopes
+description: An overview of Slack app and OAuth setup.
+section: Integrations > Slack
+layout: integrations
+---
+
+import Callout from "../../../../components/Callout";
+import MultiLangCodeBlock from "../../../../components/MultiLangCodeBlock";
+import { Attributes, Attribute } from "../../../../components/Attributes";
+
+In this guide we'll walk through the basics of configuring a Slack app within [Slack's API app center](https://api.slack.com/apps) and the OAuth scopes your Slack app will need for different notification use cases.
+
+## Your Slack app and OAuth scopes
+
+You’ll need to create a Slack app to send notifications from Knock to a Slack workspace. If you haven’t built a Slack app yet, you can get started in [Slack’s app documentation](https://api.slack.com/authentication/basics).
+
+Once you create your Slack app, you’ll be routed to its app management page within the Slack dashboard. It looks like this.
+
+![Slack app management page](/images/slack-app-management-page.png)
+
+Before your Slack app can actually do anything, you’ll need to tell it which Bot Token Scopes it needs to request when it joins a Slack workspace.
+
+If you are new to Slack apps, a few key concepts to understand:
+
+- A [scope](https://api.slack.com/scopes) is a permission granted to your Slack app when it joins a Slack workspace. You configure which scopes your app asks for in the **OAuth & Permissions** sidebar of your [app management page](https://api.slack.com/apps).
+- Your Slack app is installed to a customer's workspace through the [Slack OAuth flow](https://api.slack.com/authentication/oauth-v2). In this flow, your app requests scopes and the user installing the app confirms which scopes to grant. You’ll need to surface this OAuth flow to your users wherever you want them to install your Slack app.
+- A Slack app can have bot token scopes and user token scopes. For almost all use cases, you’ll be using bot token scopes. ([This Slack doc explains why.](https://api.slack.com/authentication/basics)) When you add bot token scopes to an app, you will **also** need to make sure your app has its display information configured. You can do this under the **App Home** sidebar on the [app management page](https://api.slack.com/apps).
+
+With all of this mind the next question becomes, “which scopes do I need to grant my Slack app for my use case?”
+
+### Simple use cases: incoming webhook scope
+
+For simple messaging use cases you can use the `incoming-webhook` scope.
+
+When a Slack app has the `incoming-webhook` scope, the user installing it decides which channel the app can send messages to via an `incoming_webhook.url` returned in the OAuth flow response. (If you are just using Slack to message an internal workspace, you can find these webhook URLs in the **Incoming Webhook** section of the app management page.)
+
+During the OAuth flow for an `incoming-webhook` Slack app, your user can connect to any channel they have access to in their Slack workspace. This means public channels, private channels, or even the direct message channel for that individual user.
+
+This makes the `incoming-webhook` scope a quick and simple way to set up use cases such as:
+
+- A Slack integration that notifies a Slack channel whenever something happens in your product
+- A Slack integration that notifies a #new-signups channel in your internal workspace when new users sign up in your product
+- A Slack integration that notifies an individual of everything happening in your product
+
+You can even let a given customer install your `incoming-webhook` app multiple times to map different objects in your product to different Slack channels in their workspace.
+
+Take the Linear example below. Under “Team notification” I can see a record for each of my teams in Linear — when I toggle a Team on for Slack notifications, Linear starts a Slack OAuth flow that asks for a single scope: `incoming-webhook`. During that OAuth flow, I choose which Slack channel I want to receive notifications about that particular team.
+
+![An example of multiple Slack OAuth points in Linear](/images/linear-slack-start-oauth-flow.png)
+
+We get into more detail how to support these use cases using Knock in [our Slack examples page](/slack/slack-examples).
+
+### Advanced use cases: access tokens and all other scopes
+
+One limitation of the `incoming-webhook` scope is that you'll need your customers to OAuth to Slack every time they want to connect your product to a Slack channel in their Slack workspace. If you want your users to only have to OAuth into their Slack workspace once, you'll use Slack's [OAuth v2 method](https://api.slack.com/authentication/oauth-v2) to get an access token with specific scopes related to the use cases you want to power with your Slack bot.
+
+Here are a few key scopes to know about when you’re thinking about notifications in Slack:
+
+- `chat:write` Post messages in approved channels & conversations. At a minimum your app needs this scope to send notifications to a Slack workspace.
+- `channels:read` View basic information about public channels in a workspace. This enables you to fetch a list of public channels in a workspace so you can surface them to your user when they're choosing which Slack channel to notify about events in your product. Learn more in Slack’s docs on [sending messages](https://api.slack.com/messaging/sending).
+- `chat:write.public` Send messages to channels your Slack app isn't a member of. If your app doesn’t have this scope, you’ll need to use the [`conversations.joins`](https://api.slack.com/methods/conversations.join) method to join a public channel before sending it messages.
+- `im:write` Start direct messages with users in Slack.
+
+To learn more about access tokens and how they're generated during the OAuth process, check out Slack's [OAuth documentation](https://api.slack.com/authentication/oauth-v2).

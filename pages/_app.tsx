@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import {
   EventEmitterContext,
   useEventEmitterInstance,
@@ -10,11 +10,11 @@ import * as gtag from "../lib/gtag";
 
 import "../styles/index.css";
 import { DocsLayout } from "../layouts/DocsLayout";
+import { IntegrationsLayout } from "../layouts/IntegrationsLayout";
 
 function App({ Component, pageProps }) {
   const router = useRouter();
   const eventEmitter = useEventEmitterInstance();
-  let getLayout = Component.getLayout || ((page) => page);
 
   useEffect(() => {
     const handleRouteChange = (url: URL) => {
@@ -27,10 +27,17 @@ function App({ Component, pageProps }) {
     };
   }, [router.events]);
 
-  // Any docs pages we want to force to have the correct layout wrapper
-  if (!router.asPath.startsWith("/reference")) {
-    getLayout = DocsLayout.getLayout;
-  }
+  const getLayout = useMemo(() => {
+    if (router.asPath.startsWith("/integrations")) {
+      return IntegrationsLayout.getLayout;
+    }
+
+    if (!router.asPath.startsWith("/reference")) {
+      return DocsLayout.getLayout;
+    }
+
+    return (page) => page;
+  }, [router.asPath]);
 
   return (
     <ThemeProvider
