@@ -60,7 +60,7 @@ Here are the providers we currently support across each channel type within Knoc
 
 - [Apple Push Notification Service](/integrations/push/apns)
 - [Expo](/integrations/push/expo)
-- [Firebase Cloud Messaging](/integrations/push/fcm)
+- [Firebase Cloud Messaging](/integrations/push/firebase)
 
 ### SMS
 
