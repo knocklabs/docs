@@ -257,6 +257,11 @@ module.exports = withPlugins(
           permanent: true,
         },
         {
+          source: "/integrations/chat/slack",
+          destination: "/integrations/chat/slack/overview",
+          permanent: true,
+        },
+        {
           source: "/in-app-ui/:section",
           destination: "/in-app-ui/:section/overview",
           permanent: false,
