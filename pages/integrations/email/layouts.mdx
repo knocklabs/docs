@@ -76,6 +76,61 @@ If you use [per-tenant branding](/send-and-manage-data/tenants#custom-branding-a
 
 If you have a workflow run scoped variable that you'd like to inject into your layouts, you can do so by invoking the `content.*` namespace within your layout. As an example, let's say my email template is using Liquid's capture tag to create a variable called `formatted_price` within the email template. If I'd rather inject that `formatted_price` value into the footer of my layout, I can do so with `{{content.formatted_price}}`.
 
+### Defining pre-content
+
+Before your emails are sent to your recipients we compile your templates and your layouts together to create a **single email template**.
+
+In this process, the templates that you define in your email channel steps are injected into the `{{ content }}` tag in your email layout.
+
+Per email template you can optionally set `pre-content` that will be injected at the very top of your email template during email compilation. You can set and edit the `pre-content` content in the three dot menu at the top right of the email template editor.
+
+#### Using `pre-content` content
+
+You can use `pre-content` to:
+
+- Declare any template specific liquid variables to control or dynamically alter parts of your email layout without needing to create separate email layouts.
+- Declare any template specific liquid variables for use *throughout* your email template in a single, clear location.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Note:</span> by default your pre-content content will be injected into both the text and HTML versions of your template. As such you should be careful to only use this space to declare variables and not output content.
+    </>
+  }
+/>
+
+#### Example of `pre-content` usage
+
+You need to inject a custom previewText at the top of your email layout before my template in your email layout. You need this to be the first thing that’s rendered so that email clients like Gmail correctly show the preview text associated with your message.
+
+```html
+<html>
+  <body>
+    <span>{{ previewText }}</span>
+    <!-- the rest of email layout -->
+    {{ content }}
+  </body>
+</html>
+```
+
+You can define `previewText` in the `pre-content` content like this:
+
+```
+{% assign previewText = "Hello and welcome to Knock" %}
+```
+
+Which will result in your template te be rendered like this:
+
+```html
+<html>
+  <body>
+    <span>Hello and welcome to Knock</span>
+    <!-- my template code -->
+  </body>
+</html>
+```
+
 ### Using the Knock visual template editor
 
 Whether you are using the default layout provided by Knock or a custom layout you created yourself, you will be able to use the [visual template editor](/send-notifications/designing-workflows/template-editor#visual-editing-with-drag-and-drop-components) to quickly and easily compose your HTML email template by dragging and dropping markdown, button, divider and other components into the template document.
