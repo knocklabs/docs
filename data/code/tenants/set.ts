@@ -34,8 +34,8 @@ Knock.Tenants.set(knock_client, "tenant-1", %{
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.tenants.set(
-  id="tenant-1", 
+client.tenants.set_tenant(
+  id="tenant-1",
   data={
     "name": "Tenant 1",
     "settings": {
@@ -67,7 +67,7 @@ Knock::Tenants.set(
       }
     }
   }
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -75,7 +75,7 @@ var knockClient = new KnockClient(
 
 var tenantParams = new Dictionary<string, object>{
   { "name", "Tenant 1" },
-  { "settings", new Dictionary<string, object>{ 
+  { "settings", new Dictionary<string, object>{
       "branding", new Dictionary<string, string>{
         {"primary_color", "#33FF5B"},
         {"primary_color_contrast", "#ffffff"},
@@ -86,11 +86,11 @@ var tenantParams = new Dictionary<string, object>{
   }
 };
 
-await knockClient.Tenants.Set("tenant-1", tenantParams)  
+await knockClient.Tenants.Set("tenant-1", tenantParams)
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->tenants()->set('tenant-1', [
