@@ -22,9 +22,9 @@ Knock.Objects.set(knock_client, "projects", "project-1", %{
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.objects.set(
+client.objects.set_object(
   collection="projects",
-  id="project-1", 
+  id="project-1",
   data={
     "name": "My project",
     "total_assets": 10,
@@ -45,7 +45,7 @@ Knock::Objects.set(
     total_assets: 10,
     tags: ["cool", "fun", "project"],
   }
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -54,16 +54,16 @@ var knockClient = new KnockClient(
 var objectParams = new Dictionary<string, object>{
   { "name", "My project" },
   { "total_assets", 10 },
-  { "tags", new List { 
+  { "tags", new List {
     "cool", "fun", "project"
   }}
 };
 
-await knockClient.Objects.Set("projects", "project-1", objectParams)  
+await knockClient.Objects.Set("projects", "project-1", objectParams)
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->objects()->set('projects', 'project-1', [
