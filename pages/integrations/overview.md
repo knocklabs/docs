@@ -53,14 +53,16 @@ Here are the providers we currently support across each channel type within Knoc
 - [AWS SES](/integrations/email/aws-ses)
 - [Mailgun](/integrations/email/mailgun)
 - [Mailjet](/integrations/email/mailjet)
+- [Mandrill](/integrations/email/mandrill)
 - [Postmark](/integrations/email/postmark)
 - [Sendgrid](/integrations/email/sendgrid)
+- [Sparkpost](/integrations/email/sparkpost)
 
 ### Push
 
-- [Apple Push Notification Service](/integrations/push/apns)
+- [Apple Push Notification Service (APNS)](/integrations/push/apns)
 - [Expo](/integrations/push/expo)
-- [Firebase Cloud Messaging](/integrations/push/firebase)
+- [Firebase Cloud Messaging (FCM)](/integrations/push/firebase)
 
 ### SMS
 
