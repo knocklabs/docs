@@ -21,7 +21,7 @@ We support the following channel types today:
 
 ## Source integrations
 
-We support receiving events from customer data platforms which can be configured to trigger notification workflows in Knock. We currently support [Segment]().
+We support receiving events from customer data platforms which can be configured to trigger notification workflows in Knock. We currently support [Segment](/integrations/sources/segment).
 
 ## Per environment configurations
 
@@ -59,7 +59,7 @@ Here are the providers we currently support within Knock. We're adding more each
 ### Customer data platforms
 _For receiving events in Knock, currently in beta. If you'd like access, please reach out via the feedback button at the top of this page._
 
-- [Segment]()
+- [Segment](/integrations/sources/segment)
 
 ### Email
 
