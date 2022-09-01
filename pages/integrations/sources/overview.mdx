@@ -1,0 +1,73 @@
+---
+title: Sources in Knock
+description: Learn how to send events to Knock to power your workflows
+section: Integrations > Customer data platforms
+layout: integrations
+---
+You can connect event sources or customer data platforms like Segment to Knock to automate workflows and other actions.
+
+In general, each platform we support can do the following within Knock:
+
+- Trigger workflows
+- Identify (and update) users
+
+## Why integrate Knock with an events platform?
+
+- **Minimize engineering customization.** If you already identify and track users with a customer data platform (CDP), you can import your users and events within just a few minutes. Then, automate Knock by matching events to actions on our platform.
+- **Ensure consistency.** CDPs make it easy to keep customer data synchronized between services, including Knock. Email, name, and other user trait updates can flow seamlessly into Knock without any engineering work.
+
+## Concepts
+
+### Sources
+
+A source is a CDP or other event platform (like [Segment](/integrations/sources/segment)) that can trigger actions in Knock like creating/updating users and triggering workflows.
+
+Knock currently supports the following sources:
+
+- [Segment](/integrations/sources/segment)
+
+_Need us to support another platform? [Let us know!](mailto:support@knock.app?subject=Integration%20Source%20Request)_
+
+You can configure sources from the Integrations > Sources page for your account.
+
+![A screenshot of where to find the Integrations - Sources page for your account](/images/sources/overview.png)
+
+Sources are created and managed at the top level of your account.
+
+### Source Environments
+
+Each source has a unique configuration for every Knock environment in your account.
+For example, this makes it possible to connect your Segment development environment to your Knock development environment. 
+If you click on a source, you will see each environment configuration for that source.
+
+![A view of the environment configurations for a source in a Knock account](/images/sources/environment-configs.png)
+
+### Events
+
+Knock tracks every event sent from a source. Although each source has its own event format,
+Knock will translate the incoming events from each source into a common format that includes the following fields:
+
+- `user_id`: the ID of the user performing a given action (may not be set if a user has not been identified yet).
+- `data`: The primary contents of the event, e.g. for a Segment `track` with some associated `properties`, Knock would use those `properties` to set the `data` field for the event.
+- `event`: The original event, as originally received by Knock.
+
+### Event-Action Mapping
+
+When a source sends an event to a Knock environment, Knock will match that event with any configured event-action mappings in that environment.
+
+You can have any number of mappings for each event (e.g. if the same event should trigger more than one workflow).
+If there is no mapping matching that event, the event is logged but no action is taken.
+
+After configuring a source in Knock and in the source itself (e.g. adding Knock as a destination in your CDP), events will start to flow into your Knock environment.
+You can then select the event you want to trigger actions in Knock, and configure it accordingly.
+
+<!-- 
+TODO Uncomment this after we ship event & action logs.
+### Event Logs
+
+Event logs show the contents of each event sent into Knock. Knock retains event Logs according to our data retention policy.
+
+### Action Logs
+
+Action logs describe what (if any) action was taken after an event was received. Action Logs are a helpful starting point when troubleshooting workflows or auditing what actions Knock has taken for any given event. Knock retains action logs according to our data retention policy.
+-->
