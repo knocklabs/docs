@@ -130,43 +130,53 @@ Take an example of an app that wants to give per-channel preferences to its reci
 **Remember:** in cases where a preference is set both for a workflow and for its parent category, Knock will only send a notification if all preference combinations that exist on the recipient evaluate to `true`. This means that in the case above, if the `new-mention` workflow belongs to the `collaboration` category, the recipient will not receive email notifications about new mentions, even though the preference is currently set to `true`.
 
 ## Preference sets
-When you [set a given user's preferences](/reference#set-preferences-user) in Knock you can either set a user's `default` preferences or create a per-tenant preference set. 
+
+When you [set a given user's preferences](/reference#set-preferences-user) in Knock you can either set a user's `default` preferences or create a per-tenant preference set.
 
 ### The `default` preference set
+
 A user's `default` preference set is used to define the preference set that the Knock notification engine will default to when evaluating whether to send a notification to a given user across a given channel. (**Note:** If you're using a Knock SDK and don't specify an `id` when creating/updating a preference set, the `default` preference set will be used.)
 
 The Knock notification engine uses the `default` preference set for preference evaluation when:
-* No `tenant` was specified on the workflow trigger that started the workflow run
-* **OR** the `tenant` that was specified on the workflow trigger does not have a specified preference set for that recipient
 
-If your product just gives users a single set of notification preferences to configure across all tenants in your product, you'll just be using the `default` scope for your users' preferences. 
+- No `tenant` was specified on the workflow trigger that started the workflow run
+- **OR** the `tenant` that was specified on the workflow trigger does not have a specified preference set for that recipient
+
+If your product just gives users a single set of notification preferences to configure across all tenants in your product, you'll just be using the `default` scope for your users' preferences.
 
 <Callout
   emoji="🌠"
   text={
     <>
-      <span className="font-bold">Object preferences.</span> A quick reminder: the guide above references <code>user</code> preferences but all of this applies to <a href="/reference#set-preferences-object"><code>object</code> preferences</a> as well.
+      <span className="font-bold">Object preferences.</span> A quick reminder:
+      the guide above references <code>user</code> preferences but all of this
+      applies to{" "}
+      <a href="/reference#set-preferences-object">
+        <code>object</code> preferences
+      </a>{" "}
+      as well.
     </>
   }
 />
 
-
 ### Per-tenant user preference sets
+
 <Callout
   emoji="✨"
   text={
     <>
-      <span className="font-bold">Growth plan feature.</span> Tenant preference defaults are only available on our <a href="https://knock.app/pricing">Growth and Enterprise plans</a>. 
+      <span className="font-bold">Growth plan feature.</span> Tenant preference
+      defaults are only available on our{" "}
+      <a href="https://knock.app/pricing">Growth and Enterprise plans</a>.
     </>
   }
 />
 
 In some cases you may want to set an additional preference set for a given user that pertains to a specific tenant within your product. (A well-known example of this: in Slack, your notification preferences are set _per Slack workspace_, not as a global preference set that applies across all of your Slack workspaces.)
 
-To create a preference set scoped to a particular [Tenant](/send-and-manage-data/tenants), you'll set the `id` of the preference set equal to `tenant.id` when you create the preference set for your user. 
+To create a preference set scoped to a particular [Tenant](/send-and-manage-data/tenants), you'll set the `id` of the preference set equal to `tenant.id` when you create the preference set for your user.
 
-The Knock notification engine uses a per-tenant preference set for preference evaluation when the `recipient` of the workflow run has a preference set with an `id` equal to the `tenant.id` defined on the workflow trigger. 
-
+The Knock notification engine uses a per-tenant preference set for preference evaluation when the `recipient` of the workflow run has a preference set with an `id` equal to the `tenant.id` defined on the workflow trigger.
 
 ## Preference conditions
 
@@ -231,11 +241,11 @@ You can use any of the following operators in condition comparisons:
 
 ## Preference defaults
 
-Often you'll want new users in your product to start with a default preference set that you specify. Preference defaults are a great use case for this. Below we cover environment-level preference defaults, as well as per-tenant preference defaults, which is currently in beta. 
+Often you'll want new users in your product to start with a default preference set that you specify. Preference defaults are a great use case for this. Below we cover environment-level preference defaults, as well as per-tenant preference defaults, which is currently in beta.
 
 ### Environment-level preference defaults
 
-When a user is created in Knock, by default they are opted into all channel types. This means their preference set looks like this: 
+When a user is created in Knock, by default they are opted into all channel types. This means their preference set looks like this:
 
 ```json Default preferences for a recipient
 {
@@ -271,17 +281,20 @@ The default preferences set in the dashboard follow the same shape as any [prefe
 
 Default preferences are useful when you need to roll out preferences across all your recipients or to migrate recipients from one preference model to another. It's important to remember that for more complex preference migrations you may still need to update any stored preferences for your recipients, which you can do via the [batch preference update API](/reference#bulk-set-preferences).
 
-
 ### Per-tenant preference defaults
+
 <Callout
   emoji="✨"
   text={
     <>
-      <span className="font-bold">Growth plan feature.</span> Tenant preference defaults are only available on our <a href="https://knock.app/pricing">Growth and Enterprise plans</a>. 
+      <span className="font-bold">Growth plan feature.</span> Tenant preference
+      defaults are only available on our{" "}
+      <a href="https://knock.app/pricing">Growth and Enterprise plans</a>.
     </>
   }
 />
-In some cases you may want to extend Knock’s [environment-level preference defaults behavior](/send-and-manage-data/preferences#environment-level-preference-defaults) to your tenant admins to let them choose the notification preference defaults for users within *their* tenants in *your* product. This is where tenant preference defaults come in. 
+
+In some cases you may want to extend Knock's [environment-level preference defaults behavior](/send-and-manage-data/preferences#environment-level-preference-defaults) to your tenant admins to let them choose the notification preference defaults for users within _their_ tenants in _your_ product. This is where tenant preference defaults come in.
 
 You can use tenant preference defaults to set the default preferences inherited for all recipients of a workflow triggered with a corresponding `tenant`.
 
@@ -290,51 +303,63 @@ You can use tenant preference defaults to set the default preferences inherited 
 Tenant default preferences can be set via the API by calling the `tenants.set` method. The preferences should follow the [format of our recipient preference sets](/reference#preferences).
 
 ```javascript Set the default preferences for a tenant
+const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 const preferences = {
   workflows: {
     "new-comment": {
       channel_types: {
-				email: false,
-				sms: true,
-				chat: false
-			}
-		}
-  }
+        email: false,
+        sms: true,
+        chat: false,
+      },
+    },
+  },
 };
 
 await knock.tenants.set("tenant-id", {
-	settings: {
-		preference_set: preferences
-	}
+  settings: {
+    preference_set: preferences,
+  },
 });
 ```
 
 #### Applying tenant default preferences
 
 When executing a workflow trigger, passing in a corresponding `tenant` will automatically load the default preferences for the tenant when executing the workflow. The rules for applying preferences are as follows:
+
 - When the `tenant` has a preference default set, all recipients of the workflow trigger will receive the tenant default preferences when executing the workflow
 - If there are tenant-specific preferences set for the user those preferences will also be evaluated (with the recipient’s per-tenant preferences taking precedence over the tenant default)
-- If there is no preference default set on the `tenant`,  then the recipient-tenant preferences will be used
+- If there is no preference default set on the `tenant`, then the recipient-tenant preferences will be used
 - If there is no preference default set on the `tenant` AND the recipient has no per-tenant preferences set, then the recipient’s default preferences will be applied
 
 To apply tenant default preferences for a workflow run, pass a `tenant` through to your workflow trigger:
 
 ```javascript Trigger a workflow with a tenant
-await knock.workflows.trigger("workflow-name", {	
-  tenant: "spotify"
-})
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+await knock.workflows.trigger("workflow-name", {
+  tenant: "spotify",
+});
 ```
 
-<br/>
-<br/>
+<br />
 
 <Callout
   emoji="🌠"
   text={
     <>
-      <span className="font-bold">Remember:</span> recipient tenant preferences are always merged with tenant default preferences during workflow execution. A recipient’s set of preferences will always override those set at the tenant level. You can learn more about how to set per-tenant preferences for a specific recipient in the <a href="/send-and-manage-data/preferences#per-tenant-user-preference-sets">per-tenant user preference sets section</a> of this document.  
+      <span className="font-bold">Remember:</span> recipient tenant preferences
+      are always merged with tenant default preferences during workflow
+      execution. A recipient’s set of preferences will always override those set
+      at the tenant level. You can learn more about how to set per-tenant
+      preferences for a specific recipient in the{" "}
+      <a href="/send-and-manage-data/preferences#per-tenant-user-preference-sets">
+        per-tenant user preference sets section
+      </a>{" "}
+      of this document.
     </>
   }
 />
