@@ -47,7 +47,10 @@ export default function Home() {
           {sidebarContent
             .filter((s) => s.desc)
             .map((s) => (
-              <div className="flex flex-col lg:flex-row border-t dark:border-t-gray-700 pt-6">
+              <div
+                className="flex flex-col lg:flex-row border-t dark:border-t-gray-700 pt-6"
+                key={s.slug}
+              >
                 <div className="lg:w-80">
                   <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-200">

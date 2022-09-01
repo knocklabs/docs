@@ -124,6 +124,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
                 >
                   {Array.from(FEEDBACK_CATEGORIES.keys()).map((emoji) => (
                     <RadioGroup.Item
+                      key={emoji}
                       value={emoji}
                       className="text-center w-7 h-7 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-blue-400 radix-state-checked:!border-brand"
                     >
