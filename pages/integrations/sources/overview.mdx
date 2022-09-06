@@ -1,43 +1,44 @@
 ---
 title: Sources in Knock
-description: Learn how to send events to Knock to power your workflows
+description: Learn how to power your Knock notification system with customer data platforms, reverse ETLs, and your data warehouse.
 section: Integrations > Customer data platforms
 layout: integrations
 ---
-You can connect event sources or customer data platforms like Segment to Knock to automate workflows and other actions.
+With Knock sources, you can integrate customer data platforms (CDPs) such as Segment and Rudderstack or reverse ETL platforms such as Hightouch and Census with Knock to trigger notification workflows, identify users, and automate other actions.
 
 In general, each platform we support can do the following within Knock:
 
 - Trigger workflows
 - Identify (and update) users
 
-## Why integrate Knock with an events platform?
+Here are a few reasons why you might want to integrate a source with Knock to power your notification system, rather than making direct calls to the Knock API:
 
-- **Minimize engineering customization.** If you already identify and track users with a customer data platform (CDP), you can import your users and events within just a few minutes. Then, automate Knock by matching events to actions on our platform.
+- **Minimize engineering customization.** If you already identify and track users with a customer data platform (CDP), you can import your users and events in minutes. Once your CDP is integrated with Knock, you can easily build notification workflows without needing time from engineering.
 - **Ensure consistency.** CDPs make it easy to keep customer data synchronized between services, including Knock. Email, name, and other user trait updates can flow seamlessly into Knock without any engineering work.
 
 ## Concepts
 
 ### Sources
 
-A source is a CDP or other event platform (like [Segment](/integrations/sources/segment)) that can trigger actions in Knock like creating/updating users and triggering workflows.
+A source is any platform that can pass event and/or user data into Knock. These can be CDPs (such as [Segment](/integrations/sources/segment) and Rudderstack) or reverse ETLs (such as Hightouch and Census.) The incoming events from these services can be used to orchestrate actions in Knock such as creating/updating users and triggering workflows.
 
 Knock currently supports the following sources:
 
 - [Segment](/integrations/sources/segment)
+- Hightouch (beta)
+- Rudderstack (beta)
+- Census (beta)
 
 _Need us to support another platform? [Let us know!](mailto:support@knock.app?subject=Integration%20Source%20Request)_
 
-You can configure sources from the Integrations > Sources page for your account.
+You can configure sources from the Integrations > Sources page for your account. Initial creation of a source is managed at the account-level of your Knock account, though you'll configure any specific events and their mappings to your notification workflows within your Knock environments.
 
 ![A screenshot of where to find the Integrations - Sources page for your account](/images/sources/overview.png)
 
-Sources are created and managed at the top level of your account.
-
-### Source Environments
+### Per-environment source configuration
 
 Each source has a unique configuration for every Knock environment in your account.
-For example, this makes it possible to connect your Segment development environment to your Knock development environment. 
+This makes it possible to connect your Segment development environment to your Knock development environment.
 If you click on a source, you will see each environment configuration for that source.
 
 ![A view of the environment configurations for a source in a Knock account](/images/sources/environment-configs.png)
@@ -47,11 +48,11 @@ If you click on a source, you will see each environment configuration for that s
 Knock tracks every event sent from a source. Although each source has its own event format,
 Knock will translate the incoming events from each source into a common format that includes the following fields:
 
-- `user_id`: the ID of the user performing a given action (may not be set if a user has not been identified yet).
-- `data`: The primary contents of the event, e.g. for a Segment `track` with some associated `properties`, Knock would use those `properties` to set the `data` field for the event.
-- `event`: The original event, as originally received by Knock.
+- `user_id`. The ID of the user performing a given action (may not be set if a user has not been identified yet).
+- `data`. The primary contents of the event, e.g. for a Segment `track` with some associated `properties`, Knock would use those `properties` to set the `data` field for the event.
+- `event`. The original event, as originally received by Knock.
 
-### Event-Action Mapping
+### Event-action Mapping
 
 When a source sends an event to a Knock environment, Knock will match that event with any configured event-action mappings in that environment.
 
@@ -61,7 +62,7 @@ If there is no mapping matching that event, the event is logged but no action is
 After configuring a source in Knock and in the source itself (e.g. adding Knock as a destination in your CDP), events will start to flow into your Knock environment.
 You can then select the event you want to trigger actions in Knock, and configure it accordingly.
 
-<!-- 
+<!--
 TODO Uncomment this after we ship event & action logs.
 ### Event Logs
 
