@@ -51,6 +51,7 @@ Here are the providers we currently support across each channel type within Knoc
 ### Email
 
 - [AWS SES](/integrations/email/aws-ses)
+- [Mailersend](/integrations/email/mailersend)
 - [Mailgun](/integrations/email/mailgun)
 - [Mailjet](/integrations/email/mailjet)
 - [Mandrill](/integrations/email/mandrill)

@@ -8,6 +8,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/layouts", title: "Layouts" },
       { slug: "/aws-ses", title: "AWS SES" },
+      { slug: "/mailersend", title: "Mailersend" },
       { slug: "/mailjet", title: "Mailjet" },
       { slug: "/mailgun", title: "Mailgun" },
       { slug: "/mandrill", title: "Mandrill" },
