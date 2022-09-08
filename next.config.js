@@ -262,8 +262,28 @@ module.exports = withPlugins(
           permanent: true,
         },
         {
-          source: "/in-app-ui/:section",
-          destination: "/in-app-ui/:section/overview",
+          source: "/in-app-ui/react",
+          destination: "/in-app-ui/react/overview",
+          permanent: false,
+        },
+        {
+          source: "/in-app-ui/javascript",
+          destination: "/in-app-ui/javascript/overview",
+          permanent: false,
+        },
+        {
+          source: "/in-app-ui/react-native",
+          destination: "/in-app-ui/react-native/overview",
+          permanent: false,
+        },
+        {
+          source: "/in-app-ui/ios",
+          destination: "/in-app-ui/ios/overview",
+          permanent: false,
+        },
+        {
+          source: "/in-app-ui/android",
+          destination: "/in-app-ui/android/overview",
           permanent: false,
         },
       ];
