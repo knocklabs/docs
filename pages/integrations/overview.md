@@ -67,6 +67,8 @@ Here are the providers we currently support across each channel type within Knoc
 
 ### SMS
 
+- [Africa's Talking](/integrations/sms/africastalking)
+- [Mailersend](/integrations/sms/mailersend)
 - [MessageBird](/integrations/sms/messagebird)
 - [Telnyx](/integrations/sms/telnyx)
 - [Twilio](/integrations/sms/twilio)
