@@ -116,7 +116,7 @@ const sidebarContent: SidebarSection[] = [
     slug: "/manage-your-account",
     pages: [
       { slug: "/authentication-methods", title: "Authentication methods" },
-      { slug: "/configuring-saml-sso", title: "Configuring SAML SSO" },
+      { slug: "/saml-sso", title: "SAML SSO" },
       { slug: "/managing-members", title: "Managing members" },
       { slug: "/roles-and-permissions", title: "Roles and permissions" },
       { slug: "/audit-logs", title: "Audit logs" },
