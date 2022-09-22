@@ -79,8 +79,13 @@ const sidebarContent: SidebarSection[] = [
     slug: "/integrations/sms",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/africas-talking", title: "Africa's Talking" },
+      { slug: "/mailersend", title: "Mailersend" },
+      { slug: "/messagebird", title: "MessageBird" },
+      { slug: "/sinch", title: "Sinch" },
       { slug: "/twilio", title: "Twilio" },
       { slug: "/telnyx", title: "Telnyx" },
+      { slug: "/vonage", title: "Vonage" },
     ],
   },
 ];

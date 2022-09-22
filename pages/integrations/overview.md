@@ -15,7 +15,7 @@ We support the following channel types today:
 - [Chat](/integrations/chat/overview) (such as Slack, Microsoft Teams, and Discord)
 - [In-app](/integrations/in-app/overview) (such as feeds, toasts, banners)
 
-[Full list of supported channel providers](#supported-channel-providers)
+[Full list of supported channel providers](https://knock.app/integrations?type=channel)
 
 ## Per environment channel configurations
 
@@ -43,40 +43,3 @@ You may encounter a use case where you consistently want to send the same templa
 Channel groups solve this problem. With a channel group, you can combine multiple providers into a single channel that you can use to send the a single notification template across multiple providers. As an example, I could have a "Push" channel group that hosts my connections for APNS and FCM, then use that single "Push" step for any workflows where I want to notify users across my mobile apps.
 
 **Note:** Channel groups is currently in beta. If you'd like access, please reach out via the feedback button at the top of this page and we'll enable it for you.
-
-## Supported channel providers
-
-Here are the providers we currently support across each channel type within Knock. We're adding more each week. If you want us to add a new provider to this list, please let us know through the feedback button at the top of this page.
-
-### Email
-
-- [AWS SES](/integrations/email/aws-ses)
-- [Mailersend](/integrations/email/mailersend)
-- [Mailgun](/integrations/email/mailgun)
-- [Mailjet](/integrations/email/mailjet)
-- [Mandrill](/integrations/email/mandrill)
-- [Postmark](/integrations/email/postmark)
-- [Sendgrid](/integrations/email/sendgrid)
-- [Sparkpost](/integrations/email/sparkpost)
-
-### Push
-
-- [Apple Push Notification Service (APNS)](/integrations/push/apns)
-- [Expo](/integrations/push/expo)
-- [Firebase Cloud Messaging (FCM)](/integrations/push/firebase)
-
-### SMS
-
-- [MessageBird](/integrations/sms/messagebird)
-- [Telnyx](/integrations/sms/telnyx)
-- [Twilio](/integrations/sms/twilio)
-
-### Chat apps
-
-- [Slack](/integrations/chat/slack)
-- [Discord](/integrations/chat/discord)
-- [Microsoft Teams](/integrations/chat/microsoft-teams)
-
-### In-app
-
-- [Knock in-app](/integrations/in-app/knock-feed)
