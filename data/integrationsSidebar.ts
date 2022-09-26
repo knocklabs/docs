@@ -7,6 +7,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/segment", title: "Segment" },
+      { slug: "/rudderstack", title: "Rudderstack" },
     ],
   },
   {

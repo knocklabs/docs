@@ -22,7 +22,7 @@ const SectionHeading: React.FC<Props> = ({
   const targetPath = id ? `${pathname}#${id}` : pathname;
 
   const targetUrl = global.window ? window.location.origin + targetPath : "";
-  const [isCopied, onCopy] = useClipboard(targetUrl, { successDuration: 2000 });
+  const [, onCopy] = useClipboard(targetUrl, { successDuration: 2000 });
 
   const Tag = `${tag}` as keyof Pick<JSX.IntrinsicElements, HeadingTag>;
 
