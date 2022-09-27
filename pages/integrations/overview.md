@@ -60,7 +60,6 @@ Channel groups solve this problem. With a channel group, you can combine multipl
 Here are the providers we currently support within Knock. We're adding more each week. If you want us to add a new provider to this list, please let us know through the feedback button at the top of this page.
 
 ### Customer data platforms
-_For receiving events in Knock, currently in beta. If you'd like access, please reach out via the feedback button at the top of this page._
 
 - [Segment](/integrations/sources/segment)
 - [Rudderstack](/integrations/sources/rudderstack)
