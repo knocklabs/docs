@@ -5,7 +5,7 @@ layout: integrations
 Section: Integrations
 ---
 
-You can use Knock to power sophisticated cross-channel notification workflows for your end users, triggered by your application or by events sent to Knock from various customer data platforms like Segment.
+You can use Knock to power sophisticated cross-channel notification workflows for your end users, triggered by your application or by events sent to Knock from various customer data platforms (CDPs) like [Segment](https://segment.com) and [Rudderstack](https://rudderstack.com).
 
 ## Destination channels
 
@@ -21,7 +21,10 @@ We support the following channel types today:
 
 ## Source integrations
 
-We support receiving events from customer data platforms which can be configured to trigger notification workflows in Knock. We currently support [Segment](/integrations/sources/segment).
+We support receiving events from customer data platforms which can be configured to trigger notification workflows in Knock.
+
+- [Segment](/integrations/sources/segment)
+- [Rudderstack](/integrations/sources/rudderstack)
 
 ## Per environment configurations
 
@@ -60,6 +63,7 @@ Here are the providers we currently support within Knock. We're adding more each
 _For receiving events in Knock, currently in beta. If you'd like access, please reach out via the feedback button at the top of this page._
 
 - [Segment](/integrations/sources/segment)
+- [Rudderstack](/integrations/sources/rudderstack)
 
 ### Email
 
