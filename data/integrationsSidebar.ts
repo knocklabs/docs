@@ -89,6 +89,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/africas-talking", title: "Africa's Talking" },
+      { slug: "/aws-sns", title: "AWS SNS" },
       { slug: "/mailersend", title: "Mailersend" },
       { slug: "/messagebird", title: "MessageBird" },
       { slug: "/sinch", title: "Sinch" },
