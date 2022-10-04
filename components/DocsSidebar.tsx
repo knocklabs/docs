@@ -22,10 +22,7 @@ const DocsSidebar = () => (
         </a>
       </Link>
 
-      <Link
-        href="https://join.slack.com/t/knockcustomers/shared_invite/zt-13zos4lkx-FWnqvhJjhlbwlWmKelIj5Q"
-        passHref
-      >
+      <Link href="https://knock.app/join-slack" passHref>
         <a className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-200">
           <IoLogoSlack className="mr-2" />
           Join our community
