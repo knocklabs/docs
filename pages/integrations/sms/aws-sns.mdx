@@ -1,0 +1,128 @@
+---
+title: How to send SMS messages with AWS SNS
+description: Setup guide for SMS notifications with AWS SNS and Knock
+section: Integrations > SMS
+layout: integrations
+---
+
+import { Attributes, Attribute } from "../../../components/Attributes";
+
+Knock integrates with [AWS Simple Notification Service (SNS)](https://aws.amazon.com/sns/) to send SMS notifications to your recipients.
+
+## Features
+
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+It's necessary to take the following steps in order to configure your SNS channel within Knock.
+
+### 1. Choose an AWS Authentication Scheme
+
+To integrate with SNS from the Knock dashboard, you can use cess Management (IAM) User Access Keys, or to improve security delegate a role to Knock [using External ID-based authentication.](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html)
+
+1. AWS User Access Key and Secret Access Key authentication
+2. [Delegate a role in your AWS account to Knock, secured with an External ID](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_third-party.html)
+
+#### Option 1: Create an AWS IAM User with security credentials
+
+To send notifications via AWS SNS using an IAM User, Knock requires the **access key ID** and a **secret access key** of an AWS user with SNS send permissions. (You can use the `sns:AmazonSNSFullAccess` permission for this)
+
+If you don't already have a user with send permissions, you can create an IAM user in AWS to use with the Knock API. You can learn more about creating IAM users in AWS [here](https://docs.aws.amazon.com/sns/latest/dg/sns-setting-up.html#create-iam-user).
+
+Once you've created your new IAM user, you'll need to provision them with the policy below.
+
+```json IAM user policy
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["sns:AmazonSNSFullAccess"],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+Now that you have an AWS user created and provisioned with SNS send access, grab the **access key ID** and a **secret access key** of the user—we'll use these later when configuring the SNS channel within Knock.
+
+Once you've completed this step, you'll be able to configure an AWS SNS channel in the Knock dashboard under the "Channels" page.
+
+#### Option 2: Create an AWS IAM Role with a trust policy for Knock
+
+To send notifications via AWS SNS using an IAM Role:
+
+1. Create a new AWS Role:
+
+   - For "Trusted Entity Type" choose "AWS Account"
+   - Select "Another AWS account" and put "496685847699" in the Account ID
+   - Check "Require external ID" and enter the ID of the channel you created
+
+     ![How Knock works diagram](/images/integrations/sms/sns-arn-configuration.jpg)
+
+2. Attach the following permission policy to that role
+
+   ```json IAM user policy
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": ["sns:AmazonSNSFullAccess"],
+         "Resource": "*"
+       }
+     ]
+   }
+   ```
+
+3. Use that role's ARN when configuring your AWS SNS channel in Knock
+
+### 2. Configuring SNS in Knock
+
+Now that you have either an AWS User's credentials or an AWS IAM Role to delegate to Knock, you're ready to configure your SNS channel within Knock.
+
+Here are a few other things to keep in mind once you have your SNS channel configured in Knock:
+
+- **SNS sandbox mode.** By default, AWS places all new accounts in the SNS sandbox. While your account is in the sandbox, you can only send messages to verified destination phone numbers, keep this in mind if you're testing in development before you've moved your account out of the SNS sandbox. For more information on the SNS sandbox and how to move your account out of it, see the [SNS sandbox documentation](https://docs.aws.amazon.com/sns/latest/dg/sns-sms-sandbox-moving-to-production.html).
+- **Deliverability tracking.** We cannot currently track deliverability through SNS channels. This means that all notifications sent through SNS will show up as "Sent" in the Knock messages log, but not "Delivered".
+
+## Provider configuration
+
+<Attributes>
+  <Attribute
+    name="AWS region"
+    type="string*"
+    description="The region your AWS account is in"
+  />
+  <Attribute
+    name="Access key ID"
+    type="string*"
+    description="The access key ID from your AWS account"
+  />
+  <Attribute
+    name="Secret access key"
+    type="string*"
+    description="The secret access key from your AWS account"
+  />
+  <Attribute
+    name="Message Type"
+    type="enum (one of `PROMOTIONAL`, `TRANSACTIONAL`) (optional)"
+    description="The message type of your sms"
+  />
+  <Attribute
+    name="Sender ID"
+    type="string (optional)"
+    description="The Sender ID to send messages from."
+  />
+  <Attribute
+    name="Originator number"
+    type="string (optional)"
+    description="The originator number to send messages from, this can be either a phone number o a short code"
+  />
+</Attributes>
+
+## Recipient data requirements
+
+In order to send an sms notification you'll need a valid `phone_number` property set on your recipient.
