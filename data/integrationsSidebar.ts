@@ -96,6 +96,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/twilio", title: "Twilio" },
       { slug: "/telnyx", title: "Telnyx" },
       { slug: "/vonage", title: "Vonage" },
+      { slug: "/whatsapp", title: "WhatsApp" },
     ],
   },
 ];
