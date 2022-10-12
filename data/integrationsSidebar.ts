@@ -10,6 +10,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/rudderstack", title: "Rudderstack" },
       { slug: "/jitsu", title: "Jitsu" },
       { slug: "/freshpaint", title: "Freshpaint" },
+      { slug: "/polytomic", title: "Polytomic" },
       { slug: "/hightouch", title: "Hightouch" },
       { slug: "/census", title: "Census" },
     ],
