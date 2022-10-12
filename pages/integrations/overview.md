@@ -25,6 +25,11 @@ We support receiving events from customer data platforms which can be configured
 
 - [Segment](/integrations/sources/segment)
 - [Rudderstack](/integrations/sources/rudderstack)
+- [Jitsu](/integrations/sources/jitsu)
+- [Freshpaint](/integrations/sources/freshpaint)
+- [Hightouch](/integrations/sources/hightouch)
+- [Census](/integrations/sources/census)
+- [Polytomic](/integrations/sources/polytomic)
 
 ## Per environment configurations
 
