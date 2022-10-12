@@ -92,6 +92,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/aws-sns", title: "AWS SNS" },
       { slug: "/mailersend", title: "Mailersend" },
       { slug: "/messagebird", title: "MessageBird" },
+      { slug: "/plivo", title: "Plivo" },
       { slug: "/sinch", title: "Sinch" },
       { slug: "/twilio", title: "Twilio" },
       { slug: "/telnyx", title: "Telnyx" },
