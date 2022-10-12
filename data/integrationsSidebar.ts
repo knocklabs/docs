@@ -7,7 +7,12 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/segment", title: "Segment" },
-      { slug: "/rudderstack", title: "Rudderstack" },
+      { slug: "/rudderstack", title: "RudderStack" },
+      { slug: "/hightouch", title: "Hightouch" },
+      { slug: "/census", title: "Census" },
+      { slug: "/polytomic", title: "Polytomic" },
+      { slug: "/jitsu", title: "Jitsu" },
+      { slug: "/freshpaint", title: "Freshpaint" },
     ],
   },
   {
