@@ -11,8 +11,8 @@ You can use the Knock + Vercel integration to easily synchronize your Knock API 
 
 The integration will set the following environment variables against your selected Vercel projects:
 
-- `KNOCK_API_KEY`: Set to your Knock secret key (`sk_`)
-- `KNOCK_PUBLIC_API_KEY`: Set to your Knock public key (`pk_`)
+- `KNOCK_API_KEY`: Set to your Knock secret key (starts with `sk_`)
+- `KNOCK_PUBLIC_API_KEY`: Set to your Knock public key (starts with `pk_`)
 
 Your environment variables will be set with the following Vercel project target mappings. You can read more about environment variables within Vercel [in the documentation](https://vercel.com/docs/concepts/projects/environment-variables#environments).
 
