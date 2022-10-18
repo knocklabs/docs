@@ -37,6 +37,13 @@ Currently we offer support for:
 
 ## Installing the integration
 
+1. Click "Add integration" on the [Vercel integrations page](https://vercel.com/integrations/knock)
+2. Select the Vercel account you want to connect with
+3. Sign into an existing Knock account, or create a new Knock account
+4. Select the Vercel projects that you wish to connect to your Knock account
+5. Click "Continue"
+6. Back in your Vercel dashboard, confirm the environment variables were added by going to your Vercel project > "Settings" > "Environment variables"
+
 ## Uninstalling the integration
 
 You can manage the Knock Vercel integration under your Vercel dashboard under the "Integrations" tab. From there you can remove the specific integration installation from your Vercel account.
