@@ -21,7 +21,7 @@ Your environment variables will be set with the following Vercel project target 
 | Development       | `["development"]`           |
 | Production        | `["preview", "production"]` |
 
-### Framework specific environment variables
+### Framework-specific environment variables
 
 For certain frameworks, we'll attempt to set the prefix of the `KNOCK_PUBLIC_API_KEY` on your behalf to ensure that the variable is then exposed in browser / client-side environments.
 
