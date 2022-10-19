@@ -5,6 +5,8 @@ tags: ["triggers", "conditionals", "steps", "routing", "conditional send"]
 section: Send notifications
 ---
 
+import Callout from "../../../components/Callout";
+
 Trigger conditions allow you to specify if a given step will execute at workflow execution time. They provide a powerful way to create more advanced notification workflow logic.
 
 Some examples of triggers you can employ are:
@@ -66,16 +68,30 @@ Message status trigger conditions allow you to build triggers that evaluate base
 
 The statuses you can evaluate against are:
 
+- **Not sent**: triggered if the message status is not `sent`
+- **Sent**: triggered if the message status is `sent` or `delivered`
 - **Not seen**: triggered if the message status is `sent` or `delivered` but not `seen`
 - **Seen but not read**: triggered when a message status is `seen`
 - **Marked as read**: triggered when a message status is `read` but not `archived`
 
 **Note:** the message status is evaluated immediately as the step is executed, meaning that you will need to account for time between steps when building trigger conditions that rely on message status. [See below](#example-conditionally-sending-an-email-if-an-in-app-notification-was-not-seen) for an example of using a delay step for this purpose.
 
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Available status vary per channel type.</span> Message status trigger conditions can be configured
+      to use any type of channel steps, but not all messages status are available on all of them. The in-app feed channels support
+      all statuses, the rest of the channels only support the "Not Sent" and "Sent" statuses.
+    </>
+  }
+/>
+
 ### Message status evaluation order
 
 Message statuses are always evaluated in the following order:
 
+- `undelivered`
 - `sent`
 - `delivered`
 - `seen`
