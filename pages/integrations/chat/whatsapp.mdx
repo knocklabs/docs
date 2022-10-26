@@ -39,9 +39,9 @@ In case you want to [send a test message](https://developers.facebook.com/docs/w
 
 ![Send test message](/images/integrations/chat/whatsapp/first_steps.jpg)
 
-The **phone number id** is from a Facebook test phone number (you cannot use it in production).
+**Note: The `phone_number_id` is from a Facebook test phone number which cannot be used in production.**
 
-Then you need to add your personal number in the **recipient phone number field** and click on "Send message"
+Then you need to add your personal number in the **recipient phone number field** and click "Send message"
 
 <Callout
   emoji="🔦"
@@ -60,9 +60,9 @@ Then you need to add your personal number in the **recipient phone number field*
 to send messages from. You can do this using the _Add Phone Number_ button which is below
 the current page.
 
-![Ads business phone number](/images/integrations/chat/whatsapp/add_business_phone_number.jpg)
+![Add business phone number](/images/integrations/chat/whatsapp/add_business_phone_number.jpg)
 
-### 5. Generate a never expires access token
+### 5. Generate an access token
 
 Because the testing access token only last 24 hours, we need to create a token that can last forever:
 
@@ -73,12 +73,12 @@ Because the testing access token only last 24 hours, we need to create a token t
    ![Create user with full control](/images/integrations/chat/whatsapp/whatsapp-creation-user-1.jpg)
 
 2. Click on _WhatsApp Accounts_ on the left sidebar and then select the WhatsApp business app and click the _Add people_ button.
-   Then choose the recently created system user and check the **full control option** and click the Assing button.
+   Then choose the recently created system user and check the **full control option** and click the "Assign" button.
 
    ![Add user to WhatsApp account](/images/integrations/chat/whatsapp/whatsapp-creation-user-2.jpg)
 
 3. Go back to the system users page and select the recently created system user from the list. Then click the **Generate new token** button.
-   Choose your app from the dropdown and make sure the **whatsapp_business_management** and **whatsapp_business_messaging** options are checked.
+   Choose your app from the dropdown and make sure the `whatsapp_business_management` and `whatsapp_business_messaging` options are checked.
 
    ![Generate token](/images/integrations/chat/whatsapp/whatsapp-creation-user-3.jpg)
 
@@ -99,7 +99,7 @@ After creating your template you will gain access to your editor, where you must
   emoji="🔦"
   text={
     <>
-      Here you can use parameters <strong>{"{{1}}"}</strong>, which are
+      Here you can use parameters like <strong>{"{{1}}"}</strong>, which are
       dynamically incorporated into the message. These are going to be overriden
       with the parameters you send in your template object with Knock
     </>
@@ -124,7 +124,29 @@ using your **access token** and **phone number id**.
 In order to use a WhatsApp template message, you must send a template object.
 For this you must specify this object in your message body using your template editor and JSON (with Liquid if you want), following the next format:
 
-![Knock message body](/images/integrations/chat/whatsapp/knock_template_editor.jpg)
+```
+{
+  "template": {
+    "name": "{{template_name}}",
+    "language": {
+      "code": "{{template_language}}"
+    },
+    "components": [
+      {
+        "type": "body",
+        "parameters": [
+          {
+            "type": "text",
+            "text": "{{parameter}}"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+<br />
 
 <Callout
   emoji="🔦"
@@ -164,4 +186,4 @@ Here are a few other things to keep in mind once you have your WhatsApp channel 
 
 ## Recipient data requirements
 
-In order to send a notification you'll need a valid `phone number` property set on your recipient.
+In order to send a notification you'll need a valid `phone_number` property set on your recipient in E.164 format.
