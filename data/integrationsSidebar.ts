@@ -65,6 +65,7 @@ const sidebarContent: SidebarSection[] = [
       },
       { slug: "/microsoft-teams", title: "Microsoft Teams" },
       { slug: "/discord", title: "Discord" },
+      { slug: "/whatsapp", title: "WhatsApp" },
     ],
   },
 

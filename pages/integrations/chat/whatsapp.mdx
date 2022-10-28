@@ -1,0 +1,189 @@
+---
+title: How to send WhatsApp notifications with Knock
+description: Setup guide for sending notifications with WhatsApp and Knock
+section: Integrations > Chat
+layout: integrations
+---
+
+import Callout from "../../../components/Callout";
+import { Attributes, Attribute } from "../../../components/Attributes";
+
+Knock integrates with [WhatsApp](https://www.whatsapp.com/) to send notifications to your recipients.
+
+## Features
+
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+Before you set up your WhatsApp chat channel in Knock, you'll need to take the following steps in WhatsApp.
+
+### 1. Create a business app on Facebook
+
+Login to your [Facebook developer account](https://developers.facebook.com/) and click on the ["Create app"](https://developers.facebook.com/apps/create/) button,
+then choose the first "Business" type app and complete the details with your personal information.
+
+![Create businnes app](/images/integrations/chat/whatsapp/create_business_app.jpg)
+
+### 2. Add WhatsApp as a product
+
+Now that your app is created you need to add a product, scroll down to find the "WhatsApp" product and click "Set up".
+After this you will be redirected to the WhatsApp get started page, here you can "create a businnes account" or use an existing one.
+
+![Dashboard app](/images/integrations/chat/whatsapp/app_dashboard.jpg)
+
+### 3. Send a test message
+
+In case you want to [send a test message](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started/#sent-test-message), you can go to _WhatsApp/first steps_, where you will find the **temporary access token**, **phone number id** and a **curl of send messages**.
+
+![Send test message](/images/integrations/chat/whatsapp/first_steps.jpg)
+
+**Note: The `phone_number_id` is from a Facebook test phone number which cannot be used in production.**
+
+Then you need to add your personal number in the **recipient phone number field** and click "Send message"
+
+<Callout
+  emoji="🔦"
+  text={
+    <>
+      Keep in mind that to configure Knock, you are looking for your{" "}
+      <strong>WhatsApp Access Token</strong> and your{" "}
+      <strong>Phone Number Id</strong> (not your phone number). <br></br>
+    </>
+  }
+/>
+
+### 4. Add a valid business phone number
+
+[Add a business phone number](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started/add-a-phone-number)
+to send messages from. You can do this using the _Add Phone Number_ button which is below
+the current page.
+
+![Add business phone number](/images/integrations/chat/whatsapp/add_business_phone_number.jpg)
+
+### 5. Generate an access token
+
+Because the testing access token only last 24 hours, we need to create a token that can last forever:
+
+1. Create an admin user. To do this you need to go to the [business settings page](https://business.facebook.com/settings).
+   You will see the [system users](https://business.facebook.com/settings) under the section of Users on the left sidebar.
+   After you have created your new user click on _Add Assets_ and choose _App>Select App Name>Full control option_ and save changes.
+
+   ![Create user with full control](/images/integrations/chat/whatsapp/whatsapp-creation-user-1.jpg)
+
+2. Click on _WhatsApp Accounts_ on the left sidebar and then select the WhatsApp business app and click the _Add people_ button.
+   Then choose the recently created system user and check the **full control option** and click the "Assign" button.
+
+   ![Add user to WhatsApp account](/images/integrations/chat/whatsapp/whatsapp-creation-user-2.jpg)
+
+3. Go back to the system users page and select the recently created system user from the list. Then click the **Generate new token** button.
+   Choose your app from the dropdown and make sure the `whatsapp_business_management` and `whatsapp_business_messaging` options are checked.
+
+   ![Generate token](/images/integrations/chat/whatsapp/whatsapp-creation-user-3.jpg)
+
+   ![Generate token](/images/integrations/chat/whatsapp/whatsapp-creation-user-4.jpg)
+
+### 6. Add a message template
+
+The only way of starting a business conversation with a client is using [message templates](https://developers.facebook.com/docs/whatsapp/api/messages/message-templates/).
+In order to use this you must go to your [message templates dashboard](https://business.facebook.com/wa/manage/message-templates/) and click "Create template"
+
+Then you must choose a **category**, **name** and **language** for your template and click "Continue".
+
+![New template configuration](/images/integrations/chat/whatsapp/new_template_configuration.jpg)
+
+After creating your template you will gain access to your editor, where you must add a **Body** for your message (you can also add a _Header_, _Footer_ or a _Button_ if you want)
+
+<Callout
+  emoji="🔦"
+  text={
+    <>
+      Here you can use parameters like <strong>{"{{1}}"}</strong>, which are
+      dynamically incorporated into the message. These are going to be overriden
+      with the parameters you send in your template object with Knock
+    </>
+  }
+/>
+
+![Whatsapp Template editor](/images/integrations/chat/whatsapp/whatsapp_template_editor.jpg)
+
+Once you have finished you must click on "Submit", then you have to wait for WhatsApp to [approve your template](https://developers.facebook.com/docs/whatsapp/message-templates/guidelines/) in order to start using it.
+
+## Configuring WhatsApp in Knock
+
+Now that you have a business **phone number id**, an **access token** and a **template message** you're ready to configure your WhatsApp channel within Knock.
+
+### 1. Create a WhatsApp channel
+
+You can create a new WhatsApp channel in the dashboard under the "Channels" section. From there, you'll need to configure the channel for each environment you have
+using your **access token** and **phone number id**.
+
+### 2. Send a template object
+
+In order to use a WhatsApp template message, you must send a template object.
+For this you must specify this object in your message body using your template editor and JSON (with Liquid if you want), following the next format:
+
+```
+{
+  "template": {
+    "name": "{{template_name}}",
+    "language": {
+      "code": "{{template_language}}"
+    },
+    "components": [
+      {
+        "type": "body",
+        "parameters": [
+          {
+            "type": "text",
+            "text": "{{parameter}}"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+<br />
+
+<Callout
+  emoji="🔦"
+  text={
+    <>
+      Keep in mind that your <strong>{"{{template_name}}"}</strong> and{" "}
+      <strong>{"{{template_language}}"}</strong> must be your WhatsApp message
+      template name and language respectively.
+      <br />
+      Notice how the <strong> {"{{parameter}}"}</strong> is going to override
+      the parameter from your WhatsApp template, and the amount of parameters
+      you send here must the same you have in your WhatsApp template too.
+    </>
+  }
+/>
+
+## Additional information
+
+Here are a few other things to keep in mind once you have your WhatsApp channel configured in Knock:
+
+- **Deliverability tracking.** We cannot currently track deliverability through WhatsApp channels. This means that all notifications sent through WhatsApp will show up as "Sent" in the Knock messages log, but not "Delivered".
+
+## Provider configuration
+
+<Attributes>
+  <Attribute
+    name="Authentication token"
+    type="string*"
+    description="The authentication token from your WhatsApp app"
+  />
+  <Attribute
+    name="Phone Number ID"
+    type="string*"
+    description="The phone number ID associated with your business phone number"
+  />
+</Attributes>
+
+## Recipient data requirements
+
+In order to send a notification you'll need a valid `phone_number` property set on your recipient in E.164 format.

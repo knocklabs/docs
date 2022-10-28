@@ -93,6 +93,7 @@ Here are the providers we currently support within Knock. We're adding more each
 - [Slack](/integrations/chat/slack)
 - [Discord](/integrations/chat/discord)
 - [Microsoft Teams](/integrations/chat/microsoft-teams)
+- [WhatsApp](/integrations/chat/whatsapp)
 
 ### In-app
 
