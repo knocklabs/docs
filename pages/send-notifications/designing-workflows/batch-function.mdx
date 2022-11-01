@@ -115,7 +115,7 @@ Here's a list of the variables that you can use to work with batch-related state
 
 - `total_activities`. The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight).
 - `total_actors`. The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification).
-- `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your notify call. The `activities` variable lists the _first_ ten activity objects added to the batch. Each activity includes any data properties you sent along in the notify call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
+- `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your notify call. The `activities` variable lists the _first_ or _last_ ten activity objects added to the batch (configurable by setting the [batch order](#setting-the-batch-order)). Each activity includes any data properties you sent along in the notify call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
 
   ```
   {% for activity in activities %}
@@ -128,6 +128,15 @@ Here's a list of the variables that you can use to work with batch-related state
   ```
 
 - `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the _first_ ten actors added to the batch.
+
+## Setting the batch order
+
+Although batches will accumulate every activity added to the batch, only ten activites will be returned from a batch step once the batch step window closes. There are two options for which ten activity objects will be returned when the batch step closes:
+
+* **The first ten (default):** The ten oldest activity objects added to the batch step will be returned.
+* **The last ten:** The ten newest activity objects added to the batch will be returned.
+
+Note that for both settings, the `activities` variable will always be sorted in chronological order (oldest to most recent).
 
 ## Using workflow cancellation with batches
 
