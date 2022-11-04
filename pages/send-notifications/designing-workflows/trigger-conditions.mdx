@@ -8,16 +8,23 @@ section: Send notifications
 import Callout from "../../../components/Callout";
 
 Trigger conditions allow you to specify if a given step will execute at workflow execution time. They provide a powerful way to create more advanced notification workflow logic.
+Conditions can also be specified at channel environment settings level. For this case, when evaluating a channel step, the conditions for the channel on the environment for which the
+workflow trigger was generated will be evaluated.
 
 Some examples of triggers you can employ are:
 
 - Only send an email if an in-app notification was not previously read or seen
 - Only send an in-app notification if the `recipient.plan == "pro"`
 - Only execute a delay step if `delay == true` in the workflow trigger
+- Only send an email if environment is development and email matches a particular domain
 
 ## Building trigger conditions
 
+### Building conditions at the step level
 Trigger conditions are created and edited on each step by selecting the step in the workflow canvas. Each trigger condition is made up of a `variable`, `operator`, `argument` triple.
+
+### Building conditions at the channel level
+Trigger conditions are created and edited on each channel environment setting and can be accessed by visiting the "Conditions" tab on the channel environment settings modal.
 
 ### Available variables
 
@@ -82,7 +89,8 @@ The statuses you can evaluate against are:
     <>
       <span className="font-bold">Available status vary per channel type.</span> Message status trigger conditions can be configured
       to use any type of channel steps, but not all messages status are available on all of them. The in-app feed channels support
-      all statuses, the rest of the channels only support the "Not Sent" and "Sent" statuses.
+      all statuses, the rest of the channels only support the "Not Sent" and "Sent" statuses. Message status trigger conditions
+      are <span className="font-bold">only</span> available for step level conditions.
     </>
   }
 />
@@ -141,3 +149,23 @@ We'll do that by selecting the `ref` of the in-app step (by default named `in_ap
 </figure>
 
 That's all it takes to build intelligent message routing in Knock!
+
+## Example: conditionally sending an email on staging environments
+
+Another use-case for trigger conditions is conditionally sending emails on staging environments to email addresses in your domain.
+
+In order to implement this, you will need to add a condition to the channel environment settings of your email channel.
+
+<figure>
+  <img
+    src="/images/functions/channel-level-conditions.png"
+    alt="Setting a trigger condition on the email channel environment settings"
+  />
+  <figcaption>
+    Setting a trigger condition on the email channel environment settings that
+    checks your company's subdomain
+  </figcaption>
+</figure>
+
+With this condition in place, emails will only go out for recipients whose email contains knock.app whenever that email
+channel is used on any of our workflows.
