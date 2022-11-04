@@ -52,6 +52,12 @@ Sandbox mode enables you to generate and preview messages for a given channel, w
 
 Sandbox mode is supported across all channel types and can be enabled from the environment configuration view of a channel.
 
+### Channel conditions
+
+You can use channel conditions to place a [condition](/send-notifications/designing-workflows/step-conditions) on all instances of a channel within a given environment. As an example, if you want to ensure that your email channel only sends to recipients from your domain when it's executing in your staging environment, a channel-level condition would be great way to do that. 
+
+To add a condition to a channel's environment configuration, navigate to that channel under "Integrations > Channels" and then click "edit configuration".
+
 ### Channel groups
 
 You may encounter a use case where you consistently want to send the same template to two providers across all of your workflows. Push is a good example. If you're sending notifications directly to iOS and Android devices (through APNS and Firebase, respectively), you don't want to have to replicate templates across channel steps for each of those providers in all of your workflows.
