@@ -1,0 +1,155 @@
+---
+title: Step conditions
+description: Learn more about how to use step conditions within the Knock workflow builder
+tags: ["triggers", "conditions", "conditionals", "steps", "routing", "conditional send"]
+section: Send notifications
+---
+
+import Callout from "../../../components/Callout";
+
+Step conditions allow you to specify if a given step will execute at workflow execution time. They provide a powerful way to create more advanced notification workflow logic.
+
+Here are a few examples of step conditions you can build:
+
+- Only send an email if an in-app notification was not previously read or seen
+- Only send an in-app notification if the `recipient.plan == "pro"`
+- Only execute a delay step if `delay == true` in the workflow trigger
+- Only send an email in your development environment if the recipient's email matches a particular domain
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Channel-level conditions.</span> You can also configure conditions for an entire channel at the environment-level. When a channel-level conditions is configured in a given environment, all instances of that channel in your workflows will include the condition. 
+      <br/>
+      <br/>
+      To add a condition to a channel's environment configuration, navigate to that channel under "Integrations > Channels" and then edit the configuration for the channel-environment to which you want to add a condition.
+    </>
+  }
+/>
+
+## Building conditions
+
+Conditions are created and edited on each step by selecting the step in the workflow canvas. Each condition is made up of a `variable`, `operator`, `argument` triple.
+
+### Available variables
+
+A condition can be set on any of the following variables:
+
+- **data**: Target a property within the `data` payload of the workflow trigger
+- **recipient**: Target a property of the current `recipient` of the workflow run
+- **actor**: Target a property of the current `actor` of the workflow run
+- **refs**: Target the message status of a previously executed channel step in the workflow
+
+### Available operators
+
+You can use any of the following operators in condition comparisons:
+
+| Operator                   | Description                      |
+| -------------------------- | -------------------------------- |
+| `equal_to`                 | `==`                             |
+| `not_equal_to`             | `!=`                             |
+| `greater_than`             | `>`                              |
+| `greater_than_or_equal_to` | `>=`                             |
+| `less_than`                | `<`                              |
+| `less_than_or_equal_to`    | `<=`                             |
+| `contains`                 | `argument in variable`           |
+| `not_contains`             | `argument not in variable`       |
+| `empty`                    | `variable in ["", null, []]`     |
+| `not_empty`                | `variable not in ["", null, []]` |
+
+### Available arguments
+
+Arguments can be static (like fixed strings, numbers, or booleans) or dynamic properties. All of the following are valid arguments:
+
+**Static properties**
+
+- Fixed strings (`foo`, `bar`, `baz`)
+- Fixed floats and numbers (`1.0`, `2`, `10000`)
+- `true`, `false`, `null`
+
+**Dynamic properties**
+
+- `data.*`: Selects a property within the data payload of the workflow trigger (falling back to an empty string)
+- `recipient.*`: Selects a property on the current `recipient` (falling back to an empty string)
+- `actor.*`: Selects a property on the current `actor` (falling back to an empty string)
+- Message status: when a `refs` condition is selected, we can evaluate the status of one or more messages produced from that step (see [Message status step conditions](#message-status-step-conditions) for more)
+
+## Message status conditions
+
+Message status conditions allow you to build conditions that evaluate the status of one or more messages sent from a channel step. When building a step message status condition you can select any proceeding channel steps that have produced messages to evaluate against (by the `ref` of the step).
+
+The statuses you can evaluate against are:
+
+- **Not sent**: evaluates to true if the message status is not `sent`
+- **Sent**: evaluates to true if the message status is `sent` or `delivered`
+- **Not seen**: evaluates to true if the message status is `sent` or `delivered` but not `seen`
+- **Seen but not read**: evaluates to true when a message status is `seen`
+- **Marked as read**: evaluates to true when a message status is `read` but not `archived`
+
+**Note:** the message status is evaluated immediately as the step is executed, meaning that you will need to account for time between steps when building conditions that rely on message status. [See below](#example-conditionally-sending-an-email-if-an-in-app-notification-was-not-seen) for an example of using a delay step for this purpose.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Available statuses vary per channel type.</span> It's important to note that while you can reference the status of any message step in a message status condition, not all channel types contain the same available message statuses. The in-app feed channels support
+      all statuses, the rest of the channels only support the "Not Sent" and "Sent" statuses.
+    </>
+  }
+/>
+
+### Message status evaluation order
+
+Message statuses are always evaluated in the following order:
+
+- `undelivered`
+- `sent`
+- `delivered`
+- `seen`
+- `read`
+- `archived`
+
+### Multiple message statuses
+
+In certain cases channel steps can produce one or more messages (like when a channel group is used).
+
+In the case where multiple messages are produced from a step the **lowest** message status is selected to be used when evaluating a condition. As an example, if you have one seen and one read message from `step_1` then the status that will be evaluated is `seen`.
+
+## Combining conditions
+
+One or more conditions can be combined as either 'AND' or 'OR' operators when building conditions on the step.
+
+- `AND` combined conditions require all conditions to be true before the step executes
+- `OR` combined conditions require at least one condition to be true before the step executes
+
+## Debugging conditions
+
+You can debug conditions on each step in the [workflow debugger](/send-notifications/debugging-workflows). You'll see a log line that indicates that the step did not execute because one or more conditions were not met.
+
+## Example: conditionally sending an email if an in-app notification was not seen
+
+One common use-case for conditions is conditionally sending a notification based on whether the recipient has seen a notification on another channel. You can think of this concept as channel escalation, or intelligent routing.
+
+In order to implement this, your workflow will need:
+
+- An in-app notification channel step to send the initial message
+- A delay step so that we wait a period of time before executing the email step
+- An email channel step to send the escalated message
+
+Next, we'll add a condition to our email channel step that will say "only execute this step if the in-app notification has not been seen".
+
+We'll do that by selecting the `ref` of the in-app step (by default named `in_app_feed_1`) and then applying the "Not seen" message status as a condition.
+
+<figure>
+  <img
+    src="/images/functions/message-status-trigger-condition.png"
+    alt="Setting a condition on the email step"
+  />
+  <figcaption>
+    Setting a condition on the email step for when the in-app
+    notification has not been seen
+  </figcaption>
+</figure>
+
+That's all it takes to build intelligent message routing in Knock!

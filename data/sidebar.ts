@@ -43,7 +43,7 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/batch-function", title: "Batch function" },
           { slug: "/delay-function", title: "Delay function" },
           { slug: "/fetch-function", title: "Fetch function" },
-          { slug: "/trigger-conditions", title: "Trigger conditions" },
+          { slug: "/step-conditions", title: "Step conditions" },
           {
             slug: "/reference-liquid-helpers",
             title: "Reference: liquid helpers",

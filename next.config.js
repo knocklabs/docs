@@ -257,6 +257,12 @@ module.exports = withPlugins(
           permanent: true,
         },
         {
+          source: "/send-notifications/designing-workflows/trigger-conditions",
+          destination:
+            "/send-notifications/designing-workflows/step-conditions",
+          permanent: true,
+        },
+        {
           source: "/integrations/chat/slack",
           destination: "/integrations/chat/slack/overview",
           permanent: true,
