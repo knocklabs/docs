@@ -22,6 +22,7 @@ When you build workflows in Knock, we auto-generate certain pieces of state (as 
 | `total_actors`     | The count of unique actors associated with a workflow run.                                                                                                                                                                           |
 | `timestamp`        | The time in which the activity occurred, as an ISO-8601 datetime string.                                                                                                                                                             |
 | `workflow`         | The id, key, and categories of the current workflow.                                                                                                                                                                                 |
+| `current_message`  | The id of the unique message generated for this recipient                                                                                                                                                                            |
 
 ## Common Liquid keywords
 
