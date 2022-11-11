@@ -3,7 +3,7 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-await knock.notify("new-comment", {
+await knock.workflows.trigger("new-comment", {
   recipients: ["1", "2"],
 
   // optional
@@ -17,7 +17,7 @@ await knock.notify("new-comment", {
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.notify(
+client.workflows.trigger(
     key="new-comment",
     recipients=["1", "2"]
 

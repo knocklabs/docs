@@ -3,7 +3,7 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-await knock.notify("reservation-reminder-email", {
+await knock.workflows.trigger("reservation-reminder-email", {
   data: {
     reservationId: reservation.id
   },
@@ -15,7 +15,7 @@ await knock.notify("reservation-reminder-email", {
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.notify(
+client.workflows.trigger(
   key="reservation-reminder-email",
   data={
       "reservation_id": reservation.id

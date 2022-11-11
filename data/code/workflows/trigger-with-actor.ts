@@ -3,7 +3,7 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-await knock.notify("new-comment", {
+await knock.workflows.trigger("new-comment", {
   actor: comment.author.id,
   data: {
     documentId: comment.document.id,
@@ -18,7 +18,7 @@ await knock.notify("new-comment", {
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.notify(
+client.workflows.trigger(
   key="new-comment",
   actor=comment.author.id,
   recipients=follower_ids,
@@ -64,7 +64,7 @@ var workflowTriggerOpts = new TriggerWorkflow {
 var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerOpts)
 `,
   elixir: `
-knock_client = MyApp.Knock.client()  
+knock_client = MyApp.Knock.client()
 
 Knock.Workflows.trigger("new-comment", %{
   actor: comment.author.id,

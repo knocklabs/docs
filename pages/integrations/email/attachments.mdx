@@ -9,9 +9,9 @@ import MultiLangCodeBlock from "../../../components/MultiLangCodeBlock";
 
 ## How attachments work in Knock
 
-1. Set an attachment key in your email template to tell Knock how to resolve attachments you send in the data payload of your notify call. To set an attachment key, click the "..." menu in the top right corner of the email template editor.
-2. Include one or more attachment objects in the `data` payload of your notify call. Each attachment object should have the content of the file to be attached as a base64 encoded value.
-3. Knock automatically adds any attachments included in the attachment key of your notify call to the emails sent by your email provider 🎉.
+1. Set an attachment key in your email template to tell Knock how to resolve attachments you send in the data payload of your trigger call. To set an attachment key, click the "..." menu in the top right corner of the email template editor.
+2. Include one or more attachment objects in the `data` payload of your trigger call. Each attachment object should have the content of the file to be attached as a base64 encoded value.
+3. Knock automatically adds any attachments included in the attachment key of your trigger call to the emails sent by your email provider 🎉.
 
 ## The attachment object
 
@@ -33,7 +33,7 @@ Every attachment you send to Knock in your `data` payload should have the follow
 
 **Note**: each attachment object must be less than 10mb but check with your email provider to see if they set a lower limit.
 
-## Sending attachments in your notify call
+## Sending attachments in your trigger call
 
 Once you've specified your attachment key in your email template, the last step is to send the data along to Knock. Remember that you need to base64 encode the contents of the file.
 
@@ -46,7 +46,7 @@ Once you've specified your attachment key in your email template, the last step 
 
 ## Sending a different attachment per recipient
 
-If you need to send a different attachment per recipient in a workflow then you'll need to make one notify call per recipient, such that the data payload is unique to that recipient.
+If you need to send a different attachment per recipient in a workflow then you'll need to make one trigger call per recipient, such that the data payload is unique to that recipient.
 
 ```js Unique attachments per recipient
 import { Knock } from "@knocklabs/node";
@@ -58,7 +58,7 @@ const filesAndRecipients = [
 ];
 
 filesAndRecipients.forEach(({ id, file }) => {
-  knock.notify("my-workflow", {
+  knock.workflows.trigger("my-workflow", {
     recipients: [id],
     data: {
       attachment: {

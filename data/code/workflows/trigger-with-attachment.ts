@@ -9,7 +9,7 @@ const fileContent = fs
   .readFileSync(\`${__dirname}/attachment.pdf\`)
   .toString("base64");
 
-knock.notify("invoice-paid", {
+knock.workflows.trigger("invoice-paid", {
   recipients: recipientIds,
   data: {
     attachments: [
@@ -26,7 +26,7 @@ knock.notify("invoice-paid", {
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.notify(
+client.workflows.trigger(
   key="invoice-paid",
   recipients=recipient_ids,
   data={

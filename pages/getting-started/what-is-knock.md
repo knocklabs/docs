@@ -18,7 +18,7 @@ That's where we come in. Knock is a hosted notifications engine that helps you i
 
 Knock takes inputs from your product, runs them through workflows built in Knock, and delivers notifications across in-app and out-of-app channels.
 
-The inputs are `notify` and `identify` calls made to the Knock API by your engineering team.
+The inputs are `trigger` and `identify` calls made to the Knock API by your engineering team.
 
 These inputs power workflows built in Knock by your product and/or growth teams. Once the necessary calls are being made by your API to Knock, non-technical users can create and update notification routing and design in minutes, without the help of engineers. Knock also provides visibility into logs and analytics so your team can quickly see what's working and iterate towards a notification experience that your end users love.
 
