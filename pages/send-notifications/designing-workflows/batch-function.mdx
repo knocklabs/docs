@@ -54,50 +54,47 @@ Here's a detailed walkthrough of how this example might work in practice:
 
 ## Setting the batch window
 
-The batch window can be a set duration (e.g. 30 minutes for each batch), or it can be a dynamic window.
+The batch window determines the length of time that the batch will be open, with the window opening from the **first** time the batch is triggered.
 
-The "batch for a fixed window" option waits for an interval of time (provided by you in the workflow editor) and then proceeds to the next step.
+### Batching for a fixed duration
 
-![Setting a fixed batch window.](/images/functions/functions_batch_interval.png)
+You can set a fixed duration that the batch will be open using the "Batch for a fixed window" option in the batch step. The window accepts a relative duration, which can be specified as seconds, minutes, hours, or days.
 
-<figcaption>
-  Setting a fixed batch window of 15 minutes for a workflow batch step.
-</figcaption>
+The batch will be scheduled to close when the batch step is first triggered for the recipient, plus the duration specified.
 
-This fixed interval is useful for most batching functions, however if you want to set when your batch window will close dynamically, you can use the "batch for a dynamic window" option.
+### Batching for a dynamic interval
 
-![Setting a dynamic batch window.](/images/functions/functions_batch_dynamic.png)
+Your batches can also be driven by a dynamic interval, which can be provided on the data, recipient, actor, or environment variables associated with the workflow run.
 
-<figcaption>
-  Setting a dynamic batch window to look at the `batch_duration` key of the
-  notify `data` when this workflow is triggered.
-</figcaption>
+When specifying a dynamic batch window you can provide either:
 
-The "batch for a dynamic window" option waits for an interval of time provided by you in the `data` of your notify call under a key you set when you create your workflow.
-The key you specify in the workflow editor can be dot-delimited (`nested.path.to.window`) to reach nested attributes.
-When this workflow step runs, Knock will use this value to set when your batch window will close.
+- An [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
+- A relative duration unit (e.g `{ "unit": "seconds", "value": 30 }`)
 
-This value can be either an [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`),
-or it can be a relative duration in the following format:
+A dynamic interval must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `batchWindow` in your `Data` schema, your workflow trigger data must contain either an ISO-8601 timestamp or a valid duration unit.
 
-```js A workflow trigger using a dynamic duration
-await knock.notify("comment-created", {
-  recipients: ["user_1", "user_2", "user_3"],
-  // Data to be passed to the template
-  data: {
-    batch_duration: {
-      unit: "minutes", // Must be one of seconds, minutes, hours, days, weeks, or months
-      value: 10, // Any non-negative integer
-    },
-    page_name: "Marketing brief",
-    comment_body: "Hey team — can we take another look at this?",
-  },
-});
+```typescript A relative duration
+type Duration = {
+  unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
+  value: number;
+};
 ```
+
+**Please note**: the open batch window will never be extended by a subsequent workflow trigger with a different dynamic batch window specified. The first workflow trigger without an open batch will always determine the batch window close.
+
+## Setting the batch order
+
+Although batches will accumulate every activity added to the batch, only ten items will be returned in `activities` once the batch step window closes. There are two options for which ten activity objects will be returned when the batch step closes:
+
+- **The first ten (default):** The ten oldest activity objects added to the batch step will be returned.
+- **The last ten:** The ten newest activity objects added to the batch will be returned.
+
+Note that for both settings, the `activities` variable will always be sorted in chronological order (oldest to most recent).
 
 ## Using batch variables
 
 Another important aspect of batch functions is that they generate state that can be used in your templates. Let's continue the commenting example we used above.
+
 In this scenario, we'll want different copy in our notification for when a batch includes one item ("Jane left a comment") v. when a batch includes more than one item ("Jane left _n_ comments").
 
 We can address use cases like this by referencing the `total_activities` variable within our workflow.
@@ -129,15 +126,48 @@ Here's a list of the variables that you can use to work with batch-related state
 
 - `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the _first_ ten actors added to the batch.
 
-## Setting the batch order
-
-Although batches will accumulate every activity added to the batch, only ten items will be returned in `activities` once the batch step window closes. There are two options for which ten activity objects will be returned when the batch step closes:
-
-* **The first ten (default):** The ten oldest activity objects added to the batch step will be returned.
-* **The last ten:** The ten newest activity objects added to the batch will be returned.
-
-Note that for both settings, the `activities` variable will always be sorted in chronological order (oldest to most recent).
-
 ## Using workflow cancellation with batches
 
 If you want to remove an item from a batch (example: a user deletes a comment), you can use our [workflow cancellation API](/send-notifications/canceling-workflows) to cancel a batched item, thereby removing it from the batch.
+
+---
+
+## Frequently asked questions
+
+### How do we set per-environment batch windows?
+
+Often when you're testing your Knock workflows, you'll want your batch windows to be shorter in non-production environments to aid with testing. To set per-environment batch windows you can:
+
+- Create a new variable under "Developers > Variables" with a relative duration as JSON (`{ "unit": "seconds", "value": 30 }`) and a name of `batchWindow`
+- Set your batch window to "Batch for a dynamic interval"
+- Specify that your batch window will come from an environment variable
+- Set the key to be `batchWindow`, which will resolve the batch window from the variable you created
+- You can now override the variable per-environment to specify a shorter, or longer window as needed
+
+### How can items be removed from a batch?
+
+You can use the [workflow cancellation API](/send-notifications/canceling-workflows) to remove an item that has been accumulated into an active batch. When all items have been removed from the batch, any channel steps proceeding will be skipped.
+
+### How many items can a batch contain?
+
+A batch can support an unbounded number of items per recipient, although we will only ever return either the first 10 or last 10 items to be rendered in your template.
+
+### How many items can I reference in my templates from a batch?
+
+We will always expose at most 10 activities to your template rendered in your batch (available under the `activities` variable). The `total_activities` will always include
+
+### How can I change the order of the batch to retrieve the last 10 items instead of the first 10 items?
+
+You can use the "Batch order" setting on the batch step to set if you want the first 10 items (the default) or the last 10 items added to the batch.
+
+### Once activities are batched in an activity, how can I access them?
+
+You can use the `activities` property in your template to access the items included in the batch. Each `activity` will include any `data` sent along with the workflow trigger that was batched.
+
+### Is batching the same as digesting notifications?
+
+You can think about batching as a per-recipient, per-workflow summary of notifications that should be sent together. Many of our Knock customers use batching as a form of digest to reduce the number of notifications that their users receive. If you have more advance digesting needs that aren't covered by our current batching implementation, [please get in touch](mailto:support@knock.app).
+
+### Do you support per-recipient batch windows and timezones?
+
+We're currently working on this feature! If you'd like early access, please [get in touch with us](mailto:support@knock.app?subject=Per%20recipient%20batch%20windows).
