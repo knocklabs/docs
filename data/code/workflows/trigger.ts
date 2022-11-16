@@ -3,19 +3,29 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-await knock.notify("new-comment", {
-  data: { project_name: "My Project" },
+await knock.workflows.trigger("new-comment", {
   recipients: ["1", "2"],
+
+  // optional
+  data: { "project_name": "My Project" },
+  actor: "3",
+  cancellationKey: "cancel_123",
+  tenant: "jurassic_world_employees"
 });
   `,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.notify(
+client.workflows.trigger(
     key="new-comment",
-    data={ "project_name": "My Project" },
     recipients=["1", "2"]
+
+    # optional
+    data={ "project_name": "My Project" },
+    actor="3",
+    cancellation_key="cancel_123",
+    tenant="jurassic_world_employees"
 )
 `,
   ruby: `
@@ -24,8 +34,13 @@ Knock.key = "sk_12345"
 
 Knock::Workflows.trigger(
   key: "new-comment",
-  data: { project_name: "My Project" },
   recipients: ["1", "2"]
+
+  # optional
+  data: { project_name: "My Project" },
+  actor: "3",
+  cancellation_key: "cancel_123",
+  tenant: "jurassic_world_employees"
 )
 `,
   csharp: `
@@ -34,10 +49,15 @@ var knockClient = new KnockClient(
 );
 
 var workflowTriggerOpts = new TriggerWorkflow {
+  Recipients = new List<string>{"1", "2"}
+
+  // optional
   Data = new Dictionary<string, string>{
     {"project_name", "My Project"}
   },
-  Recipients = new List<string>{"1", "2"}
+  Actor = "3",
+  CancellationKey = "cancel_123",
+  Tenant = "jurassic_world_employees"
 };
 
 var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerOpts)
@@ -46,8 +66,13 @@ var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerO
 knock_client = MyApp.Knock.client()
 
 Knock.Workflows.trigger("new-comment", %{
-  data: %{project_name: "My Project"},
   recipients: ["1", "2"]
+
+  # optional
+  data: %{project_name: "My Project"},
+  actor: "3",
+  cancellation_key: "cancel_123",
+  tenant: "jurassic_world_employees"
 })
 `,
   php: `
@@ -56,8 +81,13 @@ use Knock\\KnockSdk\\Client;
 $client = new Client('sk_12345');
 
 $client->workflows()->trigger('new-comment', [
-  'data' => ['project_name' => My Project],
   'recipients' => ['1', '2']
+
+  // optional
+  'data' => ['project_name' => My Project],
+  'actor' => 3,
+  'cancellation_key' => 'cancel_123',
+  'tenant' => 'jurassic_world_employees'
 ]);
 `,
   go: `
@@ -66,8 +96,13 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Data:       map[string]string{"project_name": "My Project"},
   Recipients: []string{"1", "2"}
+
+  // optional
+  Data:            map[string]string{"project_name": "My Project"},
+  Actor:           "3",
+  CancellationKey: "cancel_123"
+  Tenant:          "jurassic_world_employees"
 })
 `,
   java: `
@@ -81,7 +116,12 @@ KnockClient client = KnockClient.builder()
 WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
     .key("new-comment")
     .recipients(List.of("1", "2"))
+
+    // optional
     .data("project_name", "My project")
+    .actor("3")
+    .cancellationKey("cancel_123")
+    .tenant("jurassic_world_employees")
     .build();
 
 WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);

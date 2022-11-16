@@ -14,7 +14,7 @@ As you start to dig into workflows, it's helpful to understand the basics of wha
 When Knock receives a workflow trigger (like the one below) for one of your workflows, it will produce a **workflow run** for **each recipient** you send in your workflow trigger.
 
 ```js A workflow trigger for three recipients
-await knock.notify("comment-created", {
+await knock.workflows.trigger("comment-created", {
   // The user who performed the action (optional)
   actor: "user_0",
   // The list of recipients
@@ -39,25 +39,25 @@ All Knock workflows consist of three basic parts:
 
 ### The trigger step
 
-Every workflow starts with a trigger step. When you want to run a workflow, you send a notify call to the Knock API with an `actor`, a list of `recipients`, and a `data` payload with any information you want to use in the notification templates of the workflow. (More on this in [triggering workflows](/send-notifications/triggering-workflows).) When the workflow is triggered, it creates a workflow run for each of the `recipients` passed in the notify call.
+Every workflow starts with a trigger step. When you want to run a workflow, you send a trigger call to the Knock API with an `actor`, a list of `recipients`, and a `data` payload with any information you want to use in the notification templates of the workflow. (More on this in [triggering workflows](/send-notifications/triggering-workflows).) When the workflow is triggered, it creates a workflow run for each of the `recipients` passed in the trigger call.
 
-You won't actually need to do anything with this trigger step within the workflow builder of the Knock dashboard, but it's worth calling out that we automatically generate a sample notify call based on the variable data you add downstream in your workflow. This way you can see all of the `data` you need to pass in your trigger to populate the templates of the Knock workflow.
+You won't actually need to do anything with this trigger step within the workflow builder of the Knock dashboard, but it's worth calling out that we automatically generate a sample trigger call based on the variable data you add downstream in your workflow. This way you can see all of the `data` you need to pass in your trigger to populate the templates of the Knock workflow.
 
 ### Channel steps
 
 A channel step sends a notification to a recipient. When the workflow engine reaches a channel step, it looks for relevant channel data on the recipient. As an example, an email channel step will look for the `email` property on the recipient. If no relevant channel data for that recipient is found, the step is skipped. If channel data is found, then the step will send a notification. 
 
-Each channel has a notification template (designed by you in the Knock dashboard) which inserts the `data` from your notify call into a [styled template](/send-notifications/designing-workflows/template-editor) for that step's given channel.
+Each channel has a notification template (designed by you in the Knock dashboard) which inserts the `data` from your trigger call into a [styled template](/send-notifications/designing-workflows/template-editor) for that step's given channel.
 
 You can add any of the major [channel types supported by Knock](/integrations/overview#supported-channel-providers) into your workflow. By default, we show all of our supported channel types, but you'll need to configure a provider with each channel before you can actually use them in a workflow. For more information on how to configure channels in your Knock account, see our [integration guides](/integrations/overview).
 
 ### Function steps
 
-A function is a step in a workflow that does something to the data being passed in your notify call. You can use functions by entering the workflow builder and adding function steps onto the canvas.
+A function is a step in a workflow that does something to the data being passed in your trigger call. You can use functions by entering the workflow builder and adding function steps onto the canvas.
 
 We currently support the following functions:
 
-- [Batch](/send-notifications/designing-workflows/batch-function) (aggregate notify calls that have the same value for a specified batch key)
+- [Batch](/send-notifications/designing-workflows/batch-function) (aggregate trigger calls that have the same value for a specified batch key)
 - [Delay](/send-notifications/designing-workflows/delay-function) (wait an amount of time before proceeding to the next workflow step)
 - [Fetch](/send-notifications/designing-workflows/fetch-function) (execute an HTTP request to fetch additional data for a workflow)
 
