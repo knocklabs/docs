@@ -9,8 +9,8 @@ await knock.workflows.trigger("new-comment", {
   // optional
   data: { "project_name": "My Project" },
   actor: "3",
-  cancellationKey: "cancellation_key",
-  tenant: "tenant"
+  cancellationKey: "cancel_123",
+  tenant: "jurassic_world_employees"
 });
   `,
   python: `
@@ -24,8 +24,8 @@ client.workflows.trigger(
     # optional
     data={ "project_name": "My Project" },
     actor="3",
-    cancellation_key="cancellation_key",
-    tenant="tenant"
+    cancellation_key="cancel_123",
+    tenant="jurassic_world_employees"
 )
 `,
   ruby: `
@@ -39,8 +39,8 @@ Knock::Workflows.trigger(
   # optional
   data: { project_name: "My Project" },
   actor: "3",
-  cancellation_key: "cancellation_key",
-  tenant: "tenant"
+  cancellation_key: "cancel_123",
+  tenant: "jurassic_world_employees"
 )
 `,
   csharp: `
@@ -56,8 +56,8 @@ var workflowTriggerOpts = new TriggerWorkflow {
     {"project_name", "My Project"}
   },
   Actor = "3",
-  CancellationKey = "cancellation_key",
-  Tenant = "Tenant"
+  CancellationKey = "cancel_123",
+  Tenant = "jurassic_world_employees"
 };
 
 var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerOpts)
@@ -71,8 +71,8 @@ Knock.Workflows.trigger("new-comment", %{
   # optional
   data: %{project_name: "My Project"},
   actor: "3",
-  cancellation_key: "cancellation_key",
-  tenant: "tenant"
+  cancellation_key: "cancel_123",
+  tenant: "jurassic_world_employees"
 })
 `,
   php: `
@@ -86,8 +86,8 @@ $client->workflows()->trigger('new-comment', [
   // optional
   'data' => ['project_name' => My Project],
   'actor' => 3,
-  'cancellation_key' => 'cancellation_key',
-  'tenant' => 'tenant'
+  'cancellation_key' => 'cancel_123',
+  'tenant' => 'jurassic_world_employees'
 ]);
 `,
   go: `
@@ -101,7 +101,8 @@ result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
   // optional
   Data:            map[string]string{"project_name": "My Project"},
   Actor:           "3",
-  CancellationKey: "cancellation_key"
+  CancellationKey: "cancel_123"
+  Tenant:          "jurassic_world_employees"
 })
 `,
   java: `
@@ -119,7 +120,8 @@ WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
     // optional
     .data("project_name", "My project")
     .actor("3")
-    .cancellationKey("cancellation_key")
+    .cancellationKey("cancel_123")
+    .tenant("jurassic_world_employees")
     .build();
 
 WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
