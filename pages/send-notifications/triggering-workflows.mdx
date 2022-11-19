@@ -8,26 +8,20 @@ section: Send notifications
 import Callout from "../../components/Callout";
 import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
 
-Workflows that you design within Knock are triggered from within your codebase by calling the `trigger` endpoint and telling Knock _who_ should be a potential recipient.
+Workflows that you design within Knock are triggered from within your codebase by calling the workflow trigger endpoint.
 
 <Callout
   emoji="🌠"
   text={
     <>
       <span className="font-bold">Knock terminology clarification.</span>{" "}
-      Throughout our documentation you'll see us refer to trigger calls and
+      Throughout our documentation, you'll see us refer to notify calls and
       workflow triggers. These terms are synonymous.
-      <br />
-      <br />
-      If you use our SDKs, you'll be using <code>.trigger()</code> which calls the
-      workflow trigger endpoint you'll find in <a href="/reference#trigger-workflow">
-        our API reference
-      </a>.
     </>
   }
 />
 
-It's important to realize that calling `trigger` in Knock may result in no messages being sent to your users. This is because calling `trigger` will trigger a workflow, but your end users may have indicated through their `preferences` that they don't wish to be notified by workflows of that type. The good news is that Knock handles all preference-based opt-outs for you automatically.
+It's important to realize that triggering a workflow in Knock may result in no messages being sent to your recipients. This is because your recipients may have indicated through their `preferences` that they don't wish to be notified by workflows of that type. The good news is that Knock handles all preference-based opt-outs for you automatically.
 
 ## Triggering workflows
 
@@ -42,14 +36,14 @@ Learn more about triggering workflows in [our API reference](/reference#workflow
 
 ### Schema
 
-| Property         | Type                  | Description                                                                                                  |
-| ---------------- | --------------------- | ------------------------------------------------------------------------------------------------------------ |
-| key\*            | string                | The human readable key of the workflow from the Knock dashboard                                              |
-| actor            | RecipientIdentifier   | An identifier of who or what performed this action (optional)                                                |
-| recipients\*     | RecipientIdentifier[] | A list of user ids, or object references of who to trigger for this workflow                                 |
-| data             | map                   | A map of properties that are required in the templates in this workflow                                      |
-| cancellation_key | string                | A unique identifier to reference the workflow when canceling                                                 |
-| tenant           | string                | An optional identifier of the owning tenant object for the notifications generated during this workflow run  |
+| Property         | Type                  | Description                                                                                                 |
+| ---------------- | --------------------- | ----------------------------------------------------------------------------------------------------------- |
+| key\*            | string                | The human-readable key of the workflow from the Knock dashboard                                             |
+| actor            | RecipientIdentifier   | An identifier of who or what performed this action (optional)                                               |
+| recipients\*     | RecipientIdentifier[] | One or more recipient references of who/what to notify for this workflow                                    |
+| data             | map                   | A map of properties that are required in the templates in this workflow                                     |
+| cancellation_key | string                | A unique identifier to reference the workflow when canceling                                                |
+| tenant           | string                | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
 
 ### Recipient identifiers
 
@@ -57,6 +51,7 @@ When you want to identify a recipient in a workflow, either as an actor or as a 
 
 - A string indicating a user that you have previously identified to Knock (e.g. `user-1`).
 - A reference of an object that you have previously set within Knock (e.g. `{ id: "project-1", collection: "projects" }`).
+- A complete `Recipient`, to be identified inline during the workflow execution.
 
 ### Response
 
@@ -67,6 +62,20 @@ Triggering a workflow will always return a unique UUID v4 representing the workf
   "workflow_run_id": "05f8a70d-e42a-46dc-86fa-aada5752f6cf"
 }
 ```
+
+<br />
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      Note: a workflow run ID is a unique identifier that represents the
+      workflow run for all recipients of the workflow. Each individual in the
+      workflow run will have a unique workflow recipient run ID, which is
+      derived from the workflow run id.
+    </>
+  }
+/>
 
 ## Attributing the action to a user or object
 
@@ -110,6 +119,30 @@ You can read more about canceling workflows [in our guide](/send-notifications/c
 
 3. The cancellation key is _scoped per workflow_ so you don't need to include the workflow key
    in the cancellation key.
+
+## Identifying recipients inline
+
+You can pass a complete `Recipient` entity to the `recipients` or `actor` property when triggering a workflow. When passing the recipient, the recipients will be guaranteed to be identified **before** the workflow is triggered for the recipient with the properties passed in.
+
+| Property       | Description                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| `id`           | Required. An identifier for this user or object                                                        |
+| `collection`   | Required when identifying an object. Indicates the collection the object belongs to                    |
+| `channel_data` | A dictionary containing a `channelId` key and a dictionary of channel data to be set for the recipient |
+| \*             | An arbitrary set of key/value pairs to set for the recipient                                           |
+
+```json Example inline recipient defintion
+{
+  "id": "user-1",
+  "name": "Jean Luc-Picard",
+  "email": "jpicard@starfleet.org",
+  "channel_data": {
+    "4672d685-c586-4ec6-ad88-52185262af97": {
+      "tokens": ["apns-push-token"]
+    }
+  }
+}
+```
 
 ## Multi-tenancy in notifications
 
