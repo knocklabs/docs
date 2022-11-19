@@ -54,9 +54,15 @@ const DocsLayout = ({ frontMatter, children }) => {
         <div className="max-w-prose flex-auto">
           {section && <Breadcrumbs section={section} pages={pages} />}
 
-          <h1 className="font-semibold text-2xl lg:text-4xl mb-4">
-            {frontMatter.title}
-          </h1>
+          <header className="mb-6 pb-6 border-b dark:border-b-gray-800">
+            <h1 className="font-semibold text-2xl lg:text-4xl mb-2">
+              {frontMatter.title}
+            </h1>
+            <div className="text-[18px] text-gray-600 dark:text-gray-300">
+              {frontMatter.description}
+            </div>
+          </header>
+
           <div className="docs-content prose-sm lg:prose dark:prose-invert">
             {children}
           </div>
