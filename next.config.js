@@ -292,6 +292,21 @@ module.exports = withPlugins(
           destination: "/in-app-ui/android/overview",
           permanent: false,
         },
+        {
+          source: "/send-notifications/designing-workflows",
+          destination: "/designing-workflows",
+          permanent: false,
+        },
+        {
+          source: "/send-notifications/designing-workflows/reference-:match",
+          destination: "/designing-workflows/references/reference-:match",
+          permanent: false,
+        },
+        {
+          source: "/send-notifications/designing-workflows/:any",
+          destination: "/designing-workflows/:any",
+          permanent: false,
+        },
       ];
     },
   },
