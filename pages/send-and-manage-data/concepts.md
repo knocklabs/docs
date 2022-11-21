@@ -1,6 +1,6 @@
 ---
 title: Core data concepts
-description: Descriptions of the main data concepts in Knock
+description: Learn about the the main data concepts in Knock.
 tags: ["how knock works"]
 section: Send & manage data
 ---

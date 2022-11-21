@@ -1,6 +1,6 @@
 ---
 title: "Reference: liquid helpers"
-description: A reference guide to help you work with the Liquid templating language in Knock
+description: A reference guide to help you work with the Liquid templating language in Knock.
 tags: ["liquid", "template", "variables"]
 section: Send notifications
 ---

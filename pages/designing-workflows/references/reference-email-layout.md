@@ -1,6 +1,6 @@
 ---
 title: "Reference: email layout"
-description: A reference guide to help you work with email layouts in Knock
+description: A reference guide to help you work with email layouts in Knock.
 tags: ["templates"]
 section: Send notifications
 ---
