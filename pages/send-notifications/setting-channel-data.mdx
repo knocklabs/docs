@@ -8,20 +8,27 @@ section: Send notifications
 import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
 import Callout from "../../components/Callout";
 
-Some channel integrations require user and channel specific data in order to send notifications. Push channels like APNS (Apple Push Notification Service) and FCM (Firebase Cloud Messaging) are good examples, where both require that there are device-specific tokens that target the user in a push notification. Slack is another good example, where the channel data from a Slack integration in your product is stored on a Knock [object](/send-and-manage-data/objects).
+Some channel integrations require user and channel-specific data to send notifications. Push channels like APNS (Apple Push Notification Service) and FCM (Firebase Cloud Messaging) are good examples, where both require that there are device-specific tokens that target the user in a push notification. Slack is another good example, where the channel data from a Slack integration in your product is stored on a Knock [object](/send-and-manage-data/objects).
 
 At Knock we call this concept `ChannelData`. `ChannelData` lives under a [user](/send-and-manage-data/users) or an [object](/send-and-manage-data/objects) and stores channel-specific data to be used when that user or object is included as a recipient on a [triggered workflow](/send-notifications/triggering-workflows).
 
 ## Things to know about channel data
 
-- For channel types that require channel data (such as push and Slack), the channel step will be skipped in a workflow run if the required channel data is not stored on the recipient.
-- Knock stores channel data for you but makes no assumptions about whether the stored channel data is valid. That means that if a push token expires, it's your responsibility to omit/update that token for the future notifications.
+- For channel types that require channel data (such as push and chat channels like Slack), the channel step will be skipped in a workflow run if the required channel data is not stored on the recipient.
+- Knock stores channel data for you but makes no assumptions about whether the stored channel data is valid. That means that if a push token expires, it's your responsibility to omit/update that token for future notifications.
 
 ## Setting channel data
 
-Before getting or setting channel data, you must first configure that channel in your environments. You can do this inside the Knock dashboard under "Channels". Once the channel for which you want to store channel data has been created, you're ready to `setChannelData` for your users and objects.
+Before getting or setting channel data, you must first configure that channel in your environments. You can do this inside the Knock dashboard under "Integrations > Channels". Once the channel for which you want to store channel data has been created, you're ready to store the channel data for your users and objects.
 
-### For users
+There are two ways of setting channel data for a given recipient:
+
+1. Explicitly using the set channel data method
+2. Inline through a workflow trigger
+
+Note: channel data always requires a `channelId` which can be obtained in the Dashboard under "Integrations > Channels". A channel ID is always a UUID v4.
+
+### Explicitly setting for users
 
 You can set channel data for a given user using the `users.setChannelData` method. Please note that the channel data will always be overwritten with each `set` call.
 
@@ -32,7 +39,7 @@ In the example below, we're setting a user's device token when they download our
   title="Set channel data for a user"
 />
 
-### For objects
+### Explicitly setting for objects
 
 You can set channel data for a given object using the `objects.setChannelData` method. Please note that the channel data will always be overwritten with each `set` call.
 
@@ -44,8 +51,6 @@ In the example below, we're setting an object's Slack channel ID and access toke
 />
 
 You can learn more about objects in our [concept guide](/send-and-manage-data/objects) and [API reference](/reference#objects).
-
-<br />
 
 <Callout
   mt={4}
@@ -60,6 +65,17 @@ You can learn more about objects in our [concept guide](/send-and-manage-data/ob
       incoming webhook URL.
     </>
   }
+/>
+
+### Setting channel data inline
+
+For both user and object recipients, channel data can be specified inline during a [workflow trigger call](/send-notifications/triggering-workflows#identifying-recipients-inline).
+
+When setting channel data inline for a recipient entity, you must supply the channel data as a dictionary containing the channel ID as a key, and a dictionary of channel data to set for that channel.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-user-channel-data"
+  title="Trigger workflow with inline channel data"
 />
 
 ## Getting channel data
@@ -81,12 +97,20 @@ the channel data is not set for the user/object you'll receive a 404.
   title="Get channel data for an object"
 />
 
+## Clearing channel data
+
+Any previously set channel data can be cleared by issuing an unset channel data call. Unsetting channel data for a recipient requires a valid channel ID to be passed.
+
+<MultiLangCodeBlock
+  snippet="users.unsetChannelData"
+  title="Unset channel data for a user"
+/>
+
 ## Provider data requirements
 
 ### Push channels
 
-Channel data requirements for each push provider are listed below. Typically this means setting
-one or more `tokens` to uniquely identify a users device.
+Channel data requirements for each push provider are listed below. Typically this means setting one or more `tokens` to uniquely identify a user's device.
 
 #### APNS (Apple Push Notification Service)
 
@@ -108,8 +132,6 @@ one or more `tokens` to uniquely identify a users device.
 
 ### Chat app channels
 
-As of today, we only support Slack within our chat channel type. We have support for Discord and Microsoft Teams coming soon.
-
 #### Slack
 
 | Property    | Type              | Description                      |
@@ -124,3 +146,28 @@ A `SlackConnection` has the following schema:
 | channel_id           | string | A Slack channel ID                                                          |
 | user_id              | string | A Slack user ID                                                             |
 | incoming_webhook.url | string | The Slack incoming webhook URL (to be used instead of the properties above) |
+
+#### Discord
+
+| Property    | Type                | Description                        |
+| ----------- | ------------------- | ---------------------------------- |
+| connections | DiscordConnection[] | One or more connections to Discord |
+
+A `DiscordConnection` has the following schema:
+
+| Property             | Type   | Description                                                                   |
+| -------------------- | ------ | ----------------------------------------------------------------------------- |
+| channel_id           | string | A Discord channel ID                                                          |
+| incoming_webhook.url | string | The Discord incoming webhook URL (to be used instead of the properties above) |
+
+#### Microsoft Teams
+
+| Property    | Type                | Description                        |
+| ----------- | ------------------- | ---------------------------------- |
+| connections | MsTeamsConnection[] | One or more connections to MsTeams |
+
+A `MsTeamsConnection` has the following schema:
+
+| Property             | Type   | Description                       |
+| -------------------- | ------ | --------------------------------- |
+| incoming_webhook.url | string | The Ms Teams incoming webhook URL |
