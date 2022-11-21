@@ -104,6 +104,8 @@ const snippets = {
     require("../data/code/workflows/trigger-with-branding-tenant").default,
   "workflows.trigger-with-attachment":
     require("../data/code/workflows/trigger-with-attachment").default,
+  "workflows.trigger-with-user-channel-data":
+    require("../data/code/workflows/trigger-with-user-channel-data").default,
 };
 /* eslint-enable */
 
