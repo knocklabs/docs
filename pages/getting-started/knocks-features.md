@@ -1,6 +1,6 @@
 ---
 title: Knock's features
-description: Understand more of the features available in Knock and how it can help you create a better notifications experience
+description: Learn about the features available in Knock and how they help you ship a better notifications experience.
 tags: ["getting started"]
 section: Getting started
 ---

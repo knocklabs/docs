@@ -1,6 +1,6 @@
 ---
 title: What is Knock?
-description: Learn more about what Knock does, and how Knock can help power your product notifications
+description: Learn more about what Knock does and how it helps power your product notifications.
 tags: ["getting started", "explainer", "explained"]
 section: Getting started
 ---
