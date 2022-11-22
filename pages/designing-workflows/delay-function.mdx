@@ -5,9 +5,9 @@ tags: ["steps", "delays", "wait", "functions"]
 section: Send notifications
 ---
 
-A delay function does just what it sounds like: it delays the execution of the workflow for some amount of time, then proceeds to the next step. There are two types of delays we support in Knock today: "wait for set interval" and "wait until timestamp".
+A delay function does just what it sounds like: it delays the execution of the workflow for some amount of time, then proceeds to the next step. There are two types of delays we support in Knock today: "wait for set interval" and "wait for a dynamic duration".
 
-## Wait for set interval
+## Wait for a set interval
 
 The "wait for set interval" delay type waits for an interval of time (provided by you in the workflow editor) and then proceeds to the next step.
 
@@ -16,29 +16,56 @@ Set interval delay functions are helpful for the following use cases:
 - Check to see if a user's seen or read an in-app message before sending an email
 - Remind a user about a pending invite they haven't accepted
 
-![A workflow using the "wait for set interval" delay function to wait to see if a user's read an in-app message before notifying via email.](/images/functions/functions_delay_interval.png)
+## Wait for a dynamic duration
 
-<figcaption>
-  A workflow using the "wait for set interval" delay function to wait to see if
-  a user's read an in-app message before notifying via email.
-</figcaption>
+You can also set the length of your delay duration dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to set your duration.
 
-## Wait until timestamp
+When specifying a dynamic delay duration you can provide either:
 
-The "wait until timestamp" delay type waits until a specific point in time provided by you in the `data` of your trigger call, then proceeds to the next step.
+- An [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
+- A relative duration unit (e.g `{ "unit": "seconds", "value": 30 }`)
+
+A dynamic duration must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `delayUntil` in your `Data` schema, your workflow trigger data must contain either an ISO-8601 timestamp or a valid duration unit.
+
+```typescript A relative duration
+type Duration = {
+  unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
+  value: number;
+};
+```
 
 Timestamp-based delays are helpful for reminders about resources in your product that need to be completed or addressed by a specific point in time. As an example, if a user has a task that's due three days from now and you want to remind them 24 hours before it's due, you can set a timestamp delay for the task's due date minus 24 hours.
-
-![A workflow using the "wait until timestamp" delay function to remind a user about a pending task. If the task is completed before the workflow resumes, we cancel the workflow so the user doesn't receive an additional notification. ](/images/functions/functions_delay_timestamp.png)
-
-<figcaption>
-  A workflow using the "wait until timestamp" delay function to remind a user
-  about a pending task. If the task is completed before the workflow resumes, we
-  cancel the workflow so the user doesn't receive an additional notification.
-</figcaption>
 
 ## Using workflow cancellation with delays
 
 In cases where you're waiting to see if a user will complete an action before sending a notification, you can use our [workflow cancellation API](/send-notifications/canceling-workflows) to ensure a user doesn't receive an unnecessary reminder.
 
 If the user completes the action you were going to remind them about, cancel the workflow to keep any additional notifications from being sent.
+
+## Frequently asked questions
+
+#### How do I set per-environment delay periods?
+
+Often when you're testing your Knock workflows, you'll want your delay durations to be shorter in non-production environments to aid with testing. To set per-environment delay duration you can:
+
+- Create a new variable under "Developers > Variables" with a relative duration as JSON (`{ "unit": "seconds", "value": 30 }`) and a name of `delayDuration`
+- Set your delay duration to "Wait until a dynamic interval"
+- Specify that your delay duration will come from an environment variable
+- Set the key to `delayDuration`, which will resolve the delay duration from the variable you created
+- You can now override the variable per environment to specify a shorter, or longer window as needed
+
+#### How can I cancel an open delay
+
+You can use the [workflow cancellation API](/send-notifications/canceling-workflows) to cancel a delayed workflow. You must use a unique cancelation key to cancel a previously triggered workflow run.
+
+#### How long can a workflow be delayed?
+
+A workflow can be delayed for a maximum of 365 days (1 year).
+
+#### What are the guarantees around delayed workflows?
+
+Knock will ensure that your delayed workflow run will execute within ~1 - 5s of the delayed time.
+
+#### How can I see delayed workflow runs?
+
+We currently don't have a way to view all delayed workflow runs with pending messages. If this is a feature you need, please reach out as we'd love to hear your use case.
