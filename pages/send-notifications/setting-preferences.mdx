@@ -10,11 +10,11 @@ import Callout from "../../components/Callout";
 
 You can read more about modeling preferences and preferences in general in the [Preferences](/send-and-manage-data/preferences) guide. In the guide below, we walk through the technical details of integrating the Knock preferences model into your product.
 
-Preferences live under a [user](/send-and-manage-data/users) or an [object](/send-and-manage-data/objects) and are used to structure a set of rules about what notifications a recipient should receive (called a `PreferenceSet`). They are designed to be flexible and expressive to accommodate complex scenarios like per-resource, channel preferences (like opting out of an individual Slack channel).
+Preferences live under a [user](/send-and-manage-data/users) or an [object](/send-and-manage-data/objects) and are used to structure a set of rules about what notifications a recipient should receive (called a `PreferenceSet`). They are designed to be flexible and expressive to accommodate complex scenarios like per-resource, and channel preferences (like opting out of an individual Slack channel).
 
 ## Backend integration
 
-In the following examples you'll see how to integrate preferences into your backend codebase.
+In the following examples, you'll see how to integrate preferences into your backend codebase using one of our server-side SDKs.
 
 ### Getting preferences
 
@@ -99,9 +99,33 @@ You can update the preferences of up to 100 users in a single batch by using the
   }
 />
 
+### Setting per-tenant preference sets
+
+By default, all preference sets are set with an `id` of `default`. To set a per-tenant preference set for a user you must pass the `tenant.id` as the `id` of the preference set. At workflow execution time, Knock will select a matching per-tenant preference set for the workflow run when a `tenant` is passed into your workflow trigger.
+
+In the case in which the per-tenant preference set doesn't exist, a [default is selected](/send-and-manage-data/preferences#preference-defaults).
+
+<MultiLangCodeBlock
+  title="Set per-tenant preferences for a user"
+  snippet="users.setPreferences.perTenant"
+/>
+
+### Inline setting preferences
+
+Preferences can also be set for one or more recipients during a workflow trigger using [inline identify](/send-notifications/triggering-workflows#identifying-recipients-inline).
+
+One or more preference sets can be set inline for the recipient during the workflow trigger, including the ability to set **per-tenant preferences** by passing a dictionary of preference sets, where the key in the dictionary is the preference set id.
+
+<MultiLangCodeBlock
+  title="Setting preferences during a workflow trigger"
+  snippet="workflows.trigger-with-user-preferences"
+/>
+
+**Please note**: setting preferences inline will always upsert the preference set, meaning that changes can and will be overriden. Generally, we recommend against using inline preferences, where possible, to ensure the integrity of your data.
+
 ## Client integration
 
-The preferences API can also be invoked from the client, providing you have authenticated a user first and have a valid API token.
+The preferences API can also be invoked from the client, provided you have authenticated a user first and have a valid API token.
 
 **Note**: at this time only the current user's preferences can be retrieved or updated.
 
