@@ -30,6 +30,8 @@ const snippets = {
   "users.setPreferences": require("../data/code/users/set-preferences").default,
   "users.setPreferences.conditions":
     require("../data/code/users/set-preferences-with-conditions").default,
+  "users.setPreferences.perTenant":
+    require("../data/code/users/set-preferences-per-tenant").default,
   "users.bulkSetPreferences": require("../data/code/users/bulk-set-preferences")
     .default,
   "users.getPreferences": require("../data/code/users/get-preferences").default,
@@ -106,6 +108,8 @@ const snippets = {
     require("../data/code/workflows/trigger-with-attachment").default,
   "workflows.trigger-with-user-channel-data":
     require("../data/code/workflows/trigger-with-user-channel-data").default,
+  "workflows.trigger-with-user-preferences":
+    require("../data/code/workflows/trigger-with-user-preferences").default,
 };
 /* eslint-enable */
 
