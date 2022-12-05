@@ -127,6 +127,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/managing-members", title: "Managing members" },
       { slug: "/roles-and-permissions", title: "Roles and permissions" },
       { slug: "/audit-logs", title: "Audit logs" },
+      { slug: "/auto-join", title: "Auto-join" },
     ],
   },
 ];
