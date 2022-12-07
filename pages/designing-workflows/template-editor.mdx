@@ -1,9 +1,11 @@
 ---
 title: The template editor
 description: Learn more about how to design and create powerful cross-channel notification workflows in Knock.
-tags: ["template", "liquid", "steps"]
+tags: ["template", "liquid", "steps", "variants", "localization", "internationalization", "languages"]
 section: Send notifications
 ---
+
+import Callout from "../../components/Callout";
 
 Each channel step you add to a workflow will have its own notification template. This template is what determines what the notifications sent to your user look like for a given channel.
 
@@ -142,14 +144,34 @@ To test your notification, click "save" and navigate back to the workflow canvas
 
 All test runner notifications are tracked under "Messages" and have a source of "Test runner" to distinguish them from notifications you've triggered via the Knock API.
 
-## Adding template variants
+## Using template variants
 
-If you need multiple versions of a template based on the data you trigger a notification with, you can make them within the template editor.
+Template variants are useful when you want to manage multiple templates within a single channel step, where the template used at workflow runtime is defined via a condition (for example: `recipient.locale` is equal to `es`). 
 
-You'll notice that when you create a step, you'll be supplied with a template called "Default". This is the one that will send to all recipients when this step is executed. If you want different variants based on a recipient's locale, you can create them by clicking the plus button next to the "Default" tab. You'll be prompted to select a locale, and then your new variant will be created. Then, you can write it in the language that corresponds to that locale.
+The primary use case for template variants is localization, but you can also use your own custom template variant conditions to power other use cases (such as creating variants of a given tempalte for certain `tenants`).
 
-If your default template variant already has visual elements you'd like to duplicate, you can select "Duplicate variant" from the three-dot menu in the tab header. Keep in mind you'll still have to alter the text to what you'd like it to be, but the entire message contents will be copied to the variant locale you select.
+<Callout
+  emoji="✨"
+  text={
+    <>
+      <span className="font-bold">Growth plan feature.</span> Template variants are a beta feature available on the Growth plan. 
+      <br />
+      <br /> If you're interested in trying this functionality, please shoot us a
+      note at <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
 
-In order for these language variants to be triggered, the recipient must have a key of `locale` that matches the language variant condition. If the recipient's locale does not match any of the configured variants, the default variant will be sent.
+### Powering localization with template variants
 
-You can also edit and delete all template variants except for the default.
+Before you start creating your locale-specific template variants, you need to make sure that you're passing a `locale` key on your identify calls to Knock. We use the `locale` property on your [Knock users schema](/send-and-manage-data/users) to evaluate which template variant we should send to a given recipient. Once your users have a `locale` property in place, you're ready to start creating locale-specific template variants. 
+
+When you get into the template editor, you'll notice that the first is always called "Default". This template will be sent to any recipients without a `locale` or with a `locale` that doesn't map to any of the template variants you've created. 
+
+To add a new template variant for a specific locale, click the plus button next to the "Default" tab. You'll be prompted to select a locale for your new variant. Once your variant is created, you can start writing your template in the language that corresponds to that locale.
+
+If a variant already has visual elements you'd like to duplicate, you can select "Duplicate variant" from the three-dot menu in the tab header. Keep in mind you'll still have to alter the text to what you'd like it to be, but the entire message contents will be copied to the variant locale you select.
+
+### Powering custom template variants
+
+In addition to locale-specific variants, you can create your own custom variants that will evaluate against any condition logic you'd like. This feature is currently in development but if you're interested in participating in the beta please send us a note at <a href="mailto:support@knock.app">support@knock.app</a>.
