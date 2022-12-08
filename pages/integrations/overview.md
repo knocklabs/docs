@@ -1,7 +1,7 @@
 ---
 title: Integrations overview
 description: Learn more about the integrations that Knock supports to send notifications and receive events. Send notifications to Email, SMS, Push, and Chat apps like Slack with a single API call and trigger them via events from your customer data platforms.
-tags: ["sandbox mode", "sandbox", "channel conditions", "channel groups"
+tags: ["sandbox mode", "sandbox", "channel conditions", "channel groups"]
 layout: integrations
 Section: Integrations
 ---
