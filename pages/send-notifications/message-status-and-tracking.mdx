@@ -1,0 +1,68 @@
+---
+title: Message status and tracking
+description: How to use Knock to understand your delivery rates and how your users are engaging with your notifications.
+tags: ["link tracking", "open tracking", "open rates", "link clicks", "delivery status", "engagement status", "deliver rates"]
+section: Send notifications
+---
+
+In this guide we'll cover how Knock manages both delivery and engagement status for the notifications you send using our product. You can use Knock message status to understand both the **delivery status** of your notification (was it successfully delivered to your messaging providers and to your recipient) as well as the **engagement status** of your notification (how did the user engage with it once they received the notification.) 
+
+By the end of this guide you'll understand:
+* How Knock manages notification delivery status
+* How Knock uses engagement status to track open and click rates
+* How to enable open and link tracking with Knock
+
+## Understanding delivery status
+When you trigger a Knock workflow, any channel step within that workflow generates a message. Once a message is generated, Knock manages delivery to the downstream provider (e.g. SendGrid for email delivery) on your behalf. We use **delivery status** to track this delivery process and show you where a given message resides within it. 
+
+Here is an overview of the possible delivery statuses for a message as well as any channel-type-specific notes where applicable. Note that delivery status is mutually exclusive and hierarchical—a message can only have one delivery status at a time and will always progress through its delivery statuses in the order presented below. 
+
+- **Queued.** Your message has been created but it is still queued and waiting to be sent to the provider.
+- **Sent.** Your message has successfully made it from Knock to the delivery provider. It is their responsibility to ensure the message is properly *delivered* to the recipient. We’re waiting for further information to determine if the message was successfully delivered to the user and whether they interacted with it.
+    - Email. Your message made it to the delivery provider. We’re waiting to learn if it made it to recipient.  
+    - In-app. In-app messages automatically skip to `delivered` status as we always successfully deliver the message to the Knock Feed API.
+    - Push. Your message has successfully been sent by Knock to the destination push platform.
+    - SMS. Your message made it to the delivery provider. We’re waiting to learn if it made it to recipient.
+    - Chat. Your message has successfully been sent by Knock to the destination chat platform.
+- **Not sent.** Your message was processed successfully but was not sent to the downstream provider as the channel is configured in [sandbox mode](/integrations/overview#sandbox-mode).
+- **Delivered.** We’ve received confirmation from the delivery provider that your message was successuly sent to the recipient.
+    - Email. Your message was successfully delivered to the recipient’s email service provider.
+    - In-app. Your message was successfully delivered to the recipient’s feed. You can view the message's engagement status to see whether the user has seen the message yet.
+    - Push. We do not support delivery tracking for push. You can set up delivery tracking by introducing a handler into your mobile app to tell Knock when the message has successfully made it to your recipient’s mobile app. Learn more.
+    - SMS. Your message was successfully sent to the recipient’s SMS provider. Note that not all SMS delivery providers support delivery tracking. See Knock [integration guides for SMS deliver providers](/integrations/sms/overview) for more information.
+    - Chat. Delivery tracking is not available for chat platforms. Note that messages that have been “sent” have most likely been “delivered” to the recipient in the chat platform.
+- **Undelivered/failed.** Messages that were not processed successfully and failed to make it from Knock to the delivery provider.
+
+
+## Understanding engagement status
+Once a message has been sent or delivered to a recipient, Knock starts tracking the **engagement status** for that message to understand recipient interaction with it.
+
+There are a few important things to note about engagement status:
+- Channel-dependent configuration. Depending on which channel you're sending messages to, you may need to take additional steps to enable Knock engagement status for a given channel. [TODO: billy to link to where we cover this. maybe a section on where to find open and link tracking for each channel type?]
+- Mutually inclusive. Unlike delivery status, engagement status is mutually inclusive. As an example, an in-app message can have an engagement status of both `seen` and `marked as read`.
+- [TODO: placeholder for where this lives on API... for internal docs we speak to where this lives on messages table but how do our customers view this data??]
+
+Here is an overview of the possible engagement statuses for a messages, as well as a per-channel-type breakdown for each. 
+
+- **Unseen.** Your message has successfully reached the end user but we don’t have confirmation that they’ve seen the message in their inbox/feed/view.
+    - Email. Your message has been successfully sent to the recipient’s email service provider but has not yet been opened. (Note: that if you have not enabled open or link tracking with email, the message engagement status will always be unseen.)
+    - In-app. Your message has not been rendered in the user's in-app feed, meaning the user hasn't seen it yet.
+    - Push. Your message has not been seen or clicked by the user. (Note: if you have not enabled open or link tracking with push, the message engagement status will always be unseen.)
+    - SMS. Your message has not been engaged with by the user. (Note: that if your SMS  message does not have any links or you don’t have link tracking enabled, the SMS message engagement status will always be unseen.)
+    - Chat. The message has not been engaged with by the user. (Note: that if your chat message does not have any links/action or you don’t have link tracking enabled, the chat message engagement status will always be unseen.)
+- **Seen. (In-app only.)** The message has been rendered within the user’s inbox/feed. This is separate from an open, in that it represents the message being seen within larger inbox/feed, and not being opened explicitly on its own. We only track this for Knock in-app surfaces today.
+- **Unread.** The message has not been opened or read by your user.
+- **Opened/marked as read.** The message has been opened and read by your user.
+    - Email. Your message was opened by the recipient. (Note: you must enable [Knock open and link tracking](TODO link to this) to track email opens.)
+    - In-app. The notification has been marked as read by the user.
+    - Push. [TODO - do we support this today or for now do we just include a note that we don't support this?]
+    - SMS. Open tracking not supported. If you are using link tracking for SMS, we will track the open as when the link was clicked.
+    - Chat. Open tracking not supported. If you are using link tracking for SMS, we will track the open as when the link was clicked.
+- **Clicked.** A link/action within your message was clicked by the recipient. (Note: you must enable [Knock open and link tracking](TODO link to this) to track message clicks.)
+    - In-app. For in-app messages where the message is itself a link, message clicks will also count as a click. (Note: that clicking “mark all as read” does not result in a message being marked as clicked, but the default behavior for the Knock in-app feed component is to mark a message as read when it is clicked.)
+- **Unarchived. (In-app only.)** The message has not been marked as archived.
+- **Archived. (In-app only.)** An in-app feed message was archived.
+
+
+## Enabling Knock open and link tracking
+[TODO for billy: should this live under each integration guide section, e.g. /integrations/email/overview. that probably makes sense and then here in this page we can give some context and link to each of those pages]
