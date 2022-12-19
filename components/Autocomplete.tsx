@@ -175,7 +175,7 @@ const Autocomplete = () => {
       </form>
 
       {autocompleteState?.isOpen && (
-        <div className="!w-[500px] !bg-white dark:!bg-gray-800 z-50 aa-Panel">
+        <div className="!w-[500px] !bg-white dark:!bg-gray-800 !p-2 !rounded z-50 aa-Panel">
           {autocompleteState?.collections.map((collection, index) => {
             const { source, items } = collection;
 
