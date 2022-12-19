@@ -105,7 +105,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/vonage", title: "Vonage" },
     ],
   },
-  
+
   {
     title: "Extensions",
     slug: "/integrations/extensions",
