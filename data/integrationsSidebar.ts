@@ -2,6 +2,11 @@ import { SidebarSection } from "./types";
 
 const sidebarContent: SidebarSection[] = [
   {
+    title: "Integrations",
+    slug: "/integrations",
+    pages: [{ slug: "/overview", title: "Overview" }],
+  },
+  {
     title: "Sources",
     slug: "/integrations/sources",
     pages: [
