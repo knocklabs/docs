@@ -16,7 +16,7 @@ You can use the Knock + Datadog integration to stream workflow, channel, and mes
 
 This integration will send a stream of metrics as they happen from your Knock account to your Datadog account. Metrics are prefixed `knock.*` and include success and failure codes. Metrics are tagged (where applicable) by:
 
-- Eenvironment
+- Environment
 - Workflow key
 - Channel type
 - Integration source type
@@ -27,14 +27,14 @@ At this time there is no way to selectively enable specific metrics, however met
 
 ## Installing the integration
 
-1. Visit the integrations page in your Knock dashboard, and click the "Extensions" tab
-2. Click "Configure Datadog"
-3. Enter a Datadog API Key from Datadog's [API Keys](https://app.datadoghq.com/organization-settings/api-keys) page (we recommend creating a dedicated key just for Knock)
-4. Pick the correct site for your Datadog account (visit [Datadog's docs](https://docs.datadoghq.com/getting_started/site/) for more information)
-5. Click "Connect"
+1. Visit the integrations page in your Knock dashboard, and click the "Extensions" tab.
+2. Click "Configure Datadog".
+3. Enter a Datadog API Key from Datadog's [API Keys](https://app.datadoghq.com/organization-settings/api-keys) page (we recommend creating a dedicated key just for Knock).
+4. Pick the correct site for your Datadog account (visit [Datadog's docs](https://docs.datadoghq.com/getting_started/site/) for more information).
+5. Click "Connect".
 
 ## Uninstalling the integration
 
-1. Visit the integrations page in your Knock dashboard, and click the "Extensions" tab
-2. Click the "Disconnect" button for the Datadog extension, and then click "Confirm"
-3. If you created a dedicated Datadog API key for Knock, you can now delete the key from Datadog's [API Keys](https://app.datadoghq.com/organization-settings/api-keys) page
+1. Visit the integrations page in your Knock dashboard, and click the "Extensions" tab.
+2. Click the "Disconnect" button for the Datadog extension, and then click "Confirm".
+3. If you created a dedicated Datadog API key for Knock, you can now delete the key from Datadog's [API Keys](https://app.datadoghq.com/organization-settings/api-keys) page.
