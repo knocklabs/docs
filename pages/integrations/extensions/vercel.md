@@ -2,7 +2,8 @@
 title: Connecting Knock to your Vercel account
 description: Learn more about how to connect Knock with your Vercel account.
 layout: integrations
-Section: Integrations
+tags: ["vercel", "extensions"]
+section: Integrations > Extensions
 ---
 
 You can use the Knock + Vercel integration to easily synchronize your Knock API keys to one or more Vercel projects. You'll find the Knock Vercel integration in the [Vercel marketplace](https://vercel.com/integrations/knock) for you to install.

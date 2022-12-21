@@ -110,6 +110,16 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/vonage", title: "Vonage" },
     ],
   },
+
+  {
+    title: "Extensions",
+    slug: "/integrations/extensions",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/vercel", title: "Vercel" },
+      { slug: "/datadog", title: "Datadog" },
+    ],
+  },
 ];
 
 export default sidebarContent;

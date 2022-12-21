@@ -32,6 +32,13 @@ We support receiving events from customer data platforms which can be configured
 - [Census](/integrations/sources/census)
 - [Polytomic](/integrations/sources/polytomic)
 
+## Platform extensions
+
+Knock can also integrate with other tools for debugging, monitoring, and more, including the following:
+
+- [Vercel](/integrations/extensions/vercel) (synchronize your Knock API keys to one or more Vercel projects)
+- [Datadog](/integrations/extensions/datadog) (receive Knock platform metrics for workflow & channel successes and errors)
+
 ## Per environment configurations
 
 Unlike most parts of the Knock model, your integrations live at the account-level. This means that when you create a new integration in Knock (say, SendGrid), you only have to create it once.
