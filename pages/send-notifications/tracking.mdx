@@ -117,11 +117,29 @@ See the [step conditions guide](/designing-workflows/step-conditions#message-sta
 
 If you use Knock webhooks, you can hook into the `message.read` and `message.link_clicked` events captured via Knock tracking. See the [outbound webhooks guide](/send-and-manage-data/outbound-webhooks) for more details.
 
-## Email open tracking limitations
+## How it works
 
-Knock uses a 1x1 transparent PNG image to power email open tracking. When you enable open tracking for an email channel, we embed a link to this image in the footer of the email message. The URL to load the image contains an identifier we can use to associate the image with the notification. When your recipient opens the email and loads the image for view, we register an open event with the associated message.
+### Link-click tracking
 
-This approach has limitations. For one, it requires your recipients to use an HTML-enabled email client. In addition, many contemporary email providers and applications provide robust user privacy protections that purposefully limit open tracking capabilities. Some providers automatically block remote content (including images); others will cache images after an initial request, limiting our ability to track repeat opens.
+When Knock renders a workflow step template into a notification message, it will additionally wrap URLs as trackable links. When a recipient opens one of these trackable links, Knock will record a link-click event before redirecting the user to the target destination. Knock defers the link-click event capture process, so redirects should be fast.
+
+Knock is able to identify many types of URLs for tracking:
+
+- **Hyperlinks** — Knock will replace HTML anchor tag and Markdown link target URLs with trackable links.
+- **Chat app JSON** — Knock will traverse chat app JSON blobs (e.g. Slack Block Kit) and replace URL cards or anchor tags found within.
+- **Bare URLs** — In Markdown templates, Knock will replace full-form URLs with trackable links wrapping the origin URL. For example, `https://foobar.com/` would become `[https://foobar.com/](<knock-trackable-link>)`.
+
+There are two types of trackable links Knock may generate: standard and short. Standard links encode the target URL (and other event metadata) into a variable-length token added to the link path. Short links instead use a lookup key added to the link that maps to a record of the target URL. The short link lookup key will always be 10-characters in length, with short links always 31-characters long in total.
+
+In both cases, Knock trackable links will use the `https://c.knock.app/` domain.
+
+### Email-open tracking
+
+Knock uses a 1x1 transparent PNG image to power email open tracking, often called a "tracking pixel". When you enable open tracking for an email channel, we embed a link to this image in the footer of the email message. The URL to load the image contains an identifier we can use to associate the image with the notification. When your recipient opens the email and loads the image for view, we register an open event with the associated message.
+
+#### Email-open tracking limitations
+
+Using tracking pixels to record email-open events has limitations. For one, it requires your recipients to use an HTML-enabled email client. In addition, many contemporary email providers and applications provide robust user privacy protections that purposefully limit open tracking capabilities. Some providers automatically block remote content (including images); others will cache images after an initial request, limiting our ability to track repeat opens.
 
 Knock tracking tries to capture email-open events in as many possible cases, while still respecting end-user privacy restrictions.
 
