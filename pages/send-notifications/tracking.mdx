@@ -1,0 +1,178 @@
+---
+title: Link & open tracking
+description: How to use Knock tracking to extend your ability to observe user engagement from right within your Knock account.
+tags: ["link tracking", "open tracking", "open rates", "link clicks"]
+section: Send notifications
+---
+
+import Callout from "../../components/Callout";
+
+## Overview
+
+Knock provides opt-in, provider-agnostic tracking capabilities for your notifications. These are:
+
+- **Link tracking** — Knock will wrap URLs in your notification and capture link-click events before directing your recipient to the destination.
+- **Open tracking** — Currently for email channels only. Knock uses a 1x1 transparent "tracking pixel" to determine when a recipient opens and reads your email notifications.
+
+Many of the providers Knock integrates with offer their own versions of open and link tracking. You can configure your channels to use provider-owned tracking in these cases.
+
+With Knock tracking, you get the same features with cross-channel tracking events surfaced as first-class entities in a single place: your Knock account.
+
+### Availability
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      <span className="font-bold">Knock tracking is currently in beta.</span> If you'd like early access please{" "}
+      <a href="mailto:support@knock.app?subject=Knock tracking">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+<table>
+  <thead>
+    <tr>
+      <th>Channel</th>
+      <th>Link tracking available?</th>
+      <th>Open tracking available?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Email</td>
+      <td>✅</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>In-app feed</td>
+      <td>✅</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Push</td>
+      <td>❌</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>SMS</td>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+    <tr>
+      <td>Chat</td>
+      <td>✅</td>
+      <td>❌</td>
+    </tr>
+  </tbody>
+</table>
+
+## Configuring Knock tracking
+
+You can configure Knock tracking on a per-environment basis, using your channel's [per-environment configurations](/integrations/overview#per-environment-configurations). Open and link tracking will always default to `OFF` when you first create a channel.
+
+![Configuring Knock tracking for an email channel](/images/notifications/knock-tracking-channel-config.png)
+
+<figcaption>Configuring Knock tracking for an email channel.</figcaption>
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">In-app feed channels do not have an open tracking configuration option.</span> In-app feed open tracking is enabled implicitly whenever you use the <a href="/in-app-ui/react/feed"><code>KnockFeedProvider</code> component</a>. If you're building your own in-app feed view with a Knock SDK, then you'll need to manage open tracking yourself by manually marking messages as read.
+    </>
+  }
+/>
+
+### Step-level overrides
+
+You can also configure Knock tracking on a per-workflow level. If a channel step in your workflow supports Knock tracking, you'll see tracking option toggles just below the channel selector form in the workflow editor. These toggles will reflect the environment-level channel configurations you have set until you modify them otherwise.
+
+Step-level overrides allow you to opt-out of tracking for a specific workflow step, or vice versa.
+
+![Configuring Knock tracking for a workflow step](/images/notifications/knock-tracking-step-overrides.png)
+
+<figcaption>Configuring Knock tracking for a workflow step.</figcaption>
+
+## Working with Knock tracking
+
+### Message events
+
+Knock tracking events will be available in the message detail view in the Knock Dashboard.
+
+When open tracking is enabled for an email channel, Knock will capture email-open actions as `message.read` events. You'll see a "Read at" timestamp reflecting the time of latest open event and a "Message read" item in the timeline view for each open action.
+
+When link tracking is enabled, Knock will capture link-click actions as `message.link_clicked` events. You'll see a "Clicked at" timestamp reflecting the time of the latest link-click event and a "Message link clicked" item in the timeline view for each link-click action.
+
+### Link-click trigger conditions
+
+When link tracking is enabled for your channel, you can stitch link-click events into your workflows as a step condition. With the "Message link has been clicked" condition, you can require that at least one link in a previous channel step has been clicked for the current step to execute.
+
+See the [step conditions guide](/designing-workflows/step-conditions#message-status-conditions) for more details.
+
+### Webhooks
+
+If you use Knock webhooks, you can hook into the `message.read` and `message.link_clicked` events captured via Knock tracking. See the [outbound webhooks guide](/send-and-manage-data/outbound-webhooks) for more details.
+
+## Email open tracking limitations
+
+Knock uses a 1x1 transparent PNG image to power email open tracking. When you enable open tracking for an email channel, we embed a link to this image in the footer of the email message. The URL to load the image contains an identifier we can use to associate the image with the notification. When your recipient opens the email and loads the image for view, we register an open event with the associated message.
+
+This approach has limitations. For one, it requires your recipients to use an HTML-enabled email client. In addition, many contemporary email providers and applications provide robust user privacy protections that purposefully limit open tracking capabilities. Some providers automatically block remote content (including images); others will cache images after an initial request, limiting our ability to track repeat opens.
+
+Knock tracking tries to capture email-open events in as many possible cases, while still respecting end-user privacy restrictions.
+
+Here are the email open tracking limitations we are currently aware of:
+
+<table>
+  <thead>
+    <tr>
+      <th>Email provider / app</th>
+      <th>Limitation</th>
+      <th>Effect</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Mail.app (iOS & macOS)</td>
+      <td>Optional remote content blocking</td>
+      <td>When enabled by the recipient, open tracking will not work.</td>
+    </tr>
+    <tr>
+      <td>iCloud Mail</td>
+      <td>Remote content blocking</td>
+      <td>This is enabled by default, and when enabled open tracking will not work.</td>
+    </tr>
+    <tr>
+      <td>Gmail (Android, iOS, Web)</td>
+      <td>Remote image caching</td>
+      <td>Gmail may preload the image, registering a false open event. Repeat email opens may not register.
+      </td>
+    </tr>
+    <tr>
+      <td>Protonmail</td>
+      <td>Remote image caching</td>
+      <td>Images are always preloaded a single time following email delivery. Open tracking will not work.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Video walkthrough
+
+<div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+  <iframe
+    src="https://www.loom.com/embed/dec0e1f7371b456fbb0ebcd0036382b5"
+    frameBorder="0"
+    allowFullscreen
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+    }}
+  ></iframe>
+</div>

@@ -24,6 +24,7 @@ export default class DocsDocument extends Document {
             }}
           />
           <script
+            // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{
               __html: `
           (function(d, u, h, s) {

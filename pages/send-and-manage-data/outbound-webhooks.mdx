@@ -30,31 +30,35 @@ This is the list of events that Knock can use to trigger a webhook:
   rows={[
     [
       "message.sent",
-      "occurs when a message is successfully sent to a channel provider.",
+      "Occurs when a message is successfully sent to a channel provider.",
     ],
     [
       "message.delivered",
-      "occurs when a message is marked as delivered to the user by the provider. This is only available on email providers with delivery tracking enabled.",
+      "Occurs when a message is marked as delivered to the user by the provider. This is only available on email providers with delivery tracking enabled.",
     ],
-    ["message.undelivered", "occurs when a message failed to be delivered."],
-    ["message.seen", "occurs when a message is seen by its recipient."],
+    ["message.undelivered", "Occurs when a message failed to be delivered."],
+    ["message.seen", "Occurs when a message is seen by its recipient."],
     [
       "message.unseen",
-      "occurs when a message is marked unseen by the recipient.",
+      "Occurs when a message is marked unseen by the recipient.",
     ],
     [
       "message.read",
-      "occurs when a message is marked as read by its recipient.",
+      "Occurs when a message is marked as read by its recipient.",
     ],
     [
       "message.unread",
-      "occurs when a message is marked unread by the recipient.",
+      "Occurs when a message is marked unread by the recipient.",
     ],
-    ["message.archived", "occurs when a message is archived by its recipient."],
+    ["message.archived", "Occurs when a message is archived by its recipient."],
     [
       "message.unarchived",
-      "occurs when a message is unarchived by its recipient.",
+      "Occurs when a message is unarchived by its recipient.",
     ],
+    [
+      "message.link_clicked",
+      "Occurs when a link is clicked by the message recipient. This is only available when Knock link tracking is enabled."
+    ]
   ]}
 />
 
@@ -65,6 +69,8 @@ A webhook payload for the message events will always include the message sent an
 ```json A sample event payload
 {
   "__typename": "Event",
+  // The type of event that triggered the webhook
+  "type": "message.sent",
   "created_at": "2022-05-31T17:12:59.958652Z",
   "data": {
     // The message for which this event is being reported
@@ -87,11 +93,16 @@ A webhook payload for the message events will always include the message sent an
       "key": "new-comment",
       "version_id": "f5917d67-8a2f-487d-a544-83cacbdb1cfb"
     },
-    "status": "delivered", // The current status of the message sent
+    // The current status of the message sent
+    "status": "delivered",
     "tenant": null,
     "updated_at": "2022-05-31T17:12:59.942374Z"
   },
-  "type": "message.sent" // The type of event that triggered the webhook
+  // (Optional) additional metadata related to the event
+  "event_data": {
+    "__typename": "EventData",
+    "foo": "bar"
+  }
 }
 ```
 
