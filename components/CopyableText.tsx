@@ -12,7 +12,7 @@ const CopyableText = ({ content, label }) => {
       <button
         type="button"
         onClick={setCopied}
-        className="flex inline h-full items-center font-medium text-[14px] leading-[21px] px-3 py-1 border text-brand hover:text-brand-dark border-brand rounded-md font-semibold md:inline"
+        className="flex inline h-full items-center font-medium text-[14px] leading-[21px] px-3 py-1 border text-brand hover:text-brand-dark border-brand rounded-md font-semibold"
       >
         {label}&nbsp;{isCopied ? <IoCheckmark /> : <IoCopy />}
       </button>
