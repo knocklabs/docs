@@ -7,6 +7,8 @@ section: Integrations > Extensions
 ---
 
 import Callout from "../../../components/Callout";
+import CopyableText from "../../../components/CopyableText";
+import dashboardJson from "./datadog_dashboard.json"
 
 You can use the Knock + Datadog integration to stream workflow, channel, and message metrics from your Knock account to your Datadog account.
 
@@ -47,6 +49,32 @@ At this time there is no way to selectively enable specific metrics, however met
 3. Enter a Datadog API Key from Datadog's [API Keys](https://app.datadoghq.com/organization-settings/api-keys) page (we recommend creating a dedicated key just for Knock).
 4. Pick the correct site for your Datadog account (visit [Datadog's docs](https://docs.datadoghq.com/getting_started/site/) for more information).
 5. Click "Connect".
+
+## Dashboard starter kit
+
+Get started with our Datadog dashboard starter kit to start monitoring Knock metrics with just a few clicks:
+
+1. Visit [Datadog's dashboard list](https://app.datadoghq.com/dashboard/lists) and click "New Dashboard"
+2. Give it a name and click "New Dashboard"
+3. Click the gear icon in the corner of the dashboard and choose "Import dashboard JSON..."
+  - You may need to close the "Add Widgets" tray to see the gear icon
+4. Click the button below to copy the dashboard JSON, and paste it into the Datadog dashboard page when prompted.
+
+<CopyableText label="Copy Dashboard Start Kit JSON" content={JSON.stringify(dashboardJson)} />
+
+## Reported metrics:
+
+All metrics are segmented by `environment` name (e.g. `production`, `development`).
+
+* `knock.message_delivered.total` reports how many messages have been delivered, segmented by `channel`.
+* `knock.message_delivered_error.total` reports how many deliveries ended in failure, segmented by `channel`.
+* `knock.workflow_recipient_run.total` reports how many workflow recipient runs have been started, segmented by `workflow` key.
+* `knock.workflow_recipient_run_error.total` reports how many errors were experienced during a workflow recipient run, segmented by `workflow`. A workflow recipient run can report more than one error.
+* `knock.integration_event_received.total` reports the raw number of events received by Knock from an [integration source](https://docs.knock.app/integrations/sources/overview), segmented by `source_type`.
+* `knock.integration_action_run.total` reports how many actions were triggered by received events, segmented by `source_type` and `action`.
+* `knock.integration_action_run_error.total` reports how many actions failed to run, segmented by `source_type` and `action`.
+
+For each of the error cases, [the Knock dashboard](https://dashboard.knock.app) can provide more insights into specific failures (e.g. misconfigured workflow, channel, or integration action).
 
 ## Uninstalling the integration
 
