@@ -64,6 +64,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/setting-preferences", title: "Setting preferences" },
       { slug: "/setting-channel-data", title: "Setting channel data" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
+      { slug: "/message-statuses", title: "Message statuses" },
       { slug: "/tracking", title: "Link & open tracking" },
       { slug: "/debugging-workflows", title: "Debugging workflows" },
     ],
