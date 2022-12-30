@@ -27,7 +27,7 @@ For certain channel types and where it is supported by the provider, we also imp
 
 - The provider indicated the request is retryable (e.g. there's no delivery status being presented yet)
 - There was an error contacting the provider (e.g. a network connection issue)
-- There was an error in our delivery status checking pipeline
+- There was an error in our delivery status check pipeline
 
 We will retry delivery status checks up to **10 times over a 30-minute window,** utilizing an exponential back-off strategy with jitter.
 
