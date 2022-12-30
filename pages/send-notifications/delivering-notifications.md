@@ -9,7 +9,7 @@ section: Send notifications
 
 When a workflow is executed any [channel steps](/designing-workflows/channel-step) may produce zero or more messages for the recipient to be sent to the selected channel. The message(s) are then sent to the provider via the configuration set on the channel using Knock's resilient sending pipeline which handles any retry logic for you.
 
-## Sending retry logic
+## Send retry logic
 
 Our sending pipeline will handle retrying sending notifications to the underlying provider in the following cases:
 
