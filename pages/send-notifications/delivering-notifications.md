@@ -1,26 +1,38 @@
 ---
 title: Delivering notifications
-description: Knock powers in-app and out-of-app notifications to email, SMS, push, and chat channels like Slack.
-tags: ["delivery", "channels"]
+description: Learn how Knock sends in-app and out-of-app notifications to email, SMS, push, and chat channels (such as Slack).
+tags: ["delivery", "channels", "delivery status", "retry logic", "resilience"]
 section: Send notifications
 ---
 
-You can use Knock to power both in-app and out-of-app notifications.
+## Overview
 
-## In-app notification support
+When a workflow is executed, its [channel steps](/designing-workflows/channel-step) may produce zero or more messages for the workflow run's recipient. Each message is then sent to its channel's provider using Knock's resilient sending pipeline which handles any retry logic for you.
 
-The Knock [Feed API](/reference#feeds) gives developers a way to deliver in-app notifications to feeds, inboxes, and other notification-based experiences.
+## Send retry logic
 
-There are a few ways to power in-app notifications in your product using Knock:
+Our sending pipeline will handle retrying sending notifications to the underlying provider in the following cases:
 
-- **Use our [React notification feed component](https://github.com/knocklabs/react-notification-feed).** The Knock notification feed component provides real-time updates, pagination, badge behavior, filtering, and more. It's a great way to quickly add an in-app feed to your product if you use React.
-- **Leverage our [client-side JS SDK](https://github.com/knocklabs/knock-client-js).** This is a good approach if you need to use a component library outside of React JS but are still in the JS ecosystem.
-- **Integrate with our [API directly](/reference#feeds).** If you're not working within the JS ecosystem in your client, you can integrate directly with the Knock Feed API to power your in-app notifications.
+- There was an error contacting the provider (e.g. a network connection issue)
+- The provider responded indicating there was retryable error (e.g. server overloaded, rate limit exceeded)
+- There was an error in our sending pipeline
 
-## Out-of-app channel support
+We will retry delivery up to **8 times over a 30-minute window**, utilizing an exponential back-off strategy with jitter.
 
-We support notification delivery to the following out-of-app channel types: email, push, SMS, and 3rd-party chat apps (such as Slack.) You can see a list of which providers we support within each channel type in the "Channels" page of the Knock dashboard.
+In the event that a message-sending attempt is retried you will see the [message delivery status](/send-notifications/message-statuses#delivery-status) go from `undelivered` to `queued`.
 
-With Knock, you can integrate a provider once, and then use it across all of your Knock workflows. If you ever need to switch providers on a given channel, it's as simple as configuring the new provider within the Knock dashboard and updating your workflows to use the new provider.
+## Delivery status retry logic
 
-If you use a provider that we don't currently support, please [get in touch](mailto:support@knock.app).
+For certain channel types and where it is supported by the provider, we also implement [delivery status checks](/send-notifications/message-statuses#delivery-status). We will retry a delivery status check in the following cases:
+
+- The provider indicated the request is retryable (e.g. there's no delivery status being presented yet)
+- There was an error contacting the provider (e.g. a network connection issue)
+- There was an error in our delivery status check pipeline
+
+We will retry delivery status checks up to **10 times over a 30-minute window,** utilizing an exponential back-off strategy with jitter.
+
+## Sending logs and debugging
+
+For all out-of-app providers you can find logs of the requests we make and the responses we receive under the "Logs" tab of an individual message in the dashboard. You can use these logs to understand any errors coming from the provider while we were executing your requests.
+
+If you find an error that you cannot fix yourself, please contact [our support team](mailto:support@knock.app) for help.

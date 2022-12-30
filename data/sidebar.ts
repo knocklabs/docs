@@ -36,11 +36,12 @@ const sidebarContent: SidebarSection[] = [
     desc: "Learn how to design notifications using Knock's workflow builder, then explore advanced features such as batching, delays, and more.",
     pages: [
       { slug: "/", title: "Overview" },
-      { slug: "/template-editor", title: "Template editor" },
       { slug: "/batch-function", title: "Batch function" },
       { slug: "/delay-function", title: "Delay function" },
       { slug: "/fetch-function", title: "Fetch function" },
       { slug: "/step-conditions", title: "Step conditions" },
+      { slug: "/channel-step", title: "Channel steps" },
+      { slug: "/template-editor", title: "Template editor" },
       {
         title: "References",
         slug: "/references",
