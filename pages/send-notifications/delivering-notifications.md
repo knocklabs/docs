@@ -1,13 +1,13 @@
 ---
 title: Delivering notifications
-description: Learn how Knock sends in-app and out-of-app notifications to email, SMS, push, and chat channels like Slack.
+description: Learn how Knock sends in-app and out-of-app notifications to email, SMS, push, and chat channels (such as Slack).
 tags: ["delivery", "channels", "delivery status", "retry logic", "resilience"]
 section: Send notifications
 ---
 
 ## Overview
 
-When a workflow is executed any [channel steps](/designing-workflows/channel-step) may produce zero or more messages for the recipient to be sent to the selected channel. The message(s) are then sent to the provider via the configuration set on the channel using Knock's resilient sending pipeline which handles any retry logic for you.
+When a workflow is executed, its [channel steps](/designing-workflows/channel-step) may produce zero or more messages for the workflow run's recipient. Each message is then sent to its channel's provider using Knock's resilient sending pipeline which handles any retry logic for you.
 
 ## Send retry logic
 
