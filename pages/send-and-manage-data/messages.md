@@ -5,8 +5,6 @@ tags: ["messages", "workflows"]
 section: Send & manage data
 ---
 
-import Callout from "../../components/Callout";
-
 ## An overview
 
 A Message in Knock represents a notification delivered to a [User](/send-and-manage-data/users) or an [Object](/send-and-manage-data/objects) on a particular channel. This is the core Knock data entity that your recipients will interact with when receiving notifications.
@@ -32,19 +30,6 @@ Knock captures changes in message status as events that can be sent to [outbound
 To learn more, see our [message statuses guide](/send-notifications/message-statuses).
 
 ## Link and open tracking
-
-<Callout
-  emoji="🚧"
-  text={
-    <>
-      <span className="font-bold">Knock tracking is currently in beta.</span> If you'd like early access please{" "}
-      <a href="mailto:support@knock.app?subject=Knock tracking">
-        get in touch
-      </a>
-      .
-    </>
-  }
-/>
 
 Knock provides opt-in, provider agnostic tracking capabilities for your notifications. With link tracking, Knock will capture link-click actions by your recipients as a message event. With open tracking, Knock will embed tracking pixels in email channel messages to help gauge when recipients are opening and reading your email notifications.
 
