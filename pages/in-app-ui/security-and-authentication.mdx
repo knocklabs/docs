@@ -136,3 +136,25 @@ knockClient.authenticate(currentUser.id, currentUser.knockToken);
 ## Avoiding authentication
 
 You can avoid authentication altogether by proxying requests to Knock via your backend, although we don't recommend this approach as it will add more latency for your users.
+
+## Troubleshooting
+
+### Errors using your Knock signing key
+
+If you are getting errors like
+`secretOrPrivateKey must be an asymmetric key when using RS256`, you may need to
+wrap your signing key in JSON:
+      
+```javascript
+// .env.local
+KNOCK_SIGNING_KEY='{"key": "-----BEGIN RSA PRIVATE KEY-----\nMIIJKgIBA....\n-----END RSA PRIVATE KEY-----\n"}'
+
+/// In your app when you sign your JWT...
+const jwt = require("jsonwebtoken");
+
+// Extract the signing key from the environment variable
+const signingKey = JSON.parse(process.env.KNOCK_SIGNING_KEY).key;
+
+app.use((req, res, next) => {
+// ...
+```
