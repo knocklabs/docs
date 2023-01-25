@@ -50,7 +50,6 @@ const sidebarContent: SidebarSection[] = [
             slug: "/reference-liquid-helpers",
             title: "Liquid helpers",
           },
-          { slug: "/reference-email-layout", title: "Email layout" },
         ],
       },
     ],

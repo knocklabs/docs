@@ -1,11 +1,11 @@
 ---
 title: "Reference: email layout"
 description: A reference guide to help you work with email layouts in Knock.
-tags: ["templates"]
+tags: ["templates", "layouts", "styles", "design system"]
 section: Send notifications
 ---
 
-This is a reference guide of special Knock variables, and generated CSS styles that are used in email layouts.
+This is a reference guide of special Knock variables and generated CSS styles that are used in email layouts.
 
 ## Special Knock variables
 
@@ -18,7 +18,7 @@ There are a few special variables used in email layouts to populate and assemble
 
 ## Generated CSS styles
 
-When you use the [visual template editor](/send-notifications/designing-workflows#visual-editing-with-drag-and-drop-components) to build your email notification template, we auto-generate and include the following CSS styles in the email layout. They provide base styles for certain components, which you can override or extend them as needed.
+When you use the [visual template editor](/send-notifications/designing-workflows#visual-editing-with-drag-and-drop-components) to build your email notification template, we auto-generate and include the following CSS styles in the email layout. They provide base styles for certain components, which you can override or extend as needed.
 
 ```css Base component styles
 /* Button components */
