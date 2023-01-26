@@ -7,27 +7,35 @@ section: Send notifications
 
 ## Overview
 
-When a workflow is executed, its [channel steps](/designing-workflows/channel-step) may produce zero or more messages for the workflow run's recipient. Each message is then sent to its channel's provider using Knock's resilient sending pipeline which handles any retry logic for you.
+When a workflow is executed, its [channel steps](/designing-workflows/channel-step) may produce zero or more messages for the workflow run's recipient. Each message is then sent to its channel's provider using Knock's resilient sending pipeline which handles retries and logging for you.
 
-## Send retry logic
+## Retry logic
 
-Our sending pipeline will handle retrying sending notifications to the underlying provider in the following cases:
+### Send retries
 
-- There was an error contacting the provider (e.g. a network connection issue)
-- The provider responded indicating there was retryable error (e.g. server overloaded, rate limit exceeded)
-- There was an error in our sending pipeline
+We will retry sending notifications to the underlying provider when:
+
+- There is an error contacting the provider (e.g. a network connection issue)
+- The provider responds with a retryable error (e.g. server overloaded, rate limit exceeded)
+- There is a transient error in our sending pipeline
 
 We will retry delivery up to **8 times over a 30-minute window**, utilizing an exponential back-off strategy with jitter.
 
-In the event that a message-sending attempt is retried you will see the [message delivery status](/send-notifications/message-statuses#delivery-status) go from `undelivered` to `queued`.
+We will also change the [message delivery status](/send-notifications/message-statuses#delivery-status) and emit corresponding [message events](/send-notifications/message-statuses#message-events) during this delivery lifecycle. You can expect to see:
 
-## Delivery status retry logic
+- A `queued` status when the message has been enqueued for a delivery attempt.
+- A `delivery_attempted` status when Knock has attempted delivery but it failed. The delivery may or may not be retried.
+- An `undelivered` status when Knock has failed to deliver the message and will not retry (either retries have been exhausted or an unretryable error was encountered).
 
-For certain channel types and where it is supported by the provider, we also implement [delivery status checks](/send-notifications/message-statuses#delivery-status). We will retry a delivery status check in the following cases:
+### Delivery status retries
 
-- The provider indicated the request is retryable (e.g. there's no delivery status being presented yet)
-- There was an error contacting the provider (e.g. a network connection issue)
-- There was an error in our delivery status check pipeline
+For certain channel types and where it is supported by the provider, we will also implement [delivery status](/send-notifications/message-statuses#delivery-status) checks. In these cases, we poll the provider's API to try to confirm delivery.
+
+On success, we will update the message delivery status to `delivered`. We will retry a delivery status check when:
+
+- There is an error contacting the provider (e.g. a network connection issue)
+- The provider indicates the request is retryable (e.g. there's no delivery status being presented yet)
+- There is a transient error in the our delivery status check pipeline
 
 We will retry delivery status checks up to **10 times over a 30-minute window,** utilizing an exponential back-off strategy with jitter.
 
