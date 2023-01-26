@@ -2067,6 +2067,7 @@ A message is a notification delivered on a particular channel to a user.
   <Endpoint method="GET" path="/messages/:id/activities" />
   <Endpoint method="GET" path="/messages/:id/events" />
   <Endpoint method="GET" path="/messages/:id/content" />
+  <Endpoint method="GET" path="/messages/:id/delivery_logs" />
   <Endpoint method="PUT" path="/messages/:id/:status" />
   <Endpoint method="DELETE" path="/messages/:id/:status" />
   <Endpoint method="POST" path="/messages/batch/:status" />
@@ -2343,7 +2344,7 @@ Returns a paginated list of activities associated with the message. Note: for no
     name="before"
     type="string"
     description="The cursor to retrieve items before (hint: use the `__cursor` field)"
-    />
+  />
   <Attribute
     name="trigger_data"
     type="JSON string (optional)"
@@ -2452,6 +2453,90 @@ of message being sent (email, chat, in-app feed, sms and push).**
     "to": "user@example.com"
   },
   "inserted_at": "2021-04-06T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Delivery logs" slug="get-message-delivery-logs">
+<ContentColumn>
+
+Retrieves the delivery logs of a message, generated while sending and checking the delivery status of the message sent to an end provider. Note: for in-app channels, the delivery logs will always be an empty list.
+
+### Endpoint
+
+<Endpoint method="GET" path="/messages/:id/delivery_logs" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="id" type="string" description="The ID of the message" />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before"
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of `MessageDeliveryLog`.
+
+**Note**: the `request` and `response` attributes of the MessageDeliveryLog payload will vary depending on the provider.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "items": [
+    {
+      "__typename": "MessageDeliveryLog",
+      "environment_id": "0b94230b-1eef-4627-9dd5-6ab67b0006b4",
+      "id": "2KYa5b8ptmGEr1J0uX0IcBlC7OE",
+      "inserted_at": "2023-01-19T18:43:07.994259Z",
+      "request": {
+        "body": {},
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "host": "https://api.postmarkapp.com",
+        "method": "POST",
+        "path": "/email",
+        "query": null
+      },
+      "response": {
+        "body": {},
+        "headers": {
+          "content-type": "application/json; charset=utf-8"
+        },
+        "status": 200
+      },
+      "service_name": "Postmark"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
 }
 ```
 

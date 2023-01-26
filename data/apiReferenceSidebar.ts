@@ -116,6 +116,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#get-message-events", title: "Get events" },
       { slug: "#get-message-activities", title: "Get activities" },
       { slug: "#get-message-content", title: "Get content" },
+      { slug: "#get-message-delivery-logs", title: "Get delivery logs" },
       { slug: "#update-message-status", title: "Update status" },
       { slug: "#batch-update-message-status", title: "Batch change status" },
       {
