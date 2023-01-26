@@ -246,8 +246,13 @@ module.exports = withPlugins(
         },
         {
           source: "/send-notifications/reference-email-layout",
-          destination:
+          destination: "/integrations/email/layouts",
+          permanent: true,
+        },
+        {
+          source:
             "/send-notifications/designing-workflows/reference-email-layout",
+          destination: "/integrations/email/layouts",
           permanent: true,
         },
         {
