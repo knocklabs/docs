@@ -312,6 +312,17 @@ module.exports = withPlugins(
           destination: "/designing-workflows/:any",
           permanent: false,
         },
+        {
+          source: "/designing-workflows/references",
+          destination:
+            "/designing-workflows/references/reference-liquid-helpers",
+          permanent: false,
+        },
+        {
+          source: "/getting-started/security",
+          destination: "/security",
+          permanent: false,
+        },
       ];
     },
   },
