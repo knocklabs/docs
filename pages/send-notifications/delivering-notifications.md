@@ -35,7 +35,7 @@ On success, we will update the message delivery status to `delivered`. We will r
 
 - There is an error contacting the provider (e.g. a network connection issue)
 - The provider indicates the request is retryable (e.g. there's no delivery status being presented yet)
-- There is a transient error in the our delivery status check pipeline
+- There is a transient error in the delivery status check pipeline
 
 We will retry delivery status checks up to **10 times over a 30-minute window,** utilizing an exponential back-off strategy with jitter.
 
