@@ -29,7 +29,7 @@ We will also change the [message delivery status](/send-notifications/message-st
 
 ### Delivery status retries
 
-For certain channel types and where it is supported by the provider, we will also implement [delivery status](/send-notifications/message-statuses#delivery-status) checks. In these cases, we poll the provider's API to try to confirm delivery.
+For certain channel types where it is supported by the provider, we run [delivery status](/send-notifications/message-statuses#delivery-status) checks. In these cases, we poll the provider's API to try to confirm delivery.
 
 On success, we will update the message delivery status to `delivered`. We will retry a delivery status check when:
 
