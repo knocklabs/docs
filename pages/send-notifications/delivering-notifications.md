@@ -31,7 +31,7 @@ We will also change the [message delivery status](/send-notifications/message-st
 
 For certain channel types where it is supported by the provider, we run [delivery status](/send-notifications/message-statuses#delivery-status) checks. In these cases, we poll the provider's API to try to confirm delivery.
 
-On success, we will update the message delivery status to `delivered`. We will retry a delivery status check when:
+On success, we update the message delivery status to `delivered`. We retry a delivery status check when:
 
 - There is an error contacting the provider (e.g. a network connection issue)
 - The provider indicates the request is retryable (e.g. there's no delivery status being presented yet)
