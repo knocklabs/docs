@@ -24,7 +24,7 @@ We will retry delivery up to **8 times over a 30-minute window**, utilizing an e
 We will also change the [message delivery status](/send-notifications/message-statuses#delivery-status) and emit corresponding [message events](/send-notifications/message-statuses#message-events) during this delivery lifecycle. You can expect to see:
 
 - A `queued` status when the message has been enqueued for a delivery attempt.
-- A `delivery_attempted` status when Knock has attempted delivery but it failed. The delivery may or may not be retried.
+- A `delivery_attempted` status when Knock has attempted delivery but the attempt has failed. The delivery may or may not be retried.
 - An `undelivered` status when Knock has failed to deliver the message and will not retry (either retries have been exhausted or an unretryable error was encountered).
 
 ### Delivery status retries
