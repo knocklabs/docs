@@ -18,19 +18,43 @@ Knock manages two types of notification statuses:
 
 ### Delivery status
 
-When you trigger a Knock workflow, any channel step within that workflow generates a Message for each recipient. Once the message is generated, Knock manages delivery to the recipient via the downstream provider for your channel (e.g. SendGrid for email delivery) on your behalf. Knock uses delivery status to track this delivery process and show you where a given message resides within it.
+When you trigger a Knock workflow, any channel step within that workflow generates a Message for each recipient. Once the message is generated, Knock manages delivery to the recipient via the downstream provider for your channel (e.g. SendGrid for email delivery). Knock uses delivery statuses to track this lifecycle and show you where a given message resides within it.
 
-You can use the "Logs" tab in the message detail view in the Knock dashboard to examine the history of requests Knock makes to the downstream provider to determine delivery status. These delivery logs can be especially helpful to understand an unexpcted delivery status.
+You can use the "Logs" tab in the message detail view in the Knock dashboard to examine the history of requests Knock makes to the downstream provider to determine delivery status. The "Delivery status" field will show you the current status for your message.
 
-Here is an overview of the possible delivery statuses. Delivery statuses are not uniform across channels, and we highlight these differences they exist. Note that delivery status is mutually exclusive and hierarchical—a message can only have one delivery status at a time and will always progress through its delivery statuses in the order presented below.
+![Knock message delivery status lifecycle](/images/notifications/delivery-status-lifecycle.png)
 
-Delivery status is displayed as the "Status" field in the message detail view in the Knock dashboard.
+<figcaption>
+  Figure 1 — The Knock message delivery status lifecycle.
+</figcaption>
 
-#### 1) Queued
+Figure 1 above illustrates the full delivery status lifecycle. As the diagram implies, a message can only ever have one delivery status at a time. Plus, not all delivery statuses are available to all channels.
 
-Your message has been created but it is still queued and waiting to be sent to the provider.
+Lastly, delivery statuses are also hierarchical. Knock considers certain statuses more precedent than others when performing comparisons for things like [message status conditions](/designing-workflows/step-conditions#message-status-conditions).
 
-#### 2A) Sent
+Below we break down each status in detail (including any channel-specific limitations) in ascending order of precedence.
+
+#### 1) Undelivered
+
+We attempted to deliver your message, we encountered an error, and _we will not retry delivery_. Your message has not made it from Knock to your provider.
+
+You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
+
+#### 2) Delivery attempted
+
+We attempted to deliver your message, but we encountered an error. If we deem the error retryable and we have not hit our retry limit, we will re-enqueue the message for another delivery attempt.
+
+You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
+
+#### 3) Queued
+
+Your message has been created and has been queued to be sent to the provider. This may be the first attempt to deliver the message, or it may be a retry following an error.
+
+#### 4) Not sent
+
+Your message was processed successfully but was not sent to the downstream provider because your channel is in [sandbox mode](/integrations/overview#sandbox-mode).
+
+#### 5) Sent
 
 Your message has successfully made it from Knock to the delivery provider. It is their responsibility to ensure the message is properly _delivered_ to the recipient. Knock may be awaiting further information to determine if the message was successfully delivered.
 
@@ -38,15 +62,11 @@ On a per-channel level, `sent` means that:
 
 - **Chat** — Your message has successfully been sent by Knock to the destination chat platform.
 - **Email** — Your message made it to the delivery provider. We're waiting to learn if it made it to recipient.
-- **In-app** — In-app messages automatically skip to the [`delivered`](#delivered) status. We always successfully deliver the message to the Knock Feed API.
+- **In-app** — In-app messages automatically skip to the [`delivered`](#6-delivered) status. We always successfully deliver the message to the Knock Feed API.
 - **Push** — Your message has successfully been sent by Knock to the destination push platform.
 - **SMS** — Your message made it to the delivery provider. We're waiting to learn if it made it to recipient.
 
-#### 2B) Not sent
-
-Your message was processed successfully but was not sent to the downstream provider because your channel is in [sandbox mode](/integrations/overview#sandbox-mode).
-
-#### 3) Delivered
+#### 6) Delivered
 
 We've received confirmation from the delivery provider that your message was successuly sent to the recipient.
 
@@ -57,10 +77,6 @@ On a per-channel level, `delivered` means that:
 - **Push** — We do not support delivery tracking for push channels, so push channel messages will never have a delivery status greater than `sent`. You can set up delivery tracking by introducing a handler into your mobile app to tell Knock when the message has successfully made it to your recipient's device.
 - **SMS** — Your message was successfully sent to the recipient's SMS provider. Note that not all SMS delivery providers support delivery tracking. See the [Knock integration guides for SMS providers](/integrations/sms/overview) for more information.
 - **Chat** — Delivery tracking is not available for chat platforms, so chat channel messages will never have a delivery status greater than `sent`. In most cases, a `sent` status will also mean that the message has been delivered to the recipient.
-
-#### 4) Undelivered
-
-Your message was not processed successfully and never made it from Knock to the delivery provider. You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider.
 
 ### Engagement status
 
