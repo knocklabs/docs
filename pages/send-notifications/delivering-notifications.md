@@ -15,9 +15,9 @@ When a workflow is executed, its [channel steps](/designing-workflows/channel-st
 
 We will retry sending notifications to the underlying provider when:
 
-- There is an error contacting the provider (e.g. a network connection issue)
-- The provider responds with a retryable error (e.g. server overloaded, rate limit exceeded)
-- There is a transient error in our sending pipeline
+- There is an error contacting the provider (e.g. a network connection issue).
+- The provider responds with a retryable error (e.g. server overloaded, rate limit exceeded).
+- There is a transient error in our sending pipeline.
 
 We will retry delivery up to **8 times over a 30-minute window**, utilizing an exponential back-off strategy with jitter.
 
@@ -33,9 +33,9 @@ For certain channel types where it is supported by the provider, we run [deliver
 
 On success, we update the message delivery status to `delivered`. We retry a delivery status check when:
 
-- There is an error contacting the provider (e.g. a network connection issue)
-- The provider indicates the request is retryable (e.g. there's no delivery status being presented yet)
-- There is a transient error in the delivery status check pipeline
+- There is an error contacting the provider (e.g. a network connection issue).
+- The provider indicates the request is retryable (e.g. there's no delivery status being presented yet).
+- There is a transient error in the delivery status check pipeline.
 
 We will retry delivery status checks up to **10 times over a 30-minute window,** utilizing an exponential back-off strategy with jitter.
 
