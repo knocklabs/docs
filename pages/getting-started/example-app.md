@@ -11,7 +11,7 @@ Below you'll find a number of Knock example apps to learn from or incorporate in
 
 Learn more about integrating Knock into your web application to power in-app notification feed and toast experiences using our [React example app](https://github.com/knocklabs/in-app-notifications-example-nextjs), written in Next.js.
 
-[See a live demo](http://knock-in-app-notifications-react.vercel.app/)
+[See a live demo](https://knock-in-app-notifications-react.vercel.app/)
 
 ## Node.js example app
 
