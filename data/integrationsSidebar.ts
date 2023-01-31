@@ -118,6 +118,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/vercel", title: "Vercel" },
       { slug: "/datadog", title: "Datadog" },
+      { slug: "/segment", title: "Segment" },
     ],
   },
 ];
