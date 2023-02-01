@@ -1,1 +1,636 @@
-{"title":"Knock Notifications","description":"Monitoring for your Knock workflows, messages, integrations, and more.\n\n- [Knock Dashboard](https://dashboard.knock.app)\n- [Knock Status Page](https://status.knock.app)\n- [Knock Docs](https://docs.knock.app)","widgets":[{"id":3911760331202498,"definition":{"title":"Knock Notification Metrics","type":"group","show_title":true,"layout_type":"ordered","widgets":[{"id":197906939294902,"definition":{"title":"[Knock] Messages delivered","title_size":"16","title_align":"left","time":{},"type":"query_value","requests":[{"response_format":"scalar","queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.message_delivered.total{$knock_env}.as_count()","aggregator":"sum"}],"formulas":[{"formula":"default_zero(query1)"}]}],"autoscale":true,"precision":2,"timeseries_background":{"type":"bars"}},"layout":{"x":0,"y":0,"width":2,"height":2}},{"id":7407987258030638,"definition":{"title":"[Knock] Workflow recipient runs","title_size":"16","title_align":"left","time":{},"type":"query_value","requests":[{"response_format":"scalar","queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.workflow_recipient_run.total{$knock_env}.as_count()","aggregator":"sum"}],"formulas":[{"formula":"default_zero(query1)"}]}],"autoscale":true,"precision":2,"timeseries_background":{"type":"bars"}},"layout":{"x":2,"y":0,"width":2,"height":2}},{"id":8204138511644874,"definition":{"title":"[Knock] Total Errors","title_size":"16","title_align":"left","time":{},"type":"query_value","requests":[{"response_format":"scalar","queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.workflow_recipient_run_error.total{$knock_env}","aggregator":"sum"},{"name":"query2","data_source":"metrics","query":"sum:knock.message_delivered_error.total{$knock_env}","aggregator":"sum"},{"name":"query3","data_source":"metrics","query":"sum:knock.integration_action_run_error.total{$knock_env}","aggregator":"sum"}],"conditional_formats":[{"comparator":">","palette":"white_on_red","value":0},{"comparator":"<=","palette":"white_on_green","value":0}],"formulas":[{"formula":"default_zero(query1) + query2 + query3"}]}],"autoscale":true,"precision":2,"timeseries_background":{"type":"bars","yaxis":{}}},"layout":{"x":4,"y":0,"width":2,"height":2}},{"id":6819498257791522,"definition":{"type":"note","content":"Use this dashboard as a starting point for monitoring what Knock is doing for your product.","background_color":"yellow","font_size":"14","text_align":"left","vertical_align":"center","show_tick":true,"tick_pos":"50%","tick_edge":"left","has_padding":true},"layout":{"x":6,"y":0,"width":4,"height":2}},{"id":7856538312056656,"definition":{"title":"[Knock] Workflow recipient runs","title_size":"16","title_align":"left","show_legend":true,"legend_layout":"auto","legend_columns":["avg","min","max","value","sum"],"time":{},"type":"timeseries","requests":[{"formulas":[{"formula":"query1"}],"queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.workflow_recipient_run.total{$knock_env} by {workflow}.as_count()"}],"response_format":"timeseries","style":{"palette":"dog_classic","line_type":"solid","line_width":"normal"},"display_type":"bars"}]},"layout":{"x":0,"y":2,"width":3,"height":2}},{"id":3882746513805190,"definition":{"title":"[Knock] Workflow recipient run errors","title_size":"16","title_align":"left","show_legend":true,"legend_layout":"auto","legend_columns":["avg","min","max","value","sum"],"time":{},"type":"timeseries","requests":[{"formulas":[{"formula":"query1"}],"queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.workflow_recipient_run_error.total{$knock_env} by {workflow}.as_count()"}],"response_format":"timeseries","style":{"palette":"dog_classic","line_type":"solid","line_width":"normal"},"display_type":"bars"}]},"layout":{"x":3,"y":2,"width":3,"height":2}},{"id":4907582727109634,"definition":{"type":"note","content":"When you trigger a workflow with N recipients, it will generate N workflow recipient runs (one WRR per recipient).\n\nErrors may include:\n* Template rendering due to syntax or missing variables\n* Misconfigured channels\n* Data required by a step, but missing in the workflow trigger","background_color":"yellow","font_size":"14","text_align":"left","vertical_align":"center","show_tick":true,"tick_pos":"50%","tick_edge":"left","has_padding":true},"layout":{"x":6,"y":2,"width":4,"height":2}},{"id":1188177802160910,"definition":{"title":"[Knock] Messages delivered","title_size":"16","title_align":"left","show_legend":true,"legend_layout":"auto","legend_columns":["avg","min","max","value","sum"],"time":{},"type":"timeseries","requests":[{"formulas":[{"formula":"query1"}],"queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.message_delivered.total{$knock_env} by {channel}.as_count()"}],"response_format":"timeseries","style":{"palette":"dog_classic","line_type":"solid","line_width":"normal"},"display_type":"bars"}]},"layout":{"x":0,"y":4,"width":3,"height":2}},{"id":7498387103642666,"definition":{"title":"[Knock] Message delivery errors","title_size":"16","title_align":"left","show_legend":true,"legend_layout":"auto","legend_columns":["avg","min","max","value","sum"],"time":{},"type":"timeseries","requests":[{"formulas":[{"formula":"query1"}],"queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.message_delivered_error.total{$knock_env} by {channel}.as_count()"}],"response_format":"timeseries","style":{"palette":"dog_classic","line_type":"solid","line_width":"normal"},"display_type":"bars"}]},"layout":{"x":3,"y":4,"width":3,"height":2}},{"id":7316379611211076,"definition":{"type":"note","content":"Track every message delivered by Knock to a channel, including email, SMS, in-app, push, and chat.\n\nErrors generally are due to channel misconfiguration or downstream service provider issues.","background_color":"yellow","font_size":"14","text_align":"left","vertical_align":"center","show_tick":true,"tick_pos":"50%","tick_edge":"left","has_padding":true},"layout":{"x":6,"y":4,"width":4,"height":2}},{"id":5600937492071776,"definition":{"title":"[Knock] Integration Events Received","title_size":"16","title_align":"left","show_legend":true,"legend_layout":"auto","legend_columns":["avg","min","max","value","sum"],"time":{},"type":"timeseries","requests":[{"formulas":[{"formula":"query1"}],"queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.integration_event_received.total{$knock_env} by {source_type}.as_count()"}],"response_format":"timeseries","style":{"palette":"dog_classic","line_type":"solid","line_width":"normal"},"display_type":"bars"}]},"layout":{"x":0,"y":6,"width":3,"height":2}},{"id":8917748375109464,"definition":{"title":"[Knock] Integration actions run","title_size":"16","title_align":"left","show_legend":true,"legend_layout":"auto","legend_columns":["avg","min","max","value","sum"],"time":{},"type":"timeseries","requests":[{"formulas":[{"formula":"query1"}],"queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.integration_action_run.total{$knock_env} by {source_type,action}.as_count()"}],"response_format":"timeseries","style":{"palette":"dog_classic","line_type":"solid","line_width":"normal"},"display_type":"bars"}]},"layout":{"x":3,"y":6,"width":3,"height":2}},{"id":1947983296404160,"definition":{"title":"[Knock] Integration action run errors","title_size":"16","title_align":"left","show_legend":true,"legend_layout":"auto","legend_columns":["avg","min","max","value","sum"],"time":{},"type":"timeseries","requests":[{"formulas":[{"formula":"query1"}],"queries":[{"name":"query1","data_source":"metrics","query":"sum:knock.integration_action_run_error.total{$knock_env} by {source_type,action}.as_count()"}],"response_format":"timeseries","style":{"palette":"dog_classic","line_type":"solid","line_width":"normal"},"display_type":"bars"}]},"layout":{"x":6,"y":6,"width":3,"height":2}},{"id":8862609295230316,"definition":{"type":"note","content":"Monitor event handling from third-party integration platforms like Segment and Rudderstack.\n\n* Knock will count every message received\n* If a message triggers some action in Knock, that will be recorded, along with errors.","background_color":"yellow","font_size":"14","text_align":"left","vertical_align":"center","show_tick":true,"tick_pos":"50%","tick_edge":"left","has_padding":true},"layout":{"x":9,"y":6,"width":3,"height":2}}]},"layout":{"x":0,"y":0,"width":12,"height":9}}],"template_variables":[{"name":"knock_env","prefix":"environment","available_values":[],"default":"production"}],"layout_type":"ordered","is_read_only":false,"notify_list":[],"reflow_type":"fixed","id":"5ku-sn5-96e"}
+{
+    "title": "Knock Notifications",
+    "description": "Monitoring for your Knock workflows, messages, integrations, and more.\n\n- [Knock Dashboard](https://dashboard.knock.app)\n- [Knock Status Page](https://status.knock.app)\n- [Knock Docs](https://docs.knock.app)",
+    "widgets": [
+        {
+            "id": 3911760331202498,
+            "definition": {
+                "title": "Knock Notification Metrics",
+                "show_title": true,
+                "type": "group",
+                "layout_type": "ordered",
+                "widgets": [
+                    {
+                        "id": 197906939294902,
+                        "definition": {
+                            "title": "[Knock] Messages delivered",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "type": "query_value",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "default_zero(query1)"
+                                        }
+                                    ],
+                                    "response_format": "scalar",
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.message_delivered.total{$knock_env}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1",
+                                            "aggregator": "sum"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "autoscale": true,
+                            "precision": 2,
+                            "timeseries_background": {
+                                "type": "bars"
+                            }
+                        },
+                        "layout": {
+                            "x": 0,
+                            "y": 0,
+                            "width": 2,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 7407987258030638,
+                        "definition": {
+                            "title": "[Knock] Workflow recipient runs",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "type": "query_value",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "default_zero(query1)"
+                                        }
+                                    ],
+                                    "response_format": "scalar",
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.workflow_recipient_run.total{$knock_env}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1",
+                                            "aggregator": "sum"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "autoscale": true,
+                            "precision": 2,
+                            "timeseries_background": {
+                                "type": "bars"
+                            }
+                        },
+                        "layout": {
+                            "x": 2,
+                            "y": 0,
+                            "width": 2,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 8204138511644874,
+                        "definition": {
+                            "title": "[Knock] Total Errors",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "type": "query_value",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "default_zero(query1) + query2 + query3"
+                                        }
+                                    ],
+                                    "conditional_formats": [
+                                        {
+                                            "comparator": ">",
+                                            "palette": "white_on_red",
+                                            "value": 0
+                                        },
+                                        {
+                                            "comparator": "<=",
+                                            "palette": "white_on_green",
+                                            "value": 0
+                                        }
+                                    ],
+                                    "response_format": "scalar",
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.workflow_recipient_run_error.total{$knock_env}",
+                                            "data_source": "metrics",
+                                            "name": "query1",
+                                            "aggregator": "sum"
+                                        },
+                                        {
+                                            "query": "sum:knock.message_delivered_error.total{$knock_env}",
+                                            "data_source": "metrics",
+                                            "name": "query2",
+                                            "aggregator": "sum"
+                                        },
+                                        {
+                                            "query": "sum:knock.integration_action_run_error.total{$knock_env}",
+                                            "data_source": "metrics",
+                                            "name": "query3",
+                                            "aggregator": "sum"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "autoscale": true,
+                            "precision": 2,
+                            "timeseries_background": {
+                                "type": "bars",
+                                "yaxis": {}
+                            }
+                        },
+                        "layout": {
+                            "x": 4,
+                            "y": 0,
+                            "width": 2,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 6819498257791522,
+                        "definition": {
+                            "type": "note",
+                            "content": "Use this dashboard as a starting point for monitoring what Knock is doing for your product.",
+                            "background_color": "yellow",
+                            "font_size": "14",
+                            "text_align": "left",
+                            "vertical_align": "center",
+                            "show_tick": true,
+                            "tick_pos": "50%",
+                            "tick_edge": "left",
+                            "has_padding": true
+                        },
+                        "layout": {
+                            "x": 6,
+                            "y": 0,
+                            "width": 4,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 7856538312056656,
+                        "definition": {
+                            "title": "[Knock] Workflow recipient runs",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "show_legend": true,
+                            "legend_layout": "auto",
+                            "legend_columns": [
+                                "avg",
+                                "min",
+                                "max",
+                                "value",
+                                "sum"
+                            ],
+                            "type": "timeseries",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "query1"
+                                        }
+                                    ],
+                                    "response_format": "timeseries",
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.workflow_recipient_run.total{$knock_env} by {workflow}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1"
+                                        }
+                                    ],
+                                    "style": {
+                                        "palette": "dog_classic",
+                                        "line_type": "solid",
+                                        "line_width": "normal"
+                                    },
+                                    "display_type": "bars"
+                                }
+                            ]
+                        },
+                        "layout": {
+                            "x": 0,
+                            "y": 2,
+                            "width": 3,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 3882746513805190,
+                        "definition": {
+                            "title": "[Knock] Workflow recipient run errors",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "show_legend": true,
+                            "legend_layout": "auto",
+                            "legend_columns": [
+                                "avg",
+                                "min",
+                                "max",
+                                "value",
+                                "sum"
+                            ],
+                            "type": "timeseries",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "query1"
+                                        }
+                                    ],
+                                    "response_format": "timeseries",
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.workflow_recipient_run_error.total{$knock_env} by {workflow}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1"
+                                        }
+                                    ],
+                                    "style": {
+                                        "palette": "dog_classic",
+                                        "line_type": "solid",
+                                        "line_width": "normal"
+                                    },
+                                    "display_type": "bars"
+                                }
+                            ]
+                        },
+                        "layout": {
+                            "x": 3,
+                            "y": 2,
+                            "width": 3,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 4907582727109634,
+                        "definition": {
+                            "type": "note",
+                            "content": "When you trigger a workflow with N recipients, it will generate N workflow recipient runs (one WRR per recipient).\n\nErrors may include:\n* Template rendering due to syntax or missing variables\n* Misconfigured channels\n* Data required by a step, but missing in the workflow trigger",
+                            "background_color": "yellow",
+                            "font_size": "14",
+                            "text_align": "left",
+                            "vertical_align": "center",
+                            "show_tick": true,
+                            "tick_pos": "50%",
+                            "tick_edge": "left",
+                            "has_padding": true
+                        },
+                        "layout": {
+                            "x": 6,
+                            "y": 2,
+                            "width": 4,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 1188177802160910,
+                        "definition": {
+                            "title": "[Knock] Messages delivered",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "show_legend": true,
+                            "legend_layout": "auto",
+                            "legend_columns": [
+                                "avg",
+                                "min",
+                                "max",
+                                "value",
+                                "sum"
+                            ],
+                            "time": {},
+                            "type": "timeseries",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "query1"
+                                        }
+                                    ],
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.message_delivered.total{$knock_env} by {channel,workflow}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1"
+                                        }
+                                    ],
+                                    "response_format": "timeseries",
+                                    "style": {
+                                        "palette": "dog_classic",
+                                        "line_type": "solid",
+                                        "line_width": "normal"
+                                    },
+                                    "display_type": "bars"
+                                }
+                            ]
+                        },
+                        "layout": {
+                            "x": 0,
+                            "y": 4,
+                            "width": 3,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 7498387103642666,
+                        "definition": {
+                            "title": "[Knock] Message delivery errors",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "show_legend": true,
+                            "legend_layout": "auto",
+                            "legend_columns": [
+                                "avg",
+                                "min",
+                                "max",
+                                "value",
+                                "sum"
+                            ],
+                            "type": "timeseries",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "query1"
+                                        }
+                                    ],
+                                    "response_format": "timeseries",
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.message_delivered_error.total{$knock_env} by {channel}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1"
+                                        }
+                                    ],
+                                    "style": {
+                                        "palette": "dog_classic",
+                                        "line_type": "solid",
+                                        "line_width": "normal"
+                                    },
+                                    "display_type": "bars"
+                                }
+                            ]
+                        },
+                        "layout": {
+                            "x": 3,
+                            "y": 4,
+                            "width": 3,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 3686993797175354,
+                        "definition": {
+                            "title": "[Knock] Message delivery retryable errors",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "show_legend": true,
+                            "legend_layout": "auto",
+                            "legend_columns": [
+                                "avg",
+                                "min",
+                                "max",
+                                "value",
+                                "sum"
+                            ],
+                            "time": {},
+                            "type": "timeseries",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "query1"
+                                        }
+                                    ],
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.message_delivered_retryable_error.total{$knock_env} by {channel}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1"
+                                        }
+                                    ],
+                                    "response_format": "timeseries",
+                                    "style": {
+                                        "palette": "dog_classic",
+                                        "line_type": "solid",
+                                        "line_width": "normal"
+                                    },
+                                    "display_type": "bars"
+                                }
+                            ]
+                        },
+                        "layout": {
+                            "x": 6,
+                            "y": 4,
+                            "width": 3,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 7316379611211076,
+                        "definition": {
+                            "type": "note",
+                            "content": "Track every message delivered by Knock to a channel, including email, SMS, in-app, push, and chat.\n\nErrors generally are due to channel misconfiguration or downstream service provider issues.",
+                            "background_color": "yellow",
+                            "font_size": "14",
+                            "text_align": "left",
+                            "vertical_align": "center",
+                            "show_tick": true,
+                            "tick_pos": "50%",
+                            "tick_edge": "left",
+                            "has_padding": true
+                        },
+                        "layout": {
+                            "x": 9,
+                            "y": 4,
+                            "width": 3,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 5600937492071776,
+                        "definition": {
+                            "title": "[Knock] Integration Events Received",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "show_legend": true,
+                            "legend_layout": "auto",
+                            "legend_columns": [
+                                "avg",
+                                "min",
+                                "max",
+                                "value",
+                                "sum"
+                            ],
+                            "type": "timeseries",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "query1"
+                                        }
+                                    ],
+                                    "response_format": "timeseries",
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.integration_event_received.total{$knock_env} by {source_type}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1"
+                                        }
+                                    ],
+                                    "style": {
+                                        "palette": "dog_classic",
+                                        "line_type": "solid",
+                                        "line_width": "normal"
+                                    },
+                                    "display_type": "bars"
+                                }
+                            ]
+                        },
+                        "layout": {
+                            "x": 0,
+                            "y": 6,
+                            "width": 3,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 8917748375109464,
+                        "definition": {
+                            "title": "[Knock] Integration actions run",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "show_legend": true,
+                            "legend_layout": "auto",
+                            "legend_columns": [
+                                "avg",
+                                "min",
+                                "max",
+                                "value",
+                                "sum"
+                            ],
+                            "type": "timeseries",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "query1"
+                                        }
+                                    ],
+                                    "response_format": "timeseries",
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.integration_action_run.total{$knock_env} by {source_type,action}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1"
+                                        }
+                                    ],
+                                    "style": {
+                                        "palette": "dog_classic",
+                                        "line_type": "solid",
+                                        "line_width": "normal"
+                                    },
+                                    "display_type": "bars"
+                                }
+                            ]
+                        },
+                        "layout": {
+                            "x": 3,
+                            "y": 6,
+                            "width": 3,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 1947983296404160,
+                        "definition": {
+                            "title": "[Knock] Integration action run errors",
+                            "title_size": "16",
+                            "title_align": "left",
+                            "show_legend": true,
+                            "legend_layout": "auto",
+                            "legend_columns": [
+                                "avg",
+                                "min",
+                                "max",
+                                "value",
+                                "sum"
+                            ],
+                            "type": "timeseries",
+                            "requests": [
+                                {
+                                    "formulas": [
+                                        {
+                                            "formula": "query1"
+                                        }
+                                    ],
+                                    "response_format": "timeseries",
+                                    "queries": [
+                                        {
+                                            "query": "sum:knock.integration_action_run_error.total{$knock_env} by {source_type,action}.as_count()",
+                                            "data_source": "metrics",
+                                            "name": "query1"
+                                        }
+                                    ],
+                                    "style": {
+                                        "palette": "dog_classic",
+                                        "line_type": "solid",
+                                        "line_width": "normal"
+                                    },
+                                    "display_type": "bars"
+                                }
+                            ]
+                        },
+                        "layout": {
+                            "x": 6,
+                            "y": 6,
+                            "width": 3,
+                            "height": 2
+                        }
+                    },
+                    {
+                        "id": 8862609295230316,
+                        "definition": {
+                            "type": "note",
+                            "content": "Monitor event handling from third-party integration platforms like Segment and Rudderstack.\n\n* Knock will count every message received\n* If a message triggers some action in Knock, that will be recorded, along with errors.",
+                            "background_color": "yellow",
+                            "font_size": "14",
+                            "text_align": "left",
+                            "vertical_align": "center",
+                            "show_tick": true,
+                            "tick_pos": "50%",
+                            "tick_edge": "left",
+                            "has_padding": true
+                        },
+                        "layout": {
+                            "x": 9,
+                            "y": 6,
+                            "width": 3,
+                            "height": 2
+                        }
+                    }
+                ]
+            },
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 12,
+                "height": 9
+            }
+        }
+    ],
+    "template_variables": [
+        {
+            "name": "knock_env",
+            "prefix": "environment",
+            "available_values": [],
+            "default": "production"
+        }
+    ],
+    "layout_type": "ordered",
+    "notify_list": [],
+    "reflow_type": "fixed",
+    "id": "5ku-sn5-96e"
+}
