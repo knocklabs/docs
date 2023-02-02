@@ -42,17 +42,12 @@ A couple other things to note:
 
 ## Environment-based access controls
 
-We recognize the importance of protecting your sensitive data, so we designed Knock from the ground-up to have privacy and security in-mind.
+We recognize the importance of protecting your sensitive data, so we designed Knock from the ground-up with privacy and security in mind.
 
-We have a role-based access control system that allows you to control who can access which environments, and the features available in those environments.
+There are two tools you can use to control access to your data in the Knock dashboard:
+- [Roles and permissions.](/manage-your-account/roles-and-permissions) Knock offers granular roles for the different functions your team members may want to carry out in Knock, such as support team members that need to debug issues for customers but shouldn't be making changes to notification logic. 
+- [Customer data obfuscation.](/manage-your-account/data-obfuscation) You can our per-environment data obfuscation controls to configure whether you want your team members to be able to view customer data in the Knock dashboard. 
 
-Additionally, each environment allows you to control:
-
-1. Whether end user details should be available or obfuscated (defaults to obfuscated in production)
-2. Whether the contents of a message should be displayed (default disabled in production)
-
-These controls are useful as you'll typically want to see this data in your development/test environment for debugging purposes, while in your production you'll want to protect your real end user data from
-most, if not all, employees.
 
 ## Account and environment variables
 
