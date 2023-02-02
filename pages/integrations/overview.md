@@ -36,8 +36,9 @@ We support receiving events from customer data platforms which can be configured
 
 Knock can also integrate with other tools for debugging, monitoring, and more, including the following:
 
-- [Vercel](/integrations/extensions/vercel) (synchronize your Knock API keys to one or more Vercel projects)
-- [Datadog](/integrations/extensions/datadog) (receive Knock platform metrics for workflow & channel successes and errors)
+- [Datadog](/integrations/extensions/datadog). Receive Knock platform metrics for workflow & channel successes and errors.
+- [Segment](/integrations/extensions/segment). Send Knock notification events to downstream analytics tools.
+- [Vercel](/integrations/extensions/vercel). Synchronize your Knock API keys to one or more Vercel projects.
 
 ## Per environment configurations
 
