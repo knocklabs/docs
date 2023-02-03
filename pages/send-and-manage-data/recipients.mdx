@@ -1,0 +1,128 @@
+---
+title: Recipients
+description: A Recipient in Knock represents a person or a non-user entity that may wish to receive notifications.
+tags: ["RecipientIdentifier", "recipient", "user"]
+section: Send & manage data
+---
+
+A Recipient within Knock is any [User](/send-and-manage-data/users) or [Object](/send-and-manage-data/objects) that may wish to receive notifications. Knock persists information about recipients to send those recipients notifications and give a single source of truth for the notifications sent for debugging and logging purposes.
+
+Recipients have:
+
+- **Identifiers**: a string from your system that uniquely represents the recipient
+- **Properties**: structured and unstructured data for the recipient, including but not limited to the name, email, and phone number
+- **Preferences**: describing the rules in which they should or should not receive notifications
+- **Channel data**: data in order to send a recipient a notification on a particular channel, like tokens for sending push notifications to a given channel or access tokens to send notifications to a chat channel like Slack
+
+## `RecipientIdentifier` definiton
+
+A recipient identifier can be one of:
+
+- A string user ID for a previously identified user (`user-1`)
+- An object reference dictionary (`{ "collection": "my-collection", "id": "object-1" }`) for a previously identified object
+- A dictionary containing a recipient to be [identified inline](#inline-identifying-recipients)
+
+This can be expressed as the following type:
+
+```typescript
+type RecipientIdentifier =
+  | string
+  | { collection: string; id: string }
+  | Record<string, any>;
+```
+
+## Ahead of time identifying recipients
+
+Recipients should be `identified` to Knock so that Knock can execute workflows for those recipients. You can see more in the documentation for both users and objects on how to individually and bulk identify.
+
+- [Identifying users](/send-and-manage-data/users#1-individual-identification)
+- [Identifying objects](/send-and-manage-data/objects#1-set-individual-objects)
+
+## Inline identifying recipients
+
+During a workflow trigger or when subscribing a recipient to an object a recipient can be passed **inline**, which causes Knock to first create or update the recipient.
+
+```json An example list of recipients to be identified inline
+{
+  "recipients": [
+    {
+      "id": "esattler",
+      "name": "Ellie Sattler",
+      "email": "esattler@ingen.net"
+    },
+    {
+      "id": "dnedry",
+      "name": "Dennis Nedry",
+      "email": "dnedry@ingen.net"
+    }
+  ]
+}
+```
+
+In the example above, when this set of recipients are passed to Knock we would first upsert the two users passed in, creating or replacing the properties sent.
+
+### Setting preferences inline
+
+When inline identifying a recipient, one or more [preference sets](/send-and-manage-data/preferences) can also be supplied for the recipient, upserting any existing preferences set for the recipient.
+
+```json An example of inline identifying a recipient with a preference set
+{
+  "recipients": [
+    {
+      "id": "esattler",
+      "name": "Ellie Sattler",
+      "email": "esattler@ingen.net",
+      "preferences": {
+        "default": {
+          "channel_types": {
+            "email": false
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+**Note**: the preference set `id` must always be supplied in the dictionary of preferences sent, which in the example above is `default`.
+
+### Setting channel data inline
+
+Along with preferences, [channel data](/send-notifications/setting-channel-daa) can also be specified inline along with a `RecipientIdentifier`, replacing any existing channel data set for the channels given.
+
+```json An example of inline identifying a recipient with channel data
+{
+  "recipients": [
+    {
+      "id": "esattler",
+      "name": "Ellie Sattler",
+      "email": "esattler@ingen.net",
+      "channel_data": {
+        "4672d685-c586-4ec6-ad88-52185262af97": {
+          "tokens": ["apns-push-token"]
+        }
+      }
+    }
+  ]
+}
+```
+
+**Note**: the channel id must be the key in the channel data dictionary and resolve to a valid channel that you have created within Knock.
+
+## Managing lists of recipients
+
+You can use our [Subscriptions](/send-and-manage-data/subscriptions) feature to create a Knock-managed list of recipients that should be notified. Subscriptions are useful for modeling pub/sub behavior.
+
+## Frequently asked questions
+
+#### Is there a limit on the number of recipients I can have in Knock?
+
+No, there's no limit on the number of recipients you can have within Knock.
+
+#### Why would I need a non-user recipient?
+
+We support non-user entities (Objects) receiving notifications in Knock because not all notifications are always delivered to individuals. For example, consider sending a Slack notification to a channel. That notification is never delivered to a user but instead sent to an entity that connects Slack and your system (like a Project or a Team).
+
+#### Is there a limit to the size of the properties I can pass on a recipient to Knock?
+
+Currently, there's no limit to the size of the properties you can add to a recipient. We reserve the right to impose a limit here in the future, however.

@@ -25,7 +25,7 @@ It's important to realize that triggering a workflow in Knock may result in no m
 
 ## Triggering workflows
 
-Workflows are triggered via a call to the `trigger` endpoint, which tells Knock to run a specified payload of `recipients` and `data` through the workflow specified by the call.
+Workflows are triggered via a call to the `trigger` endpoint, which tells Knock to run a specified payload of [Recipients](/send-and-manage-data/recipients) and `data` through the workflow specified by the call.
 
 <MultiLangCodeBlock
   snippet="workflows.trigger"
@@ -77,6 +77,24 @@ Triggering a workflow will always return a unique UUID v4 representing the workf
   }
 />
 
+## Triggering a workflow for multiple recipients
+
+You can always pass an array of **multiple recipients** to Knock, which will cause Knock to execute a **workflow run for each recipient** that you've passed in.
+
+Please note: there's a maximum of 1000 recipients that can be passed to a workflow trigger at a time.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      If you need to manage a large list of recipients you might want to
+      consider using our{" "}
+      <a href="/send-and-manage-data/subscriptions">subscriptions feature</a> to
+      have Knock manage the set of recipients who need to be notified instead.
+    </>
+  }
+/>
+
 ## Attributing the action to a user or object
 
 Knock supports passing an `actor` in your workflow trigger calls, which allows you to attribute the workflow trigger to an individual recipient (user or object).
@@ -94,11 +112,9 @@ Calling a workflow trigger with an actor will have the following effect:
 
 ## Passing data
 
-You can also pass the schema data required by the workflow into the `trigger` call. The
-payload must be a valid JSON object, with nested objects and arrays supported.
+You can also pass the schema data required by the workflow into the `trigger` call. The payload must be a valid JSON object, with nested objects and arrays supported.
 
-The data requirements for the payload are determined in the workflow builder, including
-indicating which keys are required.
+The data requirements for the payload are determined in the workflow builder, including indicating which keys are required.
 
 ## Generating a cancellation key
 
@@ -177,4 +193,13 @@ Remember, an object can also be an `actor` of a workflow as well!
 <MultiLangCodeBlock
   snippet="workflows.trigger-with-object-as-actor"
   title="Workflow trigger with an object as an actor"
+/>
+
+## Triggering workflows to subscribers of an object
+
+You may also wish to fan out a workflow trigger to all [subscribers of an object](/send-and-manage-data/subscriptions). You can do so by passing the object that has subscribers associated as a recipient:
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-object-as-recipient"
+  title="Workflow trigger with an object as a recipient"
 />

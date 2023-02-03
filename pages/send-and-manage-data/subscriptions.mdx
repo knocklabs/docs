@@ -1,0 +1,133 @@
+---
+title: Subcriptions
+description: Learn how to use subscriptions to manage lists of recipients who can be notified from a workflow trigger
+tags:
+  [
+    "subscriptions",
+    "tenancy",
+    "saas",
+    "how knock works",
+    "custom brand",
+    "branding",
+  ]
+section: Send & manage data
+---
+
+import Callout from "../../components/Callout";
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      Subscriptions are currently in beta. If you'd like early access, please{" "}
+      <a href="mailto:support@knock.app?subject=Subscriptions beta">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+Subscriptions are an extension to [Objects](/send-and-manage-data/objects) and express the relationship between a [Recipient](/send-and-manage-data/recipients) (the subscriber) and an Object.
+
+You can use subscriptions for:
+
+- Creating notifications for a large number of recipients (e.g. all users of your product)
+- Alerting use cases, where users can opt into and out of an alert
+- Publish/subscribe models where you want to fan out to a set of users subscribed to a topic
+
+Any Object within Knock can be subscribed to by one or more recipients, and the entire set of subscribers can be notified by triggering a workflow for the object, without you needing to keep the relationship data within your system of who is subscribed to what.
+
+## How subscriptions work
+
+1. Identify an object in a collection that represents the topic, or entity you wish to subscribe recipients to
+2. Subscribe one or more recipients to the object by creating a subscription between the recipient and the object
+3. Trigger a workflow for the object
+
+On step #3, Knock will handle the fan out of the workflow trigger **to all recipients that are subscribed to the workflow**, automatically enqueuing a workflow run for the recipient on your behalf.
+
+## Integrating subscriptions
+
+Note: for all of the examples below you will need to have an [object identified within Knock](/send-and-manage-data/objects#1-set-individual-objects). In our examples below, we create an object under a `project_alerts` collection with an id `project-1`.
+
+[Go to API documentation →](/reference#subscriptions)
+
+### Subscribing recipients to an object
+
+Subscribing a recipient to an object creates an `ObjectSubscription` entity describing the relationship between the `Recipient` and the `Object`.
+
+You can subscribe up to 100 recipients to an object at a time by passing one or more `RecipientIdentifiers`. Similar to workflow triggers, a recipient can be inline-identified while being subscribed.
+
+```javascript Subscribing multiple recipients to an object
+await knock.objects.addSubscriptions("project_alerts", "project-1", {
+  recipients: ["esattler", "dnedry"],
+  properties: {
+    // Optionally set other properties on the subscription for each recipient
+  },
+});
+```
+
+### Unsubscribing recipients from an object
+
+To remove one or more recipients (up to 100) from an object, you can pass a list of recipient identifiers.
+
+```javascript Triggering a workflow for all subscribers of an object
+await knock.objects.removeSubscriptions("project_alerts", "project-1", {
+  recipients: ["esattler", "dnedry"],
+});
+```
+
+### Triggering a workflow for all subscribers of an object
+
+By default when you trigger a workflow for an object that has subscriptions attached Knock will fan out to all subscribers and enqueue a new workflow run for that recipient, with the information passed into the workflow trigger.
+
+```javascript Triggering a workflow for all subscribers of an object
+await knock.workflows.trigger("alert-workflow", {
+  recipients: [{ collection: "project_alerts", id: "project-1" }],
+  data: {
+    // Data to be passed to all workflow runs
+  },
+});
+```
+
+### Retrieving subscriptions for an object
+
+You can retrieve a paginated list of subscriptions for an object, which will return the `recipient` subscribed as well.
+
+```javascript Retrieving a paginated list of subscriptions for an object
+const { entries, page_info: pageInfo } = await knock.objects.listSubscribers(
+  "project_alerts",
+  "project-1",
+  { after: null },
+);
+```
+
+## Frequently asked questions
+
+#### What's the maximum number of subscribers I can have against an object?
+
+There's no upper bound in the number of subscribers you can have against a recipient, although you can only **manage** 100 recipients on an object at a time using our API.
+
+#### Can I have nested relationships for my objects?
+
+Yes! An object with subscribers _can also_ be subscribed to a parent object, allowing you to create nested hierarchies of objects (like a Team has many Projects, and each Project has many Members).
+
+#### Can I manage subscribers to an object in the dashboard?
+
+Right now, you can only **view** the subscribers of an object in the dashboard. You can do so under "Objects > Subscriptions".
+
+#### Can I set custom properties on a Subscription?
+
+Yes, you can pass a set of `properties`, which is a set of unstructured key-value pairs that you set any arbitrary data about.
+
+#### Can I filter the set of Subscriptions to be notified?
+
+Right now the answer is no, but we're interested in hearing about your use case here as we're considering adding this functionality in the future.
+
+#### Can I still debug workflow runs for the subscribers of an object?
+
+Yes, you can. Once you trigger a workflow for an object that has subscribers attached, you will see a workflow run for each of the subscribers under the "Workflow runs" page.
+
+#### Can I notify both the object AND the subscribers of the object?
+
+Yes, by default when you trigger a workflow for an object that has subscriptions attached Knock will generate a workflow run for the object itself AND all of the attached subscribers.

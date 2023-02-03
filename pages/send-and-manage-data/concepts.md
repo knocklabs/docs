@@ -51,6 +51,14 @@ Tenants represent segments your users belong to. You might call these "accounts,
 
 [API reference →](/reference#tenants)
 
+## Subscriptions
+
+A subscription represents a relationship between a non-user entity (an Object) and a Recipient (the subscriber). Subscriptions are used to model pub/sub behavior and lists of recipients that Knock will automatically fan out a workflow trigger to on your behalf.
+
+[Learn more →](/send-and-manage-data/subscriptions)
+
+[API reference →](/reference#subscriptions)
+
 ## Messages
 
 A message in Knock represents a notification delivered to a recipient on a particular channel. Messages contain information about the request that triggered its delivery, a view of the data sent to the recipient, and a timeline of its lifecycle events.
@@ -64,4 +72,3 @@ A message in Knock represents a notification delivered to a recipient on a parti
 You can configure Knock to make requests to your own backend with data about events happening in your Knock account. Knock scopes webhooks to a single environment and they notify on message lifecycle event changes.
 
 [Learn more →](/send-and-manage-data/outbound-webhooks)
-
