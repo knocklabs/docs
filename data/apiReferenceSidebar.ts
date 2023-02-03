@@ -107,6 +107,17 @@ const sidebarContent: SidebarSection[] = [
   },
 
   {
+    title: "Subscriptions",
+    slug: "/reference",
+    pages: [
+      { slug: "#subscriptions", title: "Overview" },
+      { slug: "#list-subscriptions", title: "List subscriptions" },
+      { slug: "#add-subscriptions", title: "Add subscriptions" },
+      { slug: "#delete-subscriptions", title: "Delete subscriptions" },
+    ],
+  },
+
+  {
     title: "Messages",
     slug: "/reference",
     pages: [

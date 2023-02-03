@@ -1537,19 +1537,20 @@ Sets channel data for the user and the channel specified.
   <Attribute
     name="data"
     type="object"
-    description=
-    {
-    <p>
-      The data to set for the specified <code>channel_id</code>. The shape of the payload varies depending on the channel. You can learn more about channel data schemas
-      {" "}<a
-        href="/send-notifications/setting-channel-data#provider-data-requirements"
-        className="text-brand underline"
-      >
-        here
-      </a>
-      .
-    </p>
-  }
+    description={
+      <p>
+        The data to set for the specified <code>channel_id</code>. The shape of
+        the payload varies depending on the channel. You can learn more about
+        channel data schemas{" "}
+        <a
+          href="/send-notifications/setting-channel-data#provider-data-requirements"
+          className="text-brand underline"
+        >
+          here
+        </a>
+        .
+      </p>
+    }
   />
 </Attributes>
 
@@ -1697,17 +1698,19 @@ Sets channel data for the object and the channel specified.
     name="data"
     type="object"
     description={
-    <p>
-      The data to set for the specified <code>channel_id</code>. The shape of the payload varies depending on the channel. You can learn more about channel data schemas
-      {" "}<a
-        href="/send-notifications/setting-channel-data#provider-data-requirements"
-        className="text-brand underline"
-      >
-        here
-      </a>
-      .
-    </p>
-  }
+      <p>
+        The data to set for the specified <code>channel_id</code>. The shape of
+        the payload varies depending on the channel. You can learn more about
+        channel data schemas{" "}
+        <a
+          href="/send-notifications/setting-channel-data#provider-data-requirements"
+          className="text-brand underline"
+        >
+          here
+        </a>
+        .
+      </p>
+    }
   />
 </Attributes>
 
@@ -3563,5 +3566,304 @@ No response.
   snippet="tenants.delete"
   title="Delete tenant from an environment"
 />
+</ExampleColumn>
+</Section>
+
+<Section title="Subscriptions" slug="subscriptions">
+<ContentColumn>
+
+A subscription represents the relationship between a recipient (the subscriber) and an object.
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="properties"
+    type="object"
+    description="An object of key-value pairs for attributes you want to associate with the subscription."
+  />
+  <Attribute
+    name="recipient"
+    type="object"
+    description="A user or an object associated with this subscription"
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint
+    name="list-subscriptions"
+    method="GET"
+    path="/objects/:collection/:id/subscriptions"
+  />
+  <Endpoint
+    name="add-subscriptions"
+    method="POST"
+    path="/objects/:collection/:id/subscriptions"
+  />
+  <Endpoint
+    name="delete-subscriptions"
+    method="DELETE"
+    path="/objects/:collection/:id/subscriptions"
+  />
+</Endpoints>
+
+```json Tenant
+{
+  "__typename": "ObjectSubscription",
+  "properties": {
+    "role": "ADMIN"
+  },
+  "recipient": {
+    "__typename": "User",
+    "id": "dnedry",
+    "name": "Dennis Nedry",
+    "email": "dnedry@ingen.net"
+  },
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List subscriptons" slug="list-subscriptions">
+<ContentColumn>
+
+Lists all subscriptions for an object. Will return the underlying recipient attached. Note: the object must exist.
+
+### Endpoint
+
+<Endpoint
+  name="list-subscriptions"
+  method="GET"
+  path="/objects/:collection/:id/subscriptions"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="A collection that the object belongs to"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="The unique identifier of the object in the collection"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before"
+  />
+</Attributes>
+
+### Response
+
+A paginated list response
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "ObjectSubscription",
+      "properties": {
+        "role": "ADMIN"
+      },
+      "recipient": {
+        "__typename": "User",
+        "id": "dnedry",
+        "name": "Dennis Nedry",
+        "email": "dnedry@ingen.net"
+      },
+      "inserted_at": "2021-03-05T12:00:00Z",
+      "updated_at": "2021-03-05T12:00:00Z"
+    }
+  ],
+  "page_info": {
+    "after": null,
+    "before": null,
+    "page_size": 25
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Add subscriptons" slug="add-subscriptions">
+<ContentColumn>
+
+Adds one or more recipients as subscribers to the object by creating subscriptions.
+
+### Endpoint
+
+<Endpoint
+  name="add-subscriptions"
+  method="POST"
+  path="/objects/:collection/:id/subscriptions"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="A collection that the object belongs to"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="The unique identifier of the object in the collection"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="recipients"
+    type="RecipientIdentifier[]"
+    description="A list of recipient identifers"
+  />
+  <Attribute
+    name="properties"
+    type="map (optional)"
+    description="An optional set of key-value pairs to associate with the subscriptions"
+  />
+</Attributes>
+
+### Response
+
+A list of created `ObjectSubscription`
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Request
+{
+  "recipients": ["dnedry"],
+  "properties": {
+    "role": "ADMIN"
+  }
+}
+```
+
+```json Response
+[
+  {
+    "__typename": "ObjectSubscription",
+    "properties": {
+      "role": "ADMIN"
+    },
+    "recipient": {
+      "__typename": "User",
+      "id": "dnedry",
+      "name": "Dennis Nedry",
+      "email": "dnedry@ingen.net"
+    },
+    "inserted_at": "2021-03-05T12:00:00Z",
+    "updated_at": "2021-03-05T12:00:00Z"
+  }
+]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Delete subscriptons" slug="delete-subscriptions">
+<ContentColumn>
+
+Removes one or more recipients as subscribers to the object.
+
+### Endpoint
+
+<Endpoint
+  name="delet-subscriptions"
+  method="DELETE"
+  path="/objects/:collection/:id/subscriptions"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="A collection that the object belongs to"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="The unique identifier of the object in the collection"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="recipients"
+    type="RecipientIdentifier[]"
+    description="A list of recipient identifers"
+  />
+</Attributes>
+
+### Response
+
+A list of deleted `ObjectSubscription`
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Request
+{
+  "recipients": ["dnedry"]
+}
+```
+
+```json Response
+[
+  {
+    "__typename": "ObjectSubscription",
+    "properties": {
+      "role": "ADMIN"
+    },
+    "recipient": {
+      "__typename": "User",
+      "id": "dnedry",
+      "name": "Dennis Nedry",
+      "email": "dnedry@ingen.net"
+    },
+    "inserted_at": "2021-03-05T12:00:00Z",
+    "updated_at": "2021-03-05T12:00:00Z"
+  }
+]
+```
+
 </ExampleColumn>
 </Section>
