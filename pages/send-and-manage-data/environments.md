@@ -1,7 +1,7 @@
 ---
 title: Environments
 description: Learn about how Knock's isolated environment model works and how it fits into your system development lifecycle.
-tags: ["how knock works", "branches", "env", "version control", "versions"]
+tags: ["how knock works", "branches", "env", "version control", "versions", "variables"]
 section: Send & manage data
 ---
 
