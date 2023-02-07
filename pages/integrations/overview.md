@@ -62,7 +62,7 @@ Sandbox mode is supported across all channel types and can be enabled from the e
 
 ### Channel conditions
 
-You can use channel conditions to place a [condition](/send-notifications/designing-workflows/step-conditions) on all instances of a channel within a given environment. As an example, if you want to ensure that your email channel only sends to recipients from your domain when it's executing in your staging environment, a channel-level condition would be great way to do that. 
+You can use channel conditions to place a [condition](/send-notifications/designing-workflows/step-conditions) on all instances of a channel within a given environment. As an example, if you want to ensure that your email channel only sends to recipients from your domain when it's executing in your staging environment, a channel-level condition would be great way to do that.
 
 To add a condition to a channel's environment configuration, navigate to that channel under "Integrations > Channels" and then click "edit configuration".
 
@@ -78,18 +78,17 @@ Channel groups solve this problem. With a channel group, you can combine multipl
 
 Here are the providers we currently support within Knock. We're adding more each week. If you want us to add a new provider to this list, please let us know through the feedback button at the top of this page.
 
-### Customer data platforms
-
-- [Segment](/integrations/sources/segment)
-- [Rudderstack](/integrations/sources/rudderstack)
-
 ### Email
 
 - [AWS SES](/integrations/email/aws-ses)
+- [Mailersend](/integrations/email/mailersend)
 - [Mailgun](/integrations/email/mailgun)
 - [Mailjet](/integrations/email/mailjet)
+- [Mandrill](/integrations/email/mandrill)
 - [Postmark](/integrations/email/postmark)
+- [Resend](/integrations/email/resend)
 - [Sendgrid](/integrations/email/sendgrid)
+- [Sparkpost](/integrations/email/sparkpost)
 
 ### Push
 
@@ -99,8 +98,15 @@ Here are the providers we currently support within Knock. We're adding more each
 
 ### SMS
 
+- [Africa's Talking](/integrations/sms/africas-talking)
+- [AWS SNS](/integrations/sms/aws-sns)
+- [Mailersend](/integrations/sms/mailersend)
+- [MessageBird](/integrations/sms/messagebird)
+- [Plivo](/integrations/sms/plivo)
+- [Sinch](/integrations/sms/sinch)
 - [Telnyx](/integrations/sms/telnyx)
 - [Twilio](/integrations/sms/twilio)
+- [Vonage](/integrations/sms/vonage)
 
 ### Chat apps
 
