@@ -117,7 +117,7 @@ const Autocomplete = () => {
     [],
   );
 
-  useHotkeys("/", (e) => {
+  useHotkeys("/, cmd+k", (e) => {
     // adding small timeout so event doesn't get to the focused input resulting
     // in "/" being displayed on the input
     e.preventDefault();
