@@ -9,5 +9,6 @@ Knock integrates with popular third-party platforms, enabling new functionality 
 
 - [Vercel](/integrations/extensions/vercel)
 - [Datadog](/integrations/extensions/datadog)
+- [Segment](/integrations/extensions/segment)
 
 If you want us to add a new extension to this list, please let us know through the feedback button at the top of this page.
