@@ -19,24 +19,23 @@ import Callout from "../../components/Callout";
   }
 />
 
-Knock's API endpoints enforce security in two ways:
+Access to Knock's API is protected using a secret API key for your backend application, and a public API key for your client application.
+By default, the public API key can read in-app feeds and manage user preferences for any of your users. While this is convenient for testing and development, 
+this is not suitable for production environments.
 
-1. By default, all API endpoints require a valid secret API key.
-2. A subset of API endpoints can be made with just a public API key, with a signed user token for complete security
-
-Production environments should enable enhanced security mode, which enforces the use of a signed user token.
-
-Environments which do not use enhanced security mode are convenient for development and testing, but are
-vulnerable to malicious actors, who may be able to access other users' data. Enhanced security mode
+Production environments should enable **enhanced security mode**, which requires clients to send both the public API key and a signed user token that identifies
+the user that is performing the request. Enhanced security mode
 trades convenience for security, and we recommend that you enable it [When going to production](/getting-started/going-to-production).
 
 ## API endpoints that can be called with a public API key
 
-The following calls require authentication (when called from the client):
+Public API keys can make the following calls from your client application:
 
 - Fetching a user's notification feed
 - Marking a feed message as read, seen, or archived
 - Getting or setting a user's preferences
+
+When enhanced security mode is enabled, calls from your client application will need to include both the public API key as well as a signed user token.
 
 ## Authentication (without enhanced security)
 
@@ -44,8 +43,16 @@ In a non-production Knock environment, you can use your public key to authentica
 all users. You do not need to implement any other security mechanisms. Knock will
 not reject requests that do not include a signed user token.
 
-**🚨 This approach is convenient for development and testing, but should not be used
-in a production environment with real user data.**
+<Callout
+  emoji="🚨"
+  text={
+    <>
+    <span className="font-bold">Note:</span> This approach is convenient
+    for development and testing, but should not be used
+    in a production environment with real user data.
+    </>
+  }
+/>
 
 **Client SDK example**
 
@@ -65,6 +72,7 @@ knockClient.authenticate(currentUser.id);
   // Rest omitted for brevity
   apiKey={process.env.KNOCK_PUBLIC_API_KEY}
   userId={currentUser.id}
+  // userToken is optional with enhanced security turned off
 >
 ```
 
