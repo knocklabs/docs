@@ -418,7 +418,7 @@ Retrieve a paginated list of messages for a user. Will return most recent messag
   <Attribute
     name="status"
     type="string[] (optional)"
-    description="One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `not_sent`. Limits results to items in the given status(es)"
+    description="One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `not_sent`. Limits results to messages with the given delivery status(es)"
   />
   <Attribute
     name="channel_id"
@@ -454,10 +454,12 @@ A paginated list of Message records
       "workflow": "merged-changes",
       "tenant": null,
       "status": "delivered",
-      "read_at": null,
+      "engagement_statuses": ["read", "interacted"],
       "seen_at": null,
+      "read_at": "2021-05-11T00:00:00.00Z",
+      "interacted_at": "2021-05-11T00:00:00.00Z",
+      "link_clicked_at": null,
       "archived_at": null,
-      "clicked_at": null,
       "inserted_at": "2021-03-05T12:00:00Z",
       "updated_at": "2021-03-05T12:00:00Z",
       "source": {
@@ -1868,8 +1870,6 @@ as such return information that is required on the client to do so**
           "name": "Some User"
         }
       ],
-      "archived_at": null,
-      "clicked_at": null,
       "blocks": [
         {
           "content": "**{{ actor.name }}** merged {{ total_merged }} {% if total_merged == 1 %} change {% else %} changes {% endif %}\nfrom **{{ src_environment_name }}** into **{{ dest_environment_name }}**.",
@@ -1893,6 +1893,9 @@ as such return information that is required on the client to do so**
       "inserted_at": "2021-05-11T00:50:09.904531Z",
       "read_at": "2021-05-13T02:45:28.559124Z",
       "seen_at": "2021-05-11T00:51:43.617550Z",
+      "interacted_at": null,
+      "link_clicked_at": null,
+      "archived_at": null,
       "source": {
         "__typename": "WorkflowSource",
         "key": "merged-changes",
@@ -2040,12 +2043,12 @@ A message is a notification delivered on a particular channel to a user.
   <Attribute
     name="status"
     type="string"
-    description="One of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `seen`, `unseen`"
+    description="The delivery status for the message. One of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `seen`, `unseen`."
   />
   <Attribute
-    name="read_at"
-    type="string (optional)"
-    description="When the message was last read"
+    name="engagement_statuses"
+    type="string[]"
+    description="One or more engagement statuses for the message. Each engagement status can be one of `seen`, `read`, `interacted`, `link_clicked`, or `archived`."
   />
   <Attribute
     name="seen_at"
@@ -2053,14 +2056,24 @@ A message is a notification delivered on a particular channel to a user.
     description="When the message was last seen"
   />
   <Attribute
+    name="read_at"
+    type="string (optional)"
+    description="When the message was last read"
+  />
+  <Attribute
+    name="interacted_at"
+    type="string (optional)"
+    description="When the message was last interacted with"
+  />
+  <Attribute
+    name="link_clicked_at"
+    type="string (optional)"
+    description="When a message link was last clicked"
+  />
+  <Attribute
     name="archived_at"
     type="string (optional)"
     description="When the message was archived"
-  />
-  <Attribute
-    name="clicked_at"
-    type="string (optional)"
-    description="When the message or a message link was last clicked"
   />
   <Attribute
     name="inserted_at"
@@ -2109,10 +2122,12 @@ A message is a notification delivered on a particular channel to a user.
   "workflow": "merged-changes",
   "tenant": null,
   "status": "delivered",
-  "read_at": null,
+  "engagement_statuses": ["read", "interacted"],
   "seen_at": null,
+  "read_at": "2021-05-11T00:00:00.00Z",
+  "interacted_at": "2021-05-11T00:00:00.00Z",
+  "link_clicked_at": null,
   "archived_at": null,
-  "clicked_at": null,
   "inserted_at": "2021-03-05T12:00:00Z",
   "updated_at": "2021-03-05T12:00:00Z",
   "source": {
@@ -2172,7 +2187,7 @@ Returns a paginated list of messages.
   <Attribute
     name="status"
     type="string[] (optional)"
-    description="One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `not_sent`. Limits results to items in the given status(es)"
+    description="One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `not_sent`. Limits results to messages with the given delivery status(es)."
   />
   <Attribute
     name="channel_id"
@@ -2210,10 +2225,12 @@ A paginated list of Message records
       "workflow": "merged-changes",
       "tenant": null,
       "status": "delivered",
-      "read_at": null,
+      "engagement_statuses": ["read", "interacted"],
       "seen_at": null,
+      "read_at": "2021-05-11T00:00:00.00Z",
+      "interacted_at": "2021-05-11T00:00:00.00Z",
+      "link_clicked_at": null,
       "archived_at": null,
-      "clicked_at": null,
       "inserted_at": "2021-03-05T12:00:00Z",
       "updated_at": "2021-03-05T12:00:00Z",
       "source": {
@@ -2585,7 +2602,7 @@ Marks the given message as the `status`, recording an event in the process.
   <Attribute
     name="status"
     type="enum"
-    description="One of `seen`, `read`, `archived`"
+    description="One of `seen`, `read`, `interacted`, `archived`"
   />
 </Attributes>
 
@@ -2612,7 +2629,7 @@ Un-marks the given message as the `status`, recording an event in the process.
   <Attribute
     name="status"
     type="enum"
-    description="One of `seen`, `read`, `archived`"
+    description="One of `seen`, `read`, `interacted`, `archived`"
   />
 </Attributes>
 
@@ -2638,7 +2655,7 @@ Multiple messages can be changed at once using the batch API, where all message 
   <Attribute
     name="status"
     type="enum"
-    description="One of `seen`, `read`, `archived` or `unseen`, `unread`, `unarchived`"
+    description="One of `seen`, `read`, `interacted`, `archived` or `unseen`, `unread`, `unarchived`"
   />
 </Attributes>
 
@@ -2681,7 +2698,7 @@ which allows you to track the status of the job.
   <Attribute
     name="status"
     type="enum"
-    description="One of `seen`, `read`, `archive` or `unseen`, `unread`, `unarchive`"
+    description="One of `seen`, `read`, `interacted`, `archived` or `unseen`, `unread`, `unarchived`"
   />
 </Attributes>
 
@@ -2690,28 +2707,28 @@ which allows you to track the status of the job.
 <Attributes>
   <Attribute
     name="user_ids"
-    type="string[]"
-    description="Scope the bulk update to one or more users (optional)"
+    type="string[] (optional)"
+    description="Scope the bulk update to one or more users"
   />
   <Attribute
     name="older_than"
-    type="string"
-    description="An ISO-8601 timestamp to find messages created before (optional)"
+    type="string (optional)"
+    description="An ISO-8601 timestamp to find messages created before"
   />
   <Attribute
     name="newer_than"
-    type="string"
-    description="An ISO-8601 timestamp to find messages created after (optional)"
+    type="string (optional)"
+    description="An ISO-8601 timestamp to find messages created after"
   />
   <Attribute
     name="delivery_status"
-    type="enum"
-    description="Limit messages to one of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered` (optional)"
+    type="enum (optional)"
+    description="Limit messages to one of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `not_sent`"
   />
   <Attribute
     name="engagement_status"
-    type="enum"
-    description="Limit messages to one of `seen`, `unseen`, `read`, `unread`, `archived`, `unarchived` (optional)"
+    type="enum (optional)"
+    description="Limit messages to one of `seen`, `unseen`, `read`, `unread`, `archived`, `unarchived`, `interacted`"
   />
 </Attributes>
 
@@ -3005,7 +3022,7 @@ Returns a paginated list of messages for an object. Will return newest messages 
   <Attribute
     name="status"
     type="string[] (optional)"
-    description="One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `not_sent`. Limits results to items in the given status(es)"
+    description="One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `not_sent`. Limits results to messages with the given status(es)"
   />
   <Attribute
     name="channel_id"
@@ -3043,10 +3060,12 @@ A paginated list of Message records
       "workflow": "merged-changes",
       "tenant": null,
       "status": "delivered",
-      "read_at": null,
+      "engagement_statuses": ["read", "interacted"],
       "seen_at": null,
+      "read_at": "2021-05-11T00:00:00.00Z",
+      "interacted_at": "2021-05-11T00:00:00.00Z",
+      "link_clicked_at": null,
       "archived_at": null,
-      "clicked_at": null,
       "inserted_at": "2021-03-05T12:00:00Z",
       "updated_at": "2021-03-05T12:00:00Z",
       "source": {
