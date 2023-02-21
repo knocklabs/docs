@@ -16,11 +16,11 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
-    title: "Send & manage data",
+    title: "Concepts",
     slug: "/send-and-manage-data",
     desc: "Learn how to get data flowing into Knock to power your notifications.",
     pages: [
-      { slug: "/concepts", title: "Concepts" },
+      { slug: "/concepts", title: "Overview" },
       { slug: "/users", title: "Users" },
       { slug: "/preferences", title: "Preferences" },
       { slug: "/recipients", title: "Recipients" },
