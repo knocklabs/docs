@@ -72,3 +72,9 @@ A message in Knock represents a notification delivered to a recipient on a parti
 You can configure Knock to make requests to your own backend with data about events happening in your Knock account. Knock scopes webhooks to a single environment and they notify on message lifecycle event changes.
 
 [Learn more →](/send-and-manage-data/outbound-webhooks)
+
+## Conditions
+
+Knock uses conditions to model checks that determine variations in your workflow runs. They provide a powerful way to create more advanced notification logic flows.
+
+[Learn more →](/send-and-manage-data/conditions)

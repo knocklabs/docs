@@ -63,7 +63,7 @@ Sandbox mode is supported across all channel types and can be enabled from the e
 
 ### Channel conditions
 
-You can use channel conditions to place a [condition](/send-notifications/designing-workflows/step-conditions) on all instances of a channel within a given environment. As an example, if you want to ensure that your email channel only sends to recipients from your domain when it's executing in your staging environment, a channel-level condition would be great way to do that.
+You can use channel conditions to place a [condition](/send-and-manage-data/conditions) on all instances of a channel within a given environment. As an example, if you want to ensure that your email channel only sends to recipients from your domain when it's executing in your staging environment, a channel-level condition would be great way to do that.
 
 To add a condition to a channel's environment configuration, navigate to that channel under "Integrations > Channels" and then click "edit configuration".
 

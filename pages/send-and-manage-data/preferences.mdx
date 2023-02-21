@@ -180,30 +180,13 @@ The Knock notification engine uses a per-tenant preference set for preference ev
 
 ## Preference conditions
 
-When working with preferences, you’ll sometimes run into advanced use cases where you need to provide even more granular preference options for your customers. For example: you may want to let a recipient mute notifications about a given resource in your product. That’s where preference conditions come into use in the Knock model: they provide a powerful way for you to add extra logic that’s computed during preference evaluation per recipient.
+When working with preferences, you'll sometimes run into advanced use cases where you need to provide even more granular preference options for your customers. For example, you may want to let a recipient mute notifications about a given resource in your product.
 
-### What is a condition?
+That's where preference conditions come into use. These are [Knock condition models](/send-and-manage-data/conditions) that are evaluated when computing the current state of your preferences during workflow execution.
 
-A condition is one or more pieces of logic that are evaluated when computing the current state of a preference. Typically, preferences evaluate to boolean values representing if the recipient has opted in or out of receiving notifications on a given channel, workflow, or category. With preference conditions, you can add additional custom expressions to that set, where the notification is only sent if all preferences (including the preference condition statement) evaluate to true.
+Typically, preferences evaluate to boolean values representing if your recipient has opted in or out of receiving notifications on a given channel, workflow, or category. With preference conditions, you can add additional custom expressions to that set, where the notification is only sent if all preferences (including the preference condition statement) evaluate to true.
 
-**Note**: multiple conditions are evaluated as `ANDs`.
-
-```json A preference condition
-{
-  "argument": "data.pageId",
-  "operator": "not_contains",
-  "variable": "recipient.mutedPageIds"
-}
-```
-
-Conditions can:
-
-- Reference data passed in your workflow trigger (the `data` payload)
-- Reference data stored on the `recipient` and `actor`
-- Evaluate against fixed values like booleans, strings, and integers
-- Evaluate against various types of operators, like ==, ≠, IN, NOT IN and more
-
-### What can a condition be applied to?
+### Where can I use preference conditions?
 
 A condition can be applied at different points in the preference set:
 
@@ -211,33 +194,7 @@ A condition can be applied at different points in the preference set:
 - Inside an individual `workflows[workflow].channel_types` preference
 - Inside an individual `categories[category].channel_types` preference
 
-### Available arguments and variables
-
-You can use any of the following in arguments or variables:
-
-- `recipient.*` - target a property in the recipient
-- `actor.*` - target a property in the actor
-- `data.*` - target a property in the data payload
-- `refs.*` - target the result of a previous step
-- `true` / `false` / `null`
-- `string` / `float`
-
-### Available operators
-
-You can use any of the following operators in condition comparisons:
-
-| Operator                   | Description                      |
-| -------------------------- | -------------------------------- |
-| `equal_to`                 | `==`                             |
-| `not_equal_to`             | `!=`                             |
-| `greater_than`             | `>`                              |
-| `greater_than_or_equal_to` | `>=`                             |
-| `less_than`                | `<`                              |
-| `less_than_or_equal_to`    | `<=`                             |
-| `contains`                 | `argument in variable`           |
-| `not_contains`             | `argument not in variable`       |
-| `empty`                    | `variable in ["", null, []]`     |
-| `not_empty`                | `variable not in ["", null, []]` |
+See our guide on [setting and managing preferences](/send-notifications/setting-preferences#setting-preferences-with-conditions) for more details on how to manage preference conditions via the Knock API and SDKs.
 
 ## Preference defaults
 

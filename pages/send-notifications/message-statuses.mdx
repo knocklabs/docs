@@ -7,16 +7,12 @@ section: Send notifications
 
 Knock uses the [Message](/send-and-manage-data/messages) model to represent a notification delivered to a recipient on a particular channel. Knock Messages can have one or more statuses, which indicate the delivery state of your notification or how your recipient is engaging with the message. Knock captures changes in message status as Message Events, which you can hook into with [outbound webhooks](/send-and-manage-data/outbound-webhooks).
 
-This guide covers message statuses and events in detail.
-
-## Statuses
-
 Knock manages two types of notification statuses:
 
 - **Delivery status** — Was the message successfully delivered to your messaging providers and to your recipient? Delivery statuses are mutually exclusive, hierarchical, and implicitly managed by Knock as part of notification delivery.
 - **Engagement status** — How has your recipient engaged with the notification once received? A message can have multiple engagment statuses, or none. Knock will implicitly manage some engagement statuses for you, but you can also manage them yourself via the Knock API.
 
-### Delivery status
+## Delivery status
 
 When you trigger a Knock workflow, any channel step within that workflow generates a Message for each recipient. Once the message is generated, Knock manages delivery to the recipient via the downstream provider for your channel (e.g. SendGrid for email delivery). Knock uses delivery statuses to track this lifecycle and show you where a given message resides within it.
 
@@ -34,27 +30,27 @@ Lastly, delivery statuses are also hierarchical. Knock considers certain statuse
 
 Below we break down each status in detail (including any channel-specific limitations) in ascending order of precedence.
 
-#### 1) Undelivered
+### 1) Undelivered
 
 We attempted to deliver your message, we encountered an error, and _we will not retry delivery_. Your message has not made it from Knock to your provider.
 
 You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
 
-#### 2) Delivery attempted
+### 2) Delivery attempted
 
 We attempted to deliver your message, but we encountered an error. If we deem the error retryable and we have not hit our retry limit, we will re-enqueue the message for another delivery attempt.
 
 You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
 
-#### 3) Queued
+### 3) Queued
 
 Your message has been created and has been queued to be sent to the provider. This may be the first attempt to deliver the message, or it may be a retry following an error.
 
-#### 4) Not sent
+### 4) Not sent
 
 Your message was processed successfully but was not sent to the downstream provider because your channel is in [sandbox mode](/integrations/overview#sandbox-mode).
 
-#### 5) Sent
+### 5) Sent
 
 Your message has successfully made it from Knock to the delivery provider. It is their responsibility to ensure the message is properly _delivered_ to the recipient. Knock may be awaiting further information to determine if the message was successfully delivered.
 
@@ -66,7 +62,7 @@ On a per-channel level, `sent` means that:
 - **Push** — Your message has successfully been sent by Knock to the destination push platform.
 - **SMS** — Your message made it to the delivery provider. We're waiting to learn if it made it to recipient.
 
-#### 6) Delivered
+### 6) Delivered
 
 We've received confirmation from the delivery provider that your message was successuly sent to the recipient.
 
@@ -78,35 +74,33 @@ On a per-channel level, `delivered` means that:
 - **SMS** — Your message was successfully sent to the recipient's SMS provider. Note that not all SMS delivery providers support delivery tracking. See the [Knock integration guides for SMS providers](/integrations/sms/overview) for more information.
 - **Chat** — Delivery tracking is not available for chat platforms, so chat channel messages will never have a delivery status greater than `sent`. In most cases, a `sent` status will also mean that the message has been delivered to the recipient.
 
-### Engagement status
+## Engagement status
 
 Once delivered, Knock uses a set of engagement statuses to track how the recipient interacts with the notification. There are a few important things to note about how this works:
 
 - **Engagement statuses are mutually inclusive.** Unlike delivery status, a message can have zero, one, or multiple engagement statuses. As an example, an in-app message can have an engagement status of both `seen` and `marked as read`.
-- **Engagement statuses are hierarchical.** Like delivery status, engagement statuses do have a concept or hierarchy. Knock uses this hierarchy when evaluating [message status step conditions](/designing-workflows/step-conditions#message-status-conditions). If a message has multiple engagement statuses, the one with the highest precedence is used for such comparisons.
-- **Implicitly managed only sometimes.** In a couple cases, Knock will manage engagement status on your behalf. The [Knock React SDK](/in-app-ui/react/overview) will set engagement statuses for your in-app feed channels. Knock will also manage engagement statuses for any channel configured to use [Knock link and open tracking](/send-notifications/tracking). In all cases, you can use the [Knock Message status API](/reference#update-message-status) to explicitly manage engagement statuses yourself.
+- **Engagement statuses are hierarchical.** Like delivery status, engagement statuses do have a concept or hierarchy. Knock sometimes uses this hierarchy when evaluating [message status step conditions](/designing-workflows/step-conditions#message-status-conditions).
+- **Implicitly managed only sometimes.** In a couple cases, Knock will manage engagement status on your behalf. The [Knock React SDK](/in-app-ui/react/overview) will set engagement statuses for your in-app feed channels. Knock will also manage engagement statuses for any channel configured to use [Knock link and open tracking](/send-notifications/tracking). For other cases, you can use the [Knock Message status API](/reference#update-message-status) to explicitly manage engagement statuses yourself.
 
-Knock uses message timestamp fields to model engagement statuses. Below we review the possible engagement statuses and various per-channel caveats for how they work.
+Knock will include the set of current engagement statuses for your message in API responses as a list under the `engagement_statuses` field. Knock also uses timestamp columns to model the latest such action for each engagement type.
 
-Once a message has been sent or delivered to a recipient, Knock starts tracking the **engagement status** for that message to understand recipient interaction with it.
+Below we review the possible engagement statuses and various per-channel caveats for how they work.
 
-#### 1A) Unseen (`seen_at: null`)
+### Seen
 
-Your message has successfully reached the recipient, but Knock doesn't yet have confirmation that they've engaged in any way. This is the base engagement status for all channels.
-
-For certain channels if you do not have [Knock link and open tracking](/send-notifications/tracking) enabled, your message will never have more than the unseen engagement status without explicit management via the Knock API.
-
-#### 1B) Seen (`seen_at: <ISO8601-timestamp>`)
+| Timestamp field | Badge  |
+|-----------------|--------|
+| `seen_at`       | `seen` |
 
 Knock only implicitly manages this status for the in-app feed channel.
 
 The `seen` status indicates that the message has been retrieved for display in the recipient's in-app feed at least once. The timestamp represents the time of the most recent action. The `seen` status is separate from an [opened/read status](/send-notifications/message-statuses#2b-marked-as-read--opened-read_at-iso8601-timestamp), in that it doesn't indicate the recipient has explicitly interacted with the message itself.
 
-#### 2A) Unread (`read_at: null`)
+### Marked as read / opened
 
-The message has not been opened or read by the recipient.
-
-#### 2B) Marked as read / opened (`read_at: <ISO8601-timestamp>`)
+| Timestamp field | Badge  |
+|-----------------|--------|
+| `read_at`       | `read` |
 
 The message has been opened and read by the recipient at least once. The timestamp represents the time of the most recent action.
 
@@ -118,13 +112,14 @@ Knock will implicitly manage this status only for the following channel configur
 - **SMS** — Not directly supported. But, if [Knock link tracking](/send-notifications/tracking) is enabled, we will count a link-click action as also an open event.
 - **Chat** — Not directly supported. But, if [Knock link tracking](/send-notifications/tracking) is enabled, we will count a link-click action as also an open event.
 
-#### 3A) Unclicked (`clicked_at: null`)
+### Link clicked
 
-No part of the message or links within have been clicked.
+| Timestamp field                     | Badge          |
+|-------------------------------------|----------------|
+| `link_clicked_at` -or- `clicked_at` | `link_clicked` |
 
-#### 3B) Clicked (`clicked_at: <ISO8601-timestamp>`)
 
-A link or action within your message was clicked by the recipient. The timestamp represents the time of the most recent action.
+A link within your message was clicked by the recipient. The timestamp represents the time of the most recent action.
 
 Knock will implicitly manage this status only for the following channel configurations:
 
@@ -134,11 +129,21 @@ Knock will implicitly manage this status only for the following channel configur
 - **SMS** — [Knock link tracking](/send-notifications/tracking) needs to be enabled.
 - **Chat** — [Knock link tracking](/send-notifications/tracking) needs to be enabled.
 
-#### 4A) Unarchived (`archived_at: null`)
+### Interacted
 
-The message has not been marked as archived.
+| Timestamp field | Badge        |
+|-----------------|--------------|
+| `interacted_at` | `interacted` |
 
-#### 4B) Archived (`archived_at: <ISO8601-timestamp>`)
+Knock only implicitly manages this status for the in-app feed channel.
+
+For the in-app feed case, this indicates that your recipient has explicitly clicked on the notification cell in their feed. The timestamp represents the time of the most recent action.
+
+### Archived
+
+| Timestamp field | Badge      |
+|-----------------|------------|
+| `archived_at`   | `archived` |
 
 Knock only implicitly manages this status for the in-app feed channel.
 
