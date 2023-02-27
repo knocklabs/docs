@@ -14,7 +14,7 @@ In this section, you'll find the complete documentation for the components expos
 
 ### `KnockFeedProvider`
 
-The top level feed provider that connects to Knock with the given API key, authenticates a user, and then connects to a feed for that user.
+The top-level feed provider that connects to Knock with the given API key, authenticates a user, and then connects to a feed for that user.
 
 #### Props
 
@@ -36,7 +36,23 @@ Accepts `KnockFeedProviderProps`:
     type="string"
     description="The channel ID of the in-app feed to be displayed"
   />
-  <Attribute name="userToken" type="string" description={<span>A JWT that identifies the authenticated user, signed with the private key provided in the Knock dashboard. Required to secure your production environment. <a href="https://docs.knock.app/in-app-ui/security-and-authentication#authentication-with-enhanced-security-enabled" target="_blank">Learn more.</a></span>} />
+  <Attribute
+    name="userToken"
+    type="string"
+    description={
+      <span>
+        A JWT that identifies the authenticated user, signed with the private
+        key provided in the Knock dashboard. Required to secure your production
+        environment.{" "}
+        <a
+          href="https://docs.knock.app/in-app-ui/security-and-authentication#authentication-with-enhanced-security-enabled"
+          target="_blank"
+        >
+          Learn more.
+        </a>
+      </span>
+    }
+  />
   <Attribute
     name="host"
     type="string"
@@ -57,42 +73,10 @@ Accepts `KnockFeedProviderProps`:
     type="boolean"
     description="When set as false, doesn't wrap the children in a `<KnockFeedContainer>`"
   />
-</Attributes>
-
-#### Hooks
-
-The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components which can be used. The hook returns the following as an object (`KnockFeedProviderState`):
-
-<Attributes>
   <Attribute
-    name="knock"
-    type="Knock"
-    description="The instance of the Knock client"
-  />
-  <Attribute
-    name="feedClient"
-    type="Feed"
-    description="The instance of the authenticated Feed"
-  />
-  <Attribute
-    name="useFeedStore"
-    type="UseStore<FeedStoreState>"
-    description="A zustand store containing the FeedStoreState"
-  />
-  <Attribute
-    name="status"
-    type="FilterStatus"
-    description="Current value of the filter status for the Feed"
-  />
-  <Attribute
-    name="setStatus"
-    type="function"
-    description="A function to set the current FilterStatus"
-  />
-  <Attribute
-    name="colorMode"
-    type="ColorMode"
-    description="The current theme color"
+    name="i18n"
+    type="I18nContent"
+    description="An optional set of translations to override the default `en` translations used in the feed components"
   />
 </Attributes>
 
@@ -273,9 +257,94 @@ Used to group and space multiple `Button` components into a single line.
   />
 </Attributes>
 
+### `KnockI18nProvider`
+
+A provider to inject translations into components.
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="i18n"
+    type="I18nContent"
+    description="A set of translations and a locale to use in child components via the `useTranslations` hook"
+  />
+  <Attribute
+    name="children*"
+    type="ReactNode"
+    description="One or more `Button` components"
+  />
+</Attributes>
+
 ## Hooks
 
-The following hooks are exposed so that you can build headless in-app experiences, without rendering components.
+### `useKnockFeed`
+
+The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components.
+
+**Returns**: `KnockFeedProviderState`
+
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="The instance of the Knock client"
+  />
+  <Attribute
+    name="feedClient"
+    type="Feed"
+    description="The instance of the authenticated Feed"
+  />
+  <Attribute
+    name="useFeedStore"
+    type="UseStore<FeedStoreState>"
+    description="A zustand store containing the FeedStoreState"
+  />
+  <Attribute
+    name="status"
+    type="FilterStatus"
+    description="Current value of the filter status for the Feed"
+  />
+  <Attribute
+    name="setStatus"
+    type="function"
+    description="A function to set the current FilterStatus"
+  />
+  <Attribute
+    name="colorMode"
+    type="ColorMode"
+    description="The current theme color"
+  />
+</Attributes>
+
+**Example**:
+
+```jsx
+import { useKnockFeed } from "@knocklabs/react-notification-feed";
+
+const App = ({ authenticatedUser }) => (
+  <KnockFeedProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+    userId={authenticatedUser.id}
+  >
+    <MyFeedComponent />
+  </KnockFeedProvider>
+);
+
+const MyFeedComponent = () => {
+  const { useFeedStore } = useKnockFeed();
+  const items = useFeedStore((state) => state.items);
+
+  return (
+    <div className="notifications">
+      {items.map((item) => (
+        <NotificationCell key={item.id} item={item} />
+      ))}
+    </div>
+  );
+};
+```
 
 ### `useAuthenticatedKnockClient`
 
@@ -303,6 +372,10 @@ const MyComponent = () => {
 
 Creates a `Feed` instance for the provided `Knock` client which creates a stateful, real-time connection to Knock to build in-app experiences.
 
+**Returns**: `Feed` instance
+
+**Example**:
+
 ```js
 import {
   useAuthenticatedKnockClient,
@@ -317,7 +390,10 @@ const MyComponent = () => {
     user.knockToken,
   );
 
-  const notificationFeed = useNotifications(knock, process.env.KNOCK_FEED_CHANNEL_ID);
+  const notificationFeed = useNotifications(
+    knock,
+    process.env.KNOCK_FEED_CHANNEL_ID,
+  );
 
   const useNotificationStore = create(notificationFeed.store);
   const { metadata } = useNotificationStore();
@@ -328,4 +404,56 @@ const MyComponent = () => {
 
   return <span>Total unread: {metadata.unread_count}</span>;
 };
+```
+
+### `useTranslations`
+
+Exposed under `KnockI18nProvider` child components.
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="locale"
+    type="string"
+    description="The current locale code (defaults to `en`)"
+  />
+  <Attribute
+    name="t"
+    type="(key: string) => string"
+    description="A helper function to get the value of a translation from the current `Translations`."
+  />
+  <Attribute
+    name="dateFnsLocale"
+    type="() => Locale"
+    description="Returns a Locale for use in date-fns. Defaults to `en-US`."
+  />
+</Attributes>
+
+## Types
+
+### `I18nContent`
+
+Used to set translations available in the child components exposed under `KnockFeedProvider`. Used in the `useTranslations` hook.
+
+**Note:** `locale` must be a valid locale code.
+
+```typescript
+interface Translations {
+  readonly emptyFeedTitle: string;
+  readonly emptyFeedBody: string;
+  readonly notifications: string;
+  readonly poweredBy: string;
+  readonly markAllAsRead: string;
+  readonly archiveNotification: string;
+  readonly all: string;
+  readonly unread: string;
+  readonly read: string;
+  readonly unseen: string;
+}
+
+interface I18nContent {
+  readonly translations: Partial<Translations>;
+  readonly locale: string;
+}
 ```
