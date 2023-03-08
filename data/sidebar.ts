@@ -46,11 +46,18 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/fetch-function", title: "Fetch function" },
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
-      { slug: "/template-editor", title: "Template editor" },
       {
-        title: "References",
-        slug: "/references",
+        title: "Template editor",
+        slug: "/template-editor",
         pages: [
+          {
+            slug: "/overview",
+            title: "Overview",
+          },
+          {
+            slug: "/variables",
+            title: "Variables",
+          },
           {
             slug: "/reference-liquid-helpers",
             title: "Liquid helpers",

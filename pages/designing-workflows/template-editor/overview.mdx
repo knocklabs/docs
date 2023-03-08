@@ -1,11 +1,20 @@
 ---
 title: The template editor
 description: Learn how to use the Knock template editor to design notifications for your product.
-tags: ["template", "liquid", "steps", "variants", "localization", "internationalization", "languages"]
+tags:
+  [
+    "template",
+    "liquid",
+    "steps",
+    "variants",
+    "localization",
+    "internationalization",
+    "languages",
+  ]
 section: Designing workflows
 ---
 
-import Callout from "../../components/Callout";
+import Callout from "../../../components/Callout";
 
 Each channel step you add to a workflow will have its own notification template. This template is what determines what the notifications sent to your user look like for a given channel.
 
@@ -17,18 +26,30 @@ We'll cover:
 - Using liquid syntax to add logic and control flow to your notification template
 - Visual editing with drag-and-drop components
 - How to preview and test your notification template
-- Adding template variants
 
-## Inserting variables into your notification template
+<Callout
+  emoji="💡"
+  text={
+    <>
+      All templates in Knock use Liquid as the templating language. You can
+      learn more about Liquid in{" "}
+      <a href="https://shopify.github.io/liquid/basics/introduction/">
+        the documentation
+      </a>
+      .
+    </>
+  }
+/>
 
-To inject a variable into your notification template, enclose it with double curly braces:
-`{{ a_variable }}` .
+## Inserting variables into your notification template (personalizing notifications)
 
-You can use curly braces to reference a number of different variable types:
+To inject a variable into your notification template, enclose it with double curly braces: `{{ a_variable }}`.
 
-**Data payload variables.** Variables sent in the `data` payload of your trigger call are injected with curly braces and don't require a prefixed namespace.
+You can use curly braces to reference a number of different variable types in your templates. Here are some of the most common types, but the [full list is available here](/designing-workflows/references/variables).
 
-**User properties.** If you want to reference a user property, such as `name`, use the `actor` and `recipient` namespaces. This looks up the actor or a recipient of a given notification, and then finds the specified property for that user. Here's a code example where a recipient's name and plan are injected into a notification template:
+**Date payload variables**: all variables sent in the `data` payload of your workflow trigger call. These don't require a prefixed namespace to reference, so if you send through `{ "a_variable": "something" }` in your data payload you can reference this as `{{ a_variable }}` in your template.
+
+**User properties** If you want to reference a user property, such as `name`, use the `actor` and `recipient` namespaces. This looks up the actor or the recipient of a given notification, and then finds the specified property for that user. Here's a code example where a recipient's name and plan are injected into a notification template:
 
 ```
 Hey there {{ recipient.name }},
@@ -39,32 +60,7 @@ Thanks,
 The team @ Knock
 ```
 
-**Account and environment constants.** You can also set constants at an account or environment level in Knock for variables that won't change across your different notification workflows. (For more information read our guide on [environments](/send-and-manage-data/environments).) Common use cases for constants include base URLs for routing (e.g. dashboard.knock.app v. dashboard.knock-dev.app) and product names. To access constants in your notification templates, use the `vars` namespace. Here's a code example of an action URL for an in-app feed notification that uses an environment constant: `{{ vars.app_url }}/page/{{ page_id }}`.
-
-**Workflow state variables.** There are a standard set of workflow state variables that are available on all workflow runs, but that you'll find especially useful if you start to work with batch functions. These variables are available on all workflows and keep track of the `activities` kept within the state of a given workflow run (i.e. the number of trigger calls that workflow run has received.)
-
-- `total_activities` - The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight.)
-- `total_actors` - The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification.)
-- `activities` - A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your trigger call. The `activities` variable lists the _first_ ten activity objects added to the batch. Each activity includes any data properties you sent along in the trigger call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
-
-  ```liquid
-  {% for activity in activities %}
-  <p>{{ activity.actor.name }} commented on {{ activity.pageName }} with:</p>
-
-  <blockquote>
-  {{ activity.content }}
-  </blockquote>
-  {% endfor %}
-  ```
-
-- `actors` - A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the _first_ ten actors added to the batch.
-- `timestamp` - The time in which the activity occurred, as an ISO-8601 datetime string.
-
-In addition to injecting custom variables, you'll also have access to data properties about the `recipient` (the user who
-is receiving the message) as well as the `actor` (the user who performed the action that generated
-the message.)
-
-The custom variables will be passed to the template via the `trigger` call when triggering the workflow.
+[Full list of Knock variables available →](/designing-workflows/references/variables)
 
 ## Adding control flow and iteration to your template with liquid
 
@@ -110,13 +106,14 @@ To learn more about the variables, Liquid keywords, and other helper functions a
 
 ## Visual editing with drag-and-drop components
 
-The Knock template editor includes a visual editor you can use to compose your template with drag and drop components.
+The Knock template editor includes a visual editor you can use to compose your template with drag-and-drop components.
 
 <Callout
   emoji="🛣"
   text={
     <>
-      <span className="font-bold">Note: </span>The visual template editor is currently only available for email templates.
+      <span className="font-bold">Note: </span>The visual template editor is
+      currently only available for email templates.
     </>
   }
 />
