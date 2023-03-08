@@ -2,7 +2,14 @@
 title: Security & authentication
 description: Learn more about how to secure your client-side applications as they integrate with Knock.
 section: Building in-app UI
-tags: ["jwt", "signing keys", "missing_user_token", "user token", "enhanced security mode"]
+tags:
+  [
+    "jwt",
+    "signing keys",
+    "missing_user_token",
+    "user token",
+    "enhanced security mode",
+  ]
 ---
 
 import Callout from "../../components/Callout";
@@ -11,16 +18,20 @@ import Callout from "../../components/Callout";
   emoji="👉"
   text={
     <>
-    <span className="font-bold">Note:</span> This integration guide references examples from our <a href="https://github.com/knocklabs/knock-client-js">client-side JS SDK</a>.
-    You only need to add the authentication outlined in this guide if you're integrating
-    Knock on the client-side of your applications to use the Knock in-app feed
-    or the Knock preferences model.
+      <span className="font-bold">Note:</span> This integration guide references
+      examples from our{" "}
+      <a href="https://github.com/knocklabs/knock-client-js">
+        client-side JS SDK
+      </a>
+      . You only need to add the authentication outlined in this guide if you're
+      integrating Knock on the client-side of your applications to use the Knock
+      in-app feed or the Knock preferences model.
     </>
   }
 />
 
 Access to Knock's API is protected using a secret API key for your backend application, and a public API key for your client application.
-By default, the public API key can read in-app feeds and manage user preferences for any of your users. While this is convenient for testing and development, 
+By default, the public API key can read in-app feeds and manage user preferences for any of your users. While this is convenient for testing and development,
 this is not suitable for production environments.
 
 Production environments should enable **enhanced security mode**, which requires clients to send both the public API key and a signed user token that identifies
@@ -47,9 +58,9 @@ not reject requests that do not include a signed user token.
   emoji="🚨"
   text={
     <>
-    <span className="font-bold">Note:</span> This approach is convenient
-    for development and testing, but should not be used
-    in a production environment with real user data.
+      <span className="font-bold">Note:</span> This approach is convenient for
+      development and testing, but should not be used in a production
+      environment with real user data.
     </>
   }
 />
@@ -119,7 +130,7 @@ At a minimum the JWT to be signed must have:
 To sign your JWT as middleware in a NodeJS express like app:
 
 ```js
-import Knock from "@knocklabs/client";
+import { Knock } from "@knocklabs/node";
 
 app.use((req, res, next) => {
   if (!req.user) {
@@ -127,7 +138,7 @@ app.use((req, res, next) => {
   }
 
   // Assuming you have set KNOCK_SIGNING_KEY in your environment
-  
+
   res.locals({
     // `signUserToken` can take a second argument to set the expiry of the token
     // and/or specify the signing key to use
@@ -137,6 +148,8 @@ app.use((req, res, next) => {
   next();
 });
 ```
+
+You can see more details on the options for the `signUserToken` method [in the docs](https://github.com/knocklabs/knock-node#signing-jwts).
 
 ### 3. Send the JWT to the client
 
@@ -175,7 +188,7 @@ although we don't recommend this approach as it will add more latency for your u
 
 If you are getting errors like `secretOrPrivateKey must be an asymmetric key when using RS256`,
 try using the base-64 encoded format of your signing key generated in the Knock Dashboard (under Developers > API keys > Application Signing Keys).
-      
+
 ```bash
 // .env.local
 KNOCK_SIGNING_KEY="LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQoK..."
