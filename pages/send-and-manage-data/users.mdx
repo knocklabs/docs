@@ -5,6 +5,7 @@ tags: ["recipients", "identify", "actor"]
 section: Send & manage data
 ---
 
+import Callout from "../../components/Callout";
 import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
 
 A [User](/reference#users) represents a person who may need to be notified of some action occurring in your product.
@@ -63,7 +64,18 @@ See below for further discussion on [how and when to identify users in Knock](#w
 
 The identifier for a user is important as it's the unique key that we will use to merge users and determine recipients for a notification. Generally, the best practice here is to use your internal identifier for your users as the `id`.
 
-**Please note: The maximum number of characters for the identifier is 256 and it cannot contain any "/". Also you cannot change a user's id once it has been set, so we recommend you use an non-transient `id` like a primary key rather than a phone number or email address**.
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Please note:</span> The maximum number of
+      characters for the identifier is 256 and it cannot contain a "/". You{" "}
+      <span className="font-bold">cannot change</span> a user's id once it has
+      been set, so we recommend you use a non-transient `id` like a primary key
+      rather than a phone number or email address.
+    </>
+  }
+/>
 
 ### Required attributes
 
@@ -174,3 +186,34 @@ Merging two users will merge the `secondary` user (the invited user in our examp
 - **Activities**: Any activities from the past 30 days that the secondary user was an `actor` or `recipient` of will be transferred to the primary user.
 
 If you need to retain more than 30 days worth of history, please contact us.
+
+## Frequently asked questions
+
+**What do I do if my notification recipients aren't yet users?**
+
+Commonly you'll want to send notifications to entities in your system that are not currently registered users in your product (think guests or invited users). In these situations we recommend:
+
+1. Identifying the user with a unique identifier, such as their email address, or with a prefix (`guest_`) to denote the different type.
+2. Where possible, if the notified user becomes a registered user in your system then using our [merge API](#merging-users) to merge the guest user and the registered user to preserve message sending history.
+
+It might feel counterintuitive to store registered users and non-registered users under a single collection in your Knock environment, but Knock should always be viewed as a _cache_ of information about users and entities that may need to be notified in your system.
+
+**Are users unique per environment?**
+
+Yes, they are. Each environment has a separate, isolated set of users. If you need to share users across environments, you must re-identify them in each environment.
+
+**What do I do if I have different types of users?**
+
+If you want to store and notify different types of users within your Knock environment, we recommend prefixing the id with the type. So if you had two distinct user types, `owners` and `customers` you can pass Knock ids like `customer_123` and `owner_456`.
+
+**How can I send a notification to a non-user entity?**
+
+If you need to send a notification to an entity in your system you should have a look at modelling those as [Objects](/send-and-manage-data/objects). Objects can represent **any non-user entity**.
+
+**Why do I see my team members as users in Knock?**
+
+When you add new team members in the Knock dashboard, we automatically add those as "Users" within your Knock development environment so can send the notifications. We do this to help you with testing.
+
+**Can I avoid storing user data in Knock?**
+
+No, all users who are sent a notification are identified in your Knock environment and are persisted. If you have a use case here that you wish to discuss with us please [get in touch](mailto:support@knock.app).
