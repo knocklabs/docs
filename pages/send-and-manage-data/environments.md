@@ -1,7 +1,15 @@
 ---
 title: Environments
 description: Learn about how Knock's isolated environment model works and how it fits into your system development lifecycle.
-tags: ["how knock works", "branches", "env", "version control", "versions", "variables"]
+tags:
+  [
+    "how knock works",
+    "branches",
+    "env",
+    "version control",
+    "versions",
+    "variables",
+  ]
 section: Send & manage data
 ---
 
@@ -45,12 +53,12 @@ A couple other things to note:
 We recognize the importance of protecting your sensitive data, so we designed Knock from the ground-up with privacy and security in mind.
 
 There are two tools you can use to control access to your data in the Knock dashboard:
-- [Roles and permissions.](/manage-your-account/roles-and-permissions) Knock offers granular roles for the different functions your team members may want to carry out in Knock, such as support team members that need to debug issues for customers but shouldn't be making changes to notification logic. 
-- [Customer data obfuscation.](/manage-your-account/data-obfuscation) You can our per-environment data obfuscation controls to configure whether you want your team members to be able to view customer data in the Knock dashboard. 
 
+- [Roles and permissions.](/manage-your-account/roles-and-permissions) Knock offers granular roles for the different functions your team members may want to carry out in Knock, such as support team members that need to debug issues for customers but shouldn't be making changes to notification logic.
+- [Customer data obfuscation.](/manage-your-account/data-obfuscation) You can our per-environment data obfuscation controls to configure whether you want your team members to be able to view customer data in the Knock dashboard.
 
 ## Account and environment variables
 
 You can use variables to set global values to use across your workflows and layouts. Variables can be defined at the account-level in Knock, meaning they apply across all workflows, or can be defined/overridden at the environment-level. When a variable is defined, it is available under the `vars` namespace in any notification templates where you want to use it.
 
-You can set account-level variables in the settings page of the Knock dashboard. You can set environment-level variables under the developers page of a given environment within the Knock dashboard.
+[Read more about variables](/send-and-manage-data/variables)
