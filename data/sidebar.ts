@@ -31,6 +31,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/messages", title: "Messages" },
       { slug: "/outbound-webhooks", title: "Outbound webhooks" },
       { slug: "/conditions", title: "Conditions" },
+      { slug: "/variables", title: "Variables" },
     ],
   },
   {
