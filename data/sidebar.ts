@@ -29,7 +29,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/subscriptions", title: "Subscriptions" },
       { slug: "/tenants", title: "Tenants" },
       { slug: "/messages", title: "Messages" },
-      { slug: "/localization", title: "Localization" },
+      { slug: "/translations", title: "Translations" },
       { slug: "/outbound-webhooks", title: "Outbound webhooks" },
       { slug: "/conditions", title: "Conditions" },
       { slug: "/variables", title: "Variables" },
