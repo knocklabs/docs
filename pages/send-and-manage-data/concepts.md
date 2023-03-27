@@ -67,6 +67,12 @@ A message in Knock represents a notification delivered to a recipient on a parti
 
 [API reference →](/reference#messages)
 
+## Translations
+
+Translations support localization in Knock. They hold the translated content for a given locale, which you can reference in your message templates with the `t` Liquid function filter.
+
+[Learn more →](/send-and-manage-data/localization)
+
 ## Outbound webhooks
 
 You can configure Knock to make requests to your own backend with data about events happening in your Knock account. Knock scopes webhooks to a single environment and they notify on message lifecycle event changes.
