@@ -16,9 +16,23 @@ section: Send & manage data
 import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
 import Callout from "../../components/Callout";
 
+<Callout
+  emoji="✨"
+  text={
+    <>
+      <span className="font-bold">Growth plan feature.</span> Translations are
+      only available on our{" "}
+      <a href="https://knock.app/pricing">Growth and Enterprise plans</a>.
+    </>
+  }
+/>
+
 ## An overview
 
-You can localize your message templates by using the `t` Liquid function helper and translation files you create in Knock. This is useful when you want to send the same notification in different languages, based on your recipient’s locale. This keeps your notifications streamlined - rather than using conditionals within the template, you can reference the text that will be translated right from the template itself.
+You can localize your message templates referencing translation files you create in Knock with the Liquid `t` filter in your message templates. This is useful when you want to send the same notification in different languages, based on your recipient’s locale.
+This keeps your notifications streamlined - rather than using conditionals within
+the template, you can reference the text that will be translated right from the template
+itself.
 
 ## Enabling translations and setting a default locale
 
@@ -28,31 +42,29 @@ Go to “Settings” under your account name in the left sidebar and click “En
 
 ## Basic usage
 
-Translations are a JSON object that contain the text for your messages in various locales. For example, let’s say you have a customer order notification you’re building and want to localize it for French and English users. Your translations might look like this:
+Translations are a JSON object that contain the text for your messages in various locales. For example, let’s say you have a customer order notification you’re building and want to localize it for French and English users. Your translation files might look like this:
 
-```json
-// en translation
-
+```json en translation
 {
-	"OrderReady": "Your order is ready.",
-    "OrderDelayed": "Your order is delayed."
-}
-
-// fr translation
-
-{
-	"OrderReady": "Votre commande est prête.",
-    "OrderDelayed": "Votre commande est retardée."
+  "OrderReady": "Your order is ready.",
+  "OrderDelayed": "Your order is delayed."
 }
 ```
 
-Once you have those translations created for the `en` and `fr` locales, you can reference it in your message template like this :
+```json fr translation
+{
+  "OrderReady": "Votre commande est prête.",
+  "OrderDelayed": "Votre commande est retardée."
+}
+```
 
-```HTML
+Once you have those translations created for the `en` and `fr` locales, you can reference it in your message template like this:
+
+```json Message template editor
 <p> {{ "OrderReady" | t }} </p>
 ```
 
-The recipient must have a `“locale”` property set to receive the translation with the same locale. You can add properties to any of your users when you call the [user identify endpoint](/reference#identify-user). For a recipient with a locale of `en`, they would see “Your order is ready” while a recipient with a locale of `fr` would see “Votre commande est prête”.
+The recipient must have a `“locale”` property set to receive the translation with the same locale. You can add properties to any of your users when you call the [user identify endpoint](/reference#identify-user). For a recipient with a locale of `en`, they would see “Your order is ready” while a recipient with a locale of `fr` would see “Votre commande est prête”. If a recipient doesn't have their locale set, because our fallback locale is `en` they would also see "Your order is ready."
 
 ## Working with translation files
 
@@ -68,7 +80,14 @@ Keep in mind that you cannot create two translations with the same locale and na
 
 Once you’ve created a translation file, you can begin to add to it and edit the JSON directly. Make sure to “Save” it when you’re happy with it, and then you can click “Commit” to make it available in your development environment. You must use valid JSON, but there are no restrictions on the format of the keys or on how deeply nested you decide to build your translation.
 
-Note: in order to see translations in your email previews, you must commit them to your environment first.
+<Callout
+  emoji="✨"
+  text={
+    <>
+      <span className="font-bold">Tip:</span>{" "}In order to see translations in your email previews and activate them for use in your notifications, you must commit them to your environment first.
+    </>
+  }
+/>
 
 ### Archiving a translation
 
@@ -76,7 +95,7 @@ From the list of translations, click the 3-dot menu next to the translation you 
 
 ## Using the `t` filter in your message templates
 
-Knock supplies a `t` filter for you to reference your translation files from within the message template. As shown in the Basic usage example, you’ll reference the key of the translation you want to use followed by `| t` and it will supply the translation for the recipient’s locale. The `t` filter also allows you to use variables, other filters, and special pluralization rules as well, which we’ll cover here.
+Knock supplies a `t` filter for you to reference your translation files from within the message template. As shown [above](send-and-manage-data/localization#basic-usage), you’ll reference the key of the translation you want to use followed by `| t` and it will supply the translation for the recipient’s locale. The `t` filter also allows you to use variables, other filters, and special pluralization rules as well, which we’ll cover here.
 
 ### Namespaced translation files
 
@@ -84,7 +103,7 @@ You’ll use namespaced translation files just as you would a translation file w
 
 For a translation file with a namespace of `shipping`:
 
-```json
+```json en:shipping translation
 {
   "backordered": "Your order has been backordered so shipping will be delayed.",
   "shipped": "Your order has been shipped.",
@@ -94,13 +113,13 @@ For a translation file with a namespace of `shipping`:
 
 To access the contents of the `shipping` file in your message template you’ll reference the namespace before the key followed by a colon (”:”):
 
-```HTML
+```json Message template editor
 <p> {{ "shipping:canceled" | t }} </p>
 ```
 
 This can be helpful if you use the `canceled` key else where in your translations so that there isn’t a collision. For example, if you had a `payments` file like this:
 
-```json
+```json en:payments translation
 {
   "success": "Your payment has been processed.",
   "canceled": "Your payment was canceled."
@@ -109,13 +128,13 @@ This can be helpful if you use the `canceled` key else where in your translation
 
 You would reference it with the `payments` namespace as well:
 
-```HTML
+```json Message template editor
 <p> {{ "payments:canceled" | t }} </p>
 ```
 
 And if you had a translation file that wasn’t namespaced, say the `en` translation file, you would simply use the key alone. All together in a template, it would look like this:
 
-```HTML
+```json Message template editor
 <p> Hello, </p>
 <p> {{ "payments:canceled" | t }} </p>
 <p> {{ "shipments:canceled" | t }} </p>
@@ -126,29 +145,29 @@ And if you had a translation file that wasn’t namespaced, say the `en` transla
 
 You can create whatever JSON structure you need to hold your translations, sometimes those might be deeply nested. Given the following translation:
 
-```json
+```json en translation
 {
-    "customers": {
-        "orders": {
-            "beenReceived": "Have you received your order?",
-            "survey": "How was your order?",
-        },
-        "reminder": {
-            "paymentInfo": "Remember to update your payment information!"
-        }
+  "customers": {
+    "orders": {
+      "beenReceived": "Have you received your order?",
+      "survey": "How was your order?"
+    },
+    "reminder": {
+      "paymentInfo": "Remember to update your payment information!"
+    }
   }
 }
 ```
 
 You can access the content with dot-syntax like this:
 
-```json
+```json Message template editor
 <p> {{ "customers.orders.beenReceived" | t }} </p>
 ```
 
 The same goes for namespaced files. If the above translation was in a file named `services` , you would do the following:
 
-```json
+```json Message template editor
 <p> {{ "services:customers.orders.beenReceived" | t }} </p>
 ```
 
@@ -156,7 +175,7 @@ The same goes for namespaced files. If the above translation was in a file named
 
 You can and probably will often use variables inside of your translations. Let’s look at this translation file example:
 
-```json
+```json en translation
 {
   "comment": "New comment from {{ actorName }} on your post {{ postName }}.",
   "like": "{{ actorName }} liked your photo {{ photoTitle}}!"
@@ -165,7 +184,7 @@ You can and probably will often use variables inside of your translations. Let�
 
 You can pass variables to the filter like this:
 
-```json
+```json Message template editor
 <p> {{ "like" | t: actorName: actor.name, photoTitle: likedPhoto.title }} </p>
 ```
 
@@ -177,21 +196,21 @@ Translations sometimes need specialized pluralization rules. When you pass the `
 
 For example:
 
-```json
+```json en translation
 {
-    "orders": {
-        "shipping": {
-            "zero": "You have no orders currently being shipped.",
-            "one": "You have one order being shipped.",
-            "other": "You have {{ count }} orders being shipped."
-        }
+  "orders": {
+    "shipping": {
+      "zero": "You have no orders currently being shipped.",
+      "one": "You have one order being shipped.",
+      "other": "You have {{ count }} orders being shipped."
     }
+  }
 }
 ```
 
 And you would just need to pass your `count` variable for it to choose one of these based on the number:
 
-```HTML
+```json Message template editor
 <p> {{ "orders.shipping" | t: count: count }} </p>
 ```
 
@@ -200,18 +219,10 @@ And you would just need to pass your `count` variable for it to choose one of th
 
 ### Other filters in combination
 
-You can still use other filters in combination with `t` but you’ll use them *****after***** you use the `t` filter. For example, to titlecase a translation:
+You can still use other filters in combination with `t` but you’ll use them **\***after**\*** you use the `t` filter. For example, to titlecase a translation:
 
-```HTML
+```json Message template editor
 <p> {{ "congratulationsMessage" | t | titlecase }} </p>
-```
-
-*Note: at this time, you can’t use filters inside of a translation’s variable. For example, this is not possible:
-
-```HTML
-{
-  "comment": "New comment from {{ actorName | titlecase }} on your post."
-}
 ```
 
 ## Rules for determining the translation used for a recipient
