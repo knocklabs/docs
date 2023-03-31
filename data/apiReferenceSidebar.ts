@@ -10,6 +10,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#api-keys", title: "API keys" },
       { slug: "#authentication", title: "Authentication" },
       { slug: "#rate-limits", title: "Rate limits" },
+      { slug: "#idempotent-requests", title: "Idempotent Requests" },
       { slug: "#errors", title: "Errors" },
       { slug: "#error-codes", title: "Common error codes" },
     ],

@@ -19,6 +19,7 @@ const EVENT_NAME = "language.change";
 
 /* eslint-disable */
 const snippets = {
+  "api.idempotency": require("../data/code/api/idempotency").default,
   // Users
   "users.bulkIdentify": require("../data/code/users/bulk-identify").default,
   "users.bulkDelete": require("../data/code/users/bulk-delete").default,
