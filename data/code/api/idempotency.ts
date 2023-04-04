@@ -3,92 +3,124 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
-await knock.users.identify("1", {
-  name: "John Hammond",
-  email: "jhammond@ingen.net",
-}, {
-  idempotencyKey: "12345"
-});
-`,
-  elixir: `
-knock_client = MyApp.Knock.client()
+await knock.workflows.trigger("new-comment", {
+  recipients: ["1", "2"],
 
-Knock.Users.identify(knock_client, "1", %{
-  name: "John Hammond",
-  email: "jhammond@ingen.net"
-}, idempotency_key: "12345")
+  // optional
+  data: { "project_name": "My Project" },
+  actor: "3",
+  cancellationKey: "cancel_123",
+  tenant: "jurassic_world_employees"
+},
+{
+  idempotencyKey: "123"
+}
+);
   `,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.users.identify(
-  id="1",
-  data={
-    "name": "John Hammond",
-    "email": "jhammond@ingen.net"
-  },
-  options={
-    "idempotency_key": "12345"
-  }
+client.workflows.trigger(
+    key="new-comment",
+    recipients=["1", "2"]
+
+    # optional
+    data={ "project_name": "My Project" },
+    actor="3",
+    cancellation_key="cancel_123",
+    tenant="jurassic_world_employees"
+
+    idempotency_key="123"
 )
-  `,
+`,
   ruby: `
 require "knockapi"
-
 Knock.key = "sk_12345"
 
-Knock::Users.identify(
-  id: "1",
-  data: {
-    name: "John Hammond",
-    email: "jhammond@ingen.net"
-  },
-  options: {
-    idempotency_key: "12345"
-  }
+Knock::Workflows.trigger(
+  key: "new-comment",
+  recipients: ["1", "2"]
+
+  # optional
+  data: { project_name: "My Project" },
+  actor: "3",
+  cancellation_key: "cancel_123",
+  tenant: "jurassic_world_employees",
+  idempotency_key: "123"
 )
 `,
   csharp: `
 var knockClient = new KnockClient(
-  new KnockOptions { ApiKey = "sk_12345" }
+    new KnockOptions { ApiKey = "sk_12345" }
 );
 
-var params = new Dictionary<string, string>{
-  {"name", "John Hammond"},
-  {"email", "jhammond@ingen.net"}
+var workflowTriggerOpts = new TriggerWorkflow {
+  Recipients = new List<string>{"1", "2"}
+
+  // optional
+  Data = new Dictionary<string, string>{
+    {"project_name", "My Project"}
+  },
+  Actor = "3",
+  CancellationKey = "cancel_123",
+  Tenant = "jurassic_world_employees"
 };
 
-var options = new Dictionary<string, string>{
-  {"idempotency_key", "12345"}
-};
+var methodOpts = new MethodOptions {
+  IdempotencyKey = "123"
+}
 
-var user = await knockClient.Users.Identify("1", params, options)
+var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerOpts, methodOpts)
+`,
+  elixir: `
+knock_client = MyApp.Knock.client()
+
+Knock.Workflows.trigger("new-comment", %{
+  recipients: ["1", "2"]
+
+  # optional
+  data: %{project_name: "My Project"},
+  actor: "3",
+  cancellation_key: "cancel_123",
+  tenant: "jurassic_world_employees"
+}, idempotency_key: "123")
 `,
   php: `
 use Knock\\KnockSdk\\Client;
 
 $client = new Client('sk_12345');
 
-$client->users()->identify('1', [
-  'name' => 'John Hammond',
-  'email' => 'jhammond@ingen.net',
+$client->workflows()->trigger('new-comment', [
+  'recipients' => ['1', '2']
+
+  // optional
+  'data' => ['project_name' => My Project],
+  'actor' => 3,
+  'cancellation_key' => 'cancel_123',
+  'tenant' => 'jurassic_world_employees'
 ],
 [
-  'idempotency_key' => '12345'
+  'idempotency_key' => '123'
 ]);
 `,
   go: `
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
-  ID: "1",
-  Name: "John Hammond",
-  Email: "jhammond@ingen.net"
-}, &knock.IdentifyUserOptions{
-  IdempotencyKey: "12345",
-  })
+result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+  Workflow:   "new-comment",
+  Recipients: []string{"1", "2"}
+
+  // optional
+  Data:            map[string]string{"project_name": "My Project"},
+  Actor:           "3",
+  CancellationKey: "cancel_123"
+  Tenant:          "jurassic_world_employees"
+},
+&knock.MethodOptions{
+  IdempotencyKey: "123"
+})
 `,
   java: `
 import app.knock.api.KnockClient;
@@ -98,14 +130,22 @@ KnockClient client = KnockClient.builder()
     .apiKey("sk_12345")
     .build();
 
-UserIdentity user = client.users().identify("1", UserIdentity.builder()
-  .name("John Hammond")
-  .email("jhammond@ingen.net")
-  .build(),
-  UserIdentityOptions.builder()
-    .idempotencyKey("12345")
-    .build()
-  );
+WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+    .key("new-comment")
+    .recipients(List.of("1", "2"))
+
+    // optional
+    .data("project_name", "My project")
+    .actor("3")
+    .cancellationKey("cancel_123")
+    .tenant("jurassic_world_employees")
+    .build();
+
+MethodOptions methodOptions = MethodOptions.builder()
+    .idempotencyKey("123")
+    .build();
+
+WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger, methodOptions);
 `,
 };
 
