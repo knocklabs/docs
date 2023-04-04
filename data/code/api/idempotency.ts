@@ -101,7 +101,7 @@ $client->workflows()->trigger('new-comment', [
   'tenant' => 'jurassic_world_employees'
 ],
 [
-  'idempotency_key' => '123'
+  'Idempotency-Key' => '123'
 ]);
 `,
   go: `
