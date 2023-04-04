@@ -323,6 +323,11 @@ module.exports = withPlugins(
           destination: "/security",
           permanent: false,
         },
+        {
+          source: "/designing-workflows/template-editor",
+          destination: "/designing-workflows/template-editor/overview",
+          permanent: false,
+        },
       ];
     },
   },
