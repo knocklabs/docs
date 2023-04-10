@@ -15,6 +15,8 @@ import {
   ExampleColumn,
 } from "../../components/ApiSections";
 import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
+import RateLimit from "../../components/RateLimit";
+import Callout from "../../components/Callout";
 
 <!-- Let #overview anchor tag to go to the top of the page -->
 
@@ -72,13 +74,71 @@ Each Environment in your account has both a publishable and secret key pair. API
 <Section title="Authentication" slug="authentication">
 <ContentColumn>
 
-You must pass your API key to Knock as a Bearer token using the following header:
+You must pass your API key to Knock as a Bearer token using the `Authorization` header.
+
+</ContentColumn>
+<ExampleColumn>
 
 ```bash Authentication header
 Authorization: Bearer sk_test_12345
 ```
 
+</ExampleColumn>
+</Section>
+
+<Section title="Rate limits" slug="rate-limits">
+<ContentColumn>
+
+Each endpoint in the Knock API is rate limited. Knock uses a tier system to determine the rate limit scale for each endpoint. When your request has been rate limited, the Knock API will return a `429 Too Many Requests` error in response.
+
+By default, Knock scopes rate limits for each endpoint per API key. When you send requests with a signed user token, Knock will scope rate limits by both API key and user. See our guide on [enhanced security mode](/in-app-ui/security-and-authentication#authentication-with-enhanced-security) for more details on working with signed user tokens.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Concerned about exceeding a Knock rate limit?</strong> <a href="https://knock.app/contact-sales">Contact us</a> and we can help figure out a usage rate that's right for your specific needs.
+    </>
+  }
+/>
+
 </ContentColumn>
+<ExampleColumn>
+
+<div className="prose-sm lg:prose dark:prose-invert">
+  <table>
+    <thead>
+      <tr>
+        <th>Scale</th>
+        <th>Limit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><RateLimit tier={1} /></td>
+        <td>1 request / second</td>
+      </tr>
+      <tr>
+        <td><RateLimit tier={2} /></td>
+        <td>5 requests / second</td>
+      </tr>
+      <tr>
+        <td><RateLimit tier={3} /></td>
+        <td>60 requests / second</td>
+      </tr>
+      <tr>
+        <td><RateLimit tier={4} /></td>
+        <td>200 requests / second</td>
+      </tr>
+      <tr>
+        <td><RateLimit tier={5} /></td>
+        <td>1,000 requests / second</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</ExampleColumn>
 </Section>
 
 <Section title="Errors" slug="errors" direction="column">
@@ -263,6 +323,10 @@ Identifying a user will create or update a user in Knock, merging the properties
 
 <Endpoint method="PUT" path="/users/:user_id" />
 
+### Rate limit
+
+<RateLimit tier={3} />
+
 ### Path parameters
 
 <Attributes>
@@ -337,6 +401,10 @@ Retrieve a user by their ID, including all properties previously set.
 
 <Endpoint method="GET" path="/users/:user_id" />
 
+### Rate limit
+
+<RateLimit tier={4} />
+
 ### Path parameters
 
 <Attributes>
@@ -380,6 +448,10 @@ Retrieve a paginated list of messages for a user. Will return most recent messag
 ### Endpoint
 
 <Endpoint method="GET" path="/users/:id/messages" />
+
+### Rate limit
+
+<RateLimit tier={4} />
 
 ### Path parameters
 
@@ -496,6 +568,10 @@ Deletes a user by the id given.
 
 <Endpoint method="DELETE" path="/users/:user_id" />
 
+### Rate limit
+
+<RateLimit tier={2} />
+
 ### Path parameters
 
 <Attributes>
@@ -528,6 +604,10 @@ Merges the two users together, merging the user specified in the `from_user_id` 
 ### Endpoint
 
 <Endpoint method="POST" path="/users/:user_id/merge" />
+
+### Rate limit
+
+<RateLimit tier={2} />
 
 ### Path parameters
 
@@ -583,6 +663,10 @@ Identifies up to 100 users at a time. Returns a `BulkOperation` that executes th
 
 <Endpoint method="POST" path="/users/bulk/identify" />
 
+### Rate limit
+
+<RateLimit tier={1} />
+
 ### Body parameters
 
 <Attributes>
@@ -633,6 +717,10 @@ Deletes up to 100 users at a time. Returns a `BulkOperation` that executes the j
 ### Endpoint
 
 <Endpoint method="POST" path="/users/bulk/delete" />
+
+### Rate limit
+
+<RateLimit tier={1} />
 
 ### Body parameters
 
@@ -704,6 +792,10 @@ A trigger calls a workflow created via the Knock dashboard.
 ### Endpoint
 
 <Endpoint method="POST" path="/workflows/:key/trigger" />
+
+### Rate limit
+
+<RateLimit tier={5} />
 
 ### Path parameters
 
@@ -779,6 +871,10 @@ See our guides on inline identification [for users](/send-and-manage-data/users#
 ### Endpoint
 
 <Endpoint method="POST" path="/workflows/:key/trigger" />
+
+### Rate limit
+
+<RateLimit tier={5} />
 
 ### Path parameters
 
@@ -857,6 +953,10 @@ Cancel a delayed workflow for one or more recipients.
 ### Endpoint
 
 <Endpoint method="POST" path="/workflows/:key/cancel" />
+
+### Rate limit
+
+<RateLimit tier={5} />
 
 ### Path parameters
 
@@ -1007,6 +1107,10 @@ even if it does not currently exist for the user.
   path="/users/:user_id/preferences/:id"
 />
 
+### Rate limit
+
+<RateLimit tier={4} />
+
 ### Path parameters
 
 <Attributes>
@@ -1078,6 +1182,10 @@ be either `default` or a `tenant.id`. Learn more about per-tenant preference set
   method="PUT"
   path="/users/:user_id/preferences/:id"
 />
+
+### Rate limit
+
+<RateLimit tier={3} />
 
 ### Path parameters
 
@@ -1166,6 +1274,10 @@ will replace any existing users' preferences with the preferences sent.
   path="/users/bulk/preferences"
 />
 
+### Rate limit
+
+<RateLimit tier={1} />
+
 ### Body parameters
 
 <Attributes>
@@ -1241,6 +1353,10 @@ even if it does not currently exist for the object.
   method="GET"
   path="/objects/:collection/:object_id/preferences/:id"
 />
+
+### Rate limit
+
+<RateLimit tier={4} />
 
 ### Path parameters
 
@@ -1318,6 +1434,10 @@ be either `default` or a `tenant.id`. Learn more about per-tenant preference set
   method="PUT"
   path="/objects/:collection/:object_id/preferences/:id"
 />
+
+### Rate limit
+
+<RateLimit tier={3} />
 
 ### Path parameters
 
@@ -1478,6 +1598,10 @@ Retrieves the channel data for the provided user (or object) on the channel spec
 
 <Endpoint method="GET" path="/users/:user_id/channel_data/:channel_id" />
 
+### Rate limit
+
+<RateLimit tier={4} />
+
 ### Path parameters
 
 <Attributes>
@@ -1517,6 +1641,10 @@ Sets channel data for the user and the channel specified.
 ### Endpoint
 
 <Endpoint method="PUT" path="/users/:user_id/channel_data/:channel_id" />
+
+### Rate limit
+
+<RateLimit tier={3} />
 
 ### Path parameters
 
@@ -1582,6 +1710,10 @@ Unsets (removes) channel data for the user and the channel specified.
 
 <Endpoint method="DELETE" path="/users/:user_id/channel_data/:channel_id" />
 
+### Rate limit
+
+<RateLimit tier={3} />
+
 ### Path parameters
 
 <Attributes>
@@ -1624,6 +1756,10 @@ Retrieves the channel data for the provided user (or object) on the channel spec
   method="GET"
   path="/objects/:collection/:object_id/channel_data/:channel_id"
 />
+
+### Rate limit
+
+<RateLimit tier={4} />
 
 ### Path parameters
 
@@ -1672,6 +1808,10 @@ Sets channel data for the object and the channel specified.
   method="PUT"
   path="/objects/:collection/:object_id/channel_data/:channel_id"
 />
+
+### Rate limit
+
+<RateLimit tier={3} />
 
 ### Path parameters
 
@@ -1744,6 +1884,10 @@ Unsets (removes) channel data for the object and the channel specified.
   method="DELETE"
   path="/objects/:collection/:object_id/channel_data/:channel_id"
 />
+
+### Rate limit
+
+<RateLimit tier={3} />
 
 ### Path parameters
 
@@ -1938,6 +2082,10 @@ along with a user token to make this request**
 ### Endpoint
 
 <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
+
+### Rate limit
+
+<RateLimit tier={2} />
 
 ### Path parameters
 
@@ -2156,6 +2304,10 @@ Returns a paginated list of messages.
 
 <Endpoint method="GET" path="/messages" />
 
+### Rate limit
+
+<RateLimit tier={4} />
+
 ### Query parameters
 
 <Attributes>
@@ -2267,6 +2419,10 @@ Retrieve a message by the id.
 
 <Endpoint method="GET" path="/messages/:id" />
 
+### Rate limit
+
+<RateLimit tier={4} />
+
 ### Path parameters
 
 <Attributes>
@@ -2293,6 +2449,10 @@ Returns a paginated list of events for a message.
 ### Endpoint
 
 <Endpoint method="GET" path="/messages/:id/events" />
+
+### Rate limit
+
+<RateLimit tier={4} />
 
 ### Path parameters
 
@@ -2363,6 +2523,10 @@ Returns a paginated list of activities associated with the message. Note: for no
 ### Endpoint
 
 <Endpoint method="GET" path="/messages/:id/activities" />
+
+### Rate limit
+
+<RateLimit tier={4} />
 
 ### Path parameters
 
@@ -2460,6 +2624,10 @@ Retrieves the contents of a message, generated and sent to the end provider.
 
 <Endpoint method="GET" path="/messages/:id/content" />
 
+### Rate limit
+
+<RateLimit tier={3} />
+
 ### Path parameters
 
 <Attributes>
@@ -2510,6 +2678,10 @@ Retrieves the delivery logs of a message, generated while sending and checking t
 ### Endpoint
 
 <Endpoint method="GET" path="/messages/:id/delivery_logs" />
+
+### Rate limit
+
+<RateLimit tier={4} />
 
 ### Path parameters
 
@@ -2595,6 +2767,10 @@ Marks the given message as the `status`, recording an event in the process.
 
 <Endpoint method="PUT" path="/messages/:id/:status" />
 
+### Rate limit
+
+<RateLimit tier={2} />
+
 ### Path parameters
 
 <Attributes>
@@ -2622,6 +2798,10 @@ Un-marks the given message as the `status`, recording an event in the process.
 
 <Endpoint method="DELETE" path="/messages/:id/:status" />
 
+### Rate limit
+
+<RateLimit tier={2} />
+
 ### Path parameters
 
 <Attributes>
@@ -2648,6 +2828,10 @@ Multiple messages can be changed at once using the batch API, where all message 
 ### Endpoint
 
 <Endpoint method="POST" path="/messages/batch/:status" />
+
+### Rate limit
+
+<RateLimit tier={3} />
 
 ### Path parameters
 
@@ -2686,6 +2870,10 @@ which allows you to track the status of the job.
 ### Endpoint
 
 <Endpoint method="POST" path="/channels/:id/messages/bulk/:status" />
+
+### Rate limit
+
+<RateLimit tier={2} />
 
 ### Path parameters
 
@@ -2832,6 +3020,10 @@ to understand when a bulk operation has finished executing (either completed, or
 
 <Endpoint method="GET" path="/bulk_operations/:id" />
 
+### Rate limit
+
+<RateLimit tier={4} />
+
 ### Path parameters
 
 <Attributes>
@@ -2931,6 +3123,10 @@ Retrieve an object in a collection by the id.
 
 <Endpoint name="get-object" method="GET" path="/objects/:collection/:id" />
 
+### Rate limit
+
+<RateLimit tier={4} />
+
 ### Path parameters
 
 <Attributes>
@@ -2979,6 +3175,10 @@ Returns a paginated list of messages for an object. Will return newest messages 
 ### Endpoint
 
 <Endpoint method="GET" path="/objects/:collection/:id/messages" />
+
+### Rate limit
+
+<RateLimit tier={4} />
 
 ### Path parameters
 
@@ -3102,6 +3302,10 @@ Sets an object within a collection, performing an upsert operation. Any existing
 
 <Endpoint name="set-object" method="PUT" path="/objects/:collection/:id" />
 
+### Rate limit
+
+<RateLimit tier={3} />
+
 ### Path parameters
 
 <Attributes>
@@ -3163,6 +3367,10 @@ Deletes an object from a collection by the id provided.
   path="/objects/:collection/:id"
 />
 
+### Rate limit
+
+<RateLimit tier={2} />
+
 ### Path parameters
 
 <Attributes>
@@ -3202,6 +3410,10 @@ Bulk sets up to 100 objects at a time within a collection, returning an asynchro
   method="POST"
   path="/objects/:collection/bulk/set"
 />
+
+### Rate limit
+
+<RateLimit tier={1} />
 
 ### Path parameters
 
@@ -3272,6 +3484,10 @@ Bulk deletes up to 100 objects at a time within a collection, returning an async
   method="POST"
   path="/objects/:collection/bulk/delete"
 />
+
+### Rate limit
+
+<RateLimit tier={1} />
 
 ### Path parameters
 
@@ -3394,6 +3610,10 @@ Lists tenants for the environment of the API key
 
 <Endpoint name="list-tenants" method="GET" path="/tenants" />
 
+### Rate limit
+
+<RateLimit tier={4} />
+
 ### Response
 
 Returns a list of `Tenant` objects.
@@ -3439,6 +3659,10 @@ Retrieve a tenant by its id.
 ### Endpoint
 
 <Endpoint name="get-tenant" method="GET" path="/tenants/:id" />
+
+### Rate limit
+
+<RateLimit tier={4} />
 
 ### Path parameters
 
@@ -3493,6 +3717,10 @@ Sets a tenant within an environment, performing an upsert operation. Any existin
 ### Endpoint
 
 <Endpoint name="set-tenant" method="PUT" path="/tenants/:id" />
+
+### Rate limit
+
+<RateLimit tier={3} />
 
 ### Path parameters
 
@@ -3563,6 +3791,10 @@ Deletes a tenant by the id provided.
 ### Endpoint
 
 <Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" />
+
+### Rate limit
+
+<RateLimit tier={2} />
 
 ### Path parameters
 
@@ -3662,6 +3894,10 @@ Lists all subscriptions for an object. Will return the underlying recipient atta
   path="/objects/:collection/:id/subscriptions"
 />
 
+### Rate limit
+
+<RateLimit tier={4} />
+
 ### Path parameters
 
 <Attributes>
@@ -3746,6 +3982,10 @@ Adds one or more recipients as subscribers to the object by creating subscriptio
   path="/objects/:collection/:id/subscriptions"
 />
 
+### Rate limit
+
+<RateLimit tier={3} />
+
 ### Path parameters
 
 <Attributes>
@@ -3826,6 +4066,10 @@ Removes one or more recipients as subscribers to the object.
   method="DELETE"
   path="/objects/:collection/:id/subscriptions"
 />
+
+### Rate limit
+
+<RateLimit tier={3} />
 
 ### Path parameters
 
