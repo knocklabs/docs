@@ -146,6 +146,16 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/data-obfuscation", title: "Data obfuscation" },
     ],
   },
+  {
+    title: "Guides",
+    slug: "/guides",
+    pages: [
+      {
+        slug: "/alerting",
+        title: "Powering alerting with Knock",
+      },
+    ],
+  },
 ];
 
 export default sidebarContent;
