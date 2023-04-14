@@ -1,7 +1,8 @@
 ---
-title: Workflow schedules
-description: Learn how to use Workflow Schedules to run workflows in a cron-like recurring schedule for one or more of your recipients.
-tags: ["crons", "schedules", "digest"]
+title: Schedules
+description: Learn how to use Schedules to run workflows in a cron-like recurring schedule for one or more of your recipients.
+tags:
+  ["crons", "schedules", "digest", "recurring", "weekly", "daily", "monthly"]
 section: Send and manage data
 ---
 
@@ -11,8 +12,8 @@ import Callout from "../../components/Callout";
   emoji="🚧"
   text={
     <>
-      Workflow schedules are currently in beta. If you'd like early access, or
-      this is blocking your adoption of Knock, please{" "}
+      Schedules are currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
       <a href="mailto:support@knock.app?subject=Workflow schedules">
         get in touch
       </a>
@@ -21,11 +22,11 @@ import Callout from "../../components/Callout";
   }
 />
 
-A workflow schedule allows you to automatically trigger a workflow at a given time for one or more recipients. You can think of a workflow schedule as a managed, recipient timezone aware cron job that Knock will run on your behalf.
+A schedule allows you to automatically trigger a workflow at a given time for one or more recipients. You can think of a schedule as a managed, recipient-timezone-aware cron job that Knock will run on your behalf.
 
-An example of where you might reach for a workflow schedule is a digest notification where your users can select the frequency in which they wish to receive the digest (every day, every week, every month).
+An example of where you might reach for a schedule: a digest notification where your users can select the frequency in which they wish to receive the digest (every day, every week, every month).
 
-## How workflows schedules work
+## How schedules work
 
 1. [Create a workflow](/designing-workflows) that you wish to run repeatedly.
 2. Using the API, [set a repeating schedule](#scheduling-workflows-for-recipients) for one or more recipients for the workflow.
@@ -34,7 +35,7 @@ Knock will preemptively schedule workflow runs for the recipient(s) that you've 
 
 ## Scheduling workflows for recipients
 
-To schedule a workflow for a recipient, you must first have a valid, committed workflow in your environment. We can then set a workflow schedule for one or more recipients (up to 100 at a time).
+To schedule a workflow for a recipient, you must first have a valid, committed workflow in your environment. We can then set a schedule for one or more recipients (up to 100 at a time).
 
 ```typescript
 const { Knock } = require("@knocklabs/node");
@@ -42,7 +43,7 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 
 const schedules = await knock.workflows.createSchedules("park-alert", {
   recipients: ["jhammond", "esattler", "dnedry"],
-  data: { type: "dinosuars-loose" },
+  data: { type: "dinosaurs-loose" },
   tenant: "jpark",
 });
 ```
@@ -53,12 +54,13 @@ Scheduling a workflow accepts:
 | -------------- | --------------------- | ------------------------------------------------------------------------- |
 | `recipients`   | RecipientIdentifier[] | One or more recipient identifiers, or complete recipients to be upserted. |
 | `workflow`     | string                | The workflow to trigger                                                   |
+| `repeats`      | ScheduleRepeat[]      | A list of one or more repeats (see below)                                 |
 | `data`         | map                   | Custom data to pass to every workflow trigger                             |
 | `tenant`       | string                | A tenant to pass to the workflow trigger                                  |
 | `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted             |
 | `scheduled_at` | utc_datetime          | A UTC datetime to start the schedule from                                 |
 
-## Modelling repeat behavior
+## Modeling repeat behavior
 
 Every schedule accepts one or more repeat rules, which allow you to express complex rules like:
 
@@ -97,11 +99,11 @@ type ScheduleRepeatProperties = {
 };
 ```
 
-## Updating workflow schedules
+## Updating schedules
 
 Up to 100 recipient schedules can be updated in a single call. Keep in mind that the properties passed in will be applied to all schedules.
 
-```typescript Updating workflow schedules
+```typescript Updating schedules
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
@@ -111,11 +113,11 @@ const schedules = await knock.workflows.updateSchedules({
 });
 ```
 
-## Removing workflow schedules
+## Removing schedules
 
-Up to 100 workflow schedules can be deleted at a time, causing any already enqueued schedules to be cancelled for a recipient.
+Up to 100 schedules can be deleted at a time, causing any already enqueued schedules to be cancelled for a recipient.
 
-```typescript Removing workflow schedules
+```typescript Removing schedules
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
@@ -146,7 +148,7 @@ const { entries: schedules } = await knock.workflows.listSchedules(
 );
 ```
 
-Schedules will include a `next_occurrence_at` which will compute the **next time that a schedule will be executed**.
+Schedules include a `next_occurrence_at` property which computes the **next time that a schedule will be executed**.
 
 ## Workflow data in a scheduled workflow run
 
@@ -154,14 +156,14 @@ Workflows in Knock are triggered either via an API call or via a Source event, b
 
 There are 2 ways in which to get data into each of your scheduled workflow runs:
 
-1. **Define static data passed to every triggered workflow on a schedule.** Optionally we can pass in a `data` payload that will be passed to the workflow trigger when executing.
-2. **Fetch data from an HTTP endpoint to use in your workflow.** You can use an HTTP fetch step to fetch data for a triggered scheduled workflow to “enrich” the data available with information from a remote server (via HTTP).
+1. **Define static data passed to every triggered workflow on a schedule.** We can include an optional `data` payload when we create our schedule. Any workflow runs triggered by that schedule will include the data payload within their workflow run scope.
+2. **Fetch data from an HTTP endpoint to use in your workflow.** You can use an [fetch function step](/designing-workflows/fetch-function) to fetch data for a triggered scheduled workflow to “enrich” the data available with information from a remote server (via HTTP).
 
 ## Executing schedules in a recipient's timezone
 
 Knock supports a `timezone` property on the recipient that automatically makes a scheduled workflow run timezone aware, meaning you can express recurring schedules like "every monday at 9am in the recipient's timezone". Recipient timezones must be a [valid tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), like `America/New_York`.
 
-Read more about recipient timezone support.
+[Read more about recipient timezone support](/send-and-manage-data/recipients#recipient-timezones).
 
 ## Frequently asked questions
 
