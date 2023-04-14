@@ -1,0 +1,186 @@
+---
+title: Schedules
+description: Learn how to use Schedules to run workflows in a cron-like recurring schedule for one or more of your recipients.
+tags:
+  ["crons", "schedules", "digest", "recurring", "weekly", "daily", "monthly"]
+section: Send and manage data
+---
+
+import Callout from "../../components/Callout";
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      Schedules are currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Workflow schedules">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+A schedule allows you to automatically trigger a workflow at a given time for one or more recipients. You can think of a schedule as a managed, recipient-timezone-aware cron job that Knock will run on your behalf.
+
+An example of where you might reach for a schedule: a digest notification where your users can select the frequency in which they wish to receive the digest (every day, every week, every month).
+
+## How schedules work
+
+1. [Create a workflow](/designing-workflows) that you wish to run repeatedly.
+2. Using the API, [set a repeating schedule](#scheduling-workflows-for-recipients) for one or more recipients for the workflow.
+
+Knock will preemptively schedule workflow runs for the recipient(s) that you've provided, and execute those runs at the scheduled time. At the end of the workflow run, a future scheduled workflow will be enqueued based on the recipient's next schedule.
+
+## Scheduling workflows for recipients
+
+To schedule a workflow for a recipient, you must first have a valid, committed workflow in your environment. We can then set a schedule for one or more recipients (up to 100 at a time).
+
+```typescript
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const schedules = await knock.workflows.createSchedules("park-alert", {
+  recipients: ["jhammond", "esattler", "dnedry"],
+  data: { type: "dinosaurs-loose" },
+  tenant: "jpark",
+});
+```
+
+Scheduling a workflow accepts:
+
+| Variable       | Type                  | Description                                                               |
+| -------------- | --------------------- | ------------------------------------------------------------------------- |
+| `recipients`   | RecipientIdentifier[] | One or more recipient identifiers, or complete recipients to be upserted. |
+| `workflow`     | string                | The workflow to trigger                                                   |
+| `repeats`      | ScheduleRepeat[]      | A list of one or more repeats (see below)                                 |
+| `data`         | map                   | Custom data to pass to every workflow trigger                             |
+| `tenant`       | string                | A tenant to pass to the workflow trigger                                  |
+| `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted             |
+| `scheduled_at` | utc_datetime          | A UTC datetime to start the schedule from                                 |
+
+## Modeling repeat behavior
+
+Every schedule accepts one or more repeat rules, which allow you to express complex rules like:
+
+- Every Monday at 9am.
+- Every weekday at 10.30am.
+- Every other Monday, Tuesday, and Friday at 6pm.
+- Every year at midnight.
+
+A schedule repeat has the following type structure:
+
+```typescript
+enum DaysOfWeek {
+  Mon = "mon",
+  Tue = "tue",
+  Wed = "wed",
+  Thu = "thu",
+  Fri = "fri",
+  Sat = "sat",
+  Sun = "sun",
+}
+
+enum RepeatFrequency {
+  Monthly = "monthly",
+  Weekly = "weekly",
+  Daily = "daily",
+  Hourly = "hourly",
+}
+
+type ScheduleRepeatProperties = {
+  frequency: RepeatFrequency;
+  interval?: number;
+  day_of_month?: number;
+  days?: DaysOfWeek[] | "weekdays" | "weekends";
+  hours?: number;
+  minutes?: number;
+};
+```
+
+## Updating schedules
+
+Up to 100 recipient schedules can be updated in a single call. Keep in mind that the properties passed in will be applied to all schedules.
+
+```typescript Updating schedules
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const schedules = await knock.workflows.updateSchedules({
+  schedule_ids: workflowScheduleIds,
+  data: { foo: "bar" },
+});
+```
+
+## Removing schedules
+
+Up to 100 schedules can be deleted at a time, causing any already enqueued schedules to be cancelled for a recipient.
+
+```typescript Removing schedules
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const schedules = await knock.workflows.deleteSchedules({
+  schedule_ids: workflowScheduleIds,
+});
+```
+
+## Listing scheduled workflows
+
+Schedules can be listed per recipient (for a user or an object), or for an individual workflow:
+
+```typescript Listing schedules for a user
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const { entries: schedules } = await knock.users.getSchedules("sam");
+```
+
+<br />
+
+```typescript Listing schedules for a specific workflow
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const { entries: schedules } = await knock.workflows.listSchedules(
+  "workflow-key",
+);
+```
+
+Schedules include a `next_occurrence_at` property which computes the **next time that a schedule will be executed**.
+
+## Workflow data in a scheduled workflow run
+
+Workflows in Knock are triggered either via an API call or via a Source event, both of which will pass the `data` associated. In the case of a scheduled workflow, the workflow will be triggered with an empty data payload by default.
+
+There are 2 ways in which to get data into each of your scheduled workflow runs:
+
+1. **Define static data passed to every triggered workflow on a schedule.** We can include an optional `data` payload when we create our schedule. Any workflow runs triggered by that schedule will include the data payload within their workflow run scope.
+2. **Fetch data from an HTTP endpoint to use in your workflow.** You can use an [fetch function step](/designing-workflows/fetch-function) to fetch data for a triggered scheduled workflow to “enrich” the data available with information from a remote server (via HTTP).
+
+## Executing schedules in a recipient's timezone
+
+Knock supports a `timezone` property on the recipient that automatically makes a scheduled workflow run timezone aware, meaning you can express recurring schedules like "every monday at 9am in the recipient's timezone". Recipient timezones must be a [valid tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), like `America/New_York`.
+
+[Read more about recipient timezone support](/send-and-manage-data/recipients#recipient-timezones).
+
+## Frequently asked questions
+
+**How can I start my repeating schedule at a particular time?**
+You can use the `scheduled_at` attribute to start your schedule at a particular time in the future.
+
+**How can my scheduled workflows use dynamic template data?**
+You can use an HTTP fetch step to fetch data in your workflow as the first step to execute to fetch dynamic template data used in your workflow.
+
+**How can I set static data per workflow schedule?**
+When scheduling a workflow for one or more recipients, you can optionally provide a static set of `data` which will be passed to the invoked workflow.
+
+**Can I cancel a scheduled workflow?**
+At any point before the scheduled workflow is invoked you can unschedule the workflow for one or more recipients. If a workflow has already run, then [normal workflow cancellation rules](/send-notifications/canceling-workflows) take effect.
+
+**Can I still debug a scheduled workflow?**
+You’ll see workflow runs that initiated from a scheduled workflow in the list of workflow runs. From there you can select the debugger and debug a given workflow.
+
+**Can I model exclusion rules in my repeat logic?**
+Currently, no but we'll be looking to add this feature in the near future.

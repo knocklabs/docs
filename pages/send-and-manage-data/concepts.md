@@ -29,6 +29,12 @@ Knock uses a set of logically separated environments that map to your environmen
 
 [Read more →](/send-and-manage-data/environments)
 
+## Schedules
+
+A schedule allows you to automatically trigger a workflow at a given time for one or more recipients. You can think of a schedule as a managed, recipient-timezone-aware cron job that Knock will run on your behalf.
+
+[Read more →](/send-and-manage-data/schedules)
+
 ## Objects
 
 An object represents a resource in your system that you want to map into Knock. Objects are a powerful and flexible way to ensure Knock always has the most up-to-date information required to send your notifications. They also enable you to send notifications to non-user recipients.
@@ -84,3 +90,9 @@ You can configure Knock to make requests to your own backend with data about eve
 Knock uses conditions to model checks that determine variations in your workflow runs. They provide a powerful way to create more advanced notification logic flows.
 
 [Learn more →](/send-and-manage-data/conditions)
+
+## Variables
+
+Variables within Knock let you set shared constants or secrets that you can use in all of the workflows and templates under your account. Variables can be overridden at the environment level to set per environment constants.
+
+[Learn more →](/send-and-manage-data/variables)
