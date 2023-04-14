@@ -315,7 +315,13 @@ module.exports = withPlugins(
         {
           source: "/designing-workflows/references",
           destination:
-            "/designing-workflows/references/reference-liquid-helpers",
+            "/designing-workflows/template-editor/reference-liquid-helpers",
+          permanent: false,
+        },
+        {
+          source: "/designing-workflows/references/reference-liquid-helpers",
+          destination:
+            "/designing-workflows/template-editor/reference-liquid-helpers",
           permanent: false,
         },
         {
