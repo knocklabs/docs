@@ -152,7 +152,11 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       {
         slug: "/alerting",
-        title: "Powering alerting with Knock",
+        title: "Alerting",
+      },
+      {
+        slug: "/customer-webhooks",
+        title: "Customer-facing webhooks",
       },
     ],
   },
