@@ -112,6 +112,11 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/vonage", title: "Vonage" },
     ],
   },
+  {
+    title: "Webhook",
+    slug: "/integrations/webhook",
+    pages: [{ slug: "/overview", title: "Overview" }],
+  },
 
   {
     title: "Extensions",
