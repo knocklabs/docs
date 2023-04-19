@@ -146,6 +146,20 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/data-obfuscation", title: "Data obfuscation" },
     ],
   },
+  {
+    title: "Guides",
+    slug: "/guides",
+    pages: [
+      {
+        slug: "/alerting",
+        title: "Alerting",
+      },
+      {
+        slug: "/customer-webhooks",
+        title: "Customer-facing webhooks",
+      },
+    ],
+  },
 ];
 
 export default sidebarContent;
