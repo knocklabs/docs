@@ -1,0 +1,128 @@
+---
+title: Building customer-facing, configurable webhooks with Knock 
+description: Learn how to use Knock to send per-customer configurable webhooks as part of your notification workflows.
+tags: ["webhooks", "webhooks as a service"]
+section: Guides
+---
+
+In this guide, we’ll walk through how Knock can be used to send per-customer configurable webhooks as part of your notification workflows.
+
+## Using objects and subscriptions to power webhooks
+
+Let's take a hypothetical application comprised of projects that users belong to. Our customers can configure webhooks for each of their project. We can express this as “a project can have one or more configured webhooks”.
+
+In Knock, we’ll model this as follows:
+
+- Every customer configured webhook will be an [object](/send-and-manage-data/objects) in Knock that will house the webhook configuration.
+- All webhooks a customer configures will belong to a single `project` object using [object subscriptions](/send-and-manage-data/subscriptions) to express the relationship between the project and the webhooks configured for that project.
+
+First we’ll upsert the project as an object in Knock. We’re putting the project under a `projects` collection.
+
+```js Upsert our project object 
+const project = await knock.objects.set("projects", "project-1", {
+  name: "My project",
+});
+```
+
+Now, when a customer creates or updates a webhook in our system we’ll upsert a corresponding `project_webhooks` object and associate it back to the project object via a subscription.
+
+```js Creating a webhook object and subscribing it to our project object
+// Generate a webhook ID
+const webhookId = "some-unique-id";
+
+// Create the webhook object with the configuration
+const projectWebhook = await knock.objects.set("project_webhooks", webhookId, {
+  events: ["project:created"],
+	url: "https://some-url.com/incoming/webhook",
+});
+
+// Associate the webhook with the project
+await knock.objects.addSubscriptions("projects", "project-1", {
+  recipients: [{ collection: "project_webhooks", id: webhookId }],
+});
+```
+
+If at any point we need to list all of the configured webhooks for a given project, we can do so by listing the subscriptions for the project:
+
+```js List webhooks for a given project
+const { entries: webhookSubscriptions } = await knock.objects.listSubscriptions(
+	"projects", 
+	"project-1"
+);
+```
+
+## Configuring an HTTP channel
+
+Now we’re going to configure our Webhook HTTP channel in Knock. You can learn how to configure a Webhook HTTP channel in our [webhook channel overview](/integrations/webhook/overview). 
+
+Next, we’ll configure the webhook request for our new webhook channel. For the channel URL we’re going to configure it as `{{ recipient.url }}` which tells Knock to use the URL configured on the webhook recipient object:
+
+![Configure a customer webhook](/images/guides/Configure-customer-webhook.png)
+
+And for the body of the payload that we send per webhook event, we’ll use the following template:
+
+```js Configure the webhook channel payload
+{
+  "type": "{{ event_type }}",
+  "data": {{ payload }},
+  "created_at": {{ timestamp }}
+} 
+```
+
+## Building your webhook notification workflow
+
+Now we can build our notification workflow that sends out a webhook when the customer has a webhook configured for the object.
+
+Start by creating a new workflow in Knock:
+
+![Create a new workflow](/images/guides/create-workflow.png)
+
+Next, add a webhook channel step and point it to the configured customer webhook channel:
+
+![Add webhook step](/images/guides/add-webhook-step.png)
+
+We don’t need to customize any of the data sent in the webhook channel, so we can keep everything as-is and just simply save our changes and commit the workflow.
+
+## Triggering your webhook notification workflow
+
+Now our workflow is configured, we can trigger it via the API. We’ll pass the `project` as a recipient to the workflow, which will automatically trigger our workflow to execute *for all webhooks configured*.
+
+```js Trigger workflow for our project
+await knock.workflows.trigger("workflow-with-webhook-step", {
+	data: {
+		event_type: eventType,
+		payload: eventPayloadData,
+	},
+	recipients: [
+		{ collection: "projects", id: "project-1" }
+	],
+});
+```
+
+This works as Knock will automatically fan-out to all webhooks subscribed to the project as part of the execution, meaning that the workflow is invoked for the project and for each webhook as a recipient.
+
+## Advanced topics
+
+### Debugging failed webhook deliveries
+
+You can use the Message logs within Knock in order to debug messages sent, where you’ll see delivery logs about the request to the customer’s webhook channel.
+
+### Reporting on failed webhook deliveries
+
+You might want to provide a way to notify your customers that their webhooks are failing. You can do so by leveraging Knock’s [outbound webhooks](https://docs.knock.app/send-and-manage-data/outbound-webhooks) features to create a webhook callback to your server that listens for `message.undelivered` events.
+
+## Frequently asked questions
+
+**How do I power different types of webhook events, should those be different notification workflows or a single workflow?**
+The answer here really depends on how different the notifications around each event type need to be. You should consider structuring each event type as a different workflow if the types of notifications sent in each event type differ a lot, or if the templates between event types are sufficiently different. 
+
+**How do I conditionally send to only to webhook objects?**
+If you need to limit the execution of the workflow steps you can add a trigger condition onto your webhook channel steps that will only send to: 
+
+- `recipient.__typename` is equal to `Object`
+- `recipient.collection` is equal to `project_webhooks`
+
+**How do I conditionally allow certain event types on my webhooks?**
+You can store an `event_types` property on your webhook object and use a trigger condition to express whether or not the step should be executed (as an allow list).
+
+- `recipient.event_types` contains `some:event`
