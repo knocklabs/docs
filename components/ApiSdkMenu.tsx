@@ -6,9 +6,9 @@ import { useRouter } from "next/router";
 
 const PageLinks = {
   "API reference": "/reference",
-  "CLI reference": "/cli",
+  // "CLI reference": "/cli",
   "Integration guides": "/integrations/overview",
-  "In-app guide (JS)": "/in-app-ui/overview",
+  "In-app UI guides": "/in-app-ui/overview",
 };
 
 const SdkLinks = {
@@ -57,12 +57,14 @@ const ApiSdkMenu = () => {
             {Object.keys(PageLinks).map((linkName) =>
               currentPage !== linkName ? (
                 <Link href={PageLinks[linkName]} passHref>
+                  {/* eslint-disable */}
                   <a
                     onClick={() => setIsOpen(false)}
                     className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 text-[14px] text-gray-700 dark:text-white"
                   >
                     {linkName}
                   </a>
+                  {/* eslint-enable */}
                 </Link>
               ) : null,
             )}
@@ -70,10 +72,16 @@ const ApiSdkMenu = () => {
           <div className="flex flex-col py-1">
             {Object.keys(SdkLinks).map((sdkName) => (
               <Link href={SdkLinks[sdkName]} passHref>
-                <a className="hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center px-2 py-1 text-[14px] text-gray-700 dark:text-white">
+                {/* eslint-disable */}
+                <a
+                  target="_blank"
+                  onClick={() => setIsOpen(false)}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center px-2 py-1 text-[14px] text-gray-700 dark:text-white"
+                >
                   <span className="mr-1">{sdkName}</span>
                   <IoOpenOutline />
                 </a>
+                {/* eslint-enable */}
               </Link>
             ))}
           </div>
