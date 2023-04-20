@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React, { ReactElement } from "react";
 import { IoMoon, IoSunny } from "react-icons/io5";
+import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 
 import Meta from "../components/Meta";
@@ -18,6 +19,12 @@ type Props = {
   };
 };
 
+const noDocsLinks = ["/reference", "/integrations"];
+
+function showDocsLink(pathName) {
+  return noDocsLinks.some((link) => pathName.startsWith(link));
+}
+
 export const Page: React.FC<Props> = ({
   children,
   pageType,
@@ -25,6 +32,7 @@ export const Page: React.FC<Props> = ({
   metaProps = {},
 }) => {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
 
   return (
     <>
@@ -72,6 +80,14 @@ export const Page: React.FC<Props> = ({
             </button>
 
             <ApiSdkMenu />
+
+            {showDocsLink(router.asPath) && (
+              <Link href="/" passHref>
+                <a className="font-medium text-[14px] leading-[21px] text-gray-500 dark:text-white">
+                  Docs
+                </a>
+              </Link>
+            )}
 
             <div className="hidden md:block">
               <FeedbackPopover />

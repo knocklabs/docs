@@ -5,7 +5,6 @@ import Link from "next/dist/client/link";
 import { useRouter } from "next/router";
 
 const PageLinks = {
-  Docs: "/",
   "API reference": "/reference",
   // "CLI reference": "/cli",
   Integrations: "/integrations/overview",
