@@ -118,6 +118,11 @@ const sidebarContent: SidebarSection[] = [
         ],
       },
       {
+        title: "Angular",
+        slug: "/angular",
+        pages: [{ slug: "/overview", title: "Overview" }],
+      },
+      {
         title: "React Native",
         slug: "/react-native",
         pages: [{ slug: "/overview", title: "Overview" }],
