@@ -1,11 +1,13 @@
 import Link from "next/link";
 import React, { ReactElement } from "react";
 import { IoMoon, IoSunny } from "react-icons/io5";
+import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 
 import Meta from "../components/Meta";
 import FeedbackPopover from "../components/FeedbackPopover";
 import Autocomplete from "../components/Autocomplete";
+import ApiSdkMenu from "../components/ApiSdkMenu";
 
 type Props = {
   pageType: string;
@@ -17,6 +19,12 @@ type Props = {
   };
 };
 
+const noDocsLinks = ["/reference", "/integrations"];
+
+function showDocsLink(pathName) {
+  return noDocsLinks.some((link) => pathName.startsWith(link));
+}
+
 export const Page: React.FC<Props> = ({
   children,
   pageType,
@@ -24,6 +32,7 @@ export const Page: React.FC<Props> = ({
   metaProps = {},
 }) => {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
 
   return (
     <>
@@ -63,14 +72,26 @@ export const Page: React.FC<Props> = ({
           <div className="ml-auto flex items-center space-x-4">
             <button
               type="button"
-              className="p-2 -mr-2 text-gray-400 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
+              className="p-2 -mr-2 text-gray-500 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
               {theme === "dark" && <IoMoon />}
               {theme === "light" && <IoSunny />}
             </button>
 
-            <FeedbackPopover />
+            <ApiSdkMenu />
+
+            {showDocsLink(router.asPath) && (
+              <Link href="/" passHref>
+                <a className="font-medium text-[14px] leading-[21px] text-gray-500 dark:text-white">
+                  Docs
+                </a>
+              </Link>
+            )}
+
+            <div className="hidden md:block">
+              <FeedbackPopover />
+            </div>
 
             <Link href="https://dashboard.knock.app">
               <a className="text-sm text-brand hover:text-brand-dark border px-3 py-1 border-brand rounded-md font-semibold hidden md:block">
