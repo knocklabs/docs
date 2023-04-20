@@ -94,7 +94,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="flex h-full items-center font-medium text-[14px] leading-[21px] text-gray-500 dark:text-gray-400"
+            className="flex h-full items-center font-medium text-[14px] leading-[21px] text-gray-500 dark:text-white"
           >
             <IoMegaphone className="mr-2" /> Feedback?
           </button>

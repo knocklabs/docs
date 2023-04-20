@@ -6,6 +6,7 @@ import { useTheme } from "next-themes";
 import Meta from "../components/Meta";
 import FeedbackPopover from "../components/FeedbackPopover";
 import Autocomplete from "../components/Autocomplete";
+import ApiSdkMenu from "../components/ApiSdkMenu";
 
 type Props = {
   pageType: string;
@@ -63,14 +64,18 @@ export const Page: React.FC<Props> = ({
           <div className="ml-auto flex items-center space-x-4">
             <button
               type="button"
-              className="p-2 -mr-2 text-gray-400 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
+              className="p-2 -mr-2 text-gray-500 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
               {theme === "dark" && <IoMoon />}
               {theme === "light" && <IoSunny />}
             </button>
 
-            <FeedbackPopover />
+            <ApiSdkMenu />
+
+            <div className="hidden md:block">
+              <FeedbackPopover />
+            </div>
 
             <Link href="https://dashboard.knock.app">
               <a className="text-sm text-brand hover:text-brand-dark border px-3 py-1 border-brand rounded-md font-semibold hidden md:block">
