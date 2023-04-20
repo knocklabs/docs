@@ -34,11 +34,33 @@ Note: for all of the examples below you will need to have an [object identified 
 
 Subscribing a recipient to an object creates an `ObjectSubscription` entity describing the relationship between the `Recipient` and the `Object`.
 
-You can subscribe up to 100 recipients to an object at a time by passing one or more `RecipientIdentifiers`. Similar to workflow triggers, a recipient can be inline-identified while being subscribed.
+You can subscribe up to 100 recipients to an object at a time by passing one or more `RecipientIdentifiers`. There is no limit to the number of recipients you can subscribe to an object.
 
 ```javascript Subscribing multiple recipients to an object
 await knock.objects.addSubscriptions("project_alerts", "project-1", {
   recipients: ["esattler", "dnedry"],
+  properties: {
+    // Optionally set other properties on the subscription for each recipient
+  },
+});
+```
+
+Similar to workflow triggers, you can inline identify recipients while subscribing them to an object.
+
+```javascript Identifying users while subscribing them to an object
+await knock.objects.addSubscriptions("project_alerts", "project-1", {
+  recipients: [
+    {
+      id: "esattler",
+      name: "Ellie Sattler",
+      email: "esattler@ingen.net",
+    },
+    {
+      id: "dnedry",
+      name: "Dennis Nedry",
+      email: "dnedry@ingen.net",
+    },
+  ],
   properties: {
     // Optionally set other properties on the subscription for each recipient
   },
