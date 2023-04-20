@@ -5,14 +5,15 @@ import Link from "next/dist/client/link";
 import { useRouter } from "next/router";
 
 const PageLinks = {
+  Docs: "/",
   "API reference": "/reference",
   // "CLI reference": "/cli",
-  "Integration guides": "/integrations/overview",
-  "In-app UI guides": "/in-app-ui/overview",
+  Integrations: "/integrations/overview",
+  "Building in-app UI": "/in-app-ui/overview",
 };
 
 const SdkLinks = {
-  "Node JS": "https://github.com/knocklabs/knock-node",
+  "Node.js": "https://github.com/knocklabs/knock-node",
   Python: "https://github.com/knocklabs/knock-python",
   Ruby: "https://github.com/knocklabs/knock-ruby",
   Go: "https://github.com/knocklabs/knock-go",
@@ -29,7 +30,9 @@ const ApiSdkMenu = () => {
 
   useEffect(() => {
     const matchingPage = Object.keys(PageLinks).find((linkName) =>
-      asPath.startsWith(PageLinks[linkName]),
+      PageLinks[linkName] !== "/"
+        ? asPath.startsWith(PageLinks[linkName])
+        : undefined,
     );
 
     setCurrentPage(matchingPage ?? "APIs & SDKs");
