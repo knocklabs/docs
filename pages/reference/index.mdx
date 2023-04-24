@@ -4231,7 +4231,7 @@ A schedule allows you to automatically trigger a workflow at a given time for on
   <Attribute
     name="next_occurrence_at"
     type="datetime"
-    description="A UTC datetime string that indicates when the schedule will next run, generated from the repeat rules."
+    description="A datetime string in the recipient's timezone that indicates when the schedule will next run, generated from the repeat rules."
   />
 </Attributes>
 
@@ -4240,6 +4240,16 @@ A schedule allows you to automatically trigger a workflow at a given time for on
 
 <Endpoints>
   <Endpoint name="list-schedules" method="GET" path="/schedules" />
+  <Endpoint
+    name="get-user-schedules"
+    method="GET"
+    path="/users/:id/schedules"
+  />
+  <Endpoint
+    name="get-object-schedules"
+    method="GET"
+    path="/objects/:collection/:id/schedules"
+  />
   <Endpoint name="create-schedules" method="POST" path="/schedules" />
   <Endpoint name="update-schedules" method="PUT" path="/schedules" />
   <Endpoint name="delete-schedules" method="DELETE" path="/schedules" />
@@ -4383,10 +4393,10 @@ A paginated response containing a list of `Schedule` entities.
 </ExampleColumn>
 </Section>
 
-<Section title="Recipient schedules" slug="get-recipient-schedules">
+<Section title="User schedules" slug="get-user-schedules">
 <ContentColumn>
 
-Returns a paginated list of schedules for a single recipient, in descending order.
+Returns a paginated list of schedules for a single user, in descending order.
 
 ### Endpoint
 
@@ -4395,6 +4405,102 @@ Returns a paginated list of schedules for a single recipient, in descending orde
   method="GET"
   path="/users/:id/schedules"
 />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="workflow"
+    type="string (required)"
+    description="The workflow key to filter schedules for."
+  />
+  <Attribute
+    name="tenant"
+    type="string"
+    description="A tenant identifier to filter schedules for."
+  />
+</Attributes>
+
+### Response
+
+A paginated response containing a list of `Schedule` entities.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "items": [
+    {
+      "__typename": "Schedule",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "2OqXCSJUgbhhgIX3iaPfI3ZOVd9",
+      "actor": null,
+      "data": {
+        "custom_key": "custom_value"
+      },
+      "next_occurrence_at": "2023-04-24T08:30:00Z",
+      "recipient": {
+        "__typename": "User",
+        "id": "dnedry",
+        "name": "Dennis Nedry",
+        "email": "dnedry@ingen.net"
+      },
+      "repeats": [
+        {
+          "__typename": "ScheduleRepeat",
+          "day_of_month": null,
+          "days": ["mon"],
+          "frequency": "weekly",
+          "hours": 8,
+          "interval": 1,
+          "minutes": 30
+        }
+      ],
+      "workflow": "digest-workflow",
+      "tenant": null,
+      "inserted_at": "2023-04-23T22:29:17.216686Z",
+      "updated_at": "2023-04-23T22:29:17.216686Z"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Object schedules" slug="get-object-schedules">
+<ContentColumn>
+
+Returns a paginated list of schedules for a single object, in descending order.
+
+### Endpoint
+
 <Endpoint
   name="get-recipient-schedules"
   method="GET"
