@@ -2,7 +2,16 @@
 title: Schedules
 description: Learn how to use Schedules to run workflows in a cron-like recurring schedule for one or more of your recipients.
 tags:
-  ["crons", "schedules", "digest", "recurring", "weekly", "daily", "monthly", "schedule"]
+  [
+    "crons",
+    "schedules",
+    "digest",
+    "recurring",
+    "weekly",
+    "daily",
+    "monthly",
+    "schedule",
+  ]
 section: Send and manage data
 ---
 
@@ -57,7 +66,7 @@ const schedules = await knock.workflows.createSchedules("park-alert", {
 });
 ```
 
-Scheduling a workflow accepts:
+### Schedule properties
 
 | Variable       | Type                  | Description                                                               |
 | -------------- | --------------------- | ------------------------------------------------------------------------- |
@@ -68,6 +77,17 @@ Scheduling a workflow accepts:
 | `tenant`       | string                | A tenant to pass to the workflow trigger                                  |
 | `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted             |
 | `scheduled_at` | utc_datetime          | A UTC datetime to start the schedule from                                 |
+
+### ScheduleRepeat properties
+
+| Variable       | Type                                 | Description                                                                                                                        |
+| -------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `frequency`    | RepeatFrequency                      | The frequency in which this repeat schedule should run, one of monthly, weekly, daily, or hourly.                                  |
+| `interval`     | number (optional)                    | The interval in which the rule repeats. Defaults to 1. Setting to 2 with a `weekly` frequency would mean running every other week. |
+| `day_of_month` | number (optional)                    | The exact day of the month that this repeat should run.                                                                            |
+| `days`         | DaysOfWeek[], "weekdays", "weekends" | The days of the week that this repeat rule should run. Can provide "weekdays" or "weekends" as a shorthand.                        |
+| `hours`        | number (optional)                    | The hour this schedule should run (in the recipient's timezone). Defaults to 00.                                                   |
+| `minutes`      | number (optional)                    | The minute this repeat should run (in the recipient's timezone). Defaults to 00.                                                   |
 
 ## Modeling repeat behavior
 
@@ -106,6 +126,43 @@ type ScheduleRepeatProperties = {
   hours?: number;
   minutes?: number;
 };
+```
+
+### Example repeat rules
+
+To illustrate how to model a repeat rule, here are some common examples:
+
+**Every Monday at 9am**
+
+```
+{
+  "frequency": "weekly",
+  "days": ["mon"],
+  "hours": 9
+}
+```
+
+**Every weekday at 10.30am**
+
+```
+{
+  "frequency": "weekly",
+  "days": "weekdays",
+  "hours": 10,
+  "minutes": 30
+}
+```
+
+**Every other Monday, Tuesday, and Friday at 6pm**
+
+```
+{
+  "frequency": "weekly",
+  "interval": 2,
+  "days": ["mon", "tues", "fri"],
+  "hours": 18,
+  "minutes": 00
+}
 ```
 
 ## Updating schedules
