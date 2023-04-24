@@ -18,7 +18,6 @@ import {
 import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
 import RateLimit from "../../components/RateLimit";
 
-
 <!-- Let #overview anchor tag to go to the top of the page -->
 
 <a id="overview" className="absolute -top-8 invisible" />
@@ -98,7 +97,9 @@ By default, Knock scopes rate limits for each endpoint per API key. When you sen
   emoji="💡"
   text={
     <>
-      <strong>Concerned about exceeding a Knock rate limit?</strong> <a href="https://knock.app/contact-sales">Contact us</a> and we can help figure out a usage rate that's right for your specific needs.
+      <strong>Concerned about exceeding a Knock rate limit?</strong>{" "}
+      <a href="https://knock.app/contact-sales">Contact us</a> and we can help
+      figure out a usage rate that's right for your specific needs.
     </>
   }
 />
@@ -116,23 +117,33 @@ By default, Knock scopes rate limits for each endpoint per API key. When you sen
     </thead>
     <tbody>
       <tr>
-        <td><RateLimit tier={1} /></td>
+        <td>
+          <RateLimit tier={1} />
+        </td>
         <td>1 request / second</td>
       </tr>
       <tr>
-        <td><RateLimit tier={2} /></td>
+        <td>
+          <RateLimit tier={2} />
+        </td>
         <td>5 requests / second</td>
       </tr>
       <tr>
-        <td><RateLimit tier={3} /></td>
+        <td>
+          <RateLimit tier={3} />
+        </td>
         <td>60 requests / second</td>
       </tr>
       <tr>
-        <td><RateLimit tier={4} /></td>
+        <td>
+          <RateLimit tier={4} />
+        </td>
         <td>200 requests / second</td>
       </tr>
       <tr>
-        <td><RateLimit tier={5} /></td>
+        <td>
+          <RateLimit tier={5} />
+        </td>
         <td>1,000 requests / second</td>
       </tr>
     </tbody>
@@ -149,8 +160,9 @@ By default, Knock scopes rate limits for each endpoint per API key. When you sen
   emoji="🚧"
   text={
     <>
-      <span className="font-bold">This feature is in limited release.</span> Idempotence is
-      currently only available for the <code>POST /v1/workflows/:key/trigger</code> endpoint.
+      <span className="font-bold">This feature is in limited release.</span>{" "}
+      Idempotence is currently only available for the{" "}
+      <code>POST /v1/workflows/:key/trigger</code> endpoint.
     </>
   }
 />
@@ -166,7 +178,10 @@ If you are making calls to Knock from a job queue, the ID of the job can be a go
 </ContentColumn>
 <ExampleColumn>
 
-<MultiLangCodeBlock snippet="api.idempotency" title="Making an idempotent API call" />
+<MultiLangCodeBlock
+  snippet="api.idempotency"
+  title="Making an idempotent API call"
+/>
 
 ```json Response headers
 {
@@ -4161,6 +4176,607 @@ A list of deleted `ObjectSubscription`
     },
     "inserted_at": "2021-03-05T12:00:00Z",
     "updated_at": "2021-03-05T12:00:00Z"
+  }
+]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Schedules" slug="schedules">
+<ContentColumn>
+
+A schedule allows you to automatically trigger a workflow at a given time for one or more recipients. You can think of a schedule as a managed, recipient-timezone-aware cron job that Knock will run on your behalf.
+
+[Learn more about schedules](/send-and-manage-data/schedules)
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique, Knock generated identifier for the schedule."
+  />
+  <Attribute
+    name="actor"
+    type="Recipient | null"
+    description="The actor to be referenced on the workflow trigger."
+  />
+  <Attribute
+    name="recipient"
+    type="Recipient"
+    description="The recipient of the scheduled workflow."
+  />
+  <Attribute
+    name="data"
+    type="object | null"
+    description="Static data to be passed to the workflow trigger."
+  />
+  <Attribute
+    name="workflow"
+    type="string"
+    description="The key of the workflow that will be triggered in this schedule."
+  />
+  <Attribute
+    name="tenant"
+    type="string | null"
+    description="The tenant to be passed to the workflow trigger."
+  />
+  <Attribute
+    name="repeats"
+    type="ScheduleRepeat[]"
+    description="A list of one or more repeat definitions that determine when this schedule should run."
+  />
+  <Attribute
+    name="next_occurrence_at"
+    type="datetime"
+    description="A UTC datetime string that indicates when the schedule will next run, generated from the repeat rules."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint name="list-schedules" method="GET" path="/schedules" />
+  <Endpoint name="create-schedules" method="POST" path="/schedules" />
+  <Endpoint name="update-schedules" method="PUT" path="/schedules" />
+  <Endpoint name="delete-schedules" method="DELETE" path="/schedules" />
+</Endpoints>
+
+```json Schedule
+{
+  "__typename": "Schedule",
+  "id": "2OqXCSJUgbhhgIX3iaPfI3ZOVd9",
+  "actor": null,
+  "data": {
+    "custom_key": "custom_value"
+  },
+  "next_occurrence_at": "2023-04-24T08:30:00Z",
+  "recipient": {
+    "__typename": "User",
+    "id": "dnedry",
+    "name": "Dennis Nedry",
+    "email": "dnedry@ingen.net"
+  },
+  "repeats": [
+    {
+      "__typename": "ScheduleRepeat",
+      "day_of_month": null,
+      "days": ["mon"],
+      "frequency": "weekly",
+      "hours": 8,
+      "interval": 1,
+      "minutes": 30
+    }
+  ],
+  "workflow": "some-workflow",
+  "tenant": null,
+  "inserted_at": "2023-04-23T22:29:17.216686Z",
+  "updated_at": "2023-04-23T22:29:17.216686Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List schedules" slug="list-schedules">
+<ContentColumn>
+
+Returns a paginated list of schedules in descending order.
+
+### Endpoint
+
+<Endpoint name="list-schedules" method="GET" path="/schedules" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="workflow"
+    type="string (required)"
+    description="The workflow key to filter schedules for."
+  />
+  <Attribute
+    name="recipients"
+    type="string[]"
+    description="A list of recipient identifiers to filter schedules for."
+  />
+  <Attribute
+    name="tenant"
+    type="string"
+    description="A tenant identifier to filter schedules for."
+  />
+</Attributes>
+
+### Response
+
+A paginated response containing a list of `Schedule` entities.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "items": [
+    {
+      "__typename": "Schedule",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "2OqXCSJUgbhhgIX3iaPfI3ZOVd9",
+      "actor": null,
+      "data": {
+        "custom_key": "custom_value"
+      },
+      "next_occurrence_at": "2023-04-24T08:30:00Z",
+      "recipient": {
+        "__typename": "User",
+        "id": "dnedry",
+        "name": "Dennis Nedry",
+        "email": "dnedry@ingen.net"
+      },
+      "repeats": [
+        {
+          "__typename": "ScheduleRepeat",
+          "day_of_month": null,
+          "days": ["mon"],
+          "frequency": "weekly",
+          "hours": 8,
+          "interval": 1,
+          "minutes": 30
+        }
+      ],
+      "workflow": "digest-workflow",
+      "tenant": null,
+      "inserted_at": "2023-04-23T22:29:17.216686Z",
+      "updated_at": "2023-04-23T22:29:17.216686Z"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Recipient schedules" slug="get-recipient-schedules">
+<ContentColumn>
+
+Returns a paginated list of schedules for a single recipient, in descending order.
+
+### Endpoint
+
+<Endpoint
+  name="get-recipient-schedules"
+  method="GET"
+  path="/users/:id/schedules"
+/>
+<Endpoint
+  name="get-recipient-schedules"
+  method="GET"
+  path="/objects/:collection/:id/schedules"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="workflow"
+    type="string (required)"
+    description="The workflow key to filter schedules for."
+  />
+  <Attribute
+    name="tenant"
+    type="string"
+    description="A tenant identifier to filter schedules for."
+  />
+</Attributes>
+
+### Response
+
+A paginated response containing a list of `Schedule` entities.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "items": [
+    {
+      "__typename": "Schedule",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "2OqXCSJUgbhhgIX3iaPfI3ZOVd9",
+      "actor": null,
+      "data": {
+        "custom_key": "custom_value"
+      },
+      "next_occurrence_at": "2023-04-24T08:30:00Z",
+      "recipient": {
+        "__typename": "User",
+        "id": "dnedry",
+        "name": "Dennis Nedry",
+        "email": "dnedry@ingen.net"
+      },
+      "repeats": [
+        {
+          "__typename": "ScheduleRepeat",
+          "day_of_month": null,
+          "days": ["mon"],
+          "frequency": "weekly",
+          "hours": 8,
+          "interval": 1,
+          "minutes": 30
+        }
+      ],
+      "workflow": "digest-workflow",
+      "tenant": null,
+      "inserted_at": "2023-04-23T22:29:17.216686Z",
+      "updated_at": "2023-04-23T22:29:17.216686Z"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Create schedules" slug="create-schedules">
+<ContentColumn>
+
+Creates new schedules for the recipients given using. Up to 100 recipients may be specified in a single schedule creation call. Recipients may be inline-identified during this call.
+
+### Endpoint
+
+<Endpoint name="create-schedules" method="POST" path="/schedules" />
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="recipients"
+    type="RecipientIdentifier[]"
+    description="A list of recipient identifers"
+  />
+  <Attribute
+    name="actor"
+    type="Recipient | null"
+    description="The actor to be referenced on the workflow trigger for this schedule."
+  />
+  <Attribute
+    name="data"
+    type="object | null"
+    description="Static data to be passed to the workflow trigger or this schedule."
+  />
+  <Attribute
+    name="workflow"
+    type="string"
+    description="The key of the workflow that will be triggered in this schedule."
+  />
+  <Attribute
+    name="tenant"
+    type="string | null"
+    description="The tenant to be passed to the workflow trigger for this schedule."
+  />
+  <Attribute
+    name="repeats"
+    type="ScheduleRepeat[]"
+    description="A list of one or more repeat definitions that determine when this schedule should run."
+  />
+</Attributes>
+
+### Response
+
+The list of created `Schedule` entities.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Request (POST to /schedules)
+{
+  "recipients": ["dnedry"],
+  "workflow": "digest-workflow",
+  "data": {
+    "custom_key": "custom_value"
+  },
+  "repeats": [
+    {
+      "frequency": "weekly",
+      "interval": 1,
+      "days": ["mon"],
+      "hours": 8,
+      "minutes": 30
+    }
+  ]
+}
+```
+
+```json Response
+[
+  {
+    "__typename": "Schedule",
+    "id": "2OqXCSJUgbhhgIX3iaPfI3ZOVd9",
+    "actor": null,
+    "data": {
+      "custom_key": "custom_value"
+    },
+    "next_occurrence_at": "2023-04-24T08:30:00Z",
+    "recipient": {
+      "__typename": "User",
+      "id": "dnedry",
+      "name": "Dennis Nedry",
+      "email": "dnedry@ingen.net"
+    },
+    "repeats": [
+      {
+        "__typename": "ScheduleRepeat",
+        "day_of_month": null,
+        "days": ["mon"],
+        "frequency": "weekly",
+        "hours": 8,
+        "interval": 1,
+        "minutes": 30
+      }
+    ],
+    "workflow": "digest-workflow",
+    "tenant": null,
+    "inserted_at": "2023-04-23T22:29:17.216686Z",
+    "updated_at": "2023-04-23T22:29:17.216686Z"
+  }
+]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Update schedules" slug="update-schedules">
+<ContentColumn>
+
+Updates the schedules for the `schedule_ids` given. Can update up to 100 schedules at a time.
+
+### Endpoint
+
+<Endpoint name="update-schedules" method="PUT" path="/schedules" />
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="schedule_ids"
+    type="string[]"
+    description="A list of schedule ids of the schedules to mutate."
+  />
+  <Attribute
+    name="actor"
+    type="Recipient | null"
+    description="The actor to be referenced on the workflow trigger for this schedule."
+  />
+  <Attribute
+    name="data"
+    type="object | null"
+    description="Static data to be passed to the workflow trigger or this schedule."
+  />
+  <Attribute
+    name="tenant"
+    type="string | null"
+    description="The tenant to be passed to the workflow trigger for this schedule."
+  />
+  <Attribute
+    name="repeats"
+    type="ScheduleRepeat[]"
+    description="A list of one or more repeat definitions that determine when this schedule should run."
+  />
+</Attributes>
+
+### Response
+
+The list of updated `Schedule` entities.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Request (PUT to /schedules)
+{
+  "schedule_ids": ["2OqXCSJUgbhhgIX3iaPfI3ZOVd9"],
+  "data": {
+    "custom_key": "custom_value",
+    "another_key": "another_value"
+  },
+  "repeats": [
+    {
+      "frequency": "weekly",
+      "interval": 1,
+      "days": ["mon"],
+      "hours": 8,
+      "minutes": 30
+    }
+  ]
+}
+```
+
+```json Response
+[
+  {
+    "__typename": "Schedule",
+    "id": "2OqXCSJUgbhhgIX3iaPfI3ZOVd9",
+    "actor": null,
+    "data": {
+      "custom_key": "custom_value",
+      "another_key": "another_value"
+    },
+    "next_occurrence_at": "2023-04-24T08:30:00Z",
+    "recipient": {
+      "__typename": "User",
+      "id": "dnedry",
+      "name": "Dennis Nedry",
+      "email": "dnedry@ingen.net"
+    },
+    "repeats": [
+      {
+        "__typename": "ScheduleRepeat",
+        "day_of_month": null,
+        "days": ["mon"],
+        "frequency": "weekly",
+        "hours": 8,
+        "interval": 1,
+        "minutes": 30
+      }
+    ],
+    "workflow": "digest-workflow",
+    "tenant": null,
+    "inserted_at": "2023-04-23T22:29:17.216686Z",
+    "updated_at": "2023-04-23T22:29:17.216686Z"
+  }
+]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Delete schedules" slug="delete-schedules">
+<ContentColumn>
+
+Deletes the schedules for the `schedule_ids` given. Can delete up to 100 schedules at a time. Deleting a schedule will cancel its next occurrence immediately. Any running scheduled workflows will not be affected.
+
+### Endpoint
+
+<Endpoint name="delete-schedules" method="DELETE" path="/schedules" />
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="schedule_ids"
+    type="string[]"
+    description="A list of schedule ids of the schedules to mutate."
+  />
+</Attributes>
+
+### Response
+
+The list of deleted `Schedule` entities.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Request (DELETE to /schedules)
+{
+  "schedule_ids": ["2OqXCSJUgbhhgIX3iaPfI3ZOVd9"]
+}
+```
+
+```json Response
+[
+  {
+    "__typename": "Schedule",
+    "id": "2OqXCSJUgbhhgIX3iaPfI3ZOVd9",
+    "actor": null,
+    "data": {
+      "custom_key": "custom_value",
+      "another_key": "another_value"
+    },
+    "next_occurrence_at": "2023-04-24T08:30:00Z",
+    "recipient": {
+      "__typename": "User",
+      "id": "dnedry",
+      "name": "Dennis Nedry",
+      "email": "dnedry@ingen.net"
+    },
+    "repeats": [
+      {
+        "__typename": "ScheduleRepeat",
+        "day_of_month": null,
+        "days": ["mon"],
+        "frequency": "weekly",
+        "hours": 8,
+        "interval": 1,
+        "minutes": 30
+      }
+    ],
+    "workflow": "digest-workflow",
+    "tenant": null,
+    "inserted_at": "2023-04-23T22:29:17.216686Z",
+    "updated_at": "2023-04-23T22:29:17.216686Z"
   }
 ]
 ```
