@@ -121,6 +121,20 @@ const sidebarContent: SidebarSection[] = [
   },
 
   {
+    title: "Schedules",
+    slug: "/reference",
+    pages: [
+      { slug: "#schedules", title: "Overview" },
+      { slug: "#list-schedules", title: "List schedules" },
+      { slug: "#get-user-schedules", title: "Get user schedules" },
+      { slug: "#get-object-schedules", title: "Get object schedules" },
+      { slug: "#create-schedules", title: "Create schedules" },
+      { slug: "#update-schedules", title: "Update schedules" },
+      { slug: "#delete-schedules", title: "Delete schedules" },
+    ],
+  },
+
+  {
     title: "Messages",
     slug: "/reference",
     pages: [
