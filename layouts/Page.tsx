@@ -94,7 +94,7 @@ export const Page: React.FC<Props> = ({
             </div>
 
             <Link href="https://dashboard.knock.app">
-              <a className="text-sm text-brand hover:text-brand-dark border px-3 py-1 border-brand rounded-md font-semibold hidden md:block">
+              <a className="font-medium text-[14px] leading-[21px] text-gray-500 dark:text-white hidden lg:block">
                 Dashboard &rarr;
               </a>
             </Link>
