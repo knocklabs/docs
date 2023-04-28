@@ -334,6 +334,11 @@ module.exports = withPlugins(
           destination: "/designing-workflows/template-editor/overview",
           permanent: false,
         },
+        {
+          source: "/send-and-manage-data/outbound-webhooks",
+          destination: "/developer-tools/outbound-webhooks",
+          permanent: false,
+        },
       ];
     },
   },
