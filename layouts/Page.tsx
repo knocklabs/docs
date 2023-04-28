@@ -19,7 +19,7 @@ type Props = {
   };
 };
 
-const noDocsLinks = ["/reference", "/integrations"];
+const noDocsLinks = ["/reference", "/integrations", "/cli"];
 
 function showDocsLink(pathName) {
   return noDocsLinks.some((link) => pathName.startsWith(link));

@@ -31,7 +31,6 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/tenants", title: "Tenants" },
       { slug: "/messages", title: "Messages" },
       { slug: "/translations", title: "Translations" },
-      { slug: "/outbound-webhooks", title: "Outbound webhooks" },
       { slug: "/conditions", title: "Conditions" },
       { slug: "/variables", title: "Variables" },
     ],
@@ -146,9 +145,9 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/api-keys", title: "API keys" },
       { slug: "/service-tokens", title: "Service tokens" },
-      { slug: "/api-logs", title: "API logs" },
       { slug: "/knock-cli", title: "Knock CLI" },
       { slug: "/management-api", title: "Management API" },
+      { slug: "/api-logs", title: "API logs" },
       { slug: "/outbound-webhooks", title: "Outbound webhooks" },
     ],
   },

@@ -43,24 +43,45 @@ The Knock CLI helps you work with your Knock resources right from the terminal.
 With the CLI, you can:
 
 - Work with your Knock workflows and notification templates locally.
-- Synchronize your translation files to Knock.
 - Integrate Knock into your CI/CD environment to automatically promote changes.
-
-[Follow the installation guide to set up the Knock CLI](/developer-tools/knock-cli#installing-the-cli).
+- Map your translation files into Knock to localize your notifications.
 
 </ContentColumn>
 </Section>
 
-<Section title="Authenticating" slug="authenticating">
+<Section title="Install the CLI" slug="installation">
 <ContentColumn>
 
-The Knock CLI relies on a service token to authenticate and make requests to your Knock account. You can specify a service token in all CLI calls, or you can optionally use a configuration file to authenticate all requests.
+You can install the Knock CLI using `npx`, a node package runner that ships with npm. Once the CLI is installed, you can call it by using the `knock` command in your terminal.
 
-[Learn more about creating a service token](/developer-tools/service-tokens).
+**Requirements**
+
+The Knock CLI is built with Node.js and installable via `npm` for the beta release. You must have `node` and `npm` installed already, with the following versions:
+- Node.js: 16.14.0 or higher
+- NPM: 7.18.1 or higher
+
+You can find the Knock CLI npm package [here](https://www.npmjs.com/package/@knocklabs/cli).
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Install the Knock CLI
+npx install -g @knocklabs/cli
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Authentication" slug="authentication">
+<ContentColumn>
+
+The Knock CLI relies on a [service token](/developer-tools/service-tokens) to authenticate and make requests to your Knock account. You can specify a service token in all CLI calls, or you can optionally use a configuration file to authenticate all requests.
+
+[Learn how to create a service token.](/developer-tools/service-tokens)
 
 **Setting up a configuration file (optional)**
 
-A service token is required by the CLI for most commands. So, for convenience, Knock CLI supports a user configuration file, where you can store the service token for the CLI to read automatically rather than having to manually pass in with `--service-token` flag for every command.
+A service token is required by the CLI for most commands. For convenience, Knock CLI supports a user configuration file, where you can store the service token for the CLI to read automatically rather than having to manually pass in with `--service-token` flag for every command.
 
 To set up a user configuration file, create a `config.json` file in the Knock CLI's config directory at `~/.config/knock/` (MacOS) and add the following json:
 
@@ -75,7 +96,7 @@ When Knock CLI detects a user configuration file, it will use the service token 
 </ContentColumn>
 <ExampleColumn>
 
-```bash Verifying your service token
+```bash Verify your service token
 knock ping --service-token=XXX
 ```
 
@@ -104,7 +125,9 @@ The Knock CLI supports several flags for every command.
 <Section title="knock workflow list [flags]" slug="workflow-list">
 <ContentColumn>
 
-You can see all your existing workflows in a given environment with the workflow list command. Use a --environment flag to specify the target environment; if omitted, Knock CLI will default to development environment.
+You can see all your existing workflows in a given environment with the workflow list command. 
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
 
 ### Flags
 
@@ -153,7 +176,9 @@ knock workflow list --after=xxx
 <Section title="knock workflow get [flags]" slug="workflow-get">
 <ContentColumn>
 
-You can show more details about a given workflow with the `workflow get` command, followed by the target workflow key. Use a `--environment` flag to specify the target environment; if omitted, will default to the development environment.
+You can show more details about a given workflow with the `workflow get` command, followed by the target workflow key. 
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
 
 ### Flags
 
@@ -219,7 +244,7 @@ Note:
 
 - The `workflow push` command only pushes workflows into the `development` environment.
 - You must be directly above the target workflow directory when running the `workflow push` command, so the CLI can locate the `workflow.json` file.
-- You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes at once.
+- You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
 
 ### Flags
 
@@ -255,7 +280,7 @@ knock workflow push my-workflow \
 <Section title="knock workflow validate [flags]" slug="workflow-validate">
 <ContentColumn>
 
-You can validate a brand new or updated workflow directory with the `workflow validate` command. Knock will validate the given workflow payload in the same way as it would with the `workflow push` command, except without persisting those changes.
+You can validate a new or updated workflow directory with the `workflow validate` command. Knock will validate the given workflow payload in the same way as it would with the `workflow push` command, except without persisting those changes.
 
 Note: Validating a workflow is only done against the `development` environment.
 
@@ -319,7 +344,7 @@ knock workflow activate my-workflow \
 <Section title="knock translation list [flags]" slug="translation-list">
 <ContentColumn>
 
-List all translations in the environment. Defaults to listing in development.
+List all translations in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
 
 ### Flags
 
@@ -364,7 +389,7 @@ knock translation list
 <Section title="knock translation pull <locale> [flags]" slug="translation-pull">
 <ContentColumn>
 
-Pulls one or more translation files from Knock into the local, working directory. When `<locale>` is given only that locales translations are pulled.
+Pulls one or more translation files from Knock into the local, working directory. When `<locale>` is specified, only that locale's translations are pulled.
 
 ### Flags
 

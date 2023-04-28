@@ -10,7 +10,8 @@ const sidebarData = [
     slug: "/cli",
     pages: [
       { slug: "#overview", title: "Introduction" },
-      { slug: "#authenticating", title: "Authenticating" },
+      { slug: "#installation", title: "Install the Knock CLI" },
+      { slug: "#authentication", title: "Authentication" },
       { slug: "#global-flags", title: "Global flags" },
     ],
   },
