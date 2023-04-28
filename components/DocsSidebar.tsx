@@ -6,7 +6,7 @@ import Sidebar from "./Sidebar";
 const DocsSidebar = () => (
   <Sidebar content={sidebarContent}>
     <div className="space-y-2">
-      <Link href="/reference" passHref>
+      {/* <Link href="/reference" passHref>
         <a className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-200">
           <IoTerminal className="mr-2" />
           API reference
@@ -20,7 +20,7 @@ const DocsSidebar = () => (
           Integration guides
           <span className="ml-auto">&#8594;</span>
         </a>
-      </Link>
+      </Link> */}
 
       <Link href="https://knock.app/join-slack" passHref>
         <a className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-200">

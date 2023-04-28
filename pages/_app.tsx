@@ -32,7 +32,10 @@ function App({ Component, pageProps }) {
       return IntegrationsLayout.getLayout;
     }
 
-    if (!router.asPath.startsWith("/reference")) {
+    if (
+      !router.asPath.startsWith("/reference") &&
+      !router.asPath.startsWith("/cli")
+    ) {
       return DocsLayout.getLayout;
     }
 

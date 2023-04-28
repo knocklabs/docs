@@ -139,6 +139,19 @@ const sidebarContent: SidebarSection[] = [
       },
     ],
   },
+
+  {
+    title: "Developer tools",
+    slug: "/developer-tools",
+    pages: [
+      { slug: "/api-keys", title: "API keys" },
+      { slug: "/service-tokens", title: "Service tokens" },
+      { slug: "/api-logs", title: "API logs" },
+      { slug: "/knock-cli", title: "Knock CLI" },
+      { slug: "/management-api", title: "Management API" },
+      { slug: "/outbound-webhooks", title: "Outbound webhooks" },
+    ],
+  },
   {
     title: "Manage your account",
     slug: "/manage-your-account",
@@ -151,6 +164,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/data-obfuscation", title: "Data obfuscation" },
     ],
   },
+
   {
     title: "Guides",
     slug: "/guides",

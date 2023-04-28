@@ -7,7 +7,7 @@ export const ApiReferenceLayout = ({ frontMatter, children }) => (
     pageType="API"
     sidebar={<ApiReferenceSidebar />}
     metaProps={{
-      title: frontMatter.title,
+      title: `${frontMatter.title} | Knock`,
       description: frontMatter.description,
     }}
   >
