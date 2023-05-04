@@ -34,7 +34,8 @@ function App({ Component, pageProps }) {
 
     if (
       !router.asPath.startsWith("/reference") &&
-      !router.asPath.startsWith("/cli")
+      !router.asPath.startsWith("/cli") &&
+      !router.asPath.startsWith("/mapi")
     ) {
       return DocsLayout.getLayout;
     }

@@ -1,10 +1,17 @@
+import cn from "classnames";
 import SectionHeading from "./SectionHeading";
 
-export const Section = ({ title, slug, children }) => (
+export const Section = ({ title, slug, children, headingClassName = "" }) => (
   <section className="api-docs-section border-b border-gray-200 dark:border-gray-800 py-16">
-    <SectionHeading tag="h2" id={slug || title.toLowerCase()} className="mb-6">
-      {title}
-    </SectionHeading>
+    {title && (
+      <SectionHeading
+        tag="h2"
+        id={slug || title.toLowerCase()}
+        className={cn([headingClassName, "mb-6"])}
+      >
+        {title}
+      </SectionHeading>
+    )}
     <div className="flex flex-col md:flex-row">{children}</div>
   </section>
 );
