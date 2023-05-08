@@ -1,0 +1,1505 @@
+---
+title: Management API reference
+description: Complete reference documentation for the Knock management API. Includes code snippets and examples for our Python, Elixir, PHP, Node.js, Go, Ruby, and .NET libraries.
+showNav: false
+layout: mapi
+tags: ["api", "sdks", "api key", "keys", "errors"]
+---
+
+import { Attributes, Attribute } from "../../components/Attributes";
+import Callout from "../../components/Callout";
+import { Endpoints, Endpoint } from "../../components/Endpoints";
+import {
+  Section,
+  ContentColumn,
+  ErrorExample,
+  ExampleColumn,
+} from "../../components/ApiSections";
+import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
+import RateLimit from "../../components/RateLimit";
+
+<!-- Let #overview anchor tag to go to the top of the page -->
+
+<a id="overview" className="absolute -top-8 invisible" />
+
+<Section title="Management API Reference" slug="overview">
+<ContentColumn>
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <strong>Note:</strong> the Knock management API only provides access to the resources managed in {" "}
+      <strong>the Knock dashboard</strong>, such as workflows, templates, and translations.
+      <br/><br/>All other concepts within the Knock notification engine are accessed through the <a href="/reference">Knock API</a>, which you use to trigger workflows, identify users, and manage preferences.
+    </>
+  }
+/>
+
+The Knock management API provides you with a programmatic way to interact with the resources you create and manage in your Knock dashboard, including workflows, templates, and translations. It's separate from the [Knock API](/reference) and only provides access to a limited subset of resources.
+
+You can use the Knock management API to:
+
+- Create, update, and manage your Knock workflows and the notification templates within those workflows.
+- Create and manage the [translations](/send-and-manage-data/translations) used by your notification templates.
+- Commit and promote changes between your Knock environments.
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Base URL
+https://control.knock.app/v1
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Authentication" slug="authentication">
+<ContentColumn>
+
+The management API uses a Bearer authentication mechanism, using a [Service Token](/developer-tools/service-tokens) generated on your account to authenticate against.
+
+Please note: [environment-specific API keys](/developer-tools/api-keys) should never be used to authenticate in the management API.
+
+</ContentColumn>
+<ExampleColumn>
+
+```
+Authorization: Bearer knock_st_12345
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Errors" slug="errors" direction="column">
+<ContentColumn>
+
+Knock uses standard [HTTP response codes](https://developer.mozilla.org/en-US/Web/HTTP/Status) to indicate the success or failure of your API requests.
+
+- `2xx` success status codes confirm that your request worked as expected.
+- `4xx` error status codes indicate an error caused by incorrect or missing request information (e.g. providing an incorrect API key).
+- `5xx` error status codes indicate a Knock server error.
+
+</ContentColumn>
+</Section>
+
+<Section title="Workflows" slug="workflows-overview">
+<ContentColumn>
+
+To define a logical flow of your notifications, you create a workflow consisting of workflow steps. Workflow steps can be [functions](/designing-workflows#function-steps) or [channels](/designing-workflows#channel-steps), and can have conditional logic that determines whether to execute that step when the workflow is triggered.
+
+You can retrieve, update, or create a workflow as well as list all workflows in a given [environment](/send-and-manage-data/environments). Workflows are identified by their unique workflow key.
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint name="workflows-list" method="GET" path="/workflows" withLink />
+  <Endpoint
+    name="workflows-get"
+    method="GET"
+    path="/workflows/:workflow_key"
+    withLink
+  />
+  <Endpoint
+    name="workflows-update"
+    method="PUT"
+    path="/workflows/:workflow_key"
+    withLink
+  />
+  <Endpoint
+    name="workflows-validate"
+    method="PUT"
+    path="/workflows/:workflow_key/validate"
+    withLink
+  />
+  <Endpoint
+    name="workflows-activate"
+    method="PUT"
+    path="/workflows/:workflow_key/activate"
+    withLink
+  />
+</Endpoints>
+
+</ExampleColumn>
+</Section>
+
+<div className="flex flex-col md:flex-row w-full py-16" id="workflows-object">
+<ContentColumn>
+
+## Workflow definition
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="active"
+    type="boolean (read-only)"
+    description="Whether the workflow is active in the current environment."
+  />
+  <Attribute
+    name="categories"
+    type="string[]"
+    description="A list of categories that the workflow belongs to."
+  />
+  <Attribute
+    name="created_at"
+    type="timestamp (read-only)"
+    description="A timestamp of when the workflow was created."
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An arbitrary string attached to a workflow object. Useful for adding notes about the workflow for internal purposes. Maximum of 280 characters allowed."
+  />
+  <Attribute
+    name="environment"
+    type="string (read-only)"
+    description="The slug of the environment in which the workflow exists."
+  />
+  <Attribute
+    name="key"
+    type="string (mutable only at creation)"
+    description="The unique key string for the workflow object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$."
+  />
+  <Attribute
+    name="name"
+    type="string"
+    description="A name for the workflow. Must be at maximum 255 characters in length."
+  />
+  <Attribute
+    name="steps"
+    type="WorkflowStep[]"
+    description="A list of workflow step objects in the workflow, which may contain any of: channel step, delay step, batch step, fetch step."
+  />
+  <Attribute
+    name="updated_at"
+    type="timestamp (read-only)"
+    description="A timestamp of when the workflow was last updated."
+  />
+  <Attribute
+    name="valid"
+    type="boolean (read-only)"
+    description="Whether the workflow and its steps are in a valid state."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Workflow object
+{
+  "active": false,
+  "categories": ["marketing", "black-friday"],
+  "created_at": "2022-12-16T19:07:50.027113Z",
+  "description": "This is a dummy workflow for demo purposes.",
+  "environment": "development",
+  "key": "december-16-demo",
+  "name": "december-16-demo",
+  "steps": [
+    {
+      "channel_key": "in-app-feed",
+      "description": "Main in-app feed",
+      "name": "In-app step",
+      "ref": "in_app_feed_1",
+      "template": {
+        "action_url": "{{ vars.app_url }}",
+        "markdown_body": "Hello **{{ recipient.name }}**"
+      },
+      "type": "channel"
+    }
+  ],
+  "updated_at": "2023-02-08T22:15:19.846681Z",
+  "valid": true
+}
+```
+
+</ExampleColumn>
+</div>
+
+<div className="flex flex-col md:flex-row w-full py-16">
+<ContentColumn>
+
+## WorkflowStep definition
+
+All workflow steps, regardless of its type, share a common set of core attributes.
+
+### Common attributes
+
+<Attributes>
+  <Attribute
+    name="type"
+    type="string"
+    description="The type of the workflow step. One of: ”channel”, “delay”, “batch”, or “http_fetch”."
+  />
+  <Attribute
+    name="ref"
+    type="string"
+    description="The reference key of the workflow step. Must be unique per workflow."
+  />
+  <Attribute
+    name="name"
+    type="string"
+    description="A name for the workflow step."
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes."
+  />
+  <Attribute
+    name="conditions"
+    type="object"
+    description="A conditions object that describes one or more conditions to be met in order for the step to be executed."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Example step
+{
+  "type": "delay",
+  "ref": "delay_1",
+  "name": "Delay step",
+  "description": null,
+  "conditions": null
+}
+```
+
+</ExampleColumn>
+</div>
+
+<div className="flex flex-col md:flex-row w-full py-16">
+<ContentColumn>
+
+## ChannelStep definition
+
+Contains all properties of the `WorkflowStep` and additionally:
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="channel_key"
+    type="string"
+    description="The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both."
+  />
+  <Attribute
+    name="channel_group_key"
+    type="string"
+    description="The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both."
+  />
+  <Attribute
+    name="template"
+    type="object"
+    description="The message template set up with the channel step. The shape of the template depends on the type of the channel you'll be sending to. See below for definitions."
+  />
+</Attributes>
+
+#### Email template attributes
+
+<Attributes>
+  <Attribute
+    name="subject"
+    type="string"
+    description="A text template for the email subject line."
+  />
+  <Attribute
+    name="html_body"
+    type="string"
+    description="An HTML template for the email body."
+  />
+  <Attribute
+    name="text_body"
+    type="string"
+    description="A text template for the email body. Only present if opted out from autogenerating it from the HTML template."
+  />
+  <Attribute
+    name="visual_blocks"
+    type="object[]"
+    description="A list of visual blocks for the email body. Only present if using the visual blocks template over the HTML template."
+  />
+  <Attribute
+    name="settings.layout_key"
+    type="string"
+    description="The key of the email layout which the step is using."
+  />
+  <Attribute
+    name="settings.pre_content"
+    type="string"
+    description="A liquid template that will be injected into the layout above the message template content."
+  />
+  <Attribute
+    name="settings.attachment_key"
+    type="string"
+    description="The object path in the data payload (of the workflow trigger call) to resolve attachments."
+  />
+</Attributes>
+
+#### In-app template attributes
+
+<Attributes>
+  <Attribute
+    name="markdown_body"
+    type="string"
+    description="A markdown template for the in-app notification message."
+  />
+  <Attribute
+    name="action_url"
+    type="string"
+    description="A text template for the URL of the in-app notification message."
+  />
+</Attributes>
+
+#### SMS template attributes
+
+<Attributes>
+  <Attribute
+    name="text_body"
+    type="string"
+    description="A text template for the SMS notification message."
+  />
+</Attributes>
+
+#### Push template attributes
+
+<Attributes>
+  <Attribute
+    name="title"
+    type="string"
+    description="A text template for the push notification message title."
+  />
+  <Attribute
+    name="text_body"
+    type="string"
+    description="A text template for the push notification message body."
+  />
+  <Attribute
+    name="settings.delivery_type"
+    type="string"
+    description="The delivery type for the push notification. One of: “content” or “silent”."
+  />
+  <Attribute
+    name="settings.payload_overrides"
+    type="string"
+    description="A JSON template for any custom overrides to apply to the push notification payload."
+  />
+</Attributes>
+
+#### Chat template attributes
+
+<Attributes>
+  <Attribute
+    name="summary"
+    type="string"
+    description="A text template for the chat notification message summary."
+  />
+  <Attribute
+    name="markdown_body"
+    type="string"
+    description="A markdown template for the chat notification message body."
+  />
+  <Attribute
+    name="json_body"
+    type="string"
+    description="A JSON template for the chat notification message payload. Only present if not using the markdown body."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Email channel step
+{
+  "channel_key": "email-postmark",
+  "ref": "email_2",
+  "template": {
+    "html_body": "<p>Hello world!</p>",
+    "settings": {
+      "layout_key": "default"
+    },
+    "subject": "New activity"
+  },
+  "type": "channel"
+}
+```
+
+```json In-app channel step
+{
+  "channel_key": "in-app-feed",
+  "description": "Some description",
+  "name": "In-app step",
+  "ref": "in_app_feed_1",
+  "template": {
+    "action_url": "{{ vars.app_url }}",
+    "markdown_body": "Hello **{{ recipient.name }}**."
+  },
+  "type": "channel"
+}
+```
+
+```json SMS channel step
+{
+  "channel_key": "twilio",
+  "ref": "sms_1",
+  "template": {
+    "text_body": "Hello {{ recipient.name }}."
+  },
+  "type": "channel"
+}
+```
+
+```json Push channel step
+{
+  "channel_key": "fcm",
+  "ref": "push_2",
+  "template": {
+    "settings": {
+      "delivery_type": "content"
+    },
+    "text_body": "Hi {{ actor.name }} completed an activity.",
+    "title": "New activity"
+  },
+  "type": "channel"
+}
+```
+
+```json Chat channel step
+{
+  "channel_key": "whatsapp",
+  "ref": "chat_2",
+  "template": {
+    "summary": "A short summary of the message",
+    "markdown_body": "Hello **{{ recipient.name }}**."
+  },
+  "type": "channel"
+}
+```
+
+</ExampleColumn>
+</div>
+
+<div className="flex flex-col md:flex-row w-full py-16">
+<ContentColumn>
+
+## Delay step definition
+
+Contains all properties of the `WorkflowStep` and additionally:
+
+### Attributes
+
+Must set either `settings.delay_for` or `settings.delay_until_field_path`.
+
+<Attributes>
+  <Attribute
+    name="settings.delay_for"
+    type="object"
+    description="A duration object that describes how long to wait before proceeding to the next step."
+  />
+  <Attribute
+    name="settings.delay_for.unit"
+    type="string"
+    description="One of: “seconds”, “minutes”, “hours”, “days”, “weeks”, “months”."
+  />
+  <Attribute
+    name="settings.delay_for.value"
+    type="number"
+    description="A non-negative integer."
+  />
+  <Attribute
+    name="settings.delay_until_field_path"
+    type="string"
+    description="The data path to resolve the delay window. The resolved value must be an ISO-8601 timestamp."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Delay step
+{
+  "ref": "delay_1",
+  "settings": {
+    "delay_for": {
+      "unit": "seconds",
+      "value": 30
+    }
+  },
+  "type": "delay"
+}
+```
+
+</ExampleColumn>
+</div>
+
+<div className="flex flex-col md:flex-row w-full py-16">
+<ContentColumn>
+
+## Batch step definition
+
+Contains all properties of the `WorkflowStep` and additionally:
+
+### Attributes
+
+Must set either `settings.batch_window` or `settings.batch_until_field_path`.
+
+<Attributes>
+  <Attribute
+    name="batch_key"
+    type="string"
+    description="The data property to use to batch notifications per recipient."
+  />
+  <Attribute
+    name="settings.batch_window"
+    type="object"
+    description="A duration object that describes how long the batch window should be open for."
+  />
+  <Attribute
+    name="settings.batch_window.unit"
+    type="string"
+    description="One of: “seconds”, “minutes”, “hours”, “days”, “weeks”, “months”."
+  />
+  <Attribute
+    name="settings.batch_window.value"
+    type="number"
+    description="A non-negative integer."
+  />
+  <Attribute
+    name="settings.batch_until_field_path"
+    type="string"
+    description="The data path to resolve the batch window. The resolved value must be an ISO-8601 timestamp."
+  />
+  <Attribute
+    name="settings.batch_order"
+    type="string"
+    description="The order describing whether to return the first or last ten batch items in the activities variable. One of: “asc” or “desc”."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Batch step
+{
+  "ref": "batch_1",
+  "settings": {
+    "batch_order": "asc",
+    "batch_window": {
+      "unit": "seconds",
+      "value": 30
+    }
+  },
+  "type": "batch"
+}
+```
+
+</ExampleColumn>
+</div>
+
+<div className="flex flex-col md:flex-row w-full py-16">
+<ContentColumn>
+
+## Fetch step definition
+
+Contains all properties of the `WorkflowStep` and additionally:
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="settings.method"
+    type="string"
+    description="An HTTP method of the request. One of: “get”, “post”, “put”."
+  />
+  <Attribute
+    name="settings.url"
+    type="string"
+    description="A URL of the request."
+  />
+  <Attribute
+    name="settings.body"
+    type="string"
+    description="A body of the request. Only used for POST or PUT requests."
+  />
+  <Attribute
+    name="settings.headers"
+    type="object[]"
+    description="A list of key-value pairs for the request headers. Each object should contain key and value fields with string values."
+  />
+  <Attribute
+    name="settings.query_params"
+    type="object[]"
+    description="A list of key-value pairs for the request query params. Each object should contain key and value fields with string values."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json HTTP fetch step
+{
+  "ref": "http_fetch_1",
+  "settings": {
+    "headers": [{ "key": "foo", "value": "bar" }],
+    "method": "get",
+    "url": "https://example.com/"
+  },
+  "type": "http_fetch"
+}
+```
+
+</ExampleColumn>
+</div>
+
+<Section title="List all workflows" slug="workflows-list">
+<ContentColumn>
+
+Returns a paginated list of workflows available in a given environment. The workflows are returned in alpha sorted order by its key.
+
+### Endpoint
+
+<Endpoint method="GET" path="/workflows" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description="A slug of the environment from which to query workflows."
+  />
+  <Attribute
+    name="hide_uncommitted_changes"
+    type="boolean"
+    description="Whether to hide saved but uncommitted changes. Only relevant for “development” environment."
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after."
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before."
+  />
+  <Attribute
+    name="limit"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50, maximum of 100)."
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of workflows
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "entries": [
+    {
+      "active": false,
+      "created_at": "2022-11-07T21:45:43.086960Z",
+      "environment": "development",
+      "key": "sample-workflow-1",
+      "name": "My first sample workflow",
+      "steps": [
+        {
+          "channel_key": "sendgrid",
+          "ref": "email_1",
+          "template": {
+            "html_body": "<p>Hello world!</p>",
+            "settings": {
+              "layout_key": "default"
+            },
+            "subject": "Hello world"
+          },
+          "type": "channel"
+        }
+      ],
+      "updated_at": "2022-12-20T00:31:24.189381Z",
+      "valid": true
+    }
+  ],
+  "page_info": {
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get a workflow" slug="workflows-get">
+<ContentColumn>
+
+Retrieve a workflow by its key, in a given environment.
+
+### Endpoint
+
+<Endpoint method="GET" path="/workflows/:workflow_key" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="workflow_key"
+    type="string"
+    description="The key of the workflow."
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description="A slug of the environment from which to query workflows."
+  />
+  <Attribute
+    name="hide_uncommitted_changes"
+    type="boolean"
+    description="Whether to hide saved but uncommitted changes. Only relevant for “development” environment."
+  />
+</Attributes>
+
+### Returns
+
+A complete workflow
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "active": false,
+  "created_at": "2023-02-02T02:52:36.054397Z",
+  "environment": "development",
+  "key": "sample-workflow-1",
+  "name": "My first sample workflow",
+  "steps": [
+    {
+      "channel_key": "sendgrid",
+      "ref": "email_1",
+      "template": {
+        "html_body": "<p>Hello world!</p>",
+        "settings": {
+          "layout_key": "default"
+        },
+        "subject": "New activity"
+      },
+      "type": "channel"
+    }
+  ],
+  "updated_at": "2023-02-06T17:58:51.331103Z",
+  "valid": true
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Upsert a workflow" slug="workflows-update">
+<ContentColumn>
+
+Updates a workflow of a given key, or creates a new one if it does not yet exist.
+
+Note: this endpoint only operates on workflows in the `development` environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/workflows/:workflow_key" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="workflow_key"
+    type="string"
+    description="The key of the workflow."
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="commit"
+    type="boolean"
+    description="Whether to commit the upserted workflow changes in the “development” environment. Set to “false” by default."
+  />
+  <Attribute
+    name="commit_message"
+    type="boolean"
+    description="An optional message to include in a commit."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="workflow"
+    type="Workflow"
+    description="A workflow object with attributes to update or create a workflow."
+  />
+</Attributes>
+
+### Returns
+
+An upserted workflow
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+// Success
+{
+  "workfow": {
+    "active": false,
+    "created_at": "2023-02-02T02:52:36.054397Z",
+    "environment": "development",
+    "key": "sample-workflow-1",
+    "name": "My first sample workflow",
+    "steps": [
+      {
+        "channel_key": "sendgrid",
+        "ref": "email_1",
+        "template": {
+          "html_body": "<p>Hello world!</p>",
+          "settings": {
+            "layout_key": "default"
+          },
+          "subject": "New activity"
+        },
+        "type": "channel"
+      }
+    ],
+    "updated_at": "2023-02-06T17:58:51.331103Z",
+    "valid": true
+  }
+}
+
+// Failure
+{
+  "errors": [
+    {
+      "field": "name",
+      "message": "must be a string"
+    }
+  ]
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Validate a workflow" slug="workflows-validate">
+<ContentColumn>
+
+Validates a workflow payload without persisting it.
+
+Note: Validating a workflow is only done in the development environment context.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/workflows/:workflow_key/validate" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="workflow_key"
+    type="string"
+    description="The key of the workflow."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="workflow"
+    type="Workflow"
+    description="A workflow object with attributes to update or create a workflow."
+  />
+</Attributes>
+
+### Returns
+
+A validated workflow object, if valid. Note: some read-only fields will be empty as they are generated by the system when persisted.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+// Valid
+{
+  "workfow": {
+    "active": null,
+    "created_at": null,
+    "environment": "development",
+    "key": "sample-workflow-1",
+    "name": "My first sample workflow",
+    "steps": [
+      {
+        "channel_key": "sendgrid",
+        "ref": "email_1",
+        "template": {
+          "html_body": "<p>Hello world!</p>",
+          "settings": {
+            "layout_key": "default"
+          },
+          "subject": "New activity"
+          },
+        "type": "channel"
+      }
+    ],
+    "updated_at": null,
+    "valid": null
+  }
+}
+
+// Invalid
+{
+  "errors": [
+    {
+      "field": "name",
+      "message": "must be a string"
+    }
+  ]
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Activate a workflow" slug="workflows-activate">
+<ContentColumn>
+
+Activates (or deactivates) a workflow in a given environment.
+
+Note: This immediately enables or disables a workflow in a given environment without needing to go through environment promotion.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/workflows/:workflow_key/activate" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="workflow_key"
+    type="string"
+    description="The key of the workflow."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="status"
+    type="boolean"
+    description="Whether to activate or deactivate the upserted workflow changes in the “development” environment. Set to “true” by default, which is to activate. Setting to “false” will deactivate."
+  />
+</Attributes>
+
+### Returns
+
+`workflow` A workflow object.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+// Valid
+{
+  "workflow": {
+    "active": true,
+    "created_at": "2023-02-02T02:52:36.054397Z",
+    "environment": "development",
+    "key": "sample-workflow-1",
+    "name": "My first sample workflow",
+    "steps": [
+      {
+        "channel_key": "sendgrid",
+        "ref": "email_1",
+        "template": {
+          "html_body": "<p>Hello world!</p>",
+          "settings": {
+            "layout_key": "default"
+          },
+          "subject": "New activity"
+        },
+        "type": "channel"
+      }
+    ],
+    "updated_at": "2023-02-06T17:58:51.331103Z",
+    "valid": true
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Translations" slug="translations-overview">
+<ContentColumn>
+
+[Translations](/send-and-manage-data/translations) support localization in Knock. They hold the translated content for a given locale, which you can reference in your message templates with the `t` Liquid function filter.
+
+You can retrieve, update, or create a workflow as well as list all workflows in a given [environment](/send-and-manage-data/environments). Workflows are identified by its unique workflow key.
+
+You can retrieve, update, and create translations as well as listing all in a given [environment](/send-and-manage-data/environments). Translations are identified by their locale code + an optional namespace.
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint
+    name="translations-list"
+    method="GET"
+    path="/translations"
+    withLink
+  />
+  <Endpoint
+    name="translations-get"
+    method="GET"
+    path="/translations/:locale_code"
+    withLink
+  />
+  <Endpoint
+    name="translations-upsert"
+    method="PUT"
+    path="/translations/:locale_code"
+    withLink
+  />
+  <Endpoint
+    name="translations-validate"
+    method="PUT"
+    path="/translations/:local_code/validate"
+    withLink
+  />
+</Endpoints>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Translation definition" slug="translations-object">
+<ContentColumn>
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="locale_code"
+    type="string"
+    description="The locale code for the translation object."
+  />
+  <Attribute
+    name="namespace"
+    type="string"
+    description="An optional namespace for the translation to help categorize your translations."
+  />
+  <Attribute
+    name="content"
+    type="object"
+    description="A JSON object containing the key-value pairs of translation references and translation strings."
+  />
+  <Attribute
+    name="inserted_at"
+    type="timestamp"
+    description="A timestamp of when the translation was created."
+  />
+  <Attribute
+    name="updated_at"
+    type="timestamp"
+    description="A timestamp of when the translation was updated."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Translation object
+{
+  "content": {
+    "welcome": "Hello, {{ name }}"
+  },
+  "created_at": "2023-05-08T02:10:29.880485Z",
+  "environment": "development",
+  "locale_code": "en-CA",
+  "updated_at": "2023-05-08T02:10:29.880961Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List all translations" slug="translations-list">
+<ContentColumn>
+
+Returns a paginated list of translations available in a given environment. The workflows are returned in alpha-sorted order by its locale code.
+
+### Endpoint
+
+<Endpoint method="GET" path="/translations" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description="A slug of the environment from which to query translations."
+  />
+  <Attribute
+    name="hide_uncommitted_changes"
+    type="boolean"
+    description="Whether to hide saved but uncommitted changes. Only relevant for “development” environment."
+  />
+  <Attribute
+    name="local_code"
+    type="string"
+    description="A specific locale code to filter translations for."
+  />
+  <Attribute
+    name="namespace"
+    type="string"
+    description="A specific namespace to filter translations for."
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after."
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before."
+  />
+  <Attribute
+    name="limit"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50, maximum of 100)."
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of translations
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "entries": [
+    {
+      "content": {
+        "welcome": "Hello, {{ name }}"
+      },
+      "created_at": "2023-05-08T02:10:29.880485Z",
+      "environment": "development",
+      "locale_code": "en-CA",
+      "updated_at": "2023-05-08T02:10:29.880961Z"
+    }
+  ],
+  "page_info": {
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get translations" slug="translations-get">
+<ContentColumn>
+
+Returns a paginated list of translations available in a given environment. The workflows are returned in alpha-sorted order by its locale code.
+
+### Endpoint
+
+<Endpoint method="GET" path="/translations/:local_code" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="local_code"
+    type="string"
+    description="A local code to retrieve translations for."
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description="A slug of the environment from which to query translations."
+  />
+  <Attribute
+    name="hide_uncommitted_changes"
+    type="boolean"
+    description="Whether to hide saved but uncommitted changes. Only relevant for “development” environment."
+  />
+  <Attribute
+    name="namespace"
+    type="string"
+    description="A specific namespace to filter translations for."
+  />
+</Attributes>
+
+### Returns
+
+A translation object
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "content": {
+    "welcome": "Hello, {{ name }}"
+  },
+  "created_at": "2023-05-08T02:10:29.880485Z",
+  "environment": "development",
+  "locale_code": "en-CA",
+  "updated_at": "2023-05-08T02:10:29.880961Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Upsert a translation" slug="translations-upsert">
+<ContentColumn>
+
+Updates a translation of a given locale code + namespace, or creates a new one if it does not yet exist.
+
+Note: this endpoint only operates on translations in the “development” environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/translations/:local_code" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="local_code"
+    type="string"
+    description="A local code for the translation."
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="commit"
+    type="boolean"
+    description="Whether to commit the upserted translation’s changes in the “development” environment."
+  />
+  <Attribute
+    name="commit_message"
+    type="string"
+    description="An optional message to include in a commit."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="translation"
+    type="object"
+    description="A translation object with a content attribute used to update or create a translation."
+  />
+</Attributes>
+
+### Returns
+
+A translation object
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "content": {
+    "welcome": "Hello, {{ name }}"
+  },
+  "created_at": "2023-05-08T02:10:29.880485Z",
+  "environment": "development",
+  "locale_code": "en-CA",
+  "updated_at": "2023-05-08T02:10:29.880961Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Validate a translation" slug="translations-validate">
+<ContentColumn>
+
+Validates a translation payload without persisting it.
+
+Note: this endpoint only operates on translations in the “development” environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/translations/:local_code/validate" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="local_code"
+    type="string"
+    description="A local code of the translation."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="translation"
+    type="object"
+    description="A translation object to validate."
+  />
+</Attributes>
+
+### Returns
+
+A translation object
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "content": {
+    "welcome": "Hello, {{ name }}"
+  },
+  "created_at": "2023-05-08T02:10:29.880485Z",
+  "environment": "development",
+  "locale_code": "en-CA",
+  "updated_at": "2023-05-08T02:10:29.880961Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Commits" slug="commits-overview">
+<ContentColumn>
+
+To version the changes you make in your environments, Knock uses a commit model. When you make changes to a workflow or a layout, you will need to commit them in your development environment, then promote to subsequent environments before those changes will appear in the respective environments.
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint name="commits-commit" method="PUT" path="/commits" withLink />
+  <Endpoint
+    name="commits-promote"
+    method="PUT"
+    path="/commits/promote"
+    withLink
+  />
+</Endpoints>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Commit all changes" slug="commits-commit">
+<ContentColumn>
+
+Commit all changes across all resources in the development environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/commits" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="commit_message"
+    type="string"
+    description="An optional message to include in a commit."
+  />
+</Attributes>
+
+### Returns
+
+`result` A "success" message.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "result": "success"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Promote all changes" slug="commits-promote">
+<ContentColumn>
+
+Promote all changes across all resources to the target environment from its preceding environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/commits/promote" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="to_environment"
+    type="string"
+    description={
+      <>
+        <p>A slug of the target environment to which you want to promote all changes from its directly preceding environment.</p>
+        <p>For example, if you have three environments “development”, “staging”, and “production” (in that order), setting this param to “production” will promote all new changes from the staging environment.</p>
+        <p><strong>Note:</strong> This must be a non-development environment.</p>
+      </>
+    }
+/>
+
+</Attributes>
+
+### Returns
+
+`result` A "success" message.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "result": "success"
+}
+```
+
+</ExampleColumn>
+</Section>

@@ -1,4 +1,5 @@
 import cn from "classnames";
+import Link from "next/link";
 
 const Endpoints = ({ children }) => (
   <div className="endpoints text-base lg:text-sm border dark:border-gray-800 rounded">
@@ -11,8 +12,8 @@ const Endpoints = ({ children }) => (
   </div>
 );
 
-const Endpoint = ({ method, path }) => (
-  <div className="my-3">
+const EndpointText = ({ method, path }) => (
+  <>
     <span
       className={cn({
         "text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center mr-3":
@@ -32,6 +33,20 @@ const Endpoint = ({ method, path }) => (
     <span className="font-mono text-xs text-gray-700 dark:text-gray-200">
       {path}
     </span>
+  </>
+);
+
+const Endpoint = ({ method, path, name, withLink = false }) => (
+  <div className="my-3">
+    {withLink && name ? (
+      <Link href={`#${name}`} passHref>
+        <a>
+          <EndpointText method={method} path={path} />
+        </a>
+      </Link>
+    ) : (
+      <EndpointText method={method} path={path} />
+    )}
   </div>
 );
 

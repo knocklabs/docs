@@ -21,6 +21,7 @@ const sidebarContent: SidebarSection[] = [
     desc: "Learn how to get data flowing into Knock to power your notifications.",
     pages: [
       { slug: "/concepts", title: "Overview" },
+      // { slug: "/workflows", title: "Workflows" },
       { slug: "/users", title: "Users" },
       { slug: "/preferences", title: "Preferences" },
       { slug: "/recipients", title: "Recipients" },
