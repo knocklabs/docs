@@ -339,6 +339,11 @@ module.exports = withPlugins(
           destination: "/developer-tools/outbound-webhooks",
           permanent: false,
         },
+        {
+          source: "/integrations/vercel",
+          destination: "/integrations/extensions/vercel",
+          permanent: false,
+        },
       ];
     },
   },
