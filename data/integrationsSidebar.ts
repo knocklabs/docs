@@ -18,6 +18,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/polytomic", title: "Polytomic" },
       { slug: "/jitsu", title: "Jitsu" },
       { slug: "/freshpaint", title: "Freshpaint" },
+      { slug: "/http", title: "HTTP" },
     ],
   },
   {

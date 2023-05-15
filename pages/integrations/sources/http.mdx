@@ -1,0 +1,81 @@
+---
+title: How to send events to an HTTP source to power Knock
+description: Learn how to stream events to Knock to power your product notifications.
+section: Integrations > Sources
+layout: integrations
+---
+
+The HTTP source creates a generic event ingestion endpoint that you can use to stream events from your service, or a third-party platform into Knock. The events you stream into the HTTP source can then be used to trigger Knock notification workflows via configured action mappings.
+
+Knock can receive any structured event data via the HTTP source, as long as you can format JSON and make an HTTP request from the service that produces or consumes events.
+
+## Getting started
+
+To get started you can create a new HTTP source by going to "Integrations > Sources" and clicking "Create source". You'll have the opportunity to name the HTTP source and give it a description.
+
+Once your source is created, you'll have a unique ingestion endpoint per environment to send events to. You can get each environment's endpoint by clicking the "Copy webhook destination URL" button.
+
+## Sending event data
+
+To start sending events to Knock, you'll need to structure a JSON payload that matches the event schema to the ingestion endpoint and submit the request via a `POST` action. A well-formed event payload will be accepted with a `204` response code.
+
+You'll also need to send the following headers with your request:
+
+```txt Request headers
+Content-Type: application/json
+```
+
+**Please note**: you'll need to send a single event at a time. There's currently no batch event ingestion endpoint.
+
+## Event schema
+
+Your events must be structured as JSON with the following schema:
+
+| Name         | Type              | Description                                                                                                       |
+| ------------ | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `type`       | string (required) | The type of event to send. Must be set to `track`.                                                                |
+| `event`      | string (required) | The name of the event you're sending to Knock.                                                                    |
+| `properties` | map               | A set of properties associated with the event.                                                                    |
+| `userId`     | string            | An optional userId to be used as the recipient or actor for the triggered workflow.                               |
+| `messageId`  | string            | An optional unique identifier for the event message, to be used as a deduplication key.                           |
+| `timestamp`  | number            | An optional unix timestamp indicating when the event occurred. If omitted, will default to the time of ingestion. |
+
+```json An example event payload
+{
+  "type": "track",
+  "event": "My event",
+  "properties": {
+    "foo": "bar"
+  }
+}
+```
+
+## Triggering workflows from received events
+
+Received events can be mapped to corresponding workflow triggers via Event actions under each environment's configured source.
+
+[Read more on configuring event action mappings](/integrations/sources/overview#event-action-mapping)
+
+### Mapping workflow trigger properties
+
+When creating event actions from your events, you can optionally configure the schema mapping Knock will use to map your event properties into the corresponding workflow trigger properties.
+
+To target any items under the `properties` key, prefix the schema mapping with `data.propertyKey`. As an example, if you have a property `properties.recipientId` you would map this as `data.recipientId`.
+
+## Debugging events
+
+You can see a log of all of the events received per source under "Developers > Sources" in the Knock dashboard under the "Logs" page for your configured source. You can also see any event actions that were triggered as part of the event ingestion, and any workflow runs that were triggered.
+
+## Frequently asked questions
+
+**Can I send identify events through to the HTTP source?**
+
+No, the HTTP source only accepts events not user identifies. Please use the [user identify API](/send-and-manage-data/users) instead.
+
+**What's the rate limit Knock supports on the events endpoint?**
+
+There's no rate limit for the event ingestion endpoint, but we ask if that you're going to be sending more than 1,000 events per second that you reach out to us first so that we can provision additional capacity.
+
+**Do you support ingesting batches of events?**
+
+Currently, no the HTTP endpoint only accepts single events at a time.
