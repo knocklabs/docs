@@ -32,6 +32,7 @@ We support receiving events from customer data platforms which can be configured
 - [Hightouch](/integrations/sources/hightouch)
 - [Census](/integrations/sources/census)
 - [Polytomic](/integrations/sources/polytomic)
+- [HTTP](/integrations/sources/http) (a generic HTTP endpoint for accepting events)
 
 ## Platform extensions
 
