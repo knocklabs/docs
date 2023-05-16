@@ -25,17 +25,6 @@ import RateLimit from "../../components/RateLimit";
 <Section title="Knock CLI reference" slug="overview">
 <ContentColumn>
 
-<Callout
-  emoji="🚧"
-  text={
-    <>
-      The Knock CLI is currently in beta. If you'd like early access, or this is
-      blocking your adoption of Knock, please{" "}
-      <a href="mailto:support@knock.app?subject=Knock CLI">get in touch</a>.
-    </>
-  }
-/>
-
 This reference documents every command and flag available in Knock's command-line interface.
 
 The Knock CLI helps you work with your Knock resources right from the terminal.
@@ -52,11 +41,17 @@ With the CLI, you can:
 <Section title="Install the CLI" slug="installation">
 <ContentColumn>
 
-You can install the Knock CLI using `npx`, a node package runner that ships with npm. Once the CLI is installed, you can call it by using the `knock` command in your terminal.
+### Install with homebrew
+
+For macOS, you can install the Knock CLI using [homebrew](https://brew.sh/). Once the CLI is installed you can call it by using the `knock` command in your terminal.
+
+### Install with npm
+
+For other operating systems, you can install the Knock CLI using `npm`, a node package manager. Once the CLI is installed, you can call it by using the `knock` command in your terminal.
 
 **Requirements**
 
-The Knock CLI is built with Node.js and installable via `npm` for the beta release. You must have `node` and `npm` installed already, with the following versions:
+The Knock CLI is built with Node.js and installable as a `npm` package. You must have `node` and `npm` installed already, with the following versions:
 
 - Node.js: 16.14.0 or higher
 - NPM: 7.18.1 or higher
@@ -66,8 +61,14 @@ You can find the Knock CLI npm package [here](https://www.npmjs.com/package/@kno
 </ContentColumn>
 <ExampleColumn>
 
-```bash Install the Knock CLI
-npx install -g @knocklabs/cli
+```bash Install the Knock CLI with homebrew
+brew install knocklabs/tap/knock
+```
+
+<div style={{"margin-top": 80}} />
+
+```bash Install the Knock CLI with npm
+npm install -g @knocklabs/cli
 ```
 
 </ExampleColumn>
@@ -98,7 +99,7 @@ When Knock CLI detects a user configuration file, it will use the service token 
 <ExampleColumn>
 
 ```bash Verify your service token
-knock ping --service-token=XXX
+knock whoami --service-token=XXX
 ```
 
 </ExampleColumn>
@@ -107,7 +108,7 @@ knock ping --service-token=XXX
 <Section title="knock {cmd} <arguments> [flags]" slug="global-flags" headingClassName="font-mono">
 <ContentColumn>
 
-The Knock CLI supports several flags for every command.
+The following flags are supported for every command.
 
 ### Flags
 
@@ -117,7 +118,6 @@ The Knock CLI supports several flags for every command.
     type="string"
     description="The service token for a Knock account to issue the commands against. Required when not using a configuration file."
   />
-  <Attribute name="--json" type="string" description="Format output as json." />
 </Attributes>
 
 </ContentColumn>
@@ -158,6 +158,11 @@ Use an `--environment` flag to specify the target environment; if omitted, the K
     type="string"
     description="Fetches all entries before this cursor."
   />
+  <Attribute
+    name="--json"
+    type="string"
+    description="Format output as json."
+  />
 </Attributes>
 
 </ContentColumn>
@@ -189,6 +194,16 @@ Use an `--environment` flag to specify the target environment; if omitted, the K
     type="string"
     description="The environment to use. Defaults to development."
   />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--json"
+    type="string"
+    description="Format output as json."
+  />
 </Attributes>
 
 </ContentColumn>
@@ -208,9 +223,9 @@ knock workflow get my-workflow --environment=production
 <Section title="knock workflow pull [flags]" slug="workflow-pull" headingClassName="font-mono">
 <ContentColumn>
 
-You can pull and download a single workflow with its message templates from Knock to a local file system with the `workflow pull` command. Knock CLI will create a new workflow directory or update the existing workflow directory in the local file system.
+You can pull and download workflows with its message templates from Knock to a local file system with the `workflow pull` command. Knock CLI will create a new workflow directory or update the existing workflow directory in the local file system.
 
-Note: if pulling the target workflow for the first time, Knock CLI will ask to confirm before writing to the local filesystem.
+Note: if pulling the target workflow for the first time or all workflowws, Knock CLI will ask to confirm before writing to the local filesystem.
 
 ### Flags
 
@@ -241,6 +256,16 @@ Note: if pulling the target workflow for the first time, Knock CLI will ask to c
     type="directory"
     description="Specifies which target directory path to pull all workflows into. Only available to be used with --all, and defaults to the current working directory."
   />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
 </Attributes>
 
 </ContentColumn>
@@ -252,6 +277,10 @@ knock workflow pull my-workflow
 
 ```bash Pulling a workflow in a different environment
 knock workflow pull my-workflow --environment=production
+```
+
+```bash Pulling all workflows into ./workflows directory
+knock workflow pull --all --workflows-dir=./workflows
 ```
 
 </ExampleColumn>
@@ -281,6 +310,16 @@ Note:
     type="string"
     description="The commit message to pass when using the `--commit` flag."
   />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all workflows from the target directory path set by `--workflows-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--workflows-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all workflows from. Only available to be used with --all, and defaults to the current working directory."
+  />
 </Attributes>
 
 </ContentColumn>
@@ -296,6 +335,10 @@ knock workflow push my-workflow \
   -m "Commit message"
 ```
 
+```bash Pushing all workflows from ./workflows directory
+knock workflow push --all --workflows-dir=./workflows
+```
+
 </ExampleColumn>
 </Section>
 
@@ -305,6 +348,21 @@ knock workflow push my-workflow \
 You can validate a new or updated workflow directory with the `workflow validate` command. Knock will validate the given workflow payload in the same way as it would with the `workflow push` command, except without persisting those changes.
 
 Note: Validating a workflow is only done against the `development` environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all workflows from the target directory path set by `--workflows-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--workflows-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all workflows from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
 
 </ContentColumn>
 <ExampleColumn>
@@ -337,7 +395,7 @@ Note:
   <Attribute
     name="--force"
     type="boolean"
-    description="Force the status to the value given. Defaults to false."
+    description="Removes the confirmation prompt. Defaults to false."
   />
   <Attribute
     name="--status"
@@ -396,6 +454,11 @@ List all translations in the environment. Use an `--environment` flag to specify
     type="string"
     description="Fetches all entries before this cursor."
   />
+  <Attribute
+    name="--json"
+    type="string"
+    description="Format output as json."
+  />
 </Attributes>
 
 </ContentColumn>
@@ -408,12 +471,60 @@ knock translation list
 </ExampleColumn>
 </Section>
 
-<Section title="knock translation pull <translation_reference or locale> [flags]" slug="translation-pull" headingClassName="font-mono">
+<Section title="knock translation get <translation_ref> [flags]" slug="translation-get" headingClassName="font-mono">
 <ContentColumn>
 
-Pulls one or more translation files from Knock into the local, working directory. The `<translation_reference>` is `namespace.locale`, i.e. `admin.en`. If a translation has no namespace, use the locale alone, i.e. `en`.
+You can show the content of a given translation with the `translation get` command, followed by the target translation ref.
 
-When `<locale>` is specified with the `--all` flag, all translations for that locale are pulled.
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--json"
+    type="string"
+    description="Format output as json."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Get translation without a namespace
+knock translation get en
+```
+```bash Get translation with a namespace
+knock translation get admin.en
+```
+
+```bash Get translation in a different environment
+knock translation get en --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation pull <translation_ref> [flags]" slug="translation-pull" headingClassName="font-mono">
+<ContentColumn>
+
+You can pull and download translation files from Knock to a local file system with the `translation pull` command. Knock CLI will create a new translation file or update the existing file in the local file system.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pulled.
 
 ### Flags
 
@@ -434,7 +545,7 @@ When `<locale>` is specified with the `--all` flag, all translations for that lo
           false.
         </p>
         <p>
-          When used with a locale, will only pull the translations for that locale.
+          When used with a locale code, will pull all translations for that locale only.
         </p>
         <p>
           Note: all contents in the target directory will be erased and
@@ -469,21 +580,18 @@ knock translation pull --all
 </ExampleColumn>
 </Section>
 
-<Section title="knock translation push <translation_reference or locale> [flags]" slug="translation-push" headingClassName="font-mono">
+<Section title="knock translation push <translation_ref> [flags]" slug="translation-push" headingClassName="font-mono">
 <ContentColumn>
 
-Pushes local translation files back to Knock and upserts them. The <translation_reference> is `namespace.locale`, i.e. `admin.en`. If a translation has no namespace, use the locale alone, i.e. `en`.
+Pushes local translation files back to Knock and upserts them.
 
-When `<locale>` is given with the `--all` flag, all translations in that locale's directory are pushed to Knock. Can only be pushed to the development environment.
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pushed.
 
 ### Flags
 
 <Attributes>
-  <Attribute
-    name="--all"
-    type="boolean"
-    description="Whether to push all translation files to the target environment. Defaults to false."
-  />
   <Attribute
     name="--commit"
     type="boolean"
@@ -493,6 +601,16 @@ When `<locale>` is given with the `--all` flag, all translations in that locale'
     name="-m, --commit-message"
     type="string"
     description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all translation files to the target environment. Defaults to false."
+  />
+  <Attribute
+    name="--translations-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all translations from. Only available to be used with --all, and defaults to the current working directory."
   />
 </Attributes>
 
@@ -518,10 +636,14 @@ knock translation push --all
 </ExampleColumn>
 </Section>
 
-<Section title="knock translation validate <locale> [flags]" slug="translation-validate" headingClassName="font-mono">
+<Section title="knock translation validate <translation_ref> [flags]" slug="translation-validate" headingClassName="font-mono">
 <ContentColumn>
 
-Validates one or more translation files. Useful for checking if the file is valid before running the `translation push` method. When `<locale>` is given, either a single namespaced translation file or multiple files are validated in a single operation. Can only be validated against the `development` environment.
+Validates one or more translation files. Useful for checking if the file is valid before running the `translation push` method.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+Can only be validated against the `development` environment.
 
 ### Flags
 
@@ -530,6 +652,11 @@ Validates one or more translation files. Useful for checking if the file is vali
     name="--all"
     type="boolean"
     description="Whether to validate all translation files. Defaults to false."
+  />
+  <Attribute
+    name="--translations-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all translation files from. Only available to be used with --all, and defaults to the current working directory."
   />
 </Attributes>
 

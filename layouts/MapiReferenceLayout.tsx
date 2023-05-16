@@ -34,9 +34,9 @@ const sidebarData = [
       { slug: "#translations-overview", title: "Introduction" },
       { slug: "#translations-object", title: "Translation definition" },
       { slug: "#translations-list", title: "List translations" },
-      { slug: "#translations-get", title: "Get translations" },
-      { slug: "#translations-upsert", title: "Upsert translations" },
-      { slug: "#translations-validate", title: "Validate translations" },
+      { slug: "#translations-get", title: "Get translation" },
+      { slug: "#translations-upsert", title: "Upsert translation" },
+      { slug: "#translations-validate", title: "Validate translation" },
     ],
   },
   {
