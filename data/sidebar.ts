@@ -177,6 +177,10 @@ const sidebarContent: SidebarSection[] = [
         slug: "/customer-webhooks",
         title: "Customer-facing webhooks",
       },
+      {
+        slug: "/building-recurring-digests",
+        title: "Recurring digests",
+      },
     ],
   },
 ];
