@@ -20,7 +20,7 @@ You might use the Knock webhook channel to...
 - Codify commonly used fetch requests (such as fetching information about a user) for use across your different Knock workflows
 - Build user-facing, configurable webhooks into your own product so your users can receive a webhook when something happens in your product
 
-In this overview we'll cover how to configure webhook channels in Knock and use them in your notification workflows.
+In this overview, we'll cover how to configure webhook channels in Knock and use them in your notification workflows.
 
 ## Create and configure your webhook channel
 
@@ -54,7 +54,7 @@ To learn how to build a webhook request in detail, you can read [our fetch funct
         recipient's user information, you'd build the following URL to
         dynamically call the endpoint based on the active workflow run's
         recipient ID:{" "}
-        <code>{"https://foobar/com/api/users/{{recipient.id}}"}</code>
+        <code>{"https://foobar/com/api/users/{{ recipient.id }}"}</code>
       </p>
     </>
   }
@@ -70,12 +70,46 @@ Webhook channels are added to Knock workflows the same way as any other channel.
 
 When you add your webhook channel to a workflow, by default it will use the webhook request you built in your channel. You can override this as you see fit on a per-step basis. If at any time you want to reset a webhook step back to its channel default, just click "Reset to default channel settings".
 
+## Securing your webhooks
+
+The webhook channel offers request signing as a setting on the channel. When request signing is enabled, Knock will generate a signing key and use that to sign the request in a `x-webhook-signature` header that can be verified by the consumer.
+
+Request signing is enabled per-environment configuration of the webhook channel under the "Manage configuration" modal. Once request signing is enabled, Knock will generate a signing key for you to verify the signature against. This key can be configured to be any value, or even a dynamic value resolved from the workflow run scope if necessary (see below for more).
+
+### Using a dynamic signing key
+
+In some cases, you may wish to use a **dynamic signing key** to verify your webhooks. For example, if you're using the webhook channel to power customer-configurable webhooks, you may want a different signing key per webhook configuration.
+
+You can add a dynamic signing key by using liquid in the signing key input field. For example, if your signing key was stored on an object that represented the webhook you can reference the key as `{{ recipient.webhook_signing_key }}`.
+
+**Note**: if the signing key is empty the webhook request will be skipped.
+
+### Verifying the signature
+
+The signature is generated with an HMAC using the SHA256 algorithm and, before being encoded, is comprised of the timestamp and the stringified JSON payload of the request. We encode `"timestamp in numerical form"."stringified payload"` as the signature of the request.
+
+The `x-webhook-signature` header is a string comprised of the timestamp used in the encoding and the encoded value above. It will look like this: `t=timestamp,s=encoded-signature`
+
+To test that the payload sent has not been compromised, you can recreate the signature using the signing key found on the webhook channel configuration and compare it to the one sent in the header.
+
+1. Split the `x-webhook-signature` on the comma (",") and extract the values of timestamp and signature.
+2. Construct the value of the signature by concatenating:
+
+   - The timestamp (as a string)
+   - The character `.`
+   - The stringified JSON payload
+
+3. Generate the signature with an HMAC and SHA256 algorithm using the signing key from your webhook's channel configuration.
+4. Compare your generated signature with the one extracted in step one; they should match exactly. If the timestamp is more than five minutes old compared to the current time, you may decide you want to reject the payload for additional security.
+
 ## Frequently asked questions
 
 **Do webhook steps always execute during a workflow run?**
+
 Yes. When a webhook channel exists in a workflow, it will send for every workflow run. You do not need to store any channel data on the recipient for the webhook to be triggered.
 
 If you want webhooks to be recipient-specific, you can use the `recipient.*` namespace to use [recipient](/send-and-manage-data/recipients) variables in the url of your webhook. If a recipient doesn't have the requisitive variables configured for the webhook request to build correctly, the webhook will not be sent at runtime.
 
 **Can I use the Knock webhook channel to power customer-facing webhooks in my own product?**
+
 Yes! We cover this in more detail in [our guide on building customer configurable webhooks](/guides/customer-webhooks).
