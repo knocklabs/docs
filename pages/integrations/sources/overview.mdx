@@ -5,6 +5,8 @@ section: Integrations > Customer data platforms
 layout: integrations
 ---
 
+import Callout from "../../../components/Callout";
+
 With Knock sources, you can integrate customer data platforms (CDPs) such as Segment and Rudderstack or reverse ETL platforms such as Hightouch and Census with Knock to trigger notification workflows, identify users, and automate other actions.
 
 In general, each platform we support can do the following within Knock:
@@ -73,6 +75,62 @@ You can then select the event you want to trigger actions in Knock, and configur
 For sources that support identifying users (such as Segment or Rudderstack with their `identify` calls), each environment configuration for that source includes a setting to enable or disable identifying users. After creating an integration source, enable identifying users for that environment.
 
 Note that Knock will correctly map `name`, `email`, `avatar`, and `phone` properties from Segment and Rudderstack `identify` calls into Knock's user data model. All other tracked properties of a user will be stored as additional custom properties on the Knock user object, and can be used in templates and other parts of Knock that rely on user properties.
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">
+        Remember:
+      </span>{" "}
+      if you send Knock a source event that includes a recipient that has not yet been identified in Knock, our system will not generate a workflow run for that user. <br/><br/>
+      For use cases such as new signup events, where events will often reach Knock before identify calls, consider <a href="#inline-identify-users-in-a-source-event">inline identification</a> of users in your source events. 
+    </>
+  }
+/>
+
+### Inline identify users in a source event
+In cases where you send a source event to Knock with recipients that may not yet have been identified into our system, it's good practice to inline identify your users. By inline identifying your users within your source events, you ensure that those users are identified in Knock when your event triggers a workflow.
+
+As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified. 
+
+``` A source event without inline identify
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "source-event-test-123",
+  "properties": {
+        "recipients": ["sam10"],
+        "account_id": "123"
+    },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
+
+To ensure that the user is notified, we'd change the id reference in `recipients` to a complete user object, as in the example below. This way Knock has all the information it needs to identify the user during workflow runtime.
+
+``` A source event with inline identify
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "source-event-test-123",
+  "properties": {
+        "recipients": [
+          {
+            id: "sam10",
+            name: "Sam Seely",
+            email: "sam@example.com",
+          }
+        ],
+        "account_id": "123"
+    },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
 
 ### Event logs
 
