@@ -333,21 +333,39 @@ A user represents an individual who may need to receive a notification from Knoc
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint name="identify-user" method="PUT" path="/users/:user_id" />
-  <Endpoint name="get-user" method="GET" path="/users/:user_id" />
+  <Endpoint name="identify-user" method="PUT" path="/users/:user_id" withLink />
+  <Endpoint name="list-users" method="GET" path="/users" withLink />
+  <Endpoint name="get-user" method="GET" path="/users/:user_id" withLink />
   <Endpoint
     name="get-user-messages"
     method="GET"
     path="/users/:user_id/messages"
+    withLink
   />
-  <Endpoint name="delete-user" method="DELETE" path="/users/:user_id" />
-  <Endpoint name="merge-user" method="POST" path="/users/:user_id/merge" />
+  <Endpoint
+    name="delete-user"
+    method="DELETE"
+    path="/users/:user_id"
+    withLink
+  />
+  <Endpoint
+    name="merge-user"
+    method="POST"
+    path="/users/:user_id/merge"
+    withLink
+  />
   <Endpoint
     name="bulk-identify-users"
     method="POST"
     path="/users/bulk/identify"
+    withLink
   />
-  <Endpoint name="bulk-delete-users" method="POST" path="/users/bulk/delete" />
+  <Endpoint
+    name="bulk-delete-users"
+    method="POST"
+    path="/users/bulk/delete"
+    withLink
+  />
 </Endpoints>
 
 ```json User object
@@ -450,6 +468,72 @@ A User.
   "baz": true,
   "created_at": null,
   "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List users" slug="list-users">
+<ContentColumn>
+
+Lists all non-deleted users for the environment.
+
+### Endpoint
+
+<Endpoint method="GET" path="/users" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of `User` records.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "User",
+      "id": "user_1",
+      "name": "User name",
+      "email": "user@example.com",
+      "foo": "bar",
+      "baz": true,
+      "created_at": null,
+      "updated_at": "2021-03-05T12:00:00Z"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
 }
 ```
 
@@ -3138,27 +3222,47 @@ when sending [Slack notifications](/integrations/slack).
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint name="get-object" method="GET" path="/objects/:collection/:id" />
+  <Endpoint
+    name="list-objects"
+    method="GET"
+    path="/objects/:collection"
+    withLink
+  />
+  <Endpoint
+    name="get-object"
+    method="GET"
+    path="/objects/:collection/:id"
+    withLink
+  />
   <Endpoint
     name="get-object-messages"
     method="GET"
     path="/objects/:collection/:id/messages"
+    withLink
   />
-  <Endpoint name="set-object" method="PUT" path="/objects/:collection/:id" />
+  <Endpoint
+    name="set-object"
+    method="PUT"
+    path="/objects/:collection/:id"
+    withLink
+  />
   <Endpoint
     name="delete-object"
     method="DELETE"
     path="/objects/:collection/:id"
+    withLink
   />
   <Endpoint
     name="bulk-set-object"
     method="POST"
     path="/objects/:collection/bulk/set"
+    withLink
   />
   <Endpoint
     name="bulk-delete-object"
     method="POST"
     path="/objects/:collection/bulk/delete"
+    withLink
   />
 </Endpoints>
 
@@ -3172,6 +3276,82 @@ when sending [Slack notifications](/integrations/slack).
   },
   "created_at": null,
   "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List objects" slug="list-objects">
+<ContentColumn>
+
+Lists all objects under a collection. Note: does not validate that the collection exists and contains objects.
+
+### Endpoint
+
+<Endpoint name="list-objects" method="GET" path="/objects/:collection" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The type of object you are storing in Knock."
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+</Attributes>
+
+### Response
+
+Returns a paginated list of `Object` records.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "Object",
+      "id": "project-123",
+      "collection": "projects",
+      "properties": {
+        "name": "My project"
+      },
+      "created_at": null,
+      "updated_at": "2021-03-05T12:00:00Z"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
 }
 ```
 

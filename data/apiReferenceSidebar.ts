@@ -21,6 +21,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "#users", title: "Overview" },
       { slug: "#identify-user", title: "Identify a user" },
+      { slug: "#list-users", title: "List users" },
       { slug: "#get-user", title: "Get a user" },
       { slug: "#get-user-messages", title: "Get messages" },
       { slug: "#delete-user", title: "Delete a user" },
@@ -88,6 +89,7 @@ const sidebarContent: SidebarSection[] = [
     slug: "/reference",
     pages: [
       { slug: "#objects", title: "Overview" },
+      { slug: "#list-objects", title: "List objects" },
       { slug: "#get-object", title: "Get an object" },
       { slug: "#get-object-messages", title: "Get messages" },
       { slug: "#set-object", title: "Set an object" },
