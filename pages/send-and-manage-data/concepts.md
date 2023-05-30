@@ -77,7 +77,7 @@ A message in Knock represents a notification delivered to a recipient on a parti
 
 Translations support localization in Knock. They hold the translated content for a given locale, which you can reference in your message templates with the `t` Liquid function filter.
 
-[Learn more →](/send-and-manage-data/localization)
+[Learn more →](/send-and-manage-data/translations)
 
 ## Outbound webhooks
 
