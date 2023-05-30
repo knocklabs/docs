@@ -23,6 +23,7 @@ const sidebarData = [
       { slug: "#workflow-get", title: "Get workflows" },
       { slug: "#workflow-pull", title: "Pull workflows" },
       { slug: "#workflow-push", title: "Push workflows" },
+      { slug: "#workflow-run", title: "Run workflow" },
       { slug: "#workflow-validate", title: "Validate workflow" },
       { slug: "#workflow-activate", title: "Activate workflow" },
     ],
