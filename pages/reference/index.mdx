@@ -2239,7 +2239,15 @@ along with a user token to make this request**
 <div class="mt-6">
   <Callout
     emoji="⚠️"
-    text={<><strong>This endpoint's rate limit is always scoped per-user and per-environment.</strong> This is true even for requests made without a signed user token.</>}
+    text={
+      <>
+        <strong>
+          This endpoint's rate limit is always scoped per-user and
+          per-environment.
+        </strong>{" "}
+        This is true even for requests made without a signed user token.
+      </>
+    }
   />
 </div>
 
@@ -4136,7 +4144,9 @@ A subscription represents the relationship between a recipient (the subscriber) 
 <Section title="List subscriptons" slug="list-subscriptions">
 <ContentColumn>
 
-Lists all subscriptions for an object. Will return the underlying recipient attached. Note: the object must exist.
+Lists all subscriptions for an object (the subscribers) or all of the current subscriptions for the object, depending on the `mode` given. Defaults to returning subscriber information.
+
+Will return the underlying recipient attached. Note: the object must exist.
 
 ### Endpoint
 
@@ -4183,6 +4193,11 @@ Lists all subscriptions for an object. Will return the underlying recipient atta
     type="string"
     description="The cursor to retrieve items before"
   />
+  <Attribute
+    name="mode"
+    type="string"
+    description="When set to `recipient` will return all of the active subscriptions for the object, not the subscribers of the object."
+  />
 </Attributes>
 
 ### Response
@@ -4206,6 +4221,14 @@ A paginated list response
         "name": "Dennis Nedry",
         "email": "dnedry@ingen.net"
       },
+      "object": {
+        "__typename": "Object",
+        "collection": "project",
+        "id": "project-1",
+        "properties": {
+          "name": "Project 1"
+        }
+      },
       "inserted_at": "2021-03-05T12:00:00Z",
       "updated_at": "2021-03-05T12:00:00Z"
     }
@@ -4214,6 +4237,88 @@ A paginated list response
     "after": null,
     "before": null,
     "page_size": 25
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="User subscriptions" slug="get-user-subscriptions">
+<ContentColumn>
+
+Returns a paginated list of subscriptions for a single user, in descending order.
+
+### Endpoint
+
+<Endpoint
+  name="get-recipient-subscriptions"
+  method="GET"
+  path="/users/:id/subscriptions"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+</Attributes>
+
+### Response
+
+A paginated response containing a list of `Subscription` entities.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "entries": [
+    {
+      "__typename": "ObjectSubscription",
+      "properties": {
+        "role": "ADMIN"
+      },
+      "recipient": {
+        "__typename": "User",
+        "id": "dnedry",
+        "name": "Dennis Nedry",
+        "email": "dnedry@ingen.net"
+      },
+      "object": {
+        "__typename": "Object",
+        "collection": "project",
+        "id": "project-1",
+        "properties": {
+          "name": "Project 1"
+        }
+      },
+      "inserted_at": "2021-03-05T12:00:00Z",
+      "updated_at": "2021-03-05T12:00:00Z"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
   }
 }
 ```
