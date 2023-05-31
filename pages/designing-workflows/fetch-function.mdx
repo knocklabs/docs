@@ -133,3 +133,37 @@ If the request encounters an error, you can also expect to see details about the
 </figcaption>
 
 See the [guide on debugging workflows](/send-notifications/debugging-workflows) for more details about workflow debugging and run logs.
+
+## Securing fetch requests
+
+Adding security to your fetch requests guards your endpoint from the outside world. There are currently two options to do this within Knock: using authentication headers, or adding request signing.
+
+### Adding authentication via headers
+
+One option for adding authentication is to use a **shared secret** between Knock and your service's endpoint that you inject into the headers of the request. You can use our [secret variables](/send-and-manage-data/variables#setting-secret-variables) to create and store this secret within Knock, ensuring that it can be unique per environment and also obfuscated within the dashboard across all usage.
+
+Variables can be accessed under the `vars` namespace in liquid. To add a secret into a header you use the syntax `{{ vars.your_variable_name }}` in the header value field.
+
+### Adding request signing
+
+Another option is to enable **request signing**, which will sign the request against a signing key that Knock generates and that can be used to guarantee that the request is coming from Knock.
+
+You can enable request signing for the fetch function by going to the "Manage settings" modal in the top right corner when editing the request template. Once you enable request signing, Knock will generate a signing key that will be used to sign the request. This same key can then be used within your application to verify the request came from Knock via a signature added to the request as a `x-knock-signature` header.
+
+**Verifying the signature**
+
+The signature is generated with an HMAC using the SHA256 algorithm and, before being encoded, is comprised of the timestamp and the stringified JSON payload of the request. We encode `"timestamp in numerical form"."stringified payload"` as the signature of the request.
+
+The `x-knock-signature` header is a string comprised of the timestamp used in the encoding and the encoded value above. It will look like this: `t=timestamp,s=encoded-signature`
+
+To test that the payload sent has not been compromised, you can recreate the signature using the shared secret key and compare to the one sent in the header.
+
+1. Split the `x-knock-signature` on the comma (",") and extract the values of timestamp and signature.
+2. Construct the value of the signature by concatenating:
+
+   - The timestamp (as a string)
+   - The character `.`
+   - The stringified JSON payload
+
+3. Generate the signature with an HMAC and SHA256 algorithm using the signing key from the fetch function.
+4. Compare your generated signature with the one extracted in step one; they should match exactly. If the timestamp is more than five minutes old compared to the current time, you may decide you want to reject the payload for additional security.
