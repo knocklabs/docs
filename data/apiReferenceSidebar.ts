@@ -117,6 +117,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "#subscriptions", title: "Overview" },
       { slug: "#list-subscriptions", title: "List subscriptions" },
+      { slug: "#get-user-subscriptions", title: "Get user subscriptions" },
       { slug: "#add-subscriptions", title: "Add subscriptions" },
       { slug: "#delete-subscriptions", title: "Delete subscriptions" },
     ],
