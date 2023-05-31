@@ -91,7 +91,7 @@ Authorization: Bearer sk_test_12345
 
 Each endpoint in the Knock API is rate limited. Knock uses a tier system to determine the rate limit scale for each endpoint. When your request has been rate limited, the Knock API will return a `429 Too Many Requests` error in response.
 
-By default, Knock scopes rate limits for each endpoint per API key. When you send requests with a signed user token, Knock will scope rate limits by both API key and user. See our guide on [enhanced security mode](/in-app-ui/security-and-authentication#authentication-with-enhanced-security) for more details on working with signed user tokens.
+Knock's default behavior scopes rate limits based on the authorizing credential used in your requests. When you use a public or private API key to authorize a request, Knock will scope the rate limit for each endpoint by the [environment](/send-and-manage-data/environments) associated with the key. If you use a signed user token as your authorizing credential, Knock will scope the rate limit by both the key's environment and the signing user. See our guide on [enhanced security mode](/in-app-ui/security-and-authentication#authentication-with-enhanced-security) for more details on working with signed user tokens.
 
 <Callout
   emoji="💡"
@@ -2115,6 +2115,7 @@ as such return information that is required on the client to do so**
 
 <Endpoints>
   <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
+  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id/settings" />
 </Endpoints>
 
 ```json Response
@@ -2219,7 +2220,7 @@ as such return information that is required on the client to do so**
 </ExampleColumn>
 </Section>
 
-<Section title="Get feed for user" slug="get-feed">
+<Section title="Get a feed for user" slug="get-feed">
 <ContentColumn>
 
 Retrieves a feed of items for a given `user_id` on the given `feed_id`.
@@ -2234,6 +2235,13 @@ along with a user token to make this request**
 ### Rate limit
 
 <RateLimit tier={2} />
+
+<div class="mt-6">
+  <Callout
+    emoji="⚠️"
+    text={<><strong>This endpoint's rate limit is always scoped per-user and per-environment.</strong> This is true even for requests made without a signed user token.</>}
+  />
+</div>
 
 ### Path parameters
 
