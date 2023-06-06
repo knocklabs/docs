@@ -127,6 +127,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/vercel", title: "Vercel" },
       { slug: "/datadog", title: "Datadog" },
       { slug: "/segment", title: "Segment" },
+      { slug: "/data-sync", title: "Data warehouse sync" },
     ],
   },
 ];
