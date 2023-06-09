@@ -62,8 +62,15 @@ In our notifications page, we'll use the store exposed by the `KnockFeedProvider
 
 ```jsx
 const NotificationsList = () => {
-  const { useFeedStore } = useKnockFeed();
+  const { feedClient, useFeedStore } = useKnockFeed();
   const items = useFeedStore((state) => state.items);
+
+  useEffect(() => {
+    // Once the feedClient is available, calling .fetch() will
+    // populate the feed. In the background, a websocket is
+    // opened that will receive new messages in real time.
+    feedClient.fetch();
+  }, [feedClient]);
 
   return (
     <div className="notifications">
