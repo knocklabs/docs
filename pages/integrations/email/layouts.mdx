@@ -3,7 +3,17 @@ title: Email layouts
 description: Learn more about how to use layouts with your email templates in Knock.
 section: Integrations
 layout: integrations
-tags: ["precontent", "css", "layout", "styles", "design system", "button", "preview text", "email preview text"]
+tags:
+  [
+    "precontent",
+    "css",
+    "layout",
+    "styles",
+    "design system",
+    "button",
+    "preview text",
+    "email preview text",
+  ]
 ---
 
 import MultiLangCodeBlock from "../../../components/MultiLangCodeBlock";
@@ -23,12 +33,12 @@ Here's an example of a transactional email we send at Knock, complete with the t
 
 ![An example of a layout and template within an email notification](/images/layouts/layout-template-example.png)
 
-Here's a quick overview of the system-level variables Knock provides for use in your layouts. 
+Here's a quick overview of the system-level variables Knock provides for use in your layouts.
 
 | Variable       | Description                                                                                                                                                                   |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `content`      | A notification template defined in an email channel step will be inserted into this variable. **This is a required variable, and must be present somewhere in every layout.** |
-| `footer_links` | A list of footer links, as configured in the layout editor, will be injected into this variable. This is an optional variable and is not required in custom layouts.      
+| `footer_links` | A list of footer links, as configured in the layout editor, will be injected into this variable. This is an optional variable and is not required in custom layouts.          |
 
 ## The Knock default layout
 
@@ -67,16 +77,26 @@ When you have multiple email layouts in Knock, all new email templates created w
 
 If you want to create your own custom email layouts, you can go into the layout editor and click "Edit in code editor" to go to an HTML and CSS editor for your email layout. The important thing to remember here is that your layout needs a `{{content}}` somewhere in its `body` tag for the email template to be injected into the layout.
 
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Note:</span> if you're providing a custom HTML
+      layout for your emails, the layout must be a valid HTML document.
+    </>
+  }
+/>
+
 ### Using variables and brand attributes in a custom layout
 
 It's helpful to remember that you can use variables you create at the account and environment-levels by injecting them into your layout with the `vars.*` namespace. This is a great tool for global values that will be the same across all emails you send, such as base URL for embedded links in your email notifications.
 
 You can also use the `vars.branding.*` namespace for injecting the branding properties you set in account settings. The following branding properties are available for use in custom layouts.
 
-- vars.branding.logo_url
-- vars.branding.icon_url
-- vars.branding.primary_color
-- vars.branding.primary_color_contrast
+- `vars.branding.logo_url`
+- `vars.branding.icon_url`
+- `vars.branding.primary_color`
+- `vars.branding.primary_color_contrast`
 
 If you use [per-tenant branding](/send-and-manage-data/tenants#custom-branding-advanced-feature), remember that Knock automatically evaluates these properties and shows the relevant branding elements based on the `tenant_id` associated with a given workflow run. As an example: if I trigger a workflow that includes a tenant_id with custom branding elements set on their `tenant`, the layout will use those branding elements. If no custom branding elements are set on the `tenant`, then the account default branding elements will be used.
 
@@ -121,7 +141,7 @@ To do this your email layout would look like this:
 <html>
   <body>
     <div style="display: none; max-height: 0px; overflow: hidden;">
-    {{ previewText }}
+      {{ previewText }}
     </div>
     <!-- the rest of email layout -->
     {{ content }}
@@ -146,9 +166,21 @@ At notification runtime, your layout and pre-content would be rendered into the 
 </html>
 ```
 
+### Defining a blank email layout
+
+If you're looking to use a blank or empty email layout you should use the following layout code.
+
+```html A minimal blank HTML layout
+<html>
+  <body>
+    {{ content }}
+  </body>
+</html>
+```
+
 ## Layouts and the visual template editor
 
-Regardless of the layout you've chosen for a given email step, you'll be able to use the [visual template editor](/send-notifications/designing-workflows/template-editor#visual-editing-with-drag-and-drop-components) to compose the `content` of your email template. 
+Regardless of the layout you've chosen for a given email step, you'll be able to use the [visual template editor](/send-notifications/designing-workflows/template-editor#visual-editing-with-drag-and-drop-components) to compose the `content` of your email template.
 
 When you use the visual template editor to insert components such as buttons and dividers into your email, Knock auto-generates CSS using a set of base component styles. You can find these styles in the section below, where we also cover updating these styles to match your design system.
 
@@ -156,18 +188,21 @@ When you use the visual template editor to insert components such as buttons and
   emoji="🚨"
   text={
     <>
-      <span className="font-bold">Reminder: </span>The visual template editor will only render component styles when you are in preview mode. This means that if you update base component styling, you'll only see those updates in preview mode.
+      <span className="font-bold">Reminder: </span>The visual template editor
+      will only render component styles when you are in preview mode. This means
+      that if you update base component styling, you'll only see those updates
+      in preview mode.
     </>
   }
 />
 
 ### Updating base component styles
 
-The components used in the visual template editor use the base component styles included below by default. These styles are auto-generated by Knock and injected into the top of `<head>` of your email layout at runtime. 
+The components used in the visual template editor use the base component styles included below by default. These styles are auto-generated by Knock and injected into the top of `<head>` of your email layout at runtime.
 
-If you want to override and modify these base component styles to match your design system, you can do so by adding them to the `<head>` of your layout file. 
+If you want to override and modify these base component styles to match your design system, you can do so by adding them to the `<head>` of your layout file.
 
-Keep in mind that to override any of the base component style properties listed below you'll need to include an `!important` tag to tell Knock to override the existing base styles that we'll inject into your template at runtime. As an example, if I wanted to update the font size of the `block-button-sm` component, I'd need to update its `font-size` property to `font-size: 20px !important;`. 
+Keep in mind that to override any of the base component style properties listed below you'll need to include an `!important` tag to tell Knock to override the existing base styles that we'll inject into your template at runtime. As an example, if I wanted to update the font size of the `block-button-sm` component, I'd need to update its `font-size` property to `font-size: 20px !important;`.
 
 ```css Base component styles
 /* Button components */
