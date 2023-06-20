@@ -45,6 +45,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/batch-function", title: "Batch function" },
       { slug: "/delay-function", title: "Delay function" },
       { slug: "/fetch-function", title: "Fetch function" },
+      { slug: "/throttle-function", title: "Throttle function" },
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
       {
