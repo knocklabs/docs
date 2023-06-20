@@ -143,6 +143,7 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Developer tools",
     slug: "/developer-tools",
+    desc: "Use our powerful developer tools in order to integrate Knock seamlessly into your development workflow.",
     pages: [
       { slug: "/api-keys", title: "API keys" },
       { slug: "/service-tokens", title: "Service tokens" },
@@ -155,6 +156,7 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Manage your account",
     slug: "/manage-your-account",
+    desc: "Learn more about the tools available in managing your Knock account.",
     pages: [
       { slug: "/authentication-methods", title: "Authentication methods" },
       { slug: "/saml-sso", title: "SAML SSO" },

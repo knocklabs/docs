@@ -1,6 +1,26 @@
 import Link from "next/link";
 import sidebarContent from "../data/sidebar";
 
+const contentForDiscovery = sidebarContent.filter((s) => s.desc);
+
+// Add our integrations content in the 3rd position
+contentForDiscovery.splice(2, 0, {
+  title: "Integrations",
+  desc: "Learn more about the incoming and outgoing integrations for Knock, including supported providers.",
+  slug: "/integrations",
+  pages: [
+    { title: "Overview", slug: "/overview" },
+    { title: "Email", slug: "/email/overview" },
+    { title: "Push", slug: "/push/overview" },
+    { title: "SMS", slug: "/sms/overview" },
+    { title: "Chat", slug: "/chat/overview" },
+    { title: "In-app", slug: "/in-app/overview" },
+    { title: "Webhook", slug: "/webhook/overview" },
+    { title: "Sources", slug: "/sources/overview" },
+    { title: "Extensions", slug: "/extensions/overview" },
+  ],
+});
+
 export default function Home() {
   return (
     <div className="space-y-12 max-w-3xl mx-auto">
@@ -44,36 +64,34 @@ export default function Home() {
         <h2 className="text-2xl font-bold mb-3">Discover Knock</h2>
 
         <div className="space-y-6 pt-3">
-          {sidebarContent
-            .filter((s) => s.desc)
-            .map((s) => (
-              <div
-                className="flex flex-col lg:flex-row border-t dark:border-t-gray-700 pt-6"
-                key={s.slug}
-              >
-                <div className="lg:w-80">
-                  <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-200">
-                    {s.desc}
-                  </p>
-                </div>
-
-                <ul className="mt-5 lg:mt-0 lg:ml-auto lg:w-40 space-y-2">
-                  {s.pages.map((p) => (
-                    <li
-                      className="text-sm text-gray-500 dark:text-gray-300"
-                      key={p.slug}
-                    >
-                      <Link href={s.slug + p.slug}>
-                        <a className="hover:text-gray-800 dark:hover:text-gray-100">
-                          {p.title}
-                        </a>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+          {contentForDiscovery.map((s) => (
+            <div
+              className="flex flex-col lg:flex-row border-t dark:border-t-gray-700 pt-6"
+              key={s.slug}
+            >
+              <div className="lg:w-80">
+                <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-200">
+                  {s.desc}
+                </p>
               </div>
-            ))}
+
+              <ul className="mt-5 lg:mt-0 lg:ml-auto lg:w-40 space-y-2">
+                {s.pages.map((p) => (
+                  <li
+                    className="text-sm text-gray-500 dark:text-gray-300"
+                    key={p.slug}
+                  >
+                    <Link href={s.slug + p.slug}>
+                      <a className="hover:text-gray-800 dark:hover:text-gray-100">
+                        {p.title}
+                      </a>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </section>
     </div>
