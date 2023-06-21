@@ -6,6 +6,8 @@ tags:
 section: Send & manage data
 ---
 
+import Callout from "../../components/Callout";
+
 Subscriptions are an extension to [Objects](/send-and-manage-data/objects) and express the relationship between a [Recipient](/send-and-manage-data/recipients) (the subscriber) and an Object.
 
 You can use subscriptions for:
@@ -119,6 +121,34 @@ When triggering a workflow for a recipient from a subscription, the `properties`
 
 As an example, if you have a property `role` under your subscription properties, you can access it as `recipient.subscription.role` in the workflow run scope.
 
+## Modeling nested subscription hierarchies
+
+It's possible to model nested subscription hierarchies by associating child objects as subscribers of a parent object. This allows you to create structures like "organizations" having many "teams" which have many "team members" (users).
+
+```javascript Adding child objects as subscribers of a parent object
+await knock.objects.addSubscriptions("organizations", "org-1", {
+  recipients: [
+    { collection: "teams", id: "team-1", name: "Org 1, Team 1" },
+    { collection: "teams", id: "team-2", name: "Org 1, Team 2" },
+  ],
+});
+```
+
+Once you've established a nested hierarchy like the above, it's also possible to notify **all child subscribers** from a parent object. In the example above, that means we could notify all team members of an organization by setting the recipient of the trigger to be the organization.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note:</strong> currently we only support subscriptions at a
+      maximum depth of 2, meaning you can model a hierarchy such as{" "}
+      <code>parent -> child -> user</code> but no deeper. If you need to support
+      a deeper nesting, please{" "}
+      <a href="mailto:support@knock.app">get in touch</a>.
+    </>
+  }
+/>
+
 ## Frequently asked questions
 
 #### What's the maximum number of subscribers I can have against an object?
@@ -149,6 +179,6 @@ Yes, you can. Once you trigger a workflow for an object that has subscribers att
 
 Yes, by default when you trigger a workflow for an object that has subscriptions attached Knock will generate a workflow run for the object itself AND all of the attached subscribers.
 
-### Is the object that recipients are subscribed to exposed in the workflow run scope?
+#### Is the object that recipients are subscribed to exposed in the workflow run scope?
 
 No, currently we do not expose the object the subscription belongs to under the workflow run scope.
