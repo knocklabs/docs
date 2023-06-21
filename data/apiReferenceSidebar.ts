@@ -11,6 +11,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#authentication", title: "Authentication" },
       { slug: "#rate-limits", title: "Rate limits" },
       { slug: "#idempotent-requests", title: "Idempotent requests" },
+      { slug: "#pagination", title: "Pagination" },
       { slug: "#errors", title: "Errors" },
       { slug: "#error-codes", title: "Common error codes" },
     ],
