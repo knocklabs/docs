@@ -344,6 +344,11 @@ module.exports = withPlugins(
           destination: "/integrations/extensions/vercel",
           permanent: false,
         },
+        {
+          source: "/in-app-ui/angular",
+          destination: "/in-app-ui/angular/overview",
+          permanent: false,
+        },
       ];
     },
   },
