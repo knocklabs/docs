@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import FocusLock from "react-focus-lock";
-import { IoMegaphone } from "react-icons/io5";
 import { motion } from "framer-motion";
 import isHotkey from "is-hotkey";
 
