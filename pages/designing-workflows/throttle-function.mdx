@@ -7,6 +7,20 @@ section: Designing workflows
 
 import Callout from "../../components/Callout";
 
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      The throttle function is currently in beta. If you'd like early access, or
+      this is blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Throttle%20function">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
 A throttle function allows you to limit the number of times a workflow is executed for a recipient within a given window. For example, in an alerting system, your recipients might only want to receive a single email _per hour_ for a given alert. A throttle lets you express this logic within Knock.
 
 Throttle functions are helpful when you want to control how often a workflow is executed for a recipient without needing to implement the logic within your own application layer.
@@ -17,25 +31,9 @@ Throttling works like a gate. When the throttle step is executed, the gate is ch
 
 Throttle functions have 3 pieces of configuration:
 
-1. **A throttle key** (optional): what should we throttle on?
-2. **A throttle window**: how long should the throttle period be?
-3. **A throttle threshold**: what’s the total number of invocations that are allowed within the window? Defaults to 1 if none provided.
-
-## Selecting a throttle key
-
-A throttle function always runs per recipient. If you do not provide a throttle key, your throttle function will throttle for the executing step per recipient. If you do provide a throttle key, your throttle function will be evaluated for the key and executing step.
-
-<Callout
-  emoji="💡"
-  text={
-    <>
-      <span className="font-bold">A quick tip.</span> Here's a helpful way to
-      think about throttling. By default, the throttle function throttles on a
-      key of <code>recipient_id</code>. When a throttle key is provided, it
-      throttles on a key of <code>concat(recipient_id, throttle_key)</code>.
-    </>
-  }
-/>
+1. **A throttle window**: the length of the throttle period.
+2. **A throttle threshold**: the number of invocations allowed within the window. Defaults to 1 if none provided.
+3. **A throttle key** (optional): An optional value to specify as the throttle key for the workflow run.
 
 ## Setting a throttle window
 
@@ -69,9 +67,25 @@ When the key specified is missing or resolves to an invalid value, a correspondi
 
 ## Setting a throttle threshold
 
-The throttle threshold determines _how many invocations are allowed in the window_ before the threshold takes effect. By default, this value is set to 1, but you can change it as needed.
+The throttle threshold determines how many invocations are allowed in the window before the threshold takes effect. By default, this value is set to 1, but you can change it as needed.
 
 For example, if you want to say that you want to allow 5 invocations over a 1-minute window, then you would set the throttle threshold to 5.
+
+## Selecting a throttle key
+
+A throttle function always runs per recipient. If you do not provide a throttle key, your throttle function will throttle for the executing step per recipient. If you do provide a throttle key, your throttle function will be evaluated for the key and executing step.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">A quick tip.</span> Here's a helpful way to
+      think about throttling. By default, the throttle function throttles on a
+      key of <code>recipient_id</code>. When a throttle key is provided, it
+      throttles on a key of <code>concat(recipient_id, throttle_key)</code>.
+    </>
+  }
+/>
 
 ## Frequently asked questions
 
