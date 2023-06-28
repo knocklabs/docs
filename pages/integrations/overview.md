@@ -69,6 +69,12 @@ You can use channel conditions to place a [condition](/send-and-manage-data/cond
 
 To add a condition to a channel's environment configuration, navigate to that channel under "Integrations > Channels" and then click "edit configuration".
 
+![Managing channel conditions in Knock.](/images/integrations/channel-conditions-editor.png)
+
+<figcaption>Managing channel conditions in Knock.</figcaption>
+
+Knock will execute your channel conditions for every step using the given channel across all your workflow runs. Knock will join these channel conditions with any [step conditions](/designing-workflows/step-conditions) via an `AND`, meaning both channel and step conditions will need to pass evaluation for the step to execute. You can then use Knock's [conditions debugger](/send-and-manage-data/conditions#debugging-conditions) to examine the result of your channel conditions evaluations.
+
 ### Channel groups
 
 You may encounter a use case where you consistently want to send the same template to two providers across all of your workflows. Push is a good example. If you're sending notifications directly to iOS and Android devices (through APNS and Firebase, respectively), you don't want to have to replicate templates across channel steps for each of those providers in all of your workflows.
