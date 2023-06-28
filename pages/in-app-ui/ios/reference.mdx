@@ -1,0 +1,554 @@
+---
+title: "API reference"
+description: The complete API reference for the Knock Swift SDK.
+section: Building in-app UI
+---
+
+import { Attributes, Attribute } from "../../../components/Attributes";
+
+In this section, you'll find the documentation for the classes and methods available in the [Swift SDK](https://github.com/knocklabs/knock-swift).
+
+## `Knock`
+
+The top-level Knock class. Create an authenticated Knock client instance for interacting with Knock.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="publishableKey"
+    type="string*"
+    description="The public API key for the Knock environment."
+  />
+  <Attribute
+    name="userId"
+    type="string*"
+    description="The user ID to make requests against."
+  />
+  <Attribute
+    name="userToken"
+    type="string (optional)"
+    description="A signed user token, required when enhanced security mode is enabled on the environment."
+  />
+  <Attribute
+    name="hostname"
+    type="string (optional)"
+    description="Optional hostname to configure which Knock endpoint to make requests against."
+  />
+</Attributes>
+
+**Example**
+
+```swift Creating a Knock client
+import Knock
+
+knockClient = try! Knock(publishableKey: "your-pk", userId: "user-id")
+```
+
+---
+
+### `publishableKey`
+
+Returns the publishable key set on the client.
+
+**Returns**: `string`
+
+---
+
+### `userId`
+
+Returns the userId set.
+
+**Returns**: `string`
+
+---
+
+### `userToken`
+
+Returns the userToken set.
+
+**Returns**: `string`
+
+---
+
+### `getUser`
+
+Returns the current user's profile stored in Knock.
+
+**Returns**
+
+`Result<User, Error>`
+
+---
+
+### `updateUser`
+
+Updates the current user's profile in Knock.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="user"
+    type="User"
+    description="Properties to update on the current user"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<User, Error>`
+
+---
+
+### `getAllUserPreferences`
+
+Returns all of the preference sets for the current user.
+
+**Returns**
+
+`Result<[PreferenceSet], Error>`
+
+---
+
+### `getUserPreferences`
+
+Returns a single preference set for the current user, specified by the `preferenceId`. For the default preference set, set the `preferenceId` to be `default`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="preferenceId"
+    type="string"
+    description="The ID of the preference set to retrieve"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<PreferenceSet, Error>`
+
+---
+
+### `setUserPreferences`
+
+Updates the preference set specified by the `preferenceId` with the new `preferenceSet`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="preferenceId"
+    type="string"
+    description="The ID of the preference set"
+  />
+  <Attribute
+    name="preferenceSet"
+    type="PreferenceSet"
+    description="The preferences to update for the preference set"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<PreferenceSet, Error>`
+
+---
+
+### `getUserChannelData`
+
+Returns the channel data for the current user on the channel specified with `channelId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="string"
+    description="The channel ID to get channel data for"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<ChannelData, Error>`
+
+---
+
+### `updateUserChannelData`
+
+Updates the channel data for the current user on the channel specified with `channelId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="string"
+    description="The channel ID to update the channel data for"
+  />
+  <Attribute
+    name="data"
+    type="any"
+    description="The data to update for the channel data"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<ChannelData, Error>`
+
+---
+
+### `registerTokenForAPNS`
+
+A convenience method for getting and setting channel data for an APNS channel for the current user.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="string"
+    description="The channel ID to update the channel data for"
+  />
+  <Attribute
+    name="token"
+    type="Data | string"
+    description="The device token to set for"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<ChannelData, Error>`
+
+---
+
+### `getMessage`
+
+Returns information about a single message specified by the `messageId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="messageId"
+    type="string"
+    description="The ID of the message to retrieve"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<KnockMessage, Error>`
+
+---
+
+### `updateMessageStatus`
+
+Updates the status of a single message specified by the `message` or `messageId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="messageId"
+    type="string"
+    description="The ID of the message to update"
+  />
+  <Attribute
+    name="message"
+    type="KnockMessage"
+    description="A Knock message to update"
+  />
+  <Attribute
+    name="status"
+    type="KnockMessageStatusUpdateType"
+    description="The status to set on the message"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<KnockMessage, Error>`
+
+---
+
+### `deleteMessageStatus`
+
+Removes the update of a single message status specified by the `message` or `messageId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="messageId"
+    type="string"
+    description="The ID of the message to update"
+  />
+  <Attribute
+    name="message"
+    type="KnockMessage"
+    description="A Knock message to update"
+  />
+  <Attribute
+    name="status"
+    type="KnockMessageStatusUpdateType"
+    description="The status to set on the message"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<KnockMessage, Error>`
+
+---
+
+### `batchUpdateStatuses`
+
+Updates up to 50 messages with the given status in a single request specified by `messageIds` or `messages`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="messageIds"
+    type="string[]"
+    description="A list of message IDs"
+  />
+  <Attribute
+    name="message"
+    type="KnockMessage[]"
+    description="A list of messages"
+  />
+  <Attribute
+    name="status"
+    type="KnockMessageStatusBatchUpdateType"
+    description="The status to set on the messages"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<[KnockMessage], Error>`
+
+---
+
+## `Knock.FeedManager`
+
+Creates a new instance of a `FeedManager` for interacting with a user's in-app notification feed.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="client"
+    type="Knock"
+    description="The instance of a Knock client to use to make requests."
+  />
+  <Attribute
+    name="feedId"
+    type="string"
+    description="The UUID of the in-app feed channel ID."
+  />
+  <Attribute
+    name="options"
+    type="FeedClientOptions"
+    description="Feed options to apply as defaults."
+  />
+</Attributes>
+
+**Example**
+
+```swift Creating a Knock.FeedManager
+import Knock
+
+knockClient = try! Knock(publishableKey: "your-pk", userId: "user-id")
+feedManager = Knock.FeedManager(client: knockClient!, feedId: "in-app-channel-id")
+```
+
+---
+
+### `connectToFeed`
+
+Connects the feed instance to the real-time socket so that any new items published to the feed are received over the websocket.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="options"
+    type="FeedClientOptions*"
+    description="Feed options to apply. Will override any options specified in the FeedManager constructor."
+  />
+</Attributes>
+
+**Returns**
+
+`Void`
+
+---
+
+### `disconnectFromFeed`
+
+Disconnects a connected real-time instance.
+
+**Returns**
+
+`Void`
+
+---
+
+### `on`
+
+Binds an event listener for incoming web socket events. Must have called `connectToFeed` first.
+
+<Attributes>
+  <Attribute
+    name="eventName"
+    type="string*"
+    description="The event name to listen for. Currently only `new-message` is supported."
+  />
+</Attributes>
+
+**Returns**
+
+`Void`
+
+**Example**
+
+```swift Listen to incoming feed messages
+feedManager.on(eventName: "new-message") { _ in
+  // Do something with the new incoming feed message; likely need to refetch the feed contents
+  feedManager.getUserFeedContent(options: options) { result in
+      switch result {
+      case .success(let feed):
+          // Set the new items in the feed
+      case .failure(let error):
+          print(error.localizedDescription)
+      }
+  }
+}
+```
+
+---
+
+### `getUserFeedContent`
+
+Retrieves the user's feed content for the feed. Can be scoped by passing `options`, which also allows for paginating the contents of the feed using the `before` and `after` cursors.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="options"
+    type="FeedClientOptions*"
+    description="Feed options to apply to the fetch. Will override any options specified in the FeedManager constructor."
+  />
+</Attributes>
+
+**Returns**
+
+`Result<Feed, Error>`
+
+**Example**
+
+```swift Fetching user feed content
+import Knock
+
+knockClient = try! Knock(publishableKey: "your-pk", userId: "user-id")
+feedManager = Knock.FeedManager(client: knockClient!, feedId: "in-app-channel-id")
+
+feedManager?.getUserFeedContent() { result in
+  switch result {
+  case .success(let feed):
+      // Do something with the returned feed
+  case .failure(let error):
+      print(error.localizedDescription)
+  }
+}
+
+```
+
+---
+
+### `makeBulkStatusUpdate`
+
+Updates all of the items within the feed with the given status. Can be passed `options` to scope the request further. Note: this method returns a `BulkUpdate` via the Knock API, which is an async operation.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="type"
+    type="BulkChannelMessageStatusUpdateType*"
+    description="The type of update to make in bulk."
+  />
+  <Attribute
+    name="options"
+    type="FeedClientOptions*"
+    description="Feed options to scope the bulk update by."
+  />
+</Attributes>
+
+**Returns**
+
+`Result<BulkOperation, Error>`
+
+---
+
+## `FeedManager.FeedClientOptions`
+
+Used to scope a feed request.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="before"
+    type="string"
+    description="A cursor to return records before, used for pagination"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="A cursor to return records after, used for pagination"
+  />
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The maximum number of items to return per page"
+  />
+  <Attribute
+    name="status"
+    type="FeedItemScope"
+    description="One of either `all`, `unread`, `read`, `unseen`, `seen`"
+  />
+  <Attribute
+    name="source"
+    type="string"
+    description="Scope to a single workflow source for the feed items"
+  />
+  <Attribute
+    name="tenant"
+    type="string"
+    description="Scope to a single tenant"
+  />
+  <Attribute
+    name="has_tenant"
+    type="boolean"
+    description="Scope to whether the feed items have or do not have a tenant set"
+  />
+  <Attribute
+    name="archived"
+    type="FeedItemArchivedScope"
+    description="Scope by archive status. One of `include`, `exclude`, or `only`"
+  />
+  <Attribute
+    name="trigger_data"
+    type="map"
+    description="Match a set of trigger data on the generated feed messages"
+  />
+</Attributes>
