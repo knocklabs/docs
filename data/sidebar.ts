@@ -188,6 +188,10 @@ const sidebarContent: SidebarSection[] = [
         slug: "/building-recurring-digests",
         title: "Recurring digests",
       },
+      {
+        slug: "/filtering-in-app-feeds",
+        title: "Filtering in-app feeds",
+      },
     ],
   },
 ];
