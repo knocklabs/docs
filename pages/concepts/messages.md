@@ -2,7 +2,7 @@
 title: Messages
 description: Learn how Knock models per-recipient notifications with Messages.
 tags: ["messages", "workflows"]
-section: Send & manage data
+section: Concepts
 ---
 
 ## An overview

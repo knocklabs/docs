@@ -349,6 +349,16 @@ module.exports = withPlugins(
           destination: "/in-app-ui/angular/overview",
           permanent: false,
         },
+        {
+          source: "/send-and-manage-data/concepts",
+          destination: "/concepts/overview",
+          permanent: false,
+        },
+        {
+          source: "/send-and-manage-data/:slug*",
+          destination: "/concepts/:slug*",
+          permanent: false,
+        },
       ];
     },
   },
