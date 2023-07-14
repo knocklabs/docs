@@ -193,6 +193,10 @@ const sidebarContent: SidebarSection[] = [
         slug: "/filtering-in-app-feeds",
         title: "Filtering in-app feeds",
       },
+      {
+        slug: "/customizing-react-in-app-feed-components",
+        title: "Customizing the React in-app feed components",
+      },
     ],
   },
 ];

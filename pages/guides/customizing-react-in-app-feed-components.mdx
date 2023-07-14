@@ -1,0 +1,290 @@
+---
+title: Customizing the React in-app feed components
+description: Learn how to override the default styles of the pre-built React in-app feed components that Knock provides.
+tags:
+  ["feed styles", "feed css", "react css", "react styles", "override styles"]
+section: Guides
+---
+
+As a refresher, our [in-app feed components](/in-app-ui/react/overview) let you drop in a ready-to-use in-app notification feed into your product, powered by Knock's in-app feed and real-time service.
+
+In some applications, you may want to override the styles provided in the React components, or even replace those styles completely. In this guide, we'll look at the options you have for customizing the styles provided with the Knock React components.
+
+## Customizing the CSS variables
+
+If you're importing the CSS styles associated with the components, then it's possible to use [CSS variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) to override the majority of the properties used within the stylesheet, such as colors, font sizes, ad more.
+
+The CSS variables that are used within the components are all prefixed with `--rnf-`. The complete set of overrides is here, for reference, or available in the [theme.css file](https://raw.githubusercontent.com/knocklabs/react-notification-feed/main/src/theme.css).
+
+```css
+:root {
+  /* Font sizes */
+  --rnf-font-size-xs: 0.75rem;
+  --rnf-font-size-sm: 0.875rem;
+  --rnf-font-size-md: 1rem;
+  --rnf-font-size-lg: 1.125rem;
+  --rnf-font-size-xl: 1.266rem;
+  --rnf-font-size-2xl: 1.5rem;
+  --rnf-font-size-3xl: 1.75rem;
+
+  /* Spacing */
+  --rnf-spacing-0: 0;
+  --rnf-spacing-1: 4px;
+  --rnf-spacing-2: 8px;
+  --rnf-spacing-3: 12px;
+  --rnf-spacing-4: 16px;
+  --rnf-spacing-5: 20px;
+  --rnf-spacing-6: 24px;
+  --rnf-spacing-7: 32px;
+  --rnf-spacing-8: 42px;
+
+  /* Font weights */
+  --rnf-font-weight-normal: 400;
+  --rnf-font-weight-medium: 500;
+  --rnf-font-weight-semibold: 600;
+  --rnf-font-weight-bold: 700;
+
+  /* Font family */
+  --rnf-font-family-sanserif: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+
+  /* Border radius */
+  --rnf-border-radius-sm: 2px;
+  --rnf-border-radius-md: 4px;
+  --rnf-border-radius-lg: 8px;
+
+  /* Shadows */
+  --rnf-shadow-sm: 0px 5px 10px rgba(0, 0, 0, 0.12);
+  --rnf-shadow-md: 0px 8px 30px rgba(0, 0, 0, 0.24);
+
+  /* Colors */
+  --rnf-color-white: #fff;
+  --rnf-color-white-a-75: rgba(255, 255, 255, 0.75);
+  --rnf-color-black: #000;
+  --rnf-color-gray-900: #1a1f36;
+  --rnf-color-gray-800: #3c4257;
+  --rnf-color-gray-700: #3c4257;
+  --rnf-color-gray-600: #515669;
+  --rnf-color-gray-500: #697386;
+  --rnf-color-gray-400: #9ea0aa;
+  --rnf-color-gray-300: #a5acb8;
+  --rnf-color-gray-200: #dddee1;
+  --rnf-color-gray-100: #e4e8ee;
+  --rnf-color-brand-500: #e95744;
+  --rnf-color-brand-700: #e4321b;
+  --rnf-color-brand-900: #891e10;
+
+  /* Component specific colors */
+  --rnf-unread-badge-bg-color: #dd514c;
+  --rnf-avatar-bg-color: #ef8476;
+  --rnf-message-cell-unread-dot-bg-color: #f4ada4;
+  --rnf-message-cell-hover-bg-color: #f1f6fc;
+}
+```
+
+Within your own application, you can add overrides by targeting the same properties and ensuring your styles are loaded **after** the CSS of the component. For example, to override the unread badge color:
+
+```css feed-overrides.css
+:root {
+  --rnf-unread-badge-bg-color: #cccccc;
+}
+```
+
+Then we'd import like:
+
+```javascript
+// Default styles
+import "@knocklabs/react-notification-feed/dist/index.css";
+
+// Overrides
+import "~/styles/feed-overrides.css";
+```
+
+## Overriding the component CSS
+
+If you need more fine-grained control over the CSS provided by the components, it's also possible to override the CSS that's provided by the components, entirely or partially.
+
+All of the notification feed components have classes prefixed with `rnf-`. You can see the existing CSS styles here, which are written using CSS modules to be isolated per component.
+
+- [NotificationFeed](https://github.com/knocklabs/react-notification-feed/blob/main/src/components/NotificationFeed/styles.css)
+- [NotificationFeedPopover](https://github.com/knocklabs/react-notification-feed/blob/main/src/components/NotificationFeedPopover/styles.css)
+- [NotificationCell](https://github.com/knocklabs/react-notification-feed/blob/main/src/components/NotificationCell/styles.css)
+- [EmptyFeed](https://github.com/knocklabs/react-notification-feed/blob/main/src/components/EmptyFeed/styles.css)
+
+### Partially overriding the feed CSS
+
+To partially override the CSS of the feed, we can rely on the cascading nature of CSS to ensure that any overrides we define take precedence over the base styles.
+
+**Note**: depending on how you have your CSS imports defined in your application, you may have to use `!important` declarations to override the styles that the library defines.
+
+Let's look at an example where we override the color of the unread dot:
+
+```css feed-overrides.css
+.rnf-notification-cell__unread-dot {
+  background-color: #cccccc;
+}
+```
+
+And when we import those styles, we'll want to ensure our overrides are imported after we import the base CSS styles for the feed.
+
+```javascript
+// Default styles
+import "@knocklabs/react-notification-feed/dist/index.css";
+
+// Overrides
+import "~/styles/feed-overrides.css";
+```
+
+### Fully overriding the feed CSS
+
+To override all of the CSS provided by the components you should **not** import the base CSS that the components exports. This will mean that you then need to provide CSS for each of the components that the feed renders yourself.
+
+Please refer to the CSS class names that the components use for the classes that you'll need to add.
+
+## Rendering custom feed cells
+
+If you need to control the style or behavior of each item rendered in the feed, you can use the `renderItem` callback prop within the `NotificationFeed` or `NotificationFeedPopover` to render custom feed cells.
+
+The `renderItem` prop receives a set of props, including the `FeedItem` and is called for every item being rendered in the feed. From here, you can render your own feed cell, complete with any custom styles or interactions you might need.
+
+Here's an example:
+
+```jsx Custom feed cell
+const CustomNotificationCell = ({ item, onItemClick }) => (
+  <Container>
+    {item.actor && <Avatar name={item.actor.name} src={item.actor.avatar} />}
+    <Inner>
+      <div dangerouslySetInnerHTML={{ __html: item.blocks[0].rendered }} />
+    </Inner>
+  </Container>
+);
+```
+
+And to render the custom cell in your `NotificationFeedPopover` or `NotificationFeed` component:
+
+```jsx Custom cell rendering
+<NotificationFeedPopover
+  renderItem={(props) => <CustomNotificationCell {...props} />}
+/>
+```
+
+## Rendering custom UI
+
+If you need even more control over the components rendered in the feed, it's also possible to bring your own set of components and use either the provided hooks or `KnockFeedProvider` component to run Knock in a "headless" manner. Using this option gives you the most control over the style and interaction with the components, with the trade-off that you have to provide the components yourself.
+
+### Using hooks to render custom UI
+
+The React component library ships with hooks that you can use to setup and manage your Knock client and feed connection. You can then use these hooks to provide the data for your own custom feed components. Let's take a look at what that looks like.
+
+First of all, we need to use the `useAuthenticatedKnockClient` hook to create a Knock client instance, authenticated for the user that's provided.
+
+```jsx Setting up a Knock client
+import { useAuthenticatedKnockClient } from "@knocklabs/react-notification-feed";
+
+const NotificationFeed = ({ user }) => {
+  const knockClient = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+  );
+
+  return null;
+};
+```
+
+Next up, we then set up our feed instance using the `useNotifications` hook. This hook expects to receive a Knock client instance, as well as information about the feed that we wish to connect to.
+
+```jsx Using our notifications hook
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+} from "@knocklabs/react-notification-feed";
+
+const NotificationFeed = ({ user }) => {
+  const knockClient = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+  );
+  const feed = useNotifications(knockClient, process.env.KNOCK_FEED_CHANNEL_ID);
+
+  return null;
+};
+```
+
+Now we have our Feed instance, then we need to have a way to access the state of that feed and initiate the fetch when the component mounts. Here we're using Zustand, which is the state management library that sits behind the feed instance.
+
+```jsx Using the feed instance
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+} from "@knocklabs/react-notification-feed";
+import create from "zustand";
+import { useEffect } from "react";
+
+const NotificationFeed = ({ user }) => {
+  const knockClient = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+  );
+  const feed = useNotifications(knockClient, process.env.KNOCK_FEED_CHANNEL_ID);
+
+  const useNotificationStore = create(feed.store);
+  const { items, metadata } = useNotificationStore();
+
+  useEffect(() => feed.fetch(), [feed]);
+
+  return null;
+};
+```
+
+With our component set up, we have all the building blocks we need to build our in-app feed. The items that we're returning give us the list of items fetched and available in the feed, while the metadata gives us information about the total number of items in the feed as well as the unread and unseen counts, which we can use to render badges.
+
+### Using the `KnockFeedProvider` to render custom UI
+
+The `KnockFeedProvider` can also be used to set up the feed instance and build custom UI, which is what the pre-built components use under the hood.
+
+The first step is to set up a wrapper component that will render your Feed with the `KnockFeedProvider`:
+
+```jsx Setting up our feed provider
+import { KnockFeedProvider } from "@knocklabs/react-notification-feed";
+
+const NotificationFeed = ({ user }) => (
+  <KnockFeedProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+    userId={user.id}
+  ></KnockFeedProvider>
+);
+```
+
+Now that our provider is set up, we're going to split out a subcomponent that will be used to render the actual contents of the feed. The reason we have this as a separate component is so we can access the context that the `KnockFeedProvider` exposes.
+
+```jsx Implementing our feed component
+import { useKnockFeed } from "@knocklabs/react-notification-feed";
+
+const Feed = () => {
+  const { useFeedStore } = useKnockFeed();
+  const { items, metadata } = useFeedStore();
+
+  // Render your feed components here
+  return null;
+};
+```
+
+Note here we're using the `useFeedStore` hook that the `useKnockFeed` hook returns. This is a wrapper around the `create` function that Zustand exposes to make it easy to work with the state store in the feed instance.
+
+And finally, to put it all together:
+
+```jsx Our working custom feed
+import { KnockFeedProvider } from "@knocklabs/react-notification-feed";
+import Feed from "~/components/Feed";
+
+const NotificationFeed = ({ user }) => (
+  <KnockFeedProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+    userId={user.id}
+  >
+    <Feed />
+  </KnockFeedProvider>
+);
+```
