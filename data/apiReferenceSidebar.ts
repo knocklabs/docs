@@ -10,6 +10,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#api-keys", title: "API keys" },
       { slug: "#authentication", title: "Authentication" },
       { slug: "#rate-limits", title: "Rate limits" },
+      { slug: "#batch-rate-limits", title: "Batch rate limits" },
       { slug: "#idempotent-requests", title: "Idempotent requests" },
       { slug: "#pagination", title: "Pagination" },
       { slug: "#errors", title: "Errors" },
