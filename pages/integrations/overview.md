@@ -93,6 +93,7 @@ Here are the providers we currently support within Knock. We're adding more each
 - [Mailersend](/integrations/email/mailersend)
 - [Mailgun](/integrations/email/mailgun)
 - [Mailjet](/integrations/email/mailjet)
+- [Mailtrap](/integrations/email/mailtrap)
 - [Mandrill](/integrations/email/mandrill)
 - [Postmark](/integrations/email/postmark)
 - [Resend](/integrations/email/resend)

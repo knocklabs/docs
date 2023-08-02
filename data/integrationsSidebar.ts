@@ -32,6 +32,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/mailersend", title: "Mailersend" },
       { slug: "/mailjet", title: "Mailjet" },
       { slug: "/mailgun", title: "Mailgun" },
+      { slug: "/mailtrap", title: "Mailtrap" },
       { slug: "/mandrill", title: "Mandrill" },
       { slug: "/postmark", title: "Postmark" },
       { slug: "/resend", title: "Resend" },
