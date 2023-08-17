@@ -359,6 +359,16 @@ module.exports = withPlugins(
           destination: "/concepts/:slug*",
           permanent: false,
         },
+        {
+          source: "/send-notifications/setting-preferences",
+          destination: "/managing-recipients/setting-preferences",
+          permanent: false,
+        },
+        {
+          source: "/send-notifications/setting-channel-daa",
+          destination: "/managing-recipients/setting-channel-data",
+          permanent: false,
+        },
       ];
     },
   },

@@ -8,59 +8,17 @@ section: Concepts
 import Callout from "../../components/Callout";
 import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
 
-A [User](/reference#users) represents a person who may need to be notified of some action occurring in your product.
-
-## The benefits of the Knock user model
-
-If you're used to sending notifications via single-channel APIs, the idea of storing user data in a messaging platform such as Knock may sound odd to you.
-
-Here are a few reasons why we store user data in Knock:
-
-- **Multi-channel notifications.** When you're using a single-channel API, you can pass through the recipient's email address or phone number when you trigger a message. In a multi-channel platform like Knock, that would mean passing through _all_ of a user's channel information every time you trigger a notification. By keeping a user model in Knock, you can update a user's channel information once, then reference them via their user ID from that point on. We take care of the rest.
-- **Stateful in-app notifications.** The Knock Feed API returns a stateful feed of the in-app notifications a given user has received from your product. The Knock user model is used to store a given user's notification feed and to give you a way to retrieve that feed via the user identifier you keep for them in your product.
-- **Preferences model.** The Knock user model enables advanced functionality such as preferences support, where you store a given user's notification preferences in Knock and we reference that user's preferences during the run of a given notification workflow.
-- **Leverage user traits in notification templates.** The Knock user model also enables you to store custom traits on a given user that you can reference in a notification template. This is helpful when you want to add conditional copy to a notification based on a user's role or plan.
-
-We do not take storing your user data lightly. You can learn more about our security posture and best practices on [our security page](/security).
+A [User](/reference#users) represents a person who may need to be notified of some action occurring in your product. A user is a type of recipient within Knock and is the most common type of entity that you may wish to send a notification to.
 
 ## Sending user data to Knock
 
-We support three approaches for sending your user data to Knock: individual identification, bulk identification, and inline identification.
+User data must be synchronized to Knock to send the user a notification or to reference that user in a notification. We refer to this process as identifying users.
 
-In all three cases, we manage your user data via upsertion. In other words, we provide a single set of APIs for both creating new users in Knock and updating existing user data.
+[Read more about identifying users ->](/managing-recipients/identifying-recipients).
 
-### 1. Individual identification
+## Guidelines for use
 
-You can use the identify user API to send us data for a single user. If you've used a Customer Data Platform (CDP) like Segment before, this will be familiar to you.
-
-[API reference →](/reference#identify-user)
-
-<MultiLangCodeBlock snippet="users.identify" title="Identify a user in Knock" />
-
-### 2. Bulk identification
-
-You can use the bulk identify API to send us data for many users at once. This endpoint allows you to identify up to 100 users at a time.
-
-[API reference →](/reference/#bulk-identify-users)
-
-<MultiLangCodeBlock snippet="users.bulkIdentify" title="Bulk identify users" />
-
-### 3. Inline identification
-
-Lastly, you can also integrate user identification into your workflow trigger calls. Rather than provide a list of user ids in the `recipients` field, you can instead provide a list of maps of user metadata. Knock will perform an asynchronous action to identify these users as part of processing the workflow.
-
-[API reference →](/reference#trigger-workflow-inline-identify)
-
-<MultiLangCodeBlock
-  snippet="workflows.trigger-with-user-identification"
-  title="Trigger a workflow with inlined identification data"
-/>
-
-See below for further discussion on [how and when to identify users in Knock](#when-to-identify-users-in-knock).
-
-## User data
-
-### The user identifier
+## User identifiers
 
 The identifier for a user is important as it's the unique key that we will use to merge users and determine recipients for a notification. Generally, the best practice here is to use your internal identifier for your users as the `id`.
 
@@ -96,7 +54,7 @@ The following attributes are optional, depending on the channel types you decide
 | avatar       | A URL for the avatar of the user                                                                                 |
 | phone_number | The [E.164](https://www.twilio.com/docs/glossary/what-e164) phone number of the user (required for SMS channels) |
 
-### Storing user traits
+### Storing user properties
 
 In addition to the system attributes defined on the user schema above, Knock will keep track of any `properties` (key/value pairs) that you send to us. These _traits_ are always merged onto a user and returned to you.
 
@@ -128,29 +86,6 @@ Once sent to Knock, the user object returned to you in the Knock payload looks l
 
 \* All properties appear at the top level of the user object.
 
-## When to identify users in Knock
-
-Knock provides a flexible set of APIs for you to manage your user data as you scale with us. Ultimately, it's up to you to decide upon the best approach for how you manage your user data with Knock.
-
-Below we discuss some common scenarios to consider.
-
-### Initial setup: inline vs. bulk identification
-
-When you're first getting started with Knock, you'll likely have a number of existing users that you want to migrate into Knock. If you're looking to get started with Knock quickly, you can use [inline identification](#3-inline-identification) to start calling your workflows without any prerequisite calls to the Knock API.
-
-If you first want to get all your users into Knock, the easiest path forward would be via our [bulk identification flow](#2-bulk-identification).
-
-### Identifying users on an ongoing basis: jobs vs. inline identification
-
-Once you've migrated your current users into Knock, you'll want to continue to update this data in Knock for two key cases:
-
-1. When new users sign up for your product.
-2. When Knock-relevant data about a user changes, like a name or an email address.
-
-One common approach is to make subsequent calls to the Knock's user identify API following such events. For example, you could do this via a deferred job in your backend systems.
-
-Another option is to offload these updates to your workflow trigger calls via inline identification. If you always send Knock the full set of data for your users [via workflow trigger calls](/reference#trigger-workflow-inline-identify), you can keep your user data up to date in Knock without any additional handling on your end.
-
 ## Retrieving users
 
 Users can be retrieved from Knock to see the current state of their properties using the `users.get` method.
@@ -167,31 +102,11 @@ Users can be deleted from Knock via the `users.delete` method. Deleting a user f
 
 <MultiLangCodeBlock snippet="users.delete" title="Delete a user" />
 
-## Merging users
-
-You might run into the scenario where you've identified an invited user to send them a notification and then that user "graduates" to a fully fledged user after they sign up, leaving you with two users in Knock. That's where the merge users method comes in handy.
-
-Merging two users will merge the `secondary` user (the invited user in our example) into the `primary` user (the signed up user), and the secondary user will be deleted in the process.
-
-<MultiLangCodeBlock snippet="users.merge" title="Merge two users together" />
-
-**Please note that merging is a destructive operation and cannot be undone.**
-
-### What's merged?
-
-- **Properties**: Properties are deep merged, but if there are any conflicts between the secondary and primary user then the value is selected from the primary user.
-- **Preferences**: Preference sets are shallow merged between the users. Any preference sets that don't exist on the primary from the secondary are added.
-- **Channel data**: Channel data is shallow merged from the secondary to the primary. Any channel data that doesn't exist on the primary from the secondary is added, determined by the channel_id.
-- **Message history**: The past 30 days of message history of the secondary user will now be owned by the primary recipient.
-- **Activities**: Any activities from the past 30 days that the secondary user was an `actor` or `recipient` of will be transferred to the primary user.
-
-If you need to retain more than 30 days worth of history, please contact us.
-
 ## Frequently asked questions
 
 **What do I do if my notification recipients aren't yet users?**
 
-Commonly you'll want to send notifications to entities in your system that are not currently registered users in your product (think guests or invited users). In these situations we recommend:
+Commonly you'll want to send notifications to entities in your system that are not currently registered users in your product (think guests or invited users). In these situations, we recommend:
 
 1. Identifying the user with a unique identifier, such as their email address, or with a prefix (`guest_`) to denote the different type.
 2. Where possible, if the notified user becomes a registered user in your system then using our [merge API](#merging-users) to merge the guest user and the registered user to preserve message sending history.
@@ -208,7 +123,7 @@ If you want to store and notify different types of users within your Knock envir
 
 **How can I send a notification to a non-user entity?**
 
-If you need to send a notification to an entity in your system you should have a look at modelling those as [Objects](/send-and-manage-data/objects). Objects can represent **any non-user entity**.
+If you need to send a notification to an entity in your system you should have a look at modeling those as [Objects](/send-and-manage-data/objects). Objects can represent **any non-user entity**.
 
 **Why do I see my team members as users in Knock?**
 

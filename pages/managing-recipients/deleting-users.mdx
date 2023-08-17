@@ -1,0 +1,59 @@
+---
+title: Deleting users
+description: Learn more about how user deletions work within Knock and how deletion can help with data privacy controls.
+tags: ["right to be forgotten", "gdpr", "rtbf", "forgotten"]
+section: Managing recipients
+---
+
+import MultiLangCodeBlock from "../../components/MultiLangCodeBlock";
+import Callout from "../../components/Callout";
+
+Knock provides a programmatic user deletion API that you can use to hard delete users and the data associated with users. This can be especially useful in fulfilling GDPR right-to-be-forgotten requests.
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <strong>Note</strong>: deleting users is a destructive operation and once
+      deleted, the data for that user <strong>cannot be recovered</strong>.
+    </>
+  }
+/>
+
+<MultiLangCodeBlock snippet="users.delete" title="Delete a user" />
+
+## What data is deleted for a user?
+
+When a user is deleted in Knock, we will **hard delete**:
+
+- All system and custom properties set on the user
+- All preferences associated with the user
+- All channel data associated with the user
+- All subscriptions associated with the user
+- All schedules associated with the user
+- All messages sent to that user, including the content of those messages and any debugging events associated
+- All activity associated with a user, including the workflow run logs the user was a recipient of
+
+**Note**: deletion requests can take up to 10 minutes to process. During this time, you may still see some data associated with the user.
+
+## Frequently asked questions
+
+#### Can I delete users from the Knock dashboard?
+
+No, you must use the API to delete users.
+
+#### Is Knock GDPR compliant?
+
+Yes, Knock is GDPR compliant.
+
+#### Can I use the user deletion API to programmatically power GDPR right-to-be-forgotten requests?
+
+Absolutely. You can use our single-user deletion endpoint, or batch up deletion requests per-day using our bulk delete endpoint.
+
+#### I need to suppress a user from ever receiving notifications again from our platform, is that possible?
+
+Please get in touch with us if you have this requirement.
+
+#### If I delete a user and then re-use the identifier for that deleted user, what happens?
+
+You can re-add the same user using the previous user's identifier. The new user will not inherit any of the past user's data, given that will have been deleted.

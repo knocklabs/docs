@@ -71,14 +71,24 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
+    title: "Managing recipients",
+    slug: "/managing-recipients",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/identifying-recipients", title: "Identifying recipients" },
+      { slug: "/setting-preferences", title: "Setting preferences" },
+      { slug: "/setting-channel-data", title: "Setting channel data" },
+      { slug: "/deleting-users", title: "Deleting users" },
+      { slug: "/merging-users", title: "Merging users" },
+    ],
+  },
+  {
     title: "Send notifications",
     slug: "/send-notifications",
     desc: "Learn how to send and debug notifications using Knock.",
     pages: [
       { slug: "/triggering-workflows", title: "Triggering workflows" },
       { slug: "/canceling-workflows", title: "Canceling workflows" },
-      { slug: "/setting-preferences", title: "Setting preferences" },
-      { slug: "/setting-channel-data", title: "Setting channel data" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/message-statuses", title: "Message statuses" },
       { slug: "/tracking", title: "Link & open tracking" },
