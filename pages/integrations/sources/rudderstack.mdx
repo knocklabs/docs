@@ -62,11 +62,9 @@ Once your RudderStack destination is set up all events you trigger from the Rudd
 
 From the source environment configuration page click the "View in environment" button on one of the source environments. You'll be taken to the RudderStack source in the environment you selected and you should see events sent. If you don't, try clicking the refresh button on the top of the list to refetch any incoming events.
 
-## Connecting an event to an action
+## Connecting a track event to an action
 
-Once you have an event in your source's environment you can click into it to show the list of actions it's connected to. To create a new one, click "Create action", which will bring up a selector showing your available workflows. Choose one that will be triggered when Knock receives this event.
-
-Now you'll be able to map the properties of the incoming RudderStack event to the fields of the workflow. Knock will automatically key **Recipients** and **Actor** to be the incoming `userId` from the event payload, but you can change this to be any key under the `properties` field from the RudderStack event. Similarly, you can set the **Tenant** and **Cancellation key** to be any of these fields as well.
+You can add a **track event** as a trigger to your workflow directly from the workflow builder. Click on the workflow's trigger step and change the type from "API" to "Event". Then you'll be able to select the event and map its properties into the data the workflow needs.
 
 <Callout
   emoji="✨"
@@ -88,9 +86,9 @@ Now you'll be able to map the properties of the incoming RudderStack event to th
   }
 />
 
-## Committing the action
+## Committing the event action configuration
 
-Actions triggered by events in Knock are stored in the commit history, just like workflows and email layouts. Once you're happy with the mapping, save it and you can commit it to your development environment right from the action page or from the commit page. Then you can choose to publish this to your other environments.
+Event action configurations are stored in the commit history, just like workflows and email layouts. Once you're happy with the mapping, you can save it and commit it to your development environment using the same commit button as your workflow. When you're ready you can publish this event action configuration to your other environments from the commit page.
 
 <Callout
   emoji="✨"
@@ -117,3 +115,67 @@ When RudderStack sends identify events, Knock will create and update user inform
 To enable handling of identify events, open the settings for the source in the environment. You can then enable or disable handling identify events accordingly.
 
 ![A screenshot of how to toggle Knock handling RudderStack identify calls](/images/sources/rudderstack-identify.png)
+
+## Inline identify users in a RudderStack event
+In cases where you send a RudderStack event to Knock with recipients that may not yet have been identified into our system, it's good practice to inline identify your users. By inline identifying your users within your RudderStack events, you ensure that those users are identified in Knock when your event triggers a workflow.
+
+As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified.
+
+``` A RudderStack event without inline identify
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "rudderstack-test-message-123",
+  "properties": {
+        "recipients": ["sam10"],
+        "account_id": "123"
+    },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
+
+To ensure that the user is notified, we'd change the id reference in `recipients` to a complete user object, as in the example below. This way Knock has all the information it needs to identify the user during workflow runtime.
+
+``` A RudderStack event with inline identify
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "rudderstack-test-message-123",
+  "properties": {
+        "recipients": [
+          {
+            id: "sam10",
+            name: "Sam Seely",
+            email: "sam@example.com",
+          }
+        ],
+        "account_id": "123"
+    },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
+
+You can learn more about inline identification in [our users concept guide](/send-and-manage-data/users).
+
+## Video walkthrough
+
+This video is Segment-specific, but you can apply any of the portions within the Knock dashboard to RudderStack as well.
+
+<div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+  <iframe
+    src="https://www.youtube.com/embed/Fj8wl6TNbrI?si=D5Wt6etwiahGvKs3"
+    frameBorder="0"
+    allowFullscreen
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+    }}
+  ></iframe>
+</div>
