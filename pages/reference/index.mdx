@@ -999,14 +999,14 @@ A BulkOperation.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": nil,
+  "completed_at": null,
   "estimated_total_rows": 42,
-  "failed_at": nil,
+  "failed_at": null,
   "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
   "name": "bulk_op",
   "processed_rows": 0,
   "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": nil,
+  "started_at": null,
   "status": "queued",
   "inserted_at": "2021-03-05T12:00:00Z",
   "updated_at": "2021-03-05T12:00:00Z"
@@ -1051,14 +1051,14 @@ A BulkOperation.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": nil,
+  "completed_at": null,
   "estimated_total_rows": 42,
-  "failed_at": nil,
+  "failed_at": null,
   "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
   "name": "bulk_op",
   "processed_rows": 0,
   "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": nil,
+  "started_at": null,
   "status": "queued",
   "inserted_at": "2021-03-05T12:00:00Z",
   "updated_at": "2021-03-05T12:00:00Z"
@@ -1630,14 +1630,14 @@ Returns a `BulkOperation`.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": nil,
+  "completed_at": null,
   "estimated_total_rows": 42,
-  "failed_at": nil,
+  "failed_at": null,
   "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
   "name": "bulk_op",
   "processed_rows": 0,
   "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": nil,
+  "started_at": null,
   "status": "queued",
   "inserted_at": "2021-03-05T12:00:00Z",
   "updated_at": "2021-03-05T12:00:00Z"
@@ -3349,14 +3349,14 @@ time, you can initiate it with a date filter (like `older_than`).
 ```json BulkOperation object
 {
   "__typename": "BulkOperation",
-  "completed_at": nil,
+  "completed_at": null,
   "estimated_total_rows": 42,
-  "failed_at": nil,
+  "failed_at": null,
   "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
   "name": "bulk_op",
   "processed_rows": 0,
   "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": nil,
+  "started_at": null,
   "status": "queued",
   "inserted_at": "2021-03-05T12:00:00Z",
   "updated_at": "2021-03-05T12:00:00Z"
@@ -3907,14 +3907,14 @@ Returns a `BulkOperation`.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": nil,
+  "completed_at": null,
   "estimated_total_rows": 2,
-  "failed_at": nil,
+  "failed_at": null,
   "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
   "name": "object.projects.set",
   "processed_rows": 0,
   "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": nil,
+  "started_at": null,
   "status": "queued",
   "inserted_at": "2021-03-05T12:00:00Z",
   "updated_at": "2021-03-05T12:00:00Z"
@@ -3976,14 +3976,14 @@ Returns a `BulkOperation`.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": nil,
+  "completed_at": null,
   "estimated_total_rows": 2,
-  "failed_at": nil,
+  "failed_at": null,
   "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
   "name": "object.projects.delete",
   "processed_rows": 0,
   "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": nil,
+  "started_at": null,
   "status": "queued",
   "inserted_at": "2021-03-05T12:00:00Z",
   "updated_at": "2021-03-05T12:00:00Z"
@@ -4302,9 +4302,19 @@ A subscription represents the relationship between a recipient (the subscriber) 
     path="/objects/:collection/:id/subscriptions"
   />
   <Endpoint
+    name="get-user-subscriptions"
+    method="GET"
+    path="/users/:id/subscriptions"
+  />
+  <Endpoint
     name="add-subscriptions"
     method="POST"
     path="/objects/:collection/:id/subscriptions"
+  />
+  <Endpoint
+    name="bulk-add-subscriptions"
+    method="POST"
+    path="/objects/:collection/bulk/subscriptions/add"
   />
   <Endpoint
     name="delete-subscriptions"
@@ -4598,6 +4608,95 @@ A list of created `ObjectSubscription`
     "updated_at": "2021-03-05T12:00:00Z"
   }
 ]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk add subscriptions" slug="bulk-add-subscriptions">
+<ContentColumn>
+
+Creates subscriptions for one or more recipients to one or more objects within the specified `collection`. You can create up to 50 recipient subscriptions per object at a time and you can modify up to 100 objects per request, totaling up to 5,000 operations per request.
+
+Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the BulkOperation API.
+
+### Endpoint
+
+<Endpoint
+  name="bulk-add-subscriptions"
+  method="POST"
+  path="/objects/:collection/bulk/subscriptions/add"
+/>
+
+### Rate limit
+
+<RateLimit tier={1} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The type of object you are storing in Knock."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="subscriptions"
+    type="AddSubscriptionsOp[]"
+    description="A list of subscriptions to create. Each entry represents a set of Recipients to subscribe to an Object."
+  />
+</Attributes>
+
+### Response
+
+A `BulkOperation`.
+
+</ContentColumn>
+
+<ExampleColumn>
+
+```json Request body
+{
+  "subscriptions": [
+    {
+      "id": "my-object-1",
+      "properties": {
+        "foo": "bar",
+        "biz": "baz"
+      },
+      "recipients": ["user-1", "user-2", "user-3"]
+    },
+    {
+      "id": "my-object-2",
+      "recipients": [{"id": "user-3", "email": "user-3@example.com"}]
+    }
+  ]
+}
+```
+
+```json Response
+{
+  "__typename": "BulkOperation",
+  "completed_at": null,
+  "error_count": 0,
+  "error_items": [],
+  "estimated_total_rows": 4,
+  "failed_at": null,
+  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "name": "bulk_op",
+  "processed_rows": 0,
+  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
+  "started_at": null,
+  "status": "queued",
+  "success_count": 0,
+  "inserted_at": "2023-01-01T00:00:00.00Z",
+  "updated_at": "2023-01-01T00:00:00.00Z"
+}
 ```
 
 </ExampleColumn>

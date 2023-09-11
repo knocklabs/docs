@@ -121,6 +121,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#list-subscriptions", title: "List subscriptions" },
       { slug: "#get-user-subscriptions", title: "Get user subscriptions" },
       { slug: "#add-subscriptions", title: "Add subscriptions" },
+      { slug: "#bulk-add-subscriptions", title: "Bulk add subscriptions" },
       { slug: "#delete-subscriptions", title: "Delete subscriptions" },
     ],
   },
