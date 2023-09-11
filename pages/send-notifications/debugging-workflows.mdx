@@ -1,11 +1,11 @@
 ---
 title: Debugging workflows
-description: Learn more about how to work with Knock's workflow debugger and API logs to easily debug your notification workflows.
+description: Learn more about how to work with Knock's workflow debugger and to easily debug your notification workflows.
 tags: ["debugger", "logs", "errors"]
 section: Send notifications
 ---
 
-Sometimes you'll encounter issues with a workflow run that require more visibility into the Knock engine. Knock comes pre-built with a powerful workflow debugger that you can use to understand the state of individual workflow runs.
+Sometimes you'll encounter issues with a workflow run that require more visibility into the Knock notification engine. Knock comes pre-built with a powerful workflow debugger that you can use to understand the state of individual workflow runs.
 
 Using the workflow debugger, you can answer questions such as:
 
@@ -14,29 +14,85 @@ Using the workflow debugger, you can answer questions such as:
 - Did this recipient have preferences set that opted them out from receiving a notification?
 - What prevented this step from executing?
 
-You can see a video of our workflow debugger in action here:
+## Workflow debugger overview
 
-<div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
-  <iframe
-    src="https://www.loom.com/embed/77c2a99f63914dda83abf6653b4711b8"
-    frameBorder="0"
-    allowFullscreen
-    style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-    }}
-  ></iframe>
-</div>
+Knock preserves workflow run info from the last 90 days for presentation in the debugger. When you view a workflow run in the debugger, you'll see:
 
-## Accessing the workflow debugger
+- Summary information about the executed workflow and its trigger. This includes links to the workflow, recipient, and actor, plus trigger and fetched data for the run.
+- A read-only visualization of your workflow graph, including a highlighted path tracing the step execution flow for the run.
+- A panel to display per-step debugger information. See the [section on debugging steps](#debugging-steps) below for more info.
 
-You can access the workflow debugger from our "Logs" page, which you'll find in the left hand environment sidebar in the dashboard. From there:
+TODO: screenshot
 
-1. Find an API log that triggered a workflow run (**hint**: you can use the filters to find only workflow API requests)
-2. In the right hand panel, click the "Workflow runs" tab
-3. Select a workflow run for any recipient to view the debugger
+Each workflow run will also have one of the following statuses:
 
-**Note**: you can also use the debugger to look at test runs as well.
+- **Queued** — Knock has processed your workflow trigger and enqueued a workflow run for this recipient. But, Knock hasn't yet begun executing this workflow run.
+- **Processing** — Knock is currently executing this workflow run.
+- **Paused** — Knock has paused the current workflow run. This is likely due to a delay, batching, or throttle step delay period. It could also be due to a retry backoff period for a fetch step.
+- **Completed** — Knock has completed executing this workflow run.
+- **Cancelled** — Knock cancelled the workflow run before it could be completed.
+
+Lastly, if your workflow run hasn't yet completed and is in a cancellable state, you can cancel the run directly from the debugger. In turn, if your workflow has been cancelled, you should see a link back to the cancelling request log. See TKTK for more info on canceling workflows.
+
+TODO: cancelling from debugger screenshot
+
+## Debugging steps
+
+TODO: step status screenshot
+
+Knock will capture for each step: its execution status, its time of execution, and any errors encountered. Each step can have one of the following statuses:
+
+- **Cancelled** — The workflow run was cancelled before Knock could execute the given step.
+- **Completed** — Knock executed the step successfully.
+- **Conditions not met** — Knock skipped the step because conditions that determine if it should run evaluated to false.
+- **Did not execute** — Knock didn't execute the step because it exists on a workflow branch that was not on the chosen execution path.
+- **Failed** — Knock executed the step unsuccessfully for an unknown reason.
+- **No message sent** — Knock executed the channel step successfully but didn't deliver a Message. This status is only expected when a channel is configured in [sandbox mode](/integrations/overview#sandbox-mode).
+- **Not started** — Knock hasn't yet started executing the step in the workflow.
+- **Opted out** — Knock skipped the step because the recipient opted-out via preferencs.
+- **Processing** — Knock is executing the step.
+- **Throttled** — Knock throttled the step.
+- **Will not execute** — Knock will not execute this step because the workflow was added to a batched workflow run on a preceding step.
+
+### Debugging batch steps
+
+TODO: batch step screenshot
+
+Once executed, [batch steps](/designing-workflows/batch-function) include some additional metadata. In all cases, Knock will show the batch closing datetime determined by the step's execution. If the workflow run was batched into another run, Knock will include a link out to that run.
+
+Once the batch window has closed, for the batching workflow run, Knock will display a list of up to 10 batched workflows and the total count of batched workflows. Knock highlights the 10 workflows based on your [batching order rules](/designing-workflows/batch-function#setting-the-batch-order).
+
+### Debugging branch steps
+
+- Copy over or link out
+
+### Debugging fetch steps
+
+For each [fetch step](/designing-workflows/fetch-function), Knock will present in the debugger:
+
+- The request URL (with encoded query parameters), headers, and body as sent by Knock.
+- The duration of the request (in milliseconds).
+- The response headers and body data.
+
+![Viewing debugger details for a successful fetch function step.](/images/functions/functions_fetch_success.png)
+
+<figcaption>
+  Viewing debugger details for a successful fetch function step.
+</figcaption>
+
+If Knock encounters an error executing the fetch step request, it will display details about the error in the logs. If Knock retries the fetch function following a retryable error, it will show details enumerated for each request attempt.
+
+![Viewing debugger details for an unsuccessful fetch function step.](/images/functions/functions_fetch_error.png)
+
+<figcaption>
+  Viewing debugger details for an unsuccessful fetch function step.
+</figcaption>
+
+### Debugging conditions and preferences
+
+- Just copy over notes or link out
+
+## How to find workflow runs
+
+- List places we link from
+- Template for composing a URL from run IDs
