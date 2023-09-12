@@ -107,7 +107,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
         <Popover.Content
           align="end"
           sideOffset={12}
-          className="p-3 flex flex-col justify-between w-[330px] h-[180px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
+          className="p-3 flex flex-col justify-between w-[330px] h-[172px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
         >
           <FocusLock>
             <form onSubmit={handleSubmit}>
@@ -135,9 +135,9 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
                 ))}
               </RadioGroup.Root>
 
-              <div className="flex mt-3 justify-between">
+              <div className="flex mt-1 justify-between">
                 <input
-                  className="text-gray-600 bg-white border border-gray-200 p-1 h-7 w-[215px] text-[12px] rounded-sm dark:bg-gray-800 dark:border-gray-700"
+                  className="text-gray-600 bg-white border border-gray-200 p-1 h-7 w-[215px] text-[12px] rounded-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                   placeholder="youremail@example.com"
                   onChange={(e) => setUserEmail(e.target.value)}
                 />
