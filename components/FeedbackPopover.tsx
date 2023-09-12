@@ -137,7 +137,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
 
               <div className="flex mt-3 justify-between">
                 <input
-                  className="bg-white border border-gray-200 p-1 h-7 w-[215px] text-[14px] rounded-sm dark:bg-gray-800 dark:border-gray-700"
+                  className="text-gray-600 bg-white border border-gray-200 p-1 h-7 w-[215px] text-[12px] rounded-sm dark:bg-gray-800 dark:border-gray-700"
                   placeholder="youremail@example.com"
                   onChange={(e) => setUserEmail(e.target.value)}
                 />
