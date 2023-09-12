@@ -35,14 +35,17 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [feedbackBody, setFeedbackBody] = useState<string>("");
   const [feedbackEmoji, setFeedbackEmoji] = useState<string>("");
+  const [userEmail, setUserEmail] = useState<string>("");
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const hasFeedback = !!feedbackBody.trim();
+  const hasUserEmail = !!userEmail.trim();
 
   const reset = () => {
     setFeedbackBody("");
     setFeedbackEmoji("");
+    setUserEmail("");
     setIsOpen(false);
     setIsSubmitted(false);
     setIsLoading(false);
@@ -52,6 +55,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
     if (e) e.preventDefault();
     if (e) e.stopPropagation();
     if (!hasFeedback) return;
+    if (!hasUserEmail) return;
 
     // Transform to one of expected multiple choice options by Airtable field.
     const feedbackCategory = feedbackEmoji
@@ -68,7 +72,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
         feedback_category: feedbackCategory,
         source_url: window.location.href,
         user_id: currentUser?.id,
-        user_email: currentUser?.email,
+        user_email: userEmail,
         account_id: currentAccount?.id,
         account_name: currentAccount?.name,
       }),
@@ -103,7 +107,7 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
         <Popover.Content
           align="end"
           sideOffset={12}
-          className="p-3 flex flex-col justify-between w-[300px] h-[152px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
+          className="p-3 flex flex-col justify-between w-[330px] h-[180px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
         >
           <FocusLock>
             <form onSubmit={handleSubmit}>
@@ -114,27 +118,32 @@ const FeedbackPopover: React.FC<Props> = ({ currentUser, currentAccount }) => {
                 onKeyDown={(e) => isSubmitHotkey(e) && handleSubmit()}
                 ref={textAreaRef}
                 placeholder="Help us improve this page."
+                style={{ resize: "none" }}
               />
+              <RadioGroup.Root
+                name="feedback-category"
+                className="flex space-x-1"
+              >
+                {Array.from(FEEDBACK_CATEGORIES.keys()).map((emoji) => (
+                  <RadioGroup.Item
+                    key={emoji}
+                    value={emoji}
+                    className="text-center w-7 h-7 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-blue-400 radix-state-checked:!border-brand"
+                  >
+                    {emoji}
+                  </RadioGroup.Item>
+                ))}
+              </RadioGroup.Root>
 
               <div className="flex mt-3 justify-between">
-                <RadioGroup.Root
-                  name="feedback-category"
-                  className="flex space-x-1"
-                >
-                  {Array.from(FEEDBACK_CATEGORIES.keys()).map((emoji) => (
-                    <RadioGroup.Item
-                      key={emoji}
-                      value={emoji}
-                      className="text-center w-7 h-7 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-blue-400 radix-state-checked:!border-brand"
-                    >
-                      {emoji}
-                    </RadioGroup.Item>
-                  ))}
-                </RadioGroup.Root>
-
+                <input
+                  className="bg-white border border-gray-200 p-1 h-7 w-[215px] text-[14px] rounded-sm dark:bg-gray-800 dark:border-gray-700"
+                  placeholder="youremail@example.com"
+                  onChange={(e) => setUserEmail(e.target.value)}
+                />
                 <button
                   type="submit"
-                  disabled={!hasFeedback}
+                  disabled={!hasFeedback || !hasUserEmail}
                   className="bg-brand text-white text-[14px] px-2 py-1 rounded-md disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {isLoading ? "Sending" : "Send"}
