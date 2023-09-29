@@ -248,6 +248,17 @@ If you are making calls to Knock from a job queue, the ID of the job can be a go
 </ExampleColumn>
 </Section>
 
+<Section title="Bulk endpoints" slug="bulk-endpoints">
+<ContentColumn>
+
+Knock exposes several endpoints that enqueue and return a `BulkOperation`. These endpoints perform their logic asynchronously, and you use the `BulkOperation` record to track progress.
+
+In some cases, a bulk endpoint will accept a large set of entities to perform some action upon. In others, a bulk endpoint will accept a set of filter parameters and then execute an action across a large set of data on your account.
+
+See the [Bulk operations section](#bulk-operations) for more information on parsing and polling bulk operation statuses.
+</ContentColumn>
+</Section>
+
 <Section title="Pagination" slug="pagination">
 <ContentColumn>
 
@@ -964,7 +975,7 @@ The merged `User`.
 <Section title="Bulk identify users" slug="bulk-identify-users">
 <ContentColumn>
 
-Identifies up to 100 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the BulkOperation API.
+Identifies up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
 
 ### Endpoint
 
@@ -999,16 +1010,19 @@ A BulkOperation.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": null,
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 0,
+  "error_items": [],
   "estimated_total_rows": 42,
   "failed_at": null,
-  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "name": "bulk_op",
-  "processed_rows": 0,
-  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": null,
-  "status": "queued",
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
   "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "users.identify",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
   "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
@@ -1019,7 +1033,7 @@ A BulkOperation.
 <Section title="Bulk delete users" slug="bulk-delete-users">
 <ContentColumn>
 
-Deletes up to 100 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the BulkOperation API.
+Deletes up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
 
 ### Endpoint
 
@@ -1051,16 +1065,19 @@ A BulkOperation.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": null,
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 0,
+  "error_items": [],
   "estimated_total_rows": 42,
   "failed_at": null,
-  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "name": "bulk_op",
-  "processed_rows": 0,
-  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": null,
-  "status": "queued",
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
   "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "users.delete",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
   "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
@@ -1570,8 +1587,9 @@ Returns a `PreferenceSet`.
 <Section title="Bulk set preferences" slug="bulk-set-preferences">
 <ContentColumn>
 
-Sets the preferences for the users indicated via an asynchronous `BulkOperation`. This is a destructive operation and
-will replace any existing users' preferences with the preferences sent.
+Bulk sets the preferences for up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
+
+Please note: This is a destructive operation and will replace any existing users' preferences with the preferences sent.
 
 ### Endpoint
 
@@ -1630,16 +1648,19 @@ Returns a `BulkOperation`.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": null,
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 0,
+  "error_items": [],
   "estimated_total_rows": 42,
   "failed_at": null,
-  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "name": "bulk_op",
-  "processed_rows": 0,
-  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": null,
-  "status": "queued",
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
   "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "users.set_preferences",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
   "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
@@ -3204,9 +3225,9 @@ A list of Messages that were mutated during the call.
 <Section title="Bulk changing message statuses in a channel" slug="bulk-update-channel-message-status">
 <ContentColumn>
 
-The bulk change endpoint allows you to modify all, or a subset of messages for a given channel via an asynchronous job. The messages
-to be modified can be filtered using the properties listed below, and this operation will always return a `BulkOperation`
-which allows you to track the status of the job.
+Apply the given `status` to a set of messages for the given channel. Will modify all valid messages, or a subset based on the filters provided.
+
+Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
 
 ### Endpoint
 
@@ -3281,18 +3302,38 @@ which allows you to track the status of the job.
 A `BulkOperation`
 
 </ContentColumn>
+
+<ExampleColumn>
+
+```json Response
+{
+  "__typename": "BulkOperation",
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 0,
+  "error_items": [],
+  "estimated_total_rows": 42,
+  "failed_at": null,
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "messages.<status>",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
 </Section>
 
 <Section title="Bulk operations" slug="bulk-operations">
 <ContentColumn>
 
-A bulk operation represents a set of changes that are to be performed across 0 or more records. The
-bulk operation resource represents the state of the operation, including recording the number of rows
-that have been modified during the operation.
+A bulk operation is a set of changes applied across 0 or more records triggered via a call to the Knock API and performed asynchronously. The `BulkOperation` record represents the state of the operation, including recording the number of rows that have been modified during the operation.
 
-Please note here: the `estimated_total_rows` field may have a different value to the `processed_rows`
-field due to the asynchronous nature of the operation. If you wish to pin this job to a specific point in
-time, you can initiate it with a date filter (like `older_than`).
+Please note here: the `estimated_total_rows` field may have a different value to the `processed_rows` field due to the asynchronous nature of the operation.
 
 ### Attributes
 
@@ -3315,7 +3356,22 @@ time, you can initiate it with a date filter (like `older_than`).
   <Attribute
     name="processed_rows"
     type="integer"
-    description="The number of the rows that have been mutated in this operation"
+    description="The number of the rows that have been handled in this operation, either successfully or in error"
+  />
+  <Attribute
+    name="success_count"
+    type="integer"
+    description="The number of the rows that have been modified successfully in this operation"
+  />
+  <Attribute
+    name="error_count"
+    type="integer"
+    description="The number of the rows that errored in this operation"
+  />
+  <Attribute
+    name="error_items"
+    type="map[]"
+    description="A list of items that errored in this operation, if available"
   />
   <Attribute
     name="status"
@@ -3349,16 +3405,21 @@ time, you can initiate it with a date filter (like `older_than`).
 ```json BulkOperation object
 {
   "__typename": "BulkOperation",
-  "completed_at": null,
-  "estimated_total_rows": 42,
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 1,
+  "error_items": [
+    { "id": "foo", "collection": "bar" }
+  ],
+  "estimated_total_rows": 342,
   "failed_at": null,
-  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "name": "bulk_op",
-  "processed_rows": 0,
-  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": null,
-  "status": "queued",
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
   "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "some_operation",
+  "processed_rows": 342,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 341,
   "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
@@ -3853,7 +3914,7 @@ No response.
 <Section title="Bulk set objects in a collection" slug="bulk-set-objects">
 <ContentColumn>
 
-Bulk sets up to 100 objects at a time within a collection, returning an asynchronous `BulkOperation` that can be used to monitor the progress of the operation.
+Bulk sets up to 1000 objects at a time within a collection. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
 
 ### Endpoint
 
@@ -3907,16 +3968,19 @@ Returns a `BulkOperation`.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": null,
-  "estimated_total_rows": 2,
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 0,
+  "error_items": [],
+  "estimated_total_rows": 42,
   "failed_at": null,
-  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "name": "object.projects.set",
-  "processed_rows": 0,
-  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": null,
-  "status": "queued",
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
   "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "objects.<collection>.set",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
   "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
@@ -3927,7 +3991,7 @@ Returns a `BulkOperation`.
 <Section title="Bulk delete objects in a collection" slug="bulk-delete-objects">
 <ContentColumn>
 
-Bulk deletes up to 100 objects at a time within a collection, returning an asynchronous `BulkOperation` that can be used to monitor the progress of the operation.
+Bulk deletes up to 1000 objects at a time within a collection. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
 
 ### Endpoint
 
@@ -3976,16 +4040,19 @@ Returns a `BulkOperation`.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": null,
-  "estimated_total_rows": 2,
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 0,
+  "error_items": [],
+  "estimated_total_rows": 42,
   "failed_at": null,
-  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "name": "object.projects.delete",
-  "processed_rows": 0,
-  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": null,
-  "status": "queued",
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
   "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "objects.<collection>.delete",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
   "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
@@ -4618,7 +4685,7 @@ A list of created `ObjectSubscription`
 
 Creates subscriptions for one or more recipients to one or more objects within the specified `collection`. You can create up to 50 recipient subscriptions per object at a time and you can modify up to 100 objects per request, totaling up to 5,000 operations per request.
 
-Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the BulkOperation API.
+Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
 
 ### Endpoint
 
@@ -4682,20 +4749,20 @@ A `BulkOperation`.
 ```json Response
 {
   "__typename": "BulkOperation",
-  "completed_at": null,
+  "completed_at": "2021-03-05T12:00:00Z",
   "error_count": 0,
   "error_items": [],
-  "estimated_total_rows": 4,
+  "estimated_total_rows": 42,
   "failed_at": null,
-  "id": "b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "name": "bulk_op",
-  "processed_rows": 0,
-  "progress_path": "/v1/bulk_operations/b4f6f61e-3634-4e80-af0d-9c83e9acc6f3",
-  "started_at": null,
-  "status": "queued",
-  "success_count": 0,
-  "inserted_at": "2023-01-01T00:00:00.00Z",
-  "updated_at": "2023-01-01T00:00:00.00Z"
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "objects.<collection>.upsert_subscriptions",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
+  "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
 
