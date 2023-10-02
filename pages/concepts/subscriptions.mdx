@@ -149,6 +149,13 @@ Once you've established a nested hierarchy like the above, it's also possible to
   }
 />
 
+## Deduplication by default
+
+Knock always deduplicates recipients when executing a notification fan out, including for workflow triggers with subscriptions. Knock will ensure your notification workflow is executed only once for each unique recipient in the following cases:
+
+- When the recipient appears both in the initial trigger and as a subscriber to one of your objects.
+- When the recipient appears multiple times within a nested subscription hierarchy.
+
 ## Frequently asked questions
 
 #### What's the maximum number of subscribers I can have against an object?
@@ -178,6 +185,10 @@ Yes, you can. Once you trigger a workflow for an object that has subscribers att
 #### Can I notify both the object AND the subscribers of the object?
 
 Yes, by default when you trigger a workflow for an object that has subscriptions attached Knock will generate a workflow run for the object itself AND all of the attached subscribers.
+
+#### Can I notify a recipient each time they appear within an object subscription tree?
+
+No, currently Knock [deduplicates all recipients](#deduplication-by-default) when fanning out to object subscribers. If this is blocking one of your use cases or your adoption of Knock, please contact our [support team](mailto:support@knock.app).
 
 #### Is the object that recipients are subscribed to exposed in the workflow run scope?
 
