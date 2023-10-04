@@ -73,6 +73,7 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Managing recipients",
     slug: "/managing-recipients",
+    desc: "Learn more about how to manage notification recipients with Knock.",
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/identifying-recipients", title: "Identifying recipients" },
