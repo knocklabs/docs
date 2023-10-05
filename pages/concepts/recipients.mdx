@@ -39,85 +39,15 @@ type RecipientIdentifier =
   | Record<string, any>;
 ```
 
-## Ahead-of-time identifying recipients
+## Identifying recipients
 
-Recipients should be `identified` to Knock so that Knock can execute workflows for those recipients. You can see more in the documentation for both users and objects on how to individually and bulk identify.
+For Knock to be able to send notifications to your recipients, you must first identify those recipients to synchronize them with Knock. We call this process "identification", and it can be done ahead of time, or lazily via inline-identification in your workflow triggers. Identifying sets the properties associated with your recipients into Knock, so that you can reference those properties in the notifications you send out.
 
-- [Identifying users](/send-and-manage-data/users#1-individual-identification)
-- [Identifying objects](/send-and-manage-data/objects#1-set-individual-objects)
+[Read more about identifying your recipients ->](/managing-recipients/identifying-recipients)
 
-## Inline identifying recipients
+## Custom properties
 
-A recipient can be passed **inline** when triggering a workflow or when subscribing a recipient to an object.
-
-An inline identify causes to Knock to create/update the recipient before completing the action in which the inline identify is taking place (e.g. the workflow trigger).
-
-```json An example list of recipients to be identified inline
-{
-  "recipients": [
-    {
-      "id": "esattler",
-      "name": "Ellie Sattler",
-      "email": "esattler@ingen.net"
-    },
-    {
-      "id": "dnedry",
-      "name": "Dennis Nedry",
-      "email": "dnedry@ingen.net"
-    }
-  ]
-}
-```
-
-In the example above, when this set of recipients are passed to Knock we first upsert the two users, creating or replacing the properties sent.
-
-### Setting preferences inline
-
-When inline identifying a recipient, one or more [preference sets](/send-and-manage-data/preferences) can also be supplied for the recipient, upserting any existing preferences set for the recipient.
-
-```json An example of inline identifying a recipient with a preference set
-{
-  "recipients": [
-    {
-      "id": "esattler",
-      "name": "Ellie Sattler",
-      "email": "esattler@ingen.net",
-      "preferences": {
-        "default": {
-          "channel_types": {
-            "email": false
-          }
-        }
-      }
-    }
-  ]
-}
-```
-
-**Note**: the preference set `id` must always be supplied in the dictionary of preferences sent, which in the example above is `default`.
-
-### Setting channel data inline
-
-Along with preferences, [channel data](/send-notifications/setting-channel-daa) can also be specified inline along with a `RecipientIdentifier`, replacing any existing channel data set for the channels given.
-
-```json An example of inline identifying a recipient with channel data
-{
-  "recipients": [
-    {
-      "id": "esattler",
-      "name": "Ellie Sattler",
-      "email": "esattler@ingen.net",
-      "channel_data": {
-        "4672d685-c586-4ec6-ad88-52185262af97": {
-          "tokens": ["apns-push-token"]
-        }
-      }
-    }
-  ]
-}
-```
-
-**Note**: the key in the channel data dictionary is the channel ID of a valid channel you've created within Knock. You can find a channel's ID on its channel page ("Integrations" > "Channels").
+Recipients in Knock can have any number of custom properties set on them, which you set during the identification process. Some properties, like `email` or `phone_number` are required for notifications to be delivered to the recipient.
 
 ## Managing lists of recipients
 

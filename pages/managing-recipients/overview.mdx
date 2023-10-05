@@ -1,0 +1,69 @@
+---
+title: Overview
+description: Learn more about managing recipients within Knock.
+section: Managing recipients
+---
+
+import Callout from "../../components/Callout";
+
+[Recipients](/concepts/recipients) in Knock are the [users](/concepts/users) and [objects](/concepts/objects) that receive notifications. In this section, we walk you through managing recipient data for your environment, using both our API and Dashboard.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note</strong>: you may think it's odd to think about Objects as a
+      recipient of a notification. We use Objects as a way to model non-user
+      recipients that you may need to send a notification to from your system.
+    </>
+  }
+/>
+
+#### Quick links
+
+- [Identifying recipients](/managing-recipients/identifying-recipients)
+- [Setting preferences](/managing-recipients/setting-preferences)
+- [Setting channel data](/managing-recipients/settings-channel-data)
+
+## Recipients and environments
+
+Your recipient data exists **per environment**, meaning that each [environment](/concepts/environments) you have in your Knock account will contain a unique set of recipient data. If you have recipients that need to span across environments, then you should identify those recipients across each environment.
+
+## Storing recipient data in Knock
+
+In Knock, we refer to the process of storing recipient data as "identifying" one or many recipients. Your recipient data must exist in Knock to send notifications to those recipients or to reference the recipient within a notification template.
+
+Identifying recipients is done programmatically via our REST API, either individually, in bulk, or inline when specifying a recipient in other calls.
+
+[Learn more about identifying recipients ->](/managing-recipients/identifying-recipients)
+
+### Why store recipient data in Knock
+
+If you're used to sending notifications via single-channel APIs, the idea of storing recipient data in a messaging platform such as Knock may sound odd to you.
+
+Here are a few reasons why we store recipient data in Knock:
+
+- **Multi-channel notifications.** When you're using a single-channel API, you can pass through the recipient's email address or phone number when you trigger a message. In a multi-channel platform like Knock, that would mean passing through _all_ of a recipient's channel information every time you trigger a notification. By keeping a recipient model in Knock, you can update a recipient's channel information once, then reference them via their recipient ID from that point on. We take care of the rest.
+- **Stateful in-app notifications.** The Knock Feed API returns a stateful feed of the in-app notifications a given recipient has received from your product. The Knock recipient model is used to store a given recipient's notification feed and to give you a way to retrieve that feed via the recipient identifier you keep for them in your product.
+- **Preferences model.** The Knock recipient model enables advanced functionality such as preferences support, where you store a given recipient's notification preferences in Knock and we reference that recipient's preferences during the run of a given notification workflow.
+- **Leverage recipient traits in notification templates.** The Knock recipient model also enables you to store custom traits on a given recipient that you can reference in a notification template. This is helpful when you want to add conditional copy to a notification based on a recipient's role or plan.
+
+We do not take storing your recipient data lightly. You can learn more about our security posture and best practices on [our security page](/security).
+
+## Fetching recipient data
+
+From the API you can retrieve information about the recipient data that you have stored inside of Knock. Recipient information is accessible from both the client-side and server-side using the appropriate [API keys](/developer-tools/api-keys).
+
+You can find more about retrieving recipients in the [API reference](/reference).
+
+## Working with recipients in the dashboard
+
+The Knock dashboard also provides access to the Users and Objects that you have identified within each environment. From the dashboard you can:
+
+- Search for a specific recipient by id, name, or email
+- View the recipient, including any custom properties set
+- View recipient channel data
+- View and manage recipient preferences
+- View recent messages sent to the recipient
+- View recent workflow runs for the recipient
+- View any schedules for the recipient
