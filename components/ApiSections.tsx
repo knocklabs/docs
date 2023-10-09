@@ -1,6 +1,5 @@
 import cn from "classnames";
 import SectionHeading from "./SectionHeading";
-import RateLimit from "../components/RateLimit";
 
 export const Section = ({
   title,
