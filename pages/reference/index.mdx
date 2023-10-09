@@ -211,17 +211,6 @@ Knock can apply batch deduplication rate limits to all or part of a request. If 
 <Section title="Idempotent requests" slug="idempotent-requests">
 <ContentColumn>
 
-<Callout
-  emoji="🚧"
-  text={
-    <>
-      <span className="font-bold">This feature is in limited release.</span>{" "}
-      Idempotence is currently only available for the{" "}
-      <code>POST /v1/workflows/:key/trigger</code> endpoint.
-    </>
-  }
-/>
-
 Knock supports [idempotency](https://en.wikipedia.org/wiki/Idempotence) so that requests can be retried safely without unintended side effects.
 
 To perform an idempotent request, set an `Idempotency-Key` header on your request. This idempotency key is a unique value that you generate for each request. It is used to identify and prevent the duplicate processing of requests. If you retry a request with the same idempotency key within 24 hours from the original request, Knock will return the same response as the original request. You may use any string up to 255 characters in length as an idempotency key.
@@ -230,8 +219,21 @@ Idempotency keys can be random UUIDs, or they can have some meaning in your appl
 
 If you are making calls to Knock from a job queue, the ID of the job can be a good choice for an idempotency key. If the job fails and is retried, the same idempotency key will be used.
 
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>The default idempotency window for the Knock API is 24 hours.</strong> If you're interested in configuring a different idempotency window for your account, please contact us at <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
+
 </ContentColumn>
 <ExampleColumn>
+
+<Endpoints title="Supported endpoints">
+  <Endpoint name="trigger-workflow" method="POST" path="/workflows/:key/trigger" withLink />
+</Endpoints>
 
 <MultiLangCodeBlock
   snippet="api.idempotency"
@@ -1108,7 +1110,7 @@ A Workflow orchestrates the delivery of messages to your end users. When you con
 </ExampleColumn>
 </Section>
 
-<Section title="Triggering a workflow" slug="trigger-workflow">
+<Section isIdempotent title="Triggering a workflow" slug="trigger-workflow">
 <ContentColumn>
 
 A trigger calls a workflow created via the Knock dashboard.

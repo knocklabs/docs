@@ -17,8 +17,13 @@ const RateLimit: React.FC<Props> = ({ tier, isBatch = false }) => (
       "bg-red-100 dark:bg-transparent dark:border-red-500": tier === 1,
     })}
   >
-    {isBatch ? "Batch Tier " : "Tier "}
-    {tier}
+    <a
+      href={isBatch ? "#batch-rate-limits" : "#rate-limits"}
+      style={{ color: "inherit", textDecoration: "none" }}
+    >
+      {isBatch ? "Batch Tier " : "Tier "}
+      {tier}
+    </a>
   </span>
 );
 
