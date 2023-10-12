@@ -365,7 +365,7 @@ module.exports = withPlugins(
           permanent: false,
         },
         {
-          source: "/send-notifications/setting-channel-daa",
+          source: "/send-notifications/setting-channel-data",
           destination: "/managing-recipients/setting-channel-data",
           permanent: false,
         },
