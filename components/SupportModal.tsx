@@ -106,7 +106,7 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
                 </h2>
                 <button
                   type="button"
-                  className="text-gray-600 p-1 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600 rounded-md"
+                  className="text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600 rounded-md"
                   onClick={() => setIsOpen(false)}
                 >
                   <IoCloseOutline style={{ fontSize: "24px" }} />
@@ -135,7 +135,7 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
                   />
                 </div>
                 <div className="flex mt-5 items-center justify-between">
-                  <div className="flex items-center">
+                  <div className="flex items-center mr-5">
                     <input
                       className="text-gray-600 bg-white border border-gray-200 p-1 h-7 w-[215px] text-[12px] rounded-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white focus-visible:outline-none"
                       placeholder="youremail@example.com"
