@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import isHotkey from "is-hotkey";
 import * as Dialog from "@radix-ui/react-dialog";
-import { IoClose } from "react-icons/io5";
+import { IoCloseOutline } from "react-icons/io5";
 import Link from "next/link";
 
 interface Account {
@@ -98,24 +98,24 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/50 " />
           <Dialog.Title />
-          <Dialog.Content className="p-8 text-gray-900 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm">
+          <Dialog.Content className="py-4 px-6 text-gray-900 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm">
             <Dialog.Title>
-              <div className="flex flex-column items-center justify-between mt-[-1rem]">
+              <div className="flex flex-column items-center justify-between">
                 <h2 className="text-gray-600 font-medium text-[16px] dark:text-white">
                   Contact support
                 </h2>
                 <button
                   type="button"
-                  className="text-gray-400 hover:text-gray-500 dark:text-white dark:hover:text-gray-300"
+                  className="text-gray-600 p-1 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600 rounded-md"
                   onClick={() => setIsOpen(false)}
                 >
-                  <IoClose />
+                  <IoCloseOutline style={{ fontSize: "24px" }} />
                 </button>
               </div>
             </Dialog.Title>
 
             <Dialog.Description>
-              <p className="mt-1 font-normal text-[14px] text-gray-600 dark:text-white">
+              <p className="font-normal text-[14px] text-gray-600 dark:text-white">
                 What issue are you seeing? If you're reporting a bug, what are
                 the steps you took so we can reproduce the behavior?
               </p>
