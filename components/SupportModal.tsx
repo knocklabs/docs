@@ -123,15 +123,17 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
 
             <div className="mt-5 ">
               <form onSubmit={() => null}>
-                <textarea
-                  className="text-gray-600 font-normal p-2 text-[14px] dark:text-white w-full h-[200px] dark:border-gray-700 border border-gray-200 dark:bg-gray-800 focus-visible:outline-none rounded-sm"
-                  value={feedbackBody}
-                  onChange={(e) => setFeedbackBody(e.target.value)}
-                  onKeyDown={(e) => isSubmitHotkey(e) && handleSubmit()}
-                  ref={textAreaRef}
-                  placeholder="Help us improve this page."
-                  style={{ resize: "vertical" }}
-                />
+                <div className="h-[200px]">
+                  <textarea
+                    className="text-gray-600 font-normal p-2 text-[14px] dark:text-white w-full h-full dark:border-gray-700 border border-gray-200 dark:bg-gray-800 focus-visible:outline-none rounded-sm"
+                    value={feedbackBody}
+                    onChange={(e) => setFeedbackBody(e.target.value)}
+                    onKeyDown={(e) => isSubmitHotkey(e) && handleSubmit()}
+                    ref={textAreaRef}
+                    placeholder="Help us improve this page."
+                    style={{ resize: "vertical" }}
+                  />
+                </div>
                 <div className="flex mt-5 items-center justify-between">
                   <div className="flex items-center">
                     <input
