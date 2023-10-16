@@ -30,10 +30,23 @@ const sidebarData = [
   },
 
   {
+    title: "Email layouts",
+    slug: "/cli",
+    pages: [
+      { slug: "#email-layout-list", title: "List email layouts" },
+      { slug: "#email-layout-get", title: "Get email layouts" },
+      { slug: "#email-layout-pull", title: "Pull email layouts" },
+      { slug: "#email-layout-push", title: "Push email layouts" },
+      { slug: "#email-layout-validate", title: "Validate email layouts" },
+    ],
+  },
+
+  {
     title: "Translations",
     slug: "/cli",
     pages: [
       { slug: "#translation-list", title: "List translations" },
+      { slug: "#translation-get", title: "Get translations" },
       { slug: "#translation-pull", title: "Pull translations" },
       { slug: "#translation-push", title: "Push translations" },
       { slug: "#translation-validate", title: "Validate translations" },

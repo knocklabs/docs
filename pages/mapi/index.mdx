@@ -1297,6 +1297,337 @@ Note: This immediately enables or disables a workflow in a given environment wit
 </ExampleColumn>
 </Section>
 
+<Section title="Email layouts" slug="email-layouts-overview">
+<ContentColumn>
+
+Email layouts wrap email message templates to share consistent design components between the email notifications that your recipients receive.
+
+You can retrieve, update, and create email layouts as well as listing all in a given [environment](/send-and-manage-data/environments). Email layouts are identified by their unique key.
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint
+    name="email-layouts-list"
+    method="GET"
+    path="/email_layouts"
+    withLink
+  />
+  <Endpoint
+    name="email-layouts-get"
+    method="GET"
+    path="/email_layouts/:key"
+    withLink
+  />
+  <Endpoint
+    name="email-layouts-upsert"
+    method="PUT"
+    path="/email_layouts/:key"
+    withLink
+  />
+  <Endpoint
+    name="email-layouts-validate"
+    method="PUT"
+    path="/email_layouts/:key/validate"
+    withLink
+  />
+</Endpoints>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Email layout definition" slug="email-layouts-object">
+<ContentColumn>
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="key"
+    type="string"
+    description="The unique key for this email layout"
+  />
+  <Attribute
+    name="name"
+    type="string"
+    description="The friendly name of this email layout"
+  />
+  <Attribute
+    name="html_layout"
+    type="string"
+    description="The complete HTML content of the email"
+  />
+  <Attribute
+    name="text_layout"
+    type="string"
+    description="The complete plain text content of the email layout"
+  />
+  <Attribute
+    name="footer_links"
+    type="EmailLayoutFooterLink[]"
+    description="A list of one or more items to show in the footer of the email layout."
+  />
+</Attributes>
+
+### EmailLayoutFooterLink Attributes
+
+<Attributes>
+  <Attribute
+    name="text"
+    type="string"
+    description="The text to display as the link"
+  />
+  <Attribute name="url" type="string" description="The URL to link to" />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Email layout object
+{
+  "key": "default",
+  "name": "Default",
+  "html_content": "<html>{{ content }}</html>",
+  "text_content": "{{ content }}",
+  "footer_links": [{ "text": "My link", "url": "https://example.com" }]
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List all email layouts" slug="email-layouts-list">
+<ContentColumn>
+
+Returns a paginated list of email layouts available in a given environment.
+
+### Endpoint
+
+<Endpoint method="GET" path="/email_layouts" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description="A slug of the environment from which to query."
+  />
+  <Attribute
+    name="hide_uncommitted_changes"
+    type="boolean"
+    description="Whether to hide saved but uncommitted changes. Only relevant for “development” environment."
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after."
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before."
+  />
+  <Attribute
+    name="limit"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50, maximum of 100)."
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of email layouts
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "entries": [
+    {
+      "key": "default",
+      "name": "Default",
+      "html_content": "<html>{{ content }}</html>",
+      "text_content": "{{ content }}",
+      "footer_links": [{ "text": "My link", "url": "https://example.com" }]
+    }
+  ],
+  "page_info": {
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get an email layout" slug="email-layouts-get">
+<ContentColumn>
+
+Retrieve an email layout by its key, in a given environment.
+
+### Endpoint
+
+<Endpoint method="GET" path="/email_layouts/:key" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="key"
+    type="string"
+    description="The key of the email layout."
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description="A slug of the environment from which to query translations."
+  />
+  <Attribute
+    name="hide_uncommitted_changes"
+    type="boolean"
+    description="Whether to hide saved but uncommitted changes. Only relevant for “development” environment."
+  />
+</Attributes>
+
+### Returns
+
+An email layout object
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "key": "default",
+  "name": "Default",
+  "html_content": "<html>{{ content }}</html>",
+  "text_content": "{{ content }}",
+  "footer_links": [{ "text": "My link", "url": "https://example.com" }]
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Upsert an email layout" slug="email-layouts-upsert">
+<ContentColumn>
+
+Updates an email layout, or creates a new one if it does not yet exist.
+
+Note: this endpoint only operates in the “development” environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/email_layouts/:key" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="key" type="string" description="The email layout key." />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="commit"
+    type="boolean"
+    description="Whether to commit the upserted email layout changes in the “development” environment."
+  />
+  <Attribute
+    name="commit_message"
+    type="string"
+    description="An optional message to include in a commit."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="email_layout"
+    type="object"
+    description="An email layout object with a content attribute used to update or create an email layout."
+  />
+</Attributes>
+
+### Returns
+
+An email layout.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "key": "default",
+  "name": "Default",
+  "html_content": "<html>{{ content }}</html>",
+  "text_content": "{{ content }}",
+  "footer_links": [{ "text": "My link", "url": "https://example.com" }]
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Validate an email layout" slug="email-layouts-validate">
+<ContentColumn>
+
+Validates an email layout payload without persisting it.
+
+Note: this endpoint only operates in the “development” environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/email_layouts/:key/validate" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="key" type="string" description="The email layout key." />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="email_layout"
+    type="object"
+    description="An email layout object to validate."
+  />
+</Attributes>
+
+### Returns
+
+An email layout
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "key": "default",
+  "name": "Default",
+  "html_content": "<html>{{ content }}</html>",
+  "text_content": "{{ content }}",
+  "footer_links": [{ "text": "My link", "url": "https://example.com" }]
+}
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="Translations" slug="translations-overview">
 <ContentColumn>
 
