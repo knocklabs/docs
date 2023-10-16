@@ -29,6 +29,18 @@ const sidebarData = [
     ],
   },
   {
+    title: "Email layouts",
+    slug: "/mapi",
+    pages: [
+      { slug: "#email-layouts-overview", title: "Introduction" },
+      { slug: "#email-layouts-object", title: "Email layout definition" },
+      { slug: "#email-layouts-list", title: "List email layouts" },
+      { slug: "#email-layouts-get", title: "Get email layout" },
+      { slug: "#email-layouts-upsert", title: "Upsert email layout" },
+      { slug: "#email-layouts-validate", title: "Validate email layout" },
+    ],
+  },
+  {
     title: "Translations",
     slug: "/mapi",
     pages: [
