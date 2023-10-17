@@ -16,19 +16,21 @@ Commenting is a common use case. If a user leaves ten comments in a page in fift
 
 Here's a step-by-step breakdown of how a batch function works:
 
-- When a given per-recipient workflow run hits a batch step, the batch function will stay open for an interval of time provided by you (the **batch window**).
-- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient**. If a **batch key** is provided in your batch step, the incoming triggers **for that recipient** will be will be grouped into **separate batches based on batch key.**
-- Any aggregated workflow triggers are appended to a group of **batch workflow variables** that you can use to format your notifications. You can read more in the ["using batch variables" section](#using-batch-variables) of this guide.
-- When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch. The data collected in the batch will include the combined workflow trigger data of the 10 first (or last) activities from the batch
-  depending on how the batch step is configured. You will find more information about this in the rest of this page.
+- When a given per-recipient workflow run hits a batch step, the batch function will stay open for an interval of time which you define (the [batch window](#setting-the-batch-window)).
+- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient**. If a [batch key](#selecting-a-batch-key) is provided in your batch step, the incoming triggers **for that recipient** will be grouped into **separate batches based on batch key.**
+- When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch available in the workflow run scope. You can read more in the ["using batch variables" section](#using-batch-variables) of this guide.
 
-In the example below, the batch key is page_id, meaning notifications will be batched according to the page_id on which they are left. Remember that this takes place for each recipient sent to the workflow.
-
-![Using the batch function to batch new comment notifications by page. ](/images/functions/functions_batch_page.png)
-
-<figcaption>
-  Using the batch function to batch new comment notifications by page.
-</figcaption>
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      By default the batch will only return the first (or last) 10 items to be
+      rendered in your template. This limit can be configured on our Enterprise
+      Plan (up to 100 items). The batch can, however, accumulate{" "}
+      <strong>any number of items</strong> over the window that it's open.
+    </>
+  }
+/>
 
 ## Selecting a batch key
 
@@ -47,6 +49,12 @@ A batch function always batches incoming notifications **per recipient**. If you
 />
 
 As an example, in a document editing app where a recipient is receiving notifications about activity across different pages, you can provide a batch key of `page_id` and the user will receive different batch notifications about each page that was included in the batch.
+
+![Using the batch function to batch new comment notifications by page. ](/images/functions/functions_batch_page.png)
+
+<figcaption>
+  Using the batch function to batch new comment notifications by page.
+</figcaption>
 
 Here's a detailed walkthrough of how this example might work in practice:
 
@@ -103,7 +111,7 @@ With the sliding batch window, it's also possible to set a **maximum duration** 
 
 When this option is used, the maximum duration the window should be open will be computed from the **start** of the batch window (e.g. the time the batch opened). If the window is greater than the max duration, then the window will be extended by the maximum duration.
 
-### Setting the maximum batch limit
+## Setting the maximum batch limit
 
 Optionally, you can also set a maximum limit for the number of activities allowed to be accumulated in a given batch, at anywhere between 2 and 1000 activities.
 
@@ -151,7 +159,24 @@ Here's a list of the variables that you can use to work with batch-related state
   {% endfor %}
   ```
 
-- `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the _first_ ten actors added to the batch.
+- `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the _first_ or _last_ ten actors added to the batch.
+
+### Setting the batch render limit (beyond 10)
+
+<Callout
+  emoji="✨"
+  text={
+    <>
+      <span className="font-bold">Enterprise plan feature.</span> The render
+      limit setting for batch activities and actors is only available on our{" "}
+      <a href="https://knock.app/pricing">Enterprise plan.</a>
+    </>
+  }
+/>
+
+By default, up to ten items will be returned in `activities` and `actors` variables inside your templates after the batch window closes.
+
+On the Enterprise plan, you can configure the maximum number of `activities` and `actors` to be rendered in your templates beyond the default limit of 10, to any number between 2 and 100.
 
 ## Using workflow cancellation with batches
 
@@ -177,12 +202,12 @@ You can use the [workflow cancellation API](/send-notifications/canceling-workfl
 
 #### How many items can a batch contain?
 
-A batch can support an unbounded number of items per recipient, although we will only ever return either the first 10 or last 10 items to be rendered in your template.
+A batch can support an unbounded number of items per recipient, although we will only ever return either the first 10 or last 10 items to be rendered in your template. On Enterprise plan, you can configure to include up to 100 via the [render limit setting](/designing-workflows/batch-function#setting-the-batch-render-limit).
 
 #### How many items can I reference in my templates from a batch?
 
-We will always expose at most 10 activities to your template rendered in your batch (available under the `activities` variable). The `total_activities` will always include the total amount of bundled
-activities in the batch.
+We will by default expose at most 10 activities to your template rendered in your batch (available under the `activities` variable). The `total_activities` will always include the total amount of bundled
+activities in the batch. On Enterprise plan, you can configure to include up to 100 via the [render limit setting](/designing-workflows/batch-function#setting-the-batch-render-limit).
 
 #### How can I change the order of the batch to retrieve the last 10 items instead of the first 10 items?
 
