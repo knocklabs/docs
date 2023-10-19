@@ -93,6 +93,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/message-statuses", title: "Message statuses" },
       { slug: "/tracking", title: "Link & open tracking" },
+      { slug: "/testing-workflows", title: "Testing workflows" },
       { slug: "/debugging-workflows", title: "Debugging workflows" },
     ],
   },
