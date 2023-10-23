@@ -115,13 +115,13 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
             </Dialog.Title>
 
             <Dialog.Description>
-              <p className="font-normal text-[14px] text-gray-600 dark:text-white">
+              <p className="font-medium text-[14px] text-gray-600 dark:text-white">
                 What issue are you seeing? If you're reporting a bug, what are
                 the steps you took so we can reproduce the behavior?
               </p>
             </Dialog.Description>
 
-            <div className="mt-5 ">
+            <div className="mt-5">
               <form onSubmit={() => null}>
                 <div className="h-[200px]">
                   <textarea
