@@ -31,16 +31,20 @@ export default function Home() {
         </p>
 
         <div className="flex items-center space-x-2">
-          <Link href="/getting-started/what-is-knock">
-            <a className="bg-brand hover:bg-brand-dark text-white py-2 px-4 rounded-md font-semibold">
+          <Link
+            href="/getting-started/what-is-knock"
+            className="bg-brand hover:bg-brand-dark text-white py-2 px-4 rounded-md font-semibold">
+            
               Get started
-            </a>
+            
           </Link>
 
-          <Link href="/reference">
-            <a className="text-gray-600 dark:text-gray-300 py-2 px-3 rounded-md font-medium">
+          <Link
+            href="/reference"
+            className="text-gray-600 dark:text-gray-300 py-2 px-3 rounded-md font-medium">
+            
               API reference
-            </a>
+            
           </Link>
         </div>
       </header>
@@ -53,10 +57,12 @@ export default function Home() {
           driving customer satisfaction and retention.
         </p>
 
-        <Link href="/getting-started/what-is-knock">
-          <a className="text-brand hover:text-brand-dark font-medium text-sm">
+        <Link
+          href="/getting-started/what-is-knock"
+          className="text-brand hover:text-brand-dark font-medium text-sm">
+          
             Learn more →
-          </a>
+          
         </Link>
       </section>
 
@@ -82,10 +88,12 @@ export default function Home() {
                     className="text-sm text-gray-500 dark:text-gray-300"
                     key={p.slug}
                   >
-                    <Link href={s.slug + p.slug}>
-                      <a className="hover:text-gray-800 dark:hover:text-gray-100">
-                        {p.title}
-                      </a>
+                    <Link
+                      href={s.slug + p.slug}
+                      className="hover:text-gray-800 dark:hover:text-gray-100">
+
+                      {p.title}
+
                     </Link>
                   </li>
                 ))}

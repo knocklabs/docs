@@ -66,15 +66,15 @@ const HeaderList: React.FC<{ headers: IHeader[]; nesting: number }> = ({
     {headers.map((h, i) => (
       <React.Fragment key={`${h.id}-${i}`}>
         <li key={h.id} className={cn({ "ml-3": nesting === 1 })}>
-          <Link href={`#${h.id}`}>
-            <a
-              className={cn({
-                "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100":
-                  true,
-              })}
-            >
-              {h.title}
-            </a>
+          <Link
+            href={`#${h.id}`}
+            className={cn({
+              "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100":
+                true,
+            })}>
+
+            {h.title}
+
           </Link>
         </li>
 

@@ -68,10 +68,13 @@ export const CliReferenceLayout = ({ frontMatter, children }) => (
     pageType="CLI"
     sidebar={
       <Sidebar content={sidebarData}>
-        <Link href="/" passHref>
-          <a className="text-sm block font-medium text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100">
+        <Link
+          href="/"
+          passHref
+          className="text-sm block font-medium text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100">
+          
             &#8592; Back to docs
-          </a>
+          
         </Link>
       </Sidebar>
     }

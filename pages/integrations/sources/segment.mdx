@@ -6,9 +6,8 @@ layout: integrations
 ---
 
 import Callout from "../../../components/Callout";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import eventPayload from "../../../data/code/sources/eventPayload";
-
 
 This guide covers using Segment as a [Knock source](/integrations/sources/overview) to bring track and identify event data from Segment into Knock to power your notifications.
 
@@ -28,8 +27,8 @@ You can start routing your Segment events to Knock by creating a source of type 
     <>
       <span className="font-bold">Use webhooks to connect to Knock.</span> Knock
       does not have a first-party integration with Segment, so you will not find
-      us in Segment's destination catalog. Instead, you'll configure the connection
-      to Knock via a webhook destination as described below.
+      us in Segment's destination catalog. Instead, you'll configure the
+      connection to Knock via a webhook destination as described below.
     </>
   }
 />
@@ -48,6 +47,7 @@ Click "New Mapping" and under Actions, click "Send".
 
 You'll now see a form for configuring this webhook.
 ![Select event conditions.](/images/webhooks-select-events.png)
+
 1. **Select events to map and send:** If you'd like all events to be sent to Knock, you can add the condition "Event type is Track" and then another condition for "Event type is Identify". Make sure you change the top operator to "any" instead of "all".
 2. **Add test event:** here you can load a test event or load a sample event; either way make sure it matches your trigger conditions. (Segment will warn you if it doesn't.)
 3. **Select mappings:** all you need to do here is paste in the URL you copied from the Knock dashboard for the desired source environment. It will give you a dropdown list of "Event variables" and "Functions" but you don't need to select anything here, just paste the URL and move to the last step.
@@ -119,21 +119,27 @@ To enable handling of identify events, open the settings for the source in the e
   emoji="🚨"
   text={
     <>
-      <span className="font-bold">
-        Remember:
-      </span>{" "}
-      if you send Knock an event that includes a recipient that has not yet been identified in Knock, our system will not generate a workflow run for that user. <br/><br/>
-      For use cases such as new signup events, where events will often reach Knock before identify calls, consider <a href="#inline-identify-users-in-a-segment-event">inline identification</a> of users in your Segment events.
+      <span className="font-bold">Remember:</span> if you send Knock an event
+      that includes a recipient that has not yet been identified in Knock, our
+      system will not generate a workflow run for that user. <br />
+      <br />
+      For use cases such as new signup events, where events will often reach
+      Knock before identify calls, consider{" "}
+      <a href="#inline-identify-users-in-a-segment-event">
+        inline identification
+      </a>{" "}
+      of users in your Segment events.
     </>
   }
 />
 
 ## Inline identify users in a Segment event
+
 In cases where you send a Segment event to Knock with recipients that may not yet have been identified into our system, it's good practice to inline identify your users. By inline identifying your users within your Segment events, you ensure that those users are identified in Knock when your event triggers a workflow.
 
 As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified.
 
-``` A Segment event without inline identify
+```A Segment event without inline identify
 {
   "event": "user-signed-up",
   "email": "sam@example.com",
@@ -150,7 +156,7 @@ As an example, take the user-signed-up event below. We're currently mapping the 
 
 To ensure that the user is notified, we'd change the id reference in `recipients` to a complete user object, as in the example below. This way Knock has all the information it needs to identify the user during workflow runtime.
 
-``` A Segment event with inline identify
+```A Segment event with inline identify
 {
   "event": "user-signed-up",
   "email": "sam@example.com",

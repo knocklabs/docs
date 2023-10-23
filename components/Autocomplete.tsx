@@ -194,12 +194,12 @@ const Autocomplete = () => {
                         }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
                       >
                         <Link href={`/${item.path}`} passHref>
-                          <a href="replace">
-                            <Highlight hit={item} attribute="title" />
-                            <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
-                              {(item as ResultItem).section}
-                            </span>
-                          </a>
+
+                          <Highlight hit={item} attribute="title" />
+                          <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
+                            {(item as ResultItem).section}
+                          </span>
+
                         </Link>
                       </li>
                     ))}
