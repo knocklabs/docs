@@ -6,7 +6,6 @@ import SupportModal from "./SupportModal";
 
 const HelpMenu = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const contactSalesPath = "https://knock.app/contact-sales";
 
   return (
     <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -28,7 +27,7 @@ const HelpMenu = () => {
         >
           <div className="flex flex-col border-b-gray-300 dark:border-b-gray-700 border-b py-1">
             <SupportModal />
-            <Link href={contactSalesPath}>
+            <Link href="https://knock.app/contact-sales">
               {/* eslint-disable */}
               <a
                 target="_blank"
