@@ -101,7 +101,7 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
           <Dialog.Content className="py-4 px-6 text-gray-900 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm">
             <Dialog.Title>
               <div className="flex flex-column items-center justify-between">
-                <h2 className="text-gray-600 font-medium text-[16px] dark:text-white">
+                <h2 className="text-gray-600 font-semibold text-[16px] dark:text-white">
                   Contact support
                 </h2>
                 <button

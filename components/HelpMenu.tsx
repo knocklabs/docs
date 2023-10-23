@@ -31,7 +31,6 @@ const HelpMenu = () => {
               {/* eslint-disable */}
               <a
                 target="_blank"
-                onClick={() => setIsOpen(false)}
                 className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 text-[14px] text-gray-700 dark:text-white"
               >
                 Contact sales
