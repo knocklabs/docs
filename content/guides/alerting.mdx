@@ -1,11 +1,9 @@
 ---
-title: Powering cross-channel configurable alerts with Knock 
+title: Powering cross-channel configurable alerts with Knock
 description: Learn how to power cross-channel, configurable alerts using Knock.
 tags: ["alert", "alerts", "alerting"]
 section: Guides
 ---
-
-import Callout from "../../components/Callout";
 
 Powering customer-defined, cross-channel alerting is a common notifications use case. In this guide, we’ll lay out the different options for powering alerting using Knock and the trade-offs of each.
 
@@ -24,9 +22,9 @@ Here's an example of an alert: creating a monitor for an ALB metric in Datadog:
 
 ## Modeling a Knock workflow for alerts
 
-A Knock workflow encapsulates a single *type of notification* in your system and collects together the cross-channel orchestration logic and associated behavior for how a notification should be sent to a recipient.
+A Knock workflow encapsulates a single _type of notification_ in your system and collects together the cross-channel orchestration logic and associated behavior for how a notification should be sent to a recipient.
 
-For our alert workflow, we find it’s best to have a single workflow that has all possible channels that an alert *could* be sent to. We can then use trigger conditions per-channel step to have a given alert's configuration control whether a particular channel should be used for a given recipient.
+For our alert workflow, we find it’s best to have a single workflow that has all possible channels that an alert _could_ be sent to. We can then use trigger conditions per-channel step to have a given alert's configuration control whether a particular channel should be used for a given recipient.
 
 Here’s an example workflow:
 
@@ -68,7 +66,7 @@ When our alert is triggered, all we need to do now is trigger our alert workflow
 ```javascript Trigger workflow with alert recipient
 await knock.workflows.trigger("alert", {
   recipients: [{ collection: "alerts", id: alertId }],
-  references: { alert: { collection: "alerts", id: alertId } }
+  references: { alert: { collection: "alerts", id: alertId } },
 });
 ```
 
@@ -78,7 +76,9 @@ Under the hood, Knock fanouts to all subscribers on the alert object on your beh
   emoji="🛣"
   text={
     <>
-      <span className="font-bold">Note:</span> The `references` feature in the workflow trigger is currently in development. If you'd like to try it please reach out at support@knock.app.
+      <span className="font-bold">Note:</span> The `references` feature in the
+      workflow trigger is currently in development. If you'd like to try it
+      please reach out at support@knock.app.
     </>
   }
 />
@@ -93,8 +93,8 @@ Under the hood, Knock fanouts to all subscribers on the alert object on your beh
 
 - More bookkeeping; have to update Knock when a model changes or a user is added or removed from an alert
 
-
 ### Option 2: Manage alerting objects and recipient lists in your model
+
 The other way to power alerting using Knock is to keep your alerts data model (along with their subscribers) within your system and trigger workflows in Knock for those objects.
 
 ```javascript Trigger an alert without using Knock objects
@@ -102,7 +102,7 @@ await knock.workflows.trigger("alert", {
   data: {
     alert: { id: alert.id, channels: alert.channels },
   },
-  recipients: alert.recipients.map(r => r.id),
+  recipients: alert.recipients.map((r) => r.id),
 });
 ```
 
@@ -121,13 +121,13 @@ In the example above, we’re sending the `alert` as a property in the data payl
 
 ## User preferences in an alerting model
 
-One interesting facet of our alerts workflow as defined is how *per-recipient* preferences work in conjunction with an alerting model.
+One interesting facet of our alerts workflow as defined is how _per-recipient_ preferences work in conjunction with an alerting model.
 
 We see these as two distinct problems:
 
-- Which channels is the alert *configured* to send on (e.g. which channels should they alert send if everything was on).
+- Which channels is the alert _configured_ to send on (e.g. which channels should they alert send if everything was on).
 - Which channels should the recipient receive the alert notifications on, given the preferences they've configured for themselves across your application.
 
 User preferences solve the latter problem, while in the design laid out above, the channels and trigger conditions on each channel step handle alert-channel configuration.
 
-Therefore, it’s entirely possible to define an alerting system using Knock where a recipient is subscribed to an alert that sends to in-app and escalates to email, but the recipient may have *opted out of receiving all emails* and so the alert is never sent to the recipient’s email.
+Therefore, it’s entirely possible to define an alerting system using Knock where a recipient is subscribed to an alert that sends to in-app and escalates to email, but the recipient may have _opted out of receiving all emails_ and so the alert is never sent to the recipient’s email.

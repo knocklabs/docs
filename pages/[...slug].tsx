@@ -17,9 +17,18 @@ import { Attributes, Attribute } from "../components/Attributes";
 import Table from "../components/Table";
 import DataSyncTable from "../components/DataSyncTable";
 import CopyableText from "../components/CopyableText";
+import { Endpoints, Endpoint } from "../components/Endpoints";
 import dashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import remarkGfm from "remark-gfm";
+
+import {
+  Section,
+  ContentColumn,
+  ErrorExample,
+  ExampleColumn,
+} from "../components/ApiSections";
+import RateLimit from "../components/RateLimit";
 
 const components = {
   pre: CodeBlock,
@@ -35,14 +44,19 @@ const components = {
   Table,
   DataSyncTable,
   CopyableText,
+  RateLimit,
+  Section,
+  ContentColumn,
+  ErrorExample,
+  ExampleColumn,
+  Endpoints,
+  Endpoint,
 };
 
 /**
  * TODO: Update Algolia index creation
  * TODO: Fix hydration errors (IOSunny/Moon, and autocomplete components)
- * TODO: Get hot reloading working by watching content dir
  * TODO: Fix up eslint rules
- * TODO: chore: Remove imports from MDX files
  */
 
 export default function TestPage({ source }) {
