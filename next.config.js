@@ -1,23 +1,28 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable global-require */
-const withPlugins = require("next-compose-plugins");
+// const withPlugins = require("next-compose-plugins");
 // const algoliasearch = require("algoliasearch");
-const withMDX = require("@next/mdx")();
 
-// const autoLinkSettings = {
-//   behavior: "prepend",
-//   content: { type: "element", tagName: "span" },
-// };
+const autoLinkSettings = {
+  behavior: "prepend",
+  content: { type: "element", tagName: "span" },
+};
 
-// function makeIdFromPath(resourcePath) {
-//   return resourcePath
-//     .replace(".mdx", "")
-//     .replace(".md", "")
-//     .replace("/index", "");
-// }
+// eslint-disable-next-line import/order
+const withMDX = require("@next/mdx")({
+  options: {
+    remarkPlugins: [
+      require("remark-slug"),
+      [require("remark-autolink-headings"), autoLinkSettings],
+    ],
+    rehypePlugins: [],
+    providerImportSource: "@mdx-js/react",
+  },
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   async redirects() {
     return [
       {
@@ -264,114 +269,116 @@ const nextConfig = {
   },
 };
 
-module.exports = withPlugins(
-  [
-    withMDX(),
-    // withMdxEnhanced({
-    //   layoutPath: "layouts/mdxLayout",
-    //   defaultLayout: true,
-    //   fileExtensions: ["mdx", "md"],
-    //   remarkPlugins: [
-    //     require("remark-slug"),
-    //     [require("remark-autolink-headings"), autoLinkSettings],
-    //   ],
-    //   rehypePlugins: [],
-    //   onContent: async (c) => {
-    //     const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID;
-    //     const algoliaAdminApiKey = process.env.ALGOLIA_ADMIN_API_KEY;
-    //     const algoliaIndexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME;
+module.exports = withMDX(nextConfig);
 
-    //     if (algoliaAppId && algoliaAdminApiKey && algoliaIndexName) {
-    //       const client = algoliasearch(algoliaAppId, algoliaAdminApiKey);
-    //       const index = client.initIndex(algoliaIndexName);
+// exports = withPlugins(
+//   [
+//     withMDX(),
+//     // withMdxEnhanced({
+//     //   layoutPath: "layouts/mdxLayout",
+//     //   defaultLayout: true,
+//     //   fileExtensions: ["mdx", "md"],
+//     //   remarkPlugins: [
+//     //     require("remark-slug"),
+//     //     [require("remark-autolink-headings"), autoLinkSettings],
+//     //   ],
+//     //   rehypePlugins: [],
+//     //   onContent: async (c) => {
+//     //     const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID;
+//     //     const algoliaAdminApiKey = process.env.ALGOLIA_ADMIN_API_KEY;
+//     //     const algoliaIndexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME;
 
-    //       if (c.id === "reference") {
-    //         const comp = mdx.createCompiler();
-    //         const compiled = comp.parse(c.content);
+//     //     if (algoliaAppId && algoliaAdminApiKey && algoliaIndexName) {
+//     //       const client = algoliasearch(algoliaAppId, algoliaAdminApiKey);
+//     //       const index = client.initIndex(algoliaIndexName);
 
-    //         // Parse all sections from API Reference
-    //         const sections = compiled.children.filter(
-    //           (ch) =>
-    //             ch.type === "jsx" &&
-    //             ch.value.includes("Section") &&
-    //             !ch.value.includes("/Section"),
-    //         );
+//     //       if (c.id === "reference") {
+//     //         const comp = mdx.createCompiler();
+//     //         const compiled = comp.parse(c.content);
 
-    //         const referenceObjects = sections.map((s) => {
-    //           // The value of each parsed element here will look something like:
-    //           // "<Section title=\"Bulk delete objects in a collection\" slug=\"bulk-delete-objects\">"
-    //           // The following regexes parse the title and the slug from the section
+//     //         // Parse all sections from API Reference
+//     //         const sections = compiled.children.filter(
+//     //           (ch) =>
+//     //             ch.type === "jsx" &&
+//     //             ch.value.includes("Section") &&
+//     //             !ch.value.includes("/Section"),
+//     //         );
 
-    //           const { title } = s.value.match(
-    //             /title=['"](?<title>.*?)['"]/,
-    //           ).groups;
-    //           const { slug } = s.value.match(
-    //             /slug=['"](?<slug>.*?)['"]/,
-    //           ).groups;
+//     //         const referenceObjects = sections.map((s) => {
+//     //           // The value of each parsed element here will look something like:
+//     //           // "<Section title=\"Bulk delete objects in a collection\" slug=\"bulk-delete-objects\">"
+//     //           // The following regexes parse the title and the slug from the section
 
-    //           return {
-    //             objectID: `reference#${slug}`,
-    //             path: `reference#${slug}`,
-    //             title,
-    //             section: "API reference",
-    //             tags: [],
-    //           };
-    //         });
+//     //           const { title } = s.value.match(
+//     //             /title=['"](?<title>.*?)['"]/,
+//     //           ).groups;
+//     //           const { slug } = s.value.match(
+//     //             /slug=['"](?<slug>.*?)['"]/,
+//     //           ).groups;
 
-    //         try {
-    //           // we send all API reference entries in bulk to reduce calls
-    //           await index.saveObjects(referenceObjects);
-    //         } catch (e) {
-    //           /* eslint-disable no-console */
-    //           console.error(e);
-    //           /* eslint-enable no-console */
-    //         }
-    //       } else {
-    //         try {
-    //           // Notes:
-    //           // Algolia recommends saving objects in batches because of efficiency.
-    //           // Our markdown processor doesn't provide a callback to subscribe to that
-    //           // gets called after finishing with all elements.
-    //           //
-    //           // Given we only have ~40 items to be indexed right now, we are just saving
-    //           // entries one by one.
-    //           await index.saveObject({
-    //             // The path to the page will be the identifier in Algolia.
-    //             objectID: c.id,
-    //             path: c.id,
-    //             title: c.title,
-    //             section: c.section,
-    //             // Once we add tags are added to pages, Algolia records
-    //             // will be updated with them, so we can enhance the search experience
-    //             tags: c.tags || [],
-    //           });
-    //         } catch (e) {
-    //           /* eslint-disable no-console */
-    //           console.error(e);
-    //           /* eslint-enable no-console */
-    //         }
-    //       }
-    //     } else {
-    //       /* eslint-disable no-console */
-    //       console.info(
-    //         "Algolia configuration variables not present. Skipping indexing.",
-    //       );
-    //       /* eslint-enable no-console */
-    //     }
+//     //           return {
+//     //             objectID: `reference#${slug}`,
+//     //             path: `reference#${slug}`,
+//     //             title,
+//     //             section: "API reference",
+//     //             tags: [],
+//     //           };
+//     //         });
 
-    //     return c;
-    //   },
-    //   extendFrontMatter: {
-    //     process: (mdxContent, frontMatter) => {
-    //       const id = makeIdFromPath(frontMatter.__resourcePath);
+//     //         try {
+//     //           // we send all API reference entries in bulk to reduce calls
+//     //           await index.saveObjects(referenceObjects);
+//     //         } catch (e) {
+//     //           /* eslint-disable no-console */
+//     //           console.error(e);
+//     //           /* eslint-enable no-console */
+//     //         }
+//     //       } else {
+//     //         try {
+//     //           // Notes:
+//     //           // Algolia recommends saving objects in batches because of efficiency.
+//     //           // Our markdown processor doesn't provide a callback to subscribe to that
+//     //           // gets called after finishing with all elements.
+//     //           //
+//     //           // Given we only have ~40 items to be indexed right now, we are just saving
+//     //           // entries one by one.
+//     //           await index.saveObject({
+//     //             // The path to the page will be the identifier in Algolia.
+//     //             objectID: c.id,
+//     //             path: c.id,
+//     //             title: c.title,
+//     //             section: c.section,
+//     //             // Once we add tags are added to pages, Algolia records
+//     //             // will be updated with them, so we can enhance the search experience
+//     //             tags: c.tags || [],
+//     //           });
+//     //         } catch (e) {
+//     //           /* eslint-disable no-console */
+//     //           console.error(e);
+//     //           /* eslint-enable no-console */
+//     //         }
+//     //       }
+//     //     } else {
+//     //       /* eslint-disable no-console */
+//     //       console.info(
+//     //         "Algolia configuration variables not present. Skipping indexing.",
+//     //       );
+//     //       /* eslint-enable no-console */
+//     //     }
 
-    //       return {
-    //         id,
-    //         wordCount: mdxContent.split(/\s+/g).length,
-    //       };
-    //     },
-    //   },
-    // })(),
-  ],
-  nextConfig,
-);
+//     //     return c;
+//     //   },
+//     //   extendFrontMatter: {
+//     //     process: (mdxContent, frontMatter) => {
+//     //       const id = makeIdFromPath(frontMatter.__resourcePath);
+
+//     //       return {
+//     //         id,
+//     //         wordCount: mdxContent.split(/\s+/g).length,
+//     //       };
+//     //     },
+//     //   },
+//     // })(),
+//   ],
+//   nextConfig,
+// );
