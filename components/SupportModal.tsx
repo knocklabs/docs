@@ -84,13 +84,13 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
     <div>
       <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
         <Dialog.Trigger asChild>
-          <div className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 text-[14px] text-gray-700 dark:text-white w-full">
-            <button
+          <div className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 w-full">
+            <a
               type="button"
-              className="flex text-gray-500 dark:text-gray-300 text-sm w-full"
+              className="text-[14px] text-gray-700 dark:text-white"
             >
               <span>Support</span>
-            </button>
+            </a>
           </div>
         </Dialog.Trigger>
 
