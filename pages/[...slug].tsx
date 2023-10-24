@@ -18,7 +18,7 @@ import Table from "../components/Table";
 import DataSyncTable from "../components/DataSyncTable";
 import CopyableText from "../components/CopyableText";
 import dashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
-// import remarkAutoLinkHeadings from "remark-autolink-headings";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
 const components = {
   pre: CodeBlock,
@@ -39,7 +39,6 @@ const components = {
 /**
  * TODO: Handle index files
  * TODO: Fix tables (e.g. template-editor/variables)
- * TODO: Fix remark auto link headings
  * TODO: Remove imports from MDX files
  * TODO: Update Algolia index creation
  * TODO: Fix hydration errors (IOSunny/Moon, and autocomplete components)
@@ -85,23 +84,17 @@ export async function getStaticProps({ params: { slug } }) {
     throw new Error("Unable to read page content.");
   }
 
-  const autoLinkSettings = {
-    behavior: "prepend",
-    content: { type: "element", tagName: "span" },
-  };
-
   // Serialize file contents into mdx, and parse frontmatter
-  // [remarkAutoLinkHeadings(autoLinkSettings)]
   const mdxSource = await serialize(source, {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkSlug],
-      rehypePlugins: [],
+      rehypePlugins: [rehypeAutolinkHeadings],
     },
   });
+
   // Extend frontmatter with id and reading count
-  mdxSource.frontmatter.id = makeIdFromPath(slug.join(sep));
-  // mdxSource.frontmatter.wordCount = source.split(/\s+/g).length;
+  mdxSource.frontmatter.id = makeIdFromPath(slug.join(sep)); // TODO: Do we need this??
 
   return { props: { source: mdxSource } };
 }
