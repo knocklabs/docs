@@ -3,23 +3,6 @@
 // const withPlugins = require("next-compose-plugins");
 // const algoliasearch = require("algoliasearch");
 
-const autoLinkSettings = {
-  behavior: "prepend",
-  content: { type: "element", tagName: "span" },
-};
-
-// eslint-disable-next-line import/order
-const withMDX = require("@next/mdx")({
-  options: {
-    remarkPlugins: [
-      require("remark-slug"),
-      [require("remark-autolink-headings"), autoLinkSettings],
-    ],
-    rehypePlugins: [],
-    providerImportSource: "@mdx-js/react",
-  },
-});
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
@@ -269,11 +252,8 @@ const nextConfig = {
   },
 };
 
-module.exports = withMDX(nextConfig);
+module.exports = nextConfig;
 
-// exports = withPlugins(
-//   [
-//     withMDX(),
 //     // withMdxEnhanced({
 //     //   layoutPath: "layouts/mdxLayout",
 //     //   defaultLayout: true,

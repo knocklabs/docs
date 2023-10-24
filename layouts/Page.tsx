@@ -72,8 +72,8 @@ export const Page: React.FC<Props> = ({
               className="p-2 -mr-2 text-gray-500 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
-              {/* {theme === "dark" && <IoMoon />}
-              {theme === "light" && <IoSunny />} */}
+              {/* {theme === "dark" && <IoMoon />} */}
+              {/* {theme === "light" && <IoSunny />} */}
             </button>
 
             <ApiSdkMenu />

@@ -26,8 +26,6 @@ Here's a visual of how these concepts work together:
 And here's a brief description of how each concept functions within Knock.
 
 - [Users.](/reference#users) A User represents an individual that will receive messages. You'll use the User object to store important attributes about your recipients (e.g. name, email) to be used in personalizing and delivering the messages you send with Knock.
-  <!-- - [Lists.](/send-and-manage-data/lists) A List groups users together to represent sets of individuals who need to be notified as a group. -->
-  <!-- Lists typically map to your relationship hierarchies such as groups, teams, project members, or resource followers. -->
 - [Preferences.](/reference#preferences) A Preference indicates a user's willingness to receive a particular kind of notification. Preferences belong to a User in Knock.
 - [Channels.](/send-notifications/delivering-notifications) A Channel is a destination for your messages. It can be an out-of-app channel such as a SendGrid email integration, or an in-app channel such as the [Knock notification feed](/notification-feeds/overview). Channels are configured in the Knock dashboard as part of the [setup process](/getting-started/quick-start).
 - [Workflows.](/reference#workflows) A Workflow orchestrates the delivery of messages to your end users. When you configure a workflow you'll determine which channels its messages should route to, what those messages should look like on each channel, as well as any functions—batch, throttle, digest—you want applied to the messages prior to delivery. A workflow is triggered by a `trigger` call, usually when something occurs in your product that you want your users to know about (e.g. a new comment.)

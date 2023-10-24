@@ -43,8 +43,6 @@ const DocsLayout = ({ frontMatter, children }) => {
     };
   }, [paths, pathname]);
 
-  console.log("Rendering docs layout");
-
   return (
     <>
       <Meta
