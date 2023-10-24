@@ -37,13 +37,12 @@ const components = {
 };
 
 /**
- * TODO: Handle index files
  * TODO: Fix tables (e.g. template-editor/variables)
- * TODO: Remove imports from MDX files
  * TODO: Update Algolia index creation
  * TODO: Fix hydration errors (IOSunny/Moon, and autocomplete components)
  * TODO: Get hot reloading working by watching content dir
  * TODO: Fix up eslint rules
+ * TODO: chore: Remove imports from MDX files
  */
 
 export default function TestPage({ source }) {
@@ -110,8 +109,6 @@ export const getStaticPaths = async () => {
       .replace(CONTENT_DIR, "")
       .replace(/\.mdx?$/, "")
       .split(sep);
-
-    // TODO: Handle index files??
 
     return {
       params: {
