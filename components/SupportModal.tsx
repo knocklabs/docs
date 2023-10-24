@@ -84,14 +84,14 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
     <div>
       <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
         <Dialog.Trigger asChild>
-          {/* eslint-disable */}
-          <a
-            href="#"
-            className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 text-[14px] text-gray-700 dark:text-white w-full"
-          >
-            <span>Support</span>
-          </a>
-          {/* eslint-enable */}
+          <div className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 text-[14px] text-gray-700 dark:text-white w-full">
+            <button
+              type="button"
+              className="flex text-gray-500 dark:text-gray-300 text-sm w-full"
+            >
+              <span>Support</span>
+            </button>
+          </div>
         </Dialog.Trigger>
 
         <Dialog.Portal>
