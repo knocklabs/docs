@@ -1,4 +1,3 @@
-import { div } from "";
 import Table from "./Table";
 
 const DataSyncTable = () => (
@@ -54,10 +53,11 @@ const DataSyncTable = () => (
       [
         "recipient_type",
         "string",
-        <div>
+        <div key="recipient_type_body">
           The{" "}
           <a
             target="_blank"
+            rel="noreferrer"
             href="https://docs.knock.app/send-and-manage-data/recipients"
           >
             type of recipient for the message
@@ -69,7 +69,7 @@ const DataSyncTable = () => (
       [
         "exec_mode",
         "string",
-        <div>
+        <div key="exec_mode_body">
           The execution mode of the workflow. Possible values are:
           <ul>
             <li>
@@ -93,10 +93,11 @@ const DataSyncTable = () => (
       [
         "message_status",
         "string",
-        <div>
+        <div key="message_status_body">
           The latest{" "}
           <a
             target="_blank"
+            rel="noreferrer"
             href="https://docs.knock.app/send-notifications/message-statuses#delivery-status"
           >
             delivery status of a message

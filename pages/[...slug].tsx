@@ -32,6 +32,7 @@ import RateLimit from "../components/RateLimit";
 
 const components = {
   pre: CodeBlock,
+  // eslint-disable-next-line react/display-name
   h2: (props) => <SectionHeading tag="h2" {...props} />,
   h3: (props) => <SectionHeading tag="h3" {...props} />,
   h4: (props) => <SectionHeading tag="h4" {...props} />,
@@ -54,9 +55,9 @@ const components = {
 };
 
 /**
+ * TODO: Fix build errors
  * TODO: Update Algolia index creation
  * TODO: Fix hydration errors (IOSunny/Moon, and autocomplete components)
- * TODO: Fix up eslint rules
  */
 
 export default function TestPage({ source }) {
