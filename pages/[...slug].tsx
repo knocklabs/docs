@@ -19,6 +19,7 @@ import DataSyncTable from "../components/DataSyncTable";
 import CopyableText from "../components/CopyableText";
 import dashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import remarkGfm from "remark-gfm";
 
 const components = {
   pre: CodeBlock,
@@ -37,7 +38,6 @@ const components = {
 };
 
 /**
- * TODO: Fix tables (e.g. template-editor/variables)
  * TODO: Update Algolia index creation
  * TODO: Fix hydration errors (IOSunny/Moon, and autocomplete components)
  * TODO: Get hot reloading working by watching content dir
@@ -87,7 +87,7 @@ export async function getStaticProps({ params: { slug } }) {
   const mdxSource = await serialize(source, {
     parseFrontmatter: true,
     mdxOptions: {
-      remarkPlugins: [remarkSlug],
+      remarkPlugins: [remarkSlug, remarkGfm],
       rehypePlugins: [rehypeAutolinkHeadings],
     },
   });
