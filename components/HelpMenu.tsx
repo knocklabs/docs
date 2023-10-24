@@ -1,5 +1,4 @@
 import * as Popover from "@radix-ui/react-popover";
-import Link from "next/dist/client/link";
 import { useState } from "react";
 import { IoChevronDown } from "react-icons/io5";
 import SupportModal from "./SupportModal";
@@ -27,16 +26,14 @@ const HelpMenu = () => {
         >
           <div className="flex flex-col border-b-gray-300 dark:border-b-gray-700 border-b py-1">
             <SupportModal />
-            <Link href="https://knock.app/contact-sales">
-              {/* eslint-disable */}
-              <a
-                target="_blank"
-                className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 text-[14px] text-gray-700 dark:text-white"
-              >
-                Contact sales
-              </a>
-              {/* eslint-enable */}
-            </Link>
+            <a
+              href="https://knock.app/contact-sales"
+              target="_blank"
+              className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 text-[14px] text-gray-700 dark:text-white"
+              rel="noreferrer"
+            >
+              Contact sales
+            </a>
           </div>
         </Popover.Content>
       </Popover.Portal>

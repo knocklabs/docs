@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { IoChevronDown, IoOpenOutline } from "react-icons/io5";
-import Link from "next/dist/client/link";
 import { useRouter } from "next/router";
 
 const PageLinks = {
@@ -59,33 +58,28 @@ const ApiSdkMenu = () => {
           <div className="flex flex-col border-b-gray-300 dark:border-b-gray-700 border-b py-1">
             {Object.keys(PageLinks).map((linkName) =>
               currentPage !== linkName ? (
-                <Link href={PageLinks[linkName]} passHref>
-                  {/* eslint-disable */}
-                  <a
-                    onClick={() => setIsOpen(false)}
-                    className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 text-[14px] text-gray-700 dark:text-white"
-                  >
-                    {linkName}
-                  </a>
-                  {/* eslint-enable */}
-                </Link>
+                <a
+                  href={PageLinks[linkName]}
+                  onClick={() => setIsOpen(false)}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 text-[14px] text-gray-700 dark:text-white"
+                >
+                  {linkName}
+                </a>
               ) : null,
             )}
           </div>
           <div className="flex flex-col py-1">
             {Object.keys(SdkLinks).map((sdkName) => (
-              <Link href={SdkLinks[sdkName]} passHref>
-                {/* eslint-disable */}
-                <a
-                  target="_blank"
-                  onClick={() => setIsOpen(false)}
-                  className="hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center px-2 py-1 text-[14px] text-gray-700 dark:text-white"
-                >
-                  <span className="mr-1">{sdkName}</span>
-                  <IoOpenOutline />
-                </a>
-                {/* eslint-enable */}
-              </Link>
+              <a
+                href={SdkLinks[sdkName]}
+                target="_blank"
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center px-2 py-1 text-[14px] text-gray-700 dark:text-white"
+                rel="noreferrer"
+              >
+                <span className="mr-1">{sdkName}</span>
+                <IoOpenOutline />
+              </a>
             ))}
           </div>
         </Popover.Content>

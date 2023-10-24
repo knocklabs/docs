@@ -3,7 +3,6 @@ import * as RadioGroup from "@radix-ui/react-radio-group";
 import isHotkey from "is-hotkey";
 import * as Dialog from "@radix-ui/react-dialog";
 import { IoCloseOutline } from "react-icons/io5";
-import Link from "next/link";
 
 interface Account {
   id: string;
@@ -160,17 +159,15 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
                     <p className="text-gray-600 font-normal text-[12px] dark:text-white">
                       {" "}
                       You can also email us at{" "}
-                      <Link href="mailto:support@knock.app">
-                        {/* eslint-disable */}
-                        <a
-                          target="_blank"
-                          onClick={() => setIsOpen(false)}
-                          className="text-[12px] text-gray-700 dark:text-white hover:underline"
-                        >
-                          support@knock.app.
-                        </a>
-                        {/* eslint-enable */}
-                      </Link>
+                      <a
+                        href="mailto:support@knock.app"
+                        target="_blank"
+                        onClick={() => setIsOpen(false)}
+                        className="text-[12px] text-gray-700 dark:text-white hover:underline"
+                        rel="noreferrer"
+                      >
+                        support@knock.app.
+                      </a>
                     </p>
                     <button
                       type="submit"
