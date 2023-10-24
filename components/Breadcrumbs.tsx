@@ -5,10 +5,9 @@ const BreadcrumbItem = ({ title, path }) => (
   <li className="breadcrumb-item">
     <Link
       href={path}
-      className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
-
+      className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+    >
       {title}
-
     </Link>
   </li>
 );

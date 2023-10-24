@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import React, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
 import { useEffect, useMemo } from "react";
 import {

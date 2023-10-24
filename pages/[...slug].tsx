@@ -11,6 +11,13 @@ import Callout from "../components/Callout";
 import MultiLangCodeBlock from "../components/MultiLangCodeBlock";
 import remarkSlug from "remark-slug";
 import SectionHeading from "../components/SectionHeading";
+import eventPayload from "../data/code/sources/eventPayload";
+import LocaleTable from "../components/LocaleTable";
+import { Attributes, Attribute } from "../components/Attributes";
+import Table from "../components/Table";
+import DataSyncTable from "../components/DataSyncTable";
+import CopyableText from "../components/CopyableText";
+import dashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
 // import remarkAutoLinkHeadings from "remark-autolink-headings";
 
 const components = {
@@ -21,24 +28,37 @@ const components = {
   Callout,
   Image,
   MultiLangCodeBlock,
+  LocaleTable,
+  Attributes,
+  Attribute,
+  Table,
+  DataSyncTable,
+  CopyableText,
 };
 
 /**
- * TODO: Fix Prev Next links
- * TODO: Get correct layouts
- * TODO: Fix up eslint rules
- * TODO: Make sure all components are imported correctly
+ * TODO: Handle index files
+ * TODO: Fix tables (e.g. template-editor/variables)
+ * TODO: Fix remark auto link headings
  * TODO: Remove imports from MDX files
  * TODO: Update Algolia index creation
  * TODO: Fix hydration errors (IOSunny/Moon, and autocomplete components)
  * TODO: Get hot reloading working by watching content dir
+ * TODO: Fix up eslint rules
  */
 
 export default function TestPage({ source }) {
   return (
     <div className="wrapper">
       <Layout frontMatter={source.frontmatter}>
-        <MDXRemote {...source} components={components} />
+        <MDXRemote
+          {...source}
+          components={components}
+          scope={{
+            dashboardJson,
+            eventPayload,
+          }}
+        />
       </Layout>
     </div>
   );

@@ -1,18 +1,17 @@
 import React from "react";
 import { DocsLayout } from "../DocsLayout";
 import { FrontMatter } from "../../types";
-import { CodeBlock } from "../../components/CodeBlock";
-import SectionHeading from "../../components/SectionHeading";
+import { useRouter } from "next/router";
+import { IntegrationsLayout } from "../IntegrationsLayout";
 
-const components = {
-  pre: CodeBlock,
-  h2: (props) => <SectionHeading tag="h2" {...props} />,
-  h3: (props) => <SectionHeading tag="h3" {...props} />,
-  h4: (props) => <SectionHeading tag="h4" {...props} />,
+const Layout: React.FC<{ frontMatter: FrontMatter }> = (props) => {
+  const router = useRouter();
+
+  // TODO: Clarify which layotus we're actually using and the difference between them
+  if (router.asPath.startsWith("/integrations")) {
+    return <IntegrationsLayout {...props}>{props.children}</IntegrationsLayout>;
+  }
+
+  return <DocsLayout {...props}>{props.children}</DocsLayout>;
 };
-
-const Layout: React.FC<{ frontMatter: FrontMatter }> = (props) => (
-  <DocsLayout {...props}>{props.children}</DocsLayout>
-);
-
 export default Layout;

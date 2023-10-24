@@ -4,21 +4,21 @@ const Table = ({ headers, rows }) => (
   <table>
     <thead>
       <tr>
-        {headers.map((header) => (
-          <th>{header}</th>
+        {headers.map((header, i) => (
+          <th key={i}>{header}</th>
         ))}
       </tr>
     </thead>
     <tbody>
-      {rows.map((row) => (
-        <tr>
+      {rows.map((row, i) => (
+        <tr key={i}>
           {row.map((column, idx) =>
             idx === 0 ? (
-              <td>
+              <td key={idx}>
                 <code>{column}</code>
               </td>
             ) : (
-              <td>{column}</td>
+              <td key={idx}>{column}</td>
             ),
           )}
         </tr>
