@@ -5,9 +5,9 @@ import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 
 import Meta from "../components/Meta";
-import FeedbackPopover from "../components/FeedbackPopover";
 import Autocomplete from "../components/Autocomplete";
 import ApiSdkMenu from "../components/ApiSdkMenu";
+import HelpMenu from "../components/HelpMenu";
 
 type Props = {
   pageType: string;
@@ -90,7 +90,7 @@ export const Page: React.FC<Props> = ({
             )}
 
             <div className="hidden md:block">
-              <FeedbackPopover />
+              <HelpMenu />
             </div>
 
             <Link href="https://dashboard.knock.app">
