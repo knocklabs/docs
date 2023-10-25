@@ -22,10 +22,9 @@ const SidebarLink: React.FC<Props> = ({ title, path, isSelected }) => (
       className={cn("transition-colors", {
         "hover:text-gray-900 dark:hover:text-gray-100": true,
         "text-brand font-medium hover:!text-brand-dark": isSelected,
-      })}>
-
+      })}
+    >
       {title}
-
     </Link>
   </li>
 );

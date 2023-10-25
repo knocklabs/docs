@@ -71,10 +71,9 @@ const HeaderList: React.FC<{ headers: IHeader[]; nesting: number }> = ({
             className={cn({
               "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100":
                 true,
-            })}>
-
+            })}
+          >
             {h.title}
-
           </Link>
         </li>
 

@@ -33,18 +33,16 @@ export default function Home() {
         <div className="flex items-center space-x-2">
           <Link
             href="/getting-started/what-is-knock"
-            className="bg-brand hover:bg-brand-dark text-white py-2 px-4 rounded-md font-semibold">
-            
-              Get started
-            
+            className="bg-brand hover:bg-brand-dark text-white py-2 px-4 rounded-md font-semibold"
+          >
+            Get started
           </Link>
 
           <Link
             href="/reference"
-            className="text-gray-600 dark:text-gray-300 py-2 px-3 rounded-md font-medium">
-            
-              API reference
-            
+            className="text-gray-600 dark:text-gray-300 py-2 px-3 rounded-md font-medium"
+          >
+            API reference
           </Link>
         </div>
       </header>
@@ -59,10 +57,9 @@ export default function Home() {
 
         <Link
           href="/getting-started/what-is-knock"
-          className="text-brand hover:text-brand-dark font-medium text-sm">
-          
-            Learn more →
-          
+          className="text-brand hover:text-brand-dark font-medium text-sm"
+        >
+          Learn more →
         </Link>
       </section>
 
@@ -90,10 +87,9 @@ export default function Home() {
                   >
                     <Link
                       href={s.slug + p.slug}
-                      className="hover:text-gray-800 dark:hover:text-gray-100">
-
+                      className="hover:text-gray-800 dark:hover:text-gray-100"
+                    >
                       {p.title}
-
                     </Link>
                   </li>
                 ))}
