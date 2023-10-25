@@ -84,7 +84,7 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
     <div>
       <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
         <Dialog.Trigger asChild>
-          <div className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 w-full">
+          <div className="hover:bg-gray-100 dark:hover:bg-gray-600 px-2 py-1 w-full cursor-pointer">
             <a
               type="button"
               className="text-[14px] text-gray-700 dark:text-white"
