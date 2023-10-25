@@ -20,7 +20,7 @@ const DocsLayout = ({ frontMatter, children }) => {
     if (content) {
       content.scrollTop = 0;
     }
-  }, []);
+  }, [asPath]);
 
   const { section, pages, nextPage, prevPage } = useMemo(() => {
     const [sectionPath] = paths;

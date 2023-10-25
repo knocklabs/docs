@@ -19,7 +19,7 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
     if (content) {
       content.scrollTop = 0;
     }
-  }, []);
+  }, [asPath]);
 
   const { section, pages } = useMemo(() => {
     const [sectionPath] = paths;
