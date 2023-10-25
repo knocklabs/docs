@@ -60,10 +60,6 @@ const components = {
   Endpoint,
 };
 
-/**
- * TODO: Update Algolia index creation
- */
-
 export default function TestPage({ source }) {
   return (
     <div className="wrapper">
