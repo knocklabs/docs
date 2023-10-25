@@ -59,9 +59,8 @@ const components = {
 };
 
 /**
- * TODO: Fix build errors
  * TODO: Update Algolia index creation
- * TODO: Fix hydration errors (IOSunny/Moon, and autocomplete components)
+ * TODO: Fix autocomplete component
  */
 
 export default function TestPage({ source }) {

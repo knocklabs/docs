@@ -1,6 +1,6 @@
 import Link from "next/link";
-import React, { ReactElement } from "react";
-// import { IoMoon, IoSunny } from "react-icons/io5";
+import React, { ReactElement, useEffect, useState } from "react";
+import { IoMoon, IoSunny } from "react-icons/io5";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
 
@@ -31,8 +31,15 @@ export const Page: React.FC<Props> = ({
   sidebar,
   metaProps = {},
 }) => {
-  const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
+
+  // Fix hydration error by hiding theme button during ssr
+  // See this next-themes issue for more info: https://github.com/pacocoursey/next-themes/issues/169
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <>
@@ -67,14 +74,16 @@ export const Page: React.FC<Props> = ({
           <Autocomplete />
 
           <div className="ml-auto flex items-center space-x-4">
-            <button
-              type="button"
-              className="p-2 -mr-2 text-gray-500 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            >
-              {/* {theme === "dark" && <IoMoon />} */}
-              {/* {theme === "light" && <IoSunny />} */}
-            </button>
+            {mounted ? (
+              <button
+                type="button"
+                className="p-2 -mr-2 text-gray-500 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                {theme === "dark" && <IoMoon />}
+                {theme === "light" && <IoSunny />}
+              </button>
+            ) : null}
 
             <ApiSdkMenu />
 
