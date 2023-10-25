@@ -1,13 +1,13 @@
 import React from "react";
-import { DocsLayout } from "../DocsLayout";
-import { FrontMatter } from "../../types";
+import { DocsLayout } from "./DocsLayout";
+import { FrontMatter } from "../types";
 import { useRouter } from "next/router";
-import { IntegrationsLayout } from "../IntegrationsLayout";
-import { CliReferenceLayout } from "../CliReferenceLayout";
-import { MapiReferenceLayout } from "../MapiReferenceLayout";
-import { ApiReferenceLayout } from "../ApiReferenceLayout";
+import { IntegrationsLayout } from "./IntegrationsLayout";
+import { CliReferenceLayout } from "./CliReferenceLayout";
+import { MapiReferenceLayout } from "./MapiReferenceLayout";
+import { ApiReferenceLayout } from "./ApiReferenceLayout";
 
-const Layout: React.FC<{ frontMatter: FrontMatter }> = (props) => {
+const MDXLayout: React.FC<{ frontMatter: FrontMatter }> = (props) => {
   const router = useRouter();
 
   if (router.asPath.startsWith("/integrations")) {
@@ -24,4 +24,5 @@ const Layout: React.FC<{ frontMatter: FrontMatter }> = (props) => {
 
   return <DocsLayout {...props}>{props.children}</DocsLayout>;
 };
-export default Layout;
+
+export default MDXLayout;

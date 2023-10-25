@@ -5,7 +5,7 @@ import { MDXRemote } from "next-mdx-remote";
 import Image from "next/image";
 
 import { CodeBlock } from "../components/CodeBlock";
-import Layout from "../layouts/mdxLayout";
+import MDXLayout from "../layouts/MDXLayout";
 import {
   getAllFilesInDir,
   CONTENT_DIR,
@@ -21,7 +21,6 @@ import eventPayload from "../data/code/sources/eventPayload";
 import LocaleTable from "../components/LocaleTable";
 import { Attributes, Attribute } from "../components/Attributes";
 import Table from "../components/Table";
-import DataSyncTable from "../components/DataSyncTable";
 import CopyableText from "../components/CopyableText";
 import { Endpoints, Endpoint } from "../components/Endpoints";
 import dashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
@@ -49,7 +48,6 @@ const components = {
   Attributes,
   Attribute,
   Table,
-  DataSyncTable,
   CopyableText,
   RateLimit,
   Section,
@@ -60,10 +58,10 @@ const components = {
   Endpoint,
 };
 
-export default function TestPage({ source }) {
+export default function ContentPage({ source }) {
   return (
     <div className="wrapper">
-      <Layout frontMatter={source.frontmatter}>
+      <MDXLayout frontMatter={source.frontmatter}>
         <MDXRemote
           {...source}
           components={components}
@@ -72,7 +70,7 @@ export default function TestPage({ source }) {
             eventPayload,
           }}
         />
-      </Layout>
+      </MDXLayout>
     </div>
   );
 }
