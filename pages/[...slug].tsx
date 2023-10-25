@@ -11,6 +11,7 @@ import {
   CONTENT_DIR,
   DOCS_FILE_EXTENSIONS,
   makeIdFromPath,
+  generateAlgoliaIndex,
 } from "../lib/content";
 import Callout from "../components/Callout";
 import MultiLangCodeBlock from "../components/MultiLangCodeBlock";
@@ -34,6 +35,7 @@ import {
   ExampleColumn,
 } from "../components/ApiSections";
 import RateLimit from "../components/RateLimit";
+import { FrontMatter } from "../types";
 
 const components = {
   pre: CodeBlock,
@@ -60,7 +62,6 @@ const components = {
 
 /**
  * TODO: Update Algolia index creation
- * TODO: Fix autocomplete component
  */
 
 export default function TestPage({ source }) {
@@ -101,7 +102,7 @@ export async function getStaticProps({ params: { slug } }) {
   }
 
   // Serialize file contents into mdx, and parse frontmatter
-  const mdxSource = await serialize(source, {
+  const mdxSource = await serialize<{}, FrontMatter>(source, {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkSlug, remarkGfm],
@@ -112,12 +113,15 @@ export async function getStaticProps({ params: { slug } }) {
   // Extend frontmatter
   mdxSource.frontmatter.id = makeIdFromPath(slug.join(sep));
 
+  // Index page in algolia
+  await generateAlgoliaIndex(source.toString(), mdxSource.frontmatter);
+
   return { props: { source: mdxSource } };
 }
 
 // Get the list of pages
 export const getStaticPaths = async () => {
-  // Get all file paths from the content directory
+  // Get all .md and .mdx file paths from the content directory
   const filePaths = getAllFilesInDir(CONTENT_DIR, [], DOCS_FILE_EXTENSIONS);
 
   // Format the slug to generate the correct path
