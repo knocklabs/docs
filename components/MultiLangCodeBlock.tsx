@@ -17,7 +17,6 @@ type Props = {
 const LOCAL_STORAGE_KEY = "@knocklabs/example-lang";
 const EVENT_NAME = "language.change";
 
-/* eslint-disable */
 const snippets = {
   "api.idempotency": require("../data/code/api/idempotency").default,
   // Users

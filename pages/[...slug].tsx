@@ -6,7 +6,12 @@ import Image from "next/image";
 
 import { CodeBlock } from "../components/CodeBlock";
 import Layout from "../layouts/mdxLayout";
-import { getAllFilesInDir, CONTENT_DIR, makeIdFromPath } from "../lib/content";
+import {
+  getAllFilesInDir,
+  CONTENT_DIR,
+  DOCS_FILE_EXTENSIONS,
+  makeIdFromPath,
+} from "../lib/content";
 import Callout from "../components/Callout";
 import MultiLangCodeBlock from "../components/MultiLangCodeBlock";
 import remarkSlug from "remark-slug";
@@ -32,7 +37,6 @@ import RateLimit from "../components/RateLimit";
 
 const components = {
   pre: CodeBlock,
-  // eslint-disable-next-line react/display-name
   h2: (props) => <SectionHeading tag="h2" {...props} />,
   h3: (props) => <SectionHeading tag="h3" {...props} />,
   h4: (props) => <SectionHeading tag="h4" {...props} />,
@@ -80,9 +84,8 @@ export default function TestPage({ source }) {
 // Get the props for a single path
 export async function getStaticProps({ params: { slug } }) {
   // Read the source content file, checking for .mdx and .md files
-  const possibleExtensions = [".mdx", ".md"];
   let source;
-  for (const ext of possibleExtensions) {
+  for (const ext of DOCS_FILE_EXTENSIONS) {
     const path = join(
       CONTENT_DIR,
       ...slug.slice(0, slug.length - 1),
@@ -107,8 +110,8 @@ export async function getStaticProps({ params: { slug } }) {
     },
   });
 
-  // Extend frontmatter with id and reading count
-  mdxSource.frontmatter.id = makeIdFromPath(slug.join(sep)); // TODO: Do we need this??
+  // Extend frontmatter
+  mdxSource.frontmatter.id = makeIdFromPath(slug.join(sep));
 
   return { props: { source: mdxSource } };
 }
@@ -116,7 +119,7 @@ export async function getStaticProps({ params: { slug } }) {
 // Get the list of pages
 export const getStaticPaths = async () => {
   // Get all file paths from the content directory
-  const filePaths = getAllFilesInDir(CONTENT_DIR);
+  const filePaths = getAllFilesInDir(CONTENT_DIR, [], DOCS_FILE_EXTENSIONS);
 
   // Format the slug to generate the correct path
   const paths = filePaths.map((path) => {
