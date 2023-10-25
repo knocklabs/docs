@@ -1,0 +1,100 @@
+---
+title: Throttle function
+description: Learn more about the throttle workflow function within Knock's notification engine.
+tags: ["steps", "functions"]
+section: Designing workflows
+---
+
+A throttle function allows you to limit the number of times a workflow is executed for a recipient within a given window. For example, in an alerting system, your recipients might only want to receive a single email _per hour_ for a given alert. A throttle lets you express this logic within Knock.
+
+Throttle functions are helpful when you want to control how often a workflow is executed for a recipient without needing to implement the logic within your own application layer.
+
+## How throttling works
+
+Throttling works like a gate. When the throttle step is executed, the gate is checked; if the threshold over the window has been exceeded, then the workflow stops execution. If the threshold has not been met, then the workflow will proceed.
+
+Throttle functions have 3 pieces of configuration:
+
+1. **A throttle window**: the length of the throttle period.
+2. **A throttle threshold**: the number of invocations allowed within the window. Defaults to 1 if none provided.
+3. **A throttle key** (optional): An optional value to specify as the throttle key for the workflow run.
+
+## Setting a throttle window
+
+The throttle window determines how long a throttle is active for the recipient. The window opens the first time the throttle function is executed in a workflow run for a recipient.
+
+### Set a fixed throttle window
+
+You can set a fixed duration throttle window using the "Throttle for a fixed window" option in the throttle step. The window accepts a relative duration, which can be specified in seconds, minutes, hours, or days.
+
+### Set a dynamic throttle window
+
+You can also set the length of your throttle windows dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to set your dynamic throttle window.
+
+When specifying a dynamic window you can provide either:
+
+- An **[ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601)** (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
+- A relative duration unit (e.g `{ "unit": "seconds", "value": 30 }`)
+
+A dynamic interval must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `throttleWindow` in your `Data` schema, your workflow trigger data must contain either an ISO-8601 timestamp or a valid duration unit.
+
+**A relative duration**
+
+```typescript
+type Duration = {
+  unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
+  value: number;
+};
+```
+
+When the key specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the throttle will be **skipped**.
+
+## Setting a throttle threshold
+
+The throttle threshold determines how many invocations are allowed in the window before the threshold takes effect. By default, this value is set to 1, but you can change it as needed.
+
+For example, if you want to say that you want to allow 5 invocations over a 1-minute window, then you would set the throttle threshold to 5.
+
+## Selecting a throttle key
+
+A throttle function always runs per recipient. If you do not provide a throttle key, your throttle function will throttle for the executing step per recipient. If you do provide a throttle key, your throttle function will be evaluated for the key and executing step.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">A quick tip.</span> Here's a helpful way to
+      think about throttling. By default, the throttle function throttles on a
+      key of <code>recipient_id</code>. When a throttle key is provided, it
+      throttles on a key of <code>concat(recipient_id, throttle_key)</code>.
+    </>
+  }
+/>
+
+Custom throttle keys must be shorter than 64 characters long after being JSON and URL encoded.
+
+## Frequently asked questions
+
+#### Can I use a dynamic throttle window?
+
+Yes! A dynamic throttle window can come from a variety of dynamic sources like the recipient, the environment, or within the data payload.
+
+#### What happens when a throttle is hit?
+
+When a throttle is hit, the workflow will stop execution. You will be able to see this in your workflow run logs.
+
+#### Can an active throttle be canceled?
+
+We haven’t added this ability, but if this is something you’re looking to do, please reach out to us to discuss your use case. We’d love to hear more.
+
+#### What’s the maximum time a throttle can be open for?
+
+A throttle is allowed to be opened for a maximum of 31 days. If you have a use case for a longer throttle window, please [get in touch](mailto:support@knock.app).
+
+#### Can I have multiple throttle steps per workflow?
+
+Absolutely, each throttle step is executed independently in a workflow, so you can have as many as you need.
+
+#### Can I throttle across workflows?
+
+Currently, you cannot throttle across Knock workflows. In the future, we will be exploring adding the ability to rate-limit the number of notifications a recipient can receive in a given window of time, which will work across workflows.

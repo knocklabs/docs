@@ -1,0 +1,103 @@
+---
+title: How to send email with Mailgun
+description: How to send transactional email notifications to Mailgun with Knock.
+section: Integrations > Email
+layout: integrations
+---
+
+Knock integrates with [Mailgun](https://mailgun.com/) to send email notifications to your users.
+
+In this guide you'll learn how to get started sending transactional email notifications with Mailgun through Knock. We also cover provider configuration and additional data you can pass through to Mailgun.
+
+## Features
+
+- Attachments support
+- Delivery tracking
+- Link and open tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+You can create a new Mailgun channel in the dashboard under the "Channels" section. From there, you'll need to configure the channel for each environment you have.
+
+## Provider configuration
+
+<Attributes>
+  <Attribute
+    name="API key"
+    type="string*"
+    description="The public API key for your Mailgun account"
+  />
+  <Attribute
+    name="Domain"
+    type="string*"
+    description="The sending domain for your Mailgun account"
+  />
+  <Attribute
+    name="Region"
+    type="enum*"
+    description="The sending region (US or EU) for your Mailgun account"
+  />
+  <Attribute
+    name="Open tracking"
+    type="boolean"
+    description="Should the provider track opens on their service?"
+  />
+  <Attribute
+    name="Link tracking"
+    type="boolean"
+    description="Should the provider track link clicks on their service?"
+  />
+  <Attribute
+    name="From email address"
+    type="string | liquid*"
+    description="The sender email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="From name"
+    type="string | liquid"
+    description="The sender name (can use Liquid tags)"
+  />
+</Attributes>
+
+## Environment default settings
+
+The following fields are optional and if set, will be applied to all email messages sent via this channel within the environment:
+
+<Attributes>
+  <Attribute
+    name="Reply-to address"
+    type="string | liquid"
+    description="The reply-to email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="CC address"
+    type="string | liquid"
+    description="The cc email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="BCC address"
+    type="string | liquid"
+    description="The bcc email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="JSON overrides"
+    type="string | liquid"
+    description="Provider API's paramater overrides"
+  />
+</Attributes>
+
+## Additional data sent
+
+Knock sends the following attributes along with your emails:
+
+- `v:sender`: always set to `knock.app`
+- `v:knock_message_id`: set to the message ID for the message being sent
+- `o:tag`: the workflow key for the workflow being invoked
+
+You can learn about the role of these Mailgun attributes in the [Mailgun API documentation](https://documentation.mailgun.com/en/latest/quickstart.html).
+
+## Recipient data requirements
+
+In order to send an email notification you'll need a valid `email` property set on your recipient.

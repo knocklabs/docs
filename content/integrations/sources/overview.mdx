@@ -1,0 +1,145 @@
+---
+title: Sources in Knock
+description: Learn how to power your Knock notification system with customer data platforms, reverse ETLs, and your data warehouse.
+section: Integrations > Customer data platforms
+layout: integrations
+---
+
+With Knock sources, you can integrate customer data platforms (CDPs) such as Segment and Rudderstack or reverse ETL platforms such as Hightouch and Census with Knock to trigger notification workflows, identify users, and automate other actions.
+
+In general, each platform we support can do the following within Knock:
+
+- Trigger workflows
+- Identify (and update) users
+
+Here are a few reasons why you might want to integrate a source with Knock to power your notification system, rather than making direct calls to the Knock API:
+
+- **Minimize engineering customization.** If you already identify and track users with a customer data platform (CDP), you can import your users and events in minutes. Once your CDP is integrated with Knock, you can easily build notification workflows without needing time from engineering.
+- **Ensure consistency.** CDPs make it easy to keep customer data synchronized between services, including Knock. Email, name, and other user trait updates can flow seamlessly into Knock without any engineering work.
+
+## Concepts
+
+### Sources
+
+A source is any platform that can pass event and/or user data into Knock. These can be CDPs (such as [Segment](https://segment.com) and [Rudderstack](https://rudderstack.com)) or reverse ETLs (such as [Hightouch](https://hightouch.com/) and [Census](https://www.getcensus.com/).) The incoming events from these services can be used to orchestrate actions in Knock such as creating/updating users and triggering workflows.
+
+Knock currently supports the following sources:
+
+- [Segment](/integrations/sources/segment)
+- [Rudderstack](/integrations/sources/rudderstack)
+- [Jitsu](/integrations/sources/jitsu)
+- [Freshpaint](/integrations/sources/freshpaint)
+- [Hightouch](/integrations/sources/hightouch)
+- [Census](/integrations/sources/census)
+- [Polytomic](/integrations/sources/polytomic)
+- [HTTP](/integrations/sources/http) (a generic HTTP endpoint for accepting events)
+
+_Need us to support another platform? [Let us know!](mailto:support@knock.app?subject=Integration%20Source%20Request)_
+
+You can configure sources from the Integrations > Sources page for your account. Initial creation of a source is managed at the account-level of your Knock account, though you'll configure any specific events and their mappings to your notification workflows within your Knock environments.
+
+![A screenshot of where to find the Integrations - Sources page for your account](/images/sources/overview.png)
+
+### Per-environment source configuration
+
+Each source has a unique configuration for every Knock environment in your account.
+This makes it possible to connect your Segment development environment to your Knock development environment.
+If you click on a source, you will see each environment configuration for that source.
+
+![A view of the environment configurations for a source in a Knock account](/images/sources/environment-configs.png)
+
+### Events
+
+Knock tracks every event sent from a source. Although each source has its own event format,
+Knock will translate the incoming events from each source into a common format that includes the following fields:
+
+- `user_id`. The ID of the user performing a given action (may not be set if a user has not been identified yet).
+- `data`. The primary contents of the event, e.g. for a Segment `track` with some associated `properties`, Knock would use those `properties` to set the `data` field for the event.
+- `event`. The original event, as originally received by Knock.
+
+### Event-action Mapping
+
+When a source sends an event to a Knock environment, Knock will match that event with any configured event-action mappings in that environment.
+
+You can have any number of mappings for each event (e.g. if the same event should trigger more than one workflow).
+If there is no mapping matching that event, the event is logged but no action is taken.
+
+After configuring a source in Knock and in the source itself (e.g. adding Knock as a destination in your CDP), events will start to flow into your Knock environment.
+
+You can then select the event you want to trigger actions in Knock, and configure it accordingly.
+
+### Identifying users
+
+For sources that support identifying users (such as Segment or Rudderstack with their `identify` calls), each environment configuration for that source includes a setting to enable or disable identifying users. After creating an integration source, enable identifying users for that environment.
+
+Note that Knock will correctly map `name`, `email`, `avatar`, and `phone` properties from Segment and Rudderstack `identify` calls into Knock's user data model. All other tracked properties of a user will be stored as additional custom properties on the Knock user object, and can be used in templates and other parts of Knock that rely on user properties.
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Remember:</span> if you send Knock a source
+      event that includes a recipient that has not yet been identified in Knock,
+      our system will not generate a workflow run for that user. <br />
+      <br />
+      For use cases such as new signup events, where events will often reach
+      Knock before identify calls, consider{" "}
+      <a href="#inline-identify-users-in-a-source-event">
+        inline identification
+      </a>{" "}
+      of users in your source events.
+    </>
+  }
+/>
+
+### Inline identify users in a source event
+
+In cases where you send a source event to Knock with recipients that may not yet have been identified into our system, it's good practice to inline identify your users. By inline identifying your users within your source events, you ensure that those users are identified in Knock when your event triggers a workflow.
+
+As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified.
+
+```A source event without inline identify
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "source-event-test-123",
+  "properties": {
+        "recipients": ["sam10"],
+        "account_id": "123"
+    },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
+
+To ensure that the user is notified, we'd change the id reference in `recipients` to a complete user object, as in the example below. This way Knock has all the information it needs to identify the user during workflow runtime.
+
+```A source event with inline identify
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "source-event-test-123",
+  "properties": {
+        "recipients": [
+          {
+            id: "sam10",
+            name: "Sam Seely",
+            email: "sam@example.com",
+          }
+        ],
+        "account_id": "123"
+    },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
+
+### Event logs
+
+Event logs show the contents of each event sent into Knock. Knock retains event Logs according to our data retention policy.
+
+### Action logs
+
+Action logs describe what (if any) action was taken after an event was received. Action logs are a helpful starting point when troubleshooting workflows or auditing what actions Knock has taken for any given event. Knock retains action logs according to our data retention policy.

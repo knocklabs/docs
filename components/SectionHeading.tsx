@@ -18,8 +18,8 @@ const SectionHeading: React.FC<Props> = ({
   className,
   ...rest
 }) => {
-  const { pathname } = useRouter();
-  const targetPath = id ? `${pathname}#${id}` : pathname;
+  const { asPath } = useRouter();
+  const targetPath = id ? `${asPath}#${id}` : asPath;
 
   const targetUrl = global.window ? window.location.origin + targetPath : "";
   const [, onCopy] = useClipboard(targetUrl, { successDuration: 2000 });

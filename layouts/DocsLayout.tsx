@@ -9,8 +9,8 @@ import DocsSidebar from "../components/DocsSidebar";
 import Meta from "../components/Meta";
 
 const DocsLayout = ({ frontMatter, children }) => {
-  const { pathname } = useRouter();
-  const paths = useMemo(() => pathname.substring(1).split("/"), [pathname]);
+  const { asPath } = useRouter();
+  const paths = useMemo(() => asPath.substring(1).split("/"), [asPath]);
 
   useEffect(() => {
     const content = document.querySelector(".main-content");
@@ -20,7 +20,7 @@ const DocsLayout = ({ frontMatter, children }) => {
     if (content) {
       content.scrollTop = 0;
     }
-  }, []);
+  }, [asPath]);
 
   const { section, pages, nextPage, prevPage } = useMemo(() => {
     const [sectionPath] = paths;
@@ -30,7 +30,7 @@ const DocsLayout = ({ frontMatter, children }) => {
 
     const sidebarSection = sidebarContent[sectionIndex];
     const pageIndex = (sidebarContent[sectionIndex]?.pages || []).findIndex(
-      (p) => sidebarSection.slug + p.slug === pathname,
+      (p) => sidebarSection.slug + p.slug === asPath,
     );
 
     const sidebarPage = sidebarSection?.pages[pageIndex];
@@ -41,7 +41,7 @@ const DocsLayout = ({ frontMatter, children }) => {
       nextPage: sidebarSection?.pages[pageIndex + 1],
       prevPage: sidebarSection?.pages[pageIndex - 1],
     };
-  }, [paths, pathname]);
+  }, [paths, asPath]);
 
   return (
     <>
@@ -49,7 +49,6 @@ const DocsLayout = ({ frontMatter, children }) => {
         title={`${frontMatter.title} | Knock Docs`}
         description={frontMatter.description}
       />
-
       <div className="w-full max-w-5xl lg:flex mx-auto relative">
         <div className="max-w-prose flex-auto">
           {section && <Breadcrumbs section={section} pages={pages} />}
@@ -70,10 +69,11 @@ const DocsLayout = ({ frontMatter, children }) => {
             <div className="flex border-t dark:border-t-gray-700 mt-8 pt-8 text-sm">
               {prevPage && !("pages" in prevPage) && (
                 <div className="text-left">
-                  <Link href={section.slug + prevPage.slug}>
-                    <a className="text-gray-500 hover:text-gray-800">
-                      ← {prevPage.title}
-                    </a>
+                  <Link
+                    href={section.slug + prevPage.slug}
+                    className="text-gray-500 hover:text-gray-800"
+                  >
+                    ←{prevPage.title}
                   </Link>
                 </div>
               )}
@@ -86,10 +86,9 @@ const DocsLayout = ({ frontMatter, children }) => {
                         ? nextPage.slug
                         : section.slug + nextPage.slug
                     }
+                    className="text-gray-500 hover:text-gray-80"
                   >
-                    <a className="text-gray-500 hover:text-gray-80">
-                      {nextPage.title} →
-                    </a>
+                    {nextPage.title}→
                   </Link>
                 </div>
               )}

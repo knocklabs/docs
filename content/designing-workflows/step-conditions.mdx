@@ -1,0 +1,410 @@
+---
+title: Step conditions
+description: Learn more about how to use step conditions within the Knock workflow builder.
+tags:
+  [
+    "triggers",
+    "conditions",
+    "conditionals",
+    "steps",
+    "routing",
+    "conditional send",
+  ]
+section: Designing workflows
+---
+
+Step conditions allow you to apply control flow to your workflow runs on a per-step basis. You can use the [Knock conditions editor](/send-and-manage-data/conditions#the-conditions-editor) to associate one or more conditions with any step in your workflow. Then, for each workflow run, Knock will evaluate these conditions to determine if the step should execute.
+
+Some examples of the kinds of step conditions you can design include:
+
+- Only send an email if an in-app notification was not previously read or seen.
+- Only send an in-app notification if the `recipient.plan == "pro"`.
+- Only execute a delay step if `delay == true` in the workflow trigger.
+- Only send an email in your development environment if the recipient's email matches a particular domain.
+
+See our [guide on the Knock conditions model](/send-and-manage-data/conditions) for more information about how conditions work across Knock and how to [debug your conditions within your workflow runs](/send-and-manage-data/conditions#debugging-conditions).
+
+In this guide, we cover features specific to step conditions, most importantly message status conditions.
+
+## Message status conditions
+
+Message status conditions allow you to build a check for one workflow step that evaluates against the [delivery or engagement status](/send-notifications/message-statuses) of a message sent from a preceding step. When building a step message status condition, you'll use the conditions editor to select:
+
+- Any preceding channel step that may produce a message, using it's `ref`.
+- An asserting (`"has"`) or negating (`"has not"`) condition operator.
+- The expected delivery or engagement status case.
+
+### Status cases
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Available statuses cases will vary.</span>{" "}
+      While you can reference any preceding channel step in a message status
+      condition, you will be presented with a different set of options depending
+      on the case (asserting or negating) and the target step's channel type.
+      In-app feed channel steps support certain engagement status options ("seen
+      but not read") that others do not. The "read" and "link clicked" status
+      conditions often require that{" "}
+      <a href="/send-notifications/tracking">Knock tracking</a> has been
+      enabled.
+    </>
+  }
+/>
+
+<table>
+  <thead>
+    <tr>
+      <th width="25%">Case</th>
+      <th width="25%">Limits</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>skipped</strong>
+      </td>
+      <td>-</td>
+      <td>The target step was skipped and did not generate a message.</td>
+    </tr>
+    <tr>
+      <td>
+        <strong>failed delivery</strong>
+      </td>
+      <td>-</td>
+      <td>
+        The message failed to deliver and Knock has exhausted all retries.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>sent</strong>
+      </td>
+      <td>-</td>
+      <td>The message has been successfully sent to the delivery provider.</td>
+    </tr>
+    <tr>
+      <td>
+        <strong>delivered</strong>
+      </td>
+      <td>-</td>
+      <td>
+        The message has been successfully sent to the delivery provider, and
+        Knock has confirmed delivery to your recipient.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>seen</strong>
+      </td>
+      <td>
+        <i>In-app channels only</i>
+      </td>
+      <td>The message has been rendered in the feed.</td>
+    </tr>
+    <tr>
+      <td>
+        <strong>seen but not read</strong>
+      </td>
+      <td>
+        <i>In-app channels only</i>
+      </td>
+      <td>
+        The message has been rendered in the feed, but not yet marked as read by
+        your recipient.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>read</strong>
+      </td>
+      <td>
+        <i>In-app channel or Knock open tracking required</i>
+      </td>
+      <td>The message has been marked as read.</td>
+    </tr>
+    <tr>
+      <td>
+        <strong>read but not clicked</strong>
+      </td>
+      <td>
+        <i>Knock link tracking required</i>
+      </td>
+      <td>
+        The message has been marked as read but no links have been clicked.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>interacted with</strong>
+      </td>
+      <td>
+        <i>In-app channels only</i>
+      </td>
+      <td>The recipient has clicked on the message.</td>
+    </tr>
+    <tr>
+      <td>
+        <strong>link clicked</strong>
+      </td>
+      <td>-</td>
+      <td>The recipient has clicked at least one link in the message.</td>
+    </tr>
+    <tr>
+      <td>
+        <strong>archived</strong>
+      </td>
+      <td>-</td>
+      <td>The message has been archived.</td>
+    </tr>
+  </tbody>
+</table>
+
+### Evaluation timing
+
+Knock evaluates message status conditions, like all conditions, immediately when executing a workflow step. This means that you may need to account for time between steps when building these conditions, especially those that require some amount of recipient engagement or delivery confirmation. [See below](#example-conditionally-sending-an-email-if-an-in-app-notification-was-not-seen) for an example of using a delay step for this purpose.
+
+### Multiple messages
+
+In certain cases, such as when using a [channel group](/integrations/overview#channel-groups), a single channel step can produce multiple messages. In these cases, Knock uses the message with the **highest** status for the condition evaluation.
+
+To determine each message's highest status, Knock looks at both its [delivery status](/send-notifications/message-statuses#delivery-status) plus each of its [engagement statuses](/send-notifications/message-statuses#engagement-status), choosing the highest value status from the group. Knock uses the following combined delivery and engagement status hierarchy (ordered from lowest to highest):
+
+- `undelivered`
+- `delivery_attempted`
+- `queued`
+- `not_sent`
+- `sent`
+- `delivered`
+- `seen`
+- `read`
+- `interacted` + `link_clicked`
+- `archived`
+
+## Example: conditionally sending an email if an in-app notification was not seen
+
+One common use-case for step conditions is conditionally sending a notification based on whether the recipient has seen a preceding notification delivered on another channel. You can think of this concept as channel escalation, or intelligent routing.
+
+In order to implement this, your workflow will need:
+
+- An in-app notification channel step to send the initial message
+- A delay step so that we wait a period of time before executing the email step
+- An email channel step to send the escalated message
+
+Next, we'll add a condition to our email channel step that will tell Knock to only send the email if the in-app notification has not yet been seen. To do this you will:
+
+1. Select a "Step message status" condition type.
+2. Select the `ref` of the in-app step (by default named `in_app_feed_1`).
+3. Select the negating "has not" operator.
+4. And finally, select the "been seen" status case option.
+
+![Setting a condition on an email step that passes when the message produced by the preceding in-app step has not been seen after a 5-minute delay.](/images/notifications/message-status-condition-example.png)
+
+<figcaption>
+  Setting a condition on an email step that passes when the message produced by
+  the preceding in-app step has not been seen after a 5-minute delay.
+</figcaption>
+
+That's all it takes to build intelligent message routing in Knock!
+
+## Advanced: How Knock models status conditions
+
+The message status condition editor provides some useful abstractions on top of Knock's [conditions model](/send-and-manage-data/conditions#modeling-conditions). Under the hood, Knock stores each status condition using our standard `variable`, `operator`, and `argument` trio, with some special caveats:
+
+- The `variable` will always be either `refs.<ref>.delivery_status` or `refs.<ref>.engagement_status`.
+- The `operator` will be a hierarchical comparison operator for a delivery status condition or an inclusionary operator for an engagement status condition.
+- The `argument` will be a reserved status case string.
+
+Below we provide example models for each of the status conditions made available in the editor.
+
+#### Skipped cases
+
+```json "has been skipped" case
+{
+  "variable": "refs.email_1.delivery_status",
+  "operator": "equal_to",
+  "argument": "$message.skipped"
+}
+```
+
+<br />
+
+```json "has not been skipped" case
+{
+  "variable": "refs.email_1.delivery_status",
+  "operator": "not_equal_to",
+  "argument": "$message.skipped"
+}
+```
+
+#### Failed delivery cases
+
+```json "has failed delivery" case
+{
+  "variable": "refs.email_1.delivery_status",
+  "operator": "equal_to",
+  "argument": "$message.undelivered"
+}
+```
+
+#### Sent cases
+
+```json "has been sent" case
+{
+  "variable": "refs.email_1.delivery_status",
+  "operator": "greater_than_or_equal_to",
+  "argument": "$message.sent"
+}
+```
+
+<br />
+
+```json "has not been sent" case
+{
+  "variable": "refs.email_1.delivery_status",
+  "operator": "less_than",
+  "argument": "$message.sent"
+}
+```
+
+#### Delivered cases
+
+```json "has been delivered" case
+{
+  "variable": "refs.email_1.delivery_status",
+  "operator": "greater_than_or_equal_to",
+  "argument": "$message.delivered"
+}
+```
+
+<br />
+
+```json "has not been delivered" case
+{
+  "variable": "refs.email_1.delivery_status",
+  "operator": "less_than",
+  "argument": "$message.delivered"
+}
+```
+
+#### Seen cases
+
+```json "has been seen" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "contains",
+  "argument": "$message.seen"
+}
+```
+
+<br />
+
+```json "has been seen but not read" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "contains",
+  "argument": "$message.seen_not_read"
+}
+```
+
+<br />
+
+```json "has not been seen" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "not_contains",
+  "argument": "$message.seen"
+}
+```
+
+#### Read cases
+
+```json "has been read" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "contains",
+  "argument": "$message.read"
+}
+```
+
+<br />
+
+```json "has been read but not clicked" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "contains",
+  "argument": "$message.read_not_link_clicked"
+}
+```
+
+<br />
+
+```json "has not been read" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "not_contains",
+  "argument": "$message.read"
+}
+```
+
+#### Interacted cases
+
+```json "has been interacted with" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "contains",
+  "argument": "$message.interacted"
+}
+```
+
+<br />
+
+```json "has not been interacted with" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "not_contains",
+  "argument": "$message.interacted"
+}
+```
+
+#### Link clicked cases
+
+```json "has had a link clicked" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "contains",
+  "argument": "$message.link_clicked"
+}
+```
+
+<br />
+
+```json "has not had a link clicked" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "not_contains",
+  "argument": "$message.link_clicked"
+}
+```
+
+#### Archived cases
+
+```json "has been archived" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "contains",
+  "argument": "$message.archived"
+}
+```
+
+<br />
+
+```json "has not been archived" case
+{
+  "variable": "refs.email_1.engagement_status",
+  "operator": "not_contains",
+  "argument": "$message.archived"
+}
+```

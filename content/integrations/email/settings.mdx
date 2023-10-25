@@ -1,0 +1,67 @@
+---
+title: Email configuration
+description: Learn more about how to configure your email channels in Knock.
+section: Integrations
+layout: integrations
+tags: ["bcc", "cc", "JSON overrides"]
+---
+
+In this guide we cover how to configure email channels in Knock.
+
+## An intro to email channel settings
+
+Knock email channel configurations support a number of settings. These include include email-specific fields (such as cc, bcc, and reply-to) as well as JSON overrides to be pass in API calls to the configured provider's API endpoints.
+
+When you configure a setting in a channel's configuration, it will be used on all instances of that channel across all workflows. Note that you can override this on a given workflow step by going to the template editor and clicking "Manage template settings".
+
+### Configuring email settings
+
+The cc, bcc, and reply-to fields can be found at the bottom of the channel environment configuration modal's "Settings" tab.
+The JSON overrides field can be found under the "Overrides" Tab.
+
+All email configuration fields support Liquid usage. You will be able to use any variables available in your workflow trigger payloads, as well as system variables such as the current workflow, activities, and any other variables you have access to when building templates.
+
+As an example, if you wanted to conditionally change the "From name" on an email depending on whether one is configured on the actor that triggered the notification, you'd use the following liquid in the "From name" field of your email configuration.
+
+```js A From name email configuration using Liquid
+{{ actor.from_name | default: "no-reply@knock.app" }}
+```
+
+### CC and BCC fields
+
+The cc and bcc fields can be used to support a single or multiple addresses. In order to use several addresses on any of these fields, make sure to separate them with a comma.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Liquid support.</span> You can pass multiple
+      cc and bcc addresses using workflow trigger variables, and configure these
+      fields to use them.
+    </>
+  }
+/>
+
+### Provider JSON overrides
+
+Sometimes you may want to customize the API call Knock sends to your email provider.
+A good example of this is passing custom arguments as part of the API payload.
+Take an example where we're using SendGrid as our email provider. SendGrid allows sending custom arguments under the
+`custom_args` key of the JSON payload of their API. By default, Knock sends some arguments using that key, such
+the Knock message id. If you want to add more arguments, you can check the following image on how to add them as
+JSON overrides:
+
+![Channel JSON overrides](/images/integrations/email/email-channel-json-overrides.png)
+
+<figcaption>Configuring email channel JSON overrides.</figcaption>
+
+In this example, we want to add two arguments to the `custom_args` attribute of the API call we send to SendGrid.
+In this case, the first argument will be hardcoded, and the second
+argument's value will be the value of `workflow_variable`, which we expect to be passed
+in the payload of the workflow trigger call.
+
+## Template-level overrides
+
+You can also override all of these settings for specific workflow step templates.
+You can configure the overrides by clicking on the "Manage template settings" button. Once clicked, a modal will
+open and you will be able to override the attributes described above by accessing the "Overrides" tab.

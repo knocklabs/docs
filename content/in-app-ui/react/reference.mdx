@@ -1,0 +1,458 @@
+---
+title: "React library API reference"
+description: Complete API reference for the Knock React Client SDK.
+tags: ["mark as read"]
+section: Building in-app UI
+---
+
+In this section, you'll find the complete documentation for the components exposed in `@knocklabs/react-notification-feed`, including the props available.
+
+**Note**: You can see a reference for the methods available for the `Knock` class, as well as a `Feed` instance under the [client JS docs](/in-app-ui/javascript/reference).
+
+## Components
+
+### `KnockFeedProvider`
+
+The top-level feed provider that connects to Knock with the given API key, authenticates a user, and then connects to a feed for that user.
+
+#### Props
+
+Accepts `KnockFeedProviderProps`:
+
+<Attributes>
+  <Attribute
+    name="apiKey*"
+    type="string"
+    description="The public API key for the environment"
+  />
+  <Attribute
+    name="userId*"
+    type="string"
+    description="The ID of the user for which to retrieve a feed"
+  />
+  <Attribute
+    name="feedId*"
+    type="string"
+    description="The channel ID of the in-app feed to be displayed"
+  />
+  <Attribute
+    name="userToken"
+    type="string"
+    description={
+      <span>
+        A JWT that identifies the authenticated user, signed with the private
+        key provided in the Knock dashboard. Required to secure your production
+        environment.{" "}
+        <a
+          href="https://docs.knock.app/in-app-ui/security-and-authentication#authentication-with-enhanced-security-enabled"
+          target="_blank"
+        >
+          Learn more.
+        </a>
+      </span>
+    }
+  />
+  <Attribute
+    name="host"
+    type="string"
+    description="A custom API host for Knock"
+  />
+  <Attribute
+    name="defaultFeedOptions"
+    type="FeedClientOptions"
+    description="Set defaults for `tenant`, `has_tenant`, `source`, `archived` to scope all subsequent feed queries"
+  />
+  <Attribute
+    name="colorMode"
+    type="ColorMode"
+    description="Sets the theme as either light or dark mode (defaults to light)"
+  />
+  <Attribute
+    name="rootless"
+    type="boolean"
+    description="When set as false, doesn't wrap the children in a `<KnockFeedContainer>`"
+  />
+  <Attribute
+    name="i18n"
+    type="I18nContent"
+    description="An optional set of translations to override the default `en` translations used in the feed components"
+  />
+</Attributes>
+
+### `NotificationFeed`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="EmptyComponent*"
+    type="ReactNode"
+    description="The empty component to render, when not set defaults to <EmptyFeed />."
+  />
+  <Attribute
+    name="renderItem"
+    type="function"
+    description="A function invoked per `FeedItem` to be rendered that should return a cell to be rendered in the feed. Useful when you want to render a custom feed cell. Defaults to rendering a `NotificationCell`."
+  />
+  <Attribute
+    name="onNotificationClick"
+    type="function"
+    description="A custom function to be invoked when a notification cell is clicked."
+  />
+  <Attribute
+    name="onMarkAllAsReadClick"
+    type="function"
+    description="A custom function to be invoked when the `Mark all as read` button is clicked."
+  />
+</Attributes>
+
+### `NotificationFeedPopover`
+
+Renders a `NotificationFeed` in a floating popover, rendered by `popper-js`.
+
+#### Props
+
+Accepts the same base props as `NotificationFeed`, and overrides with the following:
+
+<Attributes>
+  <Attribute
+    name="isVisible*"
+    type="boolean"
+    description="Whether or not to show the popover."
+  />
+  <Attribute
+    name="onClose*"
+    type="function"
+    description="The function to be invoked when the popover is closed."
+  />
+  <Attribute
+    name="onOpen"
+    type="function"
+    description="A function that's invoked whenever the feed popover is opened, useful for updating any items in view and marking them as read, seen, or archived."
+  />
+  <Attribute
+    name="buttonRef*"
+    type="RefObject<HTMLElement>"
+    description="A ref of the button to position the popover adjacent to."
+  />
+  <Attribute
+    name="closeOnClickOutside"
+    type="boolean"
+    description="When true, will close the popover whenever any area outside of the popover is clicked."
+  />
+  <Attribute
+    name="placement"
+    type="Placement"
+    description="Determines the popper-js position of the popover (defaults to `bottom-end`)."
+  />
+</Attributes>
+
+### `NotificationCell`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="item*"
+    type="FeedItem"
+    description="The feed item (notification) to render"
+  />
+  <Attribute
+    name="onItemClick"
+    type="function"
+    description="The function to be invoked when the row is clicked"
+  />
+  <Attribute
+    name="avatar"
+    type="ReactNode"
+    description="Render a custom avatar for the feed item"
+  />
+  <Attribute
+    name="archiveButton"
+    type="ReactNode"
+    description="Render a custom archive button for the feed item"
+  />
+  <Attribute
+    name="children"
+    type="ReactNode"
+    description="A set of children to render inside of the cell, will be rendered under the main content in a `rnf-notification-cell__child-content` div. Useful for rendering action buttons."
+  />
+</Attributes>
+
+### `NotificationIconButton`
+
+Renders a notification bell icon, with a badge showing the number of unseen items present in the notification feed.
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="onClick*"
+    type="function"
+    description="The function to be invoked when the IconButton is clicked"
+  />
+  <Attribute
+    name="badgeCountType"
+    type="enum"
+    description="One of `unseen` | `unread` | `all` to determine which count to display"
+  />
+</Attributes>
+
+### `Button`
+
+A generic Button component that can be used to add action buttons to items in a notifcation feed.
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="variant"
+    type="string"
+    description="The variant of the button; either `primary` or `secondary`. Defaults to `primary`."
+  />
+  <Attribute
+    name="loadingText"
+    type="string"
+    description="Text to display while the button is loading."
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="When true, will display a spinner next to the `loadingText` (if present)."
+  />
+  <Attribute
+    name="isDisabled"
+    type="boolean"
+    description="When true, will mark the button as disabled."
+  />
+  <Attribute
+    name="isFullWidth"
+    type="boolean"
+    description="When true, will make the button occupy 100% of the parent container."
+  />
+  <Attribute
+    name="onClick*"
+    type="function"
+    description="The click handler to be invoked when the button is clicked."
+  />
+  <Attribute
+    name="children"
+    type="ReactNode"
+    description="The text to display inside of the button."
+  />
+</Attributes>
+
+### `ButtonGroup`
+
+Used to group and space multiple `Button` components into a single line.
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="children*"
+    type="ReactNode"
+    description="One or more `Button` components"
+  />
+</Attributes>
+
+### `KnockI18nProvider`
+
+A provider to inject translations into components.
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="i18n"
+    type="I18nContent"
+    description="A set of translations and a locale to use in child components via the `useTranslations` hook"
+  />
+  <Attribute
+    name="children*"
+    type="ReactNode"
+    description="One or more `Button` components"
+  />
+</Attributes>
+
+## Hooks
+
+### `useKnockFeed`
+
+The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components.
+
+**Returns**: `KnockFeedProviderState`
+
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="The instance of the Knock client"
+  />
+  <Attribute
+    name="feedClient"
+    type="Feed"
+    description="The instance of the authenticated Feed"
+  />
+  <Attribute
+    name="useFeedStore"
+    type="UseStore<FeedStoreState>"
+    description="A zustand store containing the FeedStoreState"
+  />
+  <Attribute
+    name="status"
+    type="FilterStatus"
+    description="Current value of the filter status for the Feed"
+  />
+  <Attribute
+    name="setStatus"
+    type="function"
+    description="A function to set the current FilterStatus"
+  />
+  <Attribute
+    name="colorMode"
+    type="ColorMode"
+    description="The current theme color"
+  />
+</Attributes>
+
+**Example**:
+
+```jsx
+import { useKnockFeed } from "@knocklabs/react-notification-feed";
+
+const App = ({ authenticatedUser }) => (
+  <KnockFeedProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+    userId={authenticatedUser.id}
+  >
+    <MyFeedComponent />
+  </KnockFeedProvider>
+);
+
+const MyFeedComponent = () => {
+  const { useFeedStore } = useKnockFeed();
+  const items = useFeedStore((state) => state.items);
+
+  return (
+    <div className="notifications">
+      {items.map((item) => (
+        <NotificationCell key={item.id} item={item} />
+      ))}
+    </div>
+  );
+};
+```
+
+### `useAuthenticatedKnockClient`
+
+Creates an authenticated Knock client.
+
+**Returns**: `Knock` instance, authenticated against the user
+
+**Example**:
+
+```jsx
+import { useAuthenticatedKnockClient } from "@knocklabs/react-notification-feed";
+
+const MyComponent = () => {
+  const knock = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+    user.knockToken,
+  );
+
+  return null;
+};
+```
+
+### `useNotifications`
+
+Creates a `Feed` instance for the provided `Knock` client which creates a stateful, real-time connection to Knock to build in-app experiences.
+
+**Returns**: `Feed` instance
+
+**Example**:
+
+```js
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+} from "@knocklabs/react-notification-feed";
+import create from "zustand";
+
+const MyComponent = () => {
+  const knock = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+    user.knockToken,
+  );
+
+  const notificationFeed = useNotifications(
+    knock,
+    process.env.KNOCK_FEED_CHANNEL_ID,
+  );
+
+  const useNotificationStore = create(notificationFeed.store);
+  const { metadata } = useNotificationStore();
+
+  useEffect(() => {
+    notificationFeed.fetch();
+  }, [notificationFeed]);
+
+  return <span>Total unread: {metadata.unread_count}</span>;
+};
+```
+
+### `useTranslations`
+
+Exposed under `KnockI18nProvider` child components.
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="locale"
+    type="string"
+    description="The current locale code (defaults to `en`)"
+  />
+  <Attribute
+    name="t"
+    type="(key: string) => string"
+    description="A helper function to get the value of a translation from the current `Translations`."
+  />
+  <Attribute
+    name="dateFnsLocale"
+    type="() => Locale"
+    description="Returns a Locale for use in date-fns. Defaults to `en-US`."
+  />
+</Attributes>
+
+## Types
+
+### `I18nContent`
+
+Used to set translations available in the child components exposed under `KnockFeedProvider`. Used in the `useTranslations` hook.
+
+**Note:** `locale` must be a valid locale code.
+
+```typescript
+interface Translations {
+  readonly emptyFeedTitle: string;
+  readonly emptyFeedBody: string;
+  readonly notifications: string;
+  readonly poweredBy: string;
+  readonly markAllAsRead: string;
+  readonly archiveNotification: string;
+  readonly all: string;
+  readonly unread: string;
+  readonly read: string;
+  readonly unseen: string;
+}
+
+interface I18nContent {
+  readonly translations: Partial<Translations>;
+  readonly locale: string;
+}
+```

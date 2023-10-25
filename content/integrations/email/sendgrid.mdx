@@ -1,0 +1,113 @@
+---
+title: How to send email with SendGrid
+description: How to send transactional email notifications to SendGrid with Knock.
+section: Integrations > Email
+layout: integrations
+---
+
+Knock integrates with [SendGrid](https://sendgrid.com) to send email notifications to your users.
+
+In this guide you'll learn how to get started sending transactional email notifications with SendGrid through Knock. We also cover provider configuration and additional data you can pass through to SendGrid.
+
+## Features
+
+- Attachments support
+- Delivery tracking (only supported for SendGrid accounts with Email Activity)
+- Link and open tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+### Connect SendGrid to Knock
+
+Head to the “Channels” page in the Knock dashboard and click “Create channel” to create a new SendGrid channel in your account.
+
+Once the channel is created, click into it to configure SendGrid for each of your Knock environments.
+
+Here are a few things to note as you configure your SendGrid provider:
+
+- **API key.** At a minimum, Knock needs an API key with full access to the **Mail Send** permission. If you’re looking to support delivery tracking, you’ll need to provide Knock with a SendGrid API key that includes read access to the **Email Activity** permission. (Note: email activity requires [a SendGrid paid add-on](https://sendgrid.com/solutions/add-ons/30-days-additional-email-activity-history/).)
+- **Check delivery status.** If enabled, you can go to the email activity page in SendGrid to check the delivery status of a given email.
+- **Enable email open tracking.** If enabled, you can go to the email activity page in SendGrid to check the open status of a given email.
+- **Enable email link tracking.** If enabled, you can go to the email activity page in SendGrid to check the link open status of a given email.
+
+If you choose to enable open and link tracking, please keep user privacy top of mind and follow the privacy guidelines outlined in [SendGrid’s documentation](https://docs.sendgrid.com/ui/account-and-settings/tracking).
+
+And that’s it. You’ll see the normal email provider configurations for "from email address" and "from name", as well as any environment defaults you want to send for email recipient fields.
+
+## Provider configuration
+
+<Attributes>
+  <Attribute
+    name="API key"
+    type="string*"
+    description="The API key for your SendGrid account"
+  />
+  <Attribute
+    name="Check delivery status"
+    type="boolean"
+    description="When set will attempt to check for the delivery status of a message. Only applicable for paid plans."
+  />
+  <Attribute
+    name="Open tracking"
+    type="boolean"
+    description="Should the provider track opens on their service?"
+  />
+  <Attribute
+    name="Link tracking"
+    type="boolean"
+    description="Should the provider track link clicks on their service?"
+  />
+  <Attribute
+    name="From email address"
+    type="string | liquid*"
+    description="The sender email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="From name"
+    type="string | liquid"
+    description="The sender name (can use Liquid tags)"
+  />
+  <Attribute
+    name="JSON overrides"
+    type="string | liquid"
+    description="Provider API's paramater overrides"
+  />
+</Attributes>
+
+## Environment default settings
+
+The following fields are optional and if set, will be applied to all email messages sent via this channel within the environment:
+
+<Attributes>
+  <Attribute
+    name="Reply-to address"
+    type="string | liquid"
+    description="The reply-to email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="CC address"
+    type="string | liquid"
+    description="The cc email address (can use Liquid tags)"
+  />
+  <Attribute
+    name="BCC address"
+    type="string | liquid"
+    description="The bcc email address (can use Liquid tags)"
+  />
+</Attributes>
+
+## Additional data sent
+
+Knock sends the following attributes along with your emails:
+
+- `custom_args.sender`: always set to `knock.app`
+- `custom_args.knock_message_id`: the ID of the message this email is associated with
+- `tags[0]`: the key of the workflow this message was generated from
+
+You can learn about the role of these SendGrid attributes in the [SendGrid API documentation](https://docs.sendgrid.com/).
+
+## Recipient data requirements
+
+In order to send an email notification you'll need a valid `email` property set on your recipient.

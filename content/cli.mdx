@@ -1,0 +1,992 @@
+---
+title: CLI reference
+description: Learn more about the commands and flags available in the Knock CLI.
+tags: ["cli", "command line", "cmd", "command-line", "terminal"]
+layout: cli
+Section: CLI
+---
+
+<a id="overview" className="absolute -top-8 invisible" />
+
+<Section title="Knock CLI reference" slug="overview">
+<ContentColumn>
+
+This reference documents every command and flag available in Knock's command-line interface.
+
+The Knock CLI helps you work with your Knock resources right from the terminal.
+
+With the CLI, you can:
+
+- Work with your Knock workflows and notification templates locally.
+- Integrate Knock into your CI/CD environment to automatically promote changes.
+- Map your translation files into Knock to localize your notifications.
+
+</ContentColumn>
+</Section>
+
+<Section title="Install the CLI" slug="installation">
+<ContentColumn>
+
+### Install with homebrew
+
+For macOS, you can install the Knock CLI using [homebrew](https://brew.sh/). Once the CLI is installed you can call it by using the `knock` command in your terminal.
+
+### Install with npm
+
+For other operating systems, you can install the Knock CLI using `npm`, a node package manager. Once the CLI is installed, you can call it by using the `knock` command in your terminal.
+
+**Requirements**
+
+The Knock CLI is built with Node.js and installable as a `npm` package. You must have `node` and `npm` installed already, with the following versions:
+
+- Node.js: 16.14.0 or higher
+- NPM: 7.18.1 or higher
+
+You can find the Knock CLI npm package [here](https://www.npmjs.com/package/@knocklabs/cli).
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Install the Knock CLI with homebrew
+brew install knocklabs/tap/knock
+```
+
+<div style={{ marginTop: 80 }} />
+
+```bash Install the Knock CLI with npm
+npm install -g @knocklabs/cli
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Authentication" slug="authentication">
+<ContentColumn>
+
+The Knock CLI relies on a [service token](/developer-tools/service-tokens) to authenticate and make requests to your Knock account. You can specify a service token in all CLI calls, or you can optionally use a configuration file to authenticate all requests.
+
+[Learn how to create a service token.](/developer-tools/service-tokens)
+
+**Setting up a configuration file (optional)**
+
+A service token is required by the CLI for most commands. For convenience, Knock CLI supports a user configuration file, where you can store the service token for the CLI to read automatically rather than having to manually pass in with `--service-token` flag for every command.
+
+To set up a user configuration file, create a `config.json` file in the Knock CLI's config directory at `~/.config/knock` (macOS/Unix) or `%LOCALAPPDATA%\knock` (Windows), and add the following json:
+
+```json config.json
+{
+  "serviceToken": "YOUR_SERVICE_TOKEN"
+}
+```
+
+When Knock CLI detects a user configuration file, it will use the service token provided in it automatically.
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Verify your service token
+knock whoami --service-token=XXX
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock {cmd} <arguments> [flags]" slug="global-flags" headingClassName="font-mono">
+<ContentColumn>
+
+The following flags are supported for every command.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--service-token"
+    type="string"
+    description="The service token for a Knock account to issue the commands against. Required when not using a configuration file."
+  />
+</Attributes>
+
+</ContentColumn>
+</Section>
+
+<Section title="knock workflow list [flags]" slug="workflow-list" headingClassName="font-mono">
+<ContentColumn>
+
+You can see all your existing workflows in a given environment with the workflow list command.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock workflow list
+```
+
+```bash Pagination example
+knock workflow list --after=xxx
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow get [flags]" slug="workflow-get" headingClassName="font-mono">
+<ContentColumn>
+
+You can show more details about a given workflow with the `workflow get` command, followed by the target workflow key.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock workflow get my-workflow
+```
+
+```bash Get workflow in a different environment
+knock workflow get my-workflow --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow pull [flags]" slug="workflow-pull" headingClassName="font-mono">
+<ContentColumn>
+
+You can pull and download workflows with its message templates from Knock to a local file system with the `workflow pull` command. Knock CLI will create a new workflow directory or update the existing workflow directory in the local file system.
+
+Note: if pulling the target workflow for the first time or all workflowws, Knock CLI will ask to confirm before writing to the local filesystem.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={
+      <>
+        <p>
+          Whether to pull all workflows from the specified environment into the
+          target directory path set by `--workflows-dir`. Defaults to false.
+        </p>
+        <p>
+          When used, all contents in the target directory will be erased and
+          replaced with all workflows from the specified environment.
+        </p>
+      </>
+    }
+  />
+  <Attribute
+    name="--workflows-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all workflows into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock workflow pull my-workflow
+```
+
+```bash Pulling a workflow in a different environment
+knock workflow pull my-workflow --environment=production
+```
+
+```bash Pulling all workflows into ./workflows directory
+knock workflow pull --all --workflows-dir=./workflows
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow push [flags]" slug="workflow-push" headingClassName="font-mono">
+<ContentColumn>
+
+You can push and upload a workflow directory to Knock with the `workflow push` command. Knock will update an existing workflow by the matching workflow key, or create a new workflow if it does not exist yet.
+
+Note:
+
+- The `workflow push` command only pushes workflows into the `development` environment.
+- You must be directly above the target workflow directory when running the `workflow push` command, so the CLI can locate the `workflow.json` file.
+- You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit the workflow(s) at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all workflows from the target directory path set by `--workflows-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--workflows-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all workflows from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock workflow push my-workflow
+```
+
+```bash Pushing a workflow and committing with a message
+knock workflow push my-workflow \
+  --commit \
+  -m "Commit message"
+```
+
+```bash Pushing all workflows from ./workflows directory
+knock workflow push --all --workflows-dir=./workflows
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow run <workflow_key> [flags]" slug="workflow-run" headingClassName="font-mono">
+<ContentColumn>
+
+You can run a workflow with the `workflow run` command. Knock will execute a run for the latest saved version of the workflow it finds with the given key and parameters you send it.
+
+Note:
+
+- Changes to the local version of the workflow in your file system will not be reflected in a workflow run; it will use the current version that is stored in Knock.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The slug of the environment in which to run this workflow. Defaults to development."
+  />
+
+  <Attribute
+    name="--recipients"
+    type="string[]"
+    description="One or more recipient ids for this workflow run, maximum limit 5."
+  />
+  <Attribute
+    name="--data"
+    type="string"
+    description="A JSON string of the data with which this workflow will run."
+  />
+  <Attribute
+    name="--actor"
+    type="string"
+    description="An optional actor id for this workflow run."
+  />
+  <Attribute
+    name="--tenant"
+    type="string"
+    description="An optional tenant id for this workflow run."
+  />
+</Attributes>
+
+</ContentColumn>
+
+<ExampleColumn>
+
+```bash Basic usage
+knock workflow run my-workflow \
+  --environment=production \
+  --recipients=ellie
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow validate <workflow_key> [flags]" slug="workflow-validate" headingClassName="font-mono">
+<ContentColumn>
+
+You can validate a new or updated workflow directory with the `workflow validate` command. Knock will validate the given workflow payload in the same way as it would with the `workflow push` command, except without persisting those changes.
+
+Note: Validating a workflow is only done against the `development` environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all workflows from the target directory path set by `--workflows-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--workflows-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all workflows from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock workflow validate my-workflow
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow activate [flags]" slug="workflow-activate" headingClassName="font-mono">
+<ContentColumn>
+
+You can activate or deactivate a workflow in a given environment with the `workflow activate` command.
+
+Note:
+
+- This immediately enables or disables a workflow in a given environment without needing to go through environment promotion.
+- By default, this command activates a given workflow. Pass in the `--status` flag with `false` in order to deactivate it.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string (required)"
+    description="The environment to activate the workflow in."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+  <Attribute
+    name="--status"
+    type="boolean"
+    description="The status to set. Defaults to `true`."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock workflow activate my-workflow \
+  --environment=development
+```
+
+```bash Deactivating a workflow
+knock workflow activate my-workflow \
+  --environment=development \
+  --status=false
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock layout list [flags]" slug="email-layout-list" headingClassName="font-mono">
+<ContentColumn>
+
+List all email layouts in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock layout list
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock layout get <layout_key> [flags]" slug="email-layout-get" headingClassName="font-mono">
+<ContentColumn>
+
+Fetches a single email layout, using the `key` of the email layout.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Get layout
+knock layout get default
+```
+
+```bash Get layout in a different environment
+knock layout get default --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock layout pull <layout_key> [flags]" slug="email-layout-pull" headingClassName="font-mono">
+<ContentColumn>
+
+Pulls the contents of one or all email layouts from Knock into your local filesystem. Using `<layout_key>` you can pull a single email layout, specified by the key or use the `--all` flag to pull all email layouts from Knock at once.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={
+      <>
+        <p>
+          Whether to pull all email layouts from the specified environment into
+          the target directory path set by `--email-layouts-dir`. Defaults to
+          false.
+        </p>
+        <p>
+          When used, all contents in the target directory will be erased and
+          replaced with all email layouts from the specified environment.
+        </p>
+      </>
+    }
+  />
+  <Attribute
+    name="--email-layouts-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all email layouts into. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Pull a single email layout
+knock layout pull default
+```
+
+```bash Pull all email layouts
+knock layout pull --all
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock layout push <layout_key> [flags]" slug="email-layout-push" headingClassName="font-mono">
+<ContentColumn>
+
+Pushes local email layouts back to Knock and upserts them. Using `<layout_key>` you can push a single email layout, specified by the key or use the `--all` flag to push all email layouts from Knock at once.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all email layouts to the target environment. Defaults to false."
+  />
+  <Attribute
+    name="--email-layouts-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all email layouts from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Push a single email layout
+knock layout push
+```
+
+```bash Push all email layouts
+knock layout push --all
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock layout validate <layout_key> [flags]" slug="email-layout-validate" headingClassName="font-mono">
+<ContentColumn>
+
+Validates one or more email layouts. Useful for checking if the layout is valid before running the `email_layout push` command.
+
+The `<layout_key>` can be provided to validate a single email layout, or your can use the `--all` flag to validate all email layouts.
+
+Can only be validated against the `development` environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all email layouts. Defaults to false."
+  />
+  <Attribute
+    name="--email-layouts-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all email layouts from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock layout validate --all
+```
+
+```bash Validate a single email layout
+knock layout validate default
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation list [flags]" slug="translation-list" headingClassName="font-mono">
+<ContentColumn>
+
+List all translations in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock translation list
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation get <translation_ref> [flags]" slug="translation-get" headingClassName="font-mono">
+<ContentColumn>
+
+You can show the content of a given translation with the `translation get` command, followed by the target translation ref.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Get translation without a namespace
+knock translation get en
+```
+
+```bash Get translation with a namespace
+knock translation get admin.en
+```
+
+```bash Get translation in a different environment
+knock translation get en --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation pull <translation_ref> [flags]" slug="translation-pull" headingClassName="font-mono">
+<ContentColumn>
+
+You can pull and download translation files from Knock to a local file system with the `translation pull` command. Knock CLI will create a new translation file or update the existing file in the local file system.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pulled.
+
+See how translation files are structured in your system [here](/send-and-manage-data/translations#translation-files-structure).
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={
+      <>
+        <p>
+          Whether to pull all translations from the specified environment into
+          the target directory path set by `--translations-dir`. Defaults to
+          false.
+        </p>
+        <p>
+          When used with a locale code, will pull all translations for that
+          locale only.
+        </p>
+        <p>
+          Note: all contents in the target directory will be erased and replaced
+          with all translations from the specified environment.
+        </p>
+      </>
+    }
+  />
+  <Attribute
+    name="--translations-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all translations into. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Pull a single translation without a namespace
+knock translation pull en
+```
+
+```bash Pull a single translation with a namespace
+knock translation pull admin.en
+```
+
+```bash Pull all translations for a locale
+knock translation pull en --all
+```
+
+```bash Pull all translations
+knock translation pull --all
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation push <translation_ref> [flags]" slug="translation-push" headingClassName="font-mono">
+<ContentColumn>
+
+Pushes local translation files back to Knock and upserts them.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pushed.
+
+See how translation files are structured in your system [here](/send-and-manage-data/translations#translation-files-structure).
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all translation files to the target environment. Defaults to false."
+  />
+  <Attribute
+    name="--translations-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all translations from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Push a single translation without a namespace
+knock translation push en
+```
+
+```bash Push a single translation with a namespace
+knock translation push tasks.en
+```
+
+```bash Push all translation files for the en locale
+knock translation push en --all
+```
+
+```bash Push all translation files
+knock translation push --all
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation validate <translation_ref> [flags]" slug="translation-validate" headingClassName="font-mono">
+<ContentColumn>
+
+Validates one or more translation files. Useful for checking if the file is valid before running the `translation push` method.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+Can only be validated against the `development` environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all translation files. Defaults to false."
+  />
+  <Attribute
+    name="--translations-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all translation files from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock translation validate --all
+```
+
+```bash Validate a single file
+knock translation validate admin.en
+```
+
+```bash Validate all translations for the en locale
+knock translation validate en --all
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock commit [flags]" slug="commit-all" headingClassName="font-mono">
+<ContentColumn>
+
+You can commit all changes across all resources in the development environment with the commit command.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to use for all changes."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock commit -m "Commit message"
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock commit promote [flags]" slug="commit-promote" headingClassName="font-mono">
+<ContentColumn>
+
+You can promote all changes across all resources to the target environment from its directly preceding environment with the `commit promote` command.
+
+Note:
+
+- For example, if you have three environments “development”, “staging”, and “production” (in that order), setting the `--to` flag to `production` will promote all new changes from the staging environment to the production environment
+- The `--to` environment must be a non-development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--to"
+    type="string"
+    description="The destination environment (required)."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock commit promote --to=production
+```
+
+</ExampleColumn>
+</Section>

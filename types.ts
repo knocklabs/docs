@@ -1,7 +1,9 @@
 export interface FrontMatter {
-  title: string;
   id: string;
-  wordCount: number;
+  title: string;
+  description: string;
+  tags: string[];
+  section: string;
   showNav?: boolean;
 }
 

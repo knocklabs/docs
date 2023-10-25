@@ -3,10 +3,11 @@ import Link from "next/link";
 
 const BreadcrumbItem = ({ title, path }) => (
   <li className="breadcrumb-item">
-    <Link href={path}>
-      <a className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
-        {title}
-      </a>
+    <Link
+      href={path}
+      className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+    >
+      {title}
     </Link>
   </li>
 );

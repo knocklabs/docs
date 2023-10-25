@@ -9,7 +9,7 @@ import {
 } from "@algolia/autocomplete-preset-algolia";
 import algoliasearch from "algoliasearch/lite";
 
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -130,6 +130,16 @@ const Autocomplete = () => {
     }, 20);
   });
 
+  // Fix hydration error by hiding autocomplete during ssr
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   type FormProps = {
     action: string;
     noValidate: boolean;
@@ -148,8 +158,9 @@ const Autocomplete = () => {
 
   return (
     <div
-      className="aa-Autocomplete hidden md:block"
       {...autocomplete.getRootProps({})}
+      id="docs-search"
+      className="aa-Autocomplete hidden md:block"
     >
       <form
         className="aa-Form shadow-none !border-[#E4E8EE] dark:!border-gray-700 !bg-white dark:!bg-gray-800"
@@ -194,12 +205,10 @@ const Autocomplete = () => {
                         }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
                       >
                         <Link href={`/${item.path}`} passHref>
-                          <a href="replace">
-                            <Highlight hit={item} attribute="title" />
-                            <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
-                              {(item as ResultItem).section}
-                            </span>
-                          </a>
+                          <Highlight hit={item} attribute="title" />
+                          <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
+                            {(item as ResultItem).section}
+                          </span>
                         </Link>
                       </li>
                     ))}

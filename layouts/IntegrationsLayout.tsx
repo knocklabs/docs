@@ -8,8 +8,8 @@ import IntegrationsSidebar from "../components/IntegrationsSidebar";
 import Meta from "../components/Meta";
 
 const IntegrationsLayout = ({ frontMatter, children }) => {
-  const { pathname } = useRouter();
-  const paths = useMemo(() => pathname.substring(1).split("/"), [pathname]);
+  const { asPath } = useRouter();
+  const paths = useMemo(() => asPath.substring(1).split("/"), [asPath]);
 
   useEffect(() => {
     const content = document.querySelector(".main-content");
@@ -19,7 +19,7 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
     if (content) {
       content.scrollTop = 0;
     }
-  }, []);
+  }, [asPath]);
 
   const { section, pages } = useMemo(() => {
     const [sectionPath] = paths;
@@ -29,7 +29,7 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
 
     const sidebarSection = sidebarContent[sectionIndex];
     const pageIndex = (sidebarContent[sectionIndex]?.pages || []).findIndex(
-      (p) => sidebarSection.slug + p.slug === pathname,
+      (p) => sidebarSection.slug + p.slug === asPath,
     );
 
     const sidebarPage = sidebarSection?.pages[pageIndex];
@@ -40,7 +40,7 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
       nextPage: sidebarSection?.pages[pageIndex + 1],
       prevPage: sidebarSection?.pages[pageIndex - 1],
     };
-  }, [paths, pathname]);
+  }, [paths, asPath]);
 
   return (
     <>
