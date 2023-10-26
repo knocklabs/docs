@@ -20,3 +20,11 @@ export interface ISidebarSection {
   title?: string;
   pages: IPage[];
 }
+
+declare global {
+  interface Window {
+    clearbit: {
+      push: (args: any[]) => void;
+    };
+  }
+}

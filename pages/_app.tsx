@@ -7,6 +7,7 @@ import {
 } from "@byteclaw/use-event-emitter";
 
 import * as gtag from "../lib/gtag";
+import { setClearbitPath } from "../lib/clearbit";
 
 import "../styles/index.css";
 import { DocsLayout } from "../layouts/DocsLayout";
@@ -19,6 +20,7 @@ function App({ Component, pageProps }) {
   useEffect(() => {
     const handleRouteChange = (url: URL) => {
       gtag.pageview(url);
+      setClearbitPath(url);
     };
 
     router.events.on("routeChangeComplete", handleRouteChange);
