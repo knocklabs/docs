@@ -59,7 +59,7 @@ export default async function handler(request: NextRequest) {
               style={{
                 fontSize: 64,
                 fontWeight: 700,
-                letterSpacing: "-.025em",
+                letterSpacing: "-.0125em",
                 lineHeight: "1",
               }}
             >
@@ -70,8 +70,8 @@ export default async function handler(request: NextRequest) {
                 marginTop: 24,
                 fontSize: 36,
                 fontWeight: 700,
-                letterSpacing: "-0.025em",
-                lineHeight: "1.625",
+                letterSpacing: "-0.0125em",
+                lineHeight: "1.25",
               }}
             >
               {description}
