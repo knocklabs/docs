@@ -33,9 +33,9 @@ export async function generateAlgoliaIndex(
   source: string,
   frontmatter: FrontMatter,
 ) {
-  const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || "_";
-  const algoliaAdminApiKey = process.env.ALGOLIA_ADMIN_API_KEY || "_";
-  const algoliaIndexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || "_";
+  const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID ?? "";
+  const algoliaAdminApiKey = process.env.ALGOLIA_ADMIN_API_KEY ?? "";
+  const algoliaIndexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME ?? "";
 
   if (algoliaAppId && algoliaAdminApiKey && algoliaIndexName) {
     const client = algoliasearch(algoliaAppId, algoliaAdminApiKey);

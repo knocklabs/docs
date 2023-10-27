@@ -37,8 +37,6 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
     return {
       section: sidebarSection,
       pages: [sidebarPage],
-      nextPage: sidebarSection?.pages[pageIndex + 1],
-      prevPage: sidebarSection?.pages[pageIndex - 1],
     };
   }, [paths, asPath]);
 
