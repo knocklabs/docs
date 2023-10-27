@@ -243,6 +243,11 @@ const nextConfig = {
         destination: "/managing-recipients/setting-channel-data",
         permanent: false,
       },
+      {
+        source: "/designing-workflows",
+        destination: "/designing-workflows/overview",
+        permanent: true,
+      },
     ];
   },
 };
