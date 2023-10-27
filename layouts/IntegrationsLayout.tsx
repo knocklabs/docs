@@ -21,23 +21,24 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
     }
   }, [asPath]);
 
-  const { section, pages } = useMemo(() => {
+  const pages = useMemo(() => {
     const [sectionPath] = paths;
     const sectionIndex = sidebarContent.findIndex(
       (s) => s.slug === `/${sectionPath}`,
     );
 
     const sidebarSection = sidebarContent[sectionIndex];
+    const pages: any[] = [sidebarSection];
     const pageIndex = (sidebarContent[sectionIndex]?.pages || []).findIndex(
       (p) => sidebarSection.slug + p.slug === asPath,
     );
 
     const sidebarPage = sidebarSection?.pages[pageIndex];
+    if (sidebarPage) {
+      pages.push(sidebarPage);
+    }
 
-    return {
-      section: sidebarSection,
-      pages: [sidebarPage],
-    };
+    return pages;
   }, [paths, asPath]);
 
   return (
@@ -48,7 +49,7 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
       />
       <div className="w-full max-w-5xl lg:flex mx-auto relative">
         <div className="max-w-prose flex-auto">
-          {section && <Breadcrumbs section={section} pages={pages} />}
+          {pages && <Breadcrumbs pages={pages} />}
 
           <h1 className="font-semibold text-2xl lg:text-4xl mb-4">
             {frontMatter.title}

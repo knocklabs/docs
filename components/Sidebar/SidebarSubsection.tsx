@@ -43,7 +43,7 @@ const SidebarSubsectionList: React.FC<Props> = ({
   }, [isOpen, ref.current]);
 
   return (
-    <li ref={ref} className="-ml-[16px]">
+    <li ref={ref} className="-ml-[16px] scroll-mt-2">
       <button
         type="button"
         className="flex items-center text-gray-500 dark:text-gray-300 text-sm w-full"

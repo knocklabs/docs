@@ -12,24 +12,17 @@ const BreadcrumbItem = ({ title, path }) => (
   </li>
 );
 
-const Breadcrumbs = ({ section, pages }) => (
+const Breadcrumbs = ({ pages }) => (
   <div className="mb-6">
     <ul className="breadcrumbs">
       <BreadcrumbItem title="Home" path="/" />
-      <BreadcrumbItem
-        title={section.title}
-        path={section.slug + section.pages[0].slug}
-      />
-      {pages &&
-        pages.map((page) =>
-          page ? (
-            <BreadcrumbItem
-              key={page.slug}
-              title={page.title}
-              path={section.slug + page.slug}
-            />
-          ) : null,
-        )}
+      {pages.map((page) => (
+        <BreadcrumbItem
+          key={page.slug}
+          title={page.title}
+          path={page.path ?? page.slug}
+        />
+      ))}
     </ul>
   </div>
 );

@@ -1,92 +1,60 @@
-import fs from "fs";
-import path from "path";
-import algoliasearch from "algoliasearch";
-import { FrontMatter } from "../types";
+import { SidebarPage, SidebarSection } from "../data/types";
 
-export const CONTENT_DIR = "content/";
-export const DOCS_FILE_EXTENSIONS = [".mdx", ".md"];
+// Returns the breadcrumbs and adjacent pages in the sidebar given a path
+export const getSidebarInfo = (
+  paths: string[],
+  fullSidebarContent: SidebarSection[],
+) => {
+  // Set up return data
+  let breadcrumbs: SidebarPage[] = [];
+  let prevPage: SidebarPage | undefined = undefined;
+  let nextPage: SidebarPage | undefined = undefined;
 
-export const getAllFilesInDir = (
-  directory: string,
-  files: string[] = [],
-  extensions?: string[],
-): string[] => {
-  fs.readdirSync(directory).forEach((file) => {
-    const subpath = path.join(directory, file);
-    if (fs.lstatSync(subpath).isDirectory()) {
-      getAllFilesInDir(subpath, files, extensions);
-    } else {
-      if (!extensions || extensions.includes(path.extname(subpath))) {
-        files.push(subpath);
+  // Set up temporary data for the search
+  let sidebarContent: any[] = fullSidebarContent;
+  let path = "";
+  let indexes: number[] = [];
+
+  // Iterate over each segment of the path and traverse the sidebar
+  for (let i = 0; i < paths.length; i++) {
+    const slug = paths[i];
+
+    // Continue traversing sidebar to find page
+    const index = sidebarContent.findIndex((s) => s.slug === `/${slug}`);
+    const section = sidebarContent[index];
+
+    breadcrumbs.push({
+      slug,
+      title: section?.title ?? "",
+      path: path + `/${slug}`,
+    });
+
+    if (i === paths.length - 1) {
+      // TODO: Handle skipping across sections to get previous / next
+      if (index > 0) {
+        prevPage = sidebarContent[index - 1];
+        if (prevPage) {
+          prevPage.path = path + prevPage.slug;
+        }
+      }
+
+      if (index < sidebarContent.length - 1) {
+        nextPage = sidebarContent[index + 1];
+        if (nextPage) {
+          nextPage.path = path + nextPage.slug;
+        }
       }
     }
-  });
 
-  return files;
-};
-
-export function makeIdFromPath(resourcePath) {
-  return resourcePath.replace(/\.mdx?$/, "").replace("/index", "");
-}
-
-export async function generateAlgoliaIndex(
-  source: string,
-  frontmatter: FrontMatter,
-) {
-  const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID ?? "";
-  const algoliaAdminApiKey = process.env.ALGOLIA_ADMIN_API_KEY ?? "";
-  const algoliaIndexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME ?? "";
-
-  if (algoliaAppId && algoliaAdminApiKey && algoliaIndexName) {
-    const client = algoliasearch(algoliaAppId, algoliaAdminApiKey);
-    const index = client.initIndex(algoliaIndexName);
-    if (frontmatter.id === "reference") {
-      // Parse all sections from API Reference
-      const sections = source.matchAll(
-        /<Section title="([^"]+)" slug="([^"]+)"[^>]*>/g,
-      );
-      const referenceObjects = [...sections].map((match) => {
-        const slug = match[2];
-        return {
-          objectID: `reference#${slug}`,
-          path: `reference#${slug}`,
-          title: match[1],
-          section: "API reference",
-          tags: [],
-        };
-      });
-      try {
-        // we send all API reference entries in bulk to reduce calls
-        await index.saveObjects(referenceObjects);
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      try {
-        // Notes:
-        // Algolia recommends saving objects in batches because of efficiency.
-        // Our markdown processor doesn't provide a callback to subscribe to that
-        // gets called after finishing with all elements.
-        //
-        // Given we only have ~40 items to be indexed right now, we are just saving
-        // entries one by one.
-        await index.saveObject({
-          // The path to the page will be the identifier in Algolia.
-          objectID: frontmatter.id,
-          path: frontmatter.id,
-          title: frontmatter.title,
-          section: frontmatter.section,
-          // Once we add tags are added to pages, Algolia records
-          // will be updated with them, so we can enhance the search experience
-          tags: frontmatter.tags || [],
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  } else {
-    console.info(
-      "Algolia configuration variables not present. Skipping indexing.",
-    );
+    // Update temporary variables for the next segment search
+    sidebarContent = section.pages ?? [];
+    indexes.push(index);
+    path += `/${slug}`;
   }
-}
+
+  return {
+    breadcrumbs,
+    prevPage,
+    nextPage,
+  };
+};
