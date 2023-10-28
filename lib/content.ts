@@ -14,6 +14,8 @@ export const getSidebarInfo = (
   let sidebarContent: any[] = fullSidebarContent;
   let path = "";
 
+  // TODO: Add extra check for "/security" page bc the paths don't match
+
   // Iterate over each segment of the path and traverse the sidebar
   for (let i = 0; i < paths.length; i++) {
     const slug = paths[i];
@@ -29,7 +31,7 @@ export const getSidebarInfo = (
     });
 
     // Update temporary variables for the next segment search
-    sidebarContent = section.pages ?? [];
+    sidebarContent = section?.pages ?? [];
     path += `/${slug}`;
   }
 
