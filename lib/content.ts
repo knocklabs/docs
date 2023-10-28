@@ -13,7 +13,6 @@ export const getSidebarInfo = (
   // Set up temporary data for the search
   let sidebarContent: any[] = fullSidebarContent;
   let path = "";
-  let indexes: number[] = [];
 
   // Iterate over each segment of the path and traverse the sidebar
   for (let i = 0; i < paths.length; i++) {
@@ -29,27 +28,23 @@ export const getSidebarInfo = (
       path: path + `/${slug}`,
     });
 
-    if (i === paths.length - 1) {
-      // TODO: Handle skipping across sections to get previous / next
-      if (index > 0) {
-        prevPage = sidebarContent[index - 1];
-        if (prevPage) {
-          prevPage.path = path + prevPage.slug;
-        }
-      }
-
-      if (index < sidebarContent.length - 1) {
-        nextPage = sidebarContent[index + 1];
-        if (nextPage) {
-          nextPage.path = path + nextPage.slug;
-        }
-      }
-    }
-
     // Update temporary variables for the next segment search
     sidebarContent = section.pages ?? [];
-    indexes.push(index);
     path += `/${slug}`;
+  }
+
+  // Flatten the sidebar tree and get the previous and next pages
+  const flatSidebar = flattenSidebar(fullSidebarContent);
+  const flatIndex = flatSidebar.findIndex(
+    (page) => page.path === `/${paths.join("/")}`,
+  );
+
+  if (flatIndex > 0) {
+    prevPage = flatSidebar[flatIndex - 1];
+  }
+
+  if (flatIndex < flatSidebar.length - 1) {
+    nextPage = flatSidebar[flatIndex + 1];
   }
 
   return {
@@ -57,4 +52,32 @@ export const getSidebarInfo = (
     prevPage,
     nextPage,
   };
+};
+
+const flattenSidebar = (sidebarContent: SidebarSection[]): SidebarPage[] => {
+  let flatSidebar: SidebarPage[] = [];
+
+  for (const section of sidebarContent) {
+    flatSidebar = flatSidebar.concat(flattenPages(section.pages, section.slug));
+  }
+
+  return flatSidebar;
+};
+
+const flattenPages = (pages: any[], path: string): SidebarPage[] => {
+  let flatPages: SidebarPage[] = [];
+
+  for (const page of pages) {
+    if (page.pages) {
+      flatPages = flatPages.concat(flattenPages(page.pages, path + page.slug));
+    } else {
+      flatPages.push({
+        title: page.title,
+        slug: page.slug,
+        path: page.slug === "/security" ? page.slug : path + page.slug,
+      });
+    }
+  }
+
+  return flatPages;
 };
