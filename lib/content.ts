@@ -15,16 +15,17 @@ export const getSidebarInfo = (
   let path = "";
 
   // Some pages URL doesn't match their position in the sidebar,
-  // so we have to massage the data a bit to produce the correct sidebar info
+  // so we have to massage the data a bit to get the correct breadcrumbs
   if (paths[0] === "security") {
     paths.unshift("getting-started");
   }
 
-  // Iterate over each segment of the path and traverse the sidebar
+  // Iterate over each path segment and traverse the sidebar
+  // by finding the correct sections and pages
   for (let i = 0; i < paths.length; i++) {
     const slug = paths[i];
 
-    // Continue traversing sidebar to find page
+    // Traverse sidebar to find section or page
     const index = sidebarContent.findIndex((s) => s.slug === `/${slug}`);
     const section = sidebarContent[index];
     breadcrumbs.push({
