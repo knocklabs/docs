@@ -12,7 +12,7 @@ import {
   DOCS_FILE_EXTENSIONS,
   makeIdFromPath,
   generateAlgoliaIndex,
-} from "../lib/content";
+} from "../lib/content.server";
 import Callout from "../components/Callout";
 import MultiLangCodeBlock from "../components/MultiLangCodeBlock";
 import remarkSlug from "remark-slug";

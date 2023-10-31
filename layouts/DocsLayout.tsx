@@ -7,6 +7,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import sidebarContent from "../data/sidebar";
 import DocsSidebar from "../components/DocsSidebar";
 import Meta from "../components/Meta";
+import { getSidebarInfo } from "../lib/content";
 
 const DocsLayout = ({ frontMatter, children }) => {
   const { asPath } = useRouter();
@@ -22,26 +23,10 @@ const DocsLayout = ({ frontMatter, children }) => {
     }
   }, [asPath]);
 
-  const { section, pages, nextPage, prevPage } = useMemo(() => {
-    const [sectionPath] = paths;
-    const sectionIndex = sidebarContent.findIndex(
-      (s) => s.slug === `/${sectionPath}`,
-    );
-
-    const sidebarSection = sidebarContent[sectionIndex];
-    const pageIndex = (sidebarContent[sectionIndex]?.pages || []).findIndex(
-      (p) => sidebarSection.slug + p.slug === asPath,
-    );
-
-    const sidebarPage = sidebarSection?.pages[pageIndex];
-
-    return {
-      section: sidebarSection,
-      pages: [sidebarPage],
-      nextPage: sidebarSection?.pages[pageIndex + 1],
-      prevPage: sidebarSection?.pages[pageIndex - 1],
-    };
-  }, [paths, asPath]);
+  const { breadcrumbs, nextPage, prevPage } = useMemo(
+    () => getSidebarInfo(paths, sidebarContent),
+    [paths],
+  );
 
   return (
     <>
@@ -51,7 +36,7 @@ const DocsLayout = ({ frontMatter, children }) => {
       />
       <div className="w-full max-w-5xl lg:flex mx-auto relative">
         <div className="max-w-prose flex-auto">
-          {section && <Breadcrumbs section={section} pages={pages} />}
+          {breadcrumbs && <Breadcrumbs pages={breadcrumbs} />}
 
           <header className="mb-6 pb-6 border-b dark:border-b-gray-800">
             <h1 className="font-semibold text-2xl lg:text-4xl mb-2">
@@ -67,10 +52,10 @@ const DocsLayout = ({ frontMatter, children }) => {
           </div>
           {(prevPage || nextPage) && (
             <div className="flex border-t dark:border-t-gray-700 mt-8 pt-8 text-sm">
-              {prevPage && !("pages" in prevPage) && (
+              {prevPage?.path && !("pages" in prevPage) && (
                 <div className="text-left">
                   <Link
-                    href={section.slug + prevPage.slug}
+                    href={prevPage.path}
                     className="text-gray-500 hover:text-gray-800"
                   >
                     ←{prevPage.title}
@@ -78,14 +63,10 @@ const DocsLayout = ({ frontMatter, children }) => {
                 </div>
               )}
 
-              {nextPage && !("pages" in nextPage) && (
+              {nextPage?.path && !("pages" in nextPage) && (
                 <div className="ml-auto text-right">
                   <Link
-                    href={
-                      nextPage.slug === "/security"
-                        ? nextPage.slug
-                        : section.slug + nextPage.slug
-                    }
+                    href={nextPage.path}
                     className="text-gray-500 hover:text-gray-80"
                   >
                     {nextPage.title}→

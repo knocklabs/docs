@@ -7,7 +7,12 @@ export const isHighlighted = (
   router: NextRouter,
 ) => {
   const pathname = router.asPath;
-  return pagePath === "/" ? pathname === path : pathname === path + pagePath;
+
+  if (pagePath === "/") {
+    return pathname === path;
+  } else {
+    return pathname === path + pagePath;
+  }
 };
 
 export const pagePath = (parentPath: string, page: SidebarPage) =>

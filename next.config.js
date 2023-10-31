@@ -199,11 +199,6 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: "/getting-started/security",
-        destination: "/security",
-        permanent: false,
-      },
-      {
         source: "/designing-workflows/template-editor",
         destination: "/designing-workflows/template-editor/overview",
         permanent: false,
@@ -242,6 +237,16 @@ const nextConfig = {
         source: "/send-notifications/setting-channel-data",
         destination: "/managing-recipients/setting-channel-data",
         permanent: false,
+      },
+      {
+        source: "/designing-workflows",
+        destination: "/designing-workflows/overview",
+        permanent: true,
+      },
+      {
+        source: "/security",
+        destination: "/getting-started/security",
+        permanent: true,
       },
     ];
   },

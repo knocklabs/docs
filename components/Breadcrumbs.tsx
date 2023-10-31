@@ -1,7 +1,13 @@
 import React from "react";
 import Link from "next/link";
+import { SidebarPage, SidebarSection } from "../data/types";
 
-const BreadcrumbItem = ({ title, path }) => (
+interface BreadcrumbItemProps {
+  title: string;
+  path: string;
+}
+
+const BreadcrumbItem = ({ title, path }: BreadcrumbItemProps) => (
   <li className="breadcrumb-item">
     <Link
       href={path}
@@ -12,24 +18,21 @@ const BreadcrumbItem = ({ title, path }) => (
   </li>
 );
 
-const Breadcrumbs = ({ section, pages }) => (
+interface BreadcrumbsProps {
+  pages: (SidebarPage | SidebarSection)[];
+}
+
+const Breadcrumbs = ({ pages }: BreadcrumbsProps) => (
   <div className="mb-6">
     <ul className="breadcrumbs">
       <BreadcrumbItem title="Home" path="/" />
-      <BreadcrumbItem
-        title={section.title}
-        path={section.slug + section.pages[0].slug}
-      />
-      {pages &&
-        pages.map((page) =>
-          page ? (
-            <BreadcrumbItem
-              key={page.slug}
-              title={page.title}
-              path={section.slug + page.slug}
-            />
-          ) : null,
-        )}
+      {pages.map((page) => (
+        <BreadcrumbItem
+          key={page.slug}
+          title={page.title ?? ""}
+          path={"path" in page && page.path ? page.path : page.slug}
+        />
+      ))}
     </ul>
   </div>
 );
