@@ -14,12 +14,6 @@ export const getSidebarInfo = (
   let sidebarContent: any[] = fullSidebarContent;
   let path = "";
 
-  // Some pages URL doesn't match their position in the sidebar,
-  // so we have to massage the data a bit to get the correct breadcrumbs
-  if (paths[0] === "security") {
-    paths.unshift("getting-started");
-  }
-
   // Iterate over each path segment and traverse the sidebar
   // by finding the correct sections and pages
   for (let i = 0; i < paths.length; i++) {
@@ -38,11 +32,6 @@ export const getSidebarInfo = (
     // Update temporary variables for the next segment search
     sidebarContent = section?.pages ?? [];
     path += `/${slug}`;
-  }
-
-  // Undo any data massaging we did before building the breadcrumbs
-  if (paths[0] === "security") {
-    paths.shift();
   }
 
   // Flatten the sidebar tree and get the previous and next pages
@@ -86,7 +75,7 @@ const flattenPages = (pages: any[], path: string): SidebarPage[] => {
       flatPages.push({
         title: page.title,
         slug: page.slug,
-        path: page.slug === "/security" ? page.slug : path + page.slug,
+        path: path + page.slug,
       });
     }
   }

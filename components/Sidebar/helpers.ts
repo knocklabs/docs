@@ -10,8 +10,6 @@ export const isHighlighted = (
 
   if (pagePath === "/") {
     return pathname === path;
-  } else if (pagePath === "/security") {
-    return pagePath === pathname;
   } else {
     return pathname === path + pagePath;
   }
