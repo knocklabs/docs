@@ -22,18 +22,21 @@ export const getSidebarInfo = (
     // Traverse sidebar to find section or page
     const index = sidebarContent.findIndex((s) => s.slug === `/${slug}`);
     const section = sidebarContent[index];
+
+    let breadcrumbPath = path + `/${slug}`;
+    // If the current breadcrumb is a section (e.g. 'Getting Started'), add the first page to the path
+    if (section && "pages" in section && section?.pages) {
+      breadcrumbPath += section.pages[0].slug;
+    }
+
     breadcrumbs.push({
       slug,
       title: section?.title ?? "",
-      // If the current breadcrumb is a section (e.g. 'Getting Started'), add the first page to the path
-      path:
-        path +
-        `/${slug}` +
-        ("pages" in section && section?.pages ? section.pages[0].slug : ""),
+      path: breadcrumbPath,
     });
 
     // Update temporary variables for the next segment search
-    sidebarContent = "pages" in section ? section?.pages : [];
+    sidebarContent = section && "pages" in section ? section?.pages : [];
     path += `/${slug}`;
   }
 
