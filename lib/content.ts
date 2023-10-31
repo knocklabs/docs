@@ -11,7 +11,7 @@ export const getSidebarInfo = (
   let nextPage: SidebarPage | undefined = undefined;
 
   // Set up temporary data for the search
-  let sidebarContent: any[] = fullSidebarContent;
+  let sidebarContent: (SidebarSection | SidebarPage)[] = fullSidebarContent;
   let path = "";
 
   // Iterate over each path segment and traverse the sidebar
@@ -26,11 +26,14 @@ export const getSidebarInfo = (
       slug,
       title: section?.title ?? "",
       // If the current breadcrumb is a section (e.g. 'Getting Started'), add the first page to the path
-      path: path + `/${slug}` + (section?.pages ? section.pages[0].slug : ""),
+      path:
+        path +
+        `/${slug}` +
+        ("pages" in section && section?.pages ? section.pages[0].slug : ""),
     });
 
     // Update temporary variables for the next segment search
-    sidebarContent = section?.pages ?? [];
+    sidebarContent = "pages" in section ? section?.pages : [];
     path += `/${slug}`;
   }
 
@@ -65,11 +68,14 @@ const flattenSidebar = (sidebarContent: SidebarSection[]): SidebarPage[] => {
   return flatSidebar;
 };
 
-const flattenPages = (pages: any[], path: string): SidebarPage[] => {
+const flattenPages = (
+  pages: SidebarSection["pages"],
+  path: string,
+): SidebarPage[] => {
   let flatPages: SidebarPage[] = [];
 
   for (const page of pages) {
-    if (page.pages) {
+    if ("pages" in page && page.pages) {
       flatPages = flatPages.concat(flattenPages(page.pages, path + page.slug));
     } else {
       flatPages.push({

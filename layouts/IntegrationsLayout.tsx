@@ -6,6 +6,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import sidebarContent from "../data/integrationsSidebar";
 import IntegrationsSidebar from "../components/IntegrationsSidebar";
 import Meta from "../components/Meta";
+import { SidebarPage, SidebarSection } from "../data/types";
 
 const IntegrationsLayout = ({ frontMatter, children }) => {
   const { asPath } = useRouter();
@@ -28,7 +29,7 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
     );
 
     const sidebarSection = sidebarContent[sectionIndex];
-    const pages: any[] = [sidebarSection];
+    const pages: (SidebarSection | SidebarPage)[] = [sidebarSection];
     const pageIndex = (sidebarContent[sectionIndex]?.pages || []).findIndex(
       (p) => sidebarSection.slug + p.slug === asPath,
     );
