@@ -6,11 +6,12 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import sidebarContent from "../data/integrationsSidebar";
 import IntegrationsSidebar from "../components/IntegrationsSidebar";
 import Meta from "../components/Meta";
-import { SidebarPage, SidebarSection } from "../data/types";
+import { getSidebarInfo, slugToPaths } from "../lib/content";
+import Link from "next/link";
 
 const IntegrationsLayout = ({ frontMatter, children }) => {
-  const { asPath } = useRouter();
-  const paths = useMemo(() => asPath.substring(1).split("/"), [asPath]);
+  const router = useRouter();
+  let paths = slugToPaths(router.query.slug);
 
   useEffect(() => {
     const content = document.querySelector(".main-content");
@@ -20,27 +21,22 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
     if (content) {
       content.scrollTop = 0;
     }
-  }, [asPath]);
+  }, [paths]);
 
-  const pages = useMemo(() => {
-    const [sectionPath] = paths;
-    const sectionIndex = sidebarContent.findIndex(
-      (s) => s.slug === `/${sectionPath}`,
-    );
-
-    const sidebarSection = sidebarContent[sectionIndex];
-    const pages: (SidebarSection | SidebarPage)[] = [sidebarSection];
-    const pageIndex = (sidebarContent[sectionIndex]?.pages || []).findIndex(
-      (p) => sidebarSection.slug + p.slug === asPath,
-    );
-
-    const sidebarPage = sidebarSection?.pages[pageIndex];
-    if (sidebarPage) {
-      pages.push(sidebarPage);
+  const { breadcrumbs, nextPage, prevPage } = useMemo(() => {
+    // Merge the first two path segments for all pages but the integrations overview
+    // so that the paths match the slugs in the integrations sidebar content.
+    //
+    // For example, the Sources > Segment page has the following router slug:
+    // ['integrations', 'sources', 'segment'] which needs to become
+    // ['integrations/sources', 'segment'] so that it matches the sidebar content
+    let sidebarPaths = paths;
+    if (paths.length > 2) {
+      sidebarPaths = [`${paths[0]}/${paths[1]}`, ...paths.slice(2)];
     }
 
-    return pages;
-  }, [paths, asPath]);
+    return getSidebarInfo(sidebarPaths, sidebarContent);
+  }, [paths]);
 
   return (
     <>
@@ -50,7 +46,7 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
       />
       <div className="w-full max-w-5xl lg:flex mx-auto relative">
         <div className="max-w-prose flex-auto">
-          {pages && <Breadcrumbs pages={pages} />}
+          {breadcrumbs && <Breadcrumbs pages={breadcrumbs} />}
 
           <h1 className="font-semibold text-2xl lg:text-4xl mb-4">
             {frontMatter.title}
@@ -58,6 +54,31 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
           <div className="docs-content prose-sm lg:prose dark:prose-invert">
             {children}
           </div>
+          {(prevPage || nextPage) && (
+            <div className="flex border-t dark:border-t-gray-700 mt-8 pt-8 text-sm">
+              {prevPage?.path && !("pages" in prevPage) && (
+                <div className="text-left">
+                  <Link
+                    href={prevPage.path}
+                    className="text-gray-500 hover:text-gray-800"
+                  >
+                    ←{prevPage.title}
+                  </Link>
+                </div>
+              )}
+
+              {nextPage?.path && !("pages" in nextPage) && (
+                <div className="ml-auto text-right">
+                  <Link
+                    href={nextPage.path}
+                    className="text-gray-500 hover:text-gray-80"
+                  >
+                    {nextPage.title}→
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="hidden xl:text-sm xl:block flex-none w-64 ml-auto relative">
