@@ -7,11 +7,11 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import sidebarContent from "../data/sidebar";
 import DocsSidebar from "../components/DocsSidebar";
 import Meta from "../components/Meta";
-import { getSidebarInfo } from "../lib/content";
+import { getSidebarInfo, slugToPaths } from "../lib/content";
 
 const DocsLayout = ({ frontMatter, children }) => {
-  const { asPath } = useRouter();
-  const paths = useMemo(() => asPath.substring(1).split("/"), [asPath]);
+  const router = useRouter();
+  const paths = slugToPaths(router.query.slug);
 
   useEffect(() => {
     const content = document.querySelector(".main-content");
@@ -21,7 +21,7 @@ const DocsLayout = ({ frontMatter, children }) => {
     if (content) {
       content.scrollTop = 0;
     }
-  }, [asPath]);
+  }, [paths]);
 
   const { breadcrumbs, nextPage, prevPage } = useMemo(
     () => getSidebarInfo(paths, sidebarContent),
