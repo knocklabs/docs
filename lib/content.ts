@@ -1,5 +1,16 @@
 import { SidebarPage, SidebarSection } from "../data/types";
 
+// Converts a Next.js router slug to a paths array
+export const slugToPaths = (slug: string | string[] | undefined): string[] => {
+  if (!slug) {
+    return [];
+  } else if (typeof slug == "string") {
+    return [slug];
+  } else {
+    return slug;
+  }
+};
+
 // Returns the breadcrumbs and adjacent pages in the sidebar given a path
 export const getSidebarInfo = (
   paths: string[],
