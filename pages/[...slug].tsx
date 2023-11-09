@@ -58,10 +58,10 @@ const components = {
   Endpoint,
 };
 
-export default function ContentPage({ source }) {
+export default function ContentPage({ source, sourcePath }) {
   return (
     <div className="wrapper">
-      <MDXLayout frontMatter={source.frontmatter}>
+      <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
         <MDXRemote
           {...source}
           components={components}
@@ -79,14 +79,15 @@ export default function ContentPage({ source }) {
 export async function getStaticProps({ params: { slug } }) {
   // Read the source content file, checking for .mdx and .md files
   let source;
+  let sourcePath;
   for (const ext of DOCS_FILE_EXTENSIONS) {
-    const path = join(
+    sourcePath = join(
       CONTENT_DIR,
       ...slug.slice(0, slug.length - 1),
       `${slug[slug.length - 1]}${ext}`,
     );
-    if (fs.existsSync(path)) {
-      source = fs.readFileSync(path);
+    if (fs.existsSync(sourcePath)) {
+      source = fs.readFileSync(sourcePath);
       break;
     }
   }
@@ -110,7 +111,7 @@ export async function getStaticProps({ params: { slug } }) {
   // Index page in algolia
   await generateAlgoliaIndex(source.toString(), mdxSource.frontmatter);
 
-  return { props: { source: mdxSource } };
+  return { props: { source: mdxSource, sourcePath } };
 }
 
 // Get the list of pages

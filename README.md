@@ -2,13 +2,13 @@
 
 Documentation, guides, and the API reference for Knock. Built with Next.JS and Typescript.
 
-## System requirements
+## Getting up-and-running
+
+### System requirements
 
 To run docs you will need:
 
 - `node` & `yarn` (see `.tool-versions`)
-
-## Getting up-and-running
 
 ### Running docs
 
@@ -26,11 +26,15 @@ $ yarn run dev
 
 3. Open your browser to `http://localhost:3002`
 
-## Deploying
+## Contributing
 
-This site is automatically deployed to `docs.knock.app` from the `main` branch. Previews are available
-for all PRs submitted into this repo, powered by Vercel.
+Contributions are welcome! There are several ways to contribute including:
 
-## Hosting
+1. Fixing typos and errors
+1. Adding new content
+1. Improving existing content
+1. Providing feedback
 
-You can access the hosting for this site here: https://vercel.com/knocklabs/docs
+The docs content can be found in the `/content` directory. Our documentation is written in [MDX](https://mdxjs.com/), a markdown format that supports embedding React components. See the [GitHub Markdown Guide](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) for a quick overview of markdown.
+
+If you're new to GitHub, check out the [Open Source Guide](https://opensource.guide/how-to-contribute/#opening-a-pull-request) to learn how to fork a repository, create a branch, and submit a pull request.

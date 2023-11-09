@@ -22,11 +22,13 @@ export default class DocsDocument extends Document {
           `,
             }}
           />
-          <script
-            async
-            src="https://tag.clearbitscripts.com/v1/pk_a7b41f9f92a28931375612d4de531c64/tags.js"
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
+          {process.env.NEXT_PUBLIC_CLEARBIT_KEY && (
+            <script
+              async
+              src={`https://tag.clearbitscripts.com/v1/${process.env.NEXT_PUBLIC_CLEARBIT_KEY}/tags.js`}
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          )}
         </Head>
         <body>
           <Main />

@@ -4,6 +4,7 @@ import cn from "classnames";
 
 export interface Props {
   title: string;
+  sourcePath: string;
 }
 
 interface IHeader {
@@ -85,7 +86,7 @@ const HeaderList: React.FC<{ headers: IHeader[]; nesting: number }> = ({
   </>
 );
 
-const PageNav: React.FC<Props> = ({ title }) => {
+const PageNav: React.FC<Props> = ({ title, sourcePath }) => {
   const [headers, setHeaders] = useState<IHeader[]>([]);
 
   useEffect(() => {
@@ -111,6 +112,15 @@ const PageNav: React.FC<Props> = ({ title }) => {
       <ul className="space-y-2">
         <HeaderList headers={headers} nesting={0} />
       </ul>
+      <div className="my-4 border-t border-gray-200 dark:border-gray-800"></div>
+      <a
+        href={`https://github.com/knocklabs/docs/edit/main/${sourcePath}`}
+        className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Edit this page on GitHub &rarr;
+      </a>
     </aside>
   );
 };
