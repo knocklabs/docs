@@ -7,7 +7,9 @@ import { CliReferenceLayout } from "./CliReferenceLayout";
 import { MapiReferenceLayout } from "./MapiReferenceLayout";
 import { ApiReferenceLayout } from "./ApiReferenceLayout";
 
-const MDXLayout: React.FC<{ frontMatter: FrontMatter }> = (props) => {
+const MDXLayout: React.FC<{ frontMatter: FrontMatter; sourcePath: string }> = (
+  props,
+) => {
   const router = useRouter();
 
   if (router.asPath.startsWith("/integrations")) {

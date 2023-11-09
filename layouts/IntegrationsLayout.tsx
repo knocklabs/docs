@@ -9,7 +9,7 @@ import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
 import Link from "next/link";
 
-const IntegrationsLayout = ({ frontMatter, children }) => {
+const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
   let paths = slugToPaths(router.query.slug);
 
@@ -83,7 +83,7 @@ const IntegrationsLayout = ({ frontMatter, children }) => {
 
         <div className="hidden xl:text-sm xl:block flex-none w-64 ml-auto relative">
           {frontMatter.showNav !== false && (
-            <PageNav title={frontMatter.title} />
+            <PageNav title={frontMatter.title} sourcePath={sourcePath} />
           )}
         </div>
       </div>
