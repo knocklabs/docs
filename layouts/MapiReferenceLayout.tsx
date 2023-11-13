@@ -12,6 +12,7 @@ const sidebarData = [
       { slug: "#overview", title: "Introduction" },
       { slug: "#authentication", title: "Authentication" },
       { slug: "#errors", title: "Errors" },
+      { slug: "#postman", title: "Postman" },
     ],
   },
   {
