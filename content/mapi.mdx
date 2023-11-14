@@ -34,7 +34,7 @@ You can use the Knock management API to:
 - Create, update, and manage your Knock workflows and the notification templates within those workflows.
 - Create and manage the [translations](/send-and-manage-data/translations) used by your notification templates.
 - Create, update and manage your [email layouts](/integrations/email/layouts).
-- Commit and promote changes between your Knock environments, and list commits for a given environment.
+- Commit and promote changes between your Knock environments, and list commits in a given environment.
 
 </ContentColumn>
 <ExampleColumn>
@@ -1976,21 +1976,211 @@ A translation object
 
 To version the changes you make in your environments, Knock uses a commit model. When you make changes to a workflow, a layout, a translation or an event action mapping, you will need to commit them in your development environment, then promote to subsequent environments before those changes will appear in the respective environments.
 
+You can also retrieve all commits in a given environment, or show the details of one single commit based on the target commit id.
+
 </ContentColumn>
 <ExampleColumn>
 
 <Endpoints>
+  <Endpoint name="commits-list" method="GET" path="/commits" withLink />
+  <Endpoint name="commits-get" method="GET" path="/commits/:id" withLink />
   <Endpoint name="commits-commit" method="PUT" path="/commits" withLink />
   <Endpoint
-    name="commits-promote"
+    name="commits-promote-all"
     method="PUT"
     path="/commits/promote"
+    withLink
+  />
+    <Endpoint
+    name="commits-promote-one"
+    method="PUT"
+    path="/commits/:id/promote"
     withLink
   />
 </Endpoints>
 
 </ExampleColumn>
 </Section>
+
+<Section title="Commit definition" slug="commits-object">
+<ContentColumn>
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="The unique id for this commit."
+  />
+  <Attribute
+    name="resource"
+    type="CommitResource"
+    description="The resource object associated with the commit."
+  />
+  <Attribute
+    name="author"
+    type="CommitAuthor"
+    description="The author responsible for the commit."
+  />
+  <Attribute
+    name="commit_message"
+    type="string"
+    description="The optional message about the commit."
+  />
+  <Attribute
+    name="environment"
+    type="string"
+    description="The environment where the commit was made."
+  />
+  <Attribute
+    name="created_at"
+    type="timestamp"
+    description="A timestamp of when the commit was created."
+  />
+</Attributes>
+
+### CommitResource Attributes
+
+<Attributes>
+  <Attribute
+    name="type"
+    type="string"
+    description="The type of the resource object."
+  />
+    <Attribute
+    name="identifier"
+    type="string"
+    description="The Unique identifier for the resource."
+  />
+</Attributes>
+
+### CommitAuthor Attributes
+
+<Attributes>
+  <Attribute
+    name="name"
+    type="string"
+    description="The name of the commit author."
+  />
+    <Attribute
+    name="email"
+    type="string"
+    description="The email address of the author."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Commit object
+{
+      "id": "ce3e5457-34f2-4f53-94a2-2f316528d83f",
+      "resource": {
+        "identifier": "default",
+        "type": "email_layout"
+      },
+      "author": {
+        "email": "John@gmail.com",
+        "name": "John Doe"
+      },
+      "commit_message": "Initial email layout",
+      "environment": "development",
+      "created_at": "2023-09-22T18:57:21.704602Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List all commits" slug="commits-list">
+<ContentColumn>
+
+Returns a paginated list of commits in a given environment. The commits are ordered from most recent.
+
+### Endpoint
+
+<Endpoint method="GET" path="/commits" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description="A slug of the environment from which to query commits."
+  />  
+  <Attribute
+    name="[no-]promoted"
+    type="string"
+    description="Whether to show only promoted or unpromoted changes between the given environment and the subsequent environment."
+    />
+    <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after."
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before."
+  />
+  <Attribute
+    name="limit"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50, maximum of 100)."
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of commits
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+  "entries": [
+   {
+      "id": "ce3e5457-34f2-4f53-94a2-2f316528d83f",
+      "resource": {
+        "identifier": "default",
+        "type": "email_layout"
+      },
+      "author": {
+        "email": "John@gmail.com",
+        "name": "John Doe"
+      },
+      "commit_message": "Initial email layout",
+      "environment": "development",
+      "created_at": "2023-09-22T18:57:21.704602Z"
+   },
+ {
+      "id": "e4a22631-e05e-4d40-b323-4dc327c0670e",
+      "resource": {
+        "identifier": "new-comment",
+        "type": "workflow"
+      },
+      "author": {
+        "email": "franklin@gmail.com",
+        "name": "Franklin Sierra"
+      },
+      "environment": "development",
+      "created_at": "2023-11-13T19:28:25.090196Z"
+}
+  ],
+  "page_info": {
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
 
 <Section title="Commit all changes" slug="commits-commit">
 <ContentColumn>
