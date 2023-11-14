@@ -1976,7 +1976,7 @@ A translation object
 
 To version the changes you make in your environments, Knock uses a commit model. When you make changes to a workflow, a layout, a translation or an event action mapping, you will need to commit them in your development environment, then promote to subsequent environments before those changes will appear in the respective environments.
 
-You can also retrieve all commits in a given environment, or show the details of one single commit based on the target commit id.
+You can retrieve all commits in a given environment, or show the details of one single commit based on the target commit id.
 
 </ContentColumn>
 <ExampleColumn>
@@ -2043,30 +2043,30 @@ You can also retrieve all commits in a given environment, or show the details of
 ### CommitResource Attributes
 
 <Attributes>
-  <Attribute
-    name="type"
-    type="string"
-    description="The type of the resource object."
-  />
     <Attribute
     name="identifier"
     type="string"
     description="The Unique identifier for the resource."
+  />
+    <Attribute
+    name="type"
+    type="string"
+    description="The type of the resource object."
   />
 </Attributes>
 
 ### CommitAuthor Attributes
 
 <Attributes>
-  <Attribute
-    name="name"
-    type="string"
-    description="The name of the commit author."
-  />
     <Attribute
     name="email"
     type="string"
     description="The email address of the author."
+  />
+    <Attribute
+    name="name"
+    type="string"
+    description="The name of the commit author."
   />
 </Attributes>
 
@@ -2075,18 +2075,18 @@ You can also retrieve all commits in a given environment, or show the details of
 
 ```json Commit object
 {
-      "id": "ce3e5457-34f2-4f53-94a2-2f316528d83f",
-      "resource": {
-        "identifier": "default",
-        "type": "email_layout"
-      },
-      "author": {
-        "email": "John@gmail.com",
-        "name": "John Doe"
-      },
-      "commit_message": "Initial email layout",
-      "environment": "development",
-      "created_at": "2023-09-22T18:57:21.704602Z"
+   "id": "ce3e5457-34f2-4f53-94a2-2f316528d83f",
+   "resource": {
+      "identifier": "default",
+      "type": "email_layout"
+   },
+   "author": {
+      "email": "John@gmail.com",
+      "name": "John Doe"
+   },
+   "commit_message": "Initial email layout",
+   "environment": "development",
+   "created_at": "2023-09-22T18:57:21.704602Z"
 }
 ```
 
@@ -2096,7 +2096,7 @@ You can also retrieve all commits in a given environment, or show the details of
 <Section title="List all commits" slug="commits-list">
 <ContentColumn>
 
-Returns a paginated list of commits in a given environment. The commits are ordered from most recent.
+Returns a paginated list of commits in a given environment. The commits are ordered from most recent first.
 
 ### Endpoint
 
@@ -2141,46 +2141,91 @@ A paginated list of commits
 
 ```json Response
 {
-  "entries": [
-   {
-      "id": "ce3e5457-34f2-4f53-94a2-2f316528d83f",
-      "resource": {
-        "identifier": "default",
-        "type": "email_layout"
+   "entries": [
+      {
+         "id": "ce3e5457-34f2-4f53-94a2-2f316528d83f",
+         "resource": {
+            "identifier": "default",
+            "type": "email_layout"
+         },
+         "author": {
+            "email": "John@gmail.com",
+            "name": "John Doe"
+         },
+         "commit_message": "Initial email layout",
+         "environment": "development",
+         "created_at": "2023-09-22T18:57:21.704602Z"
       },
-      "author": {
-        "email": "John@gmail.com",
-        "name": "John Doe"
-      },
-      "commit_message": "Initial email layout",
-      "environment": "development",
-      "created_at": "2023-09-22T18:57:21.704602Z"
-   },
- {
-      "id": "e4a22631-e05e-4d40-b323-4dc327c0670e",
-      "resource": {
-        "identifier": "new-comment",
-        "type": "workflow"
-      },
-      "author": {
-        "email": "franklin@gmail.com",
-        "name": "Franklin Sierra"
-      },
-      "environment": "development",
-      "created_at": "2023-11-13T19:28:25.090196Z"
-}
-  ],
-  "page_info": {
-    "after": null,
-    "before": null,
-    "page_size": 50
-  }
+      {
+         "id": "e4a22631-e05e-4d40-b323-4dc327c0670e",
+         "resource": {
+            "identifier": "new-comment",
+            "type": "workflow"
+         },
+         "author": {
+            "email": "franklin@gmail.com",
+            "name": "Franklin Sierra"
+         },
+         "environment": "development",
+         "created_at": "2023-11-13T19:28:25.090196Z"
+      }
+   ],
+   "page_info": { 
+      "after": null,
+      "before": null,
+      "page_size": 50
+   }
 }
 ```
 
 </ExampleColumn>
 </Section>
 
+<Section title="Get commit" slug="commits-get">
+<ContentColumn>
+
+Retrieve a single commit by its id.
+
+### Endpoint
+
+<Endpoint method="GET" path="/commits/:id"/>
+
+### Path parameters
+
+<Attributes>
+   <Attribute
+    name="id"
+    type="string"
+    description="The id of the commit."
+  />
+</Attributes>
+
+### Returns
+
+A complete commit.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+   "id": "ce3e5457-34f2-4f53-94a2-2f316528d83f",
+   "resource" :{
+      "identifier": "default",
+      "type": "email_layout"
+   },
+   "author": {
+      "email": "John@gmail.com",
+      "name": "John Doe"
+   },
+   "commit_message": "Initial email layout",
+   "environment": "development",
+   "created_at": "2023-09-22T18:57:21.704602Z"
+}
+```
+
+</ExampleColumn>
+</Section>
 
 <Section title="Commit all changes" slug="commits-commit">
 <ContentColumn>
@@ -2217,7 +2262,7 @@ Commit all changes across all resources in the development environment.
 </ExampleColumn>
 </Section>
 
-<Section title="Promote all changes" slug="commits-promote">
+<Section title="Promote all changes" slug="commits-promote-all">
 <ContentColumn>
 
 Promote all changes across all resources to the target environment from its preceding environment.
@@ -2253,6 +2298,52 @@ Promote all changes across all resources to the target environment from its prec
 ```json Response
 {
   "result": "success"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Promote one change" slug="commits-promote-one">
+<ContentColumn>
+
+Promotes one change to the subsequent environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/commits/:id/promote" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description={<p>The target commit id to promote to the subsequent environment.</p>}
+/>
+</Attributes>
+
+### Returns
+
+A promoted commit.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Response
+{
+   "commit": {
+      "id": "e4a22631-e05e-4d40-b323-4dc327c0670e",
+      "resource": {
+         "identifier": "new-comment",
+         "type": "workflow"
+      },
+      "author": {
+         "email": "franklin@gmail.com",
+         "name": "Franklin Sierra"
+      },
+      "environment": "development"
+   }
 }
 ```
 
