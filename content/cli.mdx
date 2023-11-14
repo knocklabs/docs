@@ -926,6 +926,77 @@ knock translation validate en --all
 </ExampleColumn>
 </Section>
 
+<Section title="knock commit list [flags]" slug="commit-list" headingClassName="font-mono">
+<ContentColumn>
+
+List all commits in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+    <Attribute
+    name="--[no-]promoted"
+    type="boolean"
+    description="Show only promoted or unpromoted changes between the given environment and the subsequent environment."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock commit list
+```
+
+```bash List unpromoted commits in a different environment
+knock commit list --no-promoted --environment=staging
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock commit get <commit_id> [flags]" slug="commit-get" headingClassName="font-mono">
+<ContentColumn>
+
+Shows the details of a given commit, using the `id` of the commit.
+
+### Flags
+
+<Attributes>
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash Basic usage
+knock commit get 69cdde18-830a-42e0-ad4b-a230943bdc90
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="knock commit [flags]" slug="commit-all" headingClassName="font-mono">
 <ContentColumn>
 
@@ -959,12 +1030,14 @@ knock commit -m "Commit message"
 <Section title="knock commit promote [flags]" slug="commit-promote" headingClassName="font-mono">
 <ContentColumn>
 
-You can promote all changes across all resources to the target environment from its directly preceding environment with the `commit promote` command.
+You can promote one change to the subsequent environment, or all changes across all resources to the target environment from its directly preceding environment with the `commit promote` command.
 
 Note:
 
 - For example, if you have three environments “development”, “staging”, and “production” (in that order), setting the `--to` flag to `production` will promote all new changes from the staging environment to the production environment
+- Following the same example, promoting a single commit from staging using the `--only` flag, will result in that commit being promoted to production.
 - The `--to` environment must be a non-development environment.
+- The `--to` and `--only` flags can't be used together.
 
 ### Flags
 
@@ -972,7 +1045,12 @@ Note:
   <Attribute
     name="--to"
     type="string"
-    description="The destination environment (required)."
+    description="The destination environment."
+  />
+   <Attribute
+    name="--only"
+    type="string"
+    description="The target commit id to promote to the subsequent environment."
   />
   <Attribute
     name="--force"
@@ -984,8 +1062,12 @@ Note:
 </ContentColumn>
 <ExampleColumn>
 
-```bash Basic usage
+```bash Promotes all changes
 knock commit promote --to=production
+```
+
+```bash Promotes one change
+knock commit promote --only=69cdde18-830a-42e0-ad4b-a230943bdc90
 ```
 
 </ExampleColumn>

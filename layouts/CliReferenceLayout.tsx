@@ -57,6 +57,8 @@ const sidebarData = [
     title: "Commits",
     slug: "/cli",
     pages: [
+      { slug: "#commit-list", title: "List commits" },
+      { slug: "#commit-get", title: "Get commits" },
       { slug: "#commit-all", title: "Commit changes" },
       { slug: "#commit-promote", title: "Promote changes" },
     ],
