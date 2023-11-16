@@ -58,8 +58,12 @@ const sidebarData = [
     slug: "/mapi",
     pages: [
       { slug: "#commits-overview", title: "Introduction" },
+      { slug: "#commits-object", title: "Commit definition" },
+      { slug: "#commits-list", title: "List Commits" },
+      { slug: "#commits-get", title: "Get a commit" },
       { slug: "#commits-commit", title: "Commit all changes" },
-      { slug: "#commits-promote", title: "Promote all changes" },
+      { slug: "#commits-promote-all", title: "Promote all changes" },
+      { slug: "#commits-promote-one", title: "Promote one change" },
     ],
   },
 ];
