@@ -1,6 +1,6 @@
 ---
 title: Schedules
-description: Learn how to use Schedules to run workflows in a cron-like recurring schedule for one or more of your recipients.
+description: Learn how to use Schedules to run workflows either in a cron-like recurrent schedule or in a non-recurring (one time only) schedule for one or more of your recipients.
 tags:
   [
     "crons",
@@ -15,20 +15,24 @@ tags:
 section: Concepts
 ---
 
-A schedule allows you to automatically trigger a workflow at a given time for one or more recipients. You can think of a schedule as a managed, recipient-timezone-aware cron job that Knock will run on your behalf.
+A schedule allows you to automatically trigger a workflow at a given time for one or more recipients. 
 
-An example of where you might reach for a schedule: a digest notification where your users can select the frequency in which they wish to receive the digest (every day, every week, every month).
+You can think of a schedule as a managed, recipient-timezone-aware cron job that Knock will run on your behalf.
+
+Some examples of where you might reach for a schedule:
+* A digest notification where your users can select the frequency in which they wish to receive the digest (every day, every week, every month).
+* A reminder notification for a specific event or deadline, sent only once at a given date and time.
 
 ## How schedules work
 
-1. [Create a workflow](/designing-workflows) that you wish to run repeatedly.
-2. Using the API, [set a repeating schedule](#scheduling-workflows-for-recipients) for one or more recipients for the workflow.
+1. [Create a workflow](/designing-workflows) that you wish to run in the future.
+2. Using the API, [set a repeating schedule](#scheduling-workflows-with-recurring-schedules-for-recipients) or a [non-recurring schedule](#scheduling-workflows-with-non-recurring-schedules-for-recipients) for one or more recipients for the workflow.
 
-Knock will preemptively schedule workflow runs for the recipient(s) that you've provided, and execute those runs at the scheduled time. At the end of the workflow run, a future scheduled workflow will be enqueued based on the recipient's next schedule.
+Knock will preemptively schedule workflow runs for the recipient(s) that you've provided, and execute those runs at the scheduled time. At the end of the workflow run (and in case of using a recurring schedule), a future scheduled workflow will be enqueued based on the recipient's next schedule.
 
-## Scheduling workflows for recipients
+## Scheduling workflows with recurring schedules for Recipients
 
-To schedule a workflow for a recipient, you must first have a valid, committed workflow in your environment. We can then set a schedule for one or more recipients (up to 100 at a time).
+To schedule a workflow for a recipient using recurring schedules, you must first have a valid, committed workflow in your environment. We can then set a schedule with `repeats` for one or more recipients (up to 100 at a time).
 
 ```typescript
 const { Knock } = require("@knocklabs/node");
@@ -50,17 +54,35 @@ const schedules = await knock.workflows.createSchedules("park-alert", {
 });
 ```
 
+## Scheduling workflows with non-recurring schedules for Recipients
+
+To schedule a workflow for a recipient using a non-recurring schedule, you must also have a valid and committed workflow in your environment. We can then set a schedule with the `scheduled_at` property,
+specifying the moment when this workflow should be executed.
+
+```typescript
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const schedules = await knock.workflows.createSchedules("park-alert", {
+  recipients: ["jhammond", "esattler", "dnedry"],
+  scheduled_at: "2023-12-22 17:45:00Z"
+  data: { type: "dinosaurs-loose" },
+  tenant: "jpark",
+});
+```
+
 ### Schedule properties
 
-| Variable       | Type                  | Description                                                               |
-| -------------- | --------------------- | ------------------------------------------------------------------------- |
-| `recipients`   | RecipientIdentifier[] | One or more recipient identifiers, or complete recipients to be upserted. |
-| `workflow`     | string                | The workflow to trigger                                                   |
-| `repeats`      | ScheduleRepeat[]      | A list of one or more repeats (see below)                                 |
-| `data`         | map                   | Custom data to pass to every workflow trigger                             |
-| `tenant`       | string                | A tenant to pass to the workflow trigger                                  |
-| `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted             |
-| `scheduled_at` | utc_datetime          | A UTC datetime to start the schedule from                                 |
+| Variable       | Type                  | Description                                                                                                                                    |
+| -------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `recipients`   | RecipientIdentifier[] | One or more recipient identifiers, or complete recipients to be upserted.                                                                      |
+| `workflow`     | string                | The workflow to trigger.                                                                                                                       |
+| `repeats`      | ScheduleRepeat[]      | A list of one or more repeats (see below).                                                                                                     |
+| `data`         | map                   | Custom data to pass to every workflow trigger.                                                                                                 |
+| `tenant`       | string                | A tenant to pass to the workflow trigger.                                                                                                      |
+| `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted.                                                                                 |
+| `scheduled_at` | utc_datetime          | A UTC datetime representing the start moment for the recurring schedule, or the exact and only execution moment for the non-recurring schedule.|
+                                                                    
 
 ### ScheduleRepeat properties
 
@@ -75,7 +97,7 @@ const schedules = await knock.workflows.createSchedules("park-alert", {
 
 ## Modeling repeat behavior
 
-Every schedule accepts one or more repeat rules, which allow you to express complex rules like:
+Every recurring schedule accepts one or more repeat rules, which allow you to express complex rules like:
 
 - Every Monday at 9am.
 - Every weekday at 10.30am.
@@ -214,7 +236,9 @@ There are 2 ways in which to get data into each of your scheduled workflow runs:
 
 Knock supports a `timezone` property on the recipient that automatically makes a scheduled workflow run timezone aware, meaning you can express recurring schedules like "every monday at 9am in the recipient's timezone". Recipient timezones must be a [valid tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), like `America/New_York`.
 
-[Read more about recipient timezone support](/send-and-manage-data/recipients#recipient-timezones).
+[Read more about recipient timezone support](/send-and-manage-data/recipients#recipient-timezones) .
+
+Note: Executing schedules using recipient timezones is only supported by [recurring schedules](#scheduling-workflows-with-recurring-schedules-for-recipients) by the moment.
 
 ## Frequently asked questions
 
@@ -235,3 +259,6 @@ You’ll see workflow runs that initiated from a scheduled workflow in the list 
 
 **Can I model exclusion rules in my repeat logic?**
 Currently, no but we'll be looking to add this feature in the near future.
+
+**Can I change a recurring schedule to be a non-recurring?**
+Yes, you can update the schedule to change from a recurring to a non-recurring(or viceversa). This can be done by removing the `repeats` property and setting the `scheduled_at` to the desired one-time execution time.
