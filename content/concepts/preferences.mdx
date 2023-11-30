@@ -186,6 +186,25 @@ That's where preference conditions come into use. These are [Knock condition mod
 
 Typically, preferences evaluate to boolean values representing if your recipient has opted in or out of receiving notifications on a given channel, workflow, or category. With preference conditions, you can add additional custom expressions to that set, where the notification is only sent if all preferences (including the preference condition statement) evaluate to true.
 
+Below is an example of a workflow preference that has conditions applied to determine if the preference is true or false:
+
+```json An example of preferences with conditions
+{
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "conditions": [
+        {
+          "variable": "recipient.muted_dinos",
+          "operator": "not_contains",
+          "argument": "data.dino"
+        }
+      ]
+    }
+  }
+}
+```
+
 ### Where can I use preference conditions?
 
 A condition can be applied at different points in the preference set:
@@ -255,7 +274,7 @@ Default preferences are useful when you need to roll out preferences across all 
   }
 />
 
-In some cases you may want to extend Knock's [environment-level preference defaults behavior](/send-and-manage-data/preferences#environment-level-preference-defaults) to your tenant admins to let them choose the notification preference defaults for users within _their_ tenants in _your_ product. This is where tenant preference defaults come in.
+In some cases, you may want to extend Knock's [environment-level preference defaults behavior](/send-and-manage-data/preferences#environment-level-preference-defaults) to your tenant admins to let them choose the notification preference defaults for users within _their_ tenants in _your_ product. This is where tenant preference defaults come in.
 
 You can use tenant preference defaults to set the default preferences inherited for all recipients of a workflow triggered with a corresponding `tenant`.
 
@@ -324,6 +343,10 @@ await knock.workflows.trigger("workflow-name", {
     </>
   }
 />
+
+#### Retrieving preferences with tenant defaults applied
+
+When getting a preference set for a recipient, it's also possible to pass a `tenant` parameter that will return the recipient's preference set with any tenant default preferences applied.
 
 ## Overriding recipient preferences
 
