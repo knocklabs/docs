@@ -38,3 +38,56 @@ Note that the functionality above is just the default for what we've provided in
 Sometimes a user wants to remove a notification from their feed altogether. This is where notification archiving comes in. When a notification is archived, it is removed from the feed and is no longer visible to the end user.
 
 In the Knock in-app feed, a message can be archived by clicking the "x" in the top-right corner of a given notification. The in-app feed component doesn't give users a way to see their archived notifications out-of-the-box, but if you'd like to incorporate this into your own in-app feed you can use the `archived: only` parameter on the [GET feed request](/reference#get-feed).
+
+## Customizing API response content
+
+By default, the [in-app feed API](/reference#get-feed) will return:
+
+- One or more actors associated with each in-app notification (when set), including all custom properties under each actor
+- All of the public variables (note: secret variables are never returned)
+- The entire workflow trigger data associated with each in-app notification
+- The recipient associated with each notification, including all custom properties set
+
+In some situations, you may need control over exactly what the in-app feed API returns. This is where our API response filter can be used to completely customize the keys returned for the entities in your in-app feed responses.
+
+| Property  | Description                                                                    |
+| --------- | ------------------------------------------------------------------------------ |
+| vars      | Apply a filter to the environment variables returned                           |
+| actor     | Apply a filter to all actors returned from the feed endpoint                   |
+| recipient | Apply a filter to the recipient returned from the feed endpoint                |
+| data      | Apply a filter to workflow trigger data returned from the in-app feed endpoint |
+
+Each property accepts the following:
+
+- A boolean to indicate whether this entity should be omitted or included, entirely (defaults to `true`).
+- An object with either `except` or `only` key paths for keys to exclude or include. Note: a nested keypath can be given using a `.`.
+
+### Example: customizing the actor data
+
+As an example, if you want to customize the properties returned under an actor to only include `id`, `name`, and `avatar` you can set a response filter such as:
+
+```json
+{
+  "actor": {
+    "only": ["id", "name", "avatar"]
+  }
+}
+```
+
+If you want to omit certain keys from the actor you can use the `except` keyword:
+
+```json
+{
+  "actor": {
+    "except": ["email", "phone_number", "credit_card.last4"]
+  }
+}
+```
+
+Or, if you want to exclude the actor from rendering you can set:
+
+```json
+{
+  "actor": false
+}
+```
