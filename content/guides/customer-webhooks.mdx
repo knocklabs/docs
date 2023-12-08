@@ -1,5 +1,5 @@
 ---
-title: Building customer-facing, configurable webhooks with Knock 
+title: Building customer-facing, configurable webhooks with Knock
 description: Learn how to use Knock to send per-customer configurable webhooks as part of your notification workflows.
 tags: ["webhooks", "webhooks as a service"]
 section: Guides
@@ -18,7 +18,7 @@ In Knock, we’ll model this as follows:
 
 First we’ll upsert the project as an object in Knock. We’re putting the project under a `projects` collection.
 
-```js Upsert our project object 
+```js Upsert our project object
 const project = await knock.objects.set("projects", "project-1", {
   name: "My project",
 });
@@ -33,7 +33,7 @@ const webhookId = "some-unique-id";
 // Create the webhook object with the configuration
 const projectWebhook = await knock.objects.set("project_webhooks", webhookId, {
   events: ["project:created"],
-	url: "https://some-url.com/incoming/webhook",
+  url: "https://some-url.com/incoming/webhook",
 });
 
 // Associate the webhook with the project
@@ -46,14 +46,14 @@ If at any point we need to list all of the configured webhooks for a given proje
 
 ```js List webhooks for a given project
 const { entries: webhookSubscriptions } = await knock.objects.listSubscriptions(
-	"projects", 
-	"project-1"
+  "projects",
+  "project-1",
 );
 ```
 
 ## Configuring an HTTP channel
 
-Now we’re going to configure our Webhook HTTP channel in Knock. You can learn how to configure a Webhook HTTP channel in our [webhook channel overview](/integrations/webhook/overview). 
+Now we’re going to configure our Webhook HTTP channel in Knock. You can learn how to configure a Webhook HTTP channel in our [webhook channel overview](/integrations/webhook/overview).
 
 Next, we’ll configure the webhook request for our new webhook channel. For the channel URL we’re going to configure it as `{{ recipient.url }}` which tells Knock to use the URL configured on the webhook recipient object:
 
@@ -66,7 +66,7 @@ And for the body of the payload that we send per webhook event, we’ll use the 
   "type": "{{ event_type }}",
   "data": {{ payload }},
   "created_at": {{ timestamp }}
-} 
+}
 ```
 
 ## Building your webhook notification workflow
@@ -85,17 +85,15 @@ We don’t need to customize any of the data sent in the webhook channel, so we 
 
 ## Triggering your webhook notification workflow
 
-Now our workflow is configured, we can trigger it via the API. We’ll pass the `project` as a recipient to the workflow, which will automatically trigger our workflow to execute *for all webhooks configured*.
+Now our workflow is configured, we can trigger it via the API. We’ll pass the `project` as a recipient to the workflow, which will automatically trigger our workflow to execute _for all webhooks configured_.
 
 ```js Trigger workflow for our project
 await knock.workflows.trigger("workflow-with-webhook-step", {
-	data: {
-		event_type: eventType,
-		payload: eventPayloadData,
-	},
-	recipients: [
-		{ collection: "projects", id: "project-1" }
-	],
+  data: {
+    event_type: eventType,
+    payload: eventPayloadData,
+  },
+  recipients: [{ collection: "projects", id: "project-1" }],
 });
 ```
 
@@ -114,10 +112,10 @@ You might want to provide a way to notify your customers that their webhooks are
 ## Frequently asked questions
 
 **How do I power different types of webhook events, should those be different notification workflows or a single workflow?**
-The answer here really depends on how different the notifications around each event type need to be. You should consider structuring each event type as a different workflow if the types of notifications sent in each event type differ a lot, or if the templates between event types are sufficiently different. 
+The answer here really depends on how different the notifications around each event type need to be. You should consider structuring each event type as a different workflow if the types of notifications sent in each event type differ a lot, or if the templates between event types are sufficiently different.
 
 **How do I conditionally send to only to webhook objects?**
-If you need to limit the execution of the workflow steps you can add a trigger condition onto your webhook channel steps that will only send to: 
+If you need to limit the execution of the workflow steps you can add a trigger condition onto your webhook channel steps that will only send to:
 
 - `recipient.__typename` is equal to `Object`
 - `recipient.collection` is equal to `project_webhooks`
