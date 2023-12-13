@@ -58,7 +58,7 @@ Here's how it works:
 1. **Connect your channels.** Connect any channels (e.g. email) through which you plan to send messages and enter the config details of your existing delivery providers (e.g. SendGrid.)
 2. **Tell Knock about your users.** You'll use identify calls to send user data into Knock. We use this data to know how to reach a user on a given channel, as well as to manage user preferences on your behalf.
 3. **Build your first workflow in Knock.** You'll design the notification workflow as well as the per-channel notification designs themselves. When finished, we'll give you the payload format to send from your backend.
-4. **Trigger your Knock workflow from your backend.** You'll call our the trigger endpoint with the payload provided in step 3.
+4. **Trigger your Knock workflow from your backend.** You'll call the trigger endpoint with the payload provided in step 3.
 
 On the next page, you'll walk through our quick start guide to send your first notification with Knock.
 
