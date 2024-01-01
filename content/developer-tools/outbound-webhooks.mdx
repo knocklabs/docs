@@ -195,7 +195,7 @@ app.post(
     const timestamp = sig.split(",")[0].substring(2);
     const originalSignature = sig.split(",")[1].substring(2);
     // Construct the value to be encoded
-    const value = `${timestamp}.${request.body}`;
+    const value = `${timestamp}.${JSON.stringify(request.body)}`;
 
     // Generate the signature with a HMAC using the SHA256 algorithm
     const reconstructedSignature = crypto
@@ -211,8 +211,8 @@ app.post(
 
     // For additional security, validate that the timestamp is within your
     // tolerance for proximity to the current time (example shown within 5 minutes)
-    const date = new Date(timestamp);
-    const now = new Date.now();
+    const date = new Date(Number(timestamp));
+    const now = Date.now();
     const isWithinFiveMinutes = now - date < 300000;
 
     if (isValid && isWithinFiveMinutes) {
