@@ -45,7 +45,7 @@ export default function Meta(props) {
     return {
       title: props.title ?? DEFAULT_META.title,
       description: props.description ?? DEFAULT_META.description,
-      canonical: `${SITE_ORIGIN}${router.pathname}`,
+      canonical: `${SITE_ORIGIN}${router.asPath.split("?")[0]}`,
       openGraph: {
         type: "website",
         images: [
