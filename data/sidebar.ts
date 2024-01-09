@@ -158,7 +158,11 @@ const sidebarContent: SidebarSection[] = [
       {
         title: "Android (Kotlin)",
         slug: "/android",
-        pages: [{ slug: "/overview", title: "Overview" }],
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick start" },
+          { slug: "/reference", title: "API reference" },
+        ],
       },
     ],
   },

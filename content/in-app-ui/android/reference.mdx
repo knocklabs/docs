@@ -1,0 +1,310 @@
+---
+title: "API reference"
+description: The complete API reference for the Knock Kotlin SDK.
+section: Building in-app UI
+---
+
+In this section, you'll find the documentation for the classes and methods available in the [Kotlin SDK](https://github.com/knocklabs/knock-kotlin).
+
+## `Knock`
+
+The top-level Knock class. Create an authenticated Knock client instance for interacting with Knock.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="publishableKey"
+    type="String*"
+    description="The public API key for the Knock environment."
+  />
+  <Attribute
+    name="userId"
+    type="String*"
+    description="The user ID to make requests against."
+  />
+  <Attribute
+    name="userToken"
+    type="String (optional)"
+    description={
+      <>
+        A JWT that identifies the authenticated user, signed with the private
+        key provided in the Knock dashboard. Required to secure your production
+        environment.{" "}
+        <a
+          href="https://docs.knock.app/in-app-ui/security-and-authentication#authentication-with-enhanced-security-enabled"
+          target="_blank"
+        >
+          Learn more.
+        </a>
+      </>
+    }
+  />
+  <Attribute
+    name="hostname"
+    type="String (optional)"
+    description="Optional hostname to configure which Knock endpoint to make requests against."
+  />
+</Attributes>
+
+**Example**
+
+```kotlin Creating a Knock client
+val knockClient = Knock(publishableKey = "pk_", userId = "user-id")
+```
+
+---
+
+### `getUser`
+
+Returns the current user's profile stored in Knock.
+
+**Returns**
+
+`Result<User>`
+
+---
+
+### `updateUser`
+
+Updates the current user's profile in Knock.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="user"
+    type="User"
+    description="Properties to update on the current user"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<User>`
+
+---
+
+### `getAllUserPreferences`
+
+Returns all of the preference sets for the current user.
+
+**Returns**
+
+`Result<List<PreferenceSet>>`
+
+---
+
+### `getUserPreferences`
+
+Returns a single preference set for the current user, specified by the `preferenceId`. For the default preference set, set the `preferenceId` to be `default`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="preferenceId"
+    type="String"
+    description="The ID of the preference set to retrieve"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<PreferenceSet>`
+
+---
+
+### `setUserPreferences`
+
+Updates the preference set specified by the `preferenceId` with the new `preferenceSet`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="preferenceId"
+    type="String"
+    description="The ID of the preference set"
+  />
+  <Attribute
+    name="preferenceSet"
+    type="PreferenceSet"
+    description="The preferences to update for the preference set"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<PreferenceSet>`
+
+---
+
+### `getUserChannelData`
+
+Returns the channel data for the current user on the channel specified with `channelId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The channel ID to get channel data for"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<ChannelData>`
+
+---
+
+### `updateUserChannelData`
+
+Updates the channel data for the current user on the channel specified with `channelId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The channel ID to update the channel data for"
+  />
+  <Attribute
+    name="data"
+    type="Any"
+    description="The data to update for the channel data"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<ChannelData>`
+
+---
+
+### `registerTokenForFCM`
+
+A convenience method for getting and setting channel data for a FCM channel for the current user.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The channel ID to update the channel data for"
+  />
+  <Attribute name="token" type="String" description="The device token to set" />
+</Attributes>
+
+**Returns**
+
+`Result<ChannelData>`
+
+---
+
+### `getMessage`
+
+Returns information about a single message specified by the `messageId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="messageId"
+    type="String"
+    description="The ID of the message to retrieve"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<KnockMessage>`
+
+---
+
+### `updateMessageStatus`
+
+Updates the status of a single message specified by the `message` or `messageId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="messageId"
+    type="String"
+    description="The ID of the message to update"
+  />
+  <Attribute
+    name="message"
+    type="KnockMessage"
+    description="A Knock message to update"
+  />
+  <Attribute
+    name="status"
+    type="KnockMessageStatusUpdateType"
+    description="The status to set on the message"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<KnockMessage>`
+
+---
+
+### `deleteMessageStatus`
+
+Removes the update of a single message status specified by the `message` or `messageId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="messageId"
+    type="String"
+    description="The ID of the message to update"
+  />
+  <Attribute
+    name="message"
+    type="KnockMessage"
+    description="A Knock message to update"
+  />
+  <Attribute
+    name="status"
+    type="KnockMessageStatusUpdateType"
+    description="The status to set on the message"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<KnockMessage>`
+
+---
+
+### `batchUpdateStatuses`
+
+Updates up to 50 messages with the given status in a single request specified by `messageIds`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="messageIds"
+    type="List<String>"
+    description="A list of message IDs"
+  />
+  <Attribute
+    name="status"
+    type="KnockMessageStatusBatchUpdateType"
+    description="The status to set on the messages"
+  />
+</Attributes>
+
+**Returns**
+
+`Result<List<KnockMessage>>`
