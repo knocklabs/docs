@@ -4,7 +4,7 @@ description: How to build notification inboxes powered by Knock and React.
 section: Building in-app UI
 ---
 
-Our `@knocklabs/react-notification-feed` library can be used to build full-page inbox experiences, too. In this guide we'll show you how to have a basic inbox ready for your users in a few minutes.
+Our `@knocklabs/react` library can be used to build full-page inbox experiences, too. In this guide we'll show you how to have a basic inbox ready for your users in a few minutes.
 
 ## Getting started
 
@@ -28,31 +28,27 @@ To use this example, you'll need [an account on Knock](https://dashboard.knock.a
 ## Installing dependencies
 
 ```bash Installing dependencies
-npm install @knocklabs/react-notification-feed
+npm install @knocklabs/react
 ```
 
 ## Rendering the notification inbox
 
-Here we're using the `KnockFeedProvider` to authenticate our current user and connect them to a Knock In-app Feed Channel. We then render the `NotificationFeed` component to give us a simple, complete notification inbox page.
+Here we're using the `KnockProvider` to authenticate our current user and get access to the Knock JavaScript client. Then we use the `KnockFeedProvider` to connect them to a Knock In-app Feed Channel. We then render the `NotificationFeed` component to give us a simple, complete notification inbox page.
 
 ```jsx
-import {
-  KnockFeedProvider,
-  NotificationFeed,
-} from "@knocklabs/react-notification-feed";
+import { KnockFeedProvider, NotificationFeed } from "@knocklabs/react";
 
 const NotificationInbox = () => {
   // An example of fetching the current authenticated user
   const { user } = useCurrentUser();
 
   return (
-    <KnockFeedProvider
-      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-      feedId={process.env.KNOCK_FEED_CHANNEL_ID}
-      userId={user.id}
-    >
-      <NotificationFeed />
-    </KnockFeedProvider>
+    <KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} userId={user.id}>
+      {/* Optionally, use the KnockFeedProvider to connect an in-app feed */}
+      <KnockFeedProvider feedId={process.env.KNOCK_FEED_ID}>
+        <NotificationFeed />
+      </KnockFeedProvider>
+    </KnockProvider>
   );
 };
 ```

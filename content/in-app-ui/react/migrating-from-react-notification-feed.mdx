@@ -1,0 +1,112 @@
+---
+title: "Migrating from @knocklabs/react-notification-feed"
+description: This guide will help you migrate to the new Knock React library
+section: Building in-app UI
+---
+
+This guide will walk you through the steps of replacing `@knocklabs/react-notification-feed` with `@knocklabs/react`.
+
+Please [report any issues](https://github.com/knocklabs/javascript/issues/new) you encounter while upgrading.
+
+## Installation
+
+Install the new React package
+
+```bash Install with npm
+npm install @knocklabs/react
+```
+
+Or if you're using Yarn:
+
+```bash Install with Yarn
+yarn add @knocklabs/react
+```
+
+## Set up Knock providers
+
+`@knocklabs/react` introduces updated providers:
+
+- `KnockProvider` authenticates the current user and provides access to the Knock client
+- `KnockFeedProvider` connects to an in-app feed channel
+
+```jsx Set up Knock providers
+// Before
+import {
+  KnockFeedProvider,
+  NotificationFeed,
+} from "@knocklabs/react-notification-feed";
+
+<KnockFeedProvider
+  apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+  feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+  userId={user.id}
+>
+  <NotificationFeed />
+</KnockFeedProvider>;
+
+// After
+import {
+  KnockProvider,
+  KnockFeedProvider,
+  NotificationFeed,
+} from "@knocklabs/react";
+
+<KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} userId={user.id}>
+  {/* Optionally, use the KnockFeedProvider to connect an in-app feed */}
+  <KnockFeedProvider feedId={process.env.KNOCK_FEED_ID}>
+    <NotificationFeed />
+  </KnockFeedProvider>
+</KnockProvider>;
+```
+
+## `rootless` removed and `NotificationFeedContainer` added
+
+The `KnockFeedProvider` no longer wraps its children with default styles. If you were setting the `rootless` prop to true, this change has no effect. Otherwise, you should wrap your notification feed with the `NotificationFeedContainer` component to ensure the feed is properly styled.
+
+```jsx rootless
+// Before
+import {
+  KnockFeedProvider,
+  NotificationFeed,
+} from "@knocklabs/react-notification-feed";
+
+<KnockFeedProvider
+  apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+  feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+  userId={user.id}
+  rootless={true}
+>
+  <NotificationFeed />
+</KnockFeedProvider>;
+
+// After
+import {
+  KnockProvider,
+  KnockFeedProvider,
+  NotificationFeedContainer,
+  NotificationFeed,
+} from "@knocklabs/react";
+
+<KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} userId={user.id}>
+  {/* Optionally, use the KnockFeedProvider to connect an in-app feed */}
+  <KnockFeedProvider feedId={process.env.KNOCK_FEED_ID}>
+    <NotificationFeedContainer>
+      <NotificationFeed />
+    </NotificationFeedContainer>
+  </KnockFeedProvider>
+</KnockProvider>;
+```
+
+## Use Knock hooks
+
+You can continue to use the `useKnockFeed` hook to build headless feed experiences.
+
+You can use the `useKnockClient` hook to access the Knock client.
+
+## Quick links
+
+- [`@knocklabs/react` on npm](https://www.npmjs.com/package/@knocklabs/react)
+- [`@knocklabs/client` on npm](https://www.npmjs.com/package/@knocklabs/client)
+- [Package on Github](https://github.com/knocklabs/javascript/tree/main/packages/react)
+- [Full reference](/in-app-ui/react/reference)
+- [JS SDK reference](/in-app-ui/javascript/reference)

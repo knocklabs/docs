@@ -4,7 +4,7 @@ description: How to build notification toasts powered by Knock and React.
 section: Building in-app UI
 ---
 
-While there are no out-of-the-box components in the `@knocklabs/react-notification-feed` library, it's easy to build toasts on top of the primitives exposed. In this guide, we'll show you just how to do that using the `react-hot-toasts` library as our "toaster".
+While there are no out-of-the-box toast components in the `@knocklabs/react` library, it's easy to build toasts on top of the primitives exposed. In this guide, we'll show you just how to do that using the `react-hot-toasts` library as our "toaster".
 
 [See a live demo](https://knock-in-app-notifications-react.vercel.app/)
 
@@ -30,15 +30,15 @@ To use this example, you'll need [an account on Knock](https://dashboard.knock.a
 ## Installing dependencies
 
 ```bash Installing dependencies
-npm install @knocklabs/react-notification-feed react-hot-toast
+npm install @knocklabs/react react-hot-toast
 ```
 
-## Adding the `KnockFeedProvider`
+## Adding the Knock providers
 
-We'll need to wrap our toast producing component in a `KnockFeedProvider` to setup a connection to Knock and connect to the authenticated user's feed. You can read more about the available props for the feed provider in [the reference](/in-app-ui/react/reference#knockfeedprovider).
+We'll need to wrap our toast producing component in a `KnockProvider` and `KnockFeedProvider` to setup a connection to Knock and connect to the authenticated user's feed. You can read more about the available props for the providers in [the reference](/in-app-ui/react/reference#knockprovider).
 
 ```jsx
-import { KnockFeedProvider } from "@knocklabs/react-notification-feed";
+import { KnockProvider, KnockFeedProvider } from "@knocklabs/react";
 
 // We'll write this next
 import NotificationToaster from "./NotificationToaster";
@@ -48,13 +48,11 @@ const NotificationToastProducer = () => {
   const { user } = useCurrentUser();
 
   return (
-    <KnockFeedProvider
-      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-      feedId={process.env.KNOCK_FEED_CHANNEL_ID}
-      userId={user.id}
-    >
-      <NotificationToaster />
-    </KnockFeedProvider>
+    <KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} userId={user.id}>
+      <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+        <NotificationToaster />
+      </KnockFeedProvider>
+    </KnockProvider>
   );
 };
 ```
@@ -66,7 +64,7 @@ Our `KnockFeedProvider` exposes a `useKnockFeed` hook, which will return a `feed
 ```jsx
 import toast, { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
-import { useKnockFeed } from "@knocklabs/react-notification-feed";
+import { useKnockFeed } from "@knocklabs/react";
 
 const NotificationToaster = () => {
   const { feedClient } = useKnockFeed();
