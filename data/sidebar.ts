@@ -121,10 +121,6 @@ const sidebarContent: SidebarSection[] = [
           },
           { slug: "/preferences", title: "Preferences" },
           { slug: "/reference", title: "API reference" },
-          {
-            slug: "/migrating-from-react-notification-feed",
-            title: "Migrating from React Notification Feed",
-          },
         ],
       },
       {
