@@ -11,13 +11,13 @@ In this section, you'll find the complete documentation for the components expos
 
 ## Components
 
-### `KnockFeedProvider`
+### `KnockProvider`
 
-The top-level feed provider that connects to Knock with the given API key, authenticates a user, and then connects to a feed for that user.
+The top-level provider that connects to Knock with the given API key and authenticates a user.
 
 #### Props
 
-Accepts `KnockFeedProviderProps`:
+Accepts `KnockProviderProps`
 
 <Attributes>
   <Attribute
@@ -29,11 +29,6 @@ Accepts `KnockFeedProviderProps`:
     name="userId*"
     type="string"
     description="The ID of the user for which to retrieve a feed"
-  />
-  <Attribute
-    name="feedId*"
-    type="string"
-    description="The channel ID of the in-app feed to be displayed"
   />
   <Attribute
     name="userToken"
@@ -58,6 +53,27 @@ Accepts `KnockFeedProviderProps`:
     description="A custom API host for Knock"
   />
   <Attribute
+    name="i18n"
+    type="I18nContent"
+    description="An optional set of translations to override the default `en` translations used in the feed components"
+  />
+</Attributes>
+
+### `KnockFeedProvider`
+
+The feed-specific provider that connects to a feed for that user. Must be a child of the `KnockProvider`.
+
+#### Props
+
+Accepts `KnockFeedProviderProps`:
+
+<Attributes>
+  <Attribute
+    name="feedId*"
+    type="string"
+    description="The channel ID of the in-app feed to be displayed"
+  />
+  <Attribute
     name="defaultFeedOptions"
     type="FeedClientOptions"
     description="Set defaults for `tenant`, `has_tenant`, `source`, `archived` to scope all subsequent feed queries"
@@ -67,38 +83,36 @@ Accepts `KnockFeedProviderProps`:
     type="ColorMode"
     description="Sets the theme as either light or dark mode (defaults to light)"
   />
-  <Attribute
-    name="rootless"
-    type="boolean"
-    description="When set as false, doesn't wrap the children in a `<KnockFeedContainer>`"
-  />
-  <Attribute
-    name="i18n"
-    type="I18nContent"
-    description="An optional set of translations to override the default `en` translations used in the feed components"
-  />
-</Attributes>
-
-### `KnockI18nProvider`
-
-A provider to inject translations into components.
-
-#### Props
-
-<Attributes>
-  <Attribute
-    name="i18n"
-    type="I18nContent"
-    description="A set of translations and a locale to use in child components via the `useTranslations` hook"
-  />
-  <Attribute
-    name="children*"
-    type="ReactNode"
-    description="One or more `Button` components"
-  />
 </Attributes>
 
 ## Hooks
+
+### `useKnock`
+
+The `KnockProvider` exposes a `useKnock` hook for all child components.
+
+**Returns**: `Knock`, an instance of the Knock JS client.
+
+**Example**:
+
+```jsx
+import { KnockProvider, useKnock } from "@knocklabs/react";
+
+const App = ({ authenticatedUser }) => (
+  <KnockProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    userId={authenticatedUser.id}
+  >
+    <MyComponent />
+  </KnockProvider>
+);
+
+const MyComponent = () => {
+  const knock = useKnock();
+
+  return null;
+};
+```
 
 ### `useKnockFeed`
 
@@ -142,16 +156,21 @@ The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components.
 **Example**:
 
 ```jsx
-import { useKnockFeed } from "@knocklabs/react-native";
+import {
+  KnockProvider,
+  KnockFeedProvider,
+  useKnockFeed,
+} from "@knocklabs/react-native";
 
 const App = ({ authenticatedUser }) => (
-  <KnockFeedProvider
+  <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    feedId={process.env.KNOCK_FEED_CHANNEL_ID}
     userId={authenticatedUser.id}
   >
-    <MyFeedComponent />
-  </KnockFeedProvider>
+    <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+      <MyFeedComponent />
+    </KnockFeedProvider>
+  </KnockProvider>
 );
 
 const MyFeedComponent = () => {
