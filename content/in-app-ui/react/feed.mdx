@@ -5,13 +5,13 @@ tags: ["inbox", "feeds", "toasts", "action_url"]
 section: Building in-app UI
 ---
 
-Our `@knocklabs/react-notification-feed` library comes pre-built with a real-time feed component that you can drop into your application. In this guide, you'll find common recipes to help you work with the Knock feed component.
+Our `@knocklabs/react` library comes pre-built with a real-time feed component that you can drop into your application. In this guide, you'll find common recipes to help you work with the Knock feed component.
 
 [See a live demo](https://knock-in-app-notifications-react.vercel.app/)
 
 **Quick links**:
 
-- [`@knocklabs/react-notification-feed` library reference](/in-app-ui/react/reference)
+- [`@knocklabs/react` library reference](/in-app-ui/react/reference)
 - [`@knocklabs/client` library reference](/in-app-ui/javascript/reference)
 
 ## Getting started
@@ -36,12 +36,12 @@ To use this example, you'll need [an account on Knock](https://dashboard.knock.a
 ## Installing dependencies
 
 ```bash Installing dependencies
-npm install @knocklabs/react-notification-feed
+npm install @knocklabs/react
 ```
 
 ## Rendering a notification feed
 
-To add a real-time notifications feed to your product, you can use the out-of-the-box components that the `@knocklabs/react-notification-feed` library offers.
+To add a real-time notifications feed to your product, you can use the out-of-the-box components that the `@knocklabs/react` library offers.
 
 <Callout emoji="🔐"
   text={
@@ -62,39 +62,41 @@ To add a real-time notifications feed to your product, you can use the out-of-th
 ```jsx
 import { useState, useRef } from "react";
 import {
+  KnockProvider,
   KnockFeedProvider,
   NotificationIconButton,
   NotificationFeedPopover,
-} from "@knocklabs/react-notification-feed";
+} from "@knocklabs/react";
 
 // Required CSS import, unless you're overriding the styling
-import "@knocklabs/react-notification-feed/dist/index.css";
+import "@knocklabs/react/dist/index.css";
 
 const YourAppLayout = () => {
   const [isVisible, setIsVisible] = useState(false);
   const notifButtonRef = useRef(null);
 
   return (
-    <KnockFeedProvider
+    <KnockProvider
       apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-      feedId={process.env.KNOCK_FEED_CHANNEL_ID}
       userId={currentUser.id}
       // In production, you must pass a signed userToken
       // and enable enhanced security mode in your Knock dashboard
       // userToken={currentUser.knockUserToken}
     >
-      <>
-        <NotificationIconButton
-          ref={notifButtonRef}
-          onClick={(e) => setIsVisible(!isVisible)}
-        />
-        <NotificationFeedPopover
-          buttonRef={notifButtonRef}
-          isVisible={isVisible}
-          onClose={() => setIsVisible(false)}
-        />
-      </>
-    </KnockFeedProvider>
+      <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+        <>
+          <NotificationIconButton
+            ref={notifButtonRef}
+            onClick={(e) => setIsVisible(!isVisible)}
+          />
+          <NotificationFeedPopover
+            buttonRef={notifButtonRef}
+            isVisible={isVisible}
+            onClose={() => setIsVisible(false)}
+          />
+        </>
+      </KnockFeedProvider>
+    </KnockProvider>
   );
 };
 ```
@@ -110,7 +112,7 @@ You can pass a value in the Action URL field of your notification template and t
 You can customize the click handler for the notification cell as follows:
 
 ```jsx
-import { NotificationFeed } from "@knocklabs/react-notification-feed";
+import { NotificationFeed } from "@knocklabs/react";
 
 <NotificationFeed onNotificationClick={(item) => onClose()} />;
 ```
@@ -122,7 +124,7 @@ Both the `NotificationFeed` and the `NotificationFeedPopover` take a `onNotifica
 You can customize the rendering of a notification cell in the feed by overriding the `renderItem` prop.
 
 ```jsx
-import { NotificationFeed } from "@knocklabs/react-notification-feed";
+import { NotificationFeed } from "@knocklabs/react";
 
 const MyNotificationCell = ({ item, onItemClick }) => <Outer>...</Outer>;
 
@@ -134,11 +136,7 @@ const MyNotificationCell = ({ item, onItemClick }) => <Outer>...</Outer>;
 You can customize the `Avatar` component rendered within the `NotificationCell` by passing a different `avatar` component into the `NotificationCell` in the `renderItem` function passed to the feed:
 
 ```jsx
-import {
-  NotificationFeed,
-  NotificationCell,
-  Avatar,
-} from "@knocklabs/react-notification-feed";
+import { NotificationFeed, NotificationCell, Avatar } from "@knocklabs/react";
 
 <NotificationFeed
   renderItem={({ item, ...props }) => (
@@ -155,7 +153,7 @@ import {
 ### Using `read` instead of `seen` for the badge count
 
 ```jsx
-import { NotificationIconButton } from "@knocklabs/react-notification-feed";
+import { NotificationIconButton } from "@knocklabs/react";
 
 <NotificationIconButton onClick={...} badgeCountType="unread" />;
 ```
@@ -163,7 +161,7 @@ import { NotificationIconButton } from "@knocklabs/react-notification-feed";
 ### Marking messages as read on the popover opening
 
 ```jsx
-import { NotificationFeedPopover } from "@knocklabs/react-notification-feed";
+import { NotificationFeedPopover } from "@knocklabs/react";
 
 const onOpen = ({ store, feedClient }) => {
   const unreadItems = store.items.filter((item) => !item.read_at);
@@ -184,7 +182,7 @@ const onOpen = ({ store, feedClient }) => {
 The feed supports an optional `colorMode` prop, that defaults to `light` but can be set as `dark` for dark mode support.
 
 ```jsx
-import { KnockFeedProvider } from "@knocklabs/react-notification-feed";
+import { KnockFeedProvider } from "@knocklabs/react";
 
 <KnockFeedProvider colorMode="dark" />;
 ```
@@ -203,7 +201,7 @@ import {
   Button,
   NotificationFeed,
   NotificationCell,
-} from "@knocklabs/react-notification-feed";
+} from "@knocklabs/react";
 
 <NotificationFeed
   renderItem={({ item, ...props }) => (
@@ -233,7 +231,7 @@ import {
   Button,
   NotificationFeed,
   NotificationCell,
-} from "@knocklabs/react-notification-feed";
+} from "@knocklabs/react";
 
 <NotificationFeed
   renderItem={({ item, ...props }) => (
@@ -276,24 +274,23 @@ You can see a demo of this behavior here:
 
 The complete theme that controls the look and feel of the feed components can be customized for theme in a few different ways:
 
-1. **Customizing the CSS variables**. The feed is written using CSS variables, which you can override to better match the look and feel of your product. The best way to see the possible CSS variables in use is to look at the [theme.css source code](https://github.com/knocklabs/react-notification-feed/blob/main/src/theme.css).
+1. **Customizing the CSS variables**. The feed is written using CSS variables, which you can override to better match the look and feel of your product. The best way to see the possible CSS variables in use is to look at the [theme.css source code](https://github.com/knocklabs/javascript/blob/main/packages/react/src/theme.css).
 
-2. **Bringing your own CSS**. It's possible to override the Knock CSS entirely to customize the look and feel of the feed. All of the feed classes are unique and start with `rnf-`. You can see the classes in use by looking at the [source code of the components](https://github.com/knocklabs/react-notification-feed/blob/main/src/).
+2. **Bringing your own CSS**. It's possible to override the Knock CSS entirely to customize the look and feel of the feed. All of the feed classes are unique and start with `rnf-`. You can see the classes in use by looking at the [source code of the components](https://github.com/knocklabs/javascript/tree/main/packages/react/src).
 
 ### Setting custom translations
 
-You can set custom translations for the components inside the feed by passing the `i18n` property to the `KnockFeedProvider` component. You can provide a partial or full set of translations to be used [following the expected `I18nContent` type](/in-app-ui/react/reference#i18ncontent).
+You can set custom translations for the components inside the feed by passing the `i18n` property to the `KnockProvider` component. You can provide a partial or full set of translations to be used [following the expected `I18nContent` type](/in-app-ui/react/reference#i18ncontent).
 
 **Note**: the default locale used in the components will be `en`. No other translations are provided out-of-the-box.
 
 ```jsx
-import { KnockFeedProvider } from "@knocklabs/react-notification-feed";
+import { KnockProvider } from "@knocklabs/react";
 
 const YourAppLayout = () => {
   return (
-    <KnockFeedProvider
+    <KnockProvider
       apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-      feedId={process.env.KNOCK_FEED_CHANNEL_ID}
       userId={currentUser.id}
       i18n={{
         translations: {
