@@ -6,42 +6,119 @@ section: Building in-app UI
 
 The Knock Kotlin SDK is a client-side SDK for interacting with the Knock API and for building in-app notification experiences for Android applications. In this guide, we'll show some of the main ways you can interact with the SDK.
 
-**Quick links**
+## Quick links
 
-- [SDK on Github](https://github.com/knocklabs/knock-kotlin)
+- [SDK on Github](https://github.com/knocklabs/knock-android)
 - [Full reference guide](/in-app-ui/android/reference)
 
-## Installing the SDK
+&emsp;
 
-Add the dependency to your `build.grandle` file as follows:
+# Requirements & Support
 
-```java
-dependencies {
-    implementation 'app.knock.client:knock:VERSION'
+| Requirements                |                                               |
+| --------------------------- | :-------------------------------------------: |
+| Knock Account               | [Sign Up](https://dashboard.knock.app/signup) |
+| Minimum Android SDK Version |                     `29`                      |
+
+# Installation
+
+### 1. Add Jitpack repository support in your `settings.gradle` file
+
+```gradle
+pluginManagement {
+    repositories {
+        ..
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        ..
+        maven { url 'https://jitpack.io' }
+    }
 }
 ```
 
-Or to your `maven.xml` file:
+### 2. Add the implementation to your app `build.gradle` file
 
-```xml
-<dependencies>
-    <!-- more dependencies here -->
-    <dependency>
-        <groupId>app.knock.client</groupId>
-        <artifactId>knock</artifactId>
-        <version>VERSION</version>
-    </dependency>
-    <!-- more dependencies here -->
-</dependencies>
+```gradle 
+
+dependencies {
+    implementation 'com.github.knocklabs:knock-android:<VERSION>'
+}
 ```
 
-## Using the SDK
-
-You must authenticate the SDK using your publishable key (prefixed by `pk_`) and the user ID to make requests against.
+### 3. Init the SDK and FeedManager
 
 ```kotlin
-var knockClient = Knock(publishableKey: "your-pk", userId: "user-id")
-
+val knockClient = Knock(publishableKey = "your-pk", userId = "user-id")
 // with enhanced security turned on:
 var knockClient = Knock(publishableKey: "your-pk", userId: "user-id", userToken: "your-user-token")
+
+val feedManager = FeedManager(client = knockClient, feedId = inAppChannelId)
+```
+
+# Usage
+
+### Connect to a feed and get new-messages events
+
+```kotlin
+
+val feedOptions = FeedClientOptions(tenant = "team-a", hasTenant = true)
+feedManager.connectToFeed(feedOptions)
+feedManager.on("new-message") {
+    println("new message")
+}
+
+```
+
+### Get feed content
+
+```kotlin
+
+feedManager.getUserFeedContent(feedOptions) { result ->
+    result.fold(
+        onSuccess = { feed ->
+            println("getUserFeedContent succeeded: $feed")
+        },
+        onFailure = { e ->
+            println("getUserFeedContent failed: $e")
+        }
+    )
+}
+
+```
+
+### Users
+
+```kotlin
+
+// Get a user
+knockClient.getUser { result ->
+    result.fold(
+        onSuccess = { user ->
+            println("getUser succeeded: $user")
+        },
+        onFailure = { e ->
+            println("getUser failed: $e")
+        }
+    )
+}
+
+// Update a user (and add extra fields)
+user.phoneNumber = "123-456"
+user.properties["extra-1"] = 234
+
+knockClient.updateUser(user) { result ->
+    result.fold(
+        onSuccess = {user ->
+            println("updateUser succeeded, user: $user")
+        },
+        onFailure = { e ->
+            println("updateUser failed: $e")
+        }
+    )
+}
+
 ```
