@@ -22,41 +22,100 @@ Or if you're using Yarn:
 yarn add @knocklabs/react
 ```
 
-## Set up Knock providers
+## Changes to Knock providers
 
 `@knocklabs/react` introduces updated providers:
 
-- `KnockProvider` authenticates the current user and provides access to the Knock client
-- `KnockFeedProvider` connects to an in-app feed channel
+- `KnockProvider` authenticates the current user and provides access to the Knock client. It now accepts `userId`, `apiKey`, and `userToken` props.
+- `KnockFeedProvider` connects to an in-app feed channel using the `feedId` prop and no longer accepts `userId`, `apiKey`, and `userToken` props.
+
+### Before using `@knocklabs/react-notification-feed`
+
+This code sample demonstrates a typical implementation of the `NotificationFeedPopover` and annotates
+points of change in the component APIs.
 
 ```jsx Set up Knock providers
 // Before
 import {
   KnockFeedProvider,
-  NotificationFeed,
+  NotificationIconButton,
+  NotificationFeedPopover,
 } from "@knocklabs/react-notification-feed";
 
-<KnockFeedProvider
-  apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-  feedId={process.env.KNOCK_FEED_CHANNEL_ID}
-  userId={user.id}
->
-  <NotificationFeed />
-</KnockFeedProvider>;
+// This import should be updated
+import "@knocklabs/react-notification-feed/dist/index.css";
 
+const YourAppLayout = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const notifButtonRef = useRef(null);
+
+  return (
+    <KnockFeedProvider
+      //These props are moved to the KnockProvider in @knocklabs/react
+      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+      userId={currentUser.id}
+      userToken={currentUser.knockUserToken}
+      //This prop still is valid on KnockFeedProvider
+      feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+    >
+      <>
+        <NotificationIconButton
+          ref={notifButtonRef}
+          onClick={(e) => setIsVisible(!isVisible)}
+        />
+        <NotificationFeedPopover
+          buttonRef={notifButtonRef}
+          isVisible={isVisible}
+          onClose={() => setIsVisible(false)}
+        />
+      </>
+    </KnockFeedProvider>
+  );
+};
+```
+
+### After using `@knocklabs/react`
+
+With the new React SDK, the `KnockProvider` component now wraps the `KnockFeedProvider` component and handles authenticating with Knock.
+
+```jsx
 // After
 import {
   KnockProvider,
   KnockFeedProvider,
-  NotificationFeed,
+  NotificationIconButton,
+  NotificationFeedPopover,
 } from "@knocklabs/react";
 
-<KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} userId={user.id}>
-  {/* Optionally, use the KnockFeedProvider to connect an in-app feed */}
-  <KnockFeedProvider feedId={process.env.KNOCK_FEED_ID}>
-    <NotificationFeed />
-  </KnockFeedProvider>
-</KnockProvider>;
+// Updated CSS import from new package
+import "@knocklabs/react/dist/index.css";
+const YourAppLayout = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const notifButtonRef = useRef(null);
+
+  return (
+    // Updated props on KnockProvider
+    <KnockProvider
+      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+      userId={currentUser.id}
+      userToken={currentUser.knockUserToken}
+    >
+      <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+        <>
+          <NotificationIconButton
+            ref={notifButtonRef}
+            onClick={(e) => setIsVisible(!isVisible)}
+          />
+          <NotificationFeedPopover
+            buttonRef={notifButtonRef}
+            isVisible={isVisible}
+            onClose={() => setIsVisible(false)}
+          />
+        </>
+      </KnockFeedProvider>
+    </KnockProvider>
+  );
+};
 ```
 
 ## `rootless` removed and `NotificationFeedContainer` added
