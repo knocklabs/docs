@@ -283,6 +283,33 @@ A provider to inject translations into components.
 
 ## Hooks
 
+### `useKnock`
+
+The `KnockProvider` exposes a `useKnock` hook for all child components.
+
+**Returns**: `Knock`, an instance of the Knock JS client.
+
+**Example**:
+
+```jsx
+import { KnockProvider, useKnock } from "@knocklabs/react";
+
+const App = ({ authenticatedUser }) => (
+  <KnockProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    userId={authenticatedUser.id}
+  >
+    <MyComponent />
+  </KnockProvider>
+);
+
+const MyComponent = () => {
+  const knock = useKnock();
+
+  return null;
+};
+```
+
 ### `useKnockFeed`
 
 The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components.
@@ -325,16 +352,21 @@ The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components.
 **Example**:
 
 ```jsx
-import { useKnockFeed } from "@knocklabs/react";
+import {
+  KnockProvider,
+  KnockFeedProvider,
+  useKnockFeed,
+} from "@knocklabs/react";
 
 const App = ({ authenticatedUser }) => (
-  <KnockFeedProvider
+  <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    feedId={process.env.KNOCK_FEED_CHANNEL_ID}
     userId={authenticatedUser.id}
   >
-    <MyFeedComponent />
-  </KnockFeedProvider>
+    <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+      <MyFeedComponent />
+    </KnockFeedProvider>
+  </KnockProvider>
 );
 
 const MyFeedComponent = () => {
