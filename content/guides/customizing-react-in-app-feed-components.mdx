@@ -14,7 +14,7 @@ In some applications, you may want to override the styles provided in the React 
 
 If you're importing the CSS styles associated with the components, then it's possible to use [CSS variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) to override the majority of the properties used within the stylesheet, such as colors, font sizes, ad more.
 
-The CSS variables that are used within the components are all prefixed with `--rnf-`. The complete set of overrides is here, for reference, or available in the [theme.css file](https://raw.githubusercontent.com/knocklabs/react-notification-feed/main/src/theme.css).
+The CSS variables that are used within the components are all prefixed with `--rnf-`. The complete set of overrides is here, for reference, or available in the [theme.css file](https://raw.githubusercontent.com/knocklabs/javascript/main/packages/react/src/theme.css).
 
 ```css
 :root {
@@ -94,7 +94,7 @@ Then we'd import like:
 
 ```javascript
 // Default styles
-import "@knocklabs/react-notification-feed/dist/index.css";
+import "@knocklabs/react/dist/index.css";
 
 // Overrides
 import "~/styles/feed-overrides.css";
@@ -106,10 +106,10 @@ If you need more fine-grained control over the CSS provided by the components, i
 
 All of the notification feed components have classes prefixed with `rnf-`. You can see the existing CSS styles here, which are written using CSS modules to be isolated per component.
 
-- [NotificationFeed](https://github.com/knocklabs/react-notification-feed/blob/main/src/components/NotificationFeed/styles.css)
-- [NotificationFeedPopover](https://github.com/knocklabs/react-notification-feed/blob/main/src/components/NotificationFeedPopover/styles.css)
-- [NotificationCell](https://github.com/knocklabs/react-notification-feed/blob/main/src/components/NotificationCell/styles.css)
-- [EmptyFeed](https://github.com/knocklabs/react-notification-feed/blob/main/src/components/EmptyFeed/styles.css)
+- [NotificationFeed](https://github.com/knocklabs/javascript/blob/main/packages/react/src/modules/feed/components/NotificationFeed/styles.css)
+- [NotificationFeedPopover](https://github.com/knocklabs/javascript/blob/main/packages/react/src/modules/feed/components/NotificationFeedPopover/styles.css)
+- [NotificationCell](https://github.com/knocklabs/javascript/blob/main/packages/react/src/modules/feed/components/NotificationCell/styles.css)
+- [EmptyFeed](https://github.com/knocklabs/javascript/blob/main/packages/react/src/modules/feed/components/EmptyFeed/styles.css)
 
 ### Partially overriding the feed CSS
 
@@ -129,7 +129,7 @@ And when we import those styles, we'll want to ensure our overrides are imported
 
 ```javascript
 // Default styles
-import "@knocklabs/react-notification-feed/dist/index.css";
+import "@knocklabs/react/dist/index.css";
 
 // Overrides
 import "~/styles/feed-overrides.css";
@@ -179,7 +179,7 @@ The React component library ships with hooks that you can use to setup and manag
 First of all, we need to use the `useAuthenticatedKnockClient` hook to create a Knock client instance, authenticated for the user that's provided.
 
 ```jsx Setting up a Knock client
-import { useAuthenticatedKnockClient } from "@knocklabs/react-notification-feed";
+import { useAuthenticatedKnockClient } from "@knocklabs/react";
 
 const NotificationFeed = ({ user }) => {
   const knockClient = useAuthenticatedKnockClient(
@@ -197,7 +197,7 @@ Next up, we then set up our feed instance using the `useNotifications` hook. Thi
 import {
   useAuthenticatedKnockClient,
   useNotifications,
-} from "@knocklabs/react-notification-feed";
+} from "@knocklabs/react";
 
 const NotificationFeed = ({ user }) => {
   const knockClient = useAuthenticatedKnockClient(
@@ -216,7 +216,7 @@ Now we have our Feed instance, then we need to have a way to access the state of
 import {
   useAuthenticatedKnockClient,
   useNotifications,
-} from "@knocklabs/react-notification-feed";
+} from "@knocklabs/react";
 import create from "zustand";
 import { useEffect } from "react";
 
@@ -242,24 +242,24 @@ With our component set up, we have all the building blocks we need to build our 
 
 The `KnockFeedProvider` can also be used to set up the feed instance and build custom UI, which is what the pre-built components use under the hood.
 
-The first step is to set up a wrapper component that will render your Feed with the `KnockFeedProvider`:
+The first step is to set up a wrapper component that will render your Feed with the `KnockProvider` and `KnockFeedProvider`:
 
 ```jsx Setting up our feed provider
-import { KnockFeedProvider } from "@knocklabs/react-notification-feed";
+import { KnockProvider, KnockFeedProvider } from "@knocklabs/react";
 
 const NotificationFeed = ({ user }) => (
-  <KnockFeedProvider
-    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    feedId={process.env.KNOCK_FEED_CHANNEL_ID}
-    userId={user.id}
-  ></KnockFeedProvider>
+  <KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} userId={user.id}>
+    <KnockFeedProvider
+      feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+    ></KnockFeedProvider>
+  </KnockProvider>
 );
 ```
 
 Now that our provider is set up, we're going to split out a subcomponent that will be used to render the actual contents of the feed. The reason we have this as a separate component is so we can access the context that the `KnockFeedProvider` exposes.
 
 ```jsx Implementing our feed component
-import { useKnockFeed } from "@knocklabs/react-notification-feed";
+import { useKnockFeed } from "@knocklabs/react";
 
 const Feed = () => {
   const { useFeedStore } = useKnockFeed();
@@ -275,16 +275,14 @@ Note here we're using the `useFeedStore` hook that the `useKnockFeed` hook retur
 And finally, to put it all together:
 
 ```jsx Our working custom feed
-import { KnockFeedProvider } from "@knocklabs/react-notification-feed";
+import { KnockFeedProvider } from "@knocklabs/react";
 import Feed from "~/components/Feed";
 
 const NotificationFeed = ({ user }) => (
-  <KnockFeedProvider
-    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    feedId={process.env.KNOCK_FEED_CHANNEL_ID}
-    userId={user.id}
-  >
-    <Feed />
-  </KnockFeedProvider>
+  <KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} userId={user.id}>
+    <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+      <Feed />
+    </KnockFeedProvider>
+  </KnockProvider>
 );
 ```
