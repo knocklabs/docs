@@ -218,6 +218,10 @@ const sidebarContent: SidebarSection[] = [
         slug: "/customizing-react-in-app-feed-components",
         title: "Customizing the React in-app feed components",
       },
+      {
+        slug: "/cicd-with-the-knock-cli",
+        title: "CI/CD with the Knock CLI",
+      },
     ],
   },
 ];
