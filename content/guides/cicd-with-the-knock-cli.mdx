@@ -1,32 +1,129 @@
 ---
 title: Adding Knock to your CI/CD pipeline
 description: Learn how to add Knock to your deployment pipeline with our command line interface.
-tags: ["CI/CD", "cicd", "integration", "deployment", "automation", "testing", "commit", "staging"]
+tags:
+  [
+    "CI/CD",
+    "cicd",
+    "integration",
+    "deployment",
+    "automation",
+    "testing",
+    "commit",
+    "staging",
+  ]
 section: Guides
 ---
 
-With the [Knock CLI](/developer-tools/knock-cli), you can add Knock directly into your existing CI/CD pipeline in order to automate the promotion of changes to Workflows, Layouts, and Translations between [environments](/concepts/environments) during testing and deployment. 
+With the [Knock CLI](/developer-tools/knock-cli), you can add Knock directly into your existing CI/CD pipeline in order to automate the promotion of changes to Workflows, Layouts, and Translations between [environments](/concepts/environments) during testing and deployment.
 
 This guide assumes that you have [created](/concepts/environments#create-additional-environments) a “Staging” environment in Knock in addition to the Development and Production environments that are provided by default. It also assumes that you have [installed the Knock CLI](/cli#installation) on your local machine.
 
 ## Local development
 
-With the Knock CLI, you can pull resources from the Knock dashboard and develop them locally using the [`knock workflow pull --all`](/cli#workflow-pull), [`knock layout pull --all`](/cli#email-layout-pull), and [`knock translation pull --all`](/cli#translation-pull) commands. You can also work with specific resources by name rather than using the `--all` flag.
+With the Knock CLI, you can pull resources from the Knock dashboard and develop them locally using the **[`knock workflow pull --all`](/cli#workflow-pull)**, **[`knock layout pull --all`](/cli#email-layout-pull)**, and **[`knock translation pull --all`](/cli#translation-pull)** commands. You can also work with specific resources by name rather than using the `--all` flag.
 
-Once you’re ready to send your updates back to Knock’s Development environment, you can push ([`knock workflow push --all`](/cli#workflow-push)) and commit ([`knock commit`](/cli#commit-all)) changes directly from the command line in the same way that you would save and commit them in your dashboard. You can also perform both of these actions at once by using the `--commit` flag on any `push` command.
+Once you’re ready to send your updates back to Knock’s Development environment, you can push (**[`knock workflow push --all`](/cli#workflow-push)**) and commit (**[`knock commit`](/cli#commit-all)**) changes directly from the command line in the same way that you would save and commit them in your dashboard. You can also perform both of these actions at once by using the `--commit` flag on any `push` command.
 
 <Callout
-  emoji="👀"
+  emoji="🛑"
   text={
     <>
-      <span className="font-bold">Note:</span> As with working directly in your dashboard, 
-      any uncommitted changes that are made to a Knock resource and pushed to Knock 
-      can be overwritten by another user who is working on the same resource. 
-      It’s important to <code>commit</code> any changes that you want to persist while working 
-      in the Development environment.
+      <span className="font-bold">Note:</span> As with working directly in your
+      dashboard, any uncommitted changes that are made to a Knock resource and
+      pushed to Knock can be overwritten by another user who is working on the
+      same resource. It’s important to <code>commit</code> any changes that you
+      want to persist while working in the Development environment.
     </>
   }
 />
 
 ## Pushing to your remote repository and deploying to staging
 
+When you’re ready to commit your locally-developed feature (including any updates to your Knock resources) to a remote git repository and kick off a test build in your staging environment, you can use the Knock CLI to automate the promotion of changes to your Knock resources across Knock environments. An example implementation might be done with a GitHub Action that promotes all of your committed updates from the Knock Development environment to your Staging environment, so that your application’s staging deployment will have access to all of your notifications changes.
+
+<Callout
+  emoji="👀"
+  text={
+    <>
+      When using the <code>knock commit promote</code>{" "}
+      <a href="/cli#commit-promote">command</a> with the <code>--to</code> flag,
+      the CLI will automatically locate any promotion-eligible changes that
+      exist in the environment one "level" lower in your list of Knock
+      environments in order to promote them to the designated environment. To
+      view the current order of all your configured environments, navigate to{" "}
+      <span className="font-bold">Settings &gt; Environments</span> in your
+      Knock dashboard.
+    </>
+  }
+/>
+
+This sample GitHub Action `.yml` file shows how you might promote all committed workflow changes from your Development environment to your Staging environment:
+
+```yml
+name: Knock Workflow Promotion to Staging
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  promote_workflow:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.9.0' # Set Node.js version to ^16.14.0
+
+    - name: Install Knock CLI
+      run: npm install -g @knocklabs/cli
+
+    - name: Promote Workflow to Staging
+      env:
+        KNOCK_SERVICE_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN }} # Ensure you've set KNOCK_SERVICE_TOKEN in your GitHub secrets
+      run: knock commit promote --to=staging --service-token=$KNOCK_SERVICE_TOKEN
+```
+
+<br />
+
+## Deploying to production
+
+Once a pull request has been approved and is ready to be merged into your `main` branch, you can once again include the Knock CLI in your CI/CD pipeline to promote your relevant Knock resources to your Production environment.
+
+This sample GitHub Action `.yml` file shows how you might promote all workflows from your Staging environment to your Production environment:
+
+```yml
+name: Knock Workflow Promotion to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  promote_workflow:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.9.0' # Set Node.js version to ^16.14.0
+
+    - name: Install Knock CLI
+      run: npm install -g @knocklabs/cli
+
+    - name: Promote Workflow to Production
+      env:
+        KNOCK_SERVICE_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN }} # Ensure you've set KNOCK_SERVICE_TOKEN in your GitHub secrets
+      run: knock commit promote --to=production --service-token=$KNOCK_SERVICE_TOKEN
+```
