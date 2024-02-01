@@ -178,6 +178,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
       { slug: "/outbound-webhooks", title: "Outbound webhooks" },
+      { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
     ],
   },
   {
