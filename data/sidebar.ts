@@ -178,6 +178,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
       { slug: "/outbound-webhooks", title: "Outbound webhooks" },
+      { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
     ],
   },
   {
@@ -217,10 +218,6 @@ const sidebarContent: SidebarSection[] = [
       {
         slug: "/customizing-react-in-app-feed-components",
         title: "Customizing the React in-app feed components",
-      },
-      {
-        slug: "/cicd-with-the-knock-cli",
-        title: "CI/CD with the Knock CLI",
       },
     ],
   },
