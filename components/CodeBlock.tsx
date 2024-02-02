@@ -60,7 +60,7 @@ const LanguageLabel = {
   json: "JSON",
   go: "Go",
   java: "Java",
-  yaml: "YAML"
+  yaml: "YAML",
 };
 
 export interface Props {
