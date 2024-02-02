@@ -11,6 +11,7 @@ import shell from "react-syntax-highlighter/dist/cjs/languages/hljs/shell";
 import liquid from "react-syntax-highlighter/dist/cjs/languages/hljs/handlebars";
 import go from "react-syntax-highlighter/dist/cjs/languages/hljs/go";
 import java from "react-syntax-highlighter/dist/cjs/languages/hljs/java";
+import yaml from "react-syntax-highlighter/dist/cjs/languages/hljs/yaml";
 import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
 
@@ -31,6 +32,7 @@ SyntaxHighlighter.registerLanguage("shell", shell);
 SyntaxHighlighter.registerLanguage("liquid", liquid);
 SyntaxHighlighter.registerLanguage("go", go);
 SyntaxHighlighter.registerLanguage("java", java);
+SyntaxHighlighter.registerLanguage("yaml", yaml);
 
 export type SupportedLanguage =
   | "javascript"
@@ -43,7 +45,8 @@ export type SupportedLanguage =
   | "php"
   | "json"
   | "go"
-  | "java";
+  | "java"
+  | "yaml";
 
 const LanguageLabel = {
   javascript: "JavaScript",
@@ -57,6 +60,7 @@ const LanguageLabel = {
   json: "JSON",
   go: "Go",
   java: "Java",
+  yaml: "YAML"
 };
 
 export interface Props {
