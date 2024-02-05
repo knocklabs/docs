@@ -20,7 +20,7 @@ You can learn more about the types of events that [Knock sends webhooks for here
 
 ## Payload & headers
 
-A webhook payload for the message events will always include the message sent and the type of event that triggered the payload. This is an example of what will be sent to your webhook endpoint:
+A webhook payload will always be of the following base shape, where the `type` will be determined by the supported [webhook event types](/developer-tools/outbound-webhooks/event-types). The `data` field will include the entity that the event references.
 
 ```json A sample event payload
 {
@@ -38,8 +38,6 @@ A webhook payload for the message events will always include the message sent an
   }
 }
 ```
-
-You'll notice if you've explored the [get messages endpoint](/reference#get-a-message) that the `"data"` key contains all of the same fields as a message retrieved from there.
 
 The request header will also contain the following:
 
@@ -156,7 +154,7 @@ app.listen(4242, () => console.log("Running on port 4242"));
 
 ### Using the data
 
-Once you receive a webhook request and return a `2xx` status code, you can make additional requests to the Knock API to gather more information about the message event. For example, if you'd like to log the message's content when an event type comes through as `message.undelivered`, you can use the message ID to send a request to [get message content](/reference#get-message-content) when that condition is met.
+Once you receive a webhook request and return a `2xx` status code, you can make additional requests to the Knock API to gather more information about the event. For example, if you're building a webhook for the `message.undelivered` event, and you'd like to log the message's content, you can use the message ID to send a request to [get message content](/reference#get-message-content) when that event is received.
 
 ## Managing webhooks
 
