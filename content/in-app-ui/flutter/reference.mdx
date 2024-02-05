@@ -1,0 +1,478 @@
+---
+title: "API reference"
+description: The complete API reference for the Knock Flutter SDK.
+section: Building in-app UI
+---
+
+In this section, you'll find the documentation for the classes and methods available in the [Flutter SDK](https://github.com/knocklabs/knock-flutter).
+
+## `Knock`
+
+The top-level Knock class. Create an authenticated Knock client instance for interacting with Knock.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="apiKey"
+    type="String*"
+    description="The public API key for the Knock environment."
+  />
+  <Attribute
+    name="options"
+    type="KnockOptions"
+    description="Any additional options to instantiate your Knock instance with"
+  />
+</Attributes>
+
+**Returns**
+
+`Knock`
+
+### `authenticate`
+
+Authenticates the current user.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="userId"
+    type="String*"
+    description="The ID of the user to authenticate against."
+  />
+  <Attribute
+    name="userToken"
+    type="String"
+    description="The signed user token, required when using enhanced security mode in the environment."
+  />
+</Attributes>
+
+**Returns**
+
+`void`
+
+### `logout`
+
+Clears any user authentication and disposes of any created clients.
+
+**Returns**
+
+`void`
+
+### `isAuthenticated`
+
+Returns whether or this Knock instance is authenticated. Passing `true` will check the presence of the `userToken` as well.
+
+**Returns**
+
+`bool`
+
+### `dispose`
+
+Releases any connected resources used by this instance.
+
+**Returns**
+
+`void`
+
+### `getApnsToken`
+
+Returns the current device's APNS token. Only relevant for iOS applications.
+
+**Returns**
+
+`Future<String>`
+
+### `getFcmToken`
+
+Returns the current device's FCM token.
+
+**Returns**
+
+`Future<String>`
+
+### `user`
+
+Returns the current user client.
+
+**Returns**
+
+`UserClient`
+
+### `preferences`
+
+Returns the current preferences client.
+
+**Returns**
+
+`PreferencesClient`
+
+### `feed`
+
+Returns a new feed client for the channel ID specified.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="feedChannelId"
+    type="String*"
+    description="The channel ID from Knock for the in-app feed"
+  />
+  <Attribute
+    name="options"
+    type="FeedOptions"
+    description="Any additional options to instantiate your feed instance with"
+  />
+</Attributes>
+
+**Returns**
+
+`FeedClient`
+
+---
+
+## `UserClient`
+
+Methods for interacting with the current user resource in Knock. You access this under `knock.user()`.
+
+### `get`
+
+Returns the current authenticated user from Knock.
+
+**Returns**
+
+`Future<User>`
+
+### `identify`
+
+Upserts the current authenticated user properties in Knock.
+
+**Returns**
+
+`Future<User>`
+
+### `getChannelData`
+
+Returns any channel data set for the channelId given for the current authenticated user.
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The channel ID from Knock"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<ChannelData>`
+
+### `setChannelData`
+
+Updates the channel data for the current user on the channel specified with `channelId`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The channel ID to update the channel data for"
+  />
+  <Attribute
+    name="data"
+    type="Any"
+    description="The data to update for the channel data"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<ChannelData>`
+
+### `registerTokenForChannel`
+
+Registers the current device's token for the user in Knock.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The push channel ID from Knock"
+  />
+  <Attribute
+    name="token"
+    type="String"
+    description="The device token to register"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<ChannelData>`
+
+### `deregisterTokenForChannel`
+
+De-registers the current device's token for the user in Knock.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The push channel ID from Knock"
+  />
+  <Attribute
+    name="token"
+    type="String"
+    description="The device token to remove"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<ChannelData>`
+
+---
+
+## `PreferencesClient`
+
+### `getAll`
+
+Returns all preference sets for the current user.
+
+**Returns**
+
+`Future<List<PreferenceSet>>`
+
+### `get`
+
+Returns a single preference set for the current user.
+
+**Returns**
+
+`Future<PreferenceSet>`
+
+### `set`
+
+<Attributes>
+  <Attribute
+    name="properties"
+    type="SetPreferencesProperties"
+    description="The preference set to upsert"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<PreferenceSet>`
+
+---
+
+## `FeedClient`
+
+<Attributes>
+  <Attribute
+    name="feedChannelId"
+    type="String"
+    description="The in-app channel ID from Knock"
+  />
+  <Attribute
+    name="options"
+    type="FeedOptions"
+    description="Default options to apply to the feed instance"
+  />
+</Attributes>
+
+**Returns**
+
+`FeedClient`
+
+### `feed`
+
+Returns the current feed controller to be bound and used when building UI.
+
+**Returns**
+
+`Stream<Feed>`
+
+### `fetchNextPage`
+
+Fetches the next page of items in the feed, as long as there are more items to fetch.
+
+**Returns**
+
+`void`
+
+### `on`
+
+Binds an event listener to the feed.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="bindableFeedEvent"
+    type="BindableFeedEvent"
+    description="The type of event to listen to"
+  />
+</Attributes>
+
+**Returns**
+
+`Stream<FeedEvent>`
+
+### `markAsSeen`
+
+Marks the given set of items as seen. Will optimistically update the feed.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="List<FeedItem>"
+    description="One or more feed items to mark"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<void>`
+
+### `markAsUnseen`
+
+Marks the given set of items as unseen. Will optimistically update the feed.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="List<FeedItem>"
+    description="One or more feed items to mark"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<void>`
+
+### `markAsRead`
+
+Marks the given set of items as read. Will optimistically update the feed.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="List<FeedItem>"
+    description="One or more feed items to mark"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<void>`
+
+### `markAsUnread`
+
+Marks the given set of items as unread. Will optimistically update the feed.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="List<FeedItem>"
+    description="One or more feed items to mark"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<void>`
+
+### `markAsArchived`
+
+Marks the given set of items as archived. Will optimistically update the feed.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="List<FeedItem>"
+    description="One or more feed items to mark"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<void>`
+
+### `markAsUnarchived`
+
+Marks the given set of items as unarchived. Will optimistically update the feed.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="List<FeedItem>"
+    description="One or more feed items to mark"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<void>`
+
+### `markAsInteracted`
+
+Marks the given set of items as interacted. Will optimistically update the feed.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="List<FeedItem>"
+    description="One or more feed items to mark"
+  />
+</Attributes>
+
+**Returns**
+
+`Future<void>`
+
+### `markAllAsSeen`
+
+Marks all items in the user's feed as seen. Will optimistically update the items currently in the feed.
+
+**Returns**
+
+`Future<void>`
+
+### `markAllAsRead`
+
+Marks all items in the user's feed as read. Will optimistically update the items currently in the feed.
+
+**Returns**
+
+`Future<void>`
+
+### `markAllAsArchived`
+
+Marks all items in the user's feed as archived. Will optimistically update the items currently in the feed.
+
+**Returns**
+
+`Future<void>`

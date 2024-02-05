@@ -164,6 +164,15 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/reference", title: "API reference" },
         ],
       },
+      {
+        title: "Flutter",
+        slug: "/flutter",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick start" },
+          { slug: "/reference", title: "API reference" },
+        ],
+      },
     ],
   },
 
