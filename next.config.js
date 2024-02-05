@@ -248,6 +248,11 @@ const nextConfig = {
         destination: "/getting-started/security",
         permanent: true,
       },
+      {
+        source: "/developer-tools/outbound-webhooks",
+        destination: "/developer-tools/outbound-webhooks/overview",
+        permanent: false,
+      },
     ];
   },
 };
