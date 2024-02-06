@@ -15,7 +15,7 @@ tags:
     "staging",
     "active",
     "inactive",
-    "diffs"
+    "diffs",
   ]
 section: Concepts
 ---
@@ -35,13 +35,15 @@ After you modify a resource, you'll see a "Save" button that allows you to store
 **A few things to note:**
 
 - Channel configurations, branding, and variables do not need to be committed, as they live at the account-level. This means that if you make a change to a channel configuration, it will update immediately on notifications sent in that environment.
-- Any changes you have not yet committed to your current environment **will** apply when you're using the test runner. This way you can test your latest changes before you commit them to your environment.
-- You can work with Knock resources programmatically, outside of your dashboard, if you prefer. We offer both a [Management API](/developer-tools/management-api) and a [command line interface](/developer-tools/knock-cli) for interacting with Knock resources locally.
+- Any changes you have saved but not yet committed **will** apply when you're using the test runner. This way you can test your latest changes before you commit them to your development environment.
+- You can work with Knock resources outside of your dashboard if you prefer. We offer both a [Management API](/developer-tools/management-api) and a [command line interface](/developer-tools/knock-cli) for interacting with Knock resources programmatically.
 - The commit model applies to all methods of interacting with Knock resources, whether directly in the dashboard or with the Management API and CLI.
 
 ### Commit Diffs
 
-Clicking the "Commit to development" button will show you a 
+Clicking the "Commit to development" button will show you a view of changes between your current commit and the most-recent version of the resource that you're updating. Commit diffs are also available on your full commit log (viewable on the **Commits** page in your dashboard), so you can view the commit history for a resource and know exactly what was changed with each commit.
+
+![Commit diffs in Knocks version control](/images/commit-diff-showcase.gif)
 
 ## Promotion and rollback
 
@@ -52,9 +54,23 @@ any issues they can be rolled back with ease.
 Knock uses a model where all changes to the production environment must be **promoted** and cannot be made directly.
 This means that changes must be made in the development environment, then staged and tested before being rolled out (similar to a git-based workflow).
 
-There is one exception to this rule: the active/inactive status on a given workflow. This status lives independently from the commit model so that you can immediately enable or disable a workflow in any environment without needing to go through environment promotion. This is your kill switch for a given workflow should you need it; this status is displayed on each workflow in your dashboard's **Workflows** section, and can be set by clicking on the workflow and using the "Status" selector.
+<Callout
+  emoji={"🚨"}
+  text={
+    <>
+      <span className="font-bold">There is one exception to this rule:</span>{" "}
+      the active/inactive status on a workflow. This status lives independently
+      from the commit model so that you can immediately enable or disable a
+      workflow in any environment without needing to go through environment
+      promotion. This is your kill switch for a given workflow should you need
+      it; this status is displayed on each workflow in your dashboard's{" "}
+      <span className="font-bold">Workflows</span> section, and can be set by
+      clicking on the workflow and using the "Status" selector.
+    </>
+  }
+/>
 
-
+To promote a committed change to a higher environment, navigate to the **Commits** page in your Knock dashboard and click on "Unpromoted changes". Here you'll see a list of commits that are ready for promotion. Clicking "view commit" on a given commit will show you a commit diff for that change, and clicking the "Promote to [environment]" button will promote the staged commit to the next-higher environment (whose name is displayed).
 
 A typical deployment lifecycle in Knock looks like:
 
