@@ -186,7 +186,14 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/knock-cli", title: "Knock CLI" },
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
-      { slug: "/outbound-webhooks", title: "Outbound webhooks" },
+      {
+        slug: "/outbound-webhooks",
+        title: "Outbound webhooks",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/event-types", title: "Event types" },
+        ],
+      },
       { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
     ],
   },

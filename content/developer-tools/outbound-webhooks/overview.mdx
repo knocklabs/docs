@@ -10,65 +10,17 @@ Use outbound webhooks to be notified of events happening within your Knock envir
 
 Knock can send a JSON payload to your backend with data about events that occur within Knock, like a message's status changing from `sent` to `delivered`. You can configure an endpoint and select which events you'd like it to listen to. When that event happens you'll get a POST request to the endpoint you've provided and then can use that data to trigger side-effects in your app.
 
+You can learn more about the types of events that [Knock sends webhooks for here](/developer-tools/outbound-webhooks/event-types).
+
 ## Quickstart
 
 1. [Create an endpoint in your app to receive webhook requests](#1-create-an-endpoint-to-receive-the-webhook-payload) and respond to requests with a `200` or `204` status code
 2. [Create a webhook in the Knock dashboard](#2-create-the-knock-webhook) pointing to your endpoint
 3. Start receiving webhook events!
 
-## Events that can trigger a Knock webhook
+## Payload & headers
 
-Currently, we support webhooks for status changes on messages. A message represents a notification sent from a workflow, so keep in mind that one workflow with several channel steps can result in many messages and therefore a high number of status changes, or `message events`.
-
-This is the list of events that Knock can use to trigger a webhook:
-
-<Table
-  headers={["Event", "Description"]}
-  rows={[
-    [
-      "message.sent",
-      "Occurs when a message is successfully sent to a channel provider.",
-    ],
-    [
-      "message.delivered",
-      "Occurs when a message is marked as delivered to the user by the provider. This is only available on email providers with delivery tracking enabled.",
-    ],
-    [
-      "message.delivery_attempted",
-      "Occurs when a message delivery attempt fails and may be retried.",
-    ],
-    [
-      "message.undelivered",
-      "Occurs when a message delivery attempt fails permanently. Delivery will not be retried.",
-    ],
-    ["message.seen", "Occurs when a message is seen by its recipient."],
-    [
-      "message.unseen",
-      "Occurs when a message is marked unseen by the recipient.",
-    ],
-    [
-      "message.read",
-      "Occurs when a message is marked as read by its recipient.",
-    ],
-    [
-      "message.unread",
-      "Occurs when a message is marked unread by the recipient.",
-    ],
-    ["message.archived", "Occurs when a message is archived by its recipient."],
-    [
-      "message.unarchived",
-      "Occurs when a message is unarchived by its recipient.",
-    ],
-    [
-      "message.link_clicked",
-      "Occurs when a link is clicked by the message recipient. This is only available when Knock link tracking is enabled.",
-    ],
-  ]}
-/>
-
-## Webhook payload & header
-
-A webhook payload for the message events will always include the message sent and the type of event that triggered the payload. This is an example of what will be sent to your webhook endpoint:
+A webhook payload will always take the following base shape, where the `type` will be determined by the supported [webhook event types](/developer-tools/outbound-webhooks/event-types). The `data` field will include the entity that the event references.
 
 ```json A sample event payload
 {
@@ -77,31 +29,7 @@ A webhook payload for the message events will always include the message sent an
   "type": "message.sent",
   "created_at": "2022-05-31T17:12:59.958652Z",
   "data": {
-    // The message for which this event is being reported
-    "__typename": "Message",
-    "archived_at": null,
-    "clicked_at": null,
-    "channel_id": "f5674f8b-81bb-49b1-9d52-e29d754b8a1b",
-    "data": null,
-    "id": "29wHMT3jeGfPE02PHezR8go0cK1",
-    "inserted_at": "2022-05-31T17:12:59.933761Z",
-    "metadata": {
-      // The `id` of the delivered message that the delivery provider may return
-      "external_id": "external_id_from_provider"
-    },
-    "read_at": null,
-    "recipient": "fd3d0708-ebee-456b-a324-1312a30edd0c",
-    "seen_at": null,
-    "source": {
-      // The source workflow that triggered this message
-      "__typename": "NotificationSource",
-      "key": "new-comment",
-      "version_id": "f5917d67-8a2f-487d-a544-83cacbdb1cfb"
-    },
-    // The current status of the message sent
-    "status": "delivered",
-    "tenant": null,
-    "updated_at": "2022-05-31T17:12:59.942374Z"
+    // Information about the entity
   },
   // (Optional) additional metadata related to the event
   "event_data": {
@@ -110,8 +38,6 @@ A webhook payload for the message events will always include the message sent an
   }
 }
 ```
-
-You'll notice if you've explored the [get messages endpoint](/reference#get-a-message) that the `"data"` key contains all of the same fields as a message retrieved from there.
 
 The request header will also contain the following:
 
@@ -167,7 +93,7 @@ To test that the payload sent has not been compromised, you can recreate the sig
 2. Construct the value of the signature by concatenating:
 
    - The timestamp (as a string)
-   - The character .
+   - The character `.`
    - The stringified JSON payload
 
 3. Generate the signature with an HMAC and SHA256 algorithm using the secret key from your webhook's dashboard
@@ -228,7 +154,7 @@ app.listen(4242, () => console.log("Running on port 4242"));
 
 ### Using the data
 
-Once you receive a webhook request and return a `2xx` status code, you can make additional requests to the Knock API to gather more information about the message event. For example, if you'd like to log the message's content when an event type comes through as `message.undelivered`, you can use the message ID to send a request to [get message content](/reference#get-message-content) when that condition is met.
+Once you receive a webhook request and return a `2xx` status code, you can make additional requests to the Knock API to gather more information about the event. For example, if you're building a webhook for the `message.undelivered` event, and you'd like to log the message's content, you can use the message ID to send a request to [get message content](/reference#get-message-content) when that event is received.
 
 ## Managing webhooks
 
@@ -251,7 +177,3 @@ When you create a webhook it will automatically be set to `enabled`. You can dis
 ### Deleting a webhook
 
 To stop receiving data to your endpoint, you can delete the webhook from its page. From `/webhooks`, click on the webhook you'd like to delete and you'll see a three-dot menu to the right of the header. Click there and you'll see the delete prompt. Keep in mind that if you delete a webhook, you'll have to recreate it to start receiving data to that endpoint again.
-
-## Try it out
-
-Before implementing an endpoint in your app, you can get a sense of how it works by creating a Knock webhook that points to an example endpoint, such as those provided by https://webhook.site/.
