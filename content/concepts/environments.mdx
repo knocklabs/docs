@@ -3,19 +3,12 @@ title: Environments
 description: Learn about how Knock's isolated environment model works and how it fits into your system development lifecycle.
 tags:
   [
-    "how knock works",
-    "branches",
     "env",
     "version control",
-    "versions",
     "variables",
-    "commit",
     "promote",
     "promotion",
-    "staging",
-    "active",
-    "inactive",
-    "diffs",
+    "staging"
   ]
 section: Concepts
 ---
@@ -26,67 +19,13 @@ in one environment are **never** accessible to another.
 
 The API key you use determines the environment into which you'll be sending data. You can find your environment-specific API keys under the "Developer" section of the Knock dashboard.
 
-## Commits
-
-To version the changes you make in your environments, Knock uses a commit model. When you make a change to a workflow or a layout in the Knock dashboard, you'll need to commit it to your development environment before those changes will appear in workflows triggered via the API.
-
-After you modify a resource, you'll see a "Save" button that allows you to store those changes. When you're ready to permanently store your updates with version control, these changes should then be committed with the "Commit to development" button that will come into focus after changes have been saved.
-
-**A few things to note:**
-
-- Channel configurations, branding, and variables do not need to be committed, as they live at the account-level. This means that if you make a change to a channel configuration, it will update immediately on notifications sent in that environment.
-- Any changes you have saved but not yet committed **will** apply when you're using the test runner. This way you can test your latest changes before you commit them to your development environment.
-- You can work with Knock resources outside of your dashboard if you prefer. We offer both a [Management API](/developer-tools/management-api) and a [command line interface](/developer-tools/knock-cli) for interacting with Knock resources programmatically.
-- The commit model applies to all methods of interacting with Knock resources, whether directly in the dashboard or with the Management API and CLI.
-
-### Commit diffs
-
-Clicking the "Commit to development" button will show you a view of changes between your current commit and the most-recent version of the resource that you're updating. Commit diffs are also available on your full commit log (viewable on the **Commits** page in your dashboard), so you can view the commit history for a resource and know exactly what was changed with each commit.
-
-![Commit diffs in Knocks version control](/images/commit-diff-showcase.gif)
-
-## Promotion and rollback
-
-Knock is designed to allow large teams to create and manage notifications at scale. That means that
-notifications changes must be versioned, tested, and promoted to production environments, so that if there are
-any issues they can be rolled back with ease.
-
-Knock uses a model where all changes to the production environment must be **promoted** and cannot be made directly.
-This means that changes must be made in the development environment, then staged and tested before being rolled out (similar to a git-based workflow).
-
-<Callout
-  emoji={"🚨"}
-  text={
-    <>
-      <span className="font-bold">Note:</span> There is one exception to the
-      commit and promote rule — the active/inactive status on a workflow. This
-      status lives independently from the commit model so that you can
-      immediately enable or disable a workflow in any environment without
-      needing to go through environment promotion. This is your kill switch for
-      a given workflow should you need it; this status is displayed on each
-      workflow in your dashboard's <span className="font-bold">Workflows</span>{" "}
-      section, and can be set by clicking on the workflow and using the "Status"
-      selector.
-    </>
-  }
-/>
-
-To promote a committed change to a higher environment, navigate to the **Commits** page in your Knock dashboard and click on "Unpromoted changes". Here you'll see a list of commits that are ready for promotion. Clicking "View commit" on a given commit will show you a commit diff for that change, and clicking the "Promote to [environment]" button will promote the staged commit to the next-higher environment (whose name is displayed on the button).
-
-**A typical deployment lifecycle in Knock looks like:**
-
-1. Introduce any backend changes to support a new workflow (users and preference properties)
-2. Build the workflow in a dev environment in Knock and commit it to that environment
-3. Test the workflow
-4. When you're ready to go live, promote the workflow to production
-
 ## Create additional environments
 
 By default your Knock account comes with two environments: Development and Production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a Staging environment) you can add it on the settings page of the Knock dashboard.
 
 To create a new environment, go to "Settings" then "Environments". You'll see a button to "Create environment".
 
-When you create an additional environment, it will be inserted between Development and Production. This means all changes will be continue to be introduced in your Development environment and will need to be promoted through additional environments until they land in Production.
+When you create an additional environment, it will be inserted between Development and Production. This means all changes will continue to be introduced in your Development environment and will need to be [promoted](/concepts/commits#promotion-and-rollback) through additional environments until they land in Production. Subsequent new environments will always be added one "level" lower than Production; environments cannot be re-ordered, as this would break the promotion model for previously-promoted changes.
 
 ## Environment-based access controls
 
