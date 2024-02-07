@@ -23,6 +23,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/workflows", title: "Workflows" },
       { slug: "/channels", title: "Channels" },
+      { slug: "/commits", title: "Commits" },
       { slug: "/environments", title: "Environments" },
       { slug: "/recipients", title: "Recipients" },
       { slug: "/users", title: "Users" },
