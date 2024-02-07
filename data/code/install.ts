@@ -1,20 +1,20 @@
 const languages = {
-    javascript: `
+  javascript: `
     npm install @knocklabs/node
   `,
-    python: `
+  python: `
     pip install knockapi
   `,
-    ruby: `
+  ruby: `
     gem install knockapi
   `,
-    go: `
+  go: `
     go get github.com/knocklabs/knock-go/knock
   `,
-    php: `
+  php: `
     composer require knocklabs/knock-php php-http/guzzle7-adapter
   `,
-    java: `
+  java: `
   // To build.gradle:
   dependencies {
     implementation 'app.knock.api:knock-client:0.2.10'
@@ -31,7 +31,7 @@ const languages = {
     <!-- more dependencies here -->
   </dependencies>
   `,
-    csharp: `
+  csharp: `
   // Via the NuGet Package Manager
   nuget install Knock.net
 
@@ -41,7 +41,7 @@ const languages = {
 // Via Visual Studio IDE
   Install-Package Knock.net
   `,
-    elixir: `
+  elixir: `
 # Add to mix.exs
 def deps do
   [
@@ -49,6 +49,6 @@ def deps do
   ]
 end
   `,
-  };
-  
-  export default languages;
+};
+
+export default languages;
