@@ -19,7 +19,7 @@ const EVENT_NAME = "language.change";
 
 const snippets = {
   "api.idempotency": require("../data/code/api/idempotency").default,
-  "install": require("../data/code/install").default,
+  "sdks.install": require("../data/code/sdks/install").default,
   // Users
   "users.bulkIdentify": require("../data/code/users/bulk-identify").default,
   "users.bulkDelete": require("../data/code/users/bulk-delete").default,
