@@ -15,7 +15,7 @@ const languages = {
     composer require knocklabs/knock-php php-http/guzzle7-adapter
   `,
   java: `
-  // To build.gradle:
+// To build.gradle:
   dependencies {
     implementation 'app.knock.api:knock-client:0.2.10'
   }
@@ -32,7 +32,7 @@ const languages = {
   </dependencies>
   `,
   csharp: `
-  // Via the NuGet Package Manager
+// Via the NuGet Package Manager
   nuget install Knock.net
 
 // Via the .NET Core Command Line Tools
@@ -43,11 +43,11 @@ const languages = {
   `,
   elixir: `
 # Add to mix.exs
-def deps do
-  [
-    {:knock, "~> 0.4"}
-  ]
-end
+  def deps do
+    [
+      {:knock, "~> 0.4"}
+    ]
+  end
   `,
 };
 
