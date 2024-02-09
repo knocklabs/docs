@@ -95,21 +95,51 @@ When the key specified is missing, or resolves to an invalid value, a correspond
 
 ### Using a sliding batch window
 
-By default, all batch windows are fixed, where the closing window of the batch is determined by the first trigger that starts the batch. In some situations, you may wish to "extend" the batch window when a new trigger is received to recompute the closing time of the batch. This option is supported in the batch step as a "sliding window". Let's walk through an example:
+By default, all batch windows are fixed, where the closing of the batch window is determined by the first trigger that starts the batch. In some situations, you may wish to "extend" the batch window when a new trigger is received to recompute the closing time of the batch. This option is supported in the batch step as a "sliding window".
+
+When a sliding window is enabled on a batch function, subsequent workflow triggers that are detected by the already-open batch window will add the configured default window duration onto the already-open batch window. Let's walk through an example:
+
+**_Initial batch window: 1 minute_**
 
 - Trigger: the batch opens with a closing window of `now() + 1 min`
-- ⏲️ [30-seconds pass]
-- Trigger: new item added to the batch, the closing window is now recomputed to be `now() + 1 min`
-- ⏲️ [1-minute passes]
-- The batch closes
+- ⏲️ [30 seconds pass]
+- Trigger: new item added to the batch, the closing window is recomputed to be `now() + 1 min`, a total of 1 minute and 30 seconds from when the batch was opened
+- ⏲️ [1 minute passes]
+- The batch closes after 1 minute and 30 seconds
 
-#### Setting a maximum batch window
+#### Setting a maximum batch window duration
 
-With the sliding batch window, it's also possible to set a **maximum duration** that the window should be opened for. This option is available once you select that the batch uses a sliding window, and can be set as any duration unit.
+When using a sliding batch window, you must set an extension limit for the batch. This value represents the maximum amount of time that a batch window can remain open if it is extended by subsequent workflow triggers.
+This "Max extension limit" option is displayed once you enable a sliding window by selecting "Extend window when new activities are received," and can be set as any duration unit.
 
-When this option is used, the maximum duration the window should be open will be computed from the **start** of the batch window (e.g. the time the batch opened). If the window is greater than the max duration, then the window will be extended by the maximum duration.
+Once configured, Knock will compute the maximum extended batch window for subsequent triggers as the time your batch was initially opened plus the maximum window duration. For example:
 
-## Setting the maximum batch limit
+**_Initial batch window: 12 hours_**\
+**_Max extension limit: 24 hours_**
+
+- Trigger: the batch opens with a closing window of `now() + 12 hrs`
+- ⏲️ [6 hours pass]
+- Trigger: new item added to the batch, the closing window is recomputed to be `now() + 12 hrs`, a total of 18 hours from when the batch was opened
+- ⏲️ [Another 7 hours pass]
+- Trigger: new item added to the batch, the closing window is recomputed to be `now() + 12 hrs`, which would be a total of 25 hours. Because this exceeds the maximum extension limit, the window is set to close 24 hours after it was opened
+- ⏲️ [Another 3 hours pass]
+- Trigger: new item added to the batch. The closing window is not recomputed because the maximum extension has already been reached
+- ⏲️ [Another 8 hours pass]
+- The batch closes after 24 hours
+
+If you configure your maximum window with a value that is _less_ than the initial window duration, subsequent batched triggers will shorten the overall window. If this new maximum duration has already elapsed, the batch window will immediately close and the workflow run will proceed.
+
+**_Initial batch window: 24 hours_**\
+**_Max extension limit: 12 hours_**
+
+- Trigger: the batch opens with a closing window of `now() + 24 hrs`
+- ⏲️ [23 hours pass]
+- Trigger: new item added to the batch, the closing window is recomputed to be `now() + 24 hrs`, a total of 47 hours from when the batch was opened. This exceeds the configured maximum of 12 hours, so the window is set to close 12 hours after it was opened.
+- Because 12 hours have already elapsed, the batch window closes immediately (after 23 hours have elapsed)
+
+To avoid confusion, we recommend always choosing a max extension limit duration that is greater than your initial batch window duration.
+
+## Setting the maximum activity limit
 
 Optionally, you can also set a maximum limit for the number of activities allowed to be accumulated in a given batch, at anywhere between 2 and 1000 activities.
 
@@ -180,6 +210,27 @@ On the Enterprise plan, you can configure the maximum number of `activities` and
 
 If you want to remove an item from a batch (example: a user deletes a comment), you can use our [workflow cancellation API](/send-notifications/canceling-workflows) to cancel a batched item, thereby removing it from the batch.
 
+<Callout
+  emoji="⛔"
+  text={
+    <>
+      <span className="font-bold">Important:</span> Once a batch window has been
+      opened, it will remain open until its full duration has elapsed. This is
+      because closing a batch window upon workflow cancellation would remove the
+      capability to cancel individual workflows within a given batch.
+      <br />
+      <br />
+      Because of this behavior, it's important to remember that <span className="font-bold">
+        canceling a workflow run that opened a batch window will never close the
+        batch window itself.
+      </span> Any subsequent triggers to that workflow key will add activities to
+      the open batch, and those activities will proceed when the batch window closes
+      if their respective workflow runs are not also canceled. See the FAQs below
+      for a workaround to close an open batch window.
+    </>
+  }
+/>
+
 ---
 
 ## Frequently asked questions
@@ -194,9 +245,13 @@ Often when you're testing your Knock workflows, you'll want your batch windows t
 - Set the key to be `batchWindow`, which will resolve the batch window from the variable you created
 - You can now override the variable per-environment to specify a shorter, or longer window as needed
 
+#### Can I close a batch early?
+
+Right now we don't offer a way to close a batch from a workflow trigger. One workaround is to use a [sliding batch window](/designing-workflows/batch-function#using-a-sliding-batch-window) and then set the max extension window to be a very small duration (i.e. 1 second), meaning that the batch will immediately close when a subsequent trigger occurs.
+
 #### How can items be removed from a batch?
 
-You can use the [workflow cancellation API](/send-notifications/canceling-workflows) to remove an item that has been accumulated into an active batch. When all items have been removed from the batch, any channel steps proceeding will be skipped.
+You can use the [workflow cancellation API](/send-notifications/canceling-workflows) to remove an item that has been accumulated into an active batch. If all items have been removed from the batch when its window closes, any channel steps proceeding will be skipped.
 
 #### How many items can a batch contain?
 
@@ -247,11 +302,7 @@ Yes, if you use the [sliding batch window](#using-a-sliding-batch-window) option
 
 #### Can I close a batch window by the number of items in the batch?
 
-Yes, you can optionally set the [maximum batch limit](#setting-the-maximum-batch-limit) to conditionally close the batch window based on the number of items contained in the batch.
-
-#### Can I close a batch early?
-
-Right now we don't offer a way to close a batch from a workflow trigger. One workaround is to use a sliding batch window and then set the new batch window to be the current timestamp, meaning that the batch will immediately close.
+Yes, you can optionally set the [maximum activity limit](#setting-the-maximum-activity-limit) to conditionally close the batch window based on the number of items contained in the batch.
 
 #### Can I have a batch with a leading debounce?
 
