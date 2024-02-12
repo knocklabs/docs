@@ -99,8 +99,7 @@ By default, all batch windows are fixed, where the closing of the batch window i
 
 When a sliding window is enabled on a batch function, subsequent workflow triggers that are detected by the already-open batch window will add the configured default window duration onto the already-open batch window. Let's walk through an example:
 
-**_Initial batch window: 1 minute_**
-
+- 🎛️ [Initial batch window: 1 minute]
 - Trigger: the batch opens with a closing window of `now() + 1 min`
 - ⏲️ [30 seconds pass]
 - Trigger: new item added to the batch, the closing window is recomputed to be `now() + 1 min`, a total of 1 minute and 30 seconds from when the batch was opened
@@ -114,9 +113,8 @@ This "Max extension limit" option is displayed once you enable a sliding window 
 
 Once configured, Knock will compute the maximum extended batch window for subsequent triggers as the time your batch was initially opened plus the maximum window duration. For example:
 
-**_Initial batch window: 12 hours_**\
-**_Max extension limit: 24 hours_**
-
+- 🎛️ [Initial batch window: 12 hours]
+- 🎛️ [Max extension limit: 24 hours]
 - Trigger: the batch opens with a closing window of `now() + 12 hrs`
 - ⏲️ [6 hours pass]
 - Trigger: new item added to the batch, the closing window is recomputed to be `now() + 12 hrs`, a total of 18 hours from when the batch was opened
@@ -129,9 +127,8 @@ Once configured, Knock will compute the maximum extended batch window for subseq
 
 If you configure your maximum window with a value that is _less_ than the initial window duration, subsequent batched triggers will shorten the overall window. If this new maximum duration has already elapsed, the batch window will immediately close and the workflow run will proceed.
 
-**_Initial batch window: 24 hours_**\
-**_Max extension limit: 12 hours_**
-
+- 🎛️ [Initial batch window: 24 hours]
+- 🎛️ [Max extension limit: 12 hours]
 - Trigger: the batch opens with a closing window of `now() + 24 hrs`
 - ⏲️ [23 hours pass]
 - Trigger: new item added to the batch, the closing window is recomputed to be `now() + 24 hrs`, a total of 47 hours from when the batch was opened. This exceeds the configured maximum of 12 hours, so the window is set to close 12 hours after it was opened
@@ -215,9 +212,7 @@ If you want to remove an item from a batch (example: a user deletes a comment), 
   text={
     <>
       <span className="font-bold">Important:</span> Once a batch window has been
-      opened, it will remain open until its full duration has elapsed. This is
-      because closing a batch window upon workflow cancellation would remove the
-      capability to cancel individual workflow runs within a given batch.
+      opened, it will remain open until its full duration has elapsed. Any workflow cancellation will remove the specific individual workflow run that it references from the batch.
       <br />
       <br />
       Because of this behavior, it's important to remember that <span className="font-bold">
