@@ -17,16 +17,16 @@ const languages = {
   java: `
 // To build.gradle:
   dependencies {
-    implementation 'app.knock.api:knock-client:0.2.10'
+    implementation 'app.knock.api:knock-client:[VERSION]'
   }
 
 // To maven.xml:
   <dependencies>
     <!-- more dependencies here -->
     <dependency>
-        <groupId>app.knock.api</groupId>
-        <artifactId>knock-client</artifactId>
-        <version>0.2.10</version>
+      <groupId>app.knock.api</groupId>
+      <artifactId>knock-client</artifactId>
+      <version>[VERSION]</version>
     </dependency>
     <!-- more dependencies here -->
   </dependencies>
@@ -45,7 +45,7 @@ const languages = {
 # Add to mix.exs
   def deps do
     [
-      {:knock, "~> 0.4"}
+      {:knock, "~> [VERSION]"}
     ]
   end
   `,
