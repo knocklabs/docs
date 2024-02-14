@@ -127,6 +127,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/vercel", title: "Vercel" },
       { slug: "/datadog", title: "Datadog" },
+      { slug: "/new-relic", title: "New Relic" },
       { slug: "/segment", title: "Segment" },
       { slug: "/data-sync", title: "Data warehouse sync" },
     ],

@@ -23,7 +23,8 @@ import { Attributes, Attribute } from "../components/Attributes";
 import Table from "../components/Table";
 import CopyableText from "../components/CopyableText";
 import { Endpoints, Endpoint } from "../components/Endpoints";
-import dashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
+import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
+import newRelicDashboardJson from "../content/integrations/extensions/new_relic_dashboard.json";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import remarkGfm from "remark-gfm";
 
@@ -66,7 +67,8 @@ export default function ContentPage({ source, sourcePath }) {
           {...source}
           components={components}
           scope={{
-            dashboardJson,
+            datadogDashboardJson,
+            newRelicDashboardJson,
             eventPayload,
           }}
         />
