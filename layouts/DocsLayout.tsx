@@ -8,6 +8,7 @@ import sidebarContent from "../data/sidebar";
 import DocsSidebar from "../components/DocsSidebar";
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
+import MinimalHeader from "../components/Header/MinimalHeader";
 
 const DocsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
@@ -29,7 +30,7 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
   );
 
   return (
-    <>
+    <Page header={<MinimalHeader pageType="Docs" />} sidebar={<DocsSidebar />}>
       <Meta
         title={`${frontMatter.title} | Knock Docs`}
         description={frontMatter.description}
@@ -83,14 +84,8 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
           )}
         </div>
       </div>
-    </>
+    </Page>
   );
 };
-
-DocsLayout.getLayout = (page) => (
-  <Page pageType="Docs" sidebar={<DocsSidebar />}>
-    {page}
-  </Page>
-);
 
 export { DocsLayout };

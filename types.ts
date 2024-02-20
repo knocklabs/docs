@@ -5,6 +5,7 @@ export interface FrontMatter {
   tags: string[];
   section: string;
   showNav?: boolean;
+  layout?: "docs" | "api" | "mapi" | "integrations" | "cli";
 }
 
 export type ISidebarContent = ISidebarSection[];
