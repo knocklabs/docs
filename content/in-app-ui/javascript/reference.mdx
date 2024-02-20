@@ -104,6 +104,11 @@ Authenticates the current user and creates a new Knock session.
     type="string"
     description="JWT for the authenticated user. Not required in development environments."
   />
+  <Attribute
+    name="options"
+    type="AuthenticateOptions"
+    description="Additional options to authenticate your Knock user with."
+  />
 </Attributes>
 
 **Returns**: `void`
@@ -119,9 +124,11 @@ knock.authenticate(user.id, user.knockUserToken);
 
 ### `teardown`
 
-Tearsdown a current session and disconnects any connected sockets.
+Tears down a current session and disconnects any connected sockets.
 
 **Returns**: `void`
+
+---
 
 ## `ApiClient`
 
@@ -131,19 +138,24 @@ The API client exposes direct functions for communicating with the Knock API ove
 
 **Returns**: a `Socket`
 
-### `connectSocket`
+---
 
-Connects the socket instance to Knock's realtime server.
 
-**Returns**: void
+## `FeedClient`
 
-### `disconnectSocket`
+### `initialize`
 
-Disconnects the socket from Knock's realtime server.
+Creates a new `Feed` instance.
 
-**Returns**: void
+### `teardownInstances`
 
-### `makeRequest`
+Tears down any current feed instances.
+
+### `reinitializeInstances`
+
+Reinitializes any current feed instances by reconnecting their realtime connections.
+
+---
 
 ## `Feed`
 
@@ -413,37 +425,7 @@ Emits `items.received.page` events on a successful fetch.
 
 Fetches the next page of the feed items (if there are any more to fetch). Note: this will
 
-## `FeedStoreState`
-
-A **[zustand](https://github.com/pmndrs/zustand) state store** that holds the current feed state, including item counts, for easy notification feed rendering within your application. The FeedStoreState is entirely managed by the `Feed` instance, and any calls to `fetch()`, `markAsX`, or `fetchNextPage` will update the state accordingly.
-
-<Attributes>
-  <Attribute
-    name="items"
-    type="FeedItem[]"
-    description="An ordered list of feed items to be rendered."
-  />
-  <Attribute
-    name="pageInfo"
-    type="PageInfo"
-    description="The page info of the last successful fetch."
-  />
-  <Attribute
-    name="metadata"
-    type="FeedMetadata"
-    description="The current feed metadata including unread, unseen, read, and total counts of items in the feed."
-  />
-  <Attribute
-    name="loading"
-    type="boolean"
-    description="Whether or not the feed is currently loading."
-  />
-  <Attribute
-    name="networkStatus"
-    type="NetworkStatus"
-    description="Represents the various network states the feed can be in, including differentiating between 'fetching more' and 'fetching'."
-  />
-</Attributes>
+---
 
 ## `Preferences`
 
@@ -497,3 +479,69 @@ const preferenceSet = await knock.preferences.set({
   },
 });
 ```
+
+## Types
+
+### `KnockOptions`
+
+<Attributes>
+  <Attribute
+    name="host"
+    type="string"
+    description="A base URL to use for all API requests to Knock"
+  />
+  <Attribute
+    name="logLevel"
+    type="'debug' | null"
+    description="When set to debug, will output log events"
+  />
+</Attributes>
+
+### `AuthenticateOptions`
+
+Options to pass through to the `authenticate` method.
+
+<Attributes>
+  <Attribute
+    name="onUserTokenExpiring"
+    type="(oldToken: string) => Promise<string | void>"
+    description="A callback to provide that will fire before a user Token expires. By default will fire 30s before the token is set to expire. If a string is returned from the resolved promise, that will be used as the new user token."
+  />
+  <Attribute
+    name="timeBeforeExpirationInMs"
+    type="number"
+    description="Determines the amount of time in milliseconds before the token expires that the callback should be fired."
+  />
+</Attributes>
+
+### `FeedStoreState`
+
+A **[zustand](https://github.com/pmndrs/zustand) state store** that holds the current feed state, including item counts, for easy notification feed rendering within your application. The FeedStoreState is entirely managed by the `Feed` instance, and any calls to `fetch()`, `markAsX`, or `fetchNextPage` will update the state accordingly.
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="FeedItem[]"
+    description="An ordered list of feed items to be rendered."
+  />
+  <Attribute
+    name="pageInfo"
+    type="PageInfo"
+    description="The page info of the last successful fetch."
+  />
+  <Attribute
+    name="metadata"
+    type="FeedMetadata"
+    description="The current feed metadata including unread, unseen, read, and total counts of items in the feed."
+  />
+  <Attribute
+    name="loading"
+    type="boolean"
+    description="Whether or not the feed is currently loading."
+  />
+  <Attribute
+    name="networkStatus"
+    type="NetworkStatus"
+    description="Represents the various network states the feed can be in, including differentiating between 'fetching more' and 'fetching'."
+  />
+</Attributes>
