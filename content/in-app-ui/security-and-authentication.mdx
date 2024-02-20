@@ -75,10 +75,8 @@ knockClient.authenticate(currentUser.id);
 
 ```jsx
 <KnockProvider
-  // Rest omitted for brevity
   apiKey={process.env.KNOCK_PUBLIC_API_KEY}
   userId={currentUser.id}
-  // userToken is optional with enhanced security turned off
 >
 ```
 
@@ -156,20 +154,27 @@ import Knock from "@knocklabs/client";
 
 const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
 
-// Tell Knock to use the users id and the token for the user
+// Tell Knock to use the user id and the token
 knockClient.authenticate(currentUser.id, currentUser.knockToken);
 ```
 
 **React notification feed example**
 
 ```jsx
-<KnockFeedProvider
-  // Rest of props omitted for brevity
+<KnockProvider
   apiKey={process.env.KNOCK_PUBLIC_API_KEY}
   userId={currentUser.id}
   userToken={currentUser.knockUserToken}
 >
 ```
+
+## Handling token expiration
+
+Generally, it's advisable to set the token expiration to be equal to your session token expiration. That way you can regenerate both of the tokens together from within your application. There may, however, be cases where this is not possible, in which case it's best practice to opt for a relatively short-lived expiration time for your user tokens and refresh them from your backend before the expiration window.
+
+For convenience, the Knock JavaScript client and React package expose an `onUserTokenExpiring` callback method which will be invoked before the user token expires. This provides an easy hook for your application to refresh the user token from your backend.
+
+At any time your application can call the `authenticate` method again with an updated user token and the connection to the Knock real-time service will be restarted.
 
 ## Avoiding authentication
 

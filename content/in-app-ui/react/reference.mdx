@@ -9,7 +9,7 @@ In this section, you'll find the complete documentation for the components expos
 
 **Note**: You can see a reference for the methods available for the `Knock` class, as well as a `Feed` instance under the [client JS docs](/in-app-ui/javascript/reference).
 
-## Components
+## Context
 
 ### `KnockProvider`
 
@@ -48,6 +48,16 @@ Accepts `KnockProviderProps`
     }
   />
   <Attribute
+    name="onUserTokenExpiring"
+    type="(oldToken: string) => Promise<string | void>"
+    description="A callback to provide that will fire before a user Token expires. By default will fire 30s before the token is set to expire. If a string is returned from the resolved promise, that will be used as the new user token."
+  />
+  <Attribute
+    name="timeBeforeExpirationInMs"
+    type="number"
+    description="Determines the amount of time in milliseconds before the token expires that the callback should be fired."
+  />
+  <Attribute
     name="host"
     type="string"
     description="A custom API host for Knock"
@@ -58,6 +68,33 @@ Accepts `KnockProviderProps`
     description="An optional set of translations to override the default `en` translations used in the feed components"
   />
 </Attributes>
+
+#### `useKnock`
+
+The `KnockProvider` exposes a `useKnock` hook for all child components.
+
+**Returns**: `Knock`, an instance of the Knock JS client.
+
+**Example**:
+
+```jsx
+import { KnockProvider, useKnock } from "@knocklabs/react";
+
+const App = ({ authenticatedUser }) => (
+  <KnockProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    userId={authenticatedUser.id}
+  >
+    <MyComponent />
+  </KnockProvider>
+);
+
+const MyComponent = () => {
+  const knock = useKnock();
+
+  return null;
+};
+```
 
 ### `KnockFeedProvider`
 
@@ -84,6 +121,81 @@ Accepts `KnockFeedProviderProps`:
     description="Sets the theme as either light or dark mode (defaults to light)"
   />
 </Attributes>
+
+#### `useKnockFeed`
+
+The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components.
+
+**Returns**: `KnockFeedProviderState`
+
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="The instance of the Knock client"
+  />
+  <Attribute
+    name="feedClient"
+    type="Feed"
+    description="The instance of the authenticated Feed"
+  />
+  <Attribute
+    name="useFeedStore"
+    type="UseStore<FeedStoreState>"
+    description="A zustand store containing the FeedStoreState"
+  />
+  <Attribute
+    name="status"
+    type="FilterStatus"
+    description="Current value of the filter status for the Feed"
+  />
+  <Attribute
+    name="setStatus"
+    type="function"
+    description="A function to set the current FilterStatus"
+  />
+  <Attribute
+    name="colorMode"
+    type="ColorMode"
+    description="The current theme color"
+  />
+</Attributes>
+
+**Example**:
+
+```jsx
+import {
+  KnockProvider,
+  KnockFeedProvider,
+  useKnockFeed,
+} from "@knocklabs/react";
+
+const App = ({ authenticatedUser }) => (
+  <KnockProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    userId={authenticatedUser.id}
+  >
+    <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+      <MyFeedComponent />
+    </KnockFeedProvider>
+  </KnockProvider>
+);
+
+const MyFeedComponent = () => {
+  const { useFeedStore } = useKnockFeed();
+  const items = useFeedStore((state) => state.items);
+
+  return (
+    <div className="notifications">
+      {items.map((item) => (
+        <NotificationCell key={item.id} item={item} />
+      ))}
+    </div>
+  );
+};
+```
+
+## Components
 
 ### `NotificationFeed`
 
@@ -282,106 +394,6 @@ A provider to inject translations into components.
 </Attributes>
 
 ## Hooks
-
-### `useKnock`
-
-The `KnockProvider` exposes a `useKnock` hook for all child components.
-
-**Returns**: `Knock`, an instance of the Knock JS client.
-
-**Example**:
-
-```jsx
-import { KnockProvider, useKnock } from "@knocklabs/react";
-
-const App = ({ authenticatedUser }) => (
-  <KnockProvider
-    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    userId={authenticatedUser.id}
-  >
-    <MyComponent />
-  </KnockProvider>
-);
-
-const MyComponent = () => {
-  const knock = useKnock();
-
-  return null;
-};
-```
-
-### `useKnockFeed`
-
-The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components.
-
-**Returns**: `KnockFeedProviderState`
-
-<Attributes>
-  <Attribute
-    name="knock"
-    type="Knock"
-    description="The instance of the Knock client"
-  />
-  <Attribute
-    name="feedClient"
-    type="Feed"
-    description="The instance of the authenticated Feed"
-  />
-  <Attribute
-    name="useFeedStore"
-    type="UseStore<FeedStoreState>"
-    description="A zustand store containing the FeedStoreState"
-  />
-  <Attribute
-    name="status"
-    type="FilterStatus"
-    description="Current value of the filter status for the Feed"
-  />
-  <Attribute
-    name="setStatus"
-    type="function"
-    description="A function to set the current FilterStatus"
-  />
-  <Attribute
-    name="colorMode"
-    type="ColorMode"
-    description="The current theme color"
-  />
-</Attributes>
-
-**Example**:
-
-```jsx
-import {
-  KnockProvider,
-  KnockFeedProvider,
-  useKnockFeed,
-} from "@knocklabs/react";
-
-const App = ({ authenticatedUser }) => (
-  <KnockProvider
-    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    userId={authenticatedUser.id}
-  >
-    <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
-      <MyFeedComponent />
-    </KnockFeedProvider>
-  </KnockProvider>
-);
-
-const MyFeedComponent = () => {
-  const { useFeedStore } = useKnockFeed();
-  const items = useFeedStore((state) => state.items);
-
-  return (
-    <div className="notifications">
-      {items.map((item) => (
-        <NotificationCell key={item.id} item={item} />
-      ))}
-    </div>
-  );
-};
-```
 
 ### `useAuthenticatedKnockClient`
 
