@@ -169,6 +169,17 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#bulk-operation-status", title: "Get bulk operation" },
     ],
   },
+
+  {
+    title: "Slack",
+    slug: "/reference",
+    pages: [
+      { slug: "#slack", title: "Overview" },
+      { slug: "#slack-auth-check", title: "Auth check" },
+      { slug: "#slack-channels", title: "Slack channels" },
+      { slug: "#slack-revoke-access", title: "Revoke access" },
+    ],
+  },
 ];
 
 export default sidebarContent;

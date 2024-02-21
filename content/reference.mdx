@@ -5649,3 +5649,284 @@ The list of deleted `Schedule` entities.
 
 </ExampleColumn>
 </Section>
+
+<Section title="Slack" slug="slack">
+  <ContentColumn>
+  Handles communication with the Slack API to streamline authentication and data gathering.
+  </ContentColumn>
+
+  <ExampleColumn>
+    <Endpoints>
+      <Endpoint name="auth_check" method="GET" path="/providers/slack/:channel_id/auth_check" />
+      <Endpoint name="channels" method="GET" path="/providers/slack/:channel_id/channels" />
+      <Endpoint name="revoke_access" method="PUT" path="/providers/slack/:channel_id/revoke_access" />
+    </Endpoints>
+  </ExampleColumn>
+</Section>
+
+<Section title="Slack auth check" slug="slack-auth-check">
+  <ContentColumn>
+  Get the status of Slack authentication.
+  ### Endpoint
+
+<Endpoint
+  name="auth_check"
+  method="GET"
+  path="/providers/slack/:channel_id/auth_check"
+/>
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The Knock Slack channel ID"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="access_token_object"
+    type="AccessTokenObject"
+    description="An object containing the `object_id` and `collection` of the Object or Tenant that contains the access token for Slack."
+  />
+</Attributes>
+
+#### AccessTokenObject
+
+<Attributes>
+  <Attribute
+    name="objectId"
+    type="string"
+    description="ID of the Object or Tenant."
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
+  />
+</Attributes>
+
+### Response
+
+Connection data from the Slack API.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json
+// Request (GET to /providers/slack/:channel_id)
+
+{
+  "access_token_object": {
+    "object_id": "jurassic-park",
+    "collection": "$tenants"
+  }
+}
+```
+
+```json
+// Success response
+
+{
+  "connection": {
+    "ok": true,
+    "url": "https://jurassicpark.slack.com/",
+    "team": "Dino Workspace",
+    "user": "alangrant",
+    "team_id": "T12345678",
+    "user_id": "W12345678"
+  }
+}
+```
+
+```json
+// Error response
+
+{
+  "connection": {
+    "ok": false,
+    "error": "invalid_auth"
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Slack channels" slug="slack-channels">
+<ContentColumn>
+Get a list of the Slack channels for the access token stored in the given access token object.
+
+### Endpoint
+
+<Endpoint
+  name="channels"
+  method="GET"
+  path="/providers/slack/:channel_id/channels"
+/>
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The Knock Slack channel ID"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="access_token_object"
+    type="AccessTokenObject"
+    description="An object containing the `object_id` and `collection` of the Object or Tenant that contains the access token for Slack."
+  />
+  <Attribute
+    name="query_options"
+    type="object"
+    description="An optional object containing the query options passed to Slack. See Slack documentation for options: https://api.slack.com/methods/conversations.list#arg_cursor"
+  />
+</Attributes>
+
+#### AccessTokenObject
+
+<Attributes>
+  <Attribute
+    name="objectId"
+    type="string"
+    description="ID of the Object or Tenant."
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
+  />
+</Attributes>
+
+### Response
+
+List of partial data about the Slack channels requested.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json
+// Request (GET to /providers/slack/:channel_id)
+
+{
+  "access_token_object": {
+    "object_id": "jurassic-park",
+    "collection": "$tenants"
+  },
+  "query_options": {
+    "limit": "200",
+    "exclude_archived": "true"
+  }
+}
+```
+
+```json
+// Response
+
+%{
+  "slack_channels": {
+    "name": "general",
+    "id": "CMYK1234",
+    "is_private": "false",
+    "is_im": "false",
+    "context_team_id": "",
+  },
+  "next_cursor": ""
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Slack revoke access" slug="slack-revoke-access">
+<ContentColumn>
+Revoke an access token from Slack and remove it from the access token object.
+
+### Endpoint
+
+<Endpoint
+  name="channels"
+  method="GET"
+  path="/providers/slack/:channel_id/revoke_access"
+/>
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The Knock Slack channel ID"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="access_token_object"
+    type="AccessTokenObject"
+    description="An object containing the `object_id` and `collection` of the Object or Tenant that contains the access token for Slack."
+  />
+</Attributes>
+
+#### AccessTokenObject
+
+<Attributes>
+  <Attribute
+    name="objectId"
+    type="string"
+    description="ID of the Object or Tenant."
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json
+// Request (GET to /providers/slack/:channel_id)
+
+{
+  "access_token_object": {
+    "object_id": "jurassic-park",
+    "collection": "$tenants"
+  }
+}
+```
+
+```json
+// Success response
+
+"ok"
+```
+
+</ExampleColumn>
+</Section>
