@@ -18,7 +18,7 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Concepts",
     slug: "/concepts",
-    desc: "Learn about the key concepts in Knock",
+    desc: "Learn about the key concepts in Knock.",
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/workflows", title: "Workflows" },
