@@ -56,8 +56,10 @@ const sidebarContent: SidebarSection[] = [
             slug: "/how-knock-slacks",
             title: "The Knock-Slack model",
           },
-          { slug: "/slack-apps-and-scopes", title: "Slack apps and scopes" },
-          { slug: "/building-oauth-flow", title: "Build your OAuth flow" },
+          {
+            slug: "/building-a-slack-app",
+            title: "Build a Slack app",
+          },
           {
             slug: "/designing-slack-templates",
             title: "Designing Slack templates",
@@ -69,6 +71,37 @@ const sidebarContent: SidebarSection[] = [
           {
             slug: "/slack-examples",
             title: "Example use cases",
+          },
+        ],
+      },
+      {
+        title: "SlackKit",
+        slug: "/slack-kit",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/setup", title: "Setup" },
+          {
+            slug: "/resource-access-grants",
+            title: "Resource access grants",
+          },
+          { slug: "/ui", title: "UI" },
+          {
+            slug: "/trigger-workflow",
+            title: "Triggering workflows",
+          },
+        ],
+      },
+      {
+        title: "Slack DIY",
+        slug: "/slack-diy",
+        pages: [
+          {
+            slug: "/slack-apps-and-scopes",
+            title: "Slack apps and scopes",
+          },
+          {
+            slug: "/building-oauth-flow",
+            title: "Build your OAuth flow",
           },
         ],
       },

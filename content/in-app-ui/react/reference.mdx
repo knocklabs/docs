@@ -195,7 +195,185 @@ const MyFeedComponent = () => {
 };
 ```
 
-## Components
+### `KnockSlackProvider`
+
+The Slack-specific provider that connects to a Slack workspace for the given tenant. Must be a child of the `KnockProvider`.
+
+#### Props
+
+Accepts `KnockSlackProviderProps`
+
+<Attributes>
+  <Attribute
+    name="knockSlackChannelId*"
+    type="string"
+    description="The ID of the Slack channel in the Knock dashboard that the Slack application is linked to."
+  />
+  <Attribute
+    name="tenant*"
+    type="string"
+    description="The ID of the tenant that will be storing the Slack access token"
+  />
+</Attributes>
+
+#### `useKnockSlackClient`
+
+The `KnockSlackProvider` exposes a `useKnockSlackClient` hook for all child components.
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="connectionStatus"
+    type="ConnectionStatus"
+    description="The status of the auth connection to the given Slack client"
+  />
+  <Attribute
+    name="setConnectionStatus"
+    type="function"
+    description="A function to set the connection status"
+  />
+  <Attribute
+    name="errorLabel"
+    type="string"
+    description="An error message about the connection status"
+  />
+  <Attribute
+    name="setErrorLabel"
+    type="function"
+    description="A function to set an error label"
+  />
+  <Attribute
+    name="actionLabel"
+    type="string"
+    description="A label that gives an action for the user to take, like 'Retry' or 'Disconnect'"
+  />
+  <Attribute
+    name="setActionLabel"
+    type="function"
+    description="A function to set the action label"
+  />
+</Attributes>
+
+**Example**:
+
+```jsx
+import {
+  KnockProvider,
+  KnockSlackProvider,
+  useKnockSlackClient,
+} from "@knocklabs/react-core";
+
+const App = ({ authenticatedUser, tenant }) => (
+  <KnockProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    userId={authenticatedUser.id}
+  >
+    <KnockSlackProvider knockSlackChannelId={process.env.KNOCK_SLACK_CHANNEL_ID} tenant={tenant}>
+      <MySlackComponent />
+    </KnockFeedProvider>
+  </KnockProvider>
+);
+
+const MySlackComponent = () => {
+    const { connectionStatus,
+        setConnectionStatus,
+        errorLabel,
+        setErrorLabel,
+        actionLabel,
+        setActionLabel,
+        knockSlackChannelId,
+        tenant, } =
+    useKnockSlackClient();
+
+  return (
+    <div className="slack-auth-status">
+        <AuthStatus connectionStatus={connectionStatus} />
+    </div>
+  );
+};
+```
+
+## General components
+
+### `Button`
+
+A generic Button component that can be used to add action buttons to items in a notifcation feed.
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="variant"
+    type="string"
+    description="The variant of the button; either `primary` or `secondary`. Defaults to `primary`."
+  />
+  <Attribute
+    name="loadingText"
+    type="string"
+    description="Text to display while the button is loading."
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="When true, will display a spinner next to the `loadingText` (if present)."
+  />
+  <Attribute
+    name="isDisabled"
+    type="boolean"
+    description="When true, will mark the button as disabled."
+  />
+  <Attribute
+    name="isFullWidth"
+    type="boolean"
+    description="When true, will make the button occupy 100% of the parent container."
+  />
+  <Attribute
+    name="onClick*"
+    type="function"
+    description="The click handler to be invoked when the button is clicked."
+  />
+  <Attribute
+    name="children"
+    type="ReactNode"
+    description="The text to display inside of the button."
+  />
+</Attributes>
+
+### `ButtonGroup`
+
+Used to group and space multiple `Button` components into a single line.
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="children*"
+    type="ReactNode"
+    description="One or more `Button` components"
+  />
+</Attributes>
+
+### `KnockI18nProvider`
+
+A provider to inject translations into components.
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="i18n"
+    type="I18nContent"
+    description="A set of translations and a locale to use in child components via the `useTranslations` hook"
+  />
+  <Attribute
+    name="children*"
+    type="ReactNode"
+    description="One or more `Button` components"
+  />
+</Attributes>
+
+## Feed components
 
 ### `NotificationFeed`
 
@@ -316,84 +494,50 @@ Renders a notification bell icon, with a badge showing the number of unseen item
   />
 </Attributes>
 
-### `Button`
+## Slack components
 
-A generic Button component that can be used to add action buttons to items in a notifcation feed.
+### `SlackAuthButton`
 
 #### Props
 
 <Attributes>
   <Attribute
-    name="variant"
+    name="slackClientId*"
     type="string"
-    description="The variant of the button; either `primary` or `secondary`. Defaults to `primary`."
+    description="The client ID of your Slack application."
   />
   <Attribute
-    name="loadingText"
+    name="redirectUrl"
     type="string"
-    description="Text to display while the button is loading."
-  />
-  <Attribute
-    name="isLoading"
-    type="boolean"
-    description="When true, will display a spinner next to the `loadingText` (if present)."
-  />
-  <Attribute
-    name="isDisabled"
-    type="boolean"
-    description="When true, will mark the button as disabled."
-  />
-  <Attribute
-    name="isFullWidth"
-    type="boolean"
-    description="When true, will make the button occupy 100% of the parent container."
-  />
-  <Attribute
-    name="onClick*"
-    type="function"
-    description="The click handler to be invoked when the button is clicked."
-  />
-  <Attribute
-    name="children"
-    type="ReactNode"
-    description="The text to display inside of the button."
+    description="The URL of your application to return to once Slack authorization is complete."
   />
 </Attributes>
 
-### `ButtonGroup`
-
-Used to group and space multiple `Button` components into a single line.
+### `SlackAuthContainer`
 
 #### Props
 
 <Attributes>
   <Attribute
-    name="children*"
+    name="actionButton*"
     type="ReactNode"
-    description="One or more `Button` components"
+    description="Render a button, either a custom one or the SlackAuthButton, to connect to Slack"
   />
 </Attributes>
 
-### `KnockI18nProvider`
-
-A provider to inject translations into components.
+### `SlackChannelCombobox`
 
 #### Props
 
 <Attributes>
   <Attribute
-    name="i18n"
-    type="I18nContent"
-    description="A set of translations and a locale to use in child components via the `useTranslations` hook"
-  />
-  <Attribute
-    name="children*"
-    type="ReactNode"
-    description="One or more `Button` components"
+    name="slackChannelRecipientObject*"
+    type="ContainerObject"
+    description="Object ID and collection of the Knock object that will store the channel data of the connected Slack channels."
   />
 </Attributes>
 
-## Hooks
+## General hooks
 
 ### `useAuthenticatedKnockClient`
 
@@ -416,6 +560,27 @@ const MyComponent = () => {
   return null;
 };
 ```
+
+### `useTranslations`
+
+Exposed under `KnockI18nProvider` child components.
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="locale"
+    type="string"
+    description="The current locale code (defaults to `en`)"
+  />
+  <Attribute
+    name="t"
+    type="(key: string) => string"
+    description="A helper function to get the value of a translation from the current `Translations`."
+  />
+</Attributes>
+
+## Feed hooks
 
 ### `useNotifications`
 
@@ -455,22 +620,119 @@ const MyComponent = () => {
 };
 ```
 
-### `useTranslations`
+## Slack hooks
 
-Exposed under `KnockI18nProvider` child components.
+Exposed under `KnockSlackProvider` child components.
+
+### useSlackAuth
+
+Builds a Slack authorization URL generator and a disconnect function.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="slackClientId"
+    type="string"
+    description="The client ID from your Slack app"
+  />
+  <Attribute
+    name="redirectUrl"
+    type="string"
+    description="The URL to redirect back to after authorizing; should be your own applcation's URL"
+  />
+</Attributes>
 
 **Returns**:
 
 <Attributes>
   <Attribute
-    name="locale"
-    type="string"
-    description="The current locale code (defaults to `en`)"
+    name="buildSlackAuthUrl"
+    type="function"
+    description="Function to build a valid Slack URL with the necessary scopes"
   />
   <Attribute
-    name="t"
-    type="(key: string) => string"
-    description="A helper function to get the value of a translation from the current `Translations`."
+    name="disconnectFromSlack"
+    type="function"
+    description="Function to disconnect from Slack which revokes the access token and removes it from the tenant in Knock"
+  />
+</Attributes>
+
+### useSlackChannels
+
+This hook will continually fetch partial data about Slack channels from a given workspace up to the max limit given.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="queryOptions"
+    type="SlackChannelQueryOptions"
+    description="An optional map of params to control the query to the Slack API"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="SlackChannel[]"
+    description="List of partial data about each Slack channel"
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="Whether the channels are loading"
+  />
+  <Attribute
+    name="refetch"
+    type="function"
+    description="Function to fetch the channels again"
+  />
+</Attributes>
+
+### useConnectedSlackChannels
+
+This hook returns partial data about the Slack channels that are present on the given recipient object's channel data. These are the Slack channels that would be notified with this object as a recipient of a workflow.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="slackChannelsRecipientObject"
+    type="ContainerObject"
+    description="The object that holds connected Slack channesl as channel data"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="SlackChannelConnection[]"
+    description="List of data about the connected Slack channels"
+  />
+  <Attribute
+    name="loading"
+    type="boolean"
+    description="Whether the channels are loading"
+  />
+  <Attribute
+    name="error"
+    type="string"
+    description="Error message if something went wrong; otherwise null"
+  />
+  <Attribute
+    name="updateConnectedChannels"
+    type="(connectedChannels: SlackChannelConnection[]) => void;"
+    description="Function to set the connected channels. Updates all connected channels for the object, does not add to the current ones."
+  />
+  <Attribute
+    name="updating"
+    type="boolean"
+    description="Whether the channels are currently being set"
   />
 </Attributes>
 
@@ -478,7 +740,7 @@ Exposed under `KnockI18nProvider` child components.
 
 ### `I18nContent`
 
-Used to set translations available in the child components exposed under `KnockFeedProvider`. Used in the `useTranslations` hook.
+Used to set translations available in the child components exposed under `KnockFeedProvider` and `KnockSlackProvider`. Used in the `useTranslations` hook.
 
 **Note:** `locale` must be a valid locale code.
 
@@ -494,6 +756,28 @@ interface Translations {
   readonly unread: string;
   readonly read: string;
   readonly unseen: string;
+
+  readonly slackConnectChannel: string;
+  readonly slackChannelId: string;
+  readonly slackConnecting: string;
+  readonly slackDisconnecting: string;
+  readonly slackConnect: string;
+  readonly slackConnected: string;
+  readonly slackConnectContainerDescription: string;
+  readonly slackSearchbarDisconnected: string;
+  readonly slackSearchbarMultipleChannels: string;
+  readonly slackSearchbarNoChannelsConnected: string;
+  readonly slackSearchbarNoChannelsFound: string;
+  readonly slackSearchbarChannelsError: string;
+  readonly slackSearchChannels: string;
+  readonly slackConnectionErrorOccurred: string;
+  readonly slackConnectionErrorExists: string;
+  readonly slackChannelAlreadyConnected: string;
+  readonly slackError: string;
+  readonly slackDisconnect: string;
+  readonly slackChannelSetError: string;
+  readonly slackAccessTokenNotSet: string;
+  readonly slackReconnect: string;
 }
 
 interface I18nContent {
@@ -501,3 +785,43 @@ interface I18nContent {
   readonly locale: string;
 }
 ```
+
+# QueryOptions
+
+```typescript
+type SlackChannelQueryOptions = {
+  maxCount?: number; // The max number of channels to return; default: 1000
+  limitPerPage?: number; // How many Slack channels will be returned per request; default: 200
+  excludeArchived?: boolean; // Whether to include archived channels; default: true
+  types?: string; // Types of channels to return; default: "private_channel,public_channel"
+  teamId?: string; // Filters channels to a specific team ID; default: null
+};
+```
+
+```typescript
+type SlackChannel = {
+  name: string;
+  id: string;
+  is_private: boolean;
+  is_im: boolean;
+  context_team_id: boolean;
+};
+```
+
+```typescript
+type SlackChannelConnection = {
+  access_token?: string;
+  channel_id?: string;
+  incoming_webhook?: string;
+  user_id?: null;
+};
+```
+
+```typescript
+type ContainerObject = {
+  objectId: string;
+  collection: string;
+};
+```
+
+# ConnectionStatus

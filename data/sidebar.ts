@@ -121,6 +121,7 @@ const sidebarContent: SidebarSection[] = [
             title: "Custom notifications UI",
           },
           { slug: "/preferences", title: "Preferences" },
+          { slug: "/slack-kit", title: "SlackKit" },
           { slug: "/reference", title: "API reference" },
         ],
       },

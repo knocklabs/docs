@@ -1,0 +1,73 @@
+---
+title: Trigger workflow
+description: Triggering workflows with SlackKit
+tags: ["slack", "chat"]
+section: Integrations > SlackKit > Trigger workflow
+layout: integrations
+---
+
+When you trigger a workflow for the Slack workspace connected using SlackKit, you'll pass the tenant you used in the SlackAuthButton as the `tenant` in your workflow trigger. This is because during the OAuth process, your tenant stored the Slack access token necessary to post notifications to Slack. When you use that tenant in your trigger, we use the access token stored on that tenant to post to the Slack channels stored on your recipients.
+
+Let's take a look at an example: you want to trigger a notification when someone posts a comment to your `VideoPage` about a specific video.
+
+```javascript
+await knockClient.workflows.trigger("video-comment", {
+    recipients: [
+      {
+        collection: "videos",
+        id: ${video.id},
+      },
+    ],
+    tenant: ${currentAccount.id},
+    data: {
+      comment: formData.get("comment"),
+    },
+});
+```
+
+And that's it! Your `tenant` and `object` entities will each look something like this in your Knock dashboard:
+
+```json
+// Tenant
+{
+    "id": "jurassic-park",
+    "channelData": {
+        "channel_id": "<Knock Slack channel ID>",
+        "data": {
+            "connections": [],
+            "token": {
+                "access_token": "xoxo-123456789"
+            }
+        }
+    }
+}
+
+// Recipient object
+{
+    "id": "dinosaurs-loose",
+    "collection": "videos",
+    "channelData": {
+        "channel_id": "<Knock Slack channel ID>",
+        "data": {
+            "connections": [
+                {
+                    "channel_id": "CMYK12345", // The id of the Slack channel in your user's slack workspace
+                    "access_token": null, // Will inherit the access token from the tenant
+                    "user_id": null, // Not a direct message
+                    "incoming_webhook": null // Uses access token instead of incoming webhook to post messages
+                },
+                // Can post to multiple Slack channels in the same workspace at once
+                {
+                    "channel_id": "CXYZ54321",
+                    "access_token": null,
+                    "user_id": null,
+                    "incoming_webhook": null
+                }
+            ],
+            "token": null
+        }
+    }
+}
+```
+
+Now that you know how to use the full Knock-managed flow, we can look at further customization by opting out of the components and using the hooks and APIs SlackKit offers under the hood to build your own components and flows on top of.
