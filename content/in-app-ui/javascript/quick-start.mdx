@@ -38,11 +38,18 @@ knockClient.authenticate(currentUser.id);
 
 ## Initialize a feed connection for the user
 
-The `Knock` class exposes a `Feed` via the `initialize` method that can be used to connect the authenticated user to a Knock Feed Channel. Additionally, the `Feed` exposes a stateful store to build client-side feeds and other notification experiences.
+The `Knock` class exposes a `Feed` via the `initialize` method that can be used to connect the authenticated user to a Knock Feed Channel.
+
+The `initialize` method optionally takes a `FeedClientOptions` object that can contain any properties accepted by the [user feed API endpoint](https://docs.knock.app/reference#query-parameters-5).
+
+Additionally, the `Feed` exposes a stateful store to build client-side feeds and other notification experiences.
 
 ```javascript Working with the Knock feed
 const knockFeed = knockClient.feeds.initialize(
   process.env.KNOCK_FEED_CHANNEL_ID,
+  {
+    page_size: 200,
+  },
 );
 
 // Setup a real-time connection
@@ -50,6 +57,8 @@ knockFeed.listenForUpdates();
 
 // Fetch items for the feed
 knockFeed.fetch();
+// Get the FeedStateStore
+const store = knockFeed.getState();
 ```
 
 ## Marking feed item statuses
@@ -75,6 +84,13 @@ knockFeed.markAsUnread(feedItemOrItems);
 knockFeed.markAsUnseen(feedItemOrItems);
 // Mark one or more items as unarchived
 knockFeed.markAsUnarchived(feedItemOrItems);
+
+// Mark all items as read
+knockFeed.markAllAsRead();
+// Mark all items as seen
+knockFeed.markAllAsSeen();
+// Mark all items as archived
+knockFeed.markAllAsArchived();
 ```
 
 ## Retrieving preferences for the user
