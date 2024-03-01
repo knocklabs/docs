@@ -1,12 +1,13 @@
 ---
-title: "Building custom notifications UI with React"
-description: How to build custom notifications UI powered by Knock and React.
+title: "Building custom notifications UI with hooks (headless)"
+description: How to build custom notifications UI using the hooks from the Knock React SDK.
 section: Building in-app UI
+tags: ["hooks", "headless", "useNotifications", "useAuthenticatedKnockClient"]
 ---
 
-Using our `@knocklabs/react` and `@knocklabs/client` libraries, you can create fully custom notification UIs that are backed by the Knock Feed API and Websockets to receive and process real-time notifications in your web application.
+Using our `@knocklabs/react` and `@knocklabs/client` libraries, you can create fully custom notification UIs that are backed by the Knock Feed API and real-time service.
 
-In this guide, we'll take a look at creating a completely custom notifications page in our application.
+In this guide, we'll take a look at creating a completely custom notifications UI in our application in a headless way using the Knock hooks.
 
 ## Getting started
 
@@ -33,83 +34,77 @@ To use this example, you'll need [an account on Knock](https://dashboard.knock.a
 npm install @knocklabs/react
 ```
 
-## Adding the Knock providers
+## Setup the Knock client
 
-We'll need to wrap our notifications page in a `KnockProvider` and `KnockFeedProvider` to setup a connection to Knock and connect to the authenticated user's feed. You can read more about the available props for the feed provider in [the reference](/in-app-ui/react/reference#knockprovider).
+First, we'll need to authenticate against the Knock API and setup an instance of a Knock client using the `useAuthenticatedKnockClient` hook.
 
 ```jsx
-import { KnockProvider, KnockFeedProvider } from "@knocklabs/react";
+import { useAuthenticatedKnockClient } from "@knocklabs/react";
 
-const NotificationsPage = () => {
-  const { user } = useCurrentUser();
-
-  return (
-    <KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} userId={user.id}>
-      <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
-        <NotificationsList />
-      </KnockFeedProvider>
-    </KnockProvider>
+const NotificationFeed = ({ user }) => {
+  const knockClient = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
   );
+
+  return null;
 };
 ```
 
-## Creating a custom notifications page
+## Setup the Knock feed instance
 
-In our notifications page, we'll use the store exposed by the `KnockFeedProvider` in order to render the list of notifications that we have available.
+Next, we'll want to set up an instance of a Knock Feed, which will handle the state management and provide a way for us to interact with the messages on the feed.
 
 ```jsx
-const NotificationsList = () => {
-  const { feedClient, useFeedStore } = useKnockFeed();
-  const items = useFeedStore((state) => state.items);
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+} from "@knocklabs/react";
+import create from "zustand";
+import { useEffect } from "react";
 
-  useEffect(() => {
-    // Once the feedClient is available, calling .fetch() will
-    // populate the feed. In the background, a websocket is
-    // opened that will receive new messages in real time.
-    feedClient.fetch();
-  }, [feedClient]);
+const NotificationFeed = ({ user }) => {
+  const knockClient = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+  );
+  const feedClient = useNotifications(knockClient, process.env.KNOCK_FEED_CHANNEL_ID);
+
+  const useNotificationStore = create(feedClient.store);
+  const { items, metadata } = useNotificationStore();
+
+  useEffect(() => feedClient.fetch(), [feedClient]);
+
+  return null;
+};
+```
+
+## Creating a custom notifications UI
+
+The last step is to render our notifications UI using the data that's exposed via the state store (`items` and `metadata`).
+
+```jsx
+const NotificationFeed = () => {
+  const knockClient = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+  );
+  const feedClient = useNotifications(knockClient, process.env.KNOCK_FEED_CHANNEL_ID);
+
+  const useNotificationStore = create(feedClient.store);
+  const { items, metadata } = useNotificationStore();
+
+  useEffect(() => feedClient.fetch(), [feedClient]);
 
   return (
     <div className="notifications">
+      <span>You have {metadata.unread_count} unread items</span>
+
       {items.map((item) => (
-        <NotificationCell key={item.id} item={item} />
+        <div key={item.id}>
+          <div dangerouslySetInnerHTML={{ __html: item.blocks[0].rendered }} />
+        </div>
       ))}
-    </div>
-  );
-};
-```
-
-## Creating a notification cell
-
-We'll want to render a notification cell for every notification in our feed. Lets wrap that behavior up in a component for easy reuse:
-
-```jsx
-type Props = {
-  item: FeedItem,
-};
-
-const NotificationCell: React.FC<Props> = ({ item }) => {
-  // Group the content blocks by the name for easy lookup
-  const blocksByName = useMemo(() => {
-    return item.blocks.reduce((acc, block) => {
-      return { ...acc, [block.name]: block };
-    }, {});
-  }, [item]);
-
-  const maybeActor = item.actors[0];
-
-  return (
-    <div className="notification-cell">
-      {maybeActor && (
-        <span class="notification-cell__actor">{maybeActor.name}</span>
-      )}
-
-      {blocksByName.body && (
-        <div
-          className="notification-cell__content"
-          dangerouslySetInnerHTML={{ __html: blocksByName.body.rendered }}
-        />
-      )}
     </div>
   );
 };
@@ -117,9 +112,7 @@ const NotificationCell: React.FC<Props> = ({ item }) => {
 
 ## Wrapping up
 
-There's a lot more we can do with our notifications page, but we'll leave that as an exercise to the reader. Here are some examples:
+There's a lot more we can do with our notifications UI, but we'll leave that as an exercise to the reader. Here are some examples:
 
 - Adding mark as read, and archiving behavior to the notification cell
 - Displaying a count of the total number of notifications
-
-Check out the feed guide in the `@knocklabs/client` reference to learn about the available methods.
