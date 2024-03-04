@@ -106,7 +106,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       {
         slug: "/api-overview",
-        title: "API overview",
+        title: "API endpoints",
       },
       {
         slug: "/security-and-authentication",
