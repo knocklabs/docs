@@ -253,6 +253,16 @@ const nextConfig = {
         destination: "/developer-tools/outbound-webhooks/overview",
         permanent: false,
       },
+      {
+        source: "/guides/customizing-react-in-app-feed-components",
+        destination: "/in-app-ui/react/customizing-feed-components",
+        permanent: false,
+      },
+      {
+        source: "/guides/filtering-in-app-feeds",
+        destination: "/in-app-ui/react/filtering-in-app-feeds",
+        permanent: false,
+      },
     ];
   },
 };

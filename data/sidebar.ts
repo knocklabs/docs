@@ -105,6 +105,10 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       {
+        slug: "/api-overview",
+        title: "API endpoints",
+      },
+      {
         slug: "/security-and-authentication",
         title: "Security & authentication",
       },
@@ -113,15 +117,23 @@ const sidebarContent: SidebarSection[] = [
         slug: "/react",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/feed", title: "Feeds" },
+          { slug: "/feed", title: "Notification feed" },
           { slug: "/toasts", title: "Toasts" },
-          { slug: "/inbox", title: "Inbox" },
+          { slug: "/inbox", title: "Notification inbox" },
           {
             slug: "/custom-notifications-ui",
-            title: "Custom notifications UI",
+            title: "Custom notifications UI (headless)",
           },
           { slug: "/preferences", title: "Preferences" },
           { slug: "/slack-kit", title: "SlackKit" },
+          {
+            slug: "/filtering-in-app-feeds",
+            title: "Filtering feeds",
+          },
+          {
+            slug: "/customizing-feed-components",
+            title: "Customizing feed components",
+          },
           { slug: "/reference", title: "API reference" },
         ],
       },
@@ -228,14 +240,6 @@ const sidebarContent: SidebarSection[] = [
       {
         slug: "/building-recurring-digests",
         title: "Recurring digests",
-      },
-      {
-        slug: "/filtering-in-app-feeds",
-        title: "Filtering in-app feeds",
-      },
-      {
-        slug: "/customizing-react-in-app-feed-components",
-        title: "Customizing the React in-app feed components",
       },
     ],
   },
