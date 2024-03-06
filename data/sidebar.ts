@@ -36,6 +36,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/translations", title: "Translations" },
       { slug: "/conditions", title: "Conditions" },
       { slug: "/variables", title: "Variables" },
+      { slug: "/send-windows", title: "Send Windows" },
     ],
   },
   {
