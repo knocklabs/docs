@@ -111,7 +111,9 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 tenant, _ := knockClient.Tenants.Set(ctx, &knock.SetTenantRequest{
   ID:         "tenant-1",
-  Name:       "Tenant 1"
+  Properties: map[string]interface{
+    "name":       "Tenant 1"
+  }
   Settings: map[string]interface{
     "branding":  map[string]interface{
       "primary_color":          "#33FF5B",
