@@ -7,20 +7,13 @@ import Link from "next/link";
 const PageLinks = {
   "API reference": "/reference",
   Integrations: "/integrations/overview",
-  "Building in-app UI": "/in-app-ui/overview",
   "CLI reference": "/cli",
   "Management API": "/mapi",
 };
 
 const SdkLinks = {
-  "Node.js": "https://github.com/knocklabs/knock-node",
-  Python: "https://github.com/knocklabs/knock-python",
-  Ruby: "https://github.com/knocklabs/knock-ruby",
-  Go: "https://github.com/knocklabs/knock-go",
-  PHP: "https://github.com/knocklabs/knock-php",
-  Java: "https://github.com/knocklabs/knock-java",
-  "C# (dotnet)": "https://github.com/knocklabs/knock-dotnet",
-  Elixir: "https://github.com/knocklabs/knock-elixir",
+  "In-app UI": "/in-app-ui/overview",
+  SDKs: "/sdks/overview",
 };
 
 const ApiSdkMenu = () => {
@@ -75,12 +68,10 @@ const ApiSdkMenu = () => {
               <Link
                 href={SdkLinks[sdkName]}
                 key={sdkName}
-                target="_blank"
                 onClick={() => setIsOpen(false)}
                 className="hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center px-2 py-1 text-[14px] text-gray-700 dark:text-white"
               >
-                <span className="mr-1">{sdkName}</span>
-                <IoOpenOutline />
+                {sdkName}
               </Link>
             ))}
           </div>
