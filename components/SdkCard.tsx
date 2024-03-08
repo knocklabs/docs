@@ -1,4 +1,4 @@
-import { IoCode } from "react-icons/io5";
+import { IoCubeOutline } from "react-icons/io5";
 import { Card } from "./Card";
 
 type Props = {
@@ -16,9 +16,9 @@ const SdkCard: React.FC<Props> = ({ title, linkUrl, languages }) => (
     title={title}
     linkUrl={linkUrl}
     footer={
-      <div className="flex items-center text-gray-300 dark:text-gray-400">
-        <IoCode />
-        <span className="ml-2 uppercase text-[11px] font-semibold tracking-wide">
+      <div className="flex items-center text-gray-500 dark:text-gray-200">
+        <IoCubeOutline />
+        <span className="ml-2 text-[14px] font-medium">
           {languages.map((lang) => lang).join(" · ")}
         </span>
       </div>
