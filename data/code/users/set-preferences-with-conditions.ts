@@ -37,8 +37,7 @@ client.users.set_preferences(
 )
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Users.set_preferences(

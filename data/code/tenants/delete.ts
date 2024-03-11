@@ -19,8 +19,7 @@ client.tenants.delete(
 )
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Tenants.delete(

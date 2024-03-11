@@ -17,7 +17,7 @@ client = Knock(api_key="sk_12345")
 client.objects.get_preferences(collection="projects", id="project-1")
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Objects.get_preferences(collection: "projects", id: "project-1")  

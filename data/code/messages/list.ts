@@ -37,7 +37,7 @@ client.messages.list()
 client.messages.list({'page_size': 20, 'tenant': "my_tenant"})
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Messages.list()

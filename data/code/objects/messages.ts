@@ -51,7 +51,7 @@ client.objects.get_messages(
 )
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Objects.get_messages(

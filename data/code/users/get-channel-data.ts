@@ -29,7 +29,7 @@ client.users.get_channel_data(
 )
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Users.get_channel_data(

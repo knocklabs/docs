@@ -31,7 +31,7 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Workflows.trigger(

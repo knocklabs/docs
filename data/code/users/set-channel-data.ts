@@ -22,8 +22,7 @@ client.users.set_channel_data(
 )
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Users.set_channel_data(

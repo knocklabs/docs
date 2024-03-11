@@ -33,8 +33,7 @@ client.objects.set_object(
 )
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Objects.set(
