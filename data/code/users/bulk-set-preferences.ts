@@ -30,7 +30,7 @@ client.users.bulk_set_preferences(
 )
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 user_ids = ["jhammond", "dnedry", "imalcolm", "esattler"]

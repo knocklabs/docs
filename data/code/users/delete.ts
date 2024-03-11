@@ -17,8 +17,7 @@ client = Knock(api_key="sk_12345")
 client.users.delete(user.id)
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Users.delete(id: user.id)  

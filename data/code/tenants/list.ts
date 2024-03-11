@@ -37,7 +37,7 @@ client.tenants.list()
 client.tenants.list({'page_size': 20, 'name': "Tenant 1"})
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Tenants.list()

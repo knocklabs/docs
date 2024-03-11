@@ -40,7 +40,7 @@ client.users.get_messages(
 client.users.get_messages(id="639a2d5f-d1b7-4cf3-b81b-7d9604665276", options={'page_size': 10, 'tenant': "my_tenant"})
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Users.get_messages(

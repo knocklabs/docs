@@ -29,8 +29,7 @@ client.users.identify(
 )
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Users.identify(

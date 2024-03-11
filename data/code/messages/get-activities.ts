@@ -34,7 +34,7 @@ client.messages.get_activities(message.id)
 Knock.Messages.get_activities(message.id, {'page_size': 10})
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Messages.get_activities(id: message.id)

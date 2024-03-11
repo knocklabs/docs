@@ -22,8 +22,7 @@ client.objects.bulk_delete(
 )
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Objects.bulk_delete(

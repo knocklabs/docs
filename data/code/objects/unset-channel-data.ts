@@ -27,8 +27,7 @@ client.objects.unset_channel_data(
 )
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Objects.unset_channel_data(

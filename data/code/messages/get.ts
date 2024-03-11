@@ -17,7 +17,7 @@ client = Knock(api_key="sk_12345")
 client.messages.get(message.id)
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Messages.get(id: message.id)

@@ -28,8 +28,7 @@ client.objects.get_channel_data(
 )
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Objects.get_channel_data(

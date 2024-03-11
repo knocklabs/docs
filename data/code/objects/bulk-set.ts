@@ -58,8 +58,7 @@ client.objects.bulk_set(
 )
   `,
   ruby: `
-require "knockapi"
-
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Objects.bulk_set(

@@ -49,7 +49,7 @@ client.users.bulk_identify([
 ])
   `,
   ruby: `
-require "knockapi"
+require "knock"
 Knock.key = "sk_12345"
 
 Knock::Users.bulk_identify([
