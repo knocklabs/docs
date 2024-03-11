@@ -56,7 +56,7 @@ Knock.key = "sk_12345"
 
 Knock::Tenants.set(
   id: "tenant-1",
-  data: {
+  tenant_data: {
     name: "Tenant 1",
     settings: {
       branding: {
