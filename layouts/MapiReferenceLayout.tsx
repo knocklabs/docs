@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Page } from "./Page";
 import Sidebar from "../components/Sidebar";
+import MinimalHeader from "../components/Header/MinimalHeader";
 
 const sidebarData = [
   {
@@ -70,7 +71,7 @@ const sidebarData = [
 
 export const MapiReferenceLayout = ({ frontMatter, children }) => (
   <Page
-    pageType="mAPI"
+    header={<MinimalHeader pageType="mAPI" />}
     sidebar={
       <Sidebar content={sidebarData}>
         <Link

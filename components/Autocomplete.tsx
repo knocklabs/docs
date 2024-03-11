@@ -171,7 +171,7 @@ const Autocomplete = () => {
         </div>
         <div className="aa-InputWrapper">
           <input
-            className="aa-Input !h-9 !w-[300px] !text-[14px] dark:!text-white"
+            className="aa-Input !h-9 !w-[260px] !text-[14px] dark:!text-white"
             ref={inputRef}
             placeholder="Search the docs..."
             {...(inputProps as React.DetailedHTMLProps<

@@ -22,6 +22,8 @@ import LocaleTable from "../components/LocaleTable";
 import { Attributes, Attribute } from "../components/Attributes";
 import Table from "../components/Table";
 import CopyableText from "../components/CopyableText";
+import { Card, CardGroup } from "../components/Card";
+import { SdkCard, SdkCardGroup } from "../components/SdkCard";
 import { Endpoints, Endpoint } from "../components/Endpoints";
 import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../content/integrations/extensions/new_relic_dashboard.json";
@@ -57,6 +59,10 @@ const components = {
   ExampleColumn,
   Endpoints,
   Endpoint,
+  Card,
+  CardGroup,
+  SdkCard,
+  SdkCardGroup,
 };
 
 export default function ContentPage({ source, sourcePath }) {

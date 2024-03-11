@@ -263,6 +263,12 @@ const nextConfig = {
         destination: "/in-app-ui/react/filtering-in-app-feeds",
         permanent: false,
       },
+      // Reference redirects
+      {
+        source: "/in-app-ui/:sdk/reference",
+        destination: "/sdks/:sdk/reference",
+        permanent: false,
+      },
     ];
   },
 };

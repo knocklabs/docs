@@ -1,7 +1,7 @@
 import React from "react";
-import { DocsLayout } from "./DocsLayout";
 import { FrontMatter } from "../types";
-import { useRouter } from "next/router";
+
+import { DocsLayout } from "./DocsLayout";
 import { IntegrationsLayout } from "./IntegrationsLayout";
 import { CliReferenceLayout } from "./CliReferenceLayout";
 import { MapiReferenceLayout } from "./MapiReferenceLayout";
@@ -10,21 +10,26 @@ import { ApiReferenceLayout } from "./ApiReferenceLayout";
 const MDXLayout: React.FC<{ frontMatter: FrontMatter; sourcePath: string }> = (
   props,
 ) => {
-  const router = useRouter();
-
-  if (router.asPath.startsWith("/integrations")) {
-    return <IntegrationsLayout {...props}>{props.children}</IntegrationsLayout>;
-  } else if (router.asPath.startsWith("/cli")) {
-    return <CliReferenceLayout {...props}>{props.children}</CliReferenceLayout>;
-  } else if (router.asPath.startsWith("/mapi")) {
-    return (
-      <MapiReferenceLayout {...props}>{props.children}</MapiReferenceLayout>
-    );
-  } else if (router.asPath.startsWith("/reference")) {
-    return <ApiReferenceLayout {...props}>{props.children}</ApiReferenceLayout>;
+  switch (props.frontMatter.layout) {
+    case "api":
+      return (
+        <ApiReferenceLayout {...props}>{props.children}</ApiReferenceLayout>
+      );
+    case "integrations":
+      return (
+        <IntegrationsLayout {...props}>{props.children}</IntegrationsLayout>
+      );
+    case "cli":
+      return (
+        <CliReferenceLayout {...props}>{props.children}</CliReferenceLayout>
+      );
+    case "mapi":
+      return (
+        <MapiReferenceLayout {...props}>{props.children}</MapiReferenceLayout>
+      );
+    default:
+      return <DocsLayout {...props}>{props.children}</DocsLayout>;
   }
-
-  return <DocsLayout {...props}>{props.children}</DocsLayout>;
 };
 
 export default MDXLayout;

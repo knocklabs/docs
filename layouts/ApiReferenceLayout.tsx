@@ -1,10 +1,11 @@
 import React from "react";
 import { Page } from "./Page";
 import ApiReferenceSidebar from "../components/ApiReferenceSidebar";
+import MinimalHeader from "../components/Header/MinimalHeader";
 
 export const ApiReferenceLayout = ({ frontMatter, children }) => (
   <Page
-    pageType="API"
+    header={<MinimalHeader pageType="API" />}
     sidebar={<ApiReferenceSidebar />}
     metaProps={{
       title: `${frontMatter.title} | Knock`,

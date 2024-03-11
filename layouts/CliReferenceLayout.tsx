@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Page } from "./Page";
 import Sidebar from "../components/Sidebar";
+import MinimalHeader from "../components/Header/MinimalHeader";
 
 const sidebarData = [
   {
@@ -67,7 +68,7 @@ const sidebarData = [
 
 export const CliReferenceLayout = ({ frontMatter, children }) => (
   <Page
-    pageType="CLI"
+    header={<MinimalHeader pageType="CLI" />}
     sidebar={
       <Sidebar content={sidebarData}>
         <Link

@@ -134,17 +134,12 @@ const sidebarContent: SidebarSection[] = [
             slug: "/customizing-feed-components",
             title: "Customizing feed components",
           },
-          { slug: "/reference", title: "API reference" },
         ],
       },
       {
         title: "Javascript",
         slug: "/javascript",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick start" },
-          { slug: "/reference", title: "API reference" },
-        ],
+        pages: [{ slug: "/overview", title: "Overview" }],
       },
       {
         title: "Angular",
@@ -156,7 +151,72 @@ const sidebarContent: SidebarSection[] = [
         slug: "/react-native",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/notification-feeds", title: "Feeds" },
+          { slug: "/notification-feeds", title: "Notification feed" },
+        ],
+      },
+      {
+        title: "iOS (Swift)",
+        slug: "/ios",
+        pages: [{ slug: "/overview", title: "Overview" }],
+      },
+      {
+        title: "Android (Kotlin)",
+        slug: "/android",
+        pages: [{ slug: "/overview", title: "Overview" }],
+      },
+      {
+        title: "Flutter",
+        slug: "/flutter",
+        pages: [{ slug: "/overview", title: "Overview" }],
+      },
+    ],
+  },
+
+  {
+    title: "Developer tools",
+    slug: "/developer-tools",
+    desc: "Use our powerful developer tools in order to integrate Knock seamlessly into your development workflow.",
+    pages: [
+      { slug: "/api-keys", title: "API keys" },
+      { slug: "/service-tokens", title: "Service tokens" },
+      { slug: "/knock-cli", title: "Knock CLI" },
+      { slug: "/management-api", title: "Management API" },
+      { slug: "/api-logs", title: "API logs" },
+      {
+        slug: "/outbound-webhooks",
+        title: "Outbound webhooks",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/event-types", title: "Event types" },
+        ],
+      },
+      { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
+    ],
+  },
+
+  {
+    title: "SDKs",
+    slug: "/sdks",
+    desc: "",
+    pages: [
+      {
+        title: "Overview",
+        slug: "/overview",
+      },
+      {
+        title: "React (Web)",
+        slug: "/react",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/reference", title: "API reference" },
+        ],
+      },
+      {
+        title: "Javascript (Web)",
+        slug: "/javascript",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick start" },
           { slug: "/reference", title: "API reference" },
         ],
       },
@@ -187,30 +247,18 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/reference", title: "API reference" },
         ],
       },
+      {
+        title: "React Native",
+        slug: "/react-native",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick start" },
+          { slug: "/reference", title: "API reference" },
+        ],
+      },
     ],
   },
 
-  {
-    title: "Developer tools",
-    slug: "/developer-tools",
-    desc: "Use our powerful developer tools in order to integrate Knock seamlessly into your development workflow.",
-    pages: [
-      { slug: "/api-keys", title: "API keys" },
-      { slug: "/service-tokens", title: "Service tokens" },
-      { slug: "/knock-cli", title: "Knock CLI" },
-      { slug: "/management-api", title: "Management API" },
-      { slug: "/api-logs", title: "API logs" },
-      {
-        slug: "/outbound-webhooks",
-        title: "Outbound webhooks",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/event-types", title: "Event types" },
-        ],
-      },
-      { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
-    ],
-  },
   {
     title: "Manage your account",
     slug: "/manage-your-account",

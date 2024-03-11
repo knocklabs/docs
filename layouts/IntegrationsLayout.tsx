@@ -8,6 +8,7 @@ import IntegrationsSidebar from "../components/IntegrationsSidebar";
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
 import Link from "next/link";
+import MinimalHeader from "../components/Header/MinimalHeader";
 
 const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
@@ -39,7 +40,10 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
   }, [paths]);
 
   return (
-    <>
+    <Page
+      header={<MinimalHeader pageType="Docs" />}
+      sidebar={<IntegrationsSidebar />}
+    >
       <Meta
         title={`${frontMatter.title} | Knock Docs`}
         description={frontMatter.description}
@@ -87,14 +91,8 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
           )}
         </div>
       </div>
-    </>
+    </Page>
   );
 };
-
-IntegrationsLayout.getLayout = (page) => (
-  <Page pageType="Docs" sidebar={<IntegrationsSidebar />}>
-    {page}
-  </Page>
-);
 
 export { IntegrationsLayout };

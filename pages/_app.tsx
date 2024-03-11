@@ -10,8 +10,6 @@ import * as gtag from "../lib/gtag";
 import { setClearbitPath } from "../lib/clearbit";
 
 import "../styles/index.css";
-import { DocsLayout } from "../layouts/DocsLayout";
-import { IntegrationsLayout } from "../layouts/IntegrationsLayout";
 
 function App({ Component, pageProps }) {
   const router = useRouter();
@@ -29,22 +27,6 @@ function App({ Component, pageProps }) {
     };
   }, [router.events]);
 
-  const getLayout = useMemo(() => {
-    if (router.asPath.startsWith("/integrations")) {
-      return IntegrationsLayout.getLayout;
-    }
-
-    if (
-      !router.asPath.startsWith("/reference") &&
-      !router.asPath.startsWith("/cli") &&
-      !router.asPath.startsWith("/mapi")
-    ) {
-      return DocsLayout.getLayout;
-    }
-
-    return (page) => page;
-  }, [router.asPath]);
-
   return (
     <ThemeProvider
       defaultTheme="light"
@@ -54,7 +36,7 @@ function App({ Component, pageProps }) {
       disableTransitionOnChange
     >
       <EventEmitterContext.Provider value={eventEmitter}>
-        {getLayout(<Component {...pageProps} />)}
+        <Component {...pageProps} />
       </EventEmitterContext.Provider>
     </ThemeProvider>
   );
