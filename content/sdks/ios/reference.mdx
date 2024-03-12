@@ -6,9 +6,13 @@ section: SDKs
 
 In this section, you'll find the documentation for the classes and methods available in the [iOS SDK](https://github.com/knocklabs/knock-swift).
 
-## `Knock`
+## Knock
 
-The top-level Knock class. Create an authenticated Knock client instance for interacting with Knock.
+The top-level Knock class. This is a shared instance to interact with the SDK's API methods.
+
+### `Knock.shared.setup()`
+
+Sets up the shared Knock instance. Make sure to call this as soon as you can. Preferrably in your AppDelegate.
 
 **Params**
 
@@ -19,20 +23,60 @@ The top-level Knock class. Create an authenticated Knock client instance for int
     description="The public API key for the Knock environment."
   />
   <Attribute
+    name="pushChannelId"
+    type="string (optional)"
+    description="The Knock APNS channel id that you plan to use within your app."
+  />
+  <Attribute
+    name="options"
+    type="Knock.KnockStartupOptions (optional)"
+    description="Optional startup options to configure your Knock instance."
+  />
+</Attributes>
+
+## Authentication
+
+### `Knock.shared.isAuthenticated()`
+
+Convienience method to determine if a user is currently authenticated for the Knock instance.
+
+**Returns**: `Bool`
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="checkUserToken"
+    type="Bool"
+    description="Whether Knock should also check to make sure user has a user token. Only required when using a Knock prod environment."
+  />
+</Attributes>
+
+### `Knock.shared.signIn()`
+
+Sets the userId and userToken for the current Knock instance.
+If the device token and pushChannelId were set previously, this will also attempt to register the token to the user that is being signed in.
+This does not get the user from the database nor does it return the full User object.
+You should consider using this in areas where you update your local user's state.
+
+**Params**
+
+<Attributes>
+  <Attribute
     name="userId"
-    type="string*"
-    description="The user ID to make requests against."
+    type="String"
+    description="The Knock user ID to make requests against."
   />
   <Attribute
     name="userToken"
-    type="string (optional)"
+    type="String (optional)"
     description={
       <>
         A JWT that identifies the authenticated user, signed with the private
         key provided in the Knock dashboard. Required to secure your production
         environment.{" "}
         <a
-          href="https://docs.knock.app/in-app-ui/security-and-authentication#authentication-with-enhanced-security-enabled"
+          href="[https://docs.knock.app/in-app-ui/security-and-authentication#authentication-with-enhanced-security-enabled](https://docs.knock.app/in-app-ui/security-and-authentication#authentication-with-enhanced-security-enabled)"
           target="_blank"
         >
           Learn more.
@@ -40,133 +84,69 @@ The top-level Knock class. Create an authenticated Knock client instance for int
       </>
     }
   />
-  <Attribute
-    name="hostname"
-    type="string (optional)"
-    description="Optional hostname to configure which Knock endpoint to make requests against."
-  />
 </Attributes>
 
 **Example**
 
-```swift Creating a Knock client
+```swift
 import Knock
 
-knockClient = try! Knock(publishableKey: "your-pk", userId: "user-id")
+await Knock.shared.signIn(userId: "your-user-id", userToken: "your-user-token")
+
 ```
 
----
+### `Knock.shared.signOut()`
 
-### `publishableKey`
+Sets the userId and userToken for the current Knock instance back to nil.
+If the device token and pushChannelId were set previously, this will also attempt to unregister the token to the user that is being signed out so they don't receive pushes they shouldn't get.
+You should call this when your user signs out
 
-Returns the publishable key set on the client.
+- Note: This will not clear the device token so that it can be accessed for the next user to login.
 
-**Returns**: `string`
+**Example**
 
----
+```swift
+import Knock
 
-### `userId`
+await Knock.shared.signOut()
 
-Returns the userId set.
+```
 
-**Returns**: `string`
+## User Management
 
----
+### `Knock.shared.getUserId()`
 
-### `userToken`
+Fetch the userId that was set from the Knock.shared.signIn method.
 
-Returns the userToken set.
+**Returns**: `String?`
 
-**Returns**: `string`
-
----
-
-### `getUser`
+### `Knock.shared.getUser()`
 
 Returns the current user's profile stored in Knock.
+[https://docs.knock.app/reference#get-user#get-user](https://docs.knock.app/reference#get-user#get-user)
 
-**Returns**
+**Returns**: `Knock.User`
 
-`Result<User, Error>`
-
----
-
-### `updateUser`
+### `Knock.shared.updateUser()`
 
 Updates the current user's profile in Knock.
+[https://docs.knock.app/reference#get-user#get-user](https://docs.knock.app/reference#get-user#get-user)
+
+**Returns**: `Knock.User`
 
 **Params**
 
 <Attributes>
   <Attribute
     name="user"
-    type="User"
-    description="Properties to update on the current user"
+    type="Knock.User"
+    description="The User object that you want to set for the current user."
   />
 </Attributes>
 
-**Returns**
+## Channels/Push Notifications
 
-`Result<User, Error>`
-
----
-
-### `getAllUserPreferences`
-
-Returns all of the preference sets for the current user.
-
-**Returns**
-
-`Result<[PreferenceSet], Error>`
-
----
-
-### `getUserPreferences`
-
-Returns a single preference set for the current user, specified by the `preferenceId`. For the default preference set, set the `preferenceId` to be `default`.
-
-**Params**
-
-<Attributes>
-  <Attribute
-    name="preferenceId"
-    type="string"
-    description="The ID of the preference set to retrieve"
-  />
-</Attributes>
-
-**Returns**
-
-`Result<PreferenceSet, Error>`
-
----
-
-### `setUserPreferences`
-
-Updates the preference set specified by the `preferenceId` with the new `preferenceSet`.
-
-**Params**
-
-<Attributes>
-  <Attribute
-    name="preferenceId"
-    type="string"
-    description="The ID of the preference set"
-  />
-  <Attribute
-    name="preferenceSet"
-    type="PreferenceSet"
-    description="The preferences to update for the preference set"
-  />
-</Attributes>
-
-**Returns**
-
-`Result<PreferenceSet, Error>`
-
----
-
-### `getUserChannelData`
+### `Knock.shared.getUserChannelData()`
 
 Returns the channel data for the current user on the channel specified with `channelId`.
 
@@ -175,18 +155,14 @@ Returns the channel data for the current user on the channel specified with `cha
 <Attributes>
   <Attribute
     name="channelId"
-    type="string"
+    type="String"
     description="The channel ID to get channel data for"
   />
 </Attributes>
 
-**Returns**
+**Returns**: `Knock.ChannelData`
 
-`Result<ChannelData, Error>`
-
----
-
-### `updateUserChannelData`
+### `Knock.shared.updateUserChannelData()`
 
 Updates the channel data for the current user on the channel specified with `channelId`.
 
@@ -195,50 +171,149 @@ Updates the channel data for the current user on the channel specified with `cha
 <Attributes>
   <Attribute
     name="channelId"
-    type="string"
+    type="String"
     description="The channel ID to update the channel data for"
   />
   <Attribute
     name="data"
-    type="any"
+    type="AnyEncodable"
     description="The data to update for the channel data"
   />
 </Attributes>
 
-**Returns**
+**Returns**: `Knock.ChannelData`
 
-`Result<ChannelData, Error>`
+### `Knock.shared.getApnsDeviceToken()`
 
----
+Returns the apnsDeviceToekn that was set from the Knock.shared.registerTokenForAPNS.
+If you use our KnockAppDelegate, the token registration will be handled for you automatically.
 
-### `registerTokenForAPNS`
+**Returns** `String?`
 
-A convenience method for getting and setting channel data for an APNS channel for the current user.
+### `Knock.shared.registerTokenForAPNS()`
+
+Registers an Apple Push Notification Service token so that the device can receive remote push notifications.
+This is a convenience method that internally gets the channel data and searches for the token. If it exists, then it's already registered and it returns.
+If the data does not exists or the token is missing from the array, it's added.
+If the new token differs from the last token that was used on the device, the old token will be unregistered.
+
+You can learn more about APNS [here](https://developer.apple.com/documentation/usernotifications/registering_your_app_with_apns).
 
 **Params**
 
 <Attributes>
   <Attribute
     name="channelId"
-    type="string"
-    description="The channel ID to update the channel data for"
+    type="String"
+    description="The Knock APNS channel id to associate the device token to."
   />
   <Attribute
     name="token"
-    type="Data | string"
-    description="The device token to set for"
+    type="String OR Data"
+    description="the APNS device token retreived from the "
   />
 </Attributes>
 
-**Returns**
+**Returns**: `Knock.ChannelData`
 
-`Result<ChannelData, Error>`
+### `Knock.shared.unregisterTokenForAPNS()`
 
----
+Unregisters the current deviceId associated to the user so that the device will no longer receive remote push notifications for the provided channelId.
 
-### `getMessage`
+**Params**
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The Knock APNS channel id to associate the device token to."
+  />
+  <Attribute
+    name="token"
+    type="String OR Data"
+    description="the APNS device token retreived from the "
+  />
+</Attributes>
+
+**Returns**: `Knock.ChannelData`
+
+### `Knock.shared.getNotificationPermissionStatus()`
+
+Convenience method to determine whether or not the user is allowing Push Notifications for the app.
+
+**Returns**: `UNAuthorizationStatus`
+
+### `Knock.shared.requestNotificationPermission()`
+
+Unregisters the current deviceId associated to the user so that the device will no longer receive remote push notifications for the provided channelId.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="options"
+    type="UNAuthorizationOptions"
+    description="The type of push notification permissions you want. Defaults to `[.sound, .badge, .alert]`"
+  />
+</Attributes>
+
+**Returns**: `UNAuthorizationStatus`
+
+### `Knock.shared.requestAndRegisterForPushNotifications()`
+
+Convenience method to request Push Notification permissions for the app, and then, if successfull, registerForRemoteNotifications in order to get a device token.
+
+## Preferences
+
+### `Knock.shared.getAllUserPreferences()`
+
+Returns all of the preference sets for the current user.
+
+**Returns**: `Knock.PreferenceSet`
+
+### `Knock.shared.getUserPreferences()`
+
+Returns a single preference set for the current user, specified by the `preferenceId`. For the default preference set, set the `preferenceId` to be `default`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="preferenceId"
+    type="String"
+    description="The ID of the preference set to retrieve"
+  />
+</Attributes>
+
+**Returns**: `Knock.PreferenceSet`
+
+### `Knock.shared.setUserPreferences()`
+
+Updates the preference set specified by the `preferenceId` with the new `preferenceSet`.
+
+**Params**
+
+<Attributes>
+  <Attribute
+    name="preferenceId"
+    type="String"
+    description="The ID of the preference set"
+  />
+  <Attribute
+    name="preferenceSet"
+    type="Knock.PreferenceSet"
+    description="The preferences to update for the preference set"
+  />
+</Attributes>
+
+**Returns**: `Knock.PreferenceSet`
+
+## Messages
+
+### `Knock.shared.getMessage()`
 
 Returns information about a single message specified by the `messageId`.
+[https://docs.knock.app/reference#get-a-message](https://docs.knock.app/reference#get-a-message)
 
 **Params**
 
@@ -250,15 +325,12 @@ Returns information about a single message specified by the `messageId`.
   />
 </Attributes>
 
-**Returns**
+**Returns** `Knock.KnockMessage`
 
-`Result<KnockMessage, Error>`
-
----
-
-### `updateMessageStatus`
+### `Knock.shared.updateMessageStatus()`
 
 Updates the status of a single message specified by the `message` or `messageId`.
+[https://docs.knock.app/reference#undo-message-status](https://docs.knock.app/reference#undo-message-status)
 
 **Params**
 
@@ -280,15 +352,12 @@ Updates the status of a single message specified by the `message` or `messageId`
   />
 </Attributes>
 
-**Returns**
+**Returns** `Knock.KnockMessage`
 
-`Result<KnockMessage, Error>`
+### `Knock.shared.deleteMessageStatus()`
 
----
-
-### `deleteMessageStatus`
-
-Removes the update of a single message status specified by the `message` or `messageId`.
+Un-marks the given status on a message specified by the `message` or `messageId`, recording an event in the process.
+[https://docs.knock.app/reference#undo-message-status](https://docs.knock.app/reference#undo-message-status)
 
 **Params**
 
@@ -310,43 +379,38 @@ Removes the update of a single message status specified by the `message` or `mes
   />
 </Attributes>
 
-**Returns**
-
-`Result<KnockMessage, Error>`
-
----
+**Returns** `Knock.KnockMessage`
 
 ### `batchUpdateStatuses`
 
 Updates up to 50 messages with the given status in a single request specified by `messageIds` or `messages`.
+[https://docs.knock.app/reference#batch-update-message-status](https://docs.knock.app/reference#batch-update-message-status)
 
 **Params**
 
 <Attributes>
   <Attribute
     name="messageIds"
-    type="string[]"
+    type="[String]"
     description="A list of message IDs"
   />
   <Attribute
     name="message"
-    type="KnockMessage[]"
+    type="[Knock.KnockMessage]"
     description="A list of messages"
   />
   <Attribute
     name="status"
-    type="KnockMessageStatusBatchUpdateType"
+    type="Knock.KnockMessageStatusBatchUpdateType"
     description="The status to set on the messages"
   />
 </Attributes>
 
-**Returns**
+**Returns** `[Knock.KnockMessage]`
 
-`Result<[KnockMessage], Error>`
+## FeedManager
 
----
-
-## `Knock.FeedManager`
+## `Knock.FeedManager.init()`
 
 Creates a new instance of a `FeedManager` for interacting with a user's in-app notification feed.
 
@@ -354,34 +418,27 @@ Creates a new instance of a `FeedManager` for interacting with a user's in-app n
 
 <Attributes>
   <Attribute
-    name="client"
-    type="Knock"
-    description="The instance of a Knock client to use to make requests."
-  />
-  <Attribute
     name="feedId"
-    type="string"
-    description="The UUID of the in-app feed channel ID."
+    type="String"
+    description="The UUID of your Knock in-app feed channel ID."
   />
   <Attribute
     name="options"
-    type="FeedClientOptions"
+    type="Knock.FeedClientOptions"
     description="Feed options to apply as defaults."
   />
 </Attributes>
 
 **Example**
 
-```swift Creating a Knock.FeedManager
+```swift
 import Knock
 
-knockClient = try! Knock(publishableKey: "your-pk", userId: "user-id")
-feedManager = Knock.FeedManager(client: knockClient!, feedId: "in-app-channel-id")
+Knock.shared.feedManager = try? await Knock.FeedManager(feedId: "in-app-channel-id", options: FeedClientOptions(archived: .exclude))
+
 ```
 
----
-
-### `connectToFeed`
+### `Knock.shared.feedManager.connectToFeed()`
 
 Connects the feed instance to the real-time socket so that any new items published to the feed are received over the websocket.
 
@@ -390,47 +447,31 @@ Connects the feed instance to the real-time socket so that any new items publish
 <Attributes>
   <Attribute
     name="options"
-    type="FeedClientOptions*"
+    type="Knock.FeedClientOptions?"
     description="Feed options to apply. Will override any options specified in the FeedManager constructor."
   />
 </Attributes>
 
-**Returns**
-
-`Void`
-
----
-
-### `disconnectFromFeed`
+### `Knock.shared.feedManager.disconnectFromFeed()`
 
 Disconnects a connected real-time instance.
 
-**Returns**
-
-`Void`
-
----
-
-### `on`
+### `Knock.shared.feedManager.on()`
 
 Binds an event listener for incoming web socket events. Must have called `connectToFeed` first.
 
 <Attributes>
   <Attribute
     name="eventName"
-    type="string*"
+    type="String"
     description="The event name to listen for. Currently only `new-message` is supported."
   />
 </Attributes>
 
-**Returns**
-
-`Void`
-
 **Example**
 
-```swift Listen to incoming feed messages
-feedManager.on(eventName: "new-message") { _ in
+```swift
+Knock.shared.feedManager.on(eventName: "new-message") { _ in
   // Do something with the new incoming feed message; likely need to refetch the feed contents
   feedManager.getUserFeedContent(options: options) { result in
       switch result {
@@ -441,11 +482,10 @@ feedManager.on(eventName: "new-message") { _ in
       }
   }
 }
+
 ```
 
----
-
-### `getUserFeedContent`
+### `Knock.shared.feedManager.getUserFeedContent()`
 
 Retrieves the user's feed content for the feed. Can be scoped by passing `options`, which also allows for paginating the contents of the feed using the `before` and `after` cursors.
 
@@ -454,37 +494,14 @@ Retrieves the user's feed content for the feed. Can be scoped by passing `option
 <Attributes>
   <Attribute
     name="options"
-    type="FeedClientOptions*"
+    type="Knock.FeedClientOptions*"
     description="Feed options to apply to the fetch. Will override any options specified in the FeedManager constructor."
   />
 </Attributes>
 
-**Returns**
+**Returns** `Knock.Feed`
 
-`Result<Feed, Error>`
-
-**Example**
-
-```swift Fetching user feed content
-import Knock
-
-knockClient = try! Knock(publishableKey: "your-pk", userId: "user-id")
-feedManager = Knock.FeedManager(client: knockClient!, feedId: "in-app-channel-id")
-
-feedManager?.getUserFeedContent() { result in
-  switch result {
-  case .success(let feed):
-      // Do something with the returned feed
-  case .failure(let error):
-      print(error.localizedDescription)
-  }
-}
-
-```
-
----
-
-### `makeBulkStatusUpdate`
+### `Knock.shared.feedManager.makeBulkStatusUpdate()`
 
 Updates all of the items within the feed with the given status. Can be passed `options` to scope the request further. Note: this method returns a `BulkUpdate` via the Knock API, which is an async operation.
 
@@ -493,23 +510,19 @@ Updates all of the items within the feed with the given status. Can be passed `o
 <Attributes>
   <Attribute
     name="type"
-    type="BulkChannelMessageStatusUpdateType*"
+    type="Knock.BulkChannelMessageStatusUpdateType"
     description="The type of update to make in bulk."
   />
   <Attribute
     name="options"
-    type="FeedClientOptions*"
+    type="Knock.FeedClientOptions"
     description="Feed options to scope the bulk update by."
   />
 </Attributes>
 
-**Returns**
+**Returns** `Knock.BulkOperation`
 
-`Result<BulkOperation, Error>`
-
----
-
-## `FeedManager.FeedClientOptions`
+## `Knock.FeedClientOptions`
 
 Used to scope a feed request.
 

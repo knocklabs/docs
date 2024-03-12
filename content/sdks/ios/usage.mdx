@@ -1,0 +1,193 @@
+---
+title: "iOS SDK Usage Guides"
+description: Usage guides to help you get started with the iOS Knock SDK.
+section: SDKs
+---
+
+In this section, you'll find usage guides to help you get started with the [iOS SDK](https://github.com/knocklabs/knock-swift).
+
+## KnockAppDelegate
+
+This class serves as an optional base class designed to streamline the integration of Knock into your application. By inheriting from KnockAppDelegate in your AppDelegate, you gain automatic handling of Push Notification registration and device token management, simplifying the initial setup process for Knock's functionalities.
+
+The class also provides a set of open helper functions that are intended to facilitate the handling of different Push Notification events such as delivery in the foreground, taps, and dismissals. These helper methods offer a straightforward approach to customizing your app's response to notifications, ensuring that you can tailor the behavior to fit your specific needs.
+
+Override any of the provided methods to achieve further customization, allowing you to control how your application processes and reacts to Push Notifications. Additionally, by leveraging this class, you ensure that your app adheres to best practices for managing device tokens and interacting with the notification system on iOS, enhancing the overall reliability and user experience of your app's notification features.
+
+Key Features:
+
+- Automatic registration for remote notifications, ensuring your app is promptly set up to receive and handle Push Notifications.
+- Simplified device token management, with automatic storage of the device token, facilitating easier access and use in Push Notification payloads.
+- Customizable notification handling through open helper functions, allowing for bespoke responses to notification events such as foreground delivery, user taps, and dismissal actions.
+- Automatic message status updates, based on Push Notification interaction.
+
+```swift
+import UIKit
+import Knock
+
+class AppDelegate: KnockAppDelegate {
+
+    override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        Task {
+            try? await Knock.shared.setup(publishableKey: "your-publishableKey", pushChannelId: "your-apns-channel-id")
+        }
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+
+    override func pushNotificationTapped(userInfo: [AnyHashable : Any]) {
+        super.pushNotificationTapped(userInfo: userInfo)
+        if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    override func pushNotificationDeliveredInForeground(notification: UNNotification) -> UNNotificationPresentationOptions {
+        let options = super.pushNotificationDeliveredInForeground(notification: notification)
+        return [options]
+    }
+
+    override func pushNotificationDeliveredSilently(userInfo: [AnyHashable : Any], completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        completionHandler(.noData)
+    }
+}
+```
+
+---
+
+## Push Notifications
+
+### **Setting Up Push Notifications with Knock**
+
+Integrating push notifications into your iOS app enhances user engagement and allows for real-time updates. This guide covers the steps to configure your app to receive both regular and silent push notifications using our swift SDk, alongside handling deep links and universal links for a seamless user experience.
+
+### **Prerequisites**
+
+Before proceeding, ensure you've configured push notifications within your Knock account. For guidance on this initial setup, refer to our [Push Notification Configuration Guide](https://chat.openai.com/c/4dc7afde-fe5d-4c84-9d91-9d75450f70b0#).
+
+### **Step 1: Enabling Push Notifications in Your App**
+
+1. **Configure APNs in Your App:**
+   - Open your project in Xcode.
+   - Navigate to your app target's **Signing & Capabilities** tab.
+   - Click the "+" capability button and add **Push Notifications** to enable Apple Push Notification service (APNs).
+2. **Enable Background Modes:**
+   - Still in the **Signing & Capabilities** tab, add the **Background Modes** capability.
+   - Check **Remote notifications** to allow your app to receive silent push notifications.
+
+#### Note: For the next steps, using our KnockAppDelegate will take care of these setup steps for you. We highly recommend using this to simplify your push notification management.
+
+### **Step 2: Registering for Push Notifications**
+
+Implement the following in your AppDelegate or SceneDelegate to register for push notifications:
+
+```swift
+class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+				// Will request push notification permissions, and will automatically register if perms are granted.
+        Knock.shared.requestAndRegisterForPushNotifications()
+
+        // Check if launched from the tap of a notification
+        if let launchOptions = launchOptions,
+           let userInfo = launchOptions[.remoteNotification] as? [String: AnyObject] {
+            pushNotificationTapped(userInfo: userInfo)
+        }
+
+        return true
+    }
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        // Register the token with Knock
+        Task {
+            let channelId = await Knock.shared.environment.getPushChannelId()
+
+            do {
+                let _ = try await Knock.shared.channelModule.registerTokenForAPNS(channelId: channelId, token: Knock.convertTokenToString(token: deviceToken))
+            } catch {
+               // Handle error
+            }
+        }
+    }
+}
+
+```
+
+### **Step 3: Updating the Message Status of a Push Notification.**
+
+If a push notification is sent via Knock, it will contain a `knock_message_id` property that includes the corresponding message Id. This can then be used to update the message status.
+
+```swift
+class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    if let messageId = getMessageId(userInfo: notification.request.content.userInfo) {
+        Knock.shared.updateMessageStatus(messageId: messageId, status: .seen) { _ in }
+    }
+    completionHandler(presentationOptions)
+}
+}
+
+```
+
+### **Step 3: Configuring Silent Push Notifications**
+
+Silent push notifications allow your app to update content in the background without alerting the user. Ensure that your Knock APNS message template has silent notifications enabled.
+
+![Message Template Settings](/images/message-template-settings.png)
+
+Handle silent push notifications by implementing the **`didReceiveRemoteNotification:fetchCompletionHandler:`** method in your AppDelegate.
+
+### **Step 4: Setting Up Deep Links and Universal Links**
+
+Deep links and universal links direct users to specific content within your app, enhancing the user experience.
+
+#### **Deep Links:**
+
+1. **Define URL Schemes:**
+
+   - In Xcode, navigate to your app target's **Info** tab.
+   - Add a new URL type under **URL Types** with a unique scheme.
+
+   ![Xcode Project Info](/images/xcode-project-info.png)
+
+2. **Handle Incoming URLs:**
+
+   - To handle a push notification being tapped while the app is closed:
+
+   ```swift
+   open func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+       // Check if launched from the tap of a notification
+       if let launchOptions = launchOptions, let userInfo = launchOptions[.remoteNotification] as? [String: AnyObject] {
+           // retrieve url
+           if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+               UIApplication.shared.open(url)
+           }
+       }
+
+       return true
+   }
+   ```
+
+   - To handle a push notification being tapped while the app is in the foreground or background:
+
+   ```swift
+   open func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+       if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+           UIApplication.shared.open(url)
+       }
+       completionHandler()
+   }
+   ```
+
+#### **Universal Links:**
+
+1. **Enable Associated Domains:**
+   - Add the **Associated Domains** capability in your app target's **Signing & Capabilities** tab.
+   - Add your domain in the format **`applinks:yourdomain.com`**.
+2. **Handle Incoming Links:**
+   - Implement **`application(_:continue:restorationHandler:)`** in your AppDelegate or SceneDelegate.
+3. **Server Configuration:**
+   - Ensure your server hosts an Apple App Site Association (AASA) file at **`https://yourdomain.com/.well-known/apple-app-site-association`**.
+
+For more detailed instructions on configuring deep and universal links, visit Apple's Official Documentation.
