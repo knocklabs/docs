@@ -110,7 +110,7 @@ export async function getStaticProps({ params: { slug } }) {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkSlug, remarkGfm],
-      rehypePlugins: [rehypeMdxCodeProps, rehypeAutolinkHeadings],
+      rehypePlugins: [rehypeMdxCodeProps, rehypeAutolinkHeadings] as any,
     },
   });
 
