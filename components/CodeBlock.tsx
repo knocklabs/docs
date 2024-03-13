@@ -69,6 +69,7 @@ export interface Props {
   setLanguage?: (lang: SupportedLanguage) => void;
   className?: string;
   children?: any;
+  title?: string;
 }
 
 const getParams = (
@@ -99,6 +100,7 @@ export const CodeBlock: React.FC<Props> = ({
   language,
   languages,
   setLanguage,
+  ...props
 }) => {
   const isMounted = useIsMounted();
   const { theme } = useTheme();
@@ -120,10 +122,10 @@ export const CodeBlock: React.FC<Props> = ({
           : children ?? "",
         className,
       ),
-    [children],
+    [children, className],
   );
 
-  const title = children.props.metastring;
+  const title = props.title || children.props.metastring;
 
   const [isCopied, setCopied] = useClipboard(content, {
     successDuration: 2000,

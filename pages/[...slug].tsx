@@ -29,6 +29,7 @@ import datadogDashboardJson from "../content/integrations/extensions/datadog_das
 import newRelicDashboardJson from "../content/integrations/extensions/new_relic_dashboard.json";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import remarkGfm from "remark-gfm";
+import rehypeMdxCodeProps from "rehype-mdx-code-props";
 
 import {
   Section,
@@ -109,7 +110,7 @@ export async function getStaticProps({ params: { slug } }) {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkSlug, remarkGfm],
-      rehypePlugins: [rehypeAutolinkHeadings],
+      rehypePlugins: [rehypeMdxCodeProps, rehypeAutolinkHeadings],
     },
   });
 
