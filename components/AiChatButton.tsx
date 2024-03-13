@@ -10,7 +10,7 @@ const ChatButton = dynamic(
   },
 ) as any;
 
-function InkeepChatButton() {
+function AiChatButton() {
   const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
     useInkeepSettings();
 
@@ -24,4 +24,4 @@ function InkeepChatButton() {
   return <ChatButton {...chatButtonProps} />;
 }
 
-export default InkeepChatButton;
+export default AiChatButton;

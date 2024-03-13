@@ -10,7 +10,7 @@ import * as gtag from "../lib/gtag";
 import { setClearbitPath } from "../lib/clearbit";
 
 import "../styles/index.css";
-import InkeepChatButton from "../components/InKeepChatButton";
+import AiChatButton from "../components/AiChatButton";
 
 function App({ Component, pageProps }) {
   const router = useRouter();
@@ -38,7 +38,7 @@ function App({ Component, pageProps }) {
     >
       <EventEmitterContext.Provider value={eventEmitter}>
         <Component {...pageProps} />
-        <InkeepChatButton />
+        <AiChatButton />
       </EventEmitterContext.Provider>
     </ThemeProvider>
   );
