@@ -46,7 +46,7 @@ Your alert object is stored under an `alerts` collection and includes:
 
 You can set an alert and its current status in Knock by using the [objects set API](/reference#set-object), which will always perform an “upsert” (replacing existing fields).
 
-```javascript Set your alert object
+```javascript title="Set your alert object"
 await knock.objects.set("alerts", alertId, {
   channels: ["email", "sms"],
   ownerId: team.id,
@@ -55,7 +55,7 @@ await knock.objects.set("alerts", alertId, {
 
 To ensure the alert goes to the subscribed recipients you can use object subscriptions to subscribe recipients to the alert object.
 
-```javascript Add subscribers to your alert
+```javascript title="Add subscribers to your alert"
 knock.objects.addSubscribers("alerts", alertId, {
   recipients: [user1.id, user2.id],
 });
@@ -63,7 +63,7 @@ knock.objects.addSubscribers("alerts", alertId, {
 
 When our alert is triggered, all we need to do now is trigger our alert workflow with the alert object we configured earlier.
 
-```javascript Trigger workflow with alert recipient
+```javascript title="Trigger workflow with alert recipient"
 await knock.workflows.trigger("alert", {
   recipients: [{ collection: "alerts", id: alertId }],
   references: { alert: { collection: "alerts", id: alertId } },
@@ -97,7 +97,7 @@ Under the hood, Knock fanouts to all subscribers on the alert object on your beh
 
 The other way to power alerting using Knock is to keep your alerts data model (along with their subscribers) within your system and trigger workflows in Knock for those objects.
 
-```javascript Trigger an alert without using Knock objects
+```javascript title="Trigger an alert without using Knock objects"
 await knock.workflows.trigger("alert", {
   data: {
     alert: { id: alert.id, channels: alert.channels },
