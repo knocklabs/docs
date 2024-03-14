@@ -20,7 +20,7 @@ You'll also need the following data to use in your SlackKit components:
 - Tenant ID
 - Recipient Object ID & collection
 
-## Set up data
+### Required credentials
 
 Here's where to find each setup data variable and a recommendation of how to make it available to your client application.
 
@@ -45,9 +45,25 @@ This is a token [you will generate](/integrations/chat/slack-kit/resource-access
 - **Find it:** Token generated for the user from your application.
 - **Store it** in local storage for your user.
 
+### Knock entities
+
+SlackKit uses parts of Knock's data model to facilitate OAuth and channel selection using the React components outlined below.
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <strong>Note: </strong>
+      If this is the first time you've thought about objects and tenants in Knock,
+      we'd recommend reviewing how they work with SlackKit on the <a href="/integrations/chat/slack-kit/overview">
+        integration overview page
+      </a> before proceeding.
+    </>
+  }
+/>
 #### Tenant ID
 
-This is the ID of the [tenant](/concepts/tenants) that will be storing the Slack access token. You will want one tenant per Slack workspace, which is generally one per organization you support. You will use this tenant to trigger notifications for the Slack workflow so your channels all have the same access token.
+This is the ID of the [tenant](/concepts/tenants) that will be storing the Slack access token. You will want one tenant per Slack workspace, which is generally one per customer you support. You will use this tenant to trigger notifications for the Slack workflow so your channels all have the same access token.
 
 <Callout
   emoji="💡"
@@ -61,7 +77,7 @@ This is the ID of the [tenant](/concepts/tenants) that will be storing the Slack
   }
 />
 
-- **Find it:** You can generate a tenant ID based on your user's organization. For example, if your user is part of the Jurassic Park organization, you could create a tenant ID of `jurassic-park`.
+- **Find it:** In most cases, you should use the UUID that represents your user's organization in your system. For example, if your user is part of the Jurassic Park organization, you could create a tenant ID of `jurassic-park`.
 - **Store it:** This tenant ID should either be stored in or generated from data about the organization you support here.
 
 #### Recipient object ID and collection
@@ -91,7 +107,7 @@ Once you've provided access to the necessary data, you can drop Knock's pre-buil
 
 In order to give your components the data they need, they must be wrapped in the `KnockSlackProvider`. We recommend putting this high in your component tree so that any Slack components that you use will be rendered within it. The Slack provider goes inside of the `KnockProvider`. Your hierarchy will look like this:
 
-```javascript
+```javascript title="Wrap your UI components in data providers"
 <KnockProvider
     apiKey="Public API key"
     userId="User ID"
@@ -114,7 +130,7 @@ The `KnockSlackProvider` gives your components access to the status of the conne
 
 Your users will give your Slack app access to their own Slack workspaces via the `SlackAuthButton`. This button can be used on its own, or nested in the `SlackAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
 
-```javascript
+```javascript title="Initiate OAuth and display auth state with SlackAuthButton"
 // Without container
 <SlackAuthButton
     slackClientId="Slack app client ID"
@@ -144,7 +160,7 @@ The combobox has an option to show connected channels below it, which is a list 
 
 Add your combobox to your application where you'd like the user to select channels to notify:
 
-```javascript
+```javascript title="The SlackChannelCombobox connects an object to one or more channels"
 <SlackChannelCombobox
   slackChannelsRecipientObject={{
     id: "object id",
@@ -183,7 +199,7 @@ Add your combobox to your application where you'd like the user to select channe
 
 Here's an example of these components in a React application.
 
-```javascript
+```javascript title="Store Knock and Slack credentials as .env vars"
 // .env
 
 KNOCK_PUBLIC_API_KEY = "pk_test_12345";
@@ -194,7 +210,7 @@ SLACK_APP_CLIENT_ID = "1354596639525.6166309709204";
 
 <br />
 
-```javascript // index.tsx
+```javascript title="Providers wrap your UI components"
 <KnockProvider
   apiKey={process.env.KNOCK_PUBLIC_API_KEY}
   userId={currentUser.id}
@@ -212,7 +228,7 @@ SLACK_APP_CLIENT_ID = "1354596639525.6166309709204";
 
 <br />
 
-```javascript NotificationSettings
+```javascript title="Render your SlackAuthButton inside of KnockSlackProvider"
 const NotificationSettings = () => {
   return (
     <SlackAuthContainer
@@ -229,7 +245,7 @@ const NotificationSettings = () => {
 
 <br />
 
-```javascript VideoProjectsPage & VideoPage
+```javascript title="Render a SlackChannelCombobox for each object"
 
 const VideoProjectsPage = ({videos}) => {
     return (
@@ -281,7 +297,7 @@ We'll combine our data to create a list of channels that has a name and an `isPr
 
 Here's some sample code for our final list:
 
-```javascript
+```javascript title="Fetch Slack channels without the SlackChannelCombobox"
 import {
   useConnectedSlackChannels,
   useSlackChannels,
