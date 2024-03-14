@@ -88,7 +88,7 @@ You should consider using this in areas where you update your local user's state
 
 **Example**
 
-```swift
+```swift title="Signing user into Knock instance"
 import Knock
 
 await Knock.shared.signIn(userId: "your-user-id", userToken: "your-user-token")
@@ -431,7 +431,7 @@ Creates a new instance of a `FeedManager` for interacting with a user's in-app n
 
 **Example**
 
-```swift
+```swift title="Creating a Knock.FeedManager"
 import Knock
 
 Knock.shared.feedManager = try? await Knock.FeedManager(feedId: "in-app-channel-id", options: FeedClientOptions(archived: .exclude))
@@ -470,7 +470,7 @@ Binds an event listener for incoming web socket events. Must have called `connec
 
 **Example**
 
-```swift
+```swift title="Listen to incoming feed messages"
 Knock.shared.feedManager.on(eventName: "new-message") { _ in
   // Do something with the new incoming feed message; likely need to refetch the feed contents
   feedManager.getUserFeedContent(options: options) { result in
@@ -501,7 +501,30 @@ Retrieves the user's feed content for the feed. Can be scoped by passing `option
 
 **Returns** `Knock.Feed`
 
-### `Knock.shared.feedManager.makeBulkStatusUpdate()`
+**Example**
+
+```swift title="Fetching user feed content"
+import Knock
+
+knockClient = try! Knock(publishableKey: "your-pk", userId: "user-id")
+feedManager = Knock.FeedManager(client: knockClient!, feedId: "in-app-channel-id")
+
+feedManager?.getUserFeedContent() { result in
+  switch result {
+  case .success(let feed):
+      // Do something with the returned feed
+  case .failure(let error):
+      print(error.localizedDescription)
+  }
+}
+
+```
+
+---
+
+### `makeBulkStatusUpdate`
+
+> > > > > > > ab474ac00759aa1930da874a9285c0d2279436c1
 
 Updates all of the items within the feed with the given status. Can be passed `options` to scope the request further. Note: this method returns a `BulkUpdate` via the Knock API, which is an async operation.
 

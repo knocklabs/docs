@@ -142,7 +142,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
   useEffect(() => {
     // When the language changes, notify any other components currently rendered
     eventEmitter.emit(EVENT_NAME, language);
-  }, [language]);
+  }, [language, eventEmitter]);
 
   const content = useMemo(() => {
     const snippetCode = snippets[snippet];
@@ -158,7 +158,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
         mdxType: "code",
       },
     };
-  }, [language, snippet]);
+  }, [language, snippet, title]);
 
   if (!isMounted) return null;
 

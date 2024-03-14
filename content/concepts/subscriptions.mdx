@@ -36,7 +36,7 @@ Subscribing a recipient to an object creates an `ObjectSubscription` entity desc
 
 You can subscribe up to 100 recipients to an object at a time by passing one or more `RecipientIdentifiers`. There is no limit to the number of recipients you can subscribe to an object.
 
-```javascript Subscribing multiple recipients to an object
+```javascript title="Subscribing multiple recipients to an object"
 await knock.objects.addSubscriptions("project_alerts", "project-1", {
   recipients: ["esattler", "dnedry"],
   properties: {
@@ -47,7 +47,7 @@ await knock.objects.addSubscriptions("project_alerts", "project-1", {
 
 Similar to workflow triggers, you can inline identify recipients while subscribing them to an object.
 
-```javascript Identifying users while subscribing them to an object
+```javascript title="Identifying users while subscribing them to an object"
 await knock.objects.addSubscriptions("project_alerts", "project-1", {
   recipients: [
     {
@@ -71,7 +71,7 @@ await knock.objects.addSubscriptions("project_alerts", "project-1", {
 
 To remove one or more recipients (up to 100) from an object, you can pass a list of recipient identifiers.
 
-```javascript Triggering a workflow for all subscribers of an object
+```javascript title="Triggering a workflow for all subscribers of an object"
 await knock.objects.removeSubscriptions("project_alerts", "project-1", {
   recipients: ["esattler", "dnedry"],
 });
@@ -81,7 +81,7 @@ await knock.objects.removeSubscriptions("project_alerts", "project-1", {
 
 By default when you trigger a workflow for an object that has subscriptions attached Knock will fan out to all subscribers and enqueue a new workflow run for that recipient, with the information passed into the workflow trigger.
 
-```javascript Triggering a workflow for all subscribers of an object
+```javascript title="Triggering a workflow for all subscribers of an object"
 await knock.workflows.trigger("alert-workflow", {
   recipients: [{ collection: "project_alerts", id: "project-1" }],
   data: {
@@ -94,7 +94,7 @@ await knock.workflows.trigger("alert-workflow", {
 
 You can retrieve a paginated list of subscriptions for an object, which will return the `recipient` subscribed as well.
 
-```javascript Retrieving a paginated list of subscriptions for an object
+```javascript title="Retrieving a paginated list of subscriptions for an object"
 const { entries, page_info: pageInfo } = await knock.objects.listSubscriptions(
   "project_alerts",
   "project-1",
@@ -106,7 +106,7 @@ const { entries, page_info: pageInfo } = await knock.objects.listSubscriptions(
 
 You can retrieve a paginated list of active subscriptions for a user, which will return the `object` that the user is subscribed to as well.
 
-```javascript Retrieving a paginated list of subscriptions for a user
+```javascript title="Retrieving a paginated list of subscriptions for a user"
 const { entries, page_info: pageInfo } = await knock.users.getSubscriptions(
   "user-1",
   { after: null },
@@ -123,7 +123,7 @@ As an example, if you have a property `role` under your subscription properties,
 
 It's possible to model nested subscription hierarchies by associating child objects as subscribers of a parent object. This allows you to create structures like "organizations" having many "teams" which have many "team members" (users).
 
-```javascript Adding child objects as subscribers of a parent object
+```javascript title="Adding child objects as subscribers of a parent object"
 await knock.objects.addSubscriptions("organizations", "org-1", {
   recipients: [
     { collection: "teams", id: "team-1", name: "Org 1, Team 1" },
