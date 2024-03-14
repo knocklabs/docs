@@ -36,7 +36,6 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/translations", title: "Translations" },
       { slug: "/conditions", title: "Conditions" },
       { slug: "/variables", title: "Variables" },
-      { slug: "/send-windows", title: "Send Windows" },
     ],
   },
   {
@@ -52,6 +51,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/throttle-function", title: "Throttle function" },
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
+      { slug: "/send-windows", title: "Send Windows" },
       {
         title: "Template editor",
         slug: "/template-editor",
