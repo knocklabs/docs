@@ -18,7 +18,7 @@ In Knock, we’ll model this as follows:
 
 First we’ll upsert the project as an object in Knock. We’re putting the project under a `projects` collection.
 
-```js Upsert our project object
+```js title="Upsert our project object"
 const project = await knock.objects.set("projects", "project-1", {
   name: "My project",
 });
@@ -26,7 +26,7 @@ const project = await knock.objects.set("projects", "project-1", {
 
 Now, when a customer creates or updates a webhook in our system we’ll upsert a corresponding `project_webhooks` object and associate it back to the project object via a subscription.
 
-```js Creating a webhook object and subscribing it to our project object
+```js title="Creating a webhook object and subscribing it to our project object"
 // Generate a webhook ID
 const webhookId = "some-unique-id";
 
@@ -44,7 +44,7 @@ await knock.objects.addSubscriptions("projects", "project-1", {
 
 If at any point we need to list all of the configured webhooks for a given project, we can do so by listing the subscriptions for the project:
 
-```js List webhooks for a given project
+```js title="List webhooks for a given project"
 const { entries: webhookSubscriptions } = await knock.objects.listSubscriptions(
   "projects",
   "project-1",
@@ -61,7 +61,7 @@ Next, we’ll configure the webhook request for our new webhook channel. For the
 
 And for the body of the payload that we send per webhook event, we’ll use the following template:
 
-```js Configure the webhook channel payload
+```js title="Configure the webhook channel payload"
 {
   "type": "{{ event_type }}",
   "data": {{ payload }},
@@ -87,7 +87,7 @@ We don’t need to customize any of the data sent in the webhook channel, so we 
 
 Now our workflow is configured, we can trigger it via the API. We’ll pass the `project` as a recipient to the workflow, which will automatically trigger our workflow to execute _for all webhooks configured_.
 
-```js Trigger workflow for our project
+```js title="Trigger workflow for our project"
 await knock.workflows.trigger("workflow-with-webhook-step", {
   data: {
     event_type: eventType,
