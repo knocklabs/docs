@@ -271,6 +271,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/roles-and-permissions", title: "Roles and permissions" },
       { slug: "/audit-logs", title: "Audit logs" },
       { slug: "/data-obfuscation", title: "Data obfuscation" },
+      { slug: "/account-timezone", title: "Account timezone" },
     ],
   },
 
