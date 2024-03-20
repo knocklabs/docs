@@ -226,8 +226,8 @@ const sidebarContent: SidebarSection[] = [
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/quick-start", title: "Quick start" },
-          { slug: "/push-notifications", title: "Handling push notifications" },
-          { slug: "/deep-links", title: "Handling deep/universal links" },
+          { slug: "/push-notifications", title: "Push notifications" },
+          { slug: "/deep-links", title: "Deep/universal links" },
           { slug: "/reference", title: "API reference" },
         ],
       },
