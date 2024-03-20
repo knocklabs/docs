@@ -1,0 +1,117 @@
+---
+description: Usage guides to help you get started with deep/universal linking in the iOS Knock SDK.
+section: SDKs
+---
+
+**Note:** We Recommend taking advantage of our [KnockAppDelegate](/sdks/ios/reference#knockappdelegate) to make handling deep links simpler.
+
+### **Deep Links:**
+
+1. **Define URL Schemes:**
+
+   - In Xcode, navigate to your app target's **Info** tab.
+   - Add a new URL type under **URL Types** with a unique scheme.
+
+   ![Xcode Project Info](/images/xcode-project-info.png)
+
+2. **Include a deep link in your Knock message payload:**
+
+   - In you message payload that you send to Knock, include a property with a value of your deep link. The name of the property doesn't matter, so long as you know beforehand what it will be called.
+   - This can also be done in your Knock Dashboard in your [Payload overrides](https://docs.knock.app/integrations/push/overview#push-overrides).
+
+   ![Deep link payload override](/images/deep-link-payload-override.png)
+
+3. **Handle Incoming URLs:**
+
+   - To handle a push notification being tapped while the app is closed:
+
+   **KnockAppDelegate:**
+
+   ```swift
+   class MyAppDelegate: KnockAppDelegate {
+        override func pushNotificationTapped(userInfo: [AnyHashable : Any]) {
+            super.pushNotificationTapped(userInfo: userInfo)
+            if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+                UIApplication.shared.open(url)
+            }
+        }
+   }
+   ```
+
+   **Manually:**
+
+   ```swift
+   class MyAppDelegate: UIResponder, UIApplicationDelegate {
+        open func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+            // Check if launched from the tap of a notification
+            if let launchOptions = launchOptions, let userInfo = launchOptions[.remoteNotification] as? [String: AnyObject] {
+                // retrieve url
+                if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            return true
+        }
+   }
+   ```
+
+   ***
+
+   - To handle a push notification being tapped while the app is in the foreground or background:
+
+   **KnockAppDelegate:**
+
+   ```swift
+    class MyAppDelegate: KnockAppDelegate {
+        override func pushNotificationTapped(userInfo: [AnyHashable : Any]) {
+            super.pushNotificationTapped(userInfo: userInfo)
+            if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+                UIApplication.shared.open(url)
+            }
+        }
+   }
+   ```
+
+   **Manually:**
+
+   ```swift
+   class MyAppDelegate: UIResponder, UIApplicationDelegate {
+        open func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+            if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+                UIApplication.shared.open(url)
+            }
+            completionHandler()
+        }
+   }
+   ```
+
+---
+
+### **Universal Links:**
+
+1. **Enable Associated Domains:**
+
+   - Add the **Associated Domains** capability in your app target's **Signing & Capabilities** tab.
+   - Add your domain in the format **`applinks:yourdomain.com`**.
+
+2. **Handle Incoming Links:**
+
+   - Implement **`application(_:continue:restorationHandler:)`** in your AppDelegate or SceneDelegate.
+
+   ```swift
+   func application(_ application: UIApplication, continue userActivity: NSUserActivity,
+                     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+            if let incomingURL = userActivity.webpageURL {
+                // Handle the incoming URL appropriately
+            }
+        }
+        return true
+    }
+   ```
+
+3. **Server Configuration:**
+
+   - Ensure your server hosts an Apple App Site Association (AASA) file at **`https://yourdomain.com/.well-known/apple-app-site-association`**.
+
+For more detailed instructions on configuring universal links, visit [Apple's Official Documentation](https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app).

@@ -10,6 +10,52 @@ In this section, you'll find the documentation for the classes and methods avail
 
 The top-level Knock class. This is a shared instance to interact with the SDK's API methods.
 
+### `KnockAppDelegate`
+
+This class serves as an optional base class designed to streamline the integration of Knock into your application. By inheriting from KnockAppDelegate in your AppDelegate, you gain automatic handling of Push Notification registration and device token management, simplifying the initial setup process for Knock's functionalities.
+
+The class also provides a set of open helper functions that are intended to facilitate the handling of different Push Notification events such as delivery in the foreground, taps, and dismissals. These helper methods offer a straightforward approach to customizing your app's response to notifications, ensuring that you can tailor the behavior to fit your specific needs.
+
+Override any of the provided methods to achieve further customization, allowing you to control how your application processes and reacts to Push Notifications. Additionally, by leveraging this class, you ensure that your app adheres to best practices for managing device tokens and interacting with the notification system on iOS, enhancing the overall reliability and user experience of your app's notification features.
+
+Key Features:
+
+- Automatic registration for remote notifications, ensuring your app is promptly set up to receive and handle Push Notifications.
+- Simplified device token management, with automatic storage of the device token, facilitating easier access and use in Push Notification payloads.
+- Customizable notification handling through open helper functions, allowing for bespoke responses to notification events such as foreground delivery, user taps, and dismissal actions.
+- Automatic message status updates, based on Push Notification interaction.
+
+```swift
+import UIKit
+import Knock
+
+class AppDelegate: KnockAppDelegate {
+
+    override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        Task {
+            try? await Knock.shared.setup(publishableKey: "your-publishableKey", pushChannelId: "your-apns-channel-id")
+        }
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+
+    override func pushNotificationTapped(userInfo: [AnyHashable : Any]) {
+        super.pushNotificationTapped(userInfo: userInfo)
+        if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    override func pushNotificationDeliveredInForeground(notification: UNNotification) -> UNNotificationPresentationOptions {
+        let options = super.pushNotificationDeliveredInForeground(notification: notification)
+        return [options]
+    }
+
+    override func pushNotificationDeliveredSilently(userInfo: [AnyHashable : Any], completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        completionHandler(.noData)
+    }
+}
+```
+
 ### `Knock.shared.setup()`
 
 Sets up the shared Knock instance. Make sure to call this as soon as you can. Preferrably in your AppDelegate.
@@ -523,8 +569,6 @@ feedManager?.getUserFeedContent() { result in
 ---
 
 ### `makeBulkStatusUpdate`
-
-> > > > > > > ab474ac00759aa1930da874a9285c0d2279436c1
 
 Updates all of the items within the feed with the given status. Can be passed `options` to scope the request further. Note: this method returns a `BulkUpdate` via the Knock API, which is an async operation.
 
