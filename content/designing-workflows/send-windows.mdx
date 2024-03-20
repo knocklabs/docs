@@ -1,0 +1,44 @@
+---
+title: Send windows
+description: Learn how to control when notifications are delivered using send windows.
+tags: ["send windows", "steps", "channels", "workflows"]
+section: Designing workflows
+---
+
+You can use send windows to specify when a channel step should send a message. For example, if you want to ensure your customers don’t receive a given transactional email from your product outside of working hours, you can set send windows for Monday - Friday, between 9:00 a.m. and 6:00 p.m. local user time.
+
+Send windows are evaluated using the recipient's local time, specified by the user `timezone` [property](/concepts/users#optional-attributes). If the user's timezone is not set, the [account default timezone](/manage-your-account/account-timezone) will be used.
+
+## Modeling send windows
+
+Knock models send windows as a list of send window objects. Each day must have 1 send window specified.
+
+The send window object has the following properties:
+
+| Property | Description                                                                                                                                      |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `day`    | Day of the week. One of: ”monday”, ”tuesday”, ”wednesday”, ”thursday”, ”friday”, ”saturday”, ”sunday”.                                           |
+| `type`   | Whether notifications should be sent or not sent for this send window. One of: ”send”, ”do_not_send”.                                            |
+| `from`   | An optional ISO-8601 time-only format string specifying the start of the window (defaults to 00:00:00). Only supported if type is set to ”send”. |
+| `until`  | An optional ISO-8601 time-only format string specifying the end of the window (defaults to end of day). Only supported if type is set to ”send”. |
+
+In our JSON representation this will look something like:
+
+```json title="Example send window"
+{
+  "day": "monday",
+  "type": "send",
+  "from": "09:00:00",
+  "until": "17:00:00"
+}
+```
+
+## The send windows editor
+
+When creating or modifying a channel step, you can use the send window editor to configure send windows.
+
+You can use it to configure whether notifications should be sent on a given day or not. If notifications are enabled for a day of the week, you can also specify the time range they should be sent.
+
+![Send windows editor](/images/notifications/send-windows-editor.png)
+
+<figcaption style={{ marginTop: "-12px" }}>Send windows editor</figcaption>

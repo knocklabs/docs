@@ -330,6 +330,11 @@ Contains all properties of the `WorkflowStep` and additionally:
     type="object"
     description="The message template set up with the channel step. The shape of the template depends on the type of the channel you'll be sending to. See below for definitions."
   />
+  <Attribute
+    name="send_windows"
+    type="SendWindow[]"
+    description="A list of send window objects. Must include one send window object per day of the week."
+  />
 </Attributes>
 
 #### Email template attributes
@@ -545,6 +550,66 @@ Contains all properties of the `WorkflowStep` and additionally:
     "markdown_body": "Hello **{{ recipient.name }}**."
   },
   "type": "channel"
+}
+```
+
+</ExampleColumn>
+</div>
+
+<div className="flex flex-col md:flex-row w-full py-16">
+<ContentColumn>
+
+## SendWindow definition
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="day"
+    type="string"
+    description="Day of the week. One of: ”monday”, ”tuesday”, ”wednesday”, ”thursday”, ”friday”, ”saturday”, ”sunday”."
+  />
+  <Attribute
+    name="type"
+    type="string"
+    description="Whether notifications should be sent or not sent for this send window. One of: ”send”, ”do_not_send”."
+  />
+  <Attribute
+    name="from"
+    type="string"
+    description="An optional ISO-8601 time-only format string specifying the start of the window (defaults to 00:00:00). Only supported if type is set to ”send”."
+  />
+  <Attribute
+    name="until"
+    type="string"
+    description="An optional ISO-8601 time-only format string specifying the end of the window (defaults to end of day). Only supported if type is set to ”send”."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json Example send window
+{
+  "day": "monday",
+  "type": "send",
+  "from": "09:00:00",
+  "until": "17:00:00"
+}
+```
+
+```json Example send window
+{
+  "day": "tuesday",
+  "type": "send",
+  "from": "10:15:00"
+}
+```
+
+```json Example send window
+{
+  "day": "saturday",
+  "type": "do_not_send"
 }
 ```
 
