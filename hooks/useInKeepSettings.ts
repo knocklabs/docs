@@ -1,0 +1,61 @@
+import type {
+  InkeepAIChatSettings,
+  InkeepSearchSettings,
+  InkeepWidgetBaseSettings,
+  InkeepModalSettings,
+} from "@inkeep/widgets";
+
+type InkeepSharedSettings = {
+  baseSettings: InkeepWidgetBaseSettings;
+  aiChatSettings: InkeepAIChatSettings;
+  searchSettings: InkeepSearchSettings;
+  modalSettings: InkeepModalSettings;
+};
+
+const useInkeepSettings = (): InkeepSharedSettings => {
+  const baseSettings: InkeepWidgetBaseSettings = {
+    apiKey: process.env.NEXT_PUBLIC_INKEEP_API_KEY || "",
+    integrationId: process.env.NEXT_PUBLIC_INKEEP_INTEGRATION_ID || "",
+    organizationId: process.env.NEXT_PUBLIC_INKEEP_ORGANIZATION_ID || "",
+    primaryBrandColor: "#262626",
+    organizationDisplayName: "Knock",
+  };
+
+  const modalSettings: InkeepModalSettings = {
+    // optional settings
+  };
+
+  const searchSettings: InkeepSearchSettings = {
+    // optional settings
+  };
+
+  const aiChatSettings: InkeepAIChatSettings = {
+    // optional settings
+    botAvatarSrcUrl: "https://knock.app/favicon/favicon-dark.svg",
+    getHelpCallToActions: [
+      {
+        name: "Contact Us",
+        url: "mailto:hello@knock.app",
+        icon: {
+          builtIn: "IoChatbubblesOutline",
+        },
+      },
+      {
+        name: "Ask on Slack",
+        url: "https://knock.app/join-slack",
+        icon: {
+          builtIn: "FaSlack",
+        },
+      },
+    ],
+    quickQuestions: [
+      "How do I manage user notification preferences?",
+      "How would I schedule two notifications to be 1 hour apart?",
+      "How can I monitor the delivery of a notification?",
+    ],
+  };
+
+  return { baseSettings, aiChatSettings, searchSettings, modalSettings };
+};
+
+export default useInkeepSettings;
