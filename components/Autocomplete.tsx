@@ -9,7 +9,13 @@ import {
 } from "@algolia/autocomplete-preset-algolia";
 import algoliasearch from "algoliasearch/lite";
 
-import React, { useMemo, useState, useRef, useEffect } from "react";
+import React, {
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -18,6 +24,17 @@ import { useHotkeys } from "react-hotkeys-hook";
 import "@algolia/autocomplete-theme-classic";
 
 import { IoIosSearch } from "react-icons/io";
+import { InkeepCustomTriggerProps } from "@inkeep/widgets";
+
+const InKeepTrigger = dynamic(
+  () => import("@inkeep/widgets").then((mod) => mod.InkeepCustomTrigger),
+  {
+    ssr: false,
+  },
+) as any;
+
+import useInkeepSettings from "../hooks/useInKeepSettings";
+import dynamic from "next/dynamic";
 
 // This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
@@ -33,6 +50,32 @@ const highlightingStyles = {
   color: "#485CC7",
   fontWeight: 600,
   background: "transparent",
+};
+
+const AiLauncher = ({ searchTerm }) => {
+  const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
+    useInkeepSettings();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleClose = useCallback(() => setIsOpen(false), []);
+
+  const inkeepCustomTriggerProps: InkeepCustomTriggerProps = {
+    isOpen,
+    onClose: handleClose,
+    baseSettings,
+    aiChatSettings,
+    modalSettings,
+    searchSettings: { ...searchSettings, prefilledQuery: searchTerm },
+  };
+
+  return (
+    <>
+      <Link href="#" className="text-brand" onClick={() => setIsOpen(true)}>
+        Ask AI ✨
+      </Link>
+      <InKeepTrigger {...inkeepCustomTriggerProps} />
+    </>
+  );
 };
 
 const Highlight = ({ hit, attribute }) => (
@@ -151,6 +194,7 @@ const Autocomplete = () => {
   const formProps: unknown = autocomplete.getFormProps({
     inputElement: inputRef.current,
   });
+
   const inputProps: unknown = autocomplete.getInputProps({
     inputElement: inputRef.current,
     placeholder: "Search the docs...",
@@ -214,9 +258,10 @@ const Autocomplete = () => {
                     ))}
                   </ul>
                 ) : (
-                  <span className="text-gray-400 dark:text-gray-200 font-medium p-4 text-[14px]">
-                    No results
-                  </span>
+                  <div className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium ">
+                    <span className="inline-block">No matching results.</span>{" "}
+                    <AiLauncher searchTerm={(inputProps as any).value} />
+                  </div>
                 )}
               </div>
             );

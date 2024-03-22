@@ -21,7 +21,7 @@ function AiChatButton() {
     modalSettings,
   };
 
-  return <ChatButton {...chatButtonProps} />;
+  return <ChatButton {...chatButtonProps} stylesheetUrls={["/inkeep.css"]} />;
 }
 
 export default AiChatButton;
