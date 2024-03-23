@@ -60,7 +60,7 @@ KnockClient client = KnockClient.builder()
     .apiKey("sk_12345")
     .build();
 
-UserIdentity user = client.users().identify(user.getId(), "user-to-merge-from");
+UserIdentity user = client.users().merge(user.getId(), "user-to-merge-from");
 `,
 };
 
