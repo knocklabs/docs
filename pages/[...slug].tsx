@@ -25,6 +25,8 @@ import CopyableText from "../components/CopyableText";
 import { Card, CardGroup } from "../components/Card";
 import { SdkCard, SdkCardGroup } from "../components/SdkCard";
 import { Endpoints, Endpoint } from "../components/Endpoints";
+import { AccordionGroup, Accordion } from "../components/Accordion";
+import { Steps, Step } from "../components/Step";
 import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../content/integrations/extensions/new_relic_dashboard.json";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
@@ -64,6 +66,10 @@ const components = {
   CardGroup,
   SdkCard,
   SdkCardGroup,
+  AccordionGroup,
+  Accordion,
+  Steps,
+  Step,
 };
 
 export default function ContentPage({ source, sourcePath }) {
