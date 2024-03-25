@@ -57,13 +57,13 @@ When sending a notification to APNS, we also pass through the following attribut
 
 ## Silent/background notifications
 
-We support sending [APNS notifications as "silent", data-only notifications](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/pushing_background_updates_to_your_app) within Knock. You can enable this per push notification template under the 3-dot menu in the header of the template editor.
+We support sending [APNS notifications as "silent", data-only notifications](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/pushing_background_updates_to_your_app) within Knock. You can enable this per push notification template by tapping the 'Manage template settings' button in the header of the template editor, and then toggling on the "Send as a silent notification" option.
 
 When silent push is enabled, we'll no longer pass through the content payload and your message will be sent with the `content-available: 1` flag as expected by APNS. All properties in the data payload described above will be sent with your notification.
 
 ## Using overrides to customize notifications
 
-We have full support for overriding the payload sent to APNS for adding things like badge counts, extra data properties, and sound files. You can set the push overrides on the template settings modal, open it by clicking on the "Manage template settings" button. Push overrides support liquid for injecting data properties and referencing attributes on your recipients.
+We have full support for overriding the payload sent to APNS for adding things like badge counts, extra data properties, and sound files. You can set the push overrides on the template settings modal, open it by clicking on the "Manage template settings" button. Push overrides support liquid for injecting data properties and referencing attributes on your recipients. 
 
 See the [APNS documentation for details](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification).
 
@@ -73,6 +73,12 @@ See the [APNS documentation for details](https://developer.apple.com/documentati
 | aps      | dictionary | Overrides to send to the push payload (`sound`, `alert`, `badge`, `thread-id`)                                 |
 | any      | any        | Any other key values to send as part of the push message                                                       |
 
+## Deep Links and Universal Links Integration
+
+Our system also supports the integration of deep links and [universal links](https://developer.apple.com/ios/universal-links/) within your push notifications, catering to your specific routing strategies. To incorporate these links, simply include them in the payload overrides section as previously mentioned. This feature ensures seamless navigation and enhances user engagement by directing users to specific content or pages within your app directly from the notification.
+
+![Manage template settings](/images/integrations/push/manage-template-settings.png)
+
 ## Channel data requirements
 
 In order to use a configured APNS channel you must store a list of one or more device tokens for the user or the object that you wish to deliver a notification to. You can retrieve a device token by following the guide on the [Apple developer documentation](https://developer.apple.com/documentation/usernotifications/registering_your_app_with_apns).
@@ -80,3 +86,18 @@ In order to use a configured APNS channel you must store a list of one or more d
 | Property | Type     | Description               |
 | -------- | -------- | ------------------------- |
 | tokens\* | string[] | One or more device tokens |
+
+## Important Considerations
+
+1. All data included in the sender's message payload will be accessible to the client receiving the push notification.
+2. Apple imposes a limit of 256 bytes for the total APNS payload. Notifications exceeding this size will not be delivered.
+
+## Debugging
+
+If you've followed all setup steps but still aren't receiving notifications on your device, consider the following:
+1. Verify your APNS Channel configuration, particularly, which `Application Mode` you have selected.
+    - Select `Production` for builds distributed through the App Store and TestFlight. Choose `Sandbox` for builds compiled via Xcode.
+    ![Manage template settings](/images/integrations/push/apns-configuration.png)
+2. Utilize [Apple's Push Notification Console](https://developer.apple.com/documentation/usernotifications/testing_notifications_using_the_push_notification_console) to dispatch test notifications to your app directly.
+    - Successfully receiving a test notification from this console indicates a potential issue with your APNS configuration in Knock.
+    - If a test notification fails to reach your device, it suggests a problem with the APNS setup within your app, or an error in the creation of your token/certificate.
