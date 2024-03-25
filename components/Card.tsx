@@ -2,10 +2,10 @@ import { ReactElement } from "react";
 import clsx from "classnames";
 
 type Props = {
-  icon: ReactElement;
+  emoji?: string;
   title: string;
   linkUrl: string;
-  footer: ReactElement;
+  footer?: ReactElement;
 };
 
 const CardGroup = ({ children, cols = 2 }) => (
@@ -29,9 +29,9 @@ const Card: React.FC<Props> = ({ emoji, title, children, footer, linkUrl }) => (
           <span className="text-brand text-[14px] font-semibold">{title}</span>
         </div>
 
-        <div className="not-prose text-[14px]">{children}</div>
+        {children && <div className="not-prose text-[14px]">{children}</div>}
 
-        <div className="flex items-center">{footer}</div>
+        {footer && <div className="flex items-center">{footer}</div>}
       </>
     </a>
   </div>
