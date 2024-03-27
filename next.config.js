@@ -279,6 +279,11 @@ const nextConfig = {
         destination: "/developer-tools/knock-and-postman",
         permanent: false,
       },
+      {
+        source: "/getting-started/security",
+        destination: "/developer-tools/security",
+        permanent: false,
+      },
     ];
   },
 };

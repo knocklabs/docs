@@ -10,7 +10,6 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/how-knock-works", title: "How Knock works" },
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/example-app", title: "Example apps" },
-      { slug: "/security", title: "Security", path: "/security" },
     ],
   },
   {
@@ -191,6 +190,7 @@ const sidebarContent: SidebarSection[] = [
       },
       { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
+      { slug: "/security", title: "Security", path: "/security" },
     ],
   },
 
