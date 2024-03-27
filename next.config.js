@@ -269,6 +269,11 @@ const nextConfig = {
         destination: "/sdks/:sdk/reference",
         permanent: false,
       },
+      {
+        source: "/getting-started/going-to-production",
+        destination: "/guides/going-to-production",
+        permanent: false,
+      },
     ];
   },
 };

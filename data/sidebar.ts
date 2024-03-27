@@ -12,7 +12,6 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/example-app", title: "Example apps" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
       { slug: "/security", title: "Security", path: "/security" },
-      { slug: "/going-to-production", title: "Going to production" },
     ],
   },
   {
@@ -295,6 +294,7 @@ const sidebarContent: SidebarSection[] = [
         slug: "/building-recurring-digests",
         title: "Recurring digests",
       },
+      { slug: "/going-to-production", title: "Going to production" },
     ],
   },
 ];
