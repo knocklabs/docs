@@ -1,6 +1,6 @@
 import clsx from "classnames";
 import { useState } from "react";
-import { IoChevronDown } from "react-icons/io5";
+import { IoChevronForward } from "react-icons/io5";
 
 const AccordionGroup = ({ children }) => (
   <div
@@ -26,10 +26,14 @@ const Accordion = ({ children, title, description, defaultOpen = false }) => {
         onClick={() => setOpen(!open)}
         aria-controls={title + "Children"}
         aria-expanded={open}
-        className="py-4 px-5 space-x-2 hover:bg-gray-100 hover:dark:bg-gray-800 rounded-t-xl w-full flex items-center"
+        className="py-4 px-5 space-x-2 hover:bg-gray-100 hover:dark:bg-gray-800 rounded-t-xl w-full flex items-center transition-colors"
       >
-        <IoChevronDown
-          className={clsx("mr-2 flex-shrink-0", open && "rotate-180")}
+        <IoChevronForward
+          className={clsx(
+            "mr-2 flex-shrink-0 transition-all",
+            !open && "rotate-0",
+            open && "rotate-90",
+          )}
         />
         <div className="leading-tight text-left">
           <span className="block m-0 font-medium text-gray-900 dark:text-gray-200">
