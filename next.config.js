@@ -274,6 +274,11 @@ const nextConfig = {
         destination: "/guides/going-to-production",
         permanent: false,
       },
+      {
+        source: "/getting-started/knock-and-postman",
+        destination: "/developer-tools/knock-and-postman",
+        permanent: false,
+      },
     ];
   },
 };
