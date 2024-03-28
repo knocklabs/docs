@@ -1,0 +1,195 @@
+---
+title: What is Knock?
+description: Learn more about what Knock does and how it helps power your product notifications.
+tags: ["getting started", "explainer", "explained"]
+section: Getting started
+---
+
+Knock is a hosted notifications engine that helps you implement notifications your users will love, without the effort of building and maintaining your own in-house notifications system.
+
+In this overview, we’ll cover some of the foundational concepts of Knock. Knock is designed with both developers and product teams in mind: it’s easy for developers to implement quickly, and simple for less-technical users to maintain with our intuitive dashboard.
+
+<div className="relative h-0" style={{ paddingBottom: "56.25%" }}>
+  <iframe
+    src="https://www.loom.com/embed/2865bc7d3bd04fcea9a527030c0f72b1"
+    frameBorder="0"
+    allowFullScreen
+    className="absolute top-0 left-0 w-full h-full"
+  ></iframe>
+</div>
+## Workflows
+
+Workflows are a foundational concept in Knock. They allow you to easily model complex messaging flows across channels using a variety of logical function steps while respecting a user’s individual preferences. All Knock notifications are sent by triggering a workflow.
+
+<Image
+  src="/images/what-is-knock/workflow-diagram.png"
+  alt="An image of a workflow diagram"
+  width={1356}
+  height={1452}
+  className="rounded-md shadow-sm"
+></Image>
+
+Your application can trigger workflows using our REST API, any one of our available SDKs ( Node.js, .NET, PHP, Go, Elixir, etc.), or by integrating a CDP like Segment as an event source:
+
+```javascript title="Triggering a workflow in Node.js"
+await knock.workflows.trigger("new-comment", {
+  recipients: [
+    {
+      id: "1",
+      name: "John Hammond",
+      email: "hammondj@ingen.net",
+    },
+  ],
+  data: { project_name: "Pteranodon pen repairs" },
+  actor: "3",
+});
+```
+
+Knock processes each workflow run using a combination of the following concepts:
+
+## Recipients
+
+Recipients are in most cases users in your application. As you trigger workflows for recipients, Knock creates a cache of the data needed to notify them on different platforms, like an email address, phone number, avatar URL, or push token. Knock also store custom properties you pass from your application to customize their notifications, like a plan type, user role, or timezone.
+
+```javascript title="An object used to create a User"
+{
+	// Id is a required prop
+	id: "1",
+	// Knock also supports default props for common channels
+	name: "John Hammond",
+	email: "hammondj@ingen.net",
+	phone_number: "555-555-5555",
+	avatar: "https://ingen.net/headshots/hammondj.jpg",
+	timezone: "America/Costa_Rica"
+	// You can add as many custom props as needed. These will be
+	// merged onto the top-level User object
+	properties: {
+		"title": "CEO",
+		"planType": "allAccess",
+		"userType": "admin"
+	}
+}
+```
+
+## Channels
+
+<Image
+  src="/images/what-is-knock/channel-step.png"
+  alt="A Sendgrid channel step"
+  width={682}
+  height={218}
+  className="rounded-md shadow-sm"
+></Image>
+
+Channels in Knock represent a specific provider you have configured to send notifications. You can include channel steps in your workflows to send notifications with the providers you already use in production.
+Knock supports the following channel types and providers:
+
+<AccordionGroup>
+  <Accordion title="Email">
+    Knock supports sending email with AWS SES, Mailersend, Mailgun, Mailjet,
+    Mailtrap, Mandrill, Postmark, Resend, Sendgrid, and Sparkpost.
+  </Accordion>
+  <Accordion title="SMS">
+    To send a notification, a workflow needs at least one [channel
+    step](/designing-workflows/channel-step). To add this step, we'll click
+    “edit steps” to enter the workflow canvas editor. Here we can see a number
+    of steps available for us to add to our workflow, including functions (such
+    as [batch](/designing-workflows/batch-function) and
+    [delay](/designing-workflows/delay-function)) and channels. Choose the
+    delivery channel you'd like to use in your workflow and drag it onto the
+    workflow canvas.
+  </Accordion>
+  <Accordion title="Push">
+    After adding a channel step, we can configure the notification's content by
+    clicking on "Edit template" in the channel's edit step view to see that
+    step's [message template](/designing-workflows/template-editor/overview).
+    The template starts with default copy, so we'll just use that for now.
+  </Accordion>
+  <Accordion title="Chat">
+    Before we leave the workflow canvas and head back to your backend, let’s
+    click on the trigger step to grab a payload data sample to use when we call
+    Knock. This sample payload is auto-generated when you create a workflow
+    within the Knock dashboard. It gives us the JSON blob we'll need to pass
+    through as `data` in our trigger call in order to populate any of the custom
+    properties defined in our workflow.
+  </Accordion>
+  <Accordion title="In-app">
+    Knock provides a real-time in-app feed channel for receiving notifications,
+    along with drop-in components to display them to your users.
+  </Accordion>
+</AccordionGroup>
+
+When a channel step generates a notification as a part of a workflow that’s called a `message`, and Knock allows you to define dynamic message templates using a combination of a drag-and-drop editor and the liquid templating language.
+
+This helps product and marketing teams standardize on one templating system instead of using one syntax for email but another for SMS. It also has the added benefit of lifting these messages out of your codebase so you can iterate quickly on customer communications without a developer.
+
+## Functions
+
+<Image
+  src="/images/what-is-knock/function-step.png"
+  alt="A branch function step"
+  width={654}
+  height={218}
+  className="rounded-md shadow-sm"
+></Image>
+
+Each workflow can combine multiple function steps to model complex logic that creates better notification experiences.
+You can combine the following function steps with any number of channel steps to create great notifications:
+
+- Batch: condense multiple activities into one notification
+  - Ex. Batch all of the comments on this document for one hour and then send one email with all of the activities
+- Delay: wait for a specified duration before proceeding to the next step in a workflow
+  - Ex. Send the new user a follow-up email ten days after they sign-up
+- Branch: use multiple conditions to execute different branches of logic
+  - Ex. If `user.planType === 'pro'` send them email A, else send them email B
+- Throttle: control how many times a user is notified for a particular workflow
+  - Ex. Trigger the `server is down` workflow every minute while the server is down, but only send a max of one email every 5 minutes
+- Fetch: make an HTTP request to an external service and use the returned data in subsequent steps
+  - Ex. Query an MLS API for recent home sales in the user’s zip code and render them in an email
+
+In addition to combining channel steps and function steps to create complex workflows, you can augment these steps with additional logic based on the user recipient, inputs from your application, or the status of previous workflow steps. These are called step conditions.
+
+## Step Conditions
+
+<Image
+  src="/images/what-is-knock/channel-condition.png"
+  alt="A branch function step"
+  width={682}
+  height={296}
+  className="rounded-md shadow-sm"
+></Image>
+
+Step conditions exist across both channel and function steps, and they allow you to conditionally execute steps based on trigger payload data, user properties, or the status of previous steps
+
+- Examples
+  - Only send an email message if an in-app message has not been seen
+  - Only send an in-app notification if `recipient.plan === "pro"`
+  - Only execute a delay step if `delay === true` in the trigger payload
+
+In addition to giving your technical and non-technical users the ability to construct these workflows via a drag-and-drop editor, Knock also enables your users to exercise control over their own notification experience using a flexible preferences model.
+
+## Preferences
+
+In Knock, each workflow run is executed on behalf of a recipient, and each recipient can specify their preferences to receive notifications across a number of different criteria: channel types, individual workflows, and workflow categories.
+
+<Image
+  src="/images/what-is-knock/preferences.png"
+  alt="An image of a preference set"
+  width={1356}
+  height={1452}
+  className="rounded-md"
+></Image>
+
+Application developers have control over how these preference sets are presented to the user and which options to surface, but Knock enforces these preferences during every workflow run automatically.
+
+Let’s take a look at some examples of the different preference types:
+
+- Channel types: channel type preferences correspond to the different channel types outlined above, like email, SMS, or in-app. These preferences let users opt into or out of entire notification channels.
+- Workflows: workflow preferences let users determine whether or not they receive notifications from particular workflows. If your application uses a `new-reply` workflow, someone can disable all notifications from this workflow while leaving all others intact.
+- Workflow categories: these are similar to workflow preferences but apply to a whole category of workflows. If your application had a `collaboration` category, with workflows like `new-reply`, `new-comment`, and `new-suggestion` a user could opt out of this entire category of notifications.
+
+But these preference sets can also be combined to give users more granular options. Knock will examine these user preferences for every workflow run. This means your user only gets notified about the events they care about on the channels they want.
+
+## Next steps
+
+Now that you understand some of the core concepts of Knock, you should be ready to integrate Knock into your own project using our quick start guide.
