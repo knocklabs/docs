@@ -17,5 +17,5 @@ export type SidebarSection = {
   pages:
     | SidebarPage[]
     | SidebarSubsection[]
-    | Array<SidebarPage | SidebarSection>;
+    | Array<SidebarPage | SidebarSubsection>;
 };
