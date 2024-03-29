@@ -168,7 +168,6 @@ const sidebarContent: SidebarSection[] = [
       },
     ],
   },
-
   {
     title: "Developer tools",
     slug: "/developer-tools",
@@ -179,6 +178,9 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/knock-cli", title: "Knock CLI" },
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
+      { slug: "/knock-and-postman", title: "Knock and Postman" },
+      { slug: "/security", title: "Security", path: "/security" },
+      { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
       {
         slug: "/outbound-webhooks",
         title: "Outbound webhooks",
@@ -187,9 +189,6 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/event-types", title: "Event types" },
         ],
       },
-      { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
-      { slug: "/knock-and-postman", title: "Knock and Postman" },
-      { slug: "/security", title: "Security", path: "/security" },
     ],
   },
 
