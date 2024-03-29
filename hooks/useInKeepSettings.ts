@@ -29,6 +29,7 @@ const useInkeepSettings = (): InkeepSharedSettings => {
 
   const modalSettings: InkeepModalSettings = {
     isModeSwitchingEnabled: false,
+    defaultView: "AI_CHAT",
   };
 
   const searchSettings: InkeepSearchSettings = {};
