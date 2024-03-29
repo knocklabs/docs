@@ -2,6 +2,7 @@ export type SidebarPage = {
   slug: string;
   title: string;
   path?: string;
+  pages?: SidebarPage[];
 };
 
 export type SidebarSubsection = {
