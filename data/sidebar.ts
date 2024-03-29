@@ -7,7 +7,6 @@ const sidebarContent: SidebarSection[] = [
     desc: "A technical and non-technical introduction to the basics of Knock, and a step-by-step guide to get you going in minutes.",
     pages: [
       { slug: "/what-is-knock", title: "What is Knock?" },
-      { slug: "/how-knock-works", title: "How Knock works" },
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/example-app", title: "Example apps" },
     ],

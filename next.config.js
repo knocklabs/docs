@@ -284,6 +284,11 @@ const nextConfig = {
         destination: "/developer-tools/security",
         permanent: false,
       },
+      {
+        source: "/getting-started/how-knock-works",
+        destination: "/getting-started/what-is-knock",
+        permanent: false,
+      },
     ];
   },
 };
