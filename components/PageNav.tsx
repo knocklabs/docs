@@ -104,7 +104,7 @@ const PageNav: React.FC<Props> = ({ title, sourcePath }) => {
   return (
     <aside
       className="fixed top-30 pl-5 pb-4 w-64 overflow-y-auto"
-      style={{ height: "calc(100vh - 16.5em)" }}
+      style={{ height: "calc(100vh - 15.8rem)" }}
     >
       <h5 className="text-xs uppercase text-gray-900 dark:text-gray-500 font-semibold tracking-wider mb-3">
         On this page
