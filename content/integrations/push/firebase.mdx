@@ -48,10 +48,38 @@ Knock makes no assumptions about managing your device tokens for you. Meaning if
 
 When sending a notification to FCM, we also pass through the following attributes:
 
-| Property           | Type   | Description                                                                            |
-| ------------------ | ------ | -------------------------------------------------------------------------------------- |
-| knock_message_id\* | string | The message ID of the corresponding Knock message                                      |
-| data \*            | string | Any key/value data passed through in your trigger call, formatted for FCM (as strings) |
+| Property           | Type   | Description                                                                                                                                           |
+| ------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| knock_message_id\* | string | The message ID of the corresponding Knock message                                                                                                     |
+| data\*             | string | Any key/value data passed through in your trigger call, formatted for FCM (all nested objects are flattened, and all values are converted to strings) |
+
+The following example illustrates how Knock will format your trigger data for FCM:
+
+```json
+{
+  "data": {
+    "foo": {
+      "bar": [21, 13, 1],
+      "baz": false
+    },
+    "biz": "abc"
+  }
+}
+```
+
+becomes
+
+```json
+{
+  "data" {
+    "foo.bar.0": "21",
+    "foo.bar.1": "13",
+    "foo.bar.2": "1",
+    "foo.baz": "false",
+    "biz": "abc"
+  }
+}
+```
 
 ## Silent/data notifications
 
@@ -61,7 +89,30 @@ When silent push is enabled, we'll no longer pass through the message payload. A
 
 ## Using overrides to customize notifications
 
-We have full support for overriding the payload sent to FCM for adding things like badge counts, extra data properties, and sound files. You can set the push overrides on the template settings modal, open it by clicking on the "Manage template settings" button. Push overrides support liquid for injecting data properties and referencing attributes on your recipients.
+We have full support for overriding the payload sent to FCM for adding things like badge counts, extra data properties, and sound files. You can set the push overrides on the template settings modal, which is accessed by clicking on the "Manage template settings" button from within the message template editor. Push overrides support liquid for injecting data properties and referencing attributes on your recipients.
+
+By default, payload overrides will be merged into the base data and will not replace other trigger data being passed to FCM. The override also needs to match the format that is expected by FCM, meaning that any custom key-value pairs should be contained inside of a `data` dictionary:
+
+```json
+{
+  "data": {
+    "foo": "bar",
+    "baz": true
+  }
+}
+```
+
+If you want to fully replace the trigger data with your override rather than merge additional properties, you'll also need to set a replace `__strategy__`:
+
+```json
+{
+  "__strategy__": "replace",
+  "data": {
+    "foo": "bar",
+    "baz": true
+  }
+}
+```
 
 See the [FCM documentation for details](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages).
 
