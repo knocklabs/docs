@@ -7,12 +7,8 @@ const sidebarContent: SidebarSection[] = [
     desc: "A technical and non-technical introduction to the basics of Knock, and a step-by-step guide to get you going in minutes.",
     pages: [
       { slug: "/what-is-knock", title: "What is Knock?" },
-      { slug: "/how-knock-works", title: "How Knock works" },
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/example-app", title: "Example apps" },
-      { slug: "/knock-and-postman", title: "Knock and Postman" },
-      { slug: "/security", title: "Security", path: "/security" },
-      { slug: "/going-to-production", title: "Going to production" },
     ],
   },
   {
@@ -172,7 +168,6 @@ const sidebarContent: SidebarSection[] = [
       },
     ],
   },
-
   {
     title: "Developer tools",
     slug: "/developer-tools",
@@ -183,6 +178,9 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/knock-cli", title: "Knock CLI" },
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
+      { slug: "/knock-and-postman", title: "Knock and Postman" },
+      { slug: "/security", title: "Security", path: "/security" },
+      { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
       {
         slug: "/outbound-webhooks",
         title: "Outbound webhooks",
@@ -191,7 +189,6 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/event-types", title: "Event types" },
         ],
       },
-      { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
     ],
   },
 
@@ -294,6 +291,7 @@ const sidebarContent: SidebarSection[] = [
         slug: "/building-recurring-digests",
         title: "Recurring digests",
       },
+      { slug: "/going-to-production", title: "Going to production" },
     ],
   },
 ];

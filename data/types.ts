@@ -14,5 +14,8 @@ export type SidebarSection = {
   title: string | null;
   slug: string;
   desc?: string;
-  pages: SidebarPage[] | SidebarSubsection[];
+  pages:
+    | SidebarPage[]
+    | SidebarSubsection[]
+    | Array<SidebarPage | SidebarSubsection>;
 };

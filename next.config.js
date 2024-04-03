@@ -269,6 +269,26 @@ const nextConfig = {
         destination: "/sdks/:sdk/reference",
         permanent: false,
       },
+      {
+        source: "/getting-started/going-to-production",
+        destination: "/guides/going-to-production",
+        permanent: false,
+      },
+      {
+        source: "/getting-started/knock-and-postman",
+        destination: "/developer-tools/knock-and-postman",
+        permanent: false,
+      },
+      {
+        source: "/getting-started/security",
+        destination: "/developer-tools/security",
+        permanent: false,
+      },
+      {
+        source: "/getting-started/how-knock-works",
+        destination: "/getting-started/what-is-knock",
+        permanent: false,
+      },
     ];
   },
 };
