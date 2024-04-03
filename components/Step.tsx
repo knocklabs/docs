@@ -8,7 +8,7 @@ const Steps = ({ titleSize = "p", children }) => (
   </div>
 );
 
-function TitleTag({ size, children, title }) {
+function TitleTag({ size, title }) {
   const id = title.toLowerCase().replaceAll(" ", "-");
   const classNames =
     "!m-0 !mt-2 font-semibold !text-[16px] prose dark:prose-invert text-gray-900 dark:text-gray-200";
@@ -17,21 +17,21 @@ function TitleTag({ size, children, title }) {
     case "p": {
       return (
         <p id={id} className={classNames}>
-          {children}
+          {title}
         </p>
       );
     }
     case "h2": {
       return (
         <h2 id={id} className={classNames}>
-          {children}
+          {title}
         </h2>
       );
     }
     case "h3": {
       return (
         <h3 id={id} className={classNames}>
-          {children}
+          {title}
         </h3>
       );
     }
@@ -49,9 +49,7 @@ const Step = ({ titleSize = "p", title, children, stepNumber }) => (
       </div>
     </div>
     <div className="w-full overflow-hidden pl-12 pr-px">
-      <TitleTag size={titleSize} title={title}>
-        {title}
-      </TitleTag>
+      <TitleTag size={titleSize} title={title} />
       <div className="!-mt-2">{children}</div>
     </div>
   </div>
