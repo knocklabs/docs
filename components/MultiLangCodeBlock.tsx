@@ -112,8 +112,7 @@ const snippets = {
     require("../data/code/workflows/trigger-with-user-channel-data").default,
   "workflows.trigger-with-user-preferences":
     require("../data/code/workflows/trigger-with-user-preferences").default,
-    "workflows.playground":
-    require("../data/code/workflows/playground").default,
+  "workflows.playground": require("../data/code/workflows/playground").default,
 };
 /* eslint-enable */
 
@@ -163,7 +162,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({
   const content = useMemo(() => {
     const snippetCode = snippets[snippet];
     const actualLanguage = language === "node" ? "javascript" : language;
-    
+
     // When a given block does not include any example code for the language that is currently stored in localstorage, we want to display the code that matches the first language in its switcher (which is what will be "selected" and displayed on the switcher by default)
     // When that first language in the switcher is "node", we once again need to reference the "javascript" code example.
     const listedLanguage = (languages && languages[0]) || DEFAULT_LANGUAGES[0];
