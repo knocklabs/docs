@@ -33,6 +33,7 @@ SyntaxHighlighter.registerLanguage("liquid", liquid);
 SyntaxHighlighter.registerLanguage("go", go);
 SyntaxHighlighter.registerLanguage("java", java);
 SyntaxHighlighter.registerLanguage("yaml", yaml);
+SyntaxHighlighter.registerLanguage("curl", shell);
 
 export type SupportedLanguage =
   | "javascript"
@@ -46,7 +47,8 @@ export type SupportedLanguage =
   | "json"
   | "go"
   | "java"
-  | "yaml";
+  | "yaml"
+  | "curl";
 
 const LanguageLabel = {
   javascript: "JavaScript",
@@ -61,6 +63,7 @@ const LanguageLabel = {
   go: "Go",
   java: "Java",
   yaml: "YAML",
+  curl: "cURL",
 };
 
 export interface Props {

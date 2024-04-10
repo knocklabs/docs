@@ -11,7 +11,8 @@ import { CodeBlock, SupportedLanguage } from "./CodeBlock";
 type Props = {
   title: string;
   snippet: string;
-  languages?: string[];
+  languages?: SupportedLanguage[]; //optionally define the list of languages included in the language switcher
+  includeDefault?: boolean; //whether or not to include DEFAULT_LANGUAGES in the switcher; defaults to true when not provided
 };
 
 const LOCAL_STORAGE_KEY = "@knocklabs/example-lang";
@@ -111,6 +112,8 @@ const snippets = {
     require("../data/code/workflows/trigger-with-user-channel-data").default,
   "workflows.trigger-with-user-preferences":
     require("../data/code/workflows/trigger-with-user-preferences").default,
+    "workflows.playground":
+    require("../data/code/workflows/playground").default,
 };
 /* eslint-enable */
 
@@ -125,13 +128,26 @@ const DEFAULT_LANGUAGES: SupportedLanguage[] = [
   "elixir",
 ];
 
-const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
+const MultiLangCodeBlock: React.FC<Props> = ({
+  title,
+  snippet,
+  languages,
+  includeDefault = true,
+}) => {
   const isMounted = useIsMounted();
   const eventEmitter = useEventEmitter();
   const [language, setLanguage] = useLocalStorage<SupportedLanguage>(
     LOCAL_STORAGE_KEY,
     "node",
   );
+
+  // Create the combined list of explicitly provided languages plus the default languages list, and remove any duplicates
+  if (languages && includeDefault) {
+    const combinedLangs = DEFAULT_LANGUAGES.concat(languages);
+    languages = combinedLangs.filter(
+      (item, pos) => combinedLangs.indexOf(item) === pos,
+    );
+  }
 
   useEffect(() => {
     // When the language changes, set the new language
@@ -147,7 +163,16 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
   const content = useMemo(() => {
     const snippetCode = snippets[snippet];
     const actualLanguage = language === "node" ? "javascript" : language;
-    const code = (snippetCode && snippetCode[actualLanguage]) || "\n";
+    
+    // When a given block does not include any example code for the language that is currently stored in localstorage, we want to display the code that matches the first language in its switcher (which is what will be "selected" and displayed on the switcher by default)
+    // When that first language in the switcher is "node", we once again need to reference the "javascript" code example.
+    const listedLanguage = (languages && languages[0]) || DEFAULT_LANGUAGES[0];
+    const code =
+      (snippetCode && snippetCode[actualLanguage]) ||
+      (snippetCode &&
+        listedLanguage &&
+        (snippetCode[listedLanguage] ?? snippetCode["javascript"])) ||
+      "\n";
 
     return {
       props: {
@@ -158,14 +183,14 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
         mdxType: "code",
       },
     };
-  }, [language, snippet, title]);
+  }, [language, languages, snippet, title]);
 
   if (!isMounted) return null;
 
   return (
     <CodeBlock
       language={language}
-      languages={DEFAULT_LANGUAGES}
+      languages={languages ? languages : DEFAULT_LANGUAGES}
       setLanguage={setLanguage}
     >
       {content}
