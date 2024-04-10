@@ -254,6 +254,7 @@ const sidebarContent: SidebarSection[] = [
         slug: "/react-native",
         pages: [
           { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick start" },
           { slug: "/reference", title: "API reference" },
         ],
       },
