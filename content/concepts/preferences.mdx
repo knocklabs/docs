@@ -194,47 +194,6 @@ To create a preference set scoped to a particular [Tenant](/send-and-manage-data
 
 The Knock notification engine uses a per-tenant preference set for preference evaluation when the `recipient` of the workflow run has a preference set with an `id` equal to the `tenant.id` defined on the workflow trigger.
 
-## Preference conditions
-
-When working with preferences, you'll sometimes run into advanced use cases where you need to provide even more granular preference options for your customers. For example, you may want to let a recipient mute notifications about a given resource in your product.
-
-That's where preference conditions come into use. These are [Knock condition models](/send-and-manage-data/conditions) that are evaluated when computing the current state of your preferences during workflow execution.
-
-Typically, preferences evaluate to boolean values representing if your recipient has opted in or out of receiving notifications on a given channel, workflow, or category. With preference conditions, you can add additional custom expressions to that set, where the notification is only sent if all preferences (including the preference condition statement) evaluate to true.
-
-Below is an example of a workflow preference that has conditions applied to determine if the preference is true or false:
-
-```json title="An example of preferences with conditions"
-{
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "conditions": [
-        {
-          "variable": "recipient.muted_dinos",
-          "operator": "not_contains",
-          "argument": "data.dino"
-        }
-      ]
-    }
-  }
-}
-```
-
-### Where can I use preference conditions?
-
-A condition can be applied at different points in the preference set:
-
-- Inside `workflows`, `categories`, or `channel_types` preferences
-- Inside an individual `workflows[workflow].channel_types` preference
-- Inside an individual `categories[category].channel_types` preference
-
-See our guide on [setting and managing preferences](/send-notifications/setting-preferences#setting-preferences-with-conditions) for more details on how to manage preference conditions via the Knock API and SDKs.
-
-### Debugging preference conditions
-
-Knock will capture conditions evaluation details for all preference conditions resolved while executing your workflows. See the [guide on debugging conditions](/send-and-manage-data/conditions#debugging-conditions) for more info.
-
 ## Preference defaults
 
 Often you'll want new users in your product to start with a default preference set that you specify. Preference defaults are a great use case for this. Below we cover environment-level preference defaults, as well as per-tenant preference defaults.
@@ -363,6 +322,47 @@ await knock.workflows.trigger("workflow-name", {
 #### Retrieving preferences with tenant defaults applied
 
 When getting a preference set for a recipient, it's also possible to pass a `tenant` parameter that will return the recipient's preference set with any tenant default preferences applied.
+
+## Preference conditions
+
+When working with preferences, you'll sometimes run into advanced use cases where you need to provide even more granular preference options for your customers. For example, you may want to let a recipient mute notifications about a given resource in your product.
+
+That's where preference conditions come into use. These are [Knock condition models](/send-and-manage-data/conditions) that are evaluated when computing the current state of your preferences during workflow execution.
+
+Typically, preferences evaluate to boolean values representing if your recipient has opted in or out of receiving notifications on a given channel, workflow, or category. With preference conditions, you can add additional custom expressions to that set, where the notification is only sent if all preferences (including the preference condition statement) evaluate to true.
+
+Below is an example of a workflow preference that has conditions applied to determine if the preference is true or false:
+
+```json title="An example of preferences with conditions"
+{
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "conditions": [
+        {
+          "variable": "recipient.muted_dinos",
+          "operator": "not_contains",
+          "argument": "data.dino"
+        }
+      ]
+    }
+  }
+}
+```
+
+### Where can I use preference conditions?
+
+A condition can be applied at different points in the preference set:
+
+- Inside `workflows`, `categories`, or `channel_types` preferences
+- Inside an individual `workflows[workflow].channel_types` preference
+- Inside an individual `categories[category].channel_types` preference
+
+See our guide on [setting and managing preferences](/send-notifications/setting-preferences#setting-preferences-with-conditions) for more details on how to manage preference conditions via the Knock API and SDKs.
+
+### Debugging preference conditions
+
+Knock will capture conditions evaluation details for all preference conditions resolved while executing your workflows. See the [guide on debugging conditions](/send-and-manage-data/conditions#debugging-conditions) for more info.
 
 ## Overriding recipient preferences
 
