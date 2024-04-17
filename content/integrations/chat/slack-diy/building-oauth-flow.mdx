@@ -22,9 +22,9 @@ The best place to start is with Slack's [Installing with OAuth documentation](ht
 
 Once you're receiving Slack OAuth callbacks on the endpoint you've set up, you're ready to store that response as channel data in Knock.
 
-## How to set Slack channel data in Knock
+## How to set channel data for a Slack integration in Knock
 
-When you receive an OAuth callback from Slack, whether it contains an `incoming_webhook_url` or an `access_token`, you'll need to [set it as channel data](/send-notifications/setting-channel-data) on either a [`user`](/send-and-manage-data/users) or an [`object`](/send-and-manage-data/objects) in Knock. We cover how to decide which to use below in the "setting channel data: users v. objects" section of this document.
+When you receive an OAuth callback from Slack, you'll need to set the returned identifier (either an `incoming_webhook_url` or an `access_token`) as [channel data](/send-notifications/setting-channel-data) on a [`user`](/send-and-manage-data/users) or an [`object`](/send-and-manage-data/objects) in Knock. We cover how to decide [which to use](/integrations/chat/slack-diy/building-oauth-flow#setting-channel-data-users-vs-objects) in the section below.
 
 Here's an example of setting channel data on an `object` in Knock.
 
@@ -60,6 +60,8 @@ Here's an overview of the data requirements for [setting recipient channel data]
   />
 </Attributes>
 
+<br />
+
 #### `SlackConnection` with incoming webhook url
 
 <Attributes>
@@ -88,12 +90,28 @@ Here's an overview of the data requirements for [setting recipient channel data]
 
 ## Setting channel data: users vs. objects
 
-Depending on the Slack integration you build into your product, you’ll either store the connection data you receive from Slack on a `user` or an `object` in Knock.
+Depending on the Slack integration you build into your product, you’ll store the connection data you receive from Slack as `channel_data` on either a `user` or an `object` in Knock.
 
-If your integration involves a user opting in to receive DMs from your Slack bot about information pertaining to them, you’ll likely be storing the channel data on that user in Knock. Then when you want to notify this user, you include the user as a recipient in a Knock workflow trigger.
+<AccordionGroup>
+  <Accordion title="Users" description="For notifying users via direct message">
+    If your integration involves a user opting in to receive DMs from your Slack bot, you’ll be storing the channel data [on that user](/reference#set-user-channel-data) in Knock. When you want to notify this user, you'll include them as a recipient in a Knock workflow trigger.
 
-If your integration involves a customer connecting a _non-user resource_ in their product to a Slack channel, such as a project or a page, you’ll want to store that channel data on an `object` in Knock, as it’s not specific to any single user.
+    For this integration, you'll store a user's Slack `user_id` in the `SlackConnection` object. You can find the correct `user_id` by querying Slack's API:
+    - by [a given user's email address](https://api.slack.com/methods/users.lookupByEmail)
+    - for [a list of all of a workspace's users](https://api.slack.com/methods/users.list)
 
-Here's a real-life example of how `objects` would be used in a product you may be familiar with: Notion. In Notion you can connect a Notion page to a Slack channel of your choosing. If we were to power this with Knock, when a user completed the Slack OAuth flow for that Notion page, we’d store the connection data on the Knock `object` that maps to that Notion page. Then when something happens on that page that the connected Slack channel should be notified about, we include the notion page `object` as a recipient on the workflow trigger.
+    You'll need to be sure that you request the appropriate [`scopes`](/integrations/chat/slack-diy/slack-apps-and-scopes) for these methods during the auth process.
 
-You can learn more about the Knock object model and see an example how to use it to power Slack notifications in our [Objects concept guide](/send-and-manage-data/objects).
+  </Accordion>
+  <Accordion title="Objects" description="For notifying Slack channels about non-user resources">
+    If your integration involves a customer connecting a _non-user resource_ in their product (such as a project or a page) to a Slack channel, you’ll want to store that channel data [on an object](/reference#set-object-channel-data) in Knock, as it’s not specific to any single user.
+
+    You can find the correct `channel_id` and display a list of channels for your user to select from by querying the Slack API:
+    - for [a list of all of a workspace's channels](https://api.slack.com/methods/conversations.list)
+
+    Here's a real-life example of how `objects` would be used in a product you may be familiar with: Notion. In Notion you can connect a Notion page to a Slack channel of your choosing. If we were to power this with Knock, when a user completed the Slack OAuth flow for that Notion page we’d store the connection data on the Knock `object` that maps to that Notion page. Then when something happens on that page that the connected Slack channel should be notified about, we include the Notion page `object` as a recipient on the workflow trigger.
+
+    You can learn more about the Knock object model and see an example how to use it to power Slack notifications in our [Objects concept guide](/send-and-manage-data/objects).
+
+  </Accordion>
+</AccordionGroup>
