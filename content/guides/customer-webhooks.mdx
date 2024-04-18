@@ -111,16 +111,21 @@ You might want to provide a way to notify your customers that their webhooks are
 
 ## Frequently asked questions
 
-**How do I power different types of webhook events, should those be different notification workflows or a single workflow?**
-The answer here really depends on how different the notifications around each event type need to be. You should consider structuring each event type as a different workflow if the types of notifications sent in each event type differ a lot, or if the templates between event types are sufficiently different.
+<AccordionGroup>
+  <Accordion title="Should different types of webhook events be sent via separate notification workflows or a single workflow?">
+    The answer here really depends on how different the notifications around each event type need to be. You should consider structuring each event type as a separate workflow if the types of notifications sent in each event type differ a lot, or if the templates between event types are sufficiently different.
+  </Accordion>
+  <Accordion title="How do I conditionally send only to webhook objects?">
+    If you need to limit the execution of the workflow steps you can add a trigger condition onto your webhook channel steps that will only send to:
 
-**How do I conditionally send to only to webhook objects?**
-If you need to limit the execution of the workflow steps you can add a trigger condition onto your webhook channel steps that will only send to:
+    - `recipient.__typename` is equal to `Object`
+    - `recipient.collection` is equal to `project_webhooks`
 
-- `recipient.__typename` is equal to `Object`
-- `recipient.collection` is equal to `project_webhooks`
+  </Accordion>
+  <Accordion title="How do I conditionally allow certain event types on my webhooks?">
+    You can store an `event_types` property on your webhook object and use a [step condition](/designing-workflows/step-conditions) to express whether or not the step should be executed (as an allow list).
 
-**How do I conditionally allow certain event types on my webhooks?**
-You can store an `event_types` property on your webhook object and use a trigger condition to express whether or not the step should be executed (as an allow list).
+    - `recipient.event_types` contains `some:event`
 
-- `recipient.event_types` contains `some:event`
+  </Accordion>
+</AccordionGroup>
