@@ -271,16 +271,15 @@ In the event you need to update this set of default preferences, you can do so f
     <>
       <span className="font-bold">Important note.</span> Your recipients'
       preferences will always be merged against the default preferences set on
-      the environment. The recipient preferences will always take precedence in
-      the merge, meaning that any recipient specified opt-outs will be
-      preserved.
+      the environment. The recipient preferences will take precedence in the
+      merge, meaning that any recipient specified opt-outs will be preserved.
     </>
   }
 />
 
 The default preferences set in the dashboard follow the same shape as any [preferences you set via the API](/send-notifications/setting-preferences) and will be validated before being saved.
 
-Default preferences are useful when you need to roll out preferences across all your recipients or to migrate recipients from one preference model to another. It's important to remember that for more complex preference migrations you may still need to update any stored preferences for your recipients, which you can do via the [batch preference update API](/reference#bulk-set-preferences).
+Default preferences are useful when you need to roll out preferences across all your recipients or need to migrate recipients from one preference model to another. It's important to remember that for more complex preference migrations you may still need to update any stored preferences for your recipients, which you can do via the [batch preference update API](/reference#bulk-set-preferences).
 
 ### Per-tenant preference defaults
 
@@ -299,73 +298,73 @@ In some cases, you may want to extend Knock's [environment-level preference defa
 
 You can use tenant preference defaults to set the default preferences inherited for all recipients of a workflow triggered with a corresponding `tenant`.
 
-#### Setting tenant default preferences
-
-Tenant default preferences can be set via the API by calling the `tenants.set` method. The preferences should follow the format of a recipient <a href="/reference#preferences"><code>PreferenceSet</code></a>.
-
-```javascript title="Set the default preferences for a tenant"
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-const preferences = {
-  workflows: {
-    "new-comment": {
-      channel_types: {
-        email: false,
-        sms: true,
-        chat: false,
-      },
-    },
-  },
-};
-
-await knock.tenants.set("tenant-id", {
-  settings: {
-    preference_set: preferences,
-  },
-});
-```
-
-#### Applying tenant default preferences
-
-When executing a workflow trigger, passing in a corresponding `tenant` will automatically load the default preferences for the tenant when executing the workflow. The rules for applying preferences are as follows:
-
-- When the `tenant` has a preference default set, all recipients of the workflow trigger will receive the tenant default preferences when executing the workflow
-- If there are tenant-specific preferences set for the user those preferences will also be evaluated (with the recipient’s per-tenant preferences taking precedence over the tenant default)
-- If there is no preference default set on the `tenant`, then the recipient-tenant preferences will be used
-- If there is no preference default set on the `tenant` AND the recipient has no per-tenant preferences set, then the recipient’s default preferences will be applied
-
-To apply tenant default preferences for a workflow run, pass a `tenant` through to your workflow trigger:
-
-```javascript title="Trigger a workflow with a tenant"
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-await knock.workflows.trigger("workflow-name", {
-  tenant: "spotify",
-});
-```
-
-<br />
-
 <Callout
   emoji="🌠"
   text={
     <>
       <span className="font-bold">Remember:</span> recipient tenant preferences
       are merged with tenant default preferences during workflow execution. A
-      recipient’s preferences will always override those set at the tenant
-      level. You can learn more about how to set per-tenant preferences for a
-      specific recipient in the{" "}
+      recipient’s tenant-specific preferences will always override those set at
+      the tenant level. You can learn more about how to set per-tenant
+      preferences for a specific recipient in the{" "}
       <a href="#per-tenant-preference-sets">per-tenant preference sets</a>{" "}
       section of this document.
     </>
   }
 />
 
-#### Retrieving preferences with tenant defaults applied
+<AccordionGroup>
+  <Accordion title="Setting tenant default preferences">
+    Tenant default preferences can be set via the API by calling the `tenants.set` method. The preferences should follow the format of a recipient <a href="/reference#preferences"><code>PreferenceSet</code></a>.
 
-When getting a preference set for a recipient, it's also possible to pass a `tenant` parameter that will return the recipient's preference set with any tenant default preferences applied.
+    ```javascript title="Set the default preferences for a tenant"
+    const { Knock } = require("@knocklabs/node");
+    const knock = new Knock(process.env.KNOCK_API_KEY);
+
+    const preferences = {
+      workflows: {
+        "new-comment": {
+          channel_types: {
+            email: false,
+            sms: true,
+            chat: false,
+          },
+        },
+      },
+    };
+
+    await knock.tenants.set("tenant-id", {
+      settings: {
+        preference_set: preferences,
+      },
+    });
+    ```
+
+  </Accordion>
+  <Accordion title="Applying tenant default preferences">
+    When executing a workflow trigger, passing in a corresponding `tenant` will automatically load the default preferences for the tenant when executing the workflow. The rules for applying preferences are as follows:
+
+    - When the `tenant` has a preference default set, all recipients of the workflow trigger will receive the tenant default preferences when executing the workflow
+    - If there are tenant-specific preferences set for the user those preferences will also be evaluated (with the recipient’s per-tenant preferences taking precedence over the tenant default)
+    - If there is no preference default set on the `tenant`, then the recipient-tenant preferences will be used
+    - If there is no preference default set on the `tenant` AND the recipient has no per-tenant preferences set, then the recipient’s default preferences will be applied
+
+    To apply tenant default preferences for a workflow run, pass a `tenant` through to your workflow trigger:
+
+    ```javascript title="Trigger a workflow with a tenant"
+    const { Knock } = require("@knocklabs/node");
+    const knock = new Knock(process.env.KNOCK_API_KEY);
+
+    await knock.workflows.trigger("workflow-name", {
+      tenant: "spotify",
+    });
+    ```
+
+  </Accordion>
+  <Accordion title="Retrieving preferences with tenant defaults applied">
+    When getting a preference set for a recipient, it's also possible to pass a `tenant` parameter that will return the recipient's preference set with any tenant default preferences applied.
+  </Accordion>
+</AccordionGroup>
 
 ## Advanced preferences topics
 
