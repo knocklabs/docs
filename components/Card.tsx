@@ -6,7 +6,7 @@ type Props = {
   title: string;
   linkUrl: string;
   footer?: ReactElement;
-  newTab?: boolean;
+  isExternal?: boolean;
 };
 
 const CardGroup = ({ children, cols = 2 }) => (
@@ -26,11 +26,11 @@ const Card: React.FC<Props> = ({
   children,
   footer,
   linkUrl,
-  newTab = false,
+  isExternal = false,
 }) => (
   <div className="rounded-md border border-gray-200 hover:border-gray-400 dark:border-gray-600 hover:dark:border-gray-400 transition-colors p-3">
     <a
-      target={newTab ? "_blank" : undefined}
+      target={isExternal ? "_blank" : undefined}
       href={linkUrl}
       title={title}
       className="!no-underline !text-inherit"

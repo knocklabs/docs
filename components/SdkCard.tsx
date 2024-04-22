@@ -5,14 +5,19 @@ type Props = {
   title: string;
   linkUrl: string;
   languages: string[];
-  newTab: boolean;
+  isExternal?: boolean;
 };
 
 const SdkCardGroup = ({ children }) => (
   <div className="grid grid-cols-3 gap-2">{children}</div>
 );
 
-const SdkCard: React.FC<Props> = ({ title, linkUrl, languages, newTab }) => (
+const SdkCard: React.FC<Props> = ({
+  title,
+  linkUrl,
+  languages,
+  isExternal,
+}) => (
   <Card
     title={title}
     linkUrl={linkUrl}
@@ -24,7 +29,7 @@ const SdkCard: React.FC<Props> = ({ title, linkUrl, languages, newTab }) => (
         </span>
       </div>
     }
-    newTab={newTab}
+    isExternal={isExternal}
   />
 );
 
