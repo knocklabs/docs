@@ -154,9 +154,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
   // If the language in the snippet is "javascript", we need to display "node" in the switcher
   const languages = useMemo(() => {
     const snippetCode = snippets[snippet];
-    return DEFAULT_ORDER.map((key) =>
-      key === "javascript" ? "node" : key,
-    ).filter(
+    return DEFAULT_ORDER.filter(
       (key) =>
         key in snippetCode || (key === "node" && "javascript" in snippetCode),
     );
