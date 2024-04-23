@@ -3,7 +3,7 @@
 */
 
 import { useEventEmitter } from "@byteclaw/use-event-emitter";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useIsMounted } from "../hooks/useIsMounted";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { CodeBlock, SupportedLanguage } from "./CodeBlock";
