@@ -3,7 +3,7 @@
 */
 
 import { useEventEmitter } from "@byteclaw/use-event-emitter";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useIsMounted } from "../hooks/useIsMounted";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { CodeBlock, SupportedLanguage } from "./CodeBlock";
@@ -11,8 +11,6 @@ import { CodeBlock, SupportedLanguage } from "./CodeBlock";
 type Props = {
   title: string;
   snippet: string;
-  languages?: SupportedLanguage[]; //optionally define the list of languages included in the language switcher
-  includeDefault?: boolean; //whether or not to include DEFAULT_LANGUAGES in the switcher; defaults to true when not provided
 };
 
 const LOCAL_STORAGE_KEY = "@knocklabs/example-lang";
@@ -116,7 +114,9 @@ const snippets = {
 };
 /* eslint-enable */
 
-const DEFAULT_LANGUAGES: SupportedLanguage[] = [
+const DEFAULT_ORDER: SupportedLanguage[] = [
+  "curl",
+  "shell",
   "node",
   "ruby",
   "python",
@@ -125,28 +125,19 @@ const DEFAULT_LANGUAGES: SupportedLanguage[] = [
   "java",
   "csharp",
   "elixir",
+  "swift",
+  "kotlin",
+  "json",
+  "yaml",
 ];
 
-const MultiLangCodeBlock: React.FC<Props> = ({
-  title,
-  snippet,
-  languages,
-  includeDefault = true,
-}) => {
+const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
   const isMounted = useIsMounted();
   const eventEmitter = useEventEmitter();
   const [language, setLanguage] = useLocalStorage<SupportedLanguage>(
     LOCAL_STORAGE_KEY,
     "node",
   );
-
-  // Create the combined list of explicitly provided languages plus the default languages list, and remove any duplicates
-  if (languages && includeDefault) {
-    const combinedLangs = DEFAULT_LANGUAGES.concat(languages);
-    languages = combinedLangs.filter(
-      (item, pos) => combinedLangs.indexOf(item) === pos,
-    );
-  }
 
   useEffect(() => {
     // When the language changes, set the new language
@@ -159,15 +150,26 @@ const MultiLangCodeBlock: React.FC<Props> = ({
     eventEmitter.emit(EVENT_NAME, language);
   }, [language, eventEmitter]);
 
+  // Set the list of languages in the switcher according to the languages in the snippet and ordered by the DEFAULT_ORDER
+  // If the language in the snippet is "javascript", we need to display "node" in the switcher
+  const languages = useMemo(() => {
+    const snippetCode = snippets[snippet];
+    return DEFAULT_ORDER.map((key) =>
+      key === "javascript" ? "node" : key,
+    ).filter(
+      (key) =>
+        key in snippetCode || (key === "node" && "javascript" in snippetCode),
+    );
+  }, [snippet]);
+
   const content = useMemo(() => {
     const snippetCode = snippets[snippet];
-    const actualLanguage = language === "node" ? "javascript" : language;
 
     // When a given block does not include any example code for the language that is currently stored in localstorage, we want to display the code that matches the first language in its switcher (which is what will be "selected" and displayed on the switcher by default)
     // When that first language in the switcher is "node", we once again need to reference the "javascript" code example.
-    const listedLanguage = (languages && languages[0]) || DEFAULT_LANGUAGES[0];
+    const listedLanguage = languages && languages[0];
     const code =
-      (snippetCode && snippetCode[actualLanguage]) ||
+      (snippetCode && snippetCode[language]) ||
       (snippetCode &&
         listedLanguage &&
         (snippetCode[listedLanguage] ?? snippetCode["javascript"])) ||
@@ -189,7 +191,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({
   return (
     <CodeBlock
       language={language}
-      languages={languages ? languages : DEFAULT_LANGUAGES}
+      languages={languages}
       setLanguage={setLanguage}
     >
       {content}

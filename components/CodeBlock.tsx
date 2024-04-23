@@ -12,6 +12,8 @@ import liquid from "react-syntax-highlighter/dist/cjs/languages/hljs/handlebars"
 import go from "react-syntax-highlighter/dist/cjs/languages/hljs/go";
 import java from "react-syntax-highlighter/dist/cjs/languages/hljs/java";
 import yaml from "react-syntax-highlighter/dist/cjs/languages/hljs/yaml";
+import kotlin from "react-syntax-highlighter/dist/cjs/languages/hljs/kotlin";
+import swift from "react-syntax-highlighter/dist/cjs/languages/hljs/swift";
 import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
 
@@ -34,6 +36,8 @@ SyntaxHighlighter.registerLanguage("go", go);
 SyntaxHighlighter.registerLanguage("java", java);
 SyntaxHighlighter.registerLanguage("yaml", yaml);
 SyntaxHighlighter.registerLanguage("curl", shell);
+SyntaxHighlighter.registerLanguage("swift", swift);
+SyntaxHighlighter.registerLanguage("kotlin", kotlin);
 
 export type SupportedLanguage =
   | "javascript"
@@ -47,6 +51,8 @@ export type SupportedLanguage =
   | "json"
   | "go"
   | "java"
+  | "kotlin"
+  | "swift"
   | "yaml"
   | "curl";
 
@@ -64,6 +70,8 @@ const LanguageLabel = {
   java: "Java",
   yaml: "YAML",
   curl: "cURL",
+  kotlin: "Kotlin",
+  swift: "Swift",
 };
 
 export interface Props {
