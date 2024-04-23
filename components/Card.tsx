@@ -6,6 +6,7 @@ type Props = {
   title: string;
   linkUrl: string;
   footer?: ReactElement;
+  isExternal?: boolean;
 };
 
 const CardGroup = ({ children, cols = 2 }) => (
@@ -19,9 +20,21 @@ const CardGroup = ({ children, cols = 2 }) => (
   </div>
 );
 
-const Card: React.FC<Props> = ({ emoji, title, children, footer, linkUrl }) => (
+const Card: React.FC<Props> = ({
+  emoji,
+  title,
+  children,
+  footer,
+  linkUrl,
+  isExternal = false,
+}) => (
   <div className="rounded-md border border-gray-200 hover:border-gray-400 dark:border-gray-600 hover:dark:border-gray-400 transition-colors p-3">
-    <a href={linkUrl} title={title} className="!no-underline !text-inherit">
+    <a
+      target={isExternal ? "_blank" : undefined}
+      href={linkUrl}
+      title={title}
+      className="!no-underline !text-inherit"
+    >
       <>
         {emoji && <div className="mb-1">{emoji}</div>}
 
