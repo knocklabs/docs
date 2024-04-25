@@ -5,33 +5,44 @@ tags: ["recipients", "conditions", "prefs"]
 section: Concepts
 ---
 
-A [Preference](/reference#preferences) determines whether a given recipient (a user or an object) will receive a notification for a given workflow, channel, or workflow-channel pair.
-
-In this guide we'll walk through how to set notification preferences for your recipients in Knock.
-
-We'll start with a quick overview of the preferences model and how it ties into the rest of Knock, then we'll walk through how to set notification preferences for workflows, categories, and channels, as well as combinations of all three.
+A [Preference](/reference#preferences) determines whether a given recipient (a user or an object) will receive a notification for a given workflow, channel, or workflow-channel pair. In this guide we'll walk through how to set notification preferences for your recipients in Knock.
 
 ## An overview of preferences
 
-There are three different types of preferences we can set for our recipients in Knock: **channel type** preferences, **workflow** preferences, and **workflow category** preferences.
-
-To see how they work let's start with a review of how Knock sends notifications to your recipients. You configure a workflow in Knock. When this workflow is called via a workflow trigger, it runs for every recipient sent in the triggering API call, sending them a notification on each channel configured in the workflow.
-
 Preferences are **per-recipient rules** that tell Knock whether a notification should be delivered to a recipient based on its **channel type**, its **workflow**, and the **workflow category** that workflow belongs to (if any).
 
-When the channel step executes in your workflow run, the recipient will only receive a notification if their preferences for the channel type, the workflow, and the workflow category all evaluate to `true`. To put this in inverse terms, if **ANY** preference related to a given channel step in a workflow evaluates to `false`, we will not send the recipient a notification. This makes sense, as receiving a notification you thought you opted out of is not a fun experience for recipients. 😁 (Note: if you do not set a preference for a given channel, workflow, or category, Knock defaults them to `true`.)
+When a channel step executes in your workflow run, the recipient will only receive a notification if their preferences for the channel type, the workflow, and the workflow category all evaluate to `true`. To put this in inverse terms, if **ANY** preference related to a given channel step in a workflow evaluates to `false`, we will not send the recipient a notification. Read more about preferences evaluation [here](#evaluating-preferences).
 
-In the next section, we'll walk through this evaluation model in more detail and outline how to set preferences via the Knock preferences API.
+<Callout
+  emoji="❗"
+  text={
+    <>
+      <span className="font-bold">Note:</span> if you do not set a preference
+      for a given channel, workflow, or workflow category, Knock defaults them
+      to <code className="font-bold">true</code>.
+    </>
+  }
+/>
 
-## The Knock preferences API
+### Where preferences can be set
 
-As mentioned in the previous section, there are three types of preferences you can set for your recipients: channel type, workflow, and workflow category. You can also use these preference types in combination with one another. We cover that below, too.
+Preferences can be set at three different levels in Knock:
+
+- [At the environment level](#environment-level-preference-defaults), as the default for all recipients in a given environment
+- [At the tenant level](#per-tenant-preference-defaults), as the default for all recipients when a `tenant` is applied to a workflow trigger
+- [At the recipient level](#recipient-preference-sets), as the default for that recipient or as per-tenant preferences for that recipient
+
+## Types of preferences
+
+There are three different types of preferences we can set for our recipients in Knock: **channel type** preferences, **workflow** preferences, and **workflow category** preferences. You can also use these preference types in combination with one another.
 
 ### Channel type preferences
 
-A channel type preference lets recipients opt out of notifications for an entire channel type. You can set preferences for all unique channel types configured within your account. (As an example, if I have three channels configured of type `email`, two channels configured of type `push` , and one channel configured of type `in_app_feed` , we can set channel preferences for `email`, `push`, and `in_app_feed`.)
+A channel type preference lets recipients opt out of all notifications for an entire channel type, such as email. You can set preferences for all unique channel types configured within your account.
 
-Here's a JSON example of a given recipient's channel preferences.
+For example, if I have three configured channels of type `email`, two of type `push`, and one of type `in_app_feed`, we can set channel preferences for `email`, `push`, and `in_app_feed`.
+
+Here's a JSON example of a given recipient's channel preferences:
 
 ```json title="Channel type preferences"
 {
@@ -43,7 +54,7 @@ Here's a JSON example of a given recipient's channel preferences.
 }
 ```
 
-In this example, the recipient wouldn't receive any notifications sent over email, as any email channel steps, regardless of their workflow or workflow category, would always evaluate to `false`. This makes channel preferences a good way to give your recipients a way to opt-out of ALL notifications sent across a given channel type, such as email or push. Once a recipient is opted into a channel type, you're relying on workflow and workflow category preferences to determine whether a given notification should be sent.
+In this example the recipient wouldn't receive any notifications sent over email, as any email channel steps, regardless of their workflow or workflow category, would always evaluate to `false`.
 
 ### Workflow preferences
 
@@ -60,19 +71,15 @@ Here's a JSON example of a given recipient's workflow preferences.
 }
 ```
 
-In this example, the recipient would not receive any notifications from the new-reply workflow but would receive notifications from the new-comment workflow.
+In this example, the recipient would not receive any notifications from the `new-reply` workflow but _would_ receive notifications from the `new-comment` workflow.
 
-Workflow preferences are a great way to give your recipients a way to opt out of a given notification or type of notification across ALL channels.
+Workflow preferences are a great way to give your recipients a way to opt out of a given type of notification across all channels.
 
 ### Workflow category preferences
 
-There are cases when you'll want to enable your recipients to set a preference for a category of workflows, for example, all of your workflows related to `direct` notifications. In these cases, rather than having to surface a preference control for each of those notification types, you can use `categories` to set the preference for multiple workflows at once.
+There are cases when you'll want to enable your recipients to set a preference for a [category](/concepts/workflows#workflow-categories) of workflows; for example, all of your workflows related to `direct` notifications. In these cases, rather than having to surface a preference control for each of those notification types, you can use `categories` to set the preference for multiple workflows at once.
 
-To set a category for a given workflow, go to that workflow's page in the dashboard, click the "..." menu, and select "Manage workflow". From there you'll be able to add categories. **Note:** workflow categories are **case sensitive**.
-
-A workflow can belong to multiple categories. In the instance that it does, and conflicting preferences are set across those categories, the workflow's preference will default to false.
-
-Here's an example of a given recipient's preferences for a set of workflow categories.
+Here's an example of a given recipient's preferences for a set of workflow categories:
 
 ```json title="Category preferences"
 {
@@ -83,24 +90,11 @@ Here's an example of a given recipient's preferences for a set of workflow categ
 }
 ```
 
-<br />
-<Callout
-  emoji="🌠"
-  text={
-    <>
-      <span className="font-bold">A note on category conflicts.</span> If a
-      workflow belongs to multiple categories, only one of those category
-      preferences needs to evaluate to <code>false</code> for the notification
-      to not send.
-    </>
-  }
-/>
-
 ### Combining preferences
 
 In many cases, you'll want to let recipients pick and choose which channels they want to be notified on about which workflows or workflow categories. This way they can opt into more disruptive channels (such as email and push) for notifications they deem important, and they can opt out of those channels on notifications they deem less important.
 
-This is where you can combine preferences. When you want to enable a recipient to choose which channels they want to be notified on for a given workflow or category, you can specify a `channel_types` object within both the `workflows` and `categories` preferences.
+When you want to enable a recipient to choose which channels they'll be notified on for a given workflow or category, you can specify a `channel_types` object within both the `workflows` and `categories` preferences.
 
 Take an example of an app that wants to give per-channel preferences to its recipients on both its `new-mention` workflow and on its `collaboration` category. In the example below, the recipient has decided they want to receive mention notifications on all channels, but collaboration notifications on just the in-app channel.
 
@@ -127,55 +121,49 @@ Take an example of an app that wants to give per-channel preferences to its reci
 }
 ```
 
-<br />
+## Recipient preference sets
+
+A <a href="/reference#preferences"><code>PreferenceSet</code></a> is the object that stores all of a recipient's preferences. When you [set a given user's preferences](/reference#set-preferences-user) in Knock, you can either set their `default` preferences or create a `tenant`-specific preference set.
 
 <Callout
-  emoji="🌠"
+  emoji="🔍"
   text={
     <>
-      <span className="font-bold">Remember:</span> in cases where a preference
-      is set both for a workflow and for its parent category, Knock will only
-      send a notification if all preference combinations that exist on the
-      recipient evaluate to <code>true</code>. This means that in the case
-      above, if the <code>new-mention</code> workflow belongs to the{" "}
-      <code>collaboration</code> category, the recipient will not receive email
-      notifications about new mentions, even though the preference is currently
-      set to <code>true</code>.
-    </>
-  }
-/>
-
-## Preference sets
-
-When you [set a given user's preferences](/reference#set-preferences-user) in Knock you can either set a user's `default` preferences or create a per-tenant preference set.
-
-### User `default` preference set
-
-A user's `default` preference set is used to define the preference set that the Knock notification engine will default to when evaluating whether to send a notification to a given user across a given channel. (**Note:** If you're using a Knock SDK and don't specify an `id` when creating/updating a preference set, the `default` preference set will be used.)
-
-The Knock notification engine uses the `default` preference set for preference evaluation when:
-
-- No `tenant` was specified on the workflow trigger that started the workflow run
-- **OR** the `tenant` that was specified on the workflow trigger does not have a specified preference set for that recipient
-
-If your product just gives users a single set of notification preferences to configure across all tenants in your product, you'll just be using the `default` scope for your users' preferences.
-
-<Callout
-  emoji="🌠"
-  text={
-    <>
-      <span className="font-bold">Object preferences.</span> A quick reminder:
-      the guide above references <code>user</code> preferences but all of this
-      applies to{" "}
+      <span className="font-bold">Object preferences.</span> Although the
+      following examples refer to <code className="font-bold">user</code>{" "}
+      preferences, all of this information applies to{" "}
       <a href="/reference#set-preferences-object">
-        <code>object</code> preferences
+        <code className="font-bold">object</code> preferences
       </a>{" "}
       as well.
     </>
   }
 />
 
-### Per-tenant user preference sets
+### The `default` preference set
+
+An individual user's `default` preference set is used to define the preferences that the Knock notification engine will default to when evaluating whether to send a notification to a given user across a given channel.
+
+The Knock notification engine uses the `default` preference set for preference evaluation when:
+
+- No `tenant` was specified on the workflow trigger that started the workflow run
+- The recipient does not have a specified preference set for the `tenant` that was provided on the workflow trigger
+
+If your product only gives users a single set of notification preferences to configure across all tenants in your product, you'll just be using the `default` scope for your users' preferences.
+
+<Callout
+  emoji="💻"
+  text={
+    <>
+      <span className="font-bold">Note:</span> If you're using a Knock SDK and
+      don't specify an <code className="font-bold">id</code> when
+      creating/updating a preference set, the{" "}
+      <code className="font-bold">default</code> preference set will be used.
+    </>
+  }
+/>
+
+### Per-tenant preference sets
 
 <Callout
   emoji="✨"
@@ -188,19 +176,19 @@ If your product just gives users a single set of notification preferences to con
   }
 />
 
-In some cases you may want to set an additional preference set for a given user that pertains to a specific tenant within your product. (A well-known example of this: in Slack, your notification preferences are set _per Slack workspace_, not as a global preference set that applies across all of your Slack workspaces.)
+In some cases you may want to set additional preferences for a given user that pertain to a specific `tenant` within your product. A well-known example of this: in Slack, your notification preferences are set _per Slack workspace_, not as global preferences that apply across all of your Slack workspaces.
 
-To create a preference set scoped to a particular [Tenant](/send-and-manage-data/tenants), you'll set the `id` of the preference set equal to `tenant.id` when you create the preference set for your user.
+To create a preference set scoped to a particular [Tenant](/concepts/tenants), you'll set the `id` of the recipient's preference set equal to the `tenant.id`.
 
-The Knock notification engine uses a per-tenant preference set for preference evaluation when the `recipient` of the workflow run has a preference set with an `id` equal to the `tenant.id` defined on the workflow trigger.
+The Knock notification engine uses a per-tenant preference set for preference evaluation when the `recipient` of the workflow run has a preference set with an `id` equal to the `tenant.id` that is provided on the workflow trigger.
 
 ## Preference defaults
 
-Often you'll want new users in your product to start with a default preference set that you specify. Preference defaults are a great use case for this. Below we cover environment-level preference defaults, as well as per-tenant preference defaults.
+Often you'll want new users in your product to start with a default preference set that you specify. This can be done at both the environment and tenant level.
 
 ### Environment-level preference defaults
 
-When a user is created in Knock, by default they are opted into all channel types. This means their preference set looks like this:
+When a user is created in Knock, they are automatically opted into all channel types. This means their preference set looks like this:
 
 ```json title="Default preferences for a recipient"
 {
@@ -217,24 +205,9 @@ When a user is created in Knock, by default they are opted into all channel type
 }
 ```
 
-In the event you need to update this set of default preferences, you can do so from the "Developers > Preferences" section of the dashboard. From here you can specify a default set of preferences **per environment** that will be applied to **all recipients** when executing a notification workflow.
+In the event you need to update this set of default preferences, you can do so from the **Developers > Preferences** section of the dashboard. From here you can specify a default set of preferences **per environment** that will be applied to all recipients when executing a notification workflow. The default preferences set in the dashboard follow the same shape as any [preferences you set via the API](/send-notifications/setting-preferences) and will be validated before being saved.
 
-<Callout
-  emoji="🌠"
-  text={
-    <>
-      <span className="font-bold">Important note.</span> Your recipients'
-      preferences will always be merged against the default preferences set on
-      the environment. The recipient preferences will always take precedence in
-      the merge, meaning that any recipient specified opt-outs will be
-      preserved.
-    </>
-  }
-/>
-
-The default preferences set in the dashboard follow the same shape as any [preferences you set via the API](/send-notifications/setting-preferences) and will be validated before being saved.
-
-Default preferences are useful when you need to roll out preferences across all your recipients or to migrate recipients from one preference model to another. It's important to remember that for more complex preference migrations you may still need to update any stored preferences for your recipients, which you can do via the [batch preference update API](/reference#bulk-set-preferences).
+Default preferences are useful when you need to roll out preferences across all your recipients or need to migrate recipients from one preference model to another. It's important to remember that for more complex preference migrations you may still need to update any stored preferences for your recipients, which you can do via the [batch preference update API](/reference#bulk-set-preferences).
 
 ### Per-tenant preference defaults
 
@@ -249,89 +222,106 @@ Default preferences are useful when you need to roll out preferences across all 
   }
 />
 
-In some cases, you may want to extend Knock's [environment-level preference defaults behavior](/send-and-manage-data/preferences#environment-level-preference-defaults) to your tenant admins to let them choose the notification preference defaults for users within _their_ tenants in _your_ product. This is where tenant preference defaults come in.
+In some cases, you may want to extend Knock's [default preference behavior](#environment-level-preference-defaults) to your tenant admins to let them choose the notification preference defaults for users within _their_ tenants in _your_ product.
 
 You can use tenant preference defaults to set the default preferences inherited for all recipients of a workflow triggered with a corresponding `tenant`.
 
-#### Setting tenant default preferences
+<AccordionGroup>
+  <Accordion title="Setting tenant default preferences">
+    Tenant default preferences can be set via the API by calling the `tenants.set` method. The preferences should follow the format of a recipient <a href="/reference#preferences"><code>PreferenceSet</code></a>.
 
-Tenant default preferences can be set via the API by calling the `tenants.set` method. The preferences should follow the [format of our recipient preference sets](/reference#preferences).
+    ```javascript title="Set the default preferences for a tenant"
+    const { Knock } = require("@knocklabs/node");
+    const knock = new Knock(process.env.KNOCK_API_KEY);
 
-```javascript title="Set the default preferences for a tenant"
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
-
-const preferences = {
-  workflows: {
-    "new-comment": {
-      channel_types: {
-        email: false,
-        sms: true,
-        chat: false,
+    const preferences = {
+      workflows: {
+        "new-comment": {
+          channel_types: {
+            email: false,
+            sms: true,
+            chat: false,
+          },
+        },
       },
-    },
-  },
-};
+    };
 
-await knock.tenants.set("tenant-id", {
-  settings: {
-    preference_set: preferences,
-  },
-});
-```
+    await knock.tenants.set("tenant-id", {
+      settings: {
+        preference_set: preferences,
+      },
+    });
+    ```
 
-#### Applying tenant default preferences
+  </Accordion>
+  <Accordion title="Applying tenant default preferences">
+    To apply tenant default preferences for a workflow run, pass a `tenant` through to your workflow trigger:
 
-When executing a workflow trigger, passing in a corresponding `tenant` will automatically load the default preferences for the tenant when executing the workflow. The rules for applying preferences are as follows:
+    ```javascript title="Trigger a workflow with a tenant"
+    const { Knock } = require("@knocklabs/node");
+    const knock = new Knock(process.env.KNOCK_API_KEY);
 
-- When the `tenant` has a preference default set, all recipients of the workflow trigger will receive the tenant default preferences when executing the workflow
-- If there are tenant-specific preferences set for the user those preferences will also be evaluated (with the recipient’s per-tenant preferences taking precedence over the tenant default)
-- If there is no preference default set on the `tenant`, then the recipient-tenant preferences will be used
-- If there is no preference default set on the `tenant` AND the recipient has no per-tenant preferences set, then the recipient’s default preferences will be applied
+    await knock.workflows.trigger("workflow-name", {
+      tenant: "spotify",
+    });
+    ```
 
-To apply tenant default preferences for a workflow run, pass a `tenant` through to your workflow trigger:
+  </Accordion>
+  <Accordion title="Retrieving preferences with tenant defaults included">
+    When getting a preference set for a recipient, it's also possible to pass a `tenant` parameter that will return the recipient's preference set with any tenant default preferences applied.
+  </Accordion>
+</AccordionGroup>
 
-```javascript title="Trigger a workflow with a tenant"
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
+## Evaluating preferences
 
-await knock.workflows.trigger("workflow-name", {
-  tenant: "spotify",
-});
-```
+When a workflow is triggered, Knock will evaluate the preferences for each `recipient` of the workflow and send notifications for each channel step in the workflow based on that evaluation. There are some important rules and caveats to consider:
 
-<br />
+<AccordionGroup>
+  <Accordion title="General preference rules">
+    - If you do not set a preference for a given channel, workflow, or workflow category, Knock defaults them to `true`
+    - A recipient's preferences will be merged against the [environment-level default](#environment-level-preference-defaults) preferences. Recipient preferences will always take precedence in the merge
+  </Accordion>
+  <Accordion title="Tenant-specific preference rules">
+    - When executing a workflow trigger, passing in a `tenant` will automatically load that tenant's default preferences for all recipients of the workflow (if a default is set)
+    - An individual recipient's tenant preferences are merged with the tenant's default preferences during workflow execution. The recipient’s tenant-specific preferences will always override the defaults set at the tenant level
+    - If there is no preference default set on the `tenant` AND the recipient has no per-tenant preferences set, the recipient’s default preferences will be applied
+  </Accordion>
+  <Accordion title="Resolving preference conflicts">
+    Sometimes a given recipient will have two or more preferences which contradict each other. Knock will only send a notification if all preference combinations that exist on the recipient evaluate to `true`.
 
-<Callout
-  emoji="🌠"
-  text={
-    <>
-      <span className="font-bold">Remember:</span> recipient tenant preferences
-      are always merged with tenant default preferences during workflow
-      execution. A recipient’s set of preferences will always override those set
-      at the tenant level. You can learn more about how to set per-tenant
-      preferences for a specific recipient in the{" "}
-      <a href="/send-and-manage-data/preferences#per-tenant-user-preference-sets">
-        per-tenant user preference sets section
-      </a>{" "}
-      of this document.
-    </>
-  }
-/>
+    - A workflow can belong to multiple `categories`. Only one of those category preferences needs to evaluate to `false` for the notification not to send
+    - If a workflow's parent `category` is set to `false`, the notification will not send even if a `channel_type` on the workflow is explicitly set to `true`
 
-#### Retrieving preferences with tenant defaults applied
+  </Accordion>
+  <Accordion title="Debugging preferences">
+    Our [Preferences API](/reference#preferences) provides endpoints for retrieving all of the preferences that have been set on a recipient.
 
-When getting a preference set for a recipient, it's also possible to pass a `tenant` parameter that will return the recipient's preference set with any tenant default preferences applied.
+    You can also use the [workflow debugger](/send-notifications/debugging-workflows) in your dashboard to view the preferences that were evaluated for the recipient on a given workflow run.
 
-## Preference conditions
+    <Image
+      src="/images/concepts/preferences/workflow-preferences-evaluation.png"
+      alt="An image of a workflow run's evaluated preferences"
+      width={500}
+      height={381}
+      className="mx-auto rounded-md border border-gray-200 shadow-md"
+    />
 
-When working with preferences, you'll sometimes run into advanced use cases where you need to provide even more granular preference options for your customers. For example, you may want to let a recipient mute notifications about a given resource in your product.
+  </Accordion>
+</AccordionGroup>
 
-That's where preference conditions come into use. These are [Knock condition models](/send-and-manage-data/conditions) that are evaluated when computing the current state of your preferences during workflow execution.
+###
 
-Typically, preferences evaluate to boolean values representing if your recipient has opted in or out of receiving notifications on a given channel, workflow, or category. With preference conditions, you can add additional custom expressions to that set, where the notification is only sent if all preferences (including the preference condition statement) evaluate to true.
+## Advanced preferences topics
 
-Below is an example of a workflow preference that has conditions applied to determine if the preference is true or false:
+When working with preferences, you'll sometimes run into advanced use cases where you need to provide even more granular preference options for your customers.
+
+### Preference conditions
+
+Preference conditions are [Knock condition models](/send-and-manage-data/conditions) that are evaluated when computing the current state of your preferences during workflow execution.
+
+Typically, preferences evaluate to boolean values representing if your recipient has opted in or out of receiving notifications on a given channel, workflow, or category. With preference conditions, you can add additional custom expressions to that set, where the notification is only sent if all preferences (including the preference condition statement) evaluate to `true`.
+
+Below is an example of a workflow preference that has conditions applied to determine if the preference is `true` or `false`:
 
 ```json title="An example of preferences with conditions"
 {
@@ -350,20 +340,26 @@ Below is an example of a workflow preference that has conditions applied to dete
 }
 ```
 
-### Where can I use preference conditions?
+<br />
 
-A condition can be applied at different points in the preference set:
+<AccordionGroup>
+  <Accordion title="Where can I use preference conditions?">
+    A condition can be applied at different points in the preference set:
 
-- Inside `workflows`, `categories`, or `channel_types` preferences
-- Inside an individual `workflows[workflow].channel_types` preference
-- Inside an individual `categories[category].channel_types` preference
+    - Inside `workflows`, `categories`, or `channel_types` preferences
+    - Inside an individual `workflows[workflow].channel_types` preference
+    - Inside an individual `categories[category].channel_types` preference
 
-See our guide on [setting and managing preferences](/send-notifications/setting-preferences#setting-preferences-with-conditions) for more details on how to manage preference conditions via the Knock API and SDKs.
+    See our guide on [setting and managing preferences](/send-notifications/setting-preferences#setting-preferences-with-conditions) for more details on how to manage preference conditions via the Knock API and SDKs.
 
-### Debugging preference conditions
+  </Accordion>
+  <Accordion title="Debugging preference conditions">
+    Knock will capture conditions evaluation details for all preference conditions resolved while executing your workflows. See the [guide on debugging conditions](/send-and-manage-data/conditions#debugging-conditions) for more info.
+  </Accordion>
+</AccordionGroup>
 
-Knock will capture conditions evaluation details for all preference conditions resolved while executing your workflows. See the [guide on debugging conditions](/send-and-manage-data/conditions#debugging-conditions) for more info.
+### Overriding recipient preferences
 
-## Overriding recipient preferences
+Sometimes you may want to override a recipient's notification preferences in order to send notifications like a password reset email, regardless of whether the recipient has opted out of receiving emails. To do this, go to your workflow, click "Manage workflow", and enable "Override recipient preferences". You will need to commit this change for it to take effect.
 
-Sometimes you may want to override a recipient's notification preferences in order to send notifications like a password reset email, regardless of whether the recipient has opted out of receiving emails. To do this, go to your workflow, click "Manage workflow", and enable "Override recipient preferences". You will need to commit this change for it to take effect. When enabled, the workflow will send to all of its channels, regardless of the recipient's preferences.
+When enabled, the workflow will send to all of its channels, regardless of the recipient's preferences.
