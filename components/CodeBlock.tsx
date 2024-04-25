@@ -117,10 +117,23 @@ export const CodeBlock: React.FC<Props> = ({
   const { theme } = useTheme();
 
   const params = useMemo(() => getParams(className) as any, [className]);
-  const lang = useMemo(
-    () => language ?? params.language ?? "shell",
-    [language, params],
-  );
+
+  //Determine language to be used for syntax highlighting
+  const lang = useMemo(() => {
+    // Check if `language` and `languages` exist, and if so, whether `language` is in the `languages` list for the block
+    // If so, we want to use it for syntax highlighting
+    if (language && languages && languages.includes(language)) {
+      return language;
+    }
+    // If `language` is defined but not in the `languages` list, default syntax highlighting to the first item in the languages list
+    else if (language && languages && !languages.includes(language)) {
+      return languages[0];
+    }
+    // Finally, fallback to `params.language` or to "shell" if it's also not defined
+    else {
+      return params.language ?? "shell";
+    }
+  }, [language, languages, params.language]);
 
   const [content] = useMemo(
     () =>
