@@ -3,6 +3,10 @@ import { join, sep } from "path";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
 import Image from "next/image";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import remarkGfm from "remark-gfm";
+import remarkSlug from "remark-slug";
+import rehypeMdxCodeProps from "rehype-mdx-code-props";
 
 import { CodeBlock } from "../components/CodeBlock";
 import MDXLayout from "../layouts/MDXLayout";
@@ -15,7 +19,6 @@ import {
 } from "../lib/content.server";
 import Callout from "../components/Callout";
 import MultiLangCodeBlock from "../components/MultiLangCodeBlock";
-import remarkSlug from "remark-slug";
 import SectionHeading from "../components/SectionHeading";
 import eventPayload from "../data/code/sources/eventPayload";
 import LocaleTable from "../components/LocaleTable";
@@ -29,9 +32,7 @@ import { AccordionGroup, Accordion } from "../components/Accordion";
 import { Steps, Step } from "../components/Step";
 import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../content/integrations/extensions/new_relic_dashboard.json";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import remarkGfm from "remark-gfm";
-import rehypeMdxCodeProps from "rehype-mdx-code-props";
+import AiChatButton from "../components/AiChatButton";
 
 import {
   Section,
@@ -85,6 +86,7 @@ export default function ContentPage({ source, sourcePath }) {
             eventPayload,
           }}
         />
+        <AiChatButton />
       </MDXLayout>
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
   EventEmitterContext,
   useEventEmitterInstance,
@@ -10,7 +10,6 @@ import * as gtag from "../lib/gtag";
 import { setClearbitPath } from "../lib/clearbit";
 
 import "../styles/index.css";
-import AiChatButton from "../components/AiChatButton";
 
 function App({ Component, pageProps }) {
   const router = useRouter();
@@ -38,7 +37,6 @@ function App({ Component, pageProps }) {
     >
       <EventEmitterContext.Provider value={eventEmitter}>
         <Component {...pageProps} />
-        <AiChatButton />
       </EventEmitterContext.Provider>
     </ThemeProvider>
   );
