@@ -3,6 +3,7 @@ import sidebarContent from "../data/sidebar";
 import { Page } from "../layouts/Page";
 import DocsSidebar from "../components/DocsSidebar";
 import MinimalHeader from "../components/Header/MinimalHeader";
+import AiChatButton from "../components/AiChatButton";
 
 const contentForDiscovery = sidebarContent.filter((s) => s.desc);
 
@@ -103,6 +104,7 @@ export default function Home() {
           </div>
         </section>
       </div>
+      <AiChatButton />
     </Page>
   );
 }
