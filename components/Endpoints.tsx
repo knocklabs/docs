@@ -8,7 +8,9 @@ const Endpoints = ({ children, title = "Endpoints" }) => (
         {title}
       </span>
     </div>
-    <div className="m-0 py-2 px-4 dark:bg-gray-900 overflow-x-auto">{children}</div>
+    <div className="m-0 py-2 px-4 dark:bg-gray-900 overflow-x-auto">
+      {children}
+    </div>
   </div>
 );
 
