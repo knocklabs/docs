@@ -20,13 +20,15 @@ Set interval delay functions are helpful for the following use cases:
 
 You can also set the length of your delay duration dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to set your duration.
 
-When specifying a dynamic delay duration you can provide either:
+When specifying a dynamic delay duration you must provide one of the following:
 
 - An [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
 - A relative duration unit (e.g `{ "unit": "seconds", "value": 30 }`)
 - A window rule (e.g `{ "frequency": "daily", "hours": 9, "minutes": 30 }`)
 
-A dynamic duration must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `delayUntil` in your `Data` schema, your workflow trigger data must contain either an ISO-8601 timestamp, a valid duration unit, or a valid window rule.
+A dynamic duration must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `delayUntil` in your `data` schema, your workflow trigger data must contain either an ISO-8601 timestamp, a valid duration unit, or a valid window rule.
+
+When the key specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the delay will be **skipped**.
 
 <AccordionGroup>
   <Accordion title="Using a fixed timestamp">
