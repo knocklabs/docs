@@ -494,6 +494,34 @@ A user represents an individual who may need to receive a notification from Knoc
   <Attribute name="avatar" type="string (optional)" description="A URL for the avatar of the user" />
   <Attribute name="phone_number" type="string (optional)" description="The phone number of the user to use with SMS channels" />
   <Attribute
+    name="locale"
+    type="string (optional)"
+    description={
+      <>
+        <span>The locale of the user. Used for </span>
+        <a href="/send-and-manage-data/translations">message localization</a>
+        <span>.</span>
+      </>
+    }
+  />
+  <Attribute
+    name="timezone"
+    type="string (optional)"
+    description={
+      <>
+        <span>
+          The timezone of the user. Must be a valid{" "}
+          <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">
+            tz database time zone string
+          </a>
+          . Used for <a href="/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients">
+            recurring schedules
+          </a>.
+        </span>
+      </>
+    }
+  />
+  <Attribute
     name="*"
     type="key-value pairs"
     description="Any custom properties"
@@ -1022,6 +1050,7 @@ Identifies up to 1000 users at a time. Returns a `BulkOperation` that executes t
     name="users"
     type="User[]"
     description="A list of users to upsert"
+    typeSlug="#users"
   />
 </Attributes>
 
@@ -1908,10 +1937,14 @@ Returns a `PreferenceSet`.
 <Section title="Channel data" slug="channel-data">
 <ContentColumn>
 
-Channel data is channel-specific information stored on a Knock [user](/reference#users) or [object](/reference#objects) that's needed to deliver a notification to an end provider.
+<a href="/managing-recipients/setting-channel-data">`ChannelData`</a> is channel-specific
+information stored on a Knock [user](/reference#users) or [object](/reference#objects)
+that's needed to deliver a notification to an end provider.
 
 For a push channel, this includes device-specific tokens that map the recipient to the device they use. For chat apps, such as Slack, this includes the access token used to send
 notifications to a customer's Slack channel.
+
+The shape of the `data` payload varies depending on the channel type; you can learn more about channel data schemas [here](/send-notifications/setting-channel-data#provider-data-requirements).
 
 ### Attributes
 

@@ -7,73 +7,68 @@ section: Managing recipients
 
 Some channel integrations require user and channel-specific data to send notifications. Push channels like APNS (Apple Push Notification Service) and FCM (Firebase Cloud Messaging) are good examples, where both require that there are device-specific tokens that target the user in a push notification. Slack is another good example, where the channel data from a Slack integration in your product is stored on a Knock [object](/send-and-manage-data/objects).
 
-At Knock we call this concept `ChannelData`. `ChannelData` lives under a [user](/send-and-manage-data/users) or an [object](/send-and-manage-data/objects) and stores channel-specific data to be used when that user or object is included as a recipient on a [triggered workflow](/send-notifications/triggering-workflows).
+At Knock we call this concept <a href="/reference#channel-data"><code>ChannelData</code></a>. `ChannelData` lives under a [user](/concepts/users) or an [object](/concepts/objects) and stores channel-specific data to be used when that user or object is included as a recipient on a [triggered workflow](/send-notifications/triggering-workflows).
 
 ## Things to know about channel data
 
-- For channel types that require channel data (such as push and chat channels like Slack), the channel step will be skipped in a workflow run if the required channel data is not stored on the recipient.
+- For channel types that require channel data (such as [push](/integrations/push/overview) channels and [chat](/integrations/chat/overview) channels like Slack), the channel step will be skipped during a workflow run if the required `channel_data` is not stored on the recipient.
 - Knock stores channel data for you but makes no assumptions about whether the stored channel data is valid. That means that if a push token expires, it's your responsibility to omit/update that token for future notifications.
+- Setting channel data always requires a `channel_id`, which can be obtained in the Dashboard under **{"Integrations > Channels"}**. A channel ID is always a UUID v4.
 
 ## Setting channel data
 
-Before getting or setting channel data, you must first configure that channel in your environments. You can do this inside the Knock dashboard under {"Integrations > Channels"}. Once the channel for which you want to store channel data has been created, you're ready to store the channel data for your users and objects.
+Before getting or setting channel data, you must first configure that channel in your environments. You can do this inside the Knock dashboard under **{"Integrations > Channels"}**. Once the channel for which you want to store channel data has been created, you're ready to store the channel data for your users and objects.
 
-There are two ways of setting channel data for a given recipient:
+There are three ways of setting channel data for a given recipient:
 
 1. Explicitly using the set channel data method
 2. Inline through a workflow trigger
+3. When identifying a recipient
 
-Note: channel data always requires a `channelId` which can be obtained in the Dashboard under {"Integrations > Channels"}. A channel ID is always a UUID v4.
+<AccordionGroup>
+  <Accordion title="Explicitly setting for Users">
+    You can set channel data for a given user using the `users.setChannelData` method. Please note that the channel data will always be overwritten with each `set` call.
 
-### Explicitly setting for users
+    In the example below, we're setting a user's device token when they download our mobile app so we can send them push notifications. If this token wasn't set for the user, they wouldn't receive push notifications from our notification workflows.
 
-You can set channel data for a given user using the `users.setChannelData` method. Please note that the channel data will always be overwritten with each `set` call.
+    <MultiLangCodeBlock
+      snippet="users.setChannelData"
+      title="Set channel data for a User"
+    />
+  </Accordion>
+  <Accordion title="Explicitly setting for Objects">
+    You can set channel data for a given object using the `objects.setChannelData` method. Please note that the channel data will always be overwritten with each `set` call.
 
-In the example below, we're setting a user's device token when they download our mobile app so we can send them push notifications. If this token wasn't set for the user, they wouldn't receive push notifications from our notification workflows.
+    In the example below, we're setting an object's Slack channel ID and access token, presumably after a user in our product has decided to connect the object to their Slack workspace. This enables us to send Slack notifications to the connected Slack channel when an event is triggered within the scope of the object.
 
-<MultiLangCodeBlock
-  snippet="users.setChannelData"
-  title="Set channel data for a user"
-/>
+    <MultiLangCodeBlock
+      snippet="objects.setChannelData.slack"
+      title="Set channel data for an Object"
+    />
 
-### Explicitly setting for objects
+    You can learn more about objects in our [concept guide](/send-and-manage-data/objects) and [API reference](/reference#objects).
+  </Accordion>
+  <Accordion title="Setting channel data inline">
+    For both user and object recipients, channel data can be specified inline during a [workflow trigger call](/send-notifications/triggering-workflows#identifying-recipients-inline).
 
-You can set channel data for a given object using the `objects.setChannelData` method. Please note that the channel data will always be overwritten with each `set` call.
+    When setting channel data inline for a recipient entity, you must supply the channel data as a dictionary containing the channel ID as a key, and a dictionary of channel data to set for that channel.
 
-In the example below, we're setting an object's Slack channel ID and access token, presumably after a user in our product has decided to connect the object to their Slack workspace. This enables us to send Slack notifications to the connected Slack channel when an event is triggered within the scope of the object.
+    <MultiLangCodeBlock
+      snippet="workflows.trigger-with-user-channel-data"
+      title="Trigger workflow with inline channel data"
+    />
+  </Accordion>
+  <Accordion title="Setting channel data on an identify request">
+    For both [user](/reference#identify-user) and [object](/reference#set-object) recipients, channel data can be specified as a recipient property on an identify request.
 
-<MultiLangCodeBlock
-  snippet="objects.setChannelData.slack"
-  title="Set channel data for an object"
-/>
+    When setting channel data for a recipient entity on an identify request, you must supply the channel data as a dictionary containing the channel ID as a key, and a dictionary of channel data to set for that channel. The below example is for a `User`, but the same pattern can be followed for an `Object`.
 
-You can learn more about objects in our [concept guide](/send-and-manage-data/objects) and [API reference](/reference#objects).
-
-<Callout
-  mt={4}
-  emoji="👩‍💻"
-  text={
-    <>
-      <span className="font-bold">See an example.</span> Check out{" "}
-      <a href="https://github.com/knocklabs/knock-node-example-app/blob/main/db/seeds.ts#L103">
-        our example app
-      </a>{" "}
-      to see how to integrate with Slack by setting channel data with an
-      incoming webhook URL.
-    </>
-  }
-/>
-
-### Setting channel data inline
-
-For both user and object recipients, channel data can be specified inline during a [workflow trigger call](/send-notifications/triggering-workflows#identifying-recipients-inline).
-
-When setting channel data inline for a recipient entity, you must supply the channel data as a dictionary containing the channel ID as a key, and a dictionary of channel data to set for that channel.
-
-<MultiLangCodeBlock
-  snippet="workflows.trigger-with-user-channel-data"
-  title="Trigger workflow with inline channel data"
-/>
+    <MultiLangCodeBlock
+      snippet="users.identifyChannelData"
+      title="Identify a User with channel data"
+    />
+  </Accordion>
+</AccordionGroup>
 
 ## Getting channel data
 
