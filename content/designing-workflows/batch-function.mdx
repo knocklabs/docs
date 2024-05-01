@@ -73,21 +73,97 @@ The batch is opened when it is first triggered for a given recipient. The batch 
 
 ### Set a dynamic batch window using a variable
 
-You can also set the length of your batch windows dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to set your dynamic batch window.
+You can also set the length of your batch windows dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to retrieve your dynamic batch window.
 
 When specifying a dynamic batch window you can provide either:
 
 - An [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
-- A relative duration unit (e.g `{ "unit": "seconds", "value": 30 }`)
+- A relative duration (e.g `{ "unit": "seconds", "value": 30 }`)
+- A window rule (e.g `{ "frequency": "daily", "hours": 9, "minutes": 30 }`)
 
-A dynamic interval must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `batchWindow` in your `Data` schema, your workflow trigger data must contain either an ISO-8601 timestamp or a valid duration unit.
+A dynamic window must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `batchWindow` in your `data` schema, your workflow trigger data must contain either an ISO-8601 timestamp, a valid duration unit, or a valid window rule.
 
-```typescript title="A relative duration"
-type Duration = {
-  unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
-  value: number;
-};
-```
+<AccordionGroup>
+  <Accordion title="Using a fixed timestamp">
+    A fixed timestamp will tell Knock to close the batch window at the exact date time you provide. It must be a valid ISO-8601 timestamp in the future.
+
+    #### An example timestamp
+
+    ```json title="Setting a batch until timestamp"
+    {
+      "batchUntil": "2024-01-05T14:00:00Z"
+    }
+    ```
+
+    You can then reference that in your batch step settings as `data.batchUntil`.
+  </Accordion>
+  <Accordion title="Using durations">
+    A duration will take the current time that the batch step is executing and add the duration to it to produce the batch window closing time. A duration object is an entity that you can set on recipients, tenants, environment variables, or in your data payload and reference on your batch window.
+
+    #### The duration schema
+
+    ```typescript title="A relative duration"
+    type Duration = {
+      unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
+      value: number;
+    };
+    ```
+
+    #### An example duration
+
+    Let's say you want to express a duration that will always close a batch window 1 day after the batch is started, here's how you structure that:
+
+    ```json title="Setting a duration"
+    {
+      "batchDuration": {
+        "unit": "days",
+        "value": 1
+      }
+    }
+    ```
+
+    You then reference that as `data.batchDuration` in the batch step configuration.
+  </Accordion>
+  <Accordion title="Using window rules">
+    A window rule determines when the next occurrence of the batch window should be executed. It allows you to express rules like "batch until Monday at 9am", or "keep the batch window open for 2 weeks until the next Friday".
+
+    The window rule will always be evaluated in the [recipient's timezone](/concepts/recipients#recipient-timezones) (when set) and will fall back to the account default timezone, or "Etc/UTC".
+
+    #### The window rule schema
+
+    ```typescript title="A window rule"
+    type WindowRule = {
+      frequency: "hourly" | "daily" | "weekly" | "monthly",
+      // The specific days the rule is valid on
+      days?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"> | "weekdays" | "weekends",
+      // The hour which the rule should evaluate (defaults to 0)
+      hours?: number,
+      // The minute at which the rule should evaluate (default to 0)
+      minutes?: number,
+      // What day of the month should this rule execute (useful when monthly)
+      day_of_month?: number,
+      // How often should this rule repeat? Defaults to 1
+      interval?: number
+    };
+    ```
+
+    #### Example window rule
+
+    Let's say you want to express setting a window rule for batching weekly on a Monday at 9am, here's how you might structure that on your recipient:
+
+    ```json title="Recipient batch window"
+    {
+      "batchWindow": {
+        "frequency": "weekly",
+        "days": ["mon"],
+        "hours": 9
+      }
+    }
+    ```
+
+    And now you can set the batch window key to `recipient.batchWindow` to reference this window rule.
+  </Accordion>
+</AccordionGroup>
 
 **Please note**: an open batch window will never be extended by a subsequent workflow trigger with a different dynamic batch window specified. Once a given batch has been opened by a workflow trigger, its window interval is immutable.
 
@@ -127,7 +203,7 @@ Once configured, Knock will compute the maximum extended batch window for subseq
 
 If you configure your maximum window with a value that is _less_ than the initial window duration, subsequent batched triggers will shorten the overall window. If this new maximum duration has already elapsed, the batch window will immediately close and the workflow run will proceed.
 
-- 🎛️ [Initial batch window: 24 hours]
+  - 🎛️ [Initial batch window: 24 hours]
 - 🎛️ [Max extension limit: 12 hours]
 - Trigger: the batch opens with a closing window of `now() + 24 hrs`
 - ⏲️ [23 hours pass]
