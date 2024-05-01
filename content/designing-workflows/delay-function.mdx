@@ -20,21 +20,100 @@ Set interval delay functions are helpful for the following use cases:
 
 You can also set the length of your delay duration dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to set your duration.
 
-When specifying a dynamic delay duration you can provide either:
+When specifying a dynamic delay duration you must provide one of the following:
 
 - An [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
 - A relative duration unit (e.g `{ "unit": "seconds", "value": 30 }`)
+- A window rule (e.g `{ "frequency": "daily", "hours": 9, "minutes": 30 }`)
 
-A dynamic duration must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `delayUntil` in your `Data` schema, your workflow trigger data must contain either an ISO-8601 timestamp or a valid duration unit.
+A dynamic duration must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `delayUntil` in your `data` schema, your workflow trigger data must contain either an ISO-8601 timestamp, a valid duration unit, or a valid window rule.
 
-```typescript title="A relative duration"
-type Duration = {
-  unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
-  value: number;
-};
-```
+When the key specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the delay will be **skipped**.
 
-Timestamp-based delays are helpful for reminders about resources in your product that need to be completed or addressed by a specific point in time. As an example, if a user has a task that's due three days from now and you want to remind them 24 hours before it's due, you can set a timestamp delay for the task's due date minus 24 hours.
+<AccordionGroup>
+  <Accordion title="Using a fixed timestamp">
+    Timestamp-based delays are helpful for reminders about resources in your product that need to be completed or addressed by a specific point in time. As an example, if a user has a task that's due three days from now and you want to remind them 24 hours before it's due, you can set a timestamp delay for the task's due date minus 24 hours.
+
+    #### An example timestamp
+
+    ```json title="Setting a delay until timestamp"
+    {
+      "delayUntil": "2024-01-05T14:00:00Z"
+    }
+    ```
+
+    You can then reference that in your delay step settings as `data.delayUntil`.
+
+  </Accordion>
+  <Accordion title="Using durations">
+    A duration will take the current time that the delay step is executing and add the duration to it to produce the delay until time. A duration object is an entity that you can set on recipients, tenants, environment variables, or in your data payload and reference on your delay step.
+
+    #### The duration schema
+
+    ```typescript title="A relative duration"
+    type Duration = {
+      unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
+      value: number;
+    };
+    ```
+
+    #### An example duration
+
+    Let's say you want to express a duration that delays for 15 minutes, here's how you structure that:
+
+    ```json title="Setting a duration"
+    {
+      "delayDuration": {
+        "unit": "minutes",
+        "value": 15
+      }
+    }
+    ```
+
+    You then reference that as `data.delayDuration` in the delay step configuration.
+
+  </Accordion>
+  <Accordion title="Using window rules">
+    A window rule determines a dynamic interval for when the delay should close. It allows you to express rules like "delay until Monday at 9am".
+
+    The window rule will always be evaluated in the [recipient's timezone](/concepts/recipients#recipient-timezones) (when set) and will fall back to the account default timezone, or "Etc/UTC".
+
+    #### The window rule schema
+
+    ```typescript title="A window rule"
+    type WindowRule = {
+      frequency: "hourly" | "daily" | "weekly" | "monthly",
+      // The specific days the rule is valid on
+      days?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"> | "weekdays" | "weekends",
+      // The hour which the rule should evaluate (defaults to 0)
+      hours?: number,
+      // The minute at which the rule should evaluate (default to 0)
+      minutes?: number,
+      // What day of the month should this rule execute (useful when monthly)
+      day_of_month?: number,
+      // How often should this rule repeat? Defaults to 1
+      interval?: number
+    };
+    ```
+
+    #### Example window rule
+
+    Let's say you want to express setting a window rule for delaying until Monday at 9am, here's how you might structure that on your recipient:
+
+    ```json title="Recipient delay window"
+    {
+      "delayUntil": {
+        "frequency": "weekly",
+        "days": ["mon"],
+        "hours": 9
+      }
+    }
+    ```
+
+    Now you can set the delay window key to `recipient.delayUntil` to reference this window rule.
+
+  </Accordion>
+</AccordionGroup>
 
 ## Using workflow cancellation with delays
 
