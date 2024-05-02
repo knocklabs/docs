@@ -1,0 +1,72 @@
+---
+title: How to send push notifications using OneSignal
+description: How to send mobile push notifications with OneSignal and Knock.
+tags: ["react native", "ios", "android", "push"]
+section: Integrations
+layout: integrations
+---
+
+In this guide we'll walk through how to configure a OneSignal provider in Knock to send push notifications. This guide assumes that you've already created a OneSignal channel in the Knock dashboard.
+
+Your OneSignal channel expects that you are using Knock to author Push notification templates. Those templates are then passed to OneSignal as content.
+
+## How to configure OneSignal Push with Knock
+
+**Note**: this guide assumes that you have already setup OneSignal with push certificates and everything needed in order to start sending push notifications. You should also have already implemented the OneSignal mobile SDK within your application.
+
+To setup OneSignal Push with Knock you will need:
+
+- Your OneSignal API Key for sending notifications
+- To select a mode of operation between using `player_ids` (deprecated) or `external_ids` (recommended)
+
+## Using OneSignal Push with Knock
+
+### Using `player_id`
+
+When using player_ids you will need to store the player_id for a user within Knock as ChannelData for the OneSignal Push channel. This ensures that Knock has the correct value to pass to send a notification to a recipient when a workflow is triggered.
+
+You can retrieve the player_id from OneSignal once a user has been registered, either by using the OneSignal mobile SDK, or by using a Webhook from OneSignal.
+
+<MultiLangCodeBlock
+  snippet="users.setChannelData-one-signal"
+  title="Setting a player_id as channel data for a user"
+/>
+
+### Using `external_id` (recommended)
+
+If you’re using an external id to reference your OneSignal users within Knock, you do not need to supply any additional data to initiate a request. We will automatically pass your Knock user id to OneSignal as the `external_id`.
+
+## Data passed to OneSignal
+
+When sending a push notification to OneSignal, we will automatically pass the following into the attachments data:
+
+| Property           | Type   | Description                                            |
+| ------------------ | ------ | ------------------------------------------------------ |
+| knock_message_id\* | string | The message ID of the corresponding Knock message      |
+| data \*            | string | Any key/value data passed through in your trigger call |
+
+## Silent/background notifications
+
+When selecting to send as a silent/background notification, Knock will passthrough the content_available=true option to OneSignal.
+
+## Channel data requirements
+
+When your OneSignal push channel is configured to use `player_ids` you must supply ChannelData per-recipient that contains one or more player_ids for a user.
+
+## Frequently asked questions
+
+### Can I use both `player_ids` and `external_ids` for my OneSignal integration?
+
+No, you can currently only use one or the other.
+
+### Can I use a different identifier as an `external_id`?
+
+Currently this is not supported but we’d love to hear a use case you have for it!
+
+### Can I use a `template_id` stored in OneSignal?
+
+Yes, you can use push overrides to override the JSON payload and specify the template_id for OneSignal instead.
+
+### Can I use the OneSignal Push integration to send email or SMS?
+
+No, only Push is currently supported.
