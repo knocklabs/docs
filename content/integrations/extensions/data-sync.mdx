@@ -9,7 +9,7 @@ You can bring your notification analytics from Knock into your own data warehous
 
 ## How it works
 
-Knock leverages [Prequel](https://www.prequel.co/) to integrate with your data warehouse. There is no self-service UI to connect your account to start receiving data; instead when you contact us to set up a sync we'll send you a secure link to fill in the information about your data warehouse. Once it's connected, you'll begin receiving a [backfill of historial data](https://docs.prequel.co/docs/transfer-logic#backfills--full-refreshes), and then going forward you will receive the most up to date data on an ongoing basis.
+Knock leverages [Prequel](https://www.prequel.co/) to integrate with your data warehouse. There is no self-service UI to connect your account to start receiving data; instead when you contact us to set up a sync we'll send you a secure link to fill in the information about your data warehouse. Once it's connected, you'll begin receiving a [backfill of historical data](https://docs.prequel.co/docs/transfer-logic#backfills--full-refreshes), and then going forward you will receive the most up to date data on an ongoing basis.
 
 ## Setup
 
@@ -17,7 +17,52 @@ First, you'll have to give Knock your database type and host destination address
 
 Next, Knock generates a magic link you'll fill out. See what information you'll need for your particular database [here](https://docs.prequel.co/reference/post_import-magic-links).
 
-Once the information is filled out, you can run a test connection to make sure it's wired up. If it's successful, you can save it and it will proceeed with the backfill transfer.
+Once the information is filled out, Prequel will provide you with a table definition (example provided below). Additionally, you can run a test connection to make sure it's wired up. If it's successful, you can save it and it will proceed with the backfill transfer.
+
+<AccordionGroup>
+  <Accordion title="Example table definition">
+    Please note that the table name will vary based on the name of the schema provided when filling out the form.
+    ```markdown
+        CREATE TABLE <name of schema>.messages (
+          message_id character varying(65535) NOT NULL ENCODE raw
+          distkey
+        ,
+            account_id character varying(65535) ENCODE lzo,
+            environment_id character varying(65535) ENCODE lzo,
+            environment_name character varying(65535) ENCODE lzo,
+            environment_slug character varying(65535) ENCODE lzo,
+            channel_id character varying(65535) ENCODE lzo,
+            channel_name character varying(65535) ENCODE lzo,
+            channel_key character varying(65535) ENCODE lzo,
+            channel_type character varying(65535) ENCODE lzo,
+            channel_provider character varying(65535) ENCODE lzo,
+            workflow_id character varying(65535) ENCODE lzo,
+            workflow_key character varying(65535) ENCODE lzo,
+            step_ref character varying(65535) ENCODE lzo,
+            recipient_id character varying(65535) ENCODE lzo,
+            recipient_type character varying(65535) ENCODE lzo,
+            tenant_id character varying(65535) ENCODE lzo,
+            exec_mode character varying(65535) ENCODE lzo,
+            message_status character varying(65535) ENCODE lzo,
+            inserted_at timestamp with time zone ENCODE az64,
+            updated_at timestamp with time zone ENCODE raw,
+            seen_at timestamp with time zone ENCODE az64,
+            read_at timestamp with time zone ENCODE az64,
+            clicked_at timestamp with time zone ENCODE az64,
+            interacted_at timestamp with time zone ENCODE az64,
+            archived_at timestamp with time zone ENCODE az64,
+            has_been_seen bigint ENCODE az64,
+            has_been_read bigint ENCODE az64,
+            has_been_clicked bigint ENCODE az64,
+            has_been_interacted bigint ENCODE az64,
+            has_been_archived bigint ENCODE az64,
+            PRIMARY KEY (message_id)
+        ) DISTSTYLE KEY
+        SORTKEY
+          (message_id, updated_at);
+    ```
+  </Accordion>
+</AccordionGroup>
 
 ## Available data
 
