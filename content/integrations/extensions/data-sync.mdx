@@ -17,10 +17,16 @@ First, you'll have to give Knock your database type and host destination address
 
 Next, Knock generates a magic link you'll fill out. See what information you'll need for your particular database [here](https://docs.prequel.co/reference/post_import-magic-links).
 
-Once the information is filled out, Prequel will provide you with a table definition (example provided below). Additionally, you can run a test connection to make sure it's wired up. If it's successful, you can save it and it will proceed with the backfill transfer.
+Once the information is filled out, Prequel will provide you with a table definition. Additionally, you can run a test connection to make sure it's wired up. If it's successful, you can save it and it will proceed with the backfill transfer.
+
+## Available data
+
+Our data warehouse connector syncs data from our `messages` table. Each `message` represents a notification that was executed for a single recipient. You can read more about messages as a concept [here](https://docs.knock.app/send-and-manage-data/messages). 
+
+Below is a description of the columns included in the table and the data type of each. To see how this data type will map onto the data types of your destination table, check the [destination type mapping](https://docs.prequel.co/docs/data-types#destination-type-mapping) in the Prequel docs.
 
 <AccordionGroup>
-  <Accordion title="Example table definition">
+<Accordion title="Table definition example">
     Please note that the table name will vary based on the name of the schema provided when filling out the form.
     ```markdown
         CREATE TABLE <name of schema>.messages (
@@ -58,169 +64,163 @@ Once the information is filled out, Prequel will provide you with a table defini
         ) DISTSTYLE KEY SORTKEY (message_id, updated_at);
     ```
   </Accordion>
+  <Accordion title="Messages table structure">
+  See possible [engagement statuses](/send-notifications/message-statuses#engagement-status) for a message.
+
+    <Table
+      headers={["Name", "Type", "Description"]}
+      rows={[
+        [
+          "message_id",
+          "string",
+          "The unique identifier for this message and the primary key for this table",
+        ],
+        ["account_id", "string", "The UUID of the message's account"],
+        ["environment_id", "string", "The UUID of the message's environment"],
+        ["environment_name", "string", "The name of the message's environment"],
+        ["environment_slug", "string", "The slug of the message's environment"],
+        ["channel_id", "string", "The UUID of the channel the message was sent on"],
+        [
+          "channel_key",
+          "string",
+          "The unique key of the channel the message was sent on",
+        ],
+        [
+          "channel_name",
+          "string",
+          "The name of the channel the message was sent on",
+        ],
+        [
+          "channel_provider",
+          "string",
+          "The provider for the channel the message was sent on",
+        ],
+        ["channel_type", "string", "The type of channel the message was sent on"],
+        [
+          "workflow_id",
+          "string",
+          "The UUID of the version of the workflow that the message belongs to",
+        ],
+        [
+          "workflow_key",
+          "string",
+          "The unique key of the workflow the message belongs to",
+        ],
+        [
+          "step_ref",
+          "string",
+          "The reference of the step on the workflow that the message belongs to",
+        ],
+        ["recipient_id", "string", "The ID of the recipient for the message"],
+        [
+          "recipient_type",
+          "string",
+          <div key="recipient_type_body">
+            The{" "}
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href="https://docs.knock.app/send-and-manage-data/recipients"
+            >
+              type of recipient for the message
+            </a>
+            , can be a user or an object
+          </div>,
+        ],
+        ["tenant_id", "string", "The tenant associated with this message"],
+        [
+          "exec_mode",
+          "string",
+          <div key="exec_mode_body">
+            The execution mode of the workflow. Possible values are:
+            <ul>
+              <li>
+                <code>trigger</code> - from the API
+              </li>
+              <li>
+                <code>rehearse</code> - test run
+              </li>
+              <li>
+                <code>rehearse_step</code> - test run a single step
+              </li>
+              <li>
+                <code>integration</code> - from an event integration source
+              </li>
+              <li>
+                <code>scheduled</code> - previously scheduled execution
+              </li>
+            </ul>
+          </div>,
+        ],
+        [
+          "message_status",
+          "string",
+          <div key="message_status_body">
+            The latest{" "}
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href="https://docs.knock.app/send-notifications/message-statuses#delivery-status"
+            >
+              delivery status of a message
+            </a>
+            .
+          </div>,
+        ],
+        [
+          "inserted_at",
+          "timestamp",
+          "The timestamp of when the message was created",
+        ],
+        [
+          "updated_at",
+          "timestamp",
+          "The timestamp of when the message was last updated",
+        ],
+        [
+          "archived_at",
+          "timestamp",
+          "The timestamp of when the message was archived",
+        ],
+        ["seen_at", "timestamp", "The timestamp of when the message was seen"],
+        ["read_at", "timestamp", "The timestamp of when the message was read"],
+        [
+          "clicked_at",
+          "timestamp",
+          "The timestamp of when a link in the message was clicked",
+        ],
+        [
+          "interacted_at",
+          "timestamp",
+          "The timestamp of when the message was interacted with",
+        ],
+        [
+          "has_been_seen",
+          "integer (0 = false, 1 = true)",
+          "Whether the message has been seen",
+        ],
+        [
+          "has_been_read",
+          "integer (0 = false, 1 = true)",
+          "Whether the message has been read",
+        ],
+        [
+          "has_been_clicked",
+          "integer (0 = false, 1 = true)",
+          "Whether a link in the message has been clicked",
+        ],
+        [
+          "has_been_interacted",
+          "integer (0 = false, 1 = true)",
+          "Whether the message has been interacted with",
+        ],
+        [
+          "has_been_archived",
+          "integer (0 = false, 1 = true)",
+          "Whether the message has been archived",
+        ],
+      ]}
+    />
+
+  </Accordion>
 </AccordionGroup>
-
-## Available data
-
-Our data warehouse connector syncs data from our `messages` table. Each `message` represents a notification that was executed for a single recipient. You can read more about messages as a concept [here](https://docs.knock.app/send-and-manage-data/messages). Below is a description of the columns included in the table and the data type of each. To see how this data type will map onto the data types of your destination table, check the [destination type mapping](https://docs.prequel.co/docs/data-types#destination-type-mapping) in the Prequel docs.
-
-### Messages table structure
-
-{" "}
-
-<Table
-  headers={["Name", "Type", "Description"]}
-  rows={[
-    [
-      "message_id",
-      "string",
-      "The unique identifier for this message and the primary key for this table",
-    ],
-    ["account_id", "string", "The UUID of the message's account"],
-    ["environment_id", "string", "The UUID of the message's environment"],
-    ["environment_name", "string", "The name of the message's environment"],
-    ["environment_slug", "string", "The slug of the message's environment"],
-    ["channel_id", "string", "The UUID of the channel the message was sent on"],
-    [
-      "channel_key",
-      "string",
-      "The unique key of the channel the message was sent on",
-    ],
-    [
-      "channel_name",
-      "string",
-      "The name of the channel the message was sent on",
-    ],
-    [
-      "channel_provider",
-      "string",
-      "The provider for the channel the message was sent on",
-    ],
-    ["channel_type", "string", "The type of channel the message was sent on"],
-    [
-      "workflow_id",
-      "string",
-      "The UUID of the version of the workflow that the message belongs to",
-    ],
-    [
-      "workflow_key",
-      "string",
-      "The unique key of the workflow the message belongs to",
-    ],
-    [
-      "step_ref",
-      "string",
-      "The reference of the step on the workflow that the message belongs to",
-    ],
-    ["recipient_id", "string", "The ID of the recipient for the message"],
-    [
-      "recipient_type",
-      "string",
-      <div key="recipient_type_body">
-        The{" "}
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href="https://docs.knock.app/send-and-manage-data/recipients"
-        >
-          type of recipient for the message
-        </a>
-        , can be a user or an object
-      </div>,
-    ],
-    ["tenant_id", "string", "The tenant associated with this message"],
-    [
-      "exec_mode",
-      "string",
-      <div key="exec_mode_body">
-        The execution mode of the workflow. Possible values are:
-        <ul>
-          <li>
-            <code>trigger</code> - from the API
-          </li>
-          <li>
-            <code>rehearse</code> - test run
-          </li>
-          <li>
-            <code>rehearse_step</code> - test run a single step
-          </li>
-          <li>
-            <code>integration</code> - from an event integration source
-          </li>
-          <li>
-            <code>scheduled</code> - previously scheduled execution
-          </li>
-        </ul>
-      </div>,
-    ],
-    [
-      "message_status",
-      "string",
-      <div key="message_status_body">
-        The latest{" "}
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href="https://docs.knock.app/send-notifications/message-statuses#delivery-status"
-        >
-          delivery status of a message
-        </a>
-        .
-      </div>,
-    ],
-    [
-      "inserted_at",
-      "timestamp",
-      "The timestamp of when the message was created",
-    ],
-    [
-      "updated_at",
-      "timestamp",
-      "The timestamp of when the message was last updated",
-    ],
-    [
-      "archived_at",
-      "timestamp",
-      "The timestamp of when the message was archived",
-    ],
-    ["seen_at", "timestamp", "The timestamp of when the message was seen"],
-    ["read_at", "timestamp", "The timestamp of when the message was read"],
-    [
-      "clicked_at",
-      "timestamp",
-      "The timestamp of when a link in the message was clicked",
-    ],
-    [
-      "interacted_at",
-      "timestamp",
-      "The timestamp of when the message was interacted with",
-    ],
-    [
-      "has_been_seen",
-      "integer (0 = false, 1 = true)",
-      "Whether the message has been seen",
-    ],
-    [
-      "has_been_read",
-      "integer (0 = false, 1 = true)",
-      "Whether the message has been read",
-    ],
-    [
-      "has_been_clicked",
-      "integer (0 = false, 1 = true)",
-      "Whether a link in the message has been clicked",
-    ],
-    [
-      "has_been_interacted",
-      "integer (0 = false, 1 = true)",
-      "Whether the message has been interacted with",
-    ],
-    [
-      "has_been_archived",
-      "integer (0 = false, 1 = true)",
-      "Whether the message has been archived",
-    ],
-  ]}
-/>
-
-See possible [engagement statuses](/send-notifications/message-statuses#engagement-status) for a message.
