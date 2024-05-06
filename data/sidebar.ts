@@ -8,7 +8,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/what-is-knock", title: "What is Knock?" },
       { slug: "/quick-start", title: "Quick start" },
-      { slug: "/example-app", title: "Example apps" },
+      { slug: "/example-apps", title: "Example apps" },
     ],
   },
   {
