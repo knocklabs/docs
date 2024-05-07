@@ -80,7 +80,7 @@ export default function Home() {
                     title={String(s.title)}
                     linkUrl={s.slug + s.pages[0].slug}
                     footer={
-                      <div className="flex text-[14px] text-gray-500 dark:text-gray-200 min-h-[110px]">
+                      <div className="flex text-[14px] text-gray-500 dark:text-gray-200 min-h-[90px]">
                         {s.desc}
                       </div>
                     }
