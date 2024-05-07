@@ -314,6 +314,11 @@ const nextConfig = {
         destination: "/sdks/android/quick-start",
         permanent: false,
       },
+      {
+        source: "/in-app-ui/flutter",
+        destination: "/in-app-ui/flutter/overview",
+        permanent: false,
+      },
     ];
   },
 };
