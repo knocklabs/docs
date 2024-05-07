@@ -277,22 +277,22 @@ const nextConfig = {
       {
         source: "/getting-started/knock-and-postman",
         destination: "/developer-tools/knock-and-postman",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/getting-started/security",
         destination: "/developer-tools/security",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/getting-started/how-knock-works",
         destination: "/getting-started/what-is-knock",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/getting-started/example-app",
         destination: "/getting-started/example-apps",
-        permanent: false,
+        permanent: true,
       },
     ];
   },
