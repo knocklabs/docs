@@ -11,7 +11,7 @@ type Props = {
 
 const CardGroup = ({ children, cols = 2 }) => (
   <div
-    className={clsx(`grid gap-2 auto-rows-[minmax(140px,auto)]`, {
+    className={clsx(`grid gap-2`, {
       "grid-cols-2": cols == 2,
       "grid-cols-3": cols == 3,
     })}
