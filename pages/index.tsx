@@ -4,6 +4,7 @@ import { Page } from "../layouts/Page";
 import DocsSidebar from "../components/DocsSidebar";
 import MinimalHeader from "../components/Header/MinimalHeader";
 import AiChatButton from "../components/AiChatButton";
+import { Card, CardGroup } from "../components/Card";
 
 const contentForDiscovery = sidebarContent.filter((s) => s.desc);
 
@@ -72,35 +73,13 @@ export default function Home() {
           <h2 className="text-2xl font-bold mb-3">Discover Knock</h2>
 
           <div className="space-y-6 pt-3">
+            <CardGroup>
             {contentForDiscovery.map((s) => (
-              <div
-                className="flex flex-col lg:flex-row border-t dark:border-t-gray-700 pt-6"
-                key={s.slug}
-              >
-                <div className="lg:w-80">
-                  <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-200">
-                    {s.desc}
-                  </p>
-                </div>
-
-                <ul className="mt-5 lg:mt-0 lg:ml-auto lg:w-40 space-y-2">
-                  {s.pages.map((p) => (
-                    <li
-                      className="text-sm text-gray-500 dark:text-gray-300"
-                      key={p.slug}
-                    >
-                      <Link
-                        href={s.slug + p.slug}
-                        className="hover:text-gray-800 dark:hover:text-gray-100"
-                      >
-                        {p.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+              <div key={s.slug}>
+                <Card title={String(s.title)} linkUrl={s.slug + s.pages[0].slug} footer={<div className="flex items-center text-[14px] text-gray-500 dark:text-gray-200">{s.desc}</div>} />
               </div>
             ))}
+            </CardGroup>
           </div>
         </section>
       </div>
