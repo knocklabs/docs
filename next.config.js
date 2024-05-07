@@ -299,6 +299,11 @@ const nextConfig = {
         destination: "/concepts/overview",
         permanent: false,
       },
+      {
+        source: "/in-app-ui/javascript/quick-start",
+        destination: "/sdks/javascript/quick-start",
+        permanent: false,
+      },
     ];
   },
 };
