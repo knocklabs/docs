@@ -74,11 +74,19 @@ export default function Home() {
 
           <div className="space-y-6 pt-3">
             <CardGroup>
-            {contentForDiscovery.map((s) => (
-              <div key={s.slug}>
-                <Card title={String(s.title)} linkUrl={s.slug + s.pages[0].slug} footer={<div className="flex items-center text-[14px] text-gray-500 dark:text-gray-200">{s.desc}</div>} />
-              </div>
-            ))}
+              {contentForDiscovery.map((s) => (
+                <div key={s.slug}>
+                  <Card
+                    title={String(s.title)}
+                    linkUrl={s.slug + s.pages[0].slug}
+                    footer={
+                      <div className="flex items-center text-[14px] text-gray-500 dark:text-gray-200">
+                        {s.desc}
+                      </div>
+                    }
+                  />
+                </div>
+              ))}
             </CardGroup>
           </div>
         </section>
