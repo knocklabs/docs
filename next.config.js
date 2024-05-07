@@ -304,6 +304,11 @@ const nextConfig = {
         destination: "/sdks/javascript/quick-start",
         permanent: false,
       },
+      {
+        source: "/SDKs/overview",
+        destination: "/sdks/overview",
+        permanent: false,
+      },
     ];
   },
 };
