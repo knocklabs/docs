@@ -289,6 +289,11 @@ const nextConfig = {
         destination: "/getting-started/what-is-knock",
         permanent: false,
       },
+      {
+        source: "/getting-started/example-app",
+        destination: "/getting-started/example-apps",
+        permanent: false,
+      },
     ];
   },
 };
