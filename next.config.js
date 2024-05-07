@@ -294,6 +294,11 @@ const nextConfig = {
         destination: "/getting-started/example-apps",
         permanent: true,
       },
+      {
+        source: "/concepts",
+        destination: "/concepts/overview",
+        permanent: false,
+      },
     ];
   },
 };
