@@ -127,4 +127,4 @@ Here are the providers we currently support within Knock. We're adding more each
 
 ### In-app
 
-- [Knock in-app](/integrations/in-app/knock-feed)
+- [Knock in-app](/integrations/in-app/knock)
