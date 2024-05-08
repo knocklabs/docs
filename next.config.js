@@ -305,11 +305,6 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: "/SDKs/overview",
-        destination: "/sdks/overview",
-        permanent: false,
-      },
-      {
         source: "/in-app-ui/android/quick-start",
         destination: "/sdks/android/quick-start",
         permanent: false,
