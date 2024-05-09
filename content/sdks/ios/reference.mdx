@@ -80,6 +80,113 @@ class AppDelegate: KnockAppDelegate {
 }
 ```
 
+## KnockInAppFeedViewModel
+
+`KnockInAppFeedViewModel` manages the state and behavior of the in-app feed. It handles data fetching, user actions, state updates, and feed configuration.
+
+This class is used with our [`KnockInAppFeedView`](https://docs.knock.app/in-app-ui/ios/components#knockinappfeedview) component, but it can also be used independently if you would like to build your own UI.
+
+### Properties
+
+<Attributes>
+  <Attribute
+    name="feed"
+    type="Knock.Feed"
+    description="Holds the current feed data."
+  />
+  <Attribute
+    name="currentTenantId"
+    type="String?"
+    description="Identifies the tenant associated with the current feed."
+  />
+  <Attribute
+    name="currentFilter"
+    type="InAppFeedFilter"
+    description="The currently active filter for displaying feed items."
+  />
+  <Attribute
+    name="filterOptions"
+    type="[InAppFeedFilter]"
+    description="Available filter options for customizing feed display."
+  />
+  <Attribute
+    name="topButtonActions"
+    type="[Knock.FeedTopActionButtonType]?"
+    description="Actions available at the top of the feed interface, such as archiving or marking all as read. If set to nil, this view will be hidden."
+  />
+  <Attribute
+    name="feedClientOptions"
+    type="Knock.FeedClientOptions"
+    description="Configuration options for feed."
+  />
+  <Attribute
+    name="didTapFeedItemButtonPublisher"
+    type="PassthroughSubject<String, Never>()"
+    description="Publisher for feed item button tap events."
+  />
+  <Attribute
+    name="didTapFeedItemRowPublisher"
+    type="PassthroughSubject<Knock.FeedItem, Never>()"
+    description="Publisher for feed item row tap events."
+  />
+</Attributes>
+
+### Methods
+
+<Attributes>
+  <Attribute
+    name="connectFeedAndObserveNewMessages"
+    description="Connects to the feed and subscribes to new message events."
+  />
+  <Attribute
+    name="refreshFeed(showLoadingIndicator: Bool)"
+    description="Refreshes the feed using the original filter options."
+  />
+  <Attribute
+    name="fetchNewPageOfFeedItems"
+    description="Loads additional feed items when the end of the list is reached."
+  />
+  <Attribute
+    name="isMoreContentAvailable"
+    description="Determines if there are more pages of feed content that need to be fetched."
+  />
+  <Attribute
+    name="archiveItem(_ item: Knock.FeedItem)"
+    description="Archives a specific feed item."
+  />
+  <Attribute
+    name="archiveAll(scope: Knock.FeedItemScope)"
+    description="Archives all items within the specified scope."
+  />
+  <Attribute
+    name="markAllAsRead"
+    description="Marks all items in the feed as read."
+  />
+  <Attribute
+    name="markAllAsSeen"
+    description="Marks all unseen items as seen."
+  />
+  <Attribute
+    name="markAsInteracted"
+    description="Marks message as interacted. Typically used when user taps on an item."
+  />
+  <Attribute
+    name="didSwipeRow(item: Knock.FeedItem, swipeAction: FeedNotificationRowSwipeAction)"
+    description="Called when a user performs a horizontal swipe action on a row item."
+  />
+  <Attribute
+    name="topActionButtonTapped(action: Knock.FeedTopActionButtonType)"
+    description="Called when a user taps on one of the action buttons at the top of the list."
+  />
+</Attributes>
+
+### Examples
+
+```swift
+@State var viewModel = Knock.InAppFeedViewModel()
+let feedView = Knock.InAppFeedView().environmentObject(viewModel)
+```
+
 ## Authentication
 
 ### `Knock.shared.isAuthenticated()`

@@ -1,0 +1,78 @@
+---
+title: "Swift SDK pre-built components"
+description: How to use our pre-build UI components in your Knock implementation.
+section: Building in-app UI
+---
+
+## KnockInAppFeedView
+
+### Overview
+
+`KnockInAppFeedView` is a SwiftUI view that renders the in-app notifications feed using data from `KnockInAppFeedViewModel`. It provides a customizable and interactive user interface for displaying notifications.
+
+Note: If you are using UIKit, use `KnockInAppFeedViewController`.
+
+### Properties
+
+<Attributes>
+  <Attribute
+    name="theme"
+    type="InAppFeedTheme"
+    description="Defines the appearance of the feed view and its components."
+  />
+</Attributes>
+
+### Customization
+
+You can customize almost every aspect of the UI of the `KnockInAppFeedView` using our customizable themes.
+
+### Examples
+
+```swift
+@EnvironmentObject var viewModel: Knock.InAppFeedViewModel = .init()
+KnockInAppFeedView(theme: KnockInAppFeedTheme(titleString: "Notifications"))
+    .environmentObject(viewModel)
+    .onReceive(viewModel.didTapFeedItemButtonPublisher) { actionString in
+        print("Button with action \(actionString) was tapped.")
+    }
+    .onReceive(viewModel.didTapFeedItemRowPublisher) { item in
+        print("Row item was tapped")
+    }
+```
+
+## InAppFeedNotificationIconButton
+
+### Overview
+
+`InAppFeedNotificationIconButton` is a SwiftUI view that renders a bell icon button to your application that shows the current count of unread or unseen notifications. This can be used to open your NotificationFeed.
+
+### Properties
+
+<Attributes>
+  <Attribute
+    name="theme"
+    type="InAppFeedNotificationIconButtonTheme"
+    description="Defines the appearance of the feed view and its components."
+  />
+  <Attribute
+    name="action"
+    type="() -> Void"
+    description="A callback to alert you when user taps on the button."
+  />
+</Attributes>
+
+### Examples
+
+```swift
+    TestParentView()
+        .sheet(isPresented: $showingSheet) {
+            Knock.InAppFeedView()
+                .environmentObject(feedViewModel)
+        }
+        .toolbar {
+            Knock.InAppFeedNotificationIconButton() {
+                showingSheet.toggle()
+            }
+            .environmentObject(feedViewModel)
+        }
+```
