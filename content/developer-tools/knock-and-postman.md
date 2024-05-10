@@ -19,7 +19,7 @@ In this guide you'll fork the Knock collection into your Postman workspace and c
 
 We recommend creating a Postman environment for each of the environments you're using in Knock. This way you can store environment-level variables (such as API keys) and easily switch between environments without having to update your endpoint parameters.
 
-1. Navigate to the "Environments" section in Postman. You should see an environment named "Knock environment template".
+1. Navigate to the "Environments" section in Postman. You should see an environment named "Knock environment template."
 2. Duplicate the template so you have one environment in Postman for every environment you use in Knock.
 
 Once your environments are in place in Postman, grab the secret key from their corresponding environment in Knock and add it to the environment's secret key variable in Postman.
