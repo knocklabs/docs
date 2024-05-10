@@ -1,13 +1,16 @@
 const languages = {
   javascript: `
-const { Knock } = require("@knocklabs/node");
+import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
+
+// Get this value in your Knock dashboard
+const APNS_CHANNEL_ID = "some-channel-id-from-knock";
 
 await knock.users.identify("1", {
   name: "John Hammond",
   email: "jhammond@ingen.net",
   channel_data: {
-    "{{ channelId }}": {
+    APNS_CHANNEL_ID: {
       tokens: ["apns-push-token"]
     }
   }
@@ -16,11 +19,14 @@ await knock.users.identify("1", {
   elixir: `
 knock_client = MyApp.Knock.client()
 
+# Get this value in your Knock dashboard
+apns_channel_id = "some-channel-id-from-knock"
+
 Knock.Users.identify(knock_client, "1", %{
   name: "John Hammond",
   email: "jhammond@ingen.net",
   channel_data: %{
-    "{{ channel_id }}" => %{
+    apns_channel_id => %{
       "tokens" => ["apns-push-token"],
     }
   }
@@ -30,14 +36,17 @@ Knock.Users.identify(knock_client, "1", %{
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
+# Get this value in your Knock dashboard
+apns_channel_id = "some-channel-id-from-knock"
+
 client.users.identify(
   id="1",
   data={
     "name": "John Hammond",
     "email": "jhammond@ingen.net",
     "channel_data": {
-      "{{ channel_id }}": {
-          "tokens": [apns_push_token]
+      apns_channel_id: {
+          "tokens": ["apns_push_token"]
       }
     }
   }
@@ -47,14 +56,17 @@ client.users.identify(
 require "knock"
 Knock.key = "sk_12345"
 
+# Get this value in your Knock dashboard
+apns_channel_id = "some-channel-id-from-knock"
+
 Knock::Users.identify(
   id: "1",
   data: {
     name: "John Hammond",
     email: "jhammond@ingen.net",
     channel_data: {
-      "{{ channel_id }}": {
-        tokens: [apns_push_token]
+      apns_channel_id: {
+        tokens: ["apns_push_token"]
       }
     }
   }
@@ -65,11 +77,14 @@ var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" }
 );
 
+// Get this value in your Knock dashboard
+var apnsChannelId = "some-channel-id-from-knock";
+
 var params = new Dictionary<string, string>{
   {"name", "John Hammond"},
   {"email", "jhammond@ingen.net"},
   {"channel_data", new Dictionary<string, object>{
-    {"{{ channel_id }}", new Dictionary<string, object>{
+    {apnsChannelId, new Dictionary<string, object>{
       {"tokens", new List<string>{
         {"apns_push_token"}
       }}
@@ -84,11 +99,14 @@ use Knock\\KnockSdk\\Client;
 
 $client = new Client('sk_12345');
 
+// Get this value in your Knock dashboard
+$apns_channel_id = "some-channel-id-from-knock";
+
 $client->users()->identify('1', [
   'name' => 'John Hammond',
   'email' => 'jhammond@ingen.net',
   'channel_data' => [
-    '{{ channel_id }}' => [
+    $apns_channel_id => [
       'tokens' => ['apns-push-token'],
     ]
   ]
@@ -98,12 +116,15 @@ $client->users()->identify('1', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
+// Get this value in your Knock dashboard
+apnsChannelId := "some-channel-id-from-knock"
+
 user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
   ID: "1",
   Name: "John Hammond",
   Email: "jhammond@ingen.net",
   ChannelData: map[string]map{
-    "{{ channel_id }}": map[string]string {
+    apnsChannelId: map[string]string {
       "tokens": ["apns-push-token"]
     }
   }
@@ -117,12 +138,15 @@ KnockClient client = KnockClient.builder()
     .apiKey("sk_12345")
     .build();
 
+// Get this value in your Knock dashboard
+String apnsChannelId = "some-channel-id-from-knock";
+
 UserIdentity user = client.users().identify("1", UserIdentity.builder()
   .name("John Hammond")
   .email("jhammond@ingen.net")
   .property("channel_data",
     Map.of(
-      "{{ channel_id }}", Map.of(
+      apnsChannelId, Map.of(
       "tokens", List.of("apns-push-token")
       )
     )

@@ -3,6 +3,9 @@ const languages = {
 const { Knock } = require("@knocklabs/node");
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
+// Get this value in your Knock dashboard
+const APNS_CHANNEL_ID = "some-channel-id-from-knock";
+
 await knock.workflows.trigger("new-comment", {
   data: { project_name: "My Project" },
   recipients: [
@@ -10,7 +13,7 @@ await knock.workflows.trigger("new-comment", {
       id: "1",
       email: "jhammond@ingen.net",
       channel_data: {
-        "{{ channelId }}": {
+        APNS_CHANNEL_ID: {
           tokens: ["apns-push-token"]
         }
       }
@@ -22,7 +25,8 @@ await knock.workflows.trigger("new-comment", {
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-apns_push_token = "apns-push-token"
+# Get this value in your Knock dashboard
+apns_channel_id = "some-channel-id-from-knock"
 
 client.workflows.trigger(
     key="new-comment",
@@ -32,8 +36,8 @@ client.workflows.trigger(
             "id": "1",
             "email": "jhammond@ingen.net",
             "channel_data": {
-                "{{ channel_id }}": {
-                    "tokens": [apns_push_token]
+                apns_channel_id: {
+                    "tokens": ["apns_push_token"]
                 }
             }
         }
@@ -44,7 +48,8 @@ client.workflows.trigger(
 require "knock"
 Knock.key = "sk_12345"
 
-apns_push_token = "apns-push-token"
+# Get this value in your Knock dashboard
+apns_channel_id = "some-channel-id-from-knock"
 
 Knock::Workflows.trigger(
   key: "new-comment",
@@ -54,8 +59,8 @@ Knock::Workflows.trigger(
       id: "1",
       email: "jhammond@ingen.net",
       channel_data: {
-        "{{ channel_id }}": {
-          tokens: [apns_push_token]
+        apns_channel_id: {
+          tokens: ["apns_push_token"]
         }
       }
     }
@@ -67,6 +72,9 @@ var knockClient = new KnockClient(
     new KnockOptions { ApiKey = "sk_12345" }
 );
 
+// Get this value in your Knock dashboard
+var apnsChannelId = "some-channel-id-from-knock";
+
 var workflowTriggerOpts = new TriggerWorkflow {
   Data = new Dictionary<string, string>{
     {"project_name", "My Project"}
@@ -76,7 +84,7 @@ var workflowTriggerOpts = new TriggerWorkflow {
       {"id", "1"},
       {"email", "jhammond@ingen.net"},
       {"channel_data", new Dictionary<string, object>{
-        {"{{ channel_id }}", new Dictionary<string, object>{
+        {apnsChannelId, new Dictionary<string, object>{
           {"tokens", new List<string>{
             {"apns_push_token"}
           }}
@@ -91,6 +99,9 @@ var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerO
   elixir: `
 knock_client = MyApp.Knock.client()
 
+# Get this value in your Knock dashboard
+apns_channel_id = "some-channel-id-from-knock"
+
 Knock.Workflows.trigger("new-comment", %{
   data: %{project_name: "My Project"},
   recipients: [
@@ -98,7 +109,7 @@ Knock.Workflows.trigger("new-comment", %{
       id: "1",
       email: "jhammond@ingen.net",
       channel_data: %{
-        "{{ channel_id }}" => %{
+        apns_channel_id => %{
           "tokens" => ["apns-push-token"],
         }
       }
@@ -111,6 +122,9 @@ use Knock\\KnockSdk\\Client;
 
 $client = new Client('sk_12345');
 
+// Get this value in your Knock dashboard
+$apns_channel_id = "some-channel-id-from-knock";
+
 $client->workflows()->trigger('new-comment', [
   'data' => ['project_name' => 'My Project'],
   'recipients' => [
@@ -118,7 +132,7 @@ $client->workflows()->trigger('new-comment', [
       'id' => '1',
       'email' => 'jhammond@ingen.net',
       'channel_data' => [
-        '{{ channel_id }}' => [
+        $apns_channel_id => [
           'tokens' => ['apns-push-token'],
         ]
       ]
@@ -130,6 +144,9 @@ $client->workflows()->trigger('new-comment', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
+// Get this value in your Knock dashboard
+apnsChannelId := "some-channel-id-from-knock"
+
 result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
   Data: map[string]string{"project_name": "My Project"},
@@ -138,7 +155,7 @@ result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
       "id": "1",
       "email": "jhammond@ingen.net",
       "channel_data": map[string]map{
-        "{{ channel_id }}": map[string]string {
+        apnsChannelId: map[string]string {
           "tokens": ["apns-push-token"]
         }
       }
@@ -154,6 +171,9 @@ KnockClient client = KnockClient.builder()
     .apiKey("sk_12345")
     .build();
 
+// Get this value in your Knock dashboard
+String apnsChannelId = "some-channel-id-from-knock";
+
 WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
     .key("new-comment")
     .data("project_name", "My project")
@@ -162,7 +182,7 @@ WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
         "id", "1",
         "email", "jhammond@ingen.net",
         "channel_data", Map.of(
-          "{{ channel_id }}", Map.of(
+          apnsChannelId, Map.of(
             "tokens", List.of("apns-push-token")
           )
         )
