@@ -1,6 +1,6 @@
 const languages = {
   javascript: `
-const { Knock } = require("@knocklabs/node");
+import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 const userInvite = await invites.approve(inviteToken);

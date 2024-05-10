@@ -1,6 +1,6 @@
 const languages = {
   javascript: `
-const { Knock } = require("@knocklabs/node");
+import { Knock } from "@knocklabs/node";
 const knock = new Knock("sk_example_12345679");
 
 const objectIds = ["project-1", "project-2"];

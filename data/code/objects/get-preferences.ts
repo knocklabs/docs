@@ -1,6 +1,6 @@
 const languages = {
   javascript: `
-const { Knock } = require("@knocklabs/node");
+import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
 await knockClient.objects.getPreferences("projects", "project-1");

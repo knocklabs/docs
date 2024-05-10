@@ -1,6 +1,6 @@
 const languages = {
   javascript: `
-const { Knock } = require("@knocklabs/node");
+import { Knock } from "@knocklabs/node";
 const knock = new Knock("sk_example_123456789");
 
 const bulkOperation = await knock.users.bulkDelete(userIds);
