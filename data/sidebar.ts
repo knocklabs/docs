@@ -75,7 +75,6 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/identifying-recipients", title: "Identifying recipients" },
-      { slug: "/setting-preferences", title: "Setting preferences" },
       { slug: "/setting-channel-data", title: "Setting channel data" },
       { slug: "/deleting-users", title: "Deleting users" },
       { slug: "/merging-users", title: "Merging users" },
