@@ -96,6 +96,19 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
+    title: "Preferences",
+    slug: "/preferences",
+    desc: "Learn how to power notification preferences with Knock.",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/quick-start", title: "Quick start" },
+      { slug: "/client-integration", title: "Client integration" },
+      { slug: "/tenant-preferences", title: "Tenant preferences" },
+      { slug: "/object-preferences", title: "Object preferences" },
+      { slug: "/preference-conditions", title: "Preferences conditions" },
+    ],
+  },
+  {
     title: "Building in-app UI",
     slug: "/in-app-ui",
     desc: "Use the Knock in-app experiences APIs and components to build rich notifications experiences inside of your product.",
