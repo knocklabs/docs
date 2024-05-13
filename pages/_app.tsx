@@ -1,6 +1,7 @@
 import React, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import * as analytics from "../lib/analytics";
 import {
   EventEmitterContext,
   useEventEmitterInstance,
@@ -19,6 +20,7 @@ function App({ Component, pageProps }) {
     const handleRouteChange = (url: URL) => {
       gtag.pageview(url);
       setClearbitPath(url);
+      analytics.page();
     };
 
     router.events.on("routeChangeComplete", handleRouteChange);
@@ -38,6 +40,7 @@ function App({ Component, pageProps }) {
       <EventEmitterContext.Provider value={eventEmitter}>
         <Component {...pageProps} />
       </EventEmitterContext.Provider>
+      {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
     </ThemeProvider>
   );
 }
