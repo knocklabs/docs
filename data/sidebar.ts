@@ -101,7 +101,6 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/quick-start", title: "Quick start" },
-      { slug: "/client-integration", title: "Client integration" },
       { slug: "/tenant-preferences", title: "Tenant preferences" },
       { slug: "/object-preferences", title: "Object preferences" },
       { slug: "/preference-conditions", title: "Preferences conditions" },
