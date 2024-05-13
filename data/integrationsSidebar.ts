@@ -128,6 +128,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/apns", title: "Apple (APNS)" },
       { slug: "/firebase", title: "Firebase (FCM)" },
       { slug: "/expo", title: "Expo (React Native)" },
+      { slug: "/one-signal", title: "OneSignal" },
     ],
   },
 

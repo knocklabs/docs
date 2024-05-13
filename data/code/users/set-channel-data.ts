@@ -1,6 +1,6 @@
 const languages = {
   javascript: `
-const { Knock } = require("@knocklabs/node");
+import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
 const APNS_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";

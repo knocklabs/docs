@@ -277,16 +277,41 @@ const nextConfig = {
       {
         source: "/getting-started/knock-and-postman",
         destination: "/developer-tools/knock-and-postman",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/getting-started/security",
         destination: "/developer-tools/security",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/getting-started/how-knock-works",
         destination: "/getting-started/what-is-knock",
+        permanent: true,
+      },
+      {
+        source: "/getting-started/example-app",
+        destination: "/getting-started/example-apps",
+        permanent: true,
+      },
+      {
+        source: "/concepts",
+        destination: "/concepts/overview",
+        permanent: false,
+      },
+      {
+        source: "/in-app-ui/javascript/quick-start",
+        destination: "/sdks/javascript/quick-start",
+        permanent: false,
+      },
+      {
+        source: "/in-app-ui/android/quick-start",
+        destination: "/sdks/android/quick-start",
+        permanent: false,
+      },
+      {
+        source: "/in-app-ui/flutter",
+        destination: "/in-app-ui/flutter/overview",
         permanent: false,
       },
     ];

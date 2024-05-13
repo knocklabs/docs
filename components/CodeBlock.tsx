@@ -12,6 +12,8 @@ import liquid from "react-syntax-highlighter/dist/cjs/languages/hljs/handlebars"
 import go from "react-syntax-highlighter/dist/cjs/languages/hljs/go";
 import java from "react-syntax-highlighter/dist/cjs/languages/hljs/java";
 import yaml from "react-syntax-highlighter/dist/cjs/languages/hljs/yaml";
+import kotlin from "react-syntax-highlighter/dist/cjs/languages/hljs/kotlin";
+import swift from "react-syntax-highlighter/dist/cjs/languages/hljs/swift";
 import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
 
@@ -33,6 +35,9 @@ SyntaxHighlighter.registerLanguage("liquid", liquid);
 SyntaxHighlighter.registerLanguage("go", go);
 SyntaxHighlighter.registerLanguage("java", java);
 SyntaxHighlighter.registerLanguage("yaml", yaml);
+SyntaxHighlighter.registerLanguage("curl", shell);
+SyntaxHighlighter.registerLanguage("swift", swift);
+SyntaxHighlighter.registerLanguage("kotlin", kotlin);
 
 export type SupportedLanguage =
   | "javascript"
@@ -46,7 +51,10 @@ export type SupportedLanguage =
   | "json"
   | "go"
   | "java"
-  | "yaml";
+  | "kotlin"
+  | "swift"
+  | "yaml"
+  | "curl";
 
 const LanguageLabel = {
   javascript: "JavaScript",
@@ -61,6 +69,9 @@ const LanguageLabel = {
   go: "Go",
   java: "Java",
   yaml: "YAML",
+  curl: "cURL",
+  kotlin: "Kotlin",
+  swift: "Swift",
 };
 
 export interface Props {
@@ -106,10 +117,23 @@ export const CodeBlock: React.FC<Props> = ({
   const { theme } = useTheme();
 
   const params = useMemo(() => getParams(className) as any, [className]);
-  const lang = useMemo(
-    () => language ?? params.language ?? "shell",
-    [language, params],
-  );
+
+  //Determine language to be used for syntax highlighting
+  const lang = useMemo(() => {
+    // Check if `language` and `languages` exist, and if so, whether `language` is in the `languages` list for the block
+    // If so, we want to use it for syntax highlighting
+    if (language && languages && languages.includes(language)) {
+      return language;
+    }
+    // If `language` is defined but not in the `languages` list, default syntax highlighting to the first item in the languages list
+    else if (language && languages && !languages.includes(language)) {
+      return languages[0];
+    }
+    // Finally, fallback to `params.language` or to "shell" if it's also not defined
+    else {
+      return params.language ?? "shell";
+    }
+  }, [language, languages, params.language]);
 
   const [content] = useMemo(
     () =>
