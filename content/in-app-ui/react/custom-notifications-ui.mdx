@@ -36,18 +36,29 @@ To use this example, you'll need [an account on Knock](https://dashboard.knock.a
 npm install @knocklabs/react
 ```
 
+## Implement `KnockProvider`
+
+First, we'll need to implement the `KnockProvider` component somewhere in your component tree and authenticate against the Knock API using a user id and API key.
+
+```jsx title="Implement KnockProvider in your app"
+import { KnockProvider } from "@knocklabs/react";
+
+const App = ({ user }) => (
+  <KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} userId={user.id}>
+    <NotificationFeed />
+  </KnockProvider>
+);
+```
+
 ## Setup the Knock client
 
-First, we'll need to authenticate against the Knock API and setup an instance of a Knock client using the `useAuthenticatedKnockClient` hook.
+Next, we'll need to access the instance of the Knock client created by the `KnockProvider` using the `useKnockClient` hook.
 
-```jsx
-import { useAuthenticatedKnockClient } from "@knocklabs/react";
+```jsx title="Access the configured knockClient using useKnockClient"
+import { useKnockClient } from "@knocklabs/react";
 
 const NotificationFeed = ({ user }) => {
-  const knockClient = useAuthenticatedKnockClient(
-    process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
-  );
+  const knockClient = useKnockClient();
 
   return null;
 };
@@ -57,19 +68,13 @@ const NotificationFeed = ({ user }) => {
 
 Next, we'll want to set up an instance of a Knock Feed, which will handle the state management and provide a way for us to interact with the messages on the feed.
 
-```jsx
-import {
-  useAuthenticatedKnockClient,
-  useNotifications,
-} from "@knocklabs/react";
+```jsx title="Create a feed store with Zustand"
+import { useKnockClient, useNotifications } from "@knocklabs/react";
 import create from "zustand";
 import { useEffect } from "react";
 
 const NotificationFeed = ({ user }) => {
-  const knockClient = useAuthenticatedKnockClient(
-    process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
-  );
+  const knockClient = useKnockClient();
   const feedClient = useNotifications(
     knockClient,
     process.env.KNOCK_FEED_CHANNEL_ID,
@@ -88,12 +93,9 @@ const NotificationFeed = ({ user }) => {
 
 The last step is to render our notifications UI using the data that's exposed via the state store (`items` and `metadata`).
 
-```jsx
-const NotificationFeed = () => {
-  const knockClient = useAuthenticatedKnockClient(
-    process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
-  );
+```jsx title="Render items and metadata in the feed"
+const NotificationFeed = ({ user }) => {
+  const knockClient = useKnockClient();
   const feedClient = useNotifications(
     knockClient,
     process.env.KNOCK_FEED_CHANNEL_ID,
