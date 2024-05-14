@@ -6,7 +6,7 @@ const knockClient = new Knock("sk_12345");
 const CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
 await knockClient.users.setChannelData("jhammond", CHANNEL_ID, {
-  tokens: [userDeviceToken],
+  player_ids: [oneSignalPlayerId]
 });
   `,
   python: `
@@ -17,7 +17,7 @@ client.users.set_channel_data(
   id=user.id, 
   channel_id="8209f26c-62a5-461d-95e2-a5716a26e652"
   channel_data={
-    "tokens": [user_device_token]
+    "player_ids": [oneSignalPlayerId]
   }
 )
   `,
@@ -29,16 +29,16 @@ Knock::Users.set_channel_data(
   id: user.id,
   channel_id: "8209f26c-62a5-461d-95e2-a5716a26e652",
   channel_data: {
-    tokens: [user_device_token]
+    player_ids: [oneSignalPlayerId]
   }
 )  
 `,
   csharp: `
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
-
+  
 var channelData = new Dictionary<string, object>{
-  { "tokens", new List<string> { userDeviceToken } }
+  { "player_ids", new List<string> { oneSignalPlayerId } }
 };
 
 var channelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
@@ -49,7 +49,7 @@ await knockClient.Users.SetChannelData(user.Id, channelId, channelData);
 knock_client = MyApp.Knock.client()
 
 Knock.Users.set_channel_data(knock_client, user.id, "8209f26c-62a5-461d-95e2-a5716a26e652", %{
-  tokens: [user_device_token],
+  player_ids: [oneSignalPlayerId],
 })
   `,
   php: `
@@ -58,7 +58,7 @@ use Knock\\KnockSdk\\Client;
 $client = new Client('sk_12345');
   
 $client->users()->setChannelData($user->id(), '5a88728a-3ecb-400d-ba6f-9c0956ab252f', [
-  'tokens' => [$apnsToken]
+  'player_ids' => [$oneSignalPlayerId]
 ]);
   `,
   go: `
@@ -69,8 +69,8 @@ channelData, _ := knockClient.Users.SetChannelData(ctx, &knock.SetUserChannelDat
   UserID:    user.ID,
   ChannelID: "5a88728a-3ecb-400d-ba6f-9c0956ab252f",
   Data: map[string]interface{}{
-    "tokens": []string{}{
-      apnsToken
+    "player_ids": []string{}{
+      oneSignalPlayerId
     },
   },
 })
@@ -86,7 +86,7 @@ KnockClient client = KnockClient.builder()
 ChannelData channelData = client.users().setChannelData(
   user.getId(), 
   "5a88728a-3ecb-400d-ba6f-9c0956ab252f", 
-  Map.of("tokens", List.of(apnsToken))
+  Map.of("player_ids", List.of(oneSignalPlayerId))
 );
 `,
 };

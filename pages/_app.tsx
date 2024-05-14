@@ -1,6 +1,7 @@
 import React, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
 import { useEffect, useMemo } from "react";
+import * as analytics from "../lib/analytics";
 import {
   EventEmitterContext,
   useEventEmitterInstance,
@@ -10,7 +11,6 @@ import * as gtag from "../lib/gtag";
 import { setClearbitPath } from "../lib/clearbit";
 
 import "../styles/index.css";
-import AiChatButton from "../components/AiChatButton";
 
 function App({ Component, pageProps }) {
   const router = useRouter();
@@ -20,6 +20,7 @@ function App({ Component, pageProps }) {
     const handleRouteChange = (url: URL) => {
       gtag.pageview(url);
       setClearbitPath(url);
+      analytics.page();
     };
 
     router.events.on("routeChangeComplete", handleRouteChange);
@@ -38,8 +39,8 @@ function App({ Component, pageProps }) {
     >
       <EventEmitterContext.Provider value={eventEmitter}>
         <Component {...pageProps} />
-        <AiChatButton />
       </EventEmitterContext.Provider>
+      {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
     </ThemeProvider>
   );
 }

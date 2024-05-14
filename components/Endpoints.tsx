@@ -3,12 +3,14 @@ import Link from "next/link";
 
 const Endpoints = ({ children, title = "Endpoints" }) => (
   <div className="endpoints text-base lg:text-sm border dark:border-gray-800 rounded">
-    <div className="bg-gray-100 dark:bg-[#2E2F34] border-b dark:border-b-gray-800 p-2 flex">
+    <div className="bg-gray-100 dark:bg-[#2E2F34] border-b dark:border-b-gray-800 p-2 flex w-full">
       <span className="mt-0 text-xs font-medium dark:text-gray-300">
         {title}
       </span>
     </div>
-    <div className="m-0 py-2 px-4 dark:bg-gray-900">{children}</div>
+    <div className="m-0 py-2 px-4 dark:bg-gray-900 overflow-x-auto">
+      {children}
+    </div>
   </div>
 );
 
@@ -30,7 +32,7 @@ const EndpointText = ({ method, path }) => (
     >
       {method}
     </span>
-    <span className="font-mono text-xs text-gray-700 dark:text-gray-200">
+    <span className="font-mono mr-4 text-xs text-gray-700 dark:text-gray-200">
       {path}
     </span>
   </>

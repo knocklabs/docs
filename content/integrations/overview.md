@@ -67,7 +67,7 @@ Sandbox mode is supported across all channel types and can be enabled from the e
 
 You can use channel conditions to place a [condition](/send-and-manage-data/conditions) on all instances of a channel within a given environment. As an example, if you want to ensure that your email channel only sends to recipients from your domain when it's executing in your staging environment, a channel-level condition would be great way to do that.
 
-To add a condition to a channel's environment configuration, navigate to that channel under "Integrations > Channels" and then click "edit configuration".
+To add a condition to a channel's environment configuration, navigate to **Integrations** > **Channels** in your dashboard, click on the channel you'd like to update, then click "Manage configuration" next to the relevant environment. Select "Conditions" in the modal that is opened.
 
 ![Managing channel conditions in Knock.](/images/integrations/channel-conditions-editor.png)
 
@@ -127,4 +127,4 @@ Here are the providers we currently support within Knock. We're adding more each
 
 ### In-app
 
-- [Knock in-app](/integrations/in-app/knock-feed)
+- [Knock in-app](/integrations/in-app/knock)
