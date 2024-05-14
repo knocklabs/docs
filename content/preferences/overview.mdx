@@ -201,7 +201,7 @@ You can update the preferences of up to 1000 users in a single batch by using th
   }
 />
 
-Preferences can also be set during a workflow trigger using [inline identify](/send-notifications/triggering-workflows#identifying-recipients-inline). One or more preference sets (including **per-tenant preferences**) can be upserted by passing a dictionary of [preference sets](/concepts/preferences#recipient-preference-sets), where each key in the dictionary is the preference set ID.
+Preferences can also be set during a workflow trigger using [inline identify](/send-notifications/triggering-workflows#identifying-recipients-inline). One or more preference sets (including [per-tenant preferences](/preferences/tenant-preferences)) can be upserted by passing a dictionary of [PreferenceSets](/preferences/overview), where each key in the dictionary is the preference set ID.
 
 Unlike the `setPreferences` [method](/preferences/overview#set-a-users-preferences), setting preferences inline requires you to explictly provide the `default` preference set key when updating default preferences.
 
@@ -218,19 +218,14 @@ When a workflow is triggered, Knock will evaluate the preferences for each `reci
 
 <AccordionGroup>
   <Accordion title="General preference rules">
-    - If you do not set a preference for a given channel, workflow, or workflow category, Knock defaults them to `true`
-    - A recipient's preferences will be merged against the [environment-level default](#environment-level-preference-defaults) preferences. Recipient preferences will always take precedence in the merge
-  </Accordion>
-  <Accordion title="Tenant-specific preference rules">
-    - When executing a workflow trigger, passing in a `tenant` will automatically load that tenant's default preferences for all recipients of the workflow (if a default is set)
-    - An individual recipient's tenant preferences are merged with the tenant's default preferences during workflow execution. The recipient’s tenant-specific preferences will always override the defaults set at the tenant level
-    - If there is no preference default set on the `tenant` AND the recipient has no per-tenant preferences set, the recipient’s default preferences will be applied
+    - If you do not set a preference for a given channel, workflow, or workflow category, Knock defaults them to `true`.
+    - A recipient's preferences will be merged against the default PreferenceSet within a given environment, with recipient-level preferences taking precedence in the merge.
   </Accordion>
   <Accordion title="Resolving preference conflicts">
-    Sometimes a given recipient will have two or more preferences which contradict each other. Knock will only send a notification if all preference combinations that exist on the recipient evaluate to `true`.
+    Knock only sends a notification if all preference combinations that exist on the recipient evaluate to `true`.
 
-    - A workflow can belong to multiple `categories`. Only one of those category preferences needs to evaluate to `false` for the notification not to send
-    - If a workflow's parent `category` is set to `false`, the notification will not send even if a `channel_type` on the workflow is explicitly set to `true`
+    - A workflow can belong to multiple `categories`. Only one of those category preferences needs to evaluate to `false` for the notification not to send.
+    - If a workflow's `category` is set to `false`, the notification will not send even if a `channel_type` on the workflow is explicitly set to `true`.
 
   </Accordion>
   <Accordion title="Debugging preferences">
