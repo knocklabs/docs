@@ -45,6 +45,8 @@ const snippets = {
     require("../data/code/users/set-channel-data-one-signal").default,
   "users.unsetChannelData": require("../data/code/users/unset-channel-data")
     .default,
+  "users.identifyChannelData":
+    require("../data/code/users/identify-channel-data").default,
 
   // Messages
   "messages.list": require("../data/code/messages/list").default,
