@@ -75,7 +75,6 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/identifying-recipients", title: "Identifying recipients" },
-      { slug: "/setting-preferences", title: "Setting preferences" },
       { slug: "/setting-channel-data", title: "Setting channel data" },
       { slug: "/deleting-users", title: "Deleting users" },
       { slug: "/merging-users", title: "Merging users" },
@@ -93,6 +92,17 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/tracking", title: "Link & open tracking" },
       { slug: "/testing-workflows", title: "Testing workflows" },
       { slug: "/debugging-workflows", title: "Debugging workflows" },
+    ],
+  },
+  {
+    title: "Preferences",
+    slug: "/preferences",
+    desc: "Learn how to power notification preferences with Knock.",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/tenant-preferences", title: "Tenant preferences" },
+      { slug: "/object-preferences", title: "Object preferences" },
+      { slug: "/preference-conditions", title: "Preferences conditions" },
     ],
   },
   {

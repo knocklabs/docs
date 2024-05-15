@@ -1,0 +1,20 @@
+---
+title: Object preferences
+description: A guide to storing preferences on objects.
+tags: ["object preferences", "preferences"]
+section: Preferences
+---
+
+You can set a `PreferenceSet` on an object, just as you would for a user.
+
+<MultiLangCodeBlock
+  title="Set preferences for an object"
+  snippet="objects.setPreferences"
+/>
+
+<br />
+
+<MultiLangCodeBlock
+  title="Get preferences for an object"
+  snippet="objects.getPreferences"
+/>

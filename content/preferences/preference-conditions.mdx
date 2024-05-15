@@ -1,0 +1,77 @@
+---
+title: Preference conditions
+description: Power advanced conditional logic in your preferences.
+tags: ["preference conditions"]
+section: Preferences
+---
+
+Preference conditions are [Knock condition models](/send-and-manage-data/conditions) that are evaluated when computing the current state of your preferences during workflow execution.
+
+## Overview
+
+Typically, a `PreferenceSet` evaluates to boolean values representing if your recipient has opted in or out of receiving notifications on a given channel, workflow, or category.
+
+With preference conditions you can add additional custom expressions to a `PreferenceSet`, where the notification is only sent if all preferences (including the preference condition statement) evaluate to `true`.
+
+Below is an example of a workflow preference that has conditions applied to determine if the preference is `true` or `false`:
+
+```json title="An example of preferences with conditions"
+{
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "conditions": [
+        {
+          "variable": "recipient.muted_dinos",
+          "operator": "not_contains",
+          "argument": "data.dino"
+        }
+      ]
+    }
+  }
+}
+```
+
+## Set preference conditions for a user
+
+Here's how to set preference conditions for a user.
+
+<MultiLangCodeBlock
+  title="Set preferences with conditions for a user"
+  snippet="users.setPreferences.conditions"
+/>
+
+<br />
+
+<Callout
+  mt={4}
+  emoji="👩‍💻"
+  text={
+    <>
+      <span className="font-bold">See an example.</span> Follow this{" "}
+      <a
+        href="https://github.com/knocklabs/knock-node-example-app/blob/main/db/seeds.ts#L103"
+        target="_blank"
+      >
+        link
+      </a>{" "}
+      to see an example of how to set preferences with conditions.
+    </>
+  }
+/>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Where can I use preference conditions?">
+    A condition can be applied at different points in the preference set:
+
+    - Inside `workflows`, `categories`, or `channel_types` preferences
+    - Inside an individual `workflows[workflow].channel_types` preference
+    - Inside an individual `categories[category].channel_types` preference
+
+  </Accordion>
+  <Accordion title="How do I debug preference conditions?">
+    Knock will capture conditions evaluation details for all preference conditions resolved while executing your workflows. See the [guide on debugging conditions](/send-and-manage-data/conditions#debugging-conditions) for more info.
+  </Accordion>
+</AccordionGroup>

@@ -234,6 +234,11 @@ const nextConfig = {
         permanent: false,
       },
       {
+        source: "/managing-recipients/setting-preferences",
+        destination: "/preferences/overview#set-a-users-preferences",
+        permanent: false,
+      },
+      {
         source: "/send-notifications/setting-channel-data",
         destination: "/managing-recipients/setting-channel-data",
         permanent: false,
