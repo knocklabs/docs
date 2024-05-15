@@ -74,7 +74,7 @@ const LanguageLabel = {
   curl: "cURL",
   kotlin: "Kotlin",
   swift: "Swift",
-  jsweb: "JavaScript (Web SDK)", 
+  jsweb: "JavaScript (Web SDK)",
 };
 
 export interface Props {
