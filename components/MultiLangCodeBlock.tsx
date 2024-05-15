@@ -120,6 +120,7 @@ const DEFAULT_ORDER: SupportedLanguage[] = [
   "curl",
   "shell",
   "node",
+  "jsweb",
   "ruby",
   "python",
   "php",

@@ -25,6 +25,7 @@ SyntaxHighlighter.registerLanguage("node", javascript);
 SyntaxHighlighter.registerLanguage("javascript", javascript);
 SyntaxHighlighter.registerLanguage("jsx", javascript);
 SyntaxHighlighter.registerLanguage("js", javascript);
+SyntaxHighlighter.registerLanguage("jsweb", javascript);
 SyntaxHighlighter.registerLanguage("ruby", ruby);
 SyntaxHighlighter.registerLanguage("elixir", elixir);
 SyntaxHighlighter.registerLanguage("csharp", dotnet);
@@ -54,7 +55,8 @@ export type SupportedLanguage =
   | "kotlin"
   | "swift"
   | "yaml"
-  | "curl";
+  | "curl"
+  | "jsweb";
 
 const LanguageLabel = {
   javascript: "JavaScript",
@@ -72,6 +74,7 @@ const LanguageLabel = {
   curl: "cURL",
   kotlin: "Kotlin",
   swift: "Swift",
+  jsweb: "JavaScript (Web SDK)", 
 };
 
 export interface Props {
