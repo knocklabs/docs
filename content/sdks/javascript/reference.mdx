@@ -63,6 +63,23 @@ const knockFeed = knock.feeds.initialize(process.env.KNOCK_FEED_CHANNEL_ID, {
 });
 ```
 
+### `user`
+
+Returns a `UserClient` instance to interact with the users API for the current, authenticated user.
+
+**Returns**: `UserClient` instance
+
+**Example**:
+
+```javascript
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const channelData = await knock.user.getChannelData({ channelId: "" });
+```
+
 ### `preferences`
 
 Returns a `Preferences` instance to interact with the preferences API for the current, authenticated user.
@@ -427,6 +444,203 @@ Emits `items.received.page` events on a successful fetch.
 Note: this will apply any current feed filters and append returned items to the end of the current set of items.
 
 ---
+
+## `UserClient`
+
+### `get`
+
+Retrieves the current, authenticated user by calling the [get user endpoint](/reference#get-user) directly from the client.
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Getting the authenticated user"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const user = await knock.user.get();
+```
+
+### `identify`
+
+Identifies a user by calling the [identify user endpoint](/reference#identify-user) directly from the client.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="properties"
+    type="object"
+    description="An object of key-value pairs for attributes you want to associate with the user."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Identifying a user"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const user = await knock.user.identify({
+  id: "1",
+  name: "John Hammond",
+  email: "jhammond@ingen.net",
+});
+```
+
+### `getAllPreferences`
+
+Retrieves all preferences for the authenticated user by calling the [get preferences endpoint](/reference#get-preferences-user) directly from the client.
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Getting preferences for the user"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const preferences = await knock.user.getAllPreferences();
+```
+
+### `getPreferences`
+
+Retrieves a preference set for the authenticated user by calling the [get preferences endpoint](/reference#get-preferences-user) directly from the client.
+
+<Attributes>
+  <Attribute
+    name="preferenceSet"
+    type="String"
+    description="The preference set from Knock"
+  />
+  <Attribute
+    name="tenant"
+    type="String (optional)"
+    description="The tenant from Knock"
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Getting a preference set for the user"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const preferenceSet = await knock.user.getPreferences({
+  preferenceSet: "",
+});
+```
+
+### `setPreferences`
+
+Updates the authenticated user's preferences by calling the [set preferences endpoint](/reference#set-preferences-user) directly from the client.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="preferenceSet"
+    type="SetPreferencesProperties"
+    description="The preferences to set for the current user."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Setting preferences for the user"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const preferenceSet = await knock.user.setPreferences({
+  channel_types: { email: true, sms: false },
+  workflows: {
+    "dinosaurs-loose": {
+      channel_types: { email: false, in_app_feed: true },
+    },
+  },
+});
+```
+
+### `getChannelData`
+
+Retrieves channel data for the authenticated user by calling the [get channel data endpoint](/reference#get-user-channel-data) directly from the client.
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The channel ID from Knock"
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Getting channel data for the user"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const channelData = await knock.user.getChannelData({
+  channelId: "",
+});
+```
+
+### `setChannelData`
+
+Updates the channel data for the current user by calling the [set channel data endpoint](/reference#set-user-channel-data) directly from the client.
+
+**Params**:
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="String"
+    description="The channel ID to update the channel data for"
+  />
+  <Attribute
+    name="channelData"
+    type="Any"
+    description="The data to update for the channel data"
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Setting channel data for the user"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate(user.id);
+
+const channelData = await knock.user.setChannelData({
+  channelId: "",
+  data: {
+    tokens: ["some-fcm-token"],
+  },
+});
+```
 
 ## `Preferences`
 
