@@ -23,9 +23,9 @@ section: Preferences
   }
 />
 
-Use tenant preferences to enable your customers' admins to create a tenant-specific default `PreferencesSet` for users in their tenant.
+You can use tenant preferences to enable your customers' admins to create a tenant-specific default `PreferencesSet` for users in their tenant.
 
-If you're a B2B application or a multi-tenant SaaS product, you can use tenant preferences to allow your customers to set default preferences for their users. A well-known example of this: in Slack, your notification preferences are set _per Slack workspace_ (that is, per-tenant), not as global preferences that apply across all of your Slack workspaces.
+If you're a B2B application or a multi-tenant SaaS product, you can use tenant preferences to allow your customers to set default preferences for their users. For example, in Slack, your notification preferences are set _per Slack workspace_ (that is, per-tenant), not as global preferences that apply across all of your Slack workspaces.
 
 <Callout
   emoji="🚨"
@@ -47,12 +47,12 @@ Here is how tenant preferences work and the steps you'll take to implement them:
 2. Enable your users to override that tenant default `PreferenceSet` with their own preferences.
 3. Trigger your workflows with a `tenant` parameter to apply tenant-specific preferences.
 
-## Create per-tenant default 'PreferenceSet'
+## Create a per-tenant default `PreferenceSet`
 
 You set the default `PreferenceSet` for a tenant via the API by calling the `tenants.set` method. The preferences should follow the format of a recipient <a href="/reference#preferences"><code>PreferenceSet</code></a>.
 
 ```javascript title="Set the default preferences for a tenant"
-const { Knock } = require("@knocklabs/node");
+import { Knock }  from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 const preferences = {
@@ -74,9 +74,9 @@ await knock.tenants.set("tenant-id", {
 });
 ```
 
-## Set per-tenant user `PreferenceSet`
+## Set a per-tenant user `PreferenceSet`
 
-A `PreferenceSet` has an `id`. When you [set a given user's preferences](/reference#set-preferences-user) in Knock, you set this to `default` when you want to apply the preferences universally for the user. (If you don't provide an `id`, the `default` preference set is used.)
+A `PreferenceSet` has an `id`. When you [set a given user's preferences](/reference#set-preferences-user) in Knock, you'll use the `default` ID to apply the preferences universally for the user. When using one of our [SDKs](/sdks/overview), the `default` preference set is used if you don't provide an `id`.
 
 <Callout
   emoji="🚨"
@@ -106,7 +106,7 @@ A `PreferenceSet` has an `id`. When you [set a given user's preferences](/refere
 You can also set `id` to a `tenant.id` to create a `tenant`-specific preference set for the user.
 
 ```javascript title="Set tenant preferences for a user"
-const { Knock } = require("@knocklabs/node");
+import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.users.setPreferences("user-id", {
@@ -122,7 +122,7 @@ await knock.users.setPreferences("user-id", {
 You can also get a user's tenant-specific preferences.
 
 ```javascript title="Get tenant preferences for a user"
-const { Knock } = require("@knocklabs/node");
+import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 const preferences = await knock.users.getPreferences("user-id", {
@@ -145,16 +145,11 @@ await knock.workflows.trigger("workflow-name", {
 
 The Knock workflow engine uses that `tenant` parameter to evaluate the user's `PreferenceSet`. If the user has a tenant-specific preference set, Knock uses that to determine whether to send the notification. If the user does not have a `tenant`-specific preference set, Knock uses the tenant's default preference set.
 
-In summary, the tenant-specific preference evaluation rules are as follows:
-
-- When executing a workflow trigger, passing in a tenant will automatically load that tenant's default preferences for all recipients of the workflow (if a default is set)
-- An individual recipient's tenant preferences are merged with the tenant's default preferences during workflow execution. The recipient’s tenant-specific preferences will always override the defaults set at the tenant level
-- If there is no preference default set on the tenant AND the recipient has no per-tenant preferences set, the recipient’s default preferences will be applied
 
 ## Tenant preference evaluation rules
 
 Here are a few things to keep in mind when using tenant preferences.
 
-- When executing a workflow trigger, passing in a `tenant` will automatically load that tenant's default `PreferencesSet` (if one exists) for all recipients of the workflow.
-- If the recipient has any per-tenant overrides set for that tenant, they override the default preferences set at the tenant level.
-- If there is no default `PreferenceSet` on the tenant AND the recipient has no per-tenant preferences set, the recipient’s `default` id `PreferenceSet` will be used.
+- When executing a workflow trigger, passing in a `tenant` will automatically load that tenant's default `PreferencesSet` (if one exists) for all recipients of the workflow. These tenant-level defaults will override a recipient's own `default` preferences.
+- If the recipient has any per-tenant preferences set for that `tenant.id`, they will override the tenant-level default preferences.
+- If there is no default `PreferenceSet` on the tenant AND the recipient has no per-tenant preferences set, the recipient’s `default` id `PreferenceSet` will be used. As always, the recipient's `default` preferences are [merged](/preferences/overview#preference-evaluation-rules) with the environment-level preference defaults. 

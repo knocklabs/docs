@@ -100,7 +100,6 @@ const sidebarContent: SidebarSection[] = [
     desc: "Learn how to power notification preferences with Knock.",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/quick-start", title: "Quick start" },
       { slug: "/tenant-preferences", title: "Tenant preferences" },
       { slug: "/object-preferences", title: "Object preferences" },
       { slug: "/preference-conditions", title: "Preferences conditions" },
