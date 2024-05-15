@@ -129,3 +129,34 @@ Once you've migrated your current recipients into Knock, you'll want to continue
 One common approach is to make subsequent calls to the Knock's user identify API following such events. For example, you could do this via a deferred job in your backend systems.
 
 Another option is to offload these updates to your workflow trigger calls via inline identification. If you always send Knock the full set of data for your recipients [via workflow trigger calls](/reference#trigger-workflow-inline-identify), you can keep your user data up to date in Knock without any additional handling on your end.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I set a user's preferences while inline identifying?">
+    Preferences can be set during a workflow trigger using [inline identify](/send-notifications/triggering-workflows#identifying-recipients-inline). One or more preference sets (including [per-tenant preferences](/preferences/tenant-preferences)) can be upserted by passing a dictionary of [PreferenceSets](/preferences/overview), where each key in the dictionary is the preference set ID.
+
+    Unlike the `setPreferences` [method](/preferences/overview#set-a-users-preferences), setting preferences inline requires you to explictly provide the `default` preference set key when updating default preferences.
+
+    <Callout
+      emoji="🚨"
+      text={
+        <>
+          <strong>Please note:</strong> setting preferences inline will always
+          upsert the preference set, meaning that changes will overide any existing
+          preferences. We generally recommend against using inline preferences to
+          ensure the integrity of your data.
+        </>
+      }
+    />
+
+
+    <br />
+
+    <MultiLangCodeBlock
+      title="Setting preferences during a workflow trigger"
+      snippet="workflows.trigger-with-user-preferences"
+    />
+
+  </Accordion>
+</AccordionGroup>
