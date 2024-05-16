@@ -156,7 +156,7 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 request := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Data: map[string]interface{"project_name": "My Project"},
+  Data: map[string]interface{}{"project_name": "My Project"},
 }
 
 request.AddRecipientByEntity(

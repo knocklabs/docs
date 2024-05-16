@@ -149,7 +149,7 @@ apnsChannelId := "some-channel-id-from-knock"
 
 req := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Data: map[string]interface{"project_name": "My Project"},
+  Data: map[string]interface{}{"project_name": "My Project"},
 }
 
 req.AddRecipientByEntity(map[string]interface{}{
