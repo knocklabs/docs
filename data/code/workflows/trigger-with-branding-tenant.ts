@@ -91,7 +91,7 @@ for _, r := range reservationGuestIds {
   request.AddRecipientByID(r)
 }
 
-result, _ := knockClient.Workflows.Trigger(ctx, req, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
   `,
   java: `
 import app.knock.api.KnockClient;
