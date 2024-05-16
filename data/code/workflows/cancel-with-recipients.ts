@@ -64,11 +64,14 @@ $client->workflows()->cancel('new-user-invited', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Workflows.Cancel(ctx, &knock.CancelWorkflowRequest{
+req := &knock.CancelWorkflowRequest{
   Workflow:        "new-user-invited",
   CancellationKey: userInvite.ID,
-  Recipients:      []string{"user_1"},
-})
+}
+
+req.AddRecipientByID("user_1")
+
+err := knockClient.Workflows.Cancel(ctx, req)
 `,
   java: `
 import app.knock.api.KnockClient;

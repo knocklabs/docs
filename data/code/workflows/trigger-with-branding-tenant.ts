@@ -79,14 +79,19 @@ $client->workflows()->trigger('reservation-reminder-email', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+request := &knock.TriggerWorkflowRequest{
   Workflow:   "reservation-reminder-email",
   Data: map[string]interface{}{
       "reservation_id": reservation.ID
   },
-  Recipients: reservationGuestIds,
   Tenant: "black-lodge"
-  })
+}
+
+for _, r := range reservationGuestIds {
+  request.AddRecipientByID(r)
+}
+
+result, _ := knockClient.Workflows.Trigger(ctx, req, nil)
   `,
   java: `
 import app.knock.api.KnockClient;

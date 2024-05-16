@@ -165,30 +165,31 @@ $client->workflows()->trigger('new-comment', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+req := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Data: map[string]string{"project_name": "My Project"},
-  Recipients: []map[string]string{
-    map[string]string{
-      "id": "1",
-      "email": "jhammond@ingen.net",
-      "preferences": map[string]map{
-        "default": map[string]map {
-          "channel_types": map[string]boolean {
-            "email": true,
-            "sms": true
-          }
-        },
-        "{{ tenant.id }}": map[string]map {
-          "channel_types": map[string]boolean {
-            "email": false,
-            "sms": false
-          }
-        }
-      }
+  Data: map[string]interface{}{"project_name": "My Project"},
+}
+
+req.AddRecipientByEntity(map[string]interface{}{
+  "id": "1",
+  "email": "jhammond@ingen.net",
+  "preferences": map[string]map{
+    "default": map[string]map {
+      "channel_types": map[string]boolean {
+        "email": true,
+        "sms": true
+      },
     },
-  }
+    "{{ tenant.id }}": map[string]map {
+      "channel_types": map[string]boolean {
+        "email": false,
+        "sms": false
+      },
+    }
+  },
 })
+
+result, _ := knockClient.Workflows.Trigger(ctx, req, nil)
 `,
   java: `
 import app.knock.api.KnockClient;

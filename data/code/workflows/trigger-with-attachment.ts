@@ -115,9 +115,8 @@ $client->workflows()->trigger('invoice-paid', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+req := &knock.TriggerWorkflowRequest{
   Workflow:   "invoice-paid",
-  Recipients: recipientIds,
   Data: map[string]interface{}{
     "attachments": []map[string]interface{
       {
@@ -127,7 +126,14 @@ result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
       }
     },
   },
-})
+}
+
+for _, r := range recipientIds {
+  req.AddRecipientByID(r)
+}
+
+result, _ := knockClient.Workflows.Trigger(ctx, req, nil)
+
 `,
   java: `
 import app.knock.api.KnockClient;

@@ -154,26 +154,32 @@ $client->workflows()->trigger('new-comment', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+request := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Data: map[string]string{"project_name": "My Project"},
-  Recipients: []map[string]interface{}{
-    map[string]interface{}{
-      "id": "project-1",
-      "collection": "projects",
-      "name": "My project",
-      "total_assets": 10,
-      "tags": []string{"cool", "fun", "project"},
-    },
-    map[string]interface{}{
-      "id": "project-2",
-      "collection": "projects",
-      "name": "My second project",
-      "total_assets": 5,
-      "tags": []string{"very", "cool", "project"},
-    },
+  Data: map[string]interface{}{"project_name": "My Project"},
+}
+
+request.AddRecipientByEntity(
+  map[string]interface{}{
+    "id": "project-1",
+    "collection": "projects",
+    "name": "My project",
+    "total_assets": 10,
+    "tags": []string{"cool", "fun", "project"},
   }
-})
+)
+
+request.AddRecipientByEntity(
+  map[string]interface{}{
+    "id": "project-2",
+    "collection": "projects",
+    "name": "My second project",
+    "total_assets": 5,
+    "tags": []string{"very", "cool", "project"},
+  }
+)
+
+result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
 `,
   java: `
 import app.knock.api.KnockClient;
