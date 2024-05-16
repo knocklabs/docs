@@ -105,7 +105,7 @@ request := &knock.TriggerWorkflowRequest{
 }
 
 for _, r := range []string{"1", "2"} {
-  req.AddRecipientByID(r)
+  request.AddRecipientByID(r)
 }
 
 result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
