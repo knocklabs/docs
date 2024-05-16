@@ -165,12 +165,12 @@ $client->workflows()->trigger('new-comment', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-req := &knock.TriggerWorkflowRequest{
+request := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
   Data: map[string]interface{}{"project_name": "My Project"},
 }
 
-req.AddRecipientByEntity(map[string]interface{}{
+request.AddRecipientByEntity(map[string]interface{}{
   "id": "1",
   "email": "jhammond@ingen.net",
   "preferences": map[string]map{
@@ -189,7 +189,7 @@ req.AddRecipientByEntity(map[string]interface{}{
   },
 })
 
-result, _ := knockClient.Workflows.Trigger(ctx, req, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
 `,
   java: `
 import app.knock.api.KnockClient;
