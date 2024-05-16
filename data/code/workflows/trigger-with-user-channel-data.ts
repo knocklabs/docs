@@ -147,21 +147,22 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 // Get this value in your Knock dashboard
 apnsChannelId := "some-channel-id-from-knock"
 
-result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+req := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
   Data: map[string]string{"project_name": "My Project"},
-  Recipients: []map[string]string{
-    map[string]string{
-      "id": "1",
-      "email": "jhammond@ingen.net",
-      "channel_data": map[string]map{
-        apnsChannelId: map[string]string {
-          "tokens": ["apns-push-token"]
-        }
-      }
-    },
-  }
+}
+
+req.AddRecipientByEntity(map[string]interface{}{
+  "id": "1",
+  "email": "jhammond@ingen.net",
+  "channel_data": map[string]map{
+    apnsChannelId: map[string]string {
+      "tokens": ["apns-push-token"]
+    }
+  },
 })
+
+result, _ := knockClient.Workflows.Trigger(ctx, req, nil)
 `,
   java: `
 import app.knock.api.KnockClient;

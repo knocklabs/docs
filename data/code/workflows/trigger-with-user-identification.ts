@@ -130,22 +130,26 @@ $client->workflows()->trigger('new-comment', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+req := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
   Data: map[string]string{"project_name": "My Project"},
   Recipients: []map[string]string{
-    map[string]string{
-      "id": "1",
-      "name": "John Hammond",
-      "email": "jhammond@ingen.net"
-    },
-    map[string]string{
-      "id": "2",
-      "name": "Ellie Sattler",
-      "email": "esattler@ingen.net"
-    },
   }
+}
+
+req.AddRecipientByEntity(map[string]interface{
+  "id": "1",
+  "name": "John Hammond",
+  "email": "jhammond@ingen.net",
 })
+
+req.AddRecipientByEntity(map[string]interface{
+  "id": "2",
+  "name": "Ellie Sattler",
+  "email": "esattler@ingen.net"
+})
+
+result, _ := knockClient.Workflows.Trigger(ctx, req, nil)
 `,
   java: `
 import app.knock.api.KnockClient;

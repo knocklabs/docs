@@ -69,12 +69,16 @@ request := &knock.TriggerWorkflowRequest{
   Recipients: followerIds,
 }
 
+for _, f := range followerIds {
+  request.AddRecipientByID(f)
+}
+
 request.AddActorByEntity(map[string]interface{}{
   "collection": "projects",
   "id":         project.ID 
 })
 
-result, _ := knockClient.Workflows.Trigger(ctx, request)
+result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
 `,
   java: `
 import app.knock.api.KnockClient;

@@ -97,9 +97,8 @@ $client->workflows()->trigger('new-comment', [
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
+request := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Recipients: followerIds,
   Data: map[string]interface{}{
     "document_id":   document.ID,
     "document_name": document.Name,
@@ -107,7 +106,13 @@ result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
     "comment_text":  comment.Text,
   },
   Tenant: workspace.ID
-})
+}
+
+for _, f := range followerIds {
+  request.AddRecipientByID(f)
+}
+
+result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
 `,
   java: `
 import app.knock.api.KnockClient;
