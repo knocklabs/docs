@@ -99,13 +99,13 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 req := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Actor:      comment.Author.ID
+  Actor:      comment.Author.ID,
   Data: map[string]interface{}{
     "document_id":   document.ID,
     "document_name": document.Name,
     "comment_id":    comment.ID,
     "comment_text":  comment.Text,
-  }
+  },
 }
 
 for _, f := range followerIds {

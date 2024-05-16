@@ -75,7 +75,7 @@ for _, f := range followerIds {
 
 request.AddActorByEntity(map[string]interface{}{
   "collection": "projects",
-  "id":         project.ID 
+  "id":         project.ID, 
 })
 
 result, _ := knockClient.Workflows.Trigger(ctx, request, nil)

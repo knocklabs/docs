@@ -110,10 +110,10 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Recipients: []string{"1", "2"}
+  Recipients: []interface{"1", "2"}
 
   // optional
-  Data:            map[string]string{"project_name": "My Project"},
+  Data:            map[string]interface{"project_name": "My Project"},
   Actor:           "3",
   CancellationKey: "cancel_123"
   Tenant:          "jurassic_world_employees"

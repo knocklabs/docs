@@ -174,7 +174,7 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 req := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Data: map[string]string{"project_name": "My Project"},
+  Data: map[string]interface{"project_name": "My Project"},
   Actor: map[string]interface{}{
     "id": "1",
     "name": "John Hammond",

@@ -76,7 +76,7 @@ request := &knock.TriggerWorkflowRequest{
 
 request.AddRecipientByEntity(map[string]interface{}{
   "collection": "projects",
-  "id":         project.ID 
+  "id":         project.ID,
 })
 
 result, _ := knockClient.Workflows.Trigger(ctx, request, nil)

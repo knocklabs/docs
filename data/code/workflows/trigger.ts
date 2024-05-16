@@ -98,9 +98,9 @@ req := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
 
   // optional
-  Data:            map[string]string{"project_name": "My Project"},
+  Data:            map[string]interface{"project_name": "My Project"},
   Actor:           "3",
-  CancellationKey: "cancel_123"
+  CancellationKey: "cancel_123",
   Tenant:          "jurassic_world_employees",
 }
 

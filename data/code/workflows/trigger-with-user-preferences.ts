@@ -167,9 +167,7 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 req := &knock.TriggerWorkflowRequest{
   Workflow:   "new-comment",
-  Data: map[string]string{"project_name": "My Project"},
-  Recipients: []map[string]string{
-  }
+  Data: map[string]interface{"project_name": "My Project"},
 }
 
 req.AddRecipientByEntity(map[string]interface{}{
@@ -180,13 +178,13 @@ req.AddRecipientByEntity(map[string]interface{}{
       "channel_types": map[string]boolean {
         "email": true,
         "sms": true
-      }
+      },
     },
     "{{ tenant.id }}": map[string]map {
       "channel_types": map[string]boolean {
         "email": false,
         "sms": false
-      }
+      },
     }
   },
 })
