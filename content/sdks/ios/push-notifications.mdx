@@ -53,7 +53,7 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
             let channelId = await Knock.shared.environment.getPushChannelId()
 
             do {
-                let _ = try await Knock.shared.channelModule.registerTokenForAPNS(channelId: channelId, token: Knock.convertTokenToString(token: deviceToken))
+                let _ = try await Knock.shared.registerTokenForAPNS(channelId: channelId, token: Knock.convertTokenToString(token: deviceToken))
             } catch {
                // Handle error
             }
@@ -212,7 +212,7 @@ class AppDelegate: KnockAppDelegate {
 extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         Task {
-            if let channelId = await Knock.shared.environment.getPushChannelId(), let token = fcmToken {
+            if let channelId = await Knock.shared.getPushChannelId(), let token = fcmToken {
                 let _ = try? await Knock.shared.registerTokenForAPNS(channelId: channelId, token: token)
             }
         }
