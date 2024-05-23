@@ -69,8 +69,11 @@ const NotificationFeed = ({ user }) => {
 Next, we'll want to set up an instance of a Knock Feed, which will handle the state management and provide a way for us to interact with the messages on the feed.
 
 ```jsx title="Create a feed store with Zustand"
-import { useKnockClient, useNotifications } from "@knocklabs/react";
-import create from "zustand";
+import {
+  useKnockClient,
+  useNotifications,
+  useNotificationStore,
+} from "@knocklabs/react";
 import { useEffect } from "react";
 
 const NotificationFeed = ({ user }) => {
@@ -80,10 +83,11 @@ const NotificationFeed = ({ user }) => {
     process.env.KNOCK_FEED_CHANNEL_ID,
   );
 
-  const useNotificationStore = create(feedClient.store);
-  const { items, metadata } = useNotificationStore();
+  const { items, metadata } = useNotificationStore(feedClient);
 
-  useEffect(() => feedClient.fetch(), [feedClient]);
+  useEffect(() => {
+    feedClient.fetch();
+  }, [feedClient]);
 
   return null;
 };
@@ -94,6 +98,13 @@ const NotificationFeed = ({ user }) => {
 The last step is to render our notifications UI using the data that's exposed via the state store (`items` and `metadata`).
 
 ```jsx title="Render items and metadata in the feed"
+import {
+  useKnockClient,
+  useNotifications,
+  useNotificationStore,
+} from "@knocklabs/react";
+import { useEffect } from "react";
+
 const NotificationFeed = ({ user }) => {
   const knockClient = useKnockClient();
   const feedClient = useNotifications(
@@ -101,10 +112,11 @@ const NotificationFeed = ({ user }) => {
     process.env.KNOCK_FEED_CHANNEL_ID,
   );
 
-  const useNotificationStore = create(feedClient.store);
-  const { items, metadata } = useNotificationStore();
+  const { items, metadata } = useNotificationStore(feedClient);
 
-  useEffect(() => feedClient.fetch(), [feedClient]);
+  useEffect(() => {
+    feedClient.fetch();
+  }, [feedClient]);
 
   return (
     <div className="notifications">

@@ -558,9 +558,36 @@ Renders a notification bell icon, with a badge showing the number of unseen item
 
 Creates an authenticated Knock client.
 
-**Returns**: `Knock` instance, authenticated against the user
+#### Params
 
-**Example**:
+<Attributes>
+  <Attribute
+    name="apiKey*"
+    type="string"
+    description="The public API key for the Knock environment"
+  />
+  <Attribute
+    name="userId"
+    type="string"
+    description="The userId of the user to authenticate with Knock."
+  />
+  <Attribute
+    name="userToken"
+    type="string"
+    description="Optional user token to authenticate requests for the current user with."
+  />
+  <Attribute
+    name="options"
+    type="AuthenticatedKnockClientOptions"
+    description="A set of options to provide to the Knock instance."
+  />
+</Attributes>
+
+#### Returns
+
+`Knock` instance, authenticated against the user
+
+#### Example
 
 ```jsx
 import { useAuthenticatedKnockClient } from "@knocklabs/react";
@@ -601,16 +628,38 @@ Exposed under `KnockI18nProvider` child components.
 
 Creates a `Feed` instance for the provided `Knock` client which creates a stateful, real-time connection to Knock to build in-app experiences.
 
-**Returns**: `Feed` instance
+#### Params
 
-**Example**:
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="The Knock instance to create the feed with"
+  />
+  <Attribute
+    name="feedChannelId"
+    type="string"
+    description="The in-app feed channel ID, obtained from the Knock dashboard"
+  />
+  <Attribute
+    name="options"
+    type="FeedClientOptions"
+    description="An optional set of feed client options to pass to the created Feed instance"
+  />
+</Attributes>
+
+#### Returns
+
+`Feed` instance
+
+#### Example
 
 ```js
 import {
   useAuthenticatedKnockClient,
   useNotifications,
+  useNotificationStore,
 } from "@knocklabs/react";
-import create from "zustand";
 
 const MyComponent = () => {
   const knock = useAuthenticatedKnockClient(
@@ -624,14 +673,55 @@ const MyComponent = () => {
     process.env.KNOCK_FEED_CHANNEL_ID,
   );
 
-  const useNotificationStore = create(notificationFeed.store);
-  const { metadata } = useNotificationStore();
+  const { metadata } = useNotificationStore(notificationFeed);
 
   useEffect(() => {
     notificationFeed.fetch();
   }, [notificationFeed]);
 
   return <span>Total unread: {metadata.unread_count}</span>;
+};
+```
+
+### `useNotificationStore`
+
+Given a `Feed` will return reactive access to the `FeedStateStore`. Can optionally accept a `selector` to retrieve a fine-grained slice of state from the store.
+
+#### Params
+
+<Attributes>
+  <Attribute
+    name="feedClient"
+    type="Feed"
+    description="The feed instance to select content from"
+  />
+  <Attribute
+    name="selector"
+    type="StateSelector<FeedStoreState>"
+    description="An optional selector to limit the state slice returned from the store. Defaults to returning all state."
+  />
+</Attributes>
+
+#### Returns
+
+`FeedStoreState`
+
+#### Example
+
+```js
+import { useNotificationStore } from "@knocklabs/react";
+
+const MyComponent = () => {
+  // Fetch everything
+  const state = useNotificationStore(feedClient);
+
+  // Only select the metadata
+  const metadata = useNotificationStore(feedClient, (state) => state.metadata);
+
+  // Filter for only unread items
+  const unreadItems = useNotificationStore(feedClient, (s) =>
+    s.items.filter((item) => !item.read_at),
+  );
 };
 ```
 
