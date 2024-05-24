@@ -30,7 +30,7 @@ export default function Home() {
     <Page header={<MinimalHeader pageType="Docs" />} sidebar={<DocsSidebar />}>
       <div className="space-y-12 max-w-3xl mx-auto">
         <header className="py-5">
-          <h1 className="text-4xl font-bold mb-2">Documentation</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Documentation</h1>
           <p className="text-xl text-gray-700 dark:text-gray-200 mb-8">
             Explore our guides and examples to integrate Knock.
           </p>

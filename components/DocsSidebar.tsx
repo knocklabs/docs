@@ -3,8 +3,8 @@ import { IoSwapHorizontal, IoLogoSlack } from "react-icons/io5";
 import sidebarContent from "../data/sidebar";
 import Sidebar from "./Sidebar";
 
-const DocsSidebar = () => (
-  <Sidebar content={sidebarContent}>
+const DocsSidebar = (props) => (
+  <Sidebar content={sidebarContent} {...props}>
     <div className="space-y-2">
       <Link
         href="/integrations/overview"

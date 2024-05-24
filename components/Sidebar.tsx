@@ -2,12 +2,14 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import { SidebarSection } from "../data/types";
 import SidebarSectionList from "./Sidebar/SidebarSectionList";
+import classNames from "classnames";
 
 type Props = {
   content: SidebarSection[];
+  isVisible?: boolean;
 };
 
-const Sidebar: React.FC<Props> = ({ content, children }) => {
+const Sidebar: React.FC<Props> = ({ content, children, isVisible = false }) => {
   const router = useRouter();
 
   useEffect(() => {
@@ -21,7 +23,12 @@ const Sidebar: React.FC<Props> = ({ content, children }) => {
   }, []);
 
   return (
-    <section className="w-72 border-r dark:border-r-gray-800 hidden lg:block">
+    <section
+      className={classNames(
+        "w-full h-full md:h-auto md:w-72 border-r dark:border-r-gray-800 bg-white dark:bg-gray-900 z-10 absolute md:relative",
+        !isVisible && "hidden md:block",
+      )}
+    >
       <nav className="overflow-y-auto h-full pl-5 pr-4 py-5">
         {children && <div className="mb-4">{children}</div>}
 

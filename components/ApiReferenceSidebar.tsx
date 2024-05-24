@@ -3,8 +3,8 @@ import Link from "next/link";
 import sidebarContent from "../data/apiReferenceSidebar";
 import Sidebar from "./Sidebar";
 
-const ApiReferenceSidebar = () => (
-  <Sidebar content={sidebarContent}>
+const ApiReferenceSidebar = (props) => (
+  <Sidebar content={sidebarContent} {...props}>
     <Link
       href="/"
       passHref
