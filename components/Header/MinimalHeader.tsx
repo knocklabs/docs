@@ -5,9 +5,15 @@ import { useEffect, useState } from "react";
 import Autocomplete from "../Autocomplete";
 import ApiSdkMenu from "../ApiSdkMenu";
 import HelpMenu from "../HelpMenu";
-import { IoMoon, IoSunny } from "react-icons/io5";
+import { IoClose, IoMenu, IoMoon, IoSunny } from "react-icons/io5";
 
-const MinimalHeader = ({ pageType }) => {
+type Props = {
+  pageType: string;
+  toggleSidebar?: () => void;
+  sidebarShown?: boolean;
+};
+
+const MinimalHeader = ({ pageType, toggleSidebar, sidebarShown }: Props) => {
   const { theme, setTheme } = useTheme();
 
   // Fix hydration error by hiding theme button during ssr
@@ -45,11 +51,11 @@ const MinimalHeader = ({ pageType }) => {
 
       <Autocomplete />
 
-      <div className="ml-auto flex items-center space-x-4">
+      <div className="ml-auto flex items-center space-x-2 md:space-x-4">
         {mounted ? (
           <button
             type="button"
-            className="p-2 -mr-2 text-gray-500 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
+            className="p-2 text-gray-500 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             {theme === "dark" && <IoMoon />}
@@ -58,14 +64,6 @@ const MinimalHeader = ({ pageType }) => {
         ) : null}
 
         <ApiSdkMenu />
-
-        <Link
-          href="/"
-          passHref
-          className="font-medium text-[14px] leading-[21px] text-gray-500 dark:text-white"
-        >
-          Docs
-        </Link>
 
         <div className="hidden md:block">
           <HelpMenu />
@@ -77,6 +75,14 @@ const MinimalHeader = ({ pageType }) => {
         >
           Dashboard &rarr;
         </Link>
+
+        <button
+          type="button"
+          className="block md:hidden p-2 !-mr-2 text-gray-500 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors text-[20px]"
+          onClick={toggleSidebar}
+        >
+          {!sidebarShown ? <IoMenu /> : <IoClose />}
+        </button>
       </div>
     </header>
   );

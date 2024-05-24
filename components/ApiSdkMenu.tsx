@@ -47,7 +47,7 @@ const ApiSdkMenu = () => {
         <Popover.Content
           align="center"
           sideOffset={8}
-          className=" w-[160px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
+          className="z-10 w-[160px] bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
         >
           <div className="flex flex-col border-b-gray-300 dark:border-b-gray-700 border-b py-1">
             {Object.keys(PageLinks).map((linkName) =>

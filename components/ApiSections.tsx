@@ -8,7 +8,7 @@ export const Section = ({
   headingClassName = "",
   isIdempotent = false,
 }) => (
-  <section className="api-docs-section border-b border-gray-200 dark:border-gray-800 py-16">
+  <section className="api-docs-section border-b border-gray-200 dark:border-gray-800 py-8 lg:py-16">
     {title && (
       <SectionHeading
         tag="h2"
