@@ -53,7 +53,7 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
             let channelId = await Knock.shared.environment.getPushChannelId()
 
             do {
-                let _ = try await Knock.shared.channelModule.registerTokenForAPNS(channelId: channelId, token: Knock.convertTokenToString(token: deviceToken))
+                let _ = try await Knock.shared.registerTokenForAPNS(channelId: channelId, token: Knock.convertTokenToString(token: deviceToken))
             } catch {
                // Handle error
             }
@@ -107,6 +107,115 @@ class MyAppDelegate: UIResponder, UIApplicationDelegate {
     open func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         // Pull any information you need out of userInfo, and change the completionHandler value depending on your needs.
          completionHandler(.noData)
+    }
+}
+```
+
+## Using FCM in iOS
+
+If you prefer to use Firebase Cloud Messaging (FCM) within your iOS app, you can follow the same steps outlined above for push notifications with a few modifications to your `AppDelegate`.
+
+### Step 1: Configure Firebase
+
+In your `application(_:didFinishLaunchingWithOptions:)` method, add the following:
+
+1. **Initialize Firebase**:
+
+   ```swift
+   FirebaseApp.configure()
+   ```
+
+2. **Set the Messaging Delegate**:
+
+   ```swift
+   Messaging.messaging().delegate = self
+   ```
+
+3. **Setup Knock**:
+   ```swift
+   Task {
+       try? await Knock.shared.setup(
+           publishableKey: Utils.publishableKey,
+           pushChannelId: Utils.apnsChannelId,
+           options: .init(hostname: Utils.hostname, loggingOptions: .verbose)
+       )
+   }
+   ```
+
+### Step 2: Override Push Notification Registration Methods
+
+Override the `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` method to prevent the `KnockAppDelegate` from handling this automatically:
+
+```swift
+override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {}
+```
+
+### Step 3: Implement `MessagingDelegate`
+
+Extend your `AppDelegate` to conform to `MessagingDelegate` and implement the `messaging(_:didReceiveRegistrationToken:)` method:
+
+```swift
+extension AppDelegate: MessagingDelegate {
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        Task {
+            if let channelId = await Knock.shared.environment.getPushChannelId(), let token = fcmToken {
+                let _ = try? await Knock.shared.registerTokenForAPNS(channelId: channelId, token: token)
+            }
+        }
+    }
+}
+```
+
+### Full Example
+
+Here's the complete `AppDelegate` implementation with FCM support:
+
+```swift
+class AppDelegate: KnockAppDelegate {
+
+    override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        // Step 1: Configure Firebase and Knock
+        FirebaseApp.configure()
+        Messaging.messaging().delegate = self
+
+        Task {
+            try? await Knock.shared.setup(
+                publishableKey: Utils.publishableKey,
+                pushChannelId: Utils.apnsChannelId,
+                options: .init(hostname: Utils.hostname, loggingOptions: .verbose)
+            )
+        }
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+
+    // Step 2: Override registration for remote notifications
+    override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {}
+
+    override func pushNotificationTapped(userInfo: [AnyHashable : Any]) {
+        super.pushNotificationTapped(userInfo: userInfo)
+        if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+            UIApplication.shared.open(url)
+        }
+    }
+
+    override func pushNotificationDeliveredInForeground(notification: UNNotification) -> UNNotificationPresentationOptions {
+        let options = super.pushNotificationDeliveredInForeground(notification: notification)
+        return [options]
+    }
+
+    override func pushNotificationDeliveredSilently(userInfo: [AnyHashable : Any], completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        completionHandler(.noData)
+    }
+}
+
+// Step 3: Implement MessagingDelegate
+extension AppDelegate: MessagingDelegate {
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        Task {
+            if let channelId = await Knock.shared.getPushChannelId(), let token = fcmToken {
+                let _ = try? await Knock.shared.registerTokenForAPNS(channelId: channelId, token: token)
+            }
+        }
     }
 }
 ```
