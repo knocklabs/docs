@@ -34,9 +34,9 @@ section: Concepts
 
 To get started, enable translations for your account. Go to “Settings” under your account name in the left sidebar and click “Enable translations”.
 
-Next you'll need to set a default locale. Knock uses the default locale when it can't find a translation for a given recipient’s locale.
+Next you'll need to set a default `locale`. Knock uses the default `locale` when it can't find a translation for a given recipient’s `locale`.
 
-Once you've set your default locale, you should see a new “Translations” page under “Developers” in the sidebar. This is where you’ll be working with your translations.
+Once you've set your default `locale`, you should see a new “Translations” page under “Developers” in the sidebar. This is where you’ll be working with your translations.
 
 ## Basic usage
 
@@ -64,7 +64,7 @@ Once you have those translations created for the `en` and `fr` locales, you can 
 <p> {{ "OrderReady" | t }} </p>
 ```
 
-Your users must have a `locale` property set for the helper to find translations in their locale. You can set a user's `locale` with the [identify endpoint](/reference#identify-user).
+Your users must have a `locale` property set for the helper to find translations in their locale, otherwise Knock will use the default locale. You can set a user's `locale` with the [identify endpoint](/reference#identify-user).
 
 ## Translation methods: filter vs. tag
 
@@ -72,13 +72,13 @@ There are two methods available to you to translate your message templates: the 
 
 <AccordionGroup>
   <Accordion title="The t filter">
-    The `t` filter is used to reference existing translation files. It is best when you have translations that are already created and you want to reference them in your message templates.
+    The `t` filter is used to reference existing translation files. It works best when you have translations that are already created and you want to reference them in your message templates.
 
     ```json title="Using t filter in a message template"
     {{ "congratulationsMessage" | t: recipientName: recipient.name }}
     ```
 
-    In the example above, the `t` filter finds the recipient's locale and looks for the `congratulationsMessage` key in the translation file for that locale. It then replaces the `recipientName` variable with the recipient's name.
+    In the example above, the `t` filter finds the recipient's `locale` and looks for the `congratulationsMessage` key in the translation file for that locale. It then replaces the `recipientName` variable with the recipient's name.
 
   </Accordion>
   <Accordion title="The t tag">
@@ -88,12 +88,12 @@ There are two methods available to you to translate your message templates: the 
     {% t %}Congratulations, {{ recipient.name }}!{% endt %}
     ```
 
-    In the example above, we author content in our english default language, wrap that content in our `t` tag, and Knock automatically generates translation files for us behind the scenes.
+    In the example above, we author content in our English default language, wrap that content in our `t` tag, and Knock automatically generates translation files for us behind the scenes.
 
   </Accordion>
 </AccordionGroup>
 
-We cover `t` filter and `t` tag usage in more detail below.
+We cover how to use the `t` filter and `t` tag in more detail below.
 
 ## Using the `t` filter
 
@@ -118,7 +118,7 @@ You can pass variables to the `t` filter:
 
 ### Pluralization
 
-Translations support pluralization rules. When you pass the `count` variable to a translation, it looks for pluralization keys in your translation. Those keys are `zero`, `one`, and `other`. You don’t need to reference these in the template, if you pass the `count` variable it will evaluate it and choose one for you.
+Translations support pluralization rules. When you pass the `count` variable to a translation, it looks for pluralization keys in your translation. Those keys are `zero`, `one`, and `other`. You don’t need to reference these in the template. If you pass the `count` variable, it will evaluate it and choose one for you.
 
 ```json title="en translation"
 {
@@ -143,7 +143,7 @@ To pluralize content in a message template, pass the `count` variable:
 
 ### Other filters in combination
 
-You can still use other filters in combination with `t` but you’ll use them **\***after**\*** you use the `t` filter.
+You can still use other filters in combination with `t` but you’ll use them **after** you use the `t` filter.
 
 For example, to titlecase a translation:
 
@@ -153,7 +153,7 @@ For example, to titlecase a translation:
 
 ### Namespaced translations
 
-When you create a translation, you can supply an optional “namespace”. The namespace helps organize translations of the same locale so you can keep similar concepts together. Below you'll see examples of how to reference namespaced translations from your message templates.
+When you create a translation, you can supply an optional “namespace.” The namespace helps organize translations of the same locale so you can keep similar concepts together. Below you'll see examples of how to reference namespaced translations from your message templates.
 
 Let's start with a translation with a namespace of `shipping`:
 
