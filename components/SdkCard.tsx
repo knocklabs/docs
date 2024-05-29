@@ -8,6 +8,7 @@ import {
   FaReact,
   FaSwift,
   FaAngular,
+  FaVuejs,
 } from "react-icons/fa";
 import { DiRuby, DiDotnet } from "react-icons/di";
 import { FaGolang } from "react-icons/fa6";
@@ -32,7 +33,8 @@ export type SupportedIcon =
   | "kotlin"
   | "flutter"
   | "reactnative"
-  | "angular";
+  | "angular"
+  | "vue";
 
 const icons = {
   default: <IoCubeOutline />,
@@ -51,6 +53,7 @@ const icons = {
   flutter: <SiFlutter />,
   reactnative: <TbBrandReactNative />,
   angular: <FaAngular />,
+  vue: <FaVuejs />,
 };
 
 type Props = {
