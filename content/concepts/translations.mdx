@@ -17,6 +17,8 @@ tags:
 section: Concepts
 ---
 
+[Translations](/mapi#translations-overview) localize the notifications you send with Knock.
+
 <Callout
   emoji="✨"
   text={
@@ -28,15 +30,17 @@ section: Concepts
   }
 />
 
-## Enabling translations and setting a default locale
+## Get started
 
-First you’ll have to enable translations for your account and set a default locale. This will be the “fallback” locale - if a translation for a given recipient’s locale is missing, it will look for the translation in this default locale instead.
+To get started, enable translations for your account. Go to “Settings” under your account name in the left sidebar and click “Enable translations”.
 
-Go to “Settings” under your account name in the left sidebar and click “Enable translations” to select your locale. (You can always change this default language later.) Now, you should see a new “Translations” page under “Developers” in the sidebar. This is where you’ll be working with your translations.
+Next you'll need to set a default `locale`. Knock uses the default `locale` when it can't find a translation for a given recipient’s `locale`.
+
+Once you've set your default `locale`, you should see a new “Translations” page under “Developers” in the sidebar. This is where you’ll be working with your translations.
 
 ## Basic usage
 
-Translations are a JSON object that contain the text for your messages in various locales. For example, let’s say you have a customer order notification you’re building and want to localize it for French and English users.
+[Translations](/mapi#translations-overview) are JSON objects that contain the text for your messages in various locales. For example, let’s say you have a customer order notification that you want to localize for French and English users.
 
 ```json title="en translation"
 {
@@ -54,58 +58,50 @@ Translations are a JSON object that contain the text for your messages in variou
 }
 ```
 
-Once you have those translations created for the `en` and `fr` locales, you can reference their translation strings in your message templates like this:
+Once you have those translations created for the `en` and `fr` locales, you can reference their translation strings in your message templates using the `t` filter:
 
 ```json title="Message template editor"
 <p> {{ "OrderReady" | t }} </p>
 ```
 
-Here's how this works: the translation helper looks up the recipient of the current workflow run, finds their locale, and then looks for the "OrderReady" key within the translation file for that locale. (If a translation file isn't found for a given recipient's locale, the default locale is used instead.)
+Your users must have a `locale` property set for the helper to find translations in their locale, otherwise Knock will use the default locale. You can set a user's `locale` with the [identify endpoint](/reference#identify-user).
 
-The recipient must have a `locale` property set for the helper to find their translations. You can add properties to any of your users when you call the [user identify endpoint](/reference#identify-user).
+## Translation methods: filter vs. tag
 
-For a recipient with a locale of `en`, they would see “Your order is ready” while a recipient with a locale of `fr` would see “Votre commande est prête”. If a recipient doesn't have their locale set, because our fallback locale is `en` they would also see "Your order is ready."
+There are two methods available to you to translate your message templates: the `t` filter and the `t` tag.
 
-## Working with translations
+<AccordionGroup>
+  <Accordion title="The t filter">
+    The `t` filter is used to reference existing translation files. It works best when you have translations that are already created and you want to reference them in your message templates.
 
-Translations follow the same version control flow in Knock as workflows and layouts. You create them in development and then promote them to subsequent environments.
+    ```json title="Using t filter in a message template"
+    {{ "congratulationsMessage" | t: recipientName: recipient.name }}
+    ```
 
-Keep in mind this means that to see translation updates in development you'll need to commit your latest changes to the development environment.
+    In the example above, the `t` filter finds the recipient's `locale` and looks for the `congratulationsMessage` key in the translation file for that locale. It then replaces the `recipientName` variable with the recipient's name.
 
-You can view, manage, and archive translations within the "Translations" page under the "Developers" section of the Knock sidebar.
+  </Accordion>
+  <Accordion title="The t tag">
+    The `t` tag is used to write templates in their default language and automatically generate translations for additional locales. It is best when you have less technical users authoring templates, and you want to automatically generate translations for their templates behind the scenes.
 
-### Creating a translation
+    ```json title="Using t tag in a message template"
+    {% t %}Congratulations, {{ recipient.name }}!{% endt %}
+    ```
 
-In the translations page, click “Create translation” on the top right to make a new translation. You’ll select the locale and you’ll be able to supply an optional “namespace”. The namespace helps organize translations of the same locale so you can keep similar concepts together. You can see how to reference namespaced translations in your message templates [here](/concepts/translations#namespaced-translations).
+    In the example above, we author content in our English default language, wrap that content in our `t` tag, and Knock automatically generates translation files for us behind the scenes.
 
-Keep in mind that you cannot create two translations with the same locale and namespace and you cannot edit a namespace - this helps preserve the references used within your message templates.
+  </Accordion>
+</AccordionGroup>
 
-### Editing a translation
+We cover how to use the `t` filter and `t` tag in more detail below.
 
-Once you’ve created a translation, you can begin to add to it and edit the JSON directly. Make sure to “Save” it when you’re happy with it, and then you can click “Commit” to make it available in your development environment. You must use valid JSON, but there are no restrictions on the format of the keys or on how deeply nested you decide to build your translation.
+## Using the `t` filter
 
-<Callout
-  emoji="✨"
-  text={
-    <>
-      <span className="font-bold">Tip:</span> In order to see translations in
-      your email previews and activate them for use in your notifications, you
-      must commit them to your environment first.
-    </>
-  }
-/>
-
-### Archiving a translation
-
-From the list of translations, click the 3-dot menu next to the translation you want to archive and the option will appear if your role has the permissions to manage translations.
-
-## Using the `t` filter in your message templates
-
-Knock supplies a `t` filter for you to reference your translations from within the message template. As shown [above](/concepts/translations#basic-usage), you’ll reference the key of the translation you want to use followed by `| t` and it will supply the translation for the recipient’s locale. The `t` filter also allows you to use variables, other filters, and special pluralization rules as well, which we’ll cover here.
+You can use `t` filter to reference your translations from within a message template. The `t` filter also allows you to use variables, other filters, and special pluralization rules.
 
 ### Variables and interpolation
 
-You can and probably will often use variables inside of your translations. Let’s look at this translation example:
+You can use variable interpolation in your translations.
 
 ```json title="en translation"
 {
@@ -114,19 +110,15 @@ You can and probably will often use variables inside of your translations. Let�
 }
 ```
 
-You can pass variables to the filter like this:
+You can pass variables to the `t` filter:
 
 ```json title="Message template editor"
 <p> {{ "like" | t: actorName: actor.name, photoTitle: likedPhoto.title }} </p>
 ```
 
-Where “actor” and “likedPhoto” are variables that get passed into your data payload and have a name and title key, respectively.
-
 ### Pluralization
 
-Translations sometimes need specialized pluralization rules. When you pass the `count` variable to a translation, it will know to look for a special set of keys within your translation to match it to. Those keys are `zero`, `one`, and `other`. You don’t need to reference these in the template, if you pass the `count` variable it will evaluate it and choose one for you.
-
-For example:
+Translations support pluralization rules. When you pass the `count` variable to a translation, it looks for pluralization keys in your translation. Those keys are `zero`, `one`, and `other`. You don’t need to reference these in the template. If you pass the `count` variable, it will evaluate it and choose one for you.
 
 ```json title="en translation"
 {
@@ -140,7 +132,7 @@ For example:
 }
 ```
 
-And you would just need to pass your `count` variable for it to choose one of these based on the number:
+To pluralize content in a message template, pass the `count` variable:
 
 ```json title="Message template editor"
 <p> {{ "orders.shipping" | t: count: count }} </p>
@@ -151,7 +143,9 @@ And you would just need to pass your `count` variable for it to choose one of th
 
 ### Other filters in combination
 
-You can still use other filters in combination with `t` but you’ll use them **\***after**\*** you use the `t` filter. For example, to titlecase a translation:
+You can still use other filters in combination with `t` but you’ll use them **after** you use the `t` filter.
+
+For example, to titlecase a translation:
 
 ```json title="Message template editor"
 <p> {{ "congratulationsMessage" | t | titlecase }} </p>
@@ -159,9 +153,9 @@ You can still use other filters in combination with `t` but you’ll use them **
 
 ### Namespaced translations
 
-You’ll use namespaced translations just as you would a translation without a namespace, but you’ll use a special way to access it in the message template. Make sure you have the same namespace across your locales if you use them so that the message template will be able to access all of the content in them. Here’s an example of using a namespaced translation in message template.
+When you create a translation, you can supply an optional “namespace.” The namespace helps organize translations of the same locale so you can keep similar concepts together. Below you'll see examples of how to reference namespaced translations from your message templates.
 
-For a translation with a namespace of `shipping`:
+Let's start with a translation with a namespace of `shipping`:
 
 ```json title="en:shipping translation"
 {
@@ -203,7 +197,9 @@ And if you had a translation that wasn’t namespaced, say the `en` translation,
 
 ### Nested translations
 
-You can create whatever JSON structure you need to hold your translations, sometimes those might be deeply nested. Given the following translation:
+You can create whatever JSON structure you need to hold your translations.
+
+Given the following translation:
 
 ```json title="en translation"
 {
@@ -231,9 +227,9 @@ The same goes for namespaced translations. If the above translation was in a tra
 <p> {{ "services:customers.orders.beenReceived" | t }} </p>
 ```
 
-## Automatically generate translations using the `t` tag in your message templates
+## Using the `t` tag
 
-Knock also provides an editor-friendly `t` tag which you can use to write templates in their default language. Translation files for any supported languages will be automatically generated in the background when you commit a workflow.
+Knock also provides an editor-friendly `t` tag which you can use to write templates in your default language. Translation files for any supported languages will be automatically generated in the background when you commit a workflow.
 
 <Steps>
   <Step title="Write your message templates">
@@ -261,25 +257,42 @@ Knock also provides an editor-friendly `t` tag which you can use to write templa
   </Step>
 </Steps>
 
-## Rules for determining the translation used for a recipient
+## Translation version control
 
-Locales have three levels of fallbacks:
+Translations follow the same version control flow in Knock as workflows and layouts. You create them in Development and then promote them to subsequent environments. You can archive translations that are no longer needed.
 
-1. Language + region
-2. Language
-3. Default locale (language OR language + region)
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Remember:</span> in order to see translation
+      updates in your template previews, you'll need to commit them to your
+      development environment first.
+    </>
+  }
+/>
 
-The message template will first try to find a translation that corresponds with a recipients specific language + region, like `fr-BE` for French-Belgian . If it doesn’t find one, it will fall back on looking for a translation for `fr`, since that’s the language code for the locale. And if it still can’t find that, it will fall back on the default locale, in the case of this example `en`.
+## Locale prioritization
 
-## Automate translation management with the Knock CLI
+When Knock renders a template for a given user and encounters our `t` helper, it runs through the following locale prioritization:
+
+1. Language + region (e.g. `fr-BE`)
+2. Language (e.g. `fr`)
+3. Default locale (e.g. `en`)
+
+Regional locales take precedence over language locales. If a translation is not found in the user’s locale, Knock will fall back to the default locale.
+
+## Automate localization with our CLI
 
 In addition to working with translations in the Knock dashboard, you can programmatically create and update translations using the [Knock CLI](/developer-tools/knock-cli) or our [Management API](/developer-tools/management-api).
 
 If you manage your own translation files within your application, you can automate the creation and management of Knock translations so that they always reflect the state of the translation files you keep in your application code.
 
+The Knock CLI supports both JSON and the Portable Object (PO) file formats. When using PO files, the Knock CLI will handle converting between the Knock translation format and the PO format.
+
 The Knock CLI can also be used to commit changes and promote them to production, which means you can automate Knock translation management as [part of your CI/CD workflow](/developer-tools/integrating-into-cicd).
 
-### Translation files structure
+### Translation directory structure
 
 When translations are pulled from Knock, they are stored in directories named by their locale codes. Their filename will be their locale code. Any namespaced translations will prepend the namespace to the filename, with `.` used as a separator.
 
@@ -301,4 +314,8 @@ You can learn more about automating translation management in the [Knock CLI ref
 
 Below is a list of the available locales to choose from for your translations. If you need one added, contact us at <a href="mailto:support@knock.app">support@knock.app</a>.
 
-<LocaleTable />
+<AccordionGroup>
+  <Accordion title="Supported locales">
+    <LocaleTable />
+  </Accordion>
+</AccordionGroup>
