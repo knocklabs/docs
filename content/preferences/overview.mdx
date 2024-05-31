@@ -36,7 +36,7 @@ A few examples:
 }
 ```
 
-You can combine these keys to create preference grids (<a href="https://knock-in-app-notifications-react.vercel.app/preferences" target="_blank">example</a>):
+You can combine these keys to create preference grids like the one in the image below:
 
 ```json title="A preference grid for categories and channels"
 {
@@ -72,13 +72,30 @@ The `PreferenceSet` above models this preference grid in your application:
   className="rounded-md mx-auto border border-gray-200"
 />
 
+<Callout
+  mt={4}
+  emoji="👩‍💻"
+  text={
+    <>
+      <span className="font-bold">See an example.</span> Check out{" "}
+      <a
+        href="https://knock-in-app-notifications-react.vercel.app/preferences"
+        target="_blank"
+      >
+        our interactive example app
+      </a>{" "}
+      to see how making changes to the preference center UI updates the values
+      of a&nbsp;
+      <code>PreferenceSet</code>
+    </>
+  }
+/>
+
 ## Build your preference center
 
 Before you start setting preferences for your users, you need to build a preference center in your application. A preference center is a place where users can manage their notification preferences.
 
-You can see live example of a preference center in our [in-app demo playground](https://knock-in-app-notifications-react.vercel.app/preferences).
-
-There are two steps to building a preference center with Knock:
+There are four steps to building a preference center with Knock:
 
 <Steps titleSize="h3">
   <Step title="Create a default PreferenceSet">
@@ -105,6 +122,22 @@ There are two steps to building a preference center with Knock:
     You can create your `PreferenceView` in the Knock dashboard under **Developers** > **Preferences**. Your `PreferenceView` will be environment-specific for testing purposes. You can copy the `PreferenceView` from one environment to another to keep them in sync.
 
   </Step> */}
+  <Step title="Get a user's preferences">
+    {/* TODO add once we have pre-built react component for prefs
+    You can use our pre-built React component to render your preference center in your application. Here's an example of how you can use the component:
+
+    ```jsx
+    TODO: We need this component built and documented.
+    ``` */}
+
+    Once you have your default `PreferenceSet` created, you will use the `getPreferences` method to retrieve a user's preferences for rendering in your application. If no preferences are set, this method will return the default preference set you created in the step above.
+
+    <MultiLangCodeBlock
+      title="Get preferences for a user"
+      snippet="users.getPreferences"
+    />
+
+  </Step>
   <Step title="Render your preference center">
     {/* TODO add once we have pre-built react component for prefs
     You can use our pre-built React component to render your preference center in your application. Here's an example of how you can use the component:
@@ -113,61 +146,55 @@ There are two steps to building a preference center with Knock:
     TODO: We need this component built and documented.
     ``` */}
 
-    Once you have your default `PreferenceSet` created, you'll need to render it to users in your application so they can change their notification preferences.
+    Once you have loaded a user's preference, you'll need to render an interface in your application so they can update their notification preferences. You can see a non-functional example of this below, but our [quickstart guide on building preferences UI](/in-app-ui/react/preferences) provides a more in-depth example.
 
-    You can use the `getPreferences` method to retrieve a user's preferences and render them in your application. If no preferences are set, this method will return the default preference set you created in the step above.
+```jsx title="A basic preference center"
+<form
+onSubmit={(e)=>{
+  e.preventDefault();
+  await updatedUserPreferences();
+}}
+>
+  <label>
+    Email
+    <input type="checkbox" value={preferences.channel_types.email} />
+  </label>
+  <label>
+    In-app
+    <input type="checkbox" value={preferences.channel_types.in_app_feed} />
+  </label>
+  <button type="submit">Submit</button>
+</form>
+```
+
+  </Step>
+  <Step title="Set a user's preferences">
+    When a user makes changes to their preferences in your application, you will use the `setPreferences` method to save those changes back to Knock.
 
     <MultiLangCodeBlock
       title="Get preferences for a user"
-      snippet="users.getPreferences"
+      snippet="users.setPreferences"
     />
-
-    You can learn more about rendering preferences to users in your application in the [Building In-app UI](/in-app-ui/overview) section of our documentation.
-
-    Quick links:
-    * [Building preference UIs in React](/in-app-ui/react/preferences)
-    * [Javascript SDK preferences reference ](/sdks/javascript/reference#preferences)
 
   </Step>
 </Steps>
-
-## Set a user's preferences
-
-Once you've built your preferences center, you'll need to handle setting a user's preferences in your application.
-
-<MultiLangCodeBlock
-  title="Set preferences for a user"
-  snippet="users.setPreferences"
-/>
-
-### Bulk set user preferences
-
-You can update the preferences of up to 1000 users in a single batch by using the `users.bulkSetPreferences` method. This executes an asynchronous job which will overwrite any existing preferences for the users provided. You can track the progress of the `BulkOperation` returned via the [bulk operation API](/reference#bulk-operations).
-
-<MultiLangCodeBlock
-  title="Bulk set preferences for many users"
-  snippet="users.bulkSetPreferences"
-/>
-
-<br />
-
-<Callout
-  mt={4}
-  emoji="👩‍💻"
-  text={
-    <>
-      <span className="font-bold">See an example.</span> Check out{" "}
-      <a
-        href="https://github.com/knocklabs/knock-node-example-app/blob/main/db/seeds.ts#L103"
-        target="_blank"
-      >
-        our example app
-      </a>{" "}
-      to see the bulk preferences API being used within the context of a
-      collaboration app.
-    </>
-  }
-/>
+    You can learn more about rendering preferences to users in your application in the [Building In-app UI](/in-app-ui/overview) section of our documentation:
+<SdkCardGroup>
+  <SdkCard
+    title="Quickstart: Preference UIs in React"
+    linkUrl="/in-app-ui/react/preferences"
+    icon="react"
+    languages={["React"]}
+    isExternal={false}
+  />
+  <SdkCard
+    title="Javascript SDK preference reference"
+    linkUrl="/sdks/javascript/reference#preferences"
+    icon="javascript"
+    languages={["JavaScript"]}
+    isExternal={false}
+  />
+</SdkCardGroup>
 
 ## Preference evaluation rules
 
@@ -200,6 +227,16 @@ When a workflow is triggered, Knock will evaluate the preferences for each `reci
 
   </Accordion>
 </AccordionGroup>
+## Bulk set user preferences
+
+You can update the preferences of up to 1000 users in a single batch by using the `users.bulkSetPreferences` method. This executes an asynchronous job which will overwrite any existing preferences for the users provided. You can track the progress of the `BulkOperation` returned via the [bulk operation API](/reference#bulk-operations).
+
+<MultiLangCodeBlock
+  title="Bulk set preferences for many users"
+  snippet="users.bulkSetPreferences"
+/>
+
+<br />
 
 ## Advanced concepts
 
