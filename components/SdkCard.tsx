@@ -9,6 +9,7 @@ import {
   FaSwift,
   FaAngular,
   FaVuejs,
+  FaYoutube,
 } from "react-icons/fa";
 import { DiRuby, DiDotnet } from "react-icons/di";
 import { FaGolang } from "react-icons/fa6";
@@ -34,7 +35,8 @@ export type SupportedIcon =
   | "flutter"
   | "reactnative"
   | "angular"
-  | "vue";
+  | "vue"
+  | "youtube";
 
 const icons = {
   default: <IoCubeOutline />,
@@ -54,6 +56,7 @@ const icons = {
   reactnative: <TbBrandReactNative />,
   angular: <FaAngular />,
   vue: <FaVuejs />,
+  youtube: <FaYoutube />,
 };
 
 type Props = {
