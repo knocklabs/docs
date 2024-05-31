@@ -1,6 +1,6 @@
 import React, { useRouter } from "next/router";
 import { ThemeProvider } from "next-themes";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import * as analytics from "../lib/analytics";
 import {
   EventEmitterContext,
@@ -9,12 +9,16 @@ import {
 
 import * as gtag from "../lib/gtag";
 import { setClearbitPath } from "../lib/clearbit";
+import { useRemoteRefresh } from "next-remote-refresh/hook";
 
 import "../styles/index.css";
 
 function App({ Component, pageProps }) {
   const router = useRouter();
   const eventEmitter = useEventEmitterInstance();
+
+  // Refresh when content pages change
+  useRemoteRefresh();
 
   useEffect(() => {
     const handleRouteChange = (url: URL) => {

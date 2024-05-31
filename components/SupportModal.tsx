@@ -95,9 +95,9 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
         </Dialog.Trigger>
 
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/50 " />
+          <Dialog.Overlay className="fixed inset-0 z-10 bg-black/50 " />
           <Dialog.Title />
-          <Dialog.Content className="text-gray-900 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm">
+          <Dialog.Content className="text-gray-900 z-50 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm">
             <div className="py-4 px-6">
               <Dialog.Title>
                 <div className="flex flex-column items-center justify-between">
