@@ -1,3 +1,10 @@
+const path = require("path");
+
+// Refresh the site when content changes
+const withRemoteRefresh = require("next-remote-refresh")({
+  paths: [path.resolve(__dirname, "content")],
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
@@ -323,4 +330,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withRemoteRefresh(nextConfig);
