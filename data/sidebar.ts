@@ -164,7 +164,14 @@ const sidebarContent: SidebarSection[] = [
       {
         title: "iOS (Swift)",
         slug: "/ios",
-        pages: [{ slug: "/overview", title: "Overview" }],
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/components", title: "Components" },
+          {
+            slug: "/customization",
+            title: "Customization",
+          },
+        ],
       },
       {
         title: "Android (Kotlin)",
