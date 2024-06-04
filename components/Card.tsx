@@ -28,12 +28,12 @@ const Card: React.FC<Props> = ({
   linkUrl,
   isExternal = false,
 }) => (
-  <div className="rounded-md border border-gray-200 hover:border-gray-400 dark:border-gray-600 hover:dark:border-gray-400 transition-colors p-3">
+  <div className="rounded-md border border-gray-200 hover:border-gray-400 dark:border-gray-600 hover:dark:border-gray-400 transition-colors h-full flex">
     <a
       target={isExternal ? "_blank" : undefined}
       href={linkUrl}
       title={title}
-      className="!no-underline !text-inherit"
+      className="!no-underline !text-inherit w-full p-3"
     >
       <>
         {emoji && <div className="mb-1">{emoji}</div>}
