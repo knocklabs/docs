@@ -62,9 +62,10 @@ On a per-channel level, `sent` means that:
 
 - **Chat** — Your message has successfully been sent by Knock to the destination chat platform.
 - **Email** — Your message made it to the delivery provider. We're waiting to learn if it made it to recipient.
-- **In-app** — In-app messages automatically skip to the [`delivered`](#6-delivered) status. We always successfully deliver the message to the Knock Feed API.
+- **In-app** — In-app messages automatically skip to the [`delivered`](#7-delivered) status. We always successfully deliver the message to the Knock Feed API.
 - **Push** — Your message has successfully been sent by Knock to the destination push platform.
 - **SMS** — Your message made it to the delivery provider. We're waiting to learn if it made it to recipient.
+- **Webhook** — Webhook messages automatically skip to the [`delivered`](#7-delivered) status when Knock receives a `2xx`-status response from your endpoint.
 
 ### 7) Delivered
 
@@ -77,13 +78,14 @@ On a per-channel level, `delivered` means that:
 - **Push** — We do not support delivery tracking for push channels, so push channel messages will never have a delivery status greater than `sent`. However, you can introduce a handler into your mobile app to update a given message's [engagement status](#engagement-status) when the message has successfully made it to your recipient's device, using the `knock_message_id` from the push notification payload.
 - **SMS** — Your message was successfully sent to the recipient's SMS provider. Note that not all SMS delivery providers support delivery tracking. See the [Knock integration guides for SMS providers](/integrations/sms/overview) for more information.
 - **Chat** — Delivery tracking is not available for chat platforms, so chat channel messages will never have a delivery status greater than `sent`. In most cases, a `sent` status will also mean that the message has been delivered to the recipient.
+- **Webhook** — Your message was successfully delivered to your webhook endpoint.
 
 ## Engagement status
 
 Once delivered, Knock uses a set of engagement statuses to track how the recipient interacts with the notification. There are a few important things to note about how this works:
 
 - **Engagement statuses are mutually inclusive.** Unlike delivery status, a message can have zero, one, or multiple engagement statuses. As an example, an in-app message can have an engagement status of both `seen` and `marked as read`.
-- **Engagement statuses are hierarchical.** Like delivery status, engagement statuses do have a concept or hierarchy. Knock sometimes uses this hierarchy when evaluating [message status step conditions](/designing-workflows/step-conditions#message-status-conditions).
+- **Engagement statuses are hierarchical.** Like delivery status, engagement statuses have a concept of hierarchy. Knock sometimes uses this hierarchy when evaluating [message status step conditions](/designing-workflows/step-conditions#message-status-conditions).
 - **Implicitly managed only sometimes.** In a couple cases, Knock will manage engagement status on your behalf. The [Knock React SDK](/in-app-ui/react/overview) will set engagement statuses for your in-app feed channels. Knock will also manage engagement statuses for any channel configured to use [Knock link and open tracking](/send-notifications/tracking). For other cases, you can use the [Knock Message status API](/reference#update-message-status) to explicitly manage engagement statuses yourself.
 
 Knock will include the set of current engagement statuses for your message in API responses as a list under the `engagement_statuses` field. Knock also uses timestamp columns to model the latest such action for each engagement type.
@@ -115,6 +117,7 @@ Knock will implicitly manage this status only for the following channel configur
 - **Push** — Not currently supported.
 - **SMS** — Not directly supported. But, if [Knock link tracking](/send-notifications/tracking) is enabled, we will count a link-click action as also an open event.
 - **Chat** — Not directly supported. But, if [Knock link tracking](/send-notifications/tracking) is enabled, we will count a link-click action as also an open event.
+- **Webhook** — Not currently supported.
 
 ### Link clicked
 
@@ -131,6 +134,7 @@ Knock will implicitly manage this status only for the following channel configur
 - **Push** — Not currently supported.
 - **SMS** — [Knock link tracking](/send-notifications/tracking) needs to be enabled.
 - **Chat** — [Knock link tracking](/send-notifications/tracking) needs to be enabled.
+- **Webhook** — Not currently supported.
 
 ### Interacted
 
