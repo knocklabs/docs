@@ -2,6 +2,7 @@
 title: In-app APIs and real-time service
 description: Learn more about the capabilities of Knock's in-app APIs and real-time services, and how these can power robust in-app notification experiences with little effort.
 section: Building in-app UI
+tags: ["FeedItem", "MessageContent", "actionable notifications", "real-time delivery", "in-app notifications", "in-app messages", "in-app feed", "in-app channel", "in-app API", "in-app SDK"]
 ---
 
 Knock provides a complete set of APIs to render your in-app notifications with the Knock-powered in-app channel. These APIs cover:
@@ -160,6 +161,12 @@ Requests to the feed endpoint will return an array of `FeedItems`. Each feed ite
 
 Each in-app message will contain the contents of the message template that was used to generate the message, which you can use to display your in-app notifications. You'll find this content under the `blocks` attribute on each `FeedItem` returned. Each block includes:
 
+Each `ContentBlock` is one of: `MarkdownContentBlock`, `TextContentBlock`, `ButtonSetContentBlock` defined by the `type` attribute.
+
+#### `MarkdownContentBlock`
+
+Represents a markdown content block that will have rendered HTML content.
+
 <Attributes>
   <Attribute
     name="key"
@@ -167,23 +174,90 @@ Each in-app message will contain the contents of the message template that was u
     description="A unique key for the block."
   />
   <Attribute
-    name="type"
-    type="markdown | string"
-    description="The type of block."
-  />
-  <Attribute
     name="rendered"
     type="string"
-    description="The complete rendered content for the block."
+    description="The rendered liquid content as HTML."
   />
   <Attribute
     name="content"
     type="string"
-    description="The liquid template associated with the block."
+    description="The markdown liquid template string."
+  />
+  <Attribute
+    name="type"
+    type="markdown"
+    description="The type of block."
   />
 </Attributes>
 
-**Note**: when the block type is `markdown`, the `rendered` content will always be HTML that should be rendered for the in-app message.
+#### `TextContentBlock`
+
+Represents a plaintext content block.
+
+<Attributes>
+  <Attribute
+    name="key"
+    type="string"
+    description="A unique key for the block."
+  />
+  <Attribute
+    name="rendered"
+    type="string"
+    description="The rendered liquid content as plaintext."
+  />
+  <Attribute
+    name="content"
+    type="string"
+    description="The plaintext liquid template string."
+  />
+  <Attribute
+    name="type"
+    type="text"
+    description="The type of block."
+  />
+</Attributes>
+
+#### `ButtonSetContentBlock`
+
+Represents a set of one or more buttons that can be rendered in the in-app message.
+
+<Attributes>
+  <Attribute
+    name="key"
+    type="string"
+    description="A unique key for the block."
+  />
+  <Attribute
+    name="buttons"
+    type="ActionButton[]"
+    description="A list of buttons to render in the block."
+  />
+  <Attribute
+    name="type"
+    type="button_set"
+    description="The type of block."
+  />
+</Attributes>
+
+Each button set block will contain an array of `ActionButton` objects. Each button includes:
+
+<Attributes>
+  <Attribute
+    name="name"
+    type="string"
+    description="One of primary or secondary."
+  />
+  <Attribute
+    name="label"
+    type="string"
+    description="The label to show on the button."
+  />
+  <Attribute
+    name="action"
+    type="string"
+    description="The URI for this action."
+  />
+</Attributes>
 
 ### Passing through data
 
@@ -198,3 +272,15 @@ It's also possible to override the response of the in-app API to hide sensitive 
 ## Message statuses
 
 All messages returned from the in-app channel adhere to our message status and engagement APIs. That means it's possible to programmatically mark the messages as seen, read, interacted with, or archived. You can read more in our [message status documentation](/send-notifications/message-statuses), or read more on how we use these message statuses [on the in-app channel](/integrations/in-app/knock#how-the-knock-in-app-feed-uses-status).
+
+## Working with actionable notifications
+
+In-app notification messages (`FeedItem`) are "actionable" and can be one of three types:
+
+- **Standard**: indicates that the entire cell is potentially actionable (e.g., clicking anywhere on the cell will trigger an action).
+- **Single-action**: indicates that the notification cell has a single action button that can be clicked.
+- **Multi-action**: indicates that the notification cell has both a primary and secondary set of actions that can be clicked.
+
+Working with actionable notifications is straightforward. When rendering the in-app message, you can check the `blocks` attribute for the presence of a `ButtonSetContentBlock` and render the `buttons` contained within the block accordingly.
+
+If you're using out-of-the-box Knock UI components, we'll handle the rendering of actionable notifications for you.
