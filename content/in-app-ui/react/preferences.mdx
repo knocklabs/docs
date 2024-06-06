@@ -132,44 +132,48 @@ Copy and paste this `PreferenceViewConfig` object in your component file and mak
           gap: "1rem",
         }}
       >
-        <h2>
-          {PreferenceViewConfig.RowSettings[preferenceKey].title}
-        </h2>
-        <p>
-          {PreferenceViewConfig.RowSettings[preferenceKey].description}
-        </p>
-        {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
-          (channelType) => {
-            return (
-              <div 
-                key={`${preferenceKey}_${channelType}`}
-                style={{ display: "flex", justifyContent: "space-between" }}
-              >
-                <label htmlFor={`${preferenceKey}_${channelType}`}>
-                  {PreferenceViewConfig.ChannelTypeLabels[channelType]}
-                </label>
-                <input
-                  id={`${preferenceKey}_${channelType}`}
-                  type="checkbox"
-                  checked={channelTypeSettings[channelType]}
-                  disabled={
-                    typeof channelTypeSettings[channelType] === "undefined"
-                  }
-                  onChange={(e) => {
-                    onChange({
-                      preferenceKey,
-                      preferenceType,
-                      channelTypeSettings: {
-                        ...channelTypeSettings,
-                        [channelType]: e.target.checked,
-                      },
-                    });
-                  }}
-                />
-              </div>
-            );
-          }
-        )}
+        <div>
+          <h2>
+            {PreferenceViewConfig.RowSettings[preferenceKey].title}
+          </h2>
+          <p>
+            {PreferenceViewConfig.RowSettings[preferenceKey].description}
+          </p>
+        </div>
+        <div>
+          {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
+            (channelType) => {
+              return (
+                <div
+                  key={`${preferenceKey}_${channelType}`}
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <label htmlFor={`${preferenceKey}_${channelType}`}>
+                    {PreferenceViewConfig.ChannelTypeLabels[channelType]}
+                  </label>
+                  <input
+                    id={`${preferenceKey}_${channelType}`}
+                    type="checkbox"
+                    checked={channelTypeSettings[channelType]}
+                    disabled={
+                      typeof channelTypeSettings[channelType] === "undefined"
+                    }
+                    onChange={(e) => {
+                      onChange({
+                        preferenceKey,
+                        preferenceType,
+                        channelTypeSettings: {
+                          ...channelTypeSettings,
+                          [channelType]: e.target.checked,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              );
+            }
+          )}
+        </div>
       </div>
     );
   }
@@ -178,47 +182,51 @@ Copy and paste this `PreferenceViewConfig` object in your component file and mak
   
   Using the `preferenceKey` parameter, this component renders a section of UI that displays the `title` and `description` properties stored in the `PreferenceViewConfig` under the matching key:
   ```jsx title="Displaying preference details"
-  <h2>
-    {PreferenceViewConfig.RowSettings[preferenceKey].title}
-  </h2>
-  <p>
-    {PreferenceViewConfig.RowSettings[preferenceKey].description}
-  </p>
+  <div>
+    <h2>
+      {PreferenceViewConfig.RowSettings[preferenceKey].title}
+    </h2>
+    <p>
+      {PreferenceViewConfig.RowSettings[preferenceKey].description}
+    </p>
+  </div>
   ```  
   Next, we'll generate an `input` element tied to each channel type setting for that preference. We do that by looping through the keys of `PreferenceViewConfig.ChannelTypeLabels` to genereate a UI element tied to a particular channel and preference setting:
   ```jsx
-  {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
-    (channelType) => {
-      return (
-        <div 
-          key={`${preferenceKey}_${channelType}`}
-          style={{ display: "flex", justifyContent: "space-between" }}
-        >
-          <label htmlFor={`${preferenceKey}_${channelType}`}>
-            {PreferenceViewConfig.ChannelTypeLabels[channelType]}
-          </label>
-          <input
-            id={`${preferenceKey}_${channelType}`}
-            type="checkbox"
-            checked={channelTypeSettings[channelType]}
-            disabled={
-              typeof channelTypeSettings[channelType] === "undefined"
-            }
-            onChange={(e) => {
-              onChange({
-                preferenceKey,
-                preferenceType,
-                channelTypeSettings: {
-                  ...channelTypeSettings,
-                  [channelType]: e.target.checked,
-                },
-              });
-            }}
-          />
-        </div>
-      );
-    }
-  )}
+  <div>
+    {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
+      (channelType) => {
+        return (
+          <div
+            key={`${preferenceKey}_${channelType}`}
+            style={{ display: "flex", justifyContent: "space-between" }}
+          >
+            <label htmlFor={`${preferenceKey}_${channelType}`}>
+              {PreferenceViewConfig.ChannelTypeLabels[channelType]}
+            </label>
+            <input
+              id={`${preferenceKey}_${channelType}`}
+              type="checkbox"
+              checked={channelTypeSettings[channelType]}
+              disabled={
+                typeof channelTypeSettings[channelType] === "undefined"
+              }
+              onChange={(e) => {
+                onChange({
+                  preferenceKey,
+                  preferenceType,
+                  channelTypeSettings: {
+                    ...channelTypeSettings,
+                    [channelType]: e.target.checked,
+                  },
+                });
+              }}
+            />
+          </div>
+        );
+      }
+    )}
+  </div>
   ```
   This section of UI uses the `channelTypeSettings` passed into the function to drive the `disabled` and `checked` states of the `input` element. These `channelTypeSettings` are the user's existing preferences pulled directly from Knock. By disabling the checkbox if those channel type settings are `undefined` we remove the user's ability to modify that value if it doesn't appear in the default preference set.
 
@@ -426,8 +434,10 @@ You should now have a working preference center 🎉
 Knock's preference model is very flexible, but you should find that the component below will satisfy most of your preference center needs and can easily be used as a starting point for your own preference center.
 
 ```jsx title="Completed preference center"
-import Knock, { PreferenceSet } from "@knocklabs/client";
+import Knock from "@knocklabs/client";
 import { useEffect, useState } from "react";
+const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knockClient.authenticate(currentUser.id);
 
 // Here we create a view config object, this helps us customize the interface
 // and choose which preference options we want to display to the user
@@ -469,40 +479,44 @@ function PreferenceSettingsRow({
         gap: "1rem",
       }}
     >
-      <h2>{PreferenceViewConfig.RowSettings[preferenceKey].title}</h2>
-      <p>{PreferenceViewConfig.RowSettings[preferenceKey].description}</p>
-      {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
-        (channelType) => {
-          return (
-            <div
-              key={`${preferenceKey}_${channelType}`}
-              style={{ display: "flex", justifyContent: "space-between" }}
-            >
-              <label htmlFor={`${preferenceKey}_${channelType}`}>
-                {PreferenceViewConfig.ChannelTypeLabels[channelType]}
-              </label>
-              <input
-                id={`${preferenceKey}_${channelType}`}
-                type="checkbox"
-                checked={channelTypeSettings[channelType]}
-                disabled={
-                  typeof channelTypeSettings[channelType] === "undefined"
-                }
-                onChange={(e) => {
-                  onChange({
-                    preferenceKey,
-                    preferenceType,
-                    channelTypeSettings: {
-                      ...channelTypeSettings,
-                      [channelType]: e.target.checked,
-                    },
-                  });
-                }}
-              />
-            </div>
-          );
-        },
-      )}
+      <div>
+        <h2>{PreferenceViewConfig.RowSettings[preferenceKey].title}</h2>
+        <p>{PreferenceViewConfig.RowSettings[preferenceKey].description}</p>
+      </div>
+      <div>
+        {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
+          (channelType) => {
+            return (
+              <div
+                key={`${preferenceKey}_${channelType}`}
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <label htmlFor={`${preferenceKey}_${channelType}`}>
+                  {PreferenceViewConfig.ChannelTypeLabels[channelType]}
+                </label>
+                <input
+                  id={`${preferenceKey}_${channelType}`}
+                  type="checkbox"
+                  checked={channelTypeSettings[channelType]}
+                  disabled={
+                    typeof channelTypeSettings[channelType] === "undefined"
+                  }
+                  onChange={(e) => {
+                    onChange({
+                      preferenceKey,
+                      preferenceType,
+                      channelTypeSettings: {
+                        ...channelTypeSettings,
+                        [channelType]: e.target.checked,
+                      },
+                    });
+                  }}
+                />
+              </div>
+            );
+          },
+        )}
+      </div>
     </div>
   );
 }
