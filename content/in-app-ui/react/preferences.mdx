@@ -4,20 +4,35 @@ description: How to build a complete notification preference center, powered by 
 section: Building in-app UI
 ---
 
-In this guide we'll look at building a simple preference center UI for our users in Knock using the preference APIs available in Knock to do so.
-
-**Quick links**
-
-- [Modeling preferences in Knock](/preferences/overview)
-- [API reference for preferences](/reference#preferences)
+In this guide we'll build a `PreferenceCenter` React component with Knock's preference APIs. This component should be flexible enough to handle most of your needs and can easily be customized or extended for more specific use cases.
 
 ## Getting started
 
-To use this example, you'll need [an account on Knock](https://dashboard.knock.app) and you'll need to have [identified a user](/send-and-manage-data/users). You'll also need:
+Before beginning this tutorial, we'd recommend reading the [preferences overview docs](/preferences/overview) and creating a [default `PreferenceSet`](/preferences/overview#create-a-default-preferenceset) for your environment. The [API reference for preferences](/reference#preferences) can also be helpful, but is not required for this tutorial.
+
+<Callout
+  mt={4}
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">A note on merging preferences</span>
+      <p>
+        Remember that if you have either a environment or tenant default{" "}
+        <code>PreferenceSet</code> those preferences will be merged with changes
+        a user makes in the UI, with the user-specified changes taking
+        precedence.
+      </p>
+    </>
+  }
+/>
+
+### What you'll need
+
+To use this example, you'll need [an account on Knock](https://dashboard.knock.app) and you'll need to have [identified a user](/concepts/users). You'll also need:
 
 - A public API key for the Knock environment (set as `KNOCK_PUBLIC_API_KEY`)
 
-## Installing dependencies
+### Installing dependencies
 
 ```bash title="Installing dependencies"
 npm install @knocklabs/client
@@ -25,29 +40,27 @@ npm install @knocklabs/client
 
 ## Modeling our preferences
 
-In this example we'll use a `PreferenceSet` that contains multiple workflows, each with it's own channel type settings. We'll expose this to our users as a "cross-hatch" so that they can set a preference per workflow, for each channel type.
+In this example we'll assume the user has a default `PreferenceSet` that contains workflows and workflow categories, each with it's own channel type settings. We'll expose this to our users as a "cross-hatch" so that they can set a preference for each channel type.
 
 ```json title="Preference object"
 {
+  "categories": {
+    "collaboration": {
+      "channel_types": {
+        "email": true,
+        "in_app_feed": true
+      }
+    },
+    "project-updates": {
+      "channel_types": {
+        "email": false,
+        "in_app_feed": true
+      }
+    }
+  },
   "workflows": {
-    "comment": {
+    "invoice-issued": {
       "channel_types": {
-        "sms": false,
-        "push": true,
-        "email": true
-      }
-    },
-    "like": {
-      "channel_types": {
-        "sms": false,
-        "push": false,
-        "email": false
-      }
-    },
-    "alert": {
-      "channel_types": {
-        "sms": true,
-        "push": true,
         "email": true
       }
     }
@@ -57,127 +70,516 @@ In this example we'll use a `PreferenceSet` that contains multiple workflows, ea
 
 ## Creating our preference center
 
-The next step here is to create our preference center. What we'll do here is:
+The next step here is to create our preference center component. Create a `PreferenceCenter.jsx` file in your project and add the following import statements to the top of the file. After that, you'll need to create a new instance of the `Knock` client and authenticate it against a user:
 
-1. Read the set of preferences from Knock for the authenticated user and use that to drive the UI.
-2. Whenever a preference is changed, we'll update the preferences in Knock with the new value.
-
-The nice thing about this approach is we don't need to store any notification preferences in our application, and we can use Knock as the source of truth for the notification preferences a user currently has set.
-
-```jsx
-import React, { useEffect, useState } from "react";
+```jsx title="Import Knock client & React hooks"
 import Knock from "@knocklabs/client";
+import { useEffect, useState } from "react";
+const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knockClient.authenticate(currentUser.id);
+```
 
-import { useCurrentUser } from "./hooks";
+<Steps titleSize="h3">
+  <Step title="Create a preferences view config">
+    Next we'll create an configuration object that will help us drive the view of our preference center. In some cases, you may want to store values in a `PreferenceSet` that you don't directly expose to users or want to provide more descriptive titles, labels, and descriptions.
+  ```jsx title="Power the preference center view"
+  const PreferenceViewConfig = {
+    RowSettings: {
+      "new-asset": {
+        title: "New Asset",
+        description: "New file uploads in workspaces you're a part of",
+      },
+      "new-comment": {
+        title: "Comments & mentions",
+        description: "New comments and replies to threads.",
+      },
+      collaboration: {
+        title: "In-app messages",
+        description: "Messages from other users on the platform",
+      },
+    },
+    ChannelTypeLabels: {
+      in_app_feed: "In-app Feed",
+      email: "Email",
+      push: "Push",
+    },
+  };
+  ```
+  In this example, the `RowSettings` object contains entries that map directly to keys in the `PreferenceSet` we modeled in the previous step. Each entry here will surface those settings to the user and provide additional human readable details with `title` and `description`. If you want to modify this for your own project, you can swap the keys inside of `RowSettings` with a key from your default `PreferenceSet` and update the `title` and `description` properties.
 
-const workflowLabels = {
-  comment: "New comments",
-  like: "Document likes",
-  alert: "Alerts",
-};
+The `ChannelTypeLabels` object is similar in that its contents determine which channel type settings will be surfaced for each row. Adding additional entries to this object will present more checkboxes for the user, and you can modify the label value by updating the value of a particular key.
 
-const channelTypeLabels = {
-  sms: "SMS",
-  email: "Email",
-  push: "Push",
-};
+Copy and paste this `PreferenceViewConfig` object in your component file and make any updates to correspond with the shape of your default `PreferenceSet` and channels.
 
-const PreferenceCenter = () => {
-  const { user } = useCurrentUser();
-  const [preferences, setPreferences] = useState();
+  </Step>
 
-  // Setup our Knock client
-  const knockClient = useMemo(() => {
-    const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
-    knockClient.authenticate(user.id);
-    return knockClient;
-  }, [user]);
+  <Step title="Display a preference setting row">
+    Next, we'll create a `PreferenceSettingsRow` component that will display the `title`, `description`, and checkbox toggles for each `SettingsRow` entry:
+  ```jsx title="Display a row for each desired preference setting"
+  function PreferenceSettingsRow({
+    preferenceType,
+    preferenceKey,
+    channelTypeSettings,
+    onChange,
+  }) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          padding: ".75rem .25rem",
+          gap: "1rem",
+        }}
+      >
+        <h2>
+          {PreferenceViewConfig.RowSettings[preferenceKey].title}
+        </h2>
+        <p>
+          {PreferenceViewConfig.RowSettings[preferenceKey].description}
+        </p>
+        {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
+          (channelType) => {
+            return (
+              <div 
+                key={`${preferenceKey}_${channelType}`}
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <label htmlFor={`${preferenceKey}_${channelType}`}>
+                  {PreferenceViewConfig.ChannelTypeLabels[channelType]}
+                </label>
+                <input
+                  id={`${preferenceKey}_${channelType}`}
+                  type="checkbox"
+                  checked={channelTypeSettings[channelType]}
+                  disabled={
+                    typeof channelTypeSettings[channelType] === "undefined"
+                  }
+                  onChange={(e) => {
+                    onChange({
+                      preferenceKey,
+                      preferenceType,
+                      channelTypeSettings: {
+                        ...channelTypeSettings,
+                        [channelType]: e.target.checked,
+                      },
+                    });
+                  }}
+                />
+              </div>
+            );
+          }
+        )}
+      </div>
+    );
+  }
+  ```
+  This component has a lot of functionality built in, so let's unpack what it does. 
+  
+  Using the `preferenceKey` parameter, this component renders a section of UI that displays the `title` and `description` properties stored in the `PreferenceViewConfig` under the matching key:
+  ```jsx title="Displaying preference details"
+  <h2>
+    {PreferenceViewConfig.RowSettings[preferenceKey].title}
+  </h2>
+  <p>
+    {PreferenceViewConfig.RowSettings[preferenceKey].description}
+  </p>
+  ```  
+  Next, we'll generate an `input` element tied to each channel type setting for that preference. We do that by looping through the keys of `PreferenceViewConfig.ChannelTypeLabels` to genereate a UI element tied to a particular channel and preference setting:
+  ```jsx
+  {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
+    (channelType) => {
+      return (
+        <div 
+          key={`${preferenceKey}_${channelType}`}
+          style={{ display: "flex", justifyContent: "space-between" }}
+        >
+          <label htmlFor={`${preferenceKey}_${channelType}`}>
+            {PreferenceViewConfig.ChannelTypeLabels[channelType]}
+          </label>
+          <input
+            id={`${preferenceKey}_${channelType}`}
+            type="checkbox"
+            checked={channelTypeSettings[channelType]}
+            disabled={
+              typeof channelTypeSettings[channelType] === "undefined"
+            }
+            onChange={(e) => {
+              onChange({
+                preferenceKey,
+                preferenceType,
+                channelTypeSettings: {
+                  ...channelTypeSettings,
+                  [channelType]: e.target.checked,
+                },
+              });
+            }}
+          />
+        </div>
+      );
+    }
+  )}
+  ```
+  This section of UI uses the `channelTypeSettings` passed into the function to drive the `disabled` and `checked` states of the `input` element. These `channelTypeSettings` are the user's existing preferences pulled directly from Knock. By disabling the checkbox if those channel type settings are `undefined` we remove the user's ability to modify that value if it doesn't appear in the default preference set.
 
-  // Read the preferences for the current user
+As the user toggles the state of this `input` it fires an `onChange` event handler that calls a function also passed as a parameter. This function is ultimately what updates the user's preferences in Knock, so we pass a modified value of `channelTypeSettings` that includes the current value of the event target's `checked` property:
+
+```javascript title="Updating preferences onChange"
+onChange={(e) => {
+  onChange({
+    preferenceKey,
+    preferenceType,
+    channelTypeSettings: {
+      ...channelTypeSettings,
+      [channelType]: e.target.checked,
+    },
+  });
+}}
+```
+
+  </Step>
+  <Step title="Render your preference center">
+    Now that we have a `PreferencesViewConfig` object to help us drive the shape of our UI and a `PreferenceSettingsRow` to render a row's details an the necessary `inputs`, it's time to compose those elements into an actual `PreferenceCenter` component. This `PreferenceCenter` function should be exported:
+
+```jsx title="Compose a preference center"
+export default function PreferenceCenter() {
+  //Create some local state to store the user's preferences
+  const [localPreferences, setLocalPreferences] = useState();
+
+  //We load the current user's preferences from Knock, and set them to local preferences
+
   useEffect(() => {
-    const fetchPreferences = async () => {
-      const preferences = await knockClient.preferences.get();
-      setPreferences(preferences);
-    };
-
+    async function fetchPreferences() {
+      const preferences = await knockClient.user.getPreferences();
+      setLocalPreferences(preferences);
+    }
     fetchPreferences();
   }, [knockClient]);
 
-  const onPreferenceChange = async (workflowKey, channelType, setting) => {
+  //When a preference setting is changed, we create a new PreferenceSet that
+  //includes the change, update the preferences in Knock, and then update local state
+  const onPreferenceChange = async ({
+    preferenceKey,
+    preferenceType,
+    channelTypeSettings,
+  }) => {
+    //create a new preference set with local preferences as starting point
     const preferenceUpdate = {
-      workflows: {
-        [workflowKey]: {
-          channel_types: {
-            [channelType]: setting,
-          },
-        },
-      },
+      ...localPreferences,
     };
 
-    const preferences = await knockClient.preferences.set(preferenceUpdate);
-
-    // Set the updated preferences
-    setPreferences(preferences);
+    //Here we'll make updates to the preference set based on the preferenceType
+    // and override existing channelTypeSettings
+    if (preferenceType === "category") {
+      preferenceUpdate.categories[preferenceKey].channel_types =
+        channelTypeSettings;
+    }
+    if (preferenceType === "workflow") {
+      preferenceUpdate.workflows[preferenceKey].channel_types =
+        channelTypeSettings;
+    }
+    //Next, we upload the new PreferenceSet to Knock for that user
+    const preferences = await knockClient.user.setPreferences(preferenceUpdate);
+    // Set the updated preferences in local state
+    setLocalPreferences(preferences);
   };
-
-  // Show a spinner here or something to indicate prefs are loading
-  if (!preferences) {
+  //If we haven't loaded preferences yet, maybe show a spinner
+  if (!localPreferences) {
     return null;
   }
-
   return (
     <div className="preferences">
-      <h2>Preferences</h2>
-
-      {Object.keys(preferences.workflows).map((workflowKey) => {
-        const workflowChannelPreferences =
-          preferences.workflows[workflowKey].channel_types;
-
+      {Object.keys(localPreferences?.categories).map((category) => {
         return (
-          <div className="preferences__row" key={workflowKey}>
-            <div className="preferences__row-workflow">
-              {workflowLabels[workflowKey]}
-            </div>
-
-            <div className="preferences__row-channel-types">
-              {Object.keys(workflowChannelPreferences).map((channelType) => {
-                // Loop over all the channel types and render a checkbox and a label
-                // per channel type setting in the workflow.
-                const preferenceSetting =
-                  workflowChannelPreferences[channelType];
-
-                return (
-                  <div
-                    className="preferences__row-channel-type"
-                    key={channelType}
-                  >
-                    <label>
-                      {channelTypeLabels[channelType]}
-
-                      <input
-                        type="checkbox"
-                        value={preferenceSetting}
-                        onChange={() =>
-                          onPreferenceChange(
-                            workflowKey,
-                            channelType,
-                            !preferenceSetting,
-                          )
-                        }
-                      />
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <PreferenceSettingsRow
+            key={category}
+            preferenceType="category"
+            preferenceKey={category}
+            channelTypeSettings={
+              localPreferences?.categories[category]?.channel_types
+            }
+            onChange={onPreferenceChange}
+          ></PreferenceSettingsRow>
+        );
+      })}
+      {Object.keys(localPreferences?.workflows).map((workflow) => {
+        return (
+          <PreferenceSettingsRow
+            key={workflow}
+            preferenceType="workflow"
+            preferenceKey={workflow}
+            channelTypeSettings={
+              localPreferences?.workflows[workflow]?.channel_types
+            }
+            onChange={onPreferenceChange}
+          ></PreferenceSettingsRow>
         );
       })}
     </div>
   );
+}
+```
+
+Let's examine the code in the `PreferenceCenter` component step-by-step to explain what's happening.
+
+First, we need to load the current user's preferences from Knock and store them in local state so we can operate on them. We can call the `getPreferences` method on `knockClient.user` to load a user's preferences:
+
+```jsx title="Store current preferences in local state"
+//Create some local state to store the user's preferences
+const [localPreferences, setLocalPreferences] = useState();
+
+//We load the current user's preferences from Knock, and set them to local preferences
+
+useEffect(() => {
+  async function fetchPreferences() {
+    const preferences = await knockClient.user.getPreferences();
+    setLocalPreferences(preferences);
+  }
+  fetchPreferences();
+}, [knockClient]);
+```
+
+Next, we create a function called `onPreferenceChange` that will get passed as the `onChange` parameter to our `PreferenceSettingsRow` component from the previous step. The `onPreferenceChange` function takes a `preferenceKey` argument and an updated `channelTypeSettings` argument:
+
+```jsx title="Update preferences in Knock"
+//When a preference setting is changed, we create a new PreferenceSet that
+//includes the change, update the preferences in Knock, and then update local state
+const onPreferenceChange = async ({
+  preferenceKey,
+  preferenceType,
+  channelTypeSettings,
+}) => {
+  //create a new preference set with local preferences as starting point
+  const preferenceUpdate = {
+    ...localPreferences,
+  };
+
+  //Here we'll make updates to the preference set based on the preferenceType
+  // and override existing channelTypeSettings
+  if (preferenceType === "category") {
+    preferenceUpdate.categories[preferenceKey].channel_types =
+      channelTypeSettings;
+  }
+  if (preferenceType === "workflow") {
+    preferenceUpdate.workflows[preferenceKey].channel_types =
+      channelTypeSettings;
+  }
+  //Next, we upload the new PreferenceSet to Knock for that user
+  const preferences = await knockClient.user.setPreferences(preferenceUpdate);
+  // Set the updated preferences in local state
+  setLocalPreferences(preferences);
 };
 ```
 
-## Wrapping up
+Based on the `preferenceType` of the update, we'll overwrite any existing preferences stored under that key and use the `setPreferences` method of `knockClient.user` to update those preferences in Knock. We then set the updated preferences back to local state using `setLocalPreferences` to keep our UI in sync with what is stored in Knock.
 
-The example above serves as a simple starting point for building in-app preference center UIs. You can also take a look at our [example application](https://github.com/knocklabs/knock-node-example-app/blob/main/app/users/components/NotificationPreferencesModal.tsx) for another, more complex preference center example.
+Lastly, we actually render our `PreferenceSettingsRow` components:
+
+```jsx
+<div className="preferences">
+  {Object.keys(localPreferences?.categories).map((category) => {
+    return (
+      <PreferenceSettingsRow
+        key={category}
+        preferenceType="category"
+        preferenceKey={category}
+        channelTypeSettings={
+          localPreferences?.categories[category]?.channel_types
+        }
+        onChange={onPreferenceChange}
+      ></PreferenceSettingsRow>
+    );
+  })}
+  {Object.keys(localPreferences?.workflows).map((workflow) => {
+    return (
+      <PreferenceSettingsRow
+        key={workflow}
+        preferenceType="workflow"
+        preferenceKey={workflow}
+        channelTypeSettings={
+          localPreferences?.workflows[workflow]?.channel_types
+        }
+        onChange={onPreferenceChange}
+      ></PreferenceSettingsRow>
+    );
+  })}
+</div>
+```
+
+Here we loop through each workflow or category key stored in a user's preferences and pass in the existing `channelTypeSettings` which will power the state of that row's checkbox `inputs` and the `onPreferenceChange` callback to update a user's preferences in Knock.
+
+You should now have a working preference center 🎉
+
+<Image
+  src="/images/concepts/preferences/preference-center.png"
+  alt="A basic preference center"
+  width={1184}
+  height={714}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+</Step>
+</Steps>
+
+## Completed preference center
+
+Knock's preference model is very flexible, but you should find that the component below will satisfy most of your preference center needs and can easily be used as a starting point for your own preference center.
+
+```jsx title="Completed preference center"
+import Knock, { PreferenceSet } from "@knocklabs/client";
+import { useEffect, useState } from "react";
+
+// Here we create a view config object, this helps us customize the interface
+// and choose which preference options we want to display to the user
+const PreferenceViewConfig: Record<string, any> = {
+  RowSettings: {
+    "new-asset": {
+      title: "New Asset",
+      description: "New file uploads in workspaces you're a part of",
+    },
+    "new-comment": {
+      title: "Comments & mentions",
+      description: "New comments and replies to threads.",
+    },
+    collaboration: {
+      title: "In-app messages",
+      description: "Messages from other users on the platform",
+    },
+  },
+  ChannelTypeLabels: {
+    in_app_feed: "In-app Feed",
+    email: "Email",
+    push: "Push",
+  },
+};
+// The PrefereceSettingsRow component is what actually displays the UI to manipulate
+function PreferenceSettingsRow({
+  preferenceType,
+  preferenceKey,
+  channelTypeSettings,
+  onChange,
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        padding: ".75rem .25rem",
+        gap: "1rem",
+      }}
+    >
+      <h2>{PreferenceViewConfig.RowSettings[preferenceKey].title}</h2>
+      <p>{PreferenceViewConfig.RowSettings[preferenceKey].description}</p>
+      {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
+        (channelType) => {
+          return (
+            <div
+              key={`${preferenceKey}_${channelType}`}
+              style={{ display: "flex", justifyContent: "space-between" }}
+            >
+              <label htmlFor={`${preferenceKey}_${channelType}`}>
+                {PreferenceViewConfig.ChannelTypeLabels[channelType]}
+              </label>
+              <input
+                id={`${preferenceKey}_${channelType}`}
+                type="checkbox"
+                checked={channelTypeSettings[channelType]}
+                disabled={
+                  typeof channelTypeSettings[channelType] === "undefined"
+                }
+                onChange={(e) => {
+                  onChange({
+                    preferenceKey,
+                    preferenceType,
+                    channelTypeSettings: {
+                      ...channelTypeSettings,
+                      [channelType]: e.target.checked,
+                    },
+                  });
+                }}
+              />
+            </div>
+          );
+        },
+      )}
+    </div>
+  );
+}
+
+export default function PreferenceCenter() {
+  //Create some local state to store the user's preferences
+  const [localPreferences, setLocalPreferences] = useState();
+
+  //We load the current user's preferences from Knock, and set them to local preferences
+
+  useEffect(() => {
+    async function fetchPreferences() {
+      const preferences = await knockClient.user.getPreferences();
+      setLocalPreferences(preferences);
+    }
+    fetchPreferences();
+  }, [knockClient]);
+
+  //When a preference setting is changed, we create a new PreferenceSet that
+  //includes the change, update the preferences in Knock, and then update local state
+  const onPreferenceChange = async ({
+    preferenceKey,
+    preferenceType,
+    channelTypeSettings,
+  }) => {
+    //create a new preference set with local preferences as starting point
+    const preferenceUpdate = {
+      ...localPreferences,
+    };
+
+    //Here we'll make updates to the preference set based on the preferenceType
+    // and override existing channelTypeSettings
+    if (preferenceType === "category") {
+      preferenceUpdate.categories[preferenceKey].channel_types =
+        channelTypeSettings;
+    }
+    if (preferenceType === "workflow") {
+      preferenceUpdate.workflows[preferenceKey].channel_types =
+        channelTypeSettings;
+    }
+    //Next, we upload the new PreferenceSet to Knock for that user
+    const preferences = await knockClient.user.setPreferences(preferenceUpdate);
+    // Set the updated preferences in local state
+    setLocalPreferences(preferences);
+  };
+  if (!localPreferences) {
+    return null;
+  }
+  return (
+    <div className="preferences">
+      {Object.keys(localPreferences?.categories).map((category) => {
+        return (
+          <PreferenceSettingsRow
+            key={category}
+            preferenceType="category"
+            preferenceKey={category}
+            channelTypeSettings={
+              localPreferences?.categories[category]?.channel_types
+            }
+            onChange={onPreferenceChange}
+          ></PreferenceSettingsRow>
+        );
+      })}
+      {Object.keys(localPreferences?.workflows).map((workflow) => {
+        return (
+          <PreferenceSettingsRow
+            key={workflow}
+            preferenceType="workflow"
+            preferenceKey={workflow}
+            channelTypeSettings={
+              localPreferences?.workflows[workflow]?.channel_types
+            }
+            onChange={onPreferenceChange}
+          ></PreferenceSettingsRow>
+        );
+      })}
+    </div>
+  );
+}
+```
