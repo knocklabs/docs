@@ -36,7 +36,7 @@ client = Knock(api_key="sk_12345")
 
 client.tenants.set_tenant(
   id="tenant-1",
-  data={
+  tenant_data={
     "name": "Tenant 1",
     "settings": {
       "branding": {
