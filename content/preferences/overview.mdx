@@ -113,6 +113,23 @@ There are four steps to building a preference center with Knock:
 
 
     The default preference set is environment-specific for testing purposes. You can copy the default preference set from one environment to another to keep your environments in sync.
+    <Callout
+
+    mt={4}
+    emoji="💡"
+    text={
+    <>
+    <span className="font-bold">A note on merging preferences</span>
+    <p>
+    If you create either a environment or tenant default{" "}
+    <code>PreferenceSet</code> those preferences will be merged with changes
+    a user makes in the UI, with the user-specified changes taking
+    precedence.
+    </p>
+    </>
+    }
+
+/>
 
   </Step>
   {/* TODO: We need to scope and build this with Chris then can add this step. 
@@ -198,6 +215,10 @@ onSubmit={(e)=>{
   />
 </SdkCardGroup>
 
+## Merging preferences
+
+When a default `PreferenceSet` exists for an environment or tenant, Knock will merge all applicable preferences for a recipient when evaluating whether or not to send a notification. Any preferences set at the recipient-level will take precedence in the merge.
+
 ## Preference evaluation rules
 
 When a workflow is triggered, Knock will evaluate the preferences for each `recipient` of the workflow and send notifications for each channel step in the workflow based on that evaluation. There are some important rules and caveats to consider:
@@ -205,7 +226,6 @@ When a workflow is triggered, Knock will evaluate the preferences for each `reci
 <AccordionGroup>
   <Accordion title="General preference rules">
     - If you do not set a preference for a given channel, workflow, or workflow category, Knock defaults them to `true`.
-    - A recipient's preferences are merged against the default `PreferenceSet` within a given environment, with recipient-level preferences taking precedence in the merge.
   </Accordion>
   <Accordion title="Resolving preference conflicts">
     Knock only sends a notification if all preference combinations that exist on the recipient evaluate to `true`.
