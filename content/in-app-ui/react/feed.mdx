@@ -117,7 +117,19 @@ import { NotificationFeed } from "@knocklabs/react";
 
 Both the `NotificationFeed` and the `NotificationFeedPopover` take a `onNotificationClick` prop.
 
-#### Rendering a different notification cell in the feed
+### Add an `onButtonClick` handler to the notification cell
+
+You can add a button click handler to respond to clicks on the buttons in the notification cell. The `onNotificationButtonClick` prop is available on the `NotificationFeed` component:
+
+```jsx
+import { NotificationFeed } from "@knocklabs/react";
+
+<NotificationFeed
+  onNotificationButtonClick={(item, button) => doSomething()}
+/>;
+```
+
+### Rendering a different notification cell in the feed
 
 You can customize the rendering of a notification cell in the feed by overriding the `renderItem` prop.
 
@@ -185,18 +197,12 @@ import { KnockFeedProvider } from "@knocklabs/react";
 <KnockFeedProvider colorMode="dark" />;
 ```
 
-### Adding inline actions
+### Rendering custom components in a notification cell
 
-For more advanced use cases, you may need to provide inline actions on your notifications. The `NotificationCell` component accepts a `children` prop in order for you to render actions. You'll need to override the `renderItem` prop on the `NotificationFeed` or `NotificationFeedPopover` to render the custom notification cell.
+For more advanced use cases, you may need to render custom components as part of the notification cell, but don't need to override the cell entirely. For this use case, you can use the `children` prop to render custom components inside the notification cell.
 
-#### Using action buttons
-
-We ship `Button` and `ButtonGroup` components, which have a complementary set of styling for the rest of the feed. You can render the buttons in a button group so that they'll be grouped together, or can render them individually.
-
-```jsx
+````jsx
 import {
-  ButtonGroup,
-  Button,
   NotificationFeed,
   NotificationCell,
 } from "@knocklabs/react";
@@ -204,48 +210,10 @@ import {
 <NotificationFeed
   renderItem={({ item, ...props }) => (
     <NotificationCell {...props} item={item}>
-      <ButtonGroup>
-        <Button variant="primary" onClick={myAcceptHandler}>
-          Accept
-        </Button>
-        <Button variant="secondary" onClick={myRejectHandler}>
-          Reject
-        </Button>
-      </ButtonGroup>
+      <MyCustomComponent />
     </NotificationCell>
   )}
 />;
-```
-
-**Note**: remember to call `event.stopPropagation` in your `onClick` handler to stop the notification `onClick` handler from being invoked.
-
-#### Targeting a specific workflow to have buttons
-
-A common use case is to only show action buttons for certain workflows. You can achieve this via the `item.source` property, which exposes a `WorkflowSource`:
-
-```jsx
-import {
-  ButtonGroup,
-  Button,
-  NotificationFeed,
-  NotificationCell,
-} from "@knocklabs/react";
-
-<NotificationFeed
-  renderItem={({ item, ...props }) => (
-    <NotificationCell {...props} item={item}>
-      {item.source.key === "approval-workflow" && (
-        <ButtonGroup>
-          <Button variant="primary">Accept</Button>
-          <Button variant="secondary">Reject</Button>
-        </ButtonGroup>
-      )}
-    </NotificationCell>
-  )}
-/>;
-```
-
-You can find a full list of the props available for the [`Button` component here](/in-app-ui/react/reference#button).
 
 ### Handling cross-browser feed synchronization
 
@@ -283,7 +251,7 @@ import { KnockFeedProvider } from "@knocklabs/react";
     auto_manage_socket_connection_delay: 2500,
   }}
 />;
-```
+````
 
 ### Customizing the feed styling
 
