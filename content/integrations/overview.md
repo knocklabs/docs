@@ -61,7 +61,7 @@ Sometimes you don't want a message to be sent in a local or testing environment,
 
 Sandbox mode enables you to generate and preview messages for a given channel, without sending them to your downstream provider for delivery. Sandbox mode is great for when you want to test a channel's output, but want your messages to end up at `/dev/null` instead of sending live notifications.
 
-Sandbox mode is supported across all channel types and can be enabled from the environment configuration view of a channel.
+Sandbox mode is supported across all channel types (except for in-app) and can be enabled from the environment configuration view of a channel.
 
 ### Channel conditions
 
