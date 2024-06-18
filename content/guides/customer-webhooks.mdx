@@ -57,17 +57,25 @@ Now we’re going to configure our Webhook HTTP channel in Knock. You can learn 
 
 Next, we’ll configure the webhook request for our new webhook channel. For the channel URL we’re going to configure it as `{{ recipient.url }}` which tells Knock to use the URL configured on the webhook recipient object:
 
-![Configure a customer webhook](/images/guides/Configure-customer-webhook.png)
+<Image
+  className="rounded-md mx-auto border border-gray-200"
+  src="/images/guides/Configure-customer-webhook-new.png"
+  alt="Configure a customer webhook"
+  width={2919}
+  height={1872}
+/>
 
 And for the body of the payload that we send per webhook event, we’ll use the following template:
 
 ```js title="Configure the webhook channel payload"
 {
-  "type": "{{ event_type }}",
-  "data": {{ payload }},
-  "created_at": {{ timestamp }}
+"type": "{{eventType}}",
+"payload": {{payload | json}},
+"createdAt": "{{timestamp}}"
 }
 ```
+
+If you are passing a JSON payload to the webhook, you can use the `json` filter to ensure that the payload is correctly serialized.
 
 ## Building your webhook notification workflow
 
