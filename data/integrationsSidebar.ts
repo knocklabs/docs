@@ -125,6 +125,7 @@ const sidebarContent: SidebarSection[] = [
     slug: "/integrations/push",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/token-deregistration", title: "Token deregistration" },
       { slug: "/apns", title: "Apple (APNS)" },
       { slug: "/firebase", title: "Firebase (FCM)" },
       { slug: "/expo", title: "Expo (React Native)" },
