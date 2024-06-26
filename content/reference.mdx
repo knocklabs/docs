@@ -2757,6 +2757,7 @@ A message is a notification delivered on a particular channel to a user.
   <Endpoint method="GET" path="/messages/:id/activities" />
   <Endpoint method="GET" path="/messages/:id/events" />
   <Endpoint method="GET" path="/messages/:id/content" />
+  <Endpoint method="GET" path="/messages/batch/content" />
   <Endpoint method="GET" path="/messages/:id/delivery_logs" />
   <Endpoint method="PUT" path="/messages/:id/:status" />
   <Endpoint method="DELETE" path="/messages/:id/:status" />
@@ -3157,10 +3158,10 @@ A paginated list of Activity records
 </ExampleColumn>
 </Section>
 
-<Section title="Content" slug="get-message-content">
+<Section title="Message content" slug="get-message-content">
 <ContentColumn>
 
-Retrieves the contents of a message, generated and sent to the end provider.
+Retrieves the contents of a message, as generated and sent to the end provider.
 
 ### Endpoint
 
@@ -3178,10 +3179,10 @@ Retrieves the contents of a message, generated and sent to the end provider.
 
 ### Returns
 
-A MessageContent.
+A `MessageContent` object.
 
-**Note: the `data` attribute of the MessageContent payload will vary based on the type
-of message being sent (email, chat, in-app feed, sms and push).**
+**Note: the `data` attribute of the `MessageContent` payload will vary based on the type
+of message being sent (email, chat, in-app feed, sms, and push).**
 
 </ContentColumn>
 <ExampleColumn>
@@ -3207,6 +3208,83 @@ of message being sent (email, chat, in-app feed, sms and push).**
   },
   "inserted_at": "2021-04-06T12:00:00Z"
 }
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Batch message content" slug="batch-get-message-content">
+<ContentColumn>
+
+Retrieves the contents of a list of messages, as generated and sent to the end provider.
+
+### Endpoint
+
+<Endpoint method="GET" path="/messages/batch/content" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="message_ids[]"
+    type="string[]"
+    description="The IDs of the messages (max 25)"
+  />
+</Attributes>
+
+### Returns
+
+A list of `MessageContent` objects for the provided message IDs.
+
+**Note: the `data` attribute of the `MessageContent` payload will vary based on the type
+of message being sent (email, chat, in-app feed, sms, and push).**
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Response"
+[
+  {
+    "__typename": "MessageContent",
+    "id": "264os2yt574e1T3jblzjbh7Qa69",
+    "data": {
+      "bcc": "bcc@example.com",
+      "cc": "cc@example.com",
+      "from": {
+        "email": "info-app@example.com",
+        "name": "Example App"
+      },
+      "html_body": "<p>example</p>",
+      "reply_to": "reply-to@example.com",
+      "subject": "Example Notification",
+      "text_body": "example",
+      "to": "user@example.com"
+    },
+    "inserted_at": "2024-04-06T12:00:00Z"
+  },
+  {
+    "__typename": "MessageContent",
+    "id": "2iQYdsKFjfIJfXGOGcHi1UOjLMA",
+    "data": {
+      "bcc": "bcc@example.com",
+      "cc": "cc@example.com",
+      "from": {
+        "email": "info-app@example.com",
+        "name": "Example App"
+      },
+      "html_body": "<p>example</p>",
+      "reply_to": "reply-to@example.com",
+      "subject": "Example Notification",
+      "text_body": "example",
+      "to": "user@example.com"
+    },
+    "inserted_at": "2024-05-09T10:29:00Z"
+  }
+]
 ```
 
 </ExampleColumn>
