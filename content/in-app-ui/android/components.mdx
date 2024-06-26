@@ -1,0 +1,60 @@
+---
+title: "Kotlin SDK pre-built components"
+description: How to use our pre-build UI components in your Knock implementation.
+section: Building in-app UI
+---
+
+## InAppFeedView
+
+### Overview
+
+![Component UI Example](/images/ios-in-app-feed.png)
+
+`InAppFeedView` is a Kotlin Compose view that renders the in-app notifications feed using data from `InAppFeedViewModel`. It provides a customizable and interactive user interface for displaying notifications.
+
+### Properties
+
+<Attributes>
+  <Attribute
+    name="viewModel"
+    type="InAppFeedViewModel"
+    description="The ViewModel containing the logic for the InAppFeedView."
+  />
+  <Attribute
+    name="theme"
+    type="InAppFeedTheme"
+    description="Defines the appearance of the feed view and its components."
+  />
+</Attributes>
+
+### Customization
+
+You can customize almost every aspect of the UI of the `InAppFeedView` using our customizable themes.
+
+### Examples
+
+```swift
+val feedViewModel: InAppFeedViewModel = viewModel(factory = InAppFeedViewModelFactory(LocalContext.current))
+val theme = InAppFeedViewTheme(context = LocalContext.current)
+
+InAppFeedView(feedViewModel, theme = theme)
+
+LaunchedEffect(key1 = Unit) {
+    if (Knock.shared.feedManager == null) {
+        Knock.shared.feedManager = FeedManager(feedId = Utils.inAppChannelId)
+        feedViewModel.connectFeedAndObserveNewMessages()
+    }
+
+    feedViewModel.didTapFeedItemRowPublisher
+        .onEach { feedItem ->
+            // Handle the feed item row tap event
+        }
+        .launchIn(this)
+
+    feedViewModel.didTapFeedItemButtonPublisher
+        .onEach { feedItemButtonEvent ->
+            // Handle the feed item button block tap event
+        }
+        .launchIn(this)
+}
+```
