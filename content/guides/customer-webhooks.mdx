@@ -7,6 +7,24 @@ section: Guides
 
 In this guide, we’ll walk through how Knock can be used to send per-customer configurable webhooks as part of your notification workflows.
 
+<Callout
+  mt={4}
+  emoji="👩‍💻"
+  text={
+    <>
+      <span className="font-bold">See an example.</span> Check out{" "}
+      <a
+        href="https://github.com/knocklabs/customer-facing-webhooks-example"
+        target="_blank"
+      >
+        our example app
+      </a>{" "}
+      to see how you can build customer-facing webhooks UI with Knock. This app
+      covers configuring webhooks connections, testing webhooks, and building UI
+      to allow developers to debug webhook delivery.
+    </>
+  }
+/>
 ## Using objects and subscriptions to power webhooks
 
 Let's take a hypothetical application comprised of projects that users belong to. Our customers can configure webhooks for each of their project. We can express this as “a project can have one or more configured webhooks”.
@@ -111,11 +129,19 @@ This works as Knock will automatically fan-out to all webhooks subscribed to the
 
 ### Debugging failed webhook deliveries
 
-You can use the Message logs within Knock in order to debug messages sent, where you’ll see delivery logs about the request to the customer’s webhook channel.
+You can use the Message logs within Knock in order to [debug messages sent](/send-notifications/debugging-workflows), where you’ll see delivery logs about the request to the customer’s webhook channel.
+
+Since your customers won't have access to Knock, you can use the [Message delivery logs API](https://docs.knock.app/reference#get-message-delivery-logs) to create UI in your application that lets developers inspect the request/response interaction between Knock and their downstream URL.
 
 ### Reporting on failed webhook deliveries
 
 You might want to provide a way to notify your customers that their webhooks are failing. You can do so by leveraging Knock’s [outbound webhooks](https://docs.knock.app/send-and-manage-data/outbound-webhooks) features to create a webhook callback to your server that listens for `message.undelivered` events.
+
+### Providing a dynamic signing key
+
+You will likely want to provide a way for your customers to [verify that the webhook request is coming from Knock](/integrations/webhook/overview#securing-your-webhooks). You can do so by providing a signing key in your webhook channel's configuration that Knock will use to sign the request with an HMAC/SHA256 signature.
+
+For customer-facing webhooks, you can provide a UI for your customers to configure a signing key; you'll want to configure this in Knock as a [dynamic signing key](/integrations/webhook/overview#using-a-dynamic-signing-key) using Liquid variables.
 
 ## Frequently asked questions
 
