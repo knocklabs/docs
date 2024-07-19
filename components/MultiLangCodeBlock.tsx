@@ -157,25 +157,19 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
   }, [language, eventEmitter]);
 
   // Set the list of languages in the switcher according to the languages in the snippet and ordered by the DEFAULT_ORDER
-  // If the language in the snippet is "javascript", we need to display "node" in the switcher
   const languages = useMemo(() => {
     const snippetCode = snippets[snippet];
-    return DEFAULT_ORDER.filter(
-      (key) =>
-        key in snippetCode
-    );
+    return DEFAULT_ORDER.filter((key) => key in snippetCode);
   }, [snippet]);
 
   const content = useMemo(() => {
     const snippetCode = snippets[snippet];
 
-    // When a given block does not include any example code for the language that is currently stored in localstorage, we want to display the code that matches the first language in its switcher (which is what will be "selected" and displayed on the switcher by default)
-    // When that first language in the switcher is "node", we once again need to reference the "javascript" code example.
+    // When a given block does not include any example code for the language that is currently stored in localstorage, we want to display the code that matches the first listed language in its switcher (which is what will be "selected" and displayed on the switcher by default)
     const listedLanguage = languages && languages[0];
     const code =
       (snippetCode && snippetCode[language]) ||
-      (snippetCode &&
-        listedLanguage && snippetCode[listedLanguage]) ||
+      (snippetCode && listedLanguage && snippetCode[listedLanguage]) ||
       "\n";
 
     return {
