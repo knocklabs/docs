@@ -312,6 +312,7 @@ const sidebarContent: SidebarSection[] = [
         title: "Recurring digests",
       },
       { slug: "/going-to-production", title: "Going to production" },
+      { slug: "/migrate-from-courier", title: "Migrate from Courier" },
     ],
   },
 ];
