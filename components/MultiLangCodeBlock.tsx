@@ -122,6 +122,7 @@ const DEFAULT_ORDER: SupportedLanguage[] = [
   "curl",
   "shell",
   "node",
+  "javascript",
   "jsweb",
   "ruby",
   "python",
@@ -161,7 +162,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
     const snippetCode = snippets[snippet];
     return DEFAULT_ORDER.filter(
       (key) =>
-        key in snippetCode || (key === "node" && "javascript" in snippetCode),
+        key in snippetCode
     );
   }, [snippet]);
 
@@ -174,8 +175,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
     const code =
       (snippetCode && snippetCode[language]) ||
       (snippetCode &&
-        listedLanguage &&
-        (snippetCode[listedLanguage] ?? snippetCode["javascript"])) ||
+        listedLanguage && snippetCode[listedLanguage]) ||
       "\n";
 
     return {
