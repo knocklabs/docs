@@ -1,4 +1,22 @@
 const languages = {
+  curl: `
+curl -X POST https://api.knock.app/v1/users/bulk/identify \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '[
+        {
+          id: "1",
+          name: "John Hammond",
+          email: "jhammond@ingen.net",
+        },
+        {
+          id: "2",
+          name: "Ellie Sattler",
+          email: "esattler@ingen.net",
+        }
+      ]'
+
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);

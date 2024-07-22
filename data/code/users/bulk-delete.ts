@@ -1,4 +1,12 @@
 const languages = {
+  curl: `
+curl -X POST https://api.knock.app/v1/users/bulk/delete \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "user_ids": ["user-1", "user-2"]
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock("sk_example_123456789");
