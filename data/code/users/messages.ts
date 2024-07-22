@@ -8,7 +8,7 @@ curl -X GET https://api.knock.app/v1/users/1/messages \\
   -H "Authorization: Bearer sk_test_12345" \\
   --url-query page_size=20 \\
   --url-query tenant=my_tenant
-`,
+  `,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
@@ -23,7 +23,7 @@ await knockClient.users.getMessages(
     tenant: "my-tenant"
   }
 );
-`,
+  `,
   elixir: `
 knock_client = MyApp.Knock.client()
 
@@ -70,7 +70,7 @@ Knock::Users.get_messages(
     'tenant': 'my_tenant'
   }
 )
-`,
+  `,
   csharp: `
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
@@ -84,7 +84,7 @@ var params = new Dictionary<string, string> {
              };
 
 await knockClient.Users.GetMessages(user.Id, params);
-`,
+  `,
   php: `
 use Knock\\KnockSdk\\Client;
 
@@ -97,7 +97,7 @@ $client->users()->getMessages($user->id(), [
   'page_size' => 20,
   'tenant' => 'my_tenant'
 ]);
-`,
+  `,
   go: `
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
@@ -107,7 +107,7 @@ messages, _ := knockClient.Users.GetMessages(ctx, &knock.GetUserMessagesRequest{
   PageSize: 20,
   Tenant    "my_tenant"
 })
-`,
+  `,
   java: `
 import app.knock.api.KnockClient;
 import app.knock.api.model.*;
@@ -122,7 +122,7 @@ queryParams.pageSize(20);
 queryParams.tenant("my_tenant");
 
 CursorResult<KnockMessage> result = client.users().getMessages(user.getId(), queryParams);
-`,
+  `,
 };
 
 export default languages;

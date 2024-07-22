@@ -6,13 +6,13 @@ curl -X POST https://api.knock.app/v1/users/user_1/merge \\
   -d '{
         "from_user_id": "user-to-merge-from"
       }'
-`,
+  `,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
 
 await knock.users.merge(user.id, "user-to-merge-from");
-`,
+  `,
   elixir: `
 knock_client = MyApp.Knock.client()
 
@@ -35,13 +35,13 @@ Knock::Users.merge(
   id: user.id,
   from_user_id: "user-to-merge-from"
 )
-`,
+  `,
   csharp: `
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
 await knockClient.Users.Merge(user.Id, "user-to-merge-from")  
-`,
+  `,
   php: `
 use Knock\\KnockSdk\\Client;
 
@@ -50,7 +50,7 @@ $client = new Client('sk_12345');
 $client->users()->merge($user->id(), [
   'from_user_id' => 'user-to-merge-from'
 ]);
-`,
+  `,
   go: `
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
@@ -69,7 +69,7 @@ KnockClient client = KnockClient.builder()
     .build();
 
 UserIdentity user = client.users().merge(user.getId(), "user-to-merge-from");
-`,
+  `,
 };
 
 export default languages;

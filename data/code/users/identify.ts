@@ -7,7 +7,7 @@ curl -X PUT https://api.knock.app/v1/users/1 \\
         "name": "John Hammond",
         "email": "john@example.com"
       }'
-`,
+  `,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
@@ -16,7 +16,7 @@ await knock.users.identify("1", {
   name: "John Hammond",
   email: "jhammond@ingen.net",
 });
-`,
+  `,
   elixir: `
 knock_client = MyApp.Knock.client()
 
@@ -48,7 +48,7 @@ Knock::Users.identify(
     email: "jhammond@ingen.net"
   }
 )
-`,
+  `,
   csharp: `
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" }
@@ -60,7 +60,7 @@ var params = new Dictionary<string, string>{
 };
 
 var user = await knockClient.Users.Identify("1", params)
-`,
+  `,
   php: `
 use Knock\\KnockSdk\\Client;
 
@@ -70,7 +70,7 @@ $client->users()->identify('1', [
   'name' => 'John Hammond',
   'email' => 'jhammond@ingen.net',
 ]);
-`,
+  `,
   go: `
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
@@ -80,7 +80,7 @@ user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
   Name: "John Hammond",
   Email: "jhammond@ingen.net"
 })
-`,
+  `,
   java: `
 import app.knock.api.KnockClient;
 import app.knock.api.model.*;
@@ -93,7 +93,7 @@ UserIdentity user = client.users().identify("1", UserIdentity.builder()
   .name("John Hammond")
   .email("jhammond@ingen.net")
   .build());
-`,
+  `,
 };
 
 export default languages;

@@ -6,13 +6,13 @@ curl -X POST https://api.knock.app/v1/users/bulk/delete \\
   -d '{
         "user_ids": ["user-1", "user-2"]
       }'
-`,
+  `,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock("sk_example_123456789");
 
 const bulkOperation = await knock.users.bulkDelete(userIds);
-`,
+  `,
   elixir: `
 knock_client = MyApp.Knock.client()
 
@@ -29,7 +29,7 @@ require "knock"
 Knock.key = "sk_12345"
 
 Knock::Users.bulk_delete(user_ids: user_ids)  
-`,
+  `,
   csharp: `
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
@@ -40,14 +40,14 @@ var userIds = new List<string> {
 };
 
 await knockClient.Users.BulkDelete(userIds);
-`,
+  `,
   php: `
 use Knock\\KnockSdk\\Client;
 
 $client = new Client('sk_12345');
 
 $client->users()->bulkDelete(['user-1', 'user-2']);
-`,
+  `,
   go: `
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
@@ -55,7 +55,7 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 result, _ := knockClient.Users.BulkDelete(ctx, &knock.&BulkDeleteUserRequest{
   UserIDs: []string{"user-1", "user-2"}
 })
-`,
+  `,
   java: `
 import app.knock.api.KnockClient;
 import app.knock.api.model.*;
@@ -65,7 +65,7 @@ KnockClient client = KnockClient.builder()
     .build();
 
 BulkOperation result = client.users().bulkDelete(List.of("user-1", "user-2"));
-`,
+  `,
 };
 
 export default languages;
