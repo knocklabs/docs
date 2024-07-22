@@ -1,4 +1,13 @@
 const languages = {
+  curl: `
+curl -X PUT https://api.knock.app/v1/users/1 \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "name": "John Hammond",
+        "email": "john@example.com"
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);

@@ -1,13 +1,23 @@
 const languages = {
+  curl: `
+curl -X GET https://api.knock.app/v1/users/1/messages \\
+  -H "Authorization: Bearer sk_test_12345"
+
+# supports pagination parameters and filters
+curl -X GET https://api.knock.app/v1/users/1/messages \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  --url-query page_size=20 \\
+  --url-query tenant=my_tenant
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
-await knockClient.users.getMessages("jhammond");
+await knockClient.users.getMessages(user.id);
 
 // supports pagination parameters and filters
 await knockClient.users.getMessages(
-  "jhammond",
+  user.id,
   {
     page_size: 20,
     tenant: "my-tenant"
@@ -20,11 +30,11 @@ knock_client = MyApp.Knock.client()
 Knock.Users.get_messages(knock_client, user.id)
 
 # supports pagination parameters and filters
-
 Knock.Users.get_messages(
   knock_client,
   user.id,
-  page_size: 20, tenant: "my_tenant"
+  page_size: 20, 
+  tenant: "my_tenant"
 )
   `,
   python: `
@@ -36,8 +46,13 @@ client.users.get_messages(
 )
 
 # supports pagination parameters and filters
-
-client.users.get_messages(id="639a2d5f-d1b7-4cf3-b81b-7d9604665276", options={'page_size': 10, 'tenant': "my_tenant"})
+client.users.get_messages(
+  id=user.id, 
+  options={
+    'page_size': 20, 
+    'tenant': "my_tenant"
+  }
+)
   `,
   ruby: `
 require "knock"
@@ -47,9 +62,13 @@ Knock::Users.get_messages(
   id: user.id
 )
 
+# supports pagination parameters and filters
 Knock::Users.get_messages(
   id: user.id,
-  options={'page_size': 10, 'tenant': 'my_tenant'}
+  options={
+    'page_size': 20,
+    'tenant': 'my_tenant'
+  }
 )
 `,
   csharp: `
@@ -59,9 +78,8 @@ var knockClient = new KnockClient(
 await knockClient.Users.GetMessages(user.Id);
 
 // supports pagination parameters and filters
-
 var params = new Dictionary<string, string> {
-                {"page_size", "10"},
+                {"page_size", "20"},
                 {"tenant", "my_tenant"}
              };
 
@@ -72,8 +90,11 @@ use Knock\\KnockSdk\\Client;
 
 $client = new Client('sk_12345');
 
+$client->users()->getMessages($user->id());
+
+# supports pagination parameters and filters
 $client->users()->getMessages($user->id(), [
-  'page_size' => 10,
+  'page_size' => 20,
   'tenant' => 'my_tenant'
 ]);
 `,
@@ -83,7 +104,7 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 messages, _ := knockClient.Users.GetMessages(ctx, &knock.GetUserMessagesRequest{
   ID:       user.ID,
-  PageSize: 10,
+  PageSize: 20,
   Tenant    "my_tenant"
 })
 `,
@@ -97,7 +118,7 @@ KnockClient client = KnockClient.builder()
 
 MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
 
-queryParams.pageSize(10);
+queryParams.pageSize(20);
 queryParams.tenant("my_tenant");
 
 CursorResult<KnockMessage> result = client.users().getMessages(user.getId(), queryParams);
