@@ -1,5 +1,5 @@
 const languages = {
-  javascript: `
+  node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
