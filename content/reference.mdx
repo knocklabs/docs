@@ -1227,7 +1227,10 @@ A trigger calls a workflow created via the Knock dashboard.
 
 ### Payload size limit
 
-Workflow trigger endpoints enforce a `10MB` payload `data` limit.
+The workflow trigger endpoint enforces the following payload size limits:
+
+- The `data` payload must be no more than `10MB`
+- The `recipients` list must not exceed 1000 entries
 
 ### Path parameters
 
@@ -1312,7 +1315,10 @@ See our guides on inline identification [for users](/managing-recipients/identif
 
 ### Payload size limit
 
-Workflow trigger endpoints enforce a `10MB` payload `data` limit.
+The workflow trigger endpoint enforces the following payload size limits:
+
+- The `data` payload must be no more than `10MB`
+- The `recipients` list must not exceed 1000 entries
 
 ### Path parameters
 
@@ -1395,6 +1401,12 @@ Cancel a delayed workflow for one or more recipients.
 ### Rate limit
 
 <RateLimit tier={5} />
+
+### Payload size limit
+
+The workflow cancelation endpoint enforces the following payload size limits:
+
+- The `recipients` list must not exceed 1000 entries
 
 ### Path parameters
 
@@ -4479,7 +4491,7 @@ Use tenants when sending a notification to user(s) that you want to configure sp
   <Attribute
     name="settings"
     type="object"
-    description="An object of key-value pairs for configurable settings on a tenant. Currently settings only contain a branding key which points to the following configurable values: primary_color, primary_color_contrast, icon_url, and logo_url."
+    description="An object of key-value pairs for configurable settings on a tenant. Currently contains a preference_set key for tenant-specific default preferences, as well as a branding key which points to the following configurable values: primary_color, primary_color_contrast, icon_url, and logo_url."
   />
 </Attributes>
 
@@ -4506,7 +4518,8 @@ Use tenants when sending a notification to user(s) that you want to configure sp
       "primary_color_contrast": "#ffffff",
       "logo_url": "www.example.com/path-to-logo-asset-url",
       "icon_url": "www.example.com/path-to-icon-asset-url"
-    }
+    },
+    "preference_set": null
   },
   "created_at": null,
   "updated_at": "2021-03-05T12:00:00Z"
@@ -4542,25 +4555,35 @@ Returns a list of `Tenant` objects.
 />
 
 ```json title="Response"
-[
-  {
-    "__typename": "Tenant",
-    "id": "tenant-1",
-    "properties": {
-      "name": "Tenant 1"
-    },
-    "settings": {
-      "branding": {
-        "primary_color": "#33FF5B",
-        "primary_color_contrast": "#ffffff",
-        "logo_url": "www.example.com/path-to-logo-asset-url",
-        "icon_url": "www.example.com/path-to-icon-asset-url"
-      }
-    },
-    "created_at": null,
-    "updated_at": "2021-03-05T12:00:00Z"
+{
+  "entries": [
+    {
+      "__typename": "Tenant",
+      "id": "tenant-1",
+      "properties": {
+        "name": "Tenant 1"
+      },
+      "settings": {
+        "branding": {
+          "primary_color": "#33FF5B",
+          "primary_color_contrast": "#ffffff",
+          "logo_url": "www.example.com/path-to-logo-asset-url",
+          "icon_url": "www.example.com/path-to-icon-asset-url"
+        },
+        "preference_set": null
+      },
+      "created_at": null,
+      "updated_at": "2021-03-05T12:00:00Z"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50,
+    "total_count": 1
   }
-]
+}
 ```
 
 </ExampleColumn>
@@ -4614,7 +4637,8 @@ Returns a `Tenant`.
       "primary_color_contrast": "#ffffff",
       "logo_url": "www.example.com/path-to-logo-asset-url",
       "icon_url": "www.example.com/path-to-icon-asset-url"
-    }
+    },
+    "preference_set": null
   },
   "created_at": null,
   "updated_at": "2021-03-05T12:00:00Z"
@@ -4688,7 +4712,8 @@ Returns a `Tenant`.
       "primary_color_contrast": "#ffffff",
       "logo_url": "www.example.com/path-to-logo-asset-url",
       "icon_url": "www.example.com/path-to-icon-asset-url"
-    }
+    },
+    "preference_set": null
   },
   "created_at": null,
   "updated_at": "2021-03-05T12:00:00Z"
