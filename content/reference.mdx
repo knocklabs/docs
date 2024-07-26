@@ -476,719 +476,6 @@ Knock uses standard [HTTP response codes](https://developer.mozilla.org/en-US/We
 </div>
 </Section>
 
-<Section title="Users" slug="users">
-<ContentColumn>
-
-A user represents an individual who may need to receive a notification from Knock. They are always referenced by your internal identifier.
-
-### Attributes
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the user"
-  />
-  <Attribute name="name" type="string (optional)" description="The full name of the user" />
-  <Attribute name="email" type="string (optional)" description="The email of the user" />
-  <Attribute name="avatar" type="string (optional)" description="A URL for the avatar of the user" />
-  <Attribute name="phone_number" type="string (optional)" description="The phone number of the user to use with SMS channels" />
-  <Attribute
-    name="locale"
-    type="string (optional)"
-    description={
-      <>
-        <span>The locale of the user. Used for </span>
-        <a href="/send-and-manage-data/translations">message localization</a>
-        <span>.</span>
-      </>
-    }
-  />
-  <Attribute
-    name="timezone"
-    type="string (optional)"
-    description={
-      <>
-        <span>
-          The timezone of the user. Must be a valid{" "}
-          <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">
-            tz database time zone string
-          </a>
-          . Used for <a href="/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients">
-            recurring schedules
-          </a> and {""}
-          <a href="/designing-workflows/send-windows">
-          send windows
-          </a>.
-        </span>
-      </>
-    }
-  />
-  <Attribute
-    name="*"
-    type="key-value pairs"
-    description="Any custom properties"
-  />
-</Attributes>
-</ContentColumn>
-<ExampleColumn>
-
-<Endpoints>
-  <Endpoint name="identify-user" method="PUT" path="/users/:user_id" withLink />
-  <Endpoint name="list-users" method="GET" path="/users" withLink />
-  <Endpoint name="get-user" method="GET" path="/users/:user_id" withLink />
-  <Endpoint
-    name="get-user-messages"
-    method="GET"
-    path="/users/:user_id/messages"
-    withLink
-  />
-  <Endpoint
-    name="delete-user"
-    method="DELETE"
-    path="/users/:user_id"
-    withLink
-  />
-  <Endpoint
-    name="merge-user"
-    method="POST"
-    path="/users/:user_id/merge"
-    withLink
-  />
-  <Endpoint
-    name="bulk-identify-users"
-    method="POST"
-    path="/users/bulk/identify"
-    withLink
-  />
-  <Endpoint
-    name="bulk-delete-users"
-    method="POST"
-    path="/users/bulk/delete"
-    withLink
-  />
-</Endpoints>
-
-```json title="User object"
-{
-  "__typename": "User",
-  "id": "user_1",
-  "name": "User name",
-  "email": "user@example.com",
-  "foo": "bar",
-  "baz": true,
-  "created_at": null,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Identify a user" slug="identify-user">
-<ContentColumn>
-
-Identifying a user will create or update a user in Knock, merging the properties given with what we currently have set on the user (if any).
-
-### Endpoint
-
-<Endpoint method="PUT" path="/users/:user_id" />
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier of the user"
-  />
-</Attributes>
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="name"
-    type="string (optional)"
-    description="The name of the user"
-  />
-  <Attribute
-    name="email"
-    type="string (optional)"
-    description="The email of the user"
-  />
-  <Attribute
-    name="avatar"
-    type="string (optional)"
-    description="A URL for the avatar of the user"
-  />
-  <Attribute
-    name="phone_number"
-    type="string (optional)"
-    description="The phone number of the user to use with SMS channels"
-  />
-  <Attribute
-    name="locale"
-    type="string (optional)"
-    description={
-      <>
-        <span>The locale of the user. Used for </span>
-        <a href="/send-and-manage-data/translations">message localization</a>
-        <span>.</span>
-      </>
-    }
-  />
-  <Attribute
-    name="timezone"
-    type="string (optional)"
-    description={
-      <>
-        <span>
-          The timezone of the user. Must be a valid{" "}
-          <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">
-            tz database time zone string
-          </a>
-          . Used for <a href="/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients">
-            recurring schedules
-          </a>.
-        </span>
-      </>
-    }
-  />
-  <Attribute
-    name="preferences"
-    type="dictionary<string, PreferenceSet> (optional)"
-    typeSlug="/reference#preferences"
-    description="A set of preferences that determines whether a recipient should receive a particular type of notification."
-  />
-  <Attribute
-    name="channel_data"
-    type="dictionary<string, ChannelData> (optional)"
-    typeSlug="/reference#channel-data"
-    description="Channel-specific information that's needed to deliver a notification to an end provider."
-  />
-  <Attribute
-    name="*"
-    type="key-value pairs"
-    description="Any custom properties"
-  />
-</Attributes>
-
-### Returns
-
-A User.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock snippet="users.identify" title="Identify a user" />
-
-```json title="Response"
-{
-  "__typename": "User",
-  "id": "user_1",
-  "name": "User name",
-  "email": "user@example.com",
-  "locale": "en",
-  "timezone": "America/New_York",
-  "foo": "bar",
-  "baz": true,
-  "created_at": null,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="List users" slug="list-users">
-<ContentColumn>
-
-Lists all non-deleted users for the environment. You can optionally request all preferences associated with a user while listing by passing `include[]=preferences`.
-
-### Endpoint
-
-<Endpoint method="GET" path="/users" />
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Query parameters
-
-<Attributes>
-  <Attribute
-    name="page_size"
-    type="number"
-    description="The total number to retrieve per page (defaults to 50)"
-  />
-  <Attribute
-    name="after"
-    type="string"
-    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
-  />
-  <Attribute
-    name="before"
-    type="string"
-    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
-  />
-  <Attribute
-    name="include"
-    type="string[]"
-    description="A list of entities to side load as part of the response. Currently only supports `preferences`."
-  />
-</Attributes>
-
-### Returns
-
-A paginated list of `User` records.
-
-</ContentColumn>
-<ExampleColumn>
-
-```json title="Response"
-{
-  "entries": [
-    {
-      "__typename": "User",
-      "id": "user_1",
-      "name": "User name",
-      "email": "user@example.com",
-      "foo": "bar",
-      "baz": true,
-      "created_at": null,
-      "updated_at": "2021-03-05T12:00:00Z"
-    }
-  ],
-  "page_info": {
-    "__typename": "PageInfo",
-    "after": null,
-    "before": null,
-    "page_size": 50
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Get a user" slug="get-user">
-<ContentColumn>
-
-Retrieve a user by their ID, including all properties previously set.
-
-### Endpoint
-
-<Endpoint method="GET" path="/users/:user_id" />
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier of the user"
-  />
-</Attributes>
-
-### Returns
-
-A User.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock snippet="users.get" title="Get a user" />
-
-```json title="Response"
-{
-  "__typename": "User",
-  "id": "user_1",
-  "name": "User name",
-  "email": "user@example.com",
-  "foo": "bar",
-  "baz": true,
-  "created_at": null,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="User messages" slug="get-user-messages">
-<ContentColumn>
-
-Retrieve a paginated list of messages for a user. Will return most recent messages first.
-
-### Endpoint
-
-<Endpoint method="GET" path="/users/:id/messages" />
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute name="id" type="string" description="The ID of the user" />
-</Attributes>
-
-### Query parameters
-
-<Attributes>
-  <Attribute
-    name="page_size"
-    type="number"
-    description="The total number to retrieve per page (defaults to 50)"
-  />
-  <Attribute
-    name="after"
-    type="string"
-    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
-  />
-  <Attribute
-    name="before"
-    type="string"
-    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
-  />
-  <Attribute
-    name="source"
-    type="string (optional)"
-    description="Limits the results to only items of the source workflow"
-  />
-  <Attribute
-    name="tenant"
-    type="string (optional)"
-    description="Limits the results to items with the corresponding tenant, or where the tenant is empty"
-  />
-  <Attribute
-    name="status"
-    type="string[] (optional)"
-    description="One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `bounced`, `not_sent`. Limits results to messages with the given delivery status(es)."
-  />
-  <Attribute
-    name="engagement_status"
-    type="string[] (optional)"
-    description="One or more of `read`, `unread`, `seen`, `unseen`. Limits results to messages with the given engagement status(es)."
-  />
-  <Attribute
-    name="channel_id"
-    type="string (optional)"
-    description="Limits the results to only items that belong to the channel"
-  />
-  <Attribute
-    name="message_ids[]"
-    type="string[] (optional)"
-    description="Limits the results to only the message ids given (max 50). Note: when using this option, the results will be subject to any other filters applied to the query."
-  />
-  <Attribute
-    name="workflow_categories"
-    type="string[] (optional)"
-    description="Limits the results to only items related to any of the provided categories"
-  />
-  <Attribute
-    name="trigger_data"
-    type="JSON string (optional)"
-    description="Limits the results to only items that were generated with the given data"
-  />
-  <Attribute
-    name="inserted_at.gt"
-    type="datetime (optional)"
-    description="Retrieves messages inserted after the given date"
-  />
-  <Attribute
-    name="inserted_at.gte"
-    type="datetime (optional)"
-    description="Retrieves messages inserted after or equal to the given date"
-  />
-  <Attribute
-    name="inserted_at.lt"
-    type="datetime (optional)"
-    description="Retrieves messages inserted before the given date"
-  />
-  <Attribute
-    name="inserted_at.lte"
-    type="datetime (optional)"
-    description="Retrieves messages inserted before or equal to the given date"
-  />
-</Attributes>
-
-### Returns
-
-A paginated list of Message records
-
-</ContentColumn>
-
-<ExampleColumn>
-
-<MultiLangCodeBlock snippet="users.messages" title="Get user messages" />
-
-```json title="Response"
-{
-  "items": [
-    {
-      "__typename": "Message",
-      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
-      "id": "1rjI9XBgWQ6EUA3D3Ul3VjUimOD",
-      "channel_id": "0bfd9f86-56b0-41f0-ade3-dc5cc6a69bb8",
-      "recipient": "user_12345",
-      "actors": [],
-      "workflow": "merged-changes",
-      "tenant": null,
-      "status": "delivered",
-      "engagement_statuses": ["read", "interacted"],
-      "seen_at": null,
-      "read_at": "2021-05-11T00:00:00.00Z",
-      "interacted_at": "2021-05-11T00:00:00.00Z",
-      "link_clicked_at": null,
-      "archived_at": null,
-      "inserted_at": "2021-03-05T12:00:00Z",
-      "updated_at": "2021-03-05T12:00:00Z",
-      "source": {
-        "__typename": "WorkflowSource",
-        "key": "merged-changes",
-        "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de",
-        "categories": ["reminders"]
-      },
-      "data": {
-        "foo": "bar"
-      },
-      "metadata": {
-        "external_id": "external_id_from_provider"
-      }
-    }
-  ],
-  "page_info": {
-    "__typename": "PageInfo",
-    "after": null,
-    "before": null,
-    "page_size": 50
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Delete a user" slug="delete-user">
-<ContentColumn>
-
-Deletes a user by the id given.
-
-### Endpoint
-
-<Endpoint method="DELETE" path="/users/:user_id" />
-
-### Rate limit
-
-<RateLimit tier={2} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier of the user"
-  />
-</Attributes>
-
-### Returns
-
-No response.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock snippet="users.delete" title="Delete a user" />
-
-</ExampleColumn>
-</Section>
-
-<Section title="Merge users" slug="merge-user">
-<ContentColumn>
-
-Merges the two users together, merging the user specified in the `from_user_id` into the `user_id`.
-
-[Read more on how merging works →](/send-and-manage-data/users#merging-users)
-
-### Endpoint
-
-<Endpoint method="POST" path="/users/:user_id/merge" />
-
-### Rate limit
-
-<RateLimit tier={2} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier of the user to merge into"
-  />
-</Attributes>
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="from_user_id"
-    type="string"
-    description="Unique identifier of the user to merge from"
-  />
-</Attributes>
-
-### Returns
-
-The merged `User`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock snippet="users.merge" title="Merge a user" />
-
-```json title="Response"
-{
-  "__typename": "User",
-  "id": "user_1",
-  "name": "User name",
-  "email": "user@example.com",
-  "foo": "bar",
-  "baz": true,
-  "created_at": null,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Bulk identify users" slug="bulk-identify-users">
-<ContentColumn>
-
-Identifies up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
-
-### Endpoint
-
-<Endpoint method="POST" path="/users/bulk/identify" />
-
-### Rate limit
-
-<RateLimit tier={1} />
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="users"
-    type="User[]"
-    description="A list of users to upsert"
-    typeSlug="#users"
-  />
-</Attributes>
-
-### Returns
-
-A BulkOperation.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="users.bulkIdentify"
-  title="Bulk identifies users"
-/>
-
-```json title="Response"
-{
-  "__typename": "BulkOperation",
-  "completed_at": "2021-03-05T12:00:00Z",
-  "error_count": 0,
-  "error_items": [],
-  "estimated_total_rows": 42,
-  "failed_at": null,
-  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
-  "inserted_at": "2021-03-05T12:00:00Z",
-  "name": "users.identify",
-  "processed_rows": 42,
-  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
-  "started_at": "2021-03-05T12:00:00Z",
-  "status": "completed",
-  "success_count": 42,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Bulk delete users" slug="bulk-delete-users">
-<ContentColumn>
-
-Deletes up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
-
-### Endpoint
-
-<Endpoint method="POST" path="/users/bulk/delete" />
-
-### Rate limit
-
-<RateLimit tier={1} />
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="user_ids"
-    type="string[]"
-    description="Unique identifiers of the users to delete"
-  />
-</Attributes>
-
-### Returns
-
-A BulkOperation.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock snippet="users.bulkDelete" title="Bulk deletes users" />
-
-```json title="Response"
-{
-  "__typename": "BulkOperation",
-  "completed_at": "2021-03-05T12:00:00Z",
-  "error_count": 0,
-  "error_items": [],
-  "estimated_total_rows": 42,
-  "failed_at": null,
-  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
-  "inserted_at": "2021-03-05T12:00:00Z",
-  "name": "users.delete",
-  "processed_rows": 42,
-  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
-  "started_at": "2021-03-05T12:00:00Z",
-  "status": "completed",
-  "success_count": 42,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
 <Section title="Workflows" slug="workflows">
 <ContentColumn>
 
@@ -1439,1230 +726,6 @@ The workflow cancelation endpoint enforces the following payload size limits:
 <MultiLangCodeBlock snippet="workflows.cancel" title="Cancel a workflow" />
 
 </ExampleColumn>
-</Section>
-
-<Section title="Preferences" slug="preferences">
-<ContentColumn>
-
-A preference determines whether a recipient should receive a particular type of notification. By default
-all preferences are opted in unless a preference explicitly opts the recipient out of the notification.
-
-The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
-
-[Read more about Preferences](/send-and-manage-data/preferences).
-
-### Attributes
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the preference set"
-  />
-  <Attribute
-    name="workflows"
-    type="object"
-    description="A set of preferences for workflows, each can resolve to a boolean, to a set of channel types, or to a set of conditions"
-  />
-  <Attribute
-    name="channel_types"
-    type="object"
-    description="A set of preferences for channel types"
-  />
-  <Attribute
-    name="categories"
-    type="object"
-    description="A set of preferences for workflow categories, each can resolve to a boolean, to a set of channel types, or to a set of conditions"
-  />
-</Attributes>
-
-</ContentColumn>
-<ExampleColumn>
-
-<Endpoints>
-  <Endpoint
-    name="get-all-preferences-user"
-    method="GET"
-    path="/users/:user_id/preferences"
-  />
-  <Endpoint
-    name="get-all-preferences-object"
-    method="GET"
-    path="/objects/:collection/:id/preferences"
-  />
-  <Endpoint
-    name="get-preferences-user"
-    method="GET"
-    path="/users/:user_id/preferences/:id"
-  />
-  <Endpoint
-    name="get-preferences-object"
-    method="GET"
-    path="/objects/:collection/:id/preferences/:id"
-  />
-  <Endpoint
-    name="set-preferences-user"
-    method="PUT"
-    path="/users/:user_id/preferences/:id"
-  />
-  <Endpoint
-    name="set-preferences-object"
-    method="PUT"
-    path="/objects/:collection/:id/preferences/:id"
-  />
-  <Endpoint
-    name="bulk-set-preferences"
-    method="POST"
-    path="/users/bulk/preferences"
-  />
-</Endpoints>
-
-```json title="PreferenceSet object"
-{
-  "__typename": "PreferenceSet",
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "channel_types": {
-        "email": true
-      }
-    }
-  },
-  "channel_types": {
-    "in_app_feed": true,
-    "sms": false
-  },
-  "categories": {
-    "park-wide": {
-      "channel_types": {
-        "sms": false
-      }
-    }
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Getting user preferences" slug="get-preferences-user">
-<ContentColumn>
-
-Retrieve a user's preference set. Will always return an empty preference set object,
-even if it does not currently exist for the user.
-
-### Endpoint
-
-<Endpoint
-  name="get-preferences-user"
-  method="GET"
-  path="/users/:user_id/preferences/:id"
-/>
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="user_id"
-    type="string"
-    description="Unique identifier for the user"
-  />
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the preference set"
-  />
-</Attributes>
-
-### Query parameters
-
-<Attributes>
-  <Attribute
-    name="tenant"
-    type="string"
-    description="An optional tenant identifier to supply to return the user's preferences with any tenant defaults applied"
-  />
-</Attributes>
-
-### Response
-
-Returns a `PreferenceSet`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="users.getPreferences"
-  title="Get a users preferences"
-/>
-
-```json title="Response"
-{
-  "__typename": "PreferenceSet",
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "channel_types": {
-        "email": true
-      }
-    }
-  },
-  "channel_types": {
-    "in_app_feed": true,
-    "sms": true
-  },
-  "categories": {
-    "park-wide": {
-      "channel_types": {
-        "sms": false
-      }
-    }
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Setting user preferences" slug="set-preferences-user">
-<ContentColumn>
-
-Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given.
-
-If no user exists in the current environment for the given `:user_id`, Knock will create the user entry as part of this request.
-
-The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
-
-### Endpoint
-
-<Endpoint
-  name="set-preferences"
-  method="PUT"
-  path="/users/:user_id/preferences/:id"
-/>
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="user_id"
-    type="string"
-    description="Unique identifier for the user"
-  />
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the preference set"
-  />
-</Attributes>
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="channel_types"
-    type="object"
-    description="A set of channel type preferences"
-  />
-  <Attribute
-    name="workflows"
-    type="object"
-    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
-  />
-  <Attribute
-    name="categories"
-    type="object"
-    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
-  />
-</Attributes>
-
-### Response
-
-Returns a `PreferenceSet`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="users.setPreferences"
-  title="Set a users preferences"
-/>
-
-```json title="Response"
-{
-  "__typename": "PreferenceSet",
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "channel_types": {
-        "email": true,
-        "sms": true
-      }
-    }
-  },
-  "channel_types": {
-    "in_app_feed": true
-  },
-  "categories": {
-    "park-wide": {
-      "sms": false
-    }
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Bulk set preferences" slug="bulk-set-preferences">
-<ContentColumn>
-
-Bulk sets the preferences for up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
-
-The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
-
-Please note: This is a destructive operation and will replace any existing users' preferences with the preferences sent.
-
-### Endpoint
-
-<Endpoint
-  name="bulk-set-preferences"
-  method="POST"
-  path="/users/bulk/preferences"
-/>
-
-### Rate limit
-
-<RateLimit tier={1} />
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="user_ids"
-    type="string[]"
-    description="A list of user ids to set preferences for"
-  />
-  <Attribute
-    name="preferences.id"
-    type="string"
-    description="The id of the preference set"
-  />
-  <Attribute
-    name="preferences.channel_types"
-    type="object"
-    description="A set of channel type preferences to set"
-  />
-  <Attribute
-    name="preferences.workflows"
-    type="object"
-    description="A set of workflow preferences, can be a boolean or an object containing channel type preferences"
-  />
-  <Attribute
-    name="preferences.categories"
-    type="object"
-    description="A set of categories preferences, can be a boolean or an object containing channel type preferences"
-  />
-</Attributes>
-
-### Response
-
-Returns a `BulkOperation`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="users.bulkSetPreferences"
-  title="Bulk set many users preferences"
-/>
-
-```json title="Response"
-{
-  "__typename": "BulkOperation",
-  "completed_at": "2021-03-05T12:00:00Z",
-  "error_count": 0,
-  "error_items": [],
-  "estimated_total_rows": 42,
-  "failed_at": null,
-  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
-  "inserted_at": "2021-03-05T12:00:00Z",
-  "name": "users.set_preferences",
-  "processed_rows": 42,
-  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
-  "started_at": "2021-03-05T12:00:00Z",
-  "status": "completed",
-  "success_count": 42,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Getting object preferences" slug="get-preferences-object">
-<ContentColumn>
-
-Retrieve an object's preference set. Will always return an empty preference set object,
-even if it does not currently exist for the object.
-
-### Endpoint
-
-<Endpoint
-  name="get-preferences-object"
-  method="GET"
-  path="/objects/:collection/:object_id/preferences/:id"
-/>
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="object_id"
-    type="string"
-    description="The id of the object to lookup"
-  />
-  <Attribute
-    name="collection"
-    type="string"
-    description="The parent collection of the object to lookup"
-  />
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the preference set"
-  />
-</Attributes>
-
-### Query parameters
-
-<Attributes>
-  <Attribute
-    name="tenant"
-    type="string"
-    description="An optional tenant identifier to supply to return the user's preferences with any tenant defaults applied"
-  />
-</Attributes>
-
-### Response
-
-Returns a `PreferenceSet`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="objects.getPreferences"
-  title="Get an objects preferences"
-/>
-
-```json title="Response"
-{
-  "__typename": "PreferenceSet",
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "channel_types": {
-        "email": true
-      }
-    }
-  },
-  "channel_types": {
-    "in_app_feed": true,
-    "sms": true
-  },
-  "categories": {
-    "park-wide": {
-      "channel_types": {
-        "sms": false
-      }
-    }
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Setting object preferences" slug="set-preferences-object">
-<ContentColumn>
-
-Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given.
-
-If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request.
-
-The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
-
-### Endpoint
-
-<Endpoint
-  name="set-preferences-object"
-  method="PUT"
-  path="/objects/:collection/:object_id/preferences/:id"
-/>
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="object_id"
-    type="string"
-    description="The id of the object to lookup"
-  />
-  <Attribute
-    name="collection"
-    type="string"
-    description="The parent collection of the object to lookup"
-  />
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the preference set"
-  />
-</Attributes>
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="channel_types"
-    type="object"
-    description="A set of channel type preferences"
-  />
-  <Attribute
-    name="workflows"
-    type="object"
-    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
-  />
-  <Attribute
-    name="categories"
-    type="object"
-    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
-  />
-</Attributes>
-
-### Response
-
-Returns a `PreferenceSet`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="objects.setPreferences"
-  title="Set an objects preferences"
-/>
-
-```json title="Response"
-{
-  "__typename": "PreferenceSet",
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "channel_types": {
-        "email": true,
-        "sms": true
-      }
-    }
-  },
-  "channel_types": {
-    "in_app_feed": true
-  },
-  "categories": {
-    "park-wide": {
-      "sms": false
-    }
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Channel data" slug="channel-data">
-<ContentColumn>
-
-<a href="/managing-recipients/setting-channel-data">`ChannelData`</a> is channel-specific
-information stored on a Knock [user](/reference#users) or [object](/reference#objects)
-that's needed to deliver a notification to an end provider.
-
-For a push channel, this includes device-specific tokens that map the recipient to the device they use. For chat apps, such as Slack, this includes the access token used to send
-notifications to a customer's Slack channel.
-
-The shape of the `data` payload varies depending on the channel type; you can learn more about channel data schemas [here](/send-notifications/setting-channel-data#provider-data-requirements).
-
-### Attributes
-
-<Attributes>
-  <Attribute
-    name="channel_id"
-    type="string"
-    description="The UUID of the channel this data belongs to"
-  />
-  <Attribute
-    name="data"
-    type="object"
-    description="The provider specific channel data"
-  />
-</Attributes>
-
-</ContentColumn>
-<ExampleColumn>
-
-<Endpoints>
-  <Endpoint
-    name="get-user-channel-data"
-    method="GET"
-    path="/users/:user_id/channel_data/:channel_id"
-  />
-  <Endpoint
-    name="set-user-channel-data"
-    method="PUT"
-    path="/users/:user_id/channel_data/:channel_id"
-  />
-  <Endpoint
-    name="unset-user-channel-data"
-    method="DELETE"
-    path="/users/:user_id/channel_data/:channel_id"
-  />
-  <Endpoint
-    name="get-object-channel-data"
-    method="GET"
-    path="/objects/:collection/:object_id/channel_data/:channel_id"
-  />
-  <Endpoint
-    name="set-object-channel-data"
-    method="PUT"
-    path="/objects/:collection/:object_id/channel_data/:channel_id"
-  />
-  <Endpoint
-    name="unset-object-channel-data"
-    method="DELETE"
-    path="/objects/:collection/:object_id/channel_data/:channel_id"
-  />
-</Endpoints>
-
-```json title="ChannelData object"
-{
-  "__typename": "ChannelData",
-  "channel_id": "c2189f43-c732-488a-bfa0-fdf16e145cdf",
-  "data": {
-    "tokens": ["some-fcm-token"]
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Getting user channel data" slug="get-user-channel-data">
-<ContentColumn>
-
-Retrieves the channel data for the provided user (or object) on the channel specified.
-
-### Endpoint
-
-<Endpoint method="GET" path="/users/:user_id/channel_data/:channel_id" />
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="user_id"
-    type="string"
-    description="The id of the user to lookup"
-  />
-  <Attribute
-    name="channel_id"
-    type="string"
-    description="The id of the Knock channel to lookup"
-  />
-</Attributes>
-
-### Returns
-
-- `200` with a `ChannelData` object (when found)
-- `404` when not found
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="users.getChannelData"
-  title="Get a users channel data"
-/>
-
-</ExampleColumn>
-</Section>
-
-<Section title="Setting user channel data" slug="set-user-channel-data">
-<ContentColumn>
-
-Sets channel data for the user and the channel specified.
-
-If no user exists in the current environment for the given :user_id, Knock will create the user entry as part of this request.
-
-### Endpoint
-
-<Endpoint method="PUT" path="/users/:user_id/channel_data/:channel_id" />
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="user_id"
-    type="string"
-    description="The id of the user to lookup"
-  />
-  <Attribute
-    name="channel_id"
-    type="string"
-    description="The id of the Knock channel to lookup"
-  />
-</Attributes>
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="object"
-    description={
-      <p>
-        The data to set for the specified <code>channel_id</code>. The shape of
-        the payload varies depending on the channel. You can learn more about
-        channel data schemas{" "}
-        <a
-          href="/send-notifications/setting-channel-data#provider-data-requirements"
-          className="text-brand underline"
-        >
-          here
-        </a>
-        .
-      </p>
-    }
-  />
-</Attributes>
-
-### Returns
-
-- `200` with a `ChannelData` object (when set)
-- `404` when the channel specified cannot be found
-- `422` with errors when the data is incorrectly shaped
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="users.setChannelData"
-  title="Set a users channel data"
-/>
-
-</ExampleColumn>
-</Section>
-
-<Section title="Unsetting user channel data" slug="unset-user-channel-data">
-<ContentColumn>
-
-Unsets (removes) channel data for the user and the channel specified.
-
-### Endpoint
-
-<Endpoint method="DELETE" path="/users/:user_id/channel_data/:channel_id" />
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="user_id"
-    type="string"
-    description="The id of the user to lookup"
-  />
-  <Attribute
-    name="channel_id"
-    type="string"
-    description="The id of the Knock channel to lookup"
-  />
-</Attributes>
-
-### Returns
-
-- `204` no content
-- `404` when the channel specified cannot be found
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="users.unsetChannelData"
-  title="Unset a users channel data"
-/>
-
-</ExampleColumn>
-</Section>
-
-<Section title="Getting object channel data" slug="get-object-channel-data">
-<ContentColumn>
-
-Retrieves the channel data for the provided user (or object) on the channel specified.
-
-### Endpoint
-
-<Endpoint
-  method="GET"
-  path="/objects/:collection/:object_id/channel_data/:channel_id"
-/>
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="object_id"
-    type="string"
-    description="The id of the object to lookup"
-  />
-  <Attribute
-    name="collection"
-    type="string"
-    description="The parent collection of the object to lookup"
-  />
-  <Attribute
-    name="channel_id"
-    type="string"
-    description="The id of the Knock channel to lookup"
-  />
-</Attributes>
-
-### Returns
-
-- `200` with a `ChannelData` (when found)
-- `404` when not found
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="objects.getChannelData"
-  title="Get an objects channel data"
-/>
-
-</ExampleColumn>
-</Section>
-
-<Section title="Setting object channel data" slug="set-object-channel-data">
-<ContentColumn>
-
-Sets channel data for the object and the channel specified.
-
-If no object exists in the current environment for the given :collection and :object_id, Knock will create the object as part of this request.
-
-### Endpoint
-
-<Endpoint
-  method="PUT"
-  path="/objects/:collection/:object_id/channel_data/:channel_id"
-/>
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="object_id"
-    type="string"
-    description="The id of the object to lookup"
-  />
-  <Attribute
-    name="collection"
-    type="string"
-    description="The parent collection of the object to lookup"
-  />
-  <Attribute
-    name="channel_id"
-    type="string"
-    description="The id of the Knock channel to lookup"
-  />
-</Attributes>
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="data"
-    type="object"
-    description={
-      <p>
-        The data to set for the specified <code>channel_id</code>. The shape of
-        the payload varies depending on the channel. You can learn more about
-        channel data schemas{" "}
-        <a
-          href="/send-notifications/setting-channel-data#provider-data-requirements"
-          className="text-brand underline"
-        >
-          here
-        </a>
-        .
-      </p>
-    }
-  />
-</Attributes>
-
-### Returns
-
-- `200` with a `ChannelData` object (when set)
-- `404` when the channel specified cannot be found
-- `422` with errors when the data is incorrectly shaped
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="objects.setChannelData.slack"
-  title="Set an object's channel data"
-/>
-
-</ExampleColumn>
-</Section>
-
-<Section title="Unsetting object channel data" slug="unset-object-channel-data">
-<ContentColumn>
-
-Unsets (removes) channel data for the object and the channel specified.
-
-### Endpoint
-
-<Endpoint
-  method="DELETE"
-  path="/objects/:collection/:object_id/channel_data/:channel_id"
-/>
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="object_id"
-    type="string"
-    description="The id of the object to lookup"
-  />
-  <Attribute
-    name="collection"
-    type="string"
-    description="The parent collection of the object to lookup"
-  />
-  <Attribute
-    name="channel_id"
-    type="string"
-    description="The id of the Knock channel to lookup"
-  />
-</Attributes>
-
-### Returns
-
-- `204` no content
-- `404` when the channel specified cannot be found
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="objects.unsetChannelData"
-  title="Unsets an object's channel data"
-/>
-
-</ExampleColumn>
-</Section>
-
-<Section title="Feeds" slug="feeds">
-<ContentColumn>
-
-A feed exposes the messages delivered to an in-app feed channel, formatted specially to be consumed
-in a notification feed.
-
-A feed will always return a list of `FeedItems`, which are pointers to a message delivered and contain
-all of the information needed in order to render an item within a notification feed.
-
-**Note: feeds are a specialized form of messages that are designed purely for in-app rendering, and
-as such return information that is required on the client to do so**
-
-### Attributes
-
-<Attributes>
-  <Attribute
-    name="entries"
-    type="FeedItem[]"
-    description="An ordered list of feed items (most recent first)"
-  />
-  <Attribute
-    name="page_info"
-    type="PageInfo"
-    description="Pagination information for the items returned"
-  />
-  <Attribute
-    name="vars"
-    type="object"
-    description="Environment specific account variables"
-  />
-  <Attribute
-    name="meta"
-    type="FeedMetadata"
-    description="Information about the total unread and unseen items"
-  />
-</Attributes>
-
-</ContentColumn>
-<ExampleColumn>
-
-<Endpoints>
-  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
-  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id/settings" />
-</Endpoints>
-
-```json title="Response"
-{
-  "entries": [
-    {
-      "__typename": "FeedItem",
-      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
-      "activities": [
-        {
-          "__typename": "Activity",
-          "actor": {
-            "__typename": "User",
-            "id": "c121a5ea-8f2c-4c60-ab40-9966047d5bea",
-            "created_at": null,
-            "updated_at": "2021-05-08T20:40:01.340Z",
-            "email": "some-user@knock.app",
-            "name": "Some User"
-          },
-          "data": {
-            "dest_environment_name": "Production",
-            "src_environment_name": "Development",
-            "total_merged": 1
-          },
-          "id": "1sMtIwNnDIV52a8G8kmymzDVExQ",
-          "inserted_at": "2021-05-11T00:50:09.895759Z",
-          "recipient": {
-            "__typename": "User",
-            "id": "c121a5ea-8f2c-4c60-ab40-9966047d5bea",
-            "created_at": null,
-            "updated_at": "2021-05-08T20:40:01.340Z",
-            "email": "some-user@knock.app",
-            "name": "Some User"
-          },
-          "updated_at": "2021-05-11T00:50:09.895759Z"
-        }
-      ],
-      "actors": [
-        {
-          "__typename": "User",
-          "id": "c121a5ea-8f2c-4c60-ab40-9966047d5bea",
-          "created_at": null,
-          "updated_at": "2021-05-08T20:40:01.340Z",
-          "email": "some-user@knock.app",
-          "name": "Some User"
-        }
-      ],
-      "blocks": [
-        {
-          "content": "**{{ actor.name }}** merged {{ total_merged }} {% if total_merged == 1 %} change {% else %} changes {% endif %}\nfrom **{{ src_environment_name }}** into **{{ dest_environment_name }}**.",
-          "name": "body",
-          "rendered": "<p><strong>The person</strong> merged 1  change \nfrom <strong>Development</strong> into <strong>Production</strong>.</p>",
-          "type": "markdown"
-        },
-        {
-          "content": "{{ vars.app_url }}/{{ account_slug }}/commits",
-          "name": "action_url",
-          "rendered": "https://example.com/thing/commits",
-          "type": "text"
-        }
-      ],
-      "data": {
-        "dest_environment_name": "Production",
-        "src_environment_name": "Development",
-        "total_merged": 1
-      },
-      "id": "1sMtIsRvZtYf86aOfkM2PCpC6Xc",
-      "inserted_at": "2021-05-11T00:50:09.904531Z",
-      "read_at": "2021-05-13T02:45:28.559124Z",
-      "seen_at": "2021-05-11T00:51:43.617550Z",
-      "interacted_at": null,
-      "link_clicked_at": null,
-      "archived_at": null,
-      "source": {
-        "__typename": "WorkflowSource",
-        "key": "merged-changes",
-        "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de",
-        "categories": ["reminders"]
-      },
-      "tenant": null,
-      "total_activities": 1,
-      "total_actors": 1,
-      "updated_at": "2021-05-13T02:45:28.559863Z"
-    }
-  ],
-  "vars": {
-    "app_name": "The app name"
-  },
-  "meta": {
-    "__typename": "FeedMetadata",
-    "unread_count": 0,
-    "unseen_count": 0
-  },
-  "page_info": {
-    "__typename": "PageInfo",
-    "after": null,
-    "before": null,
-    "page_size": 50
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Get a feed for user" slug="get-feed">
-<ContentColumn>
-
-Retrieves a feed of items in reverse chronological order for a given `user_id` on the given `in_app_feed_channel_id`. In the case where the user has not yet been identified within Knock, this endpoint will return an empty feed.
-
-You can customize the response for this endpoint by using [response filters](/integrations/in-app/knock#customizing-api-response-content) to exclude or only include certain properties on your resources.
-
-**Note: if you're making this call from a client-side environment you should be using your publishable key
-along with a user token to make this request**
-
-### Endpoint
-
-<Endpoint method="GET" path="/users/:user_id/feeds/:in_app_feed_channel_id" />
-
-### Rate limit
-
-<RateLimit tier={2} />
-
-<div className="mt-6">
-  <Callout
-    emoji="⚠️"
-    text={
-      <>
-        <strong>
-          This endpoint's rate limit is always scoped per-user and
-          per-environment.
-        </strong>{" "}
-        This is true even for requests made without a signed user token.
-      </>
-    }
-  />
-</div>
-
-### Path parameters
-
-<Attributes>
-  <Attribute name="user_id" type="string" description="The ID of the user" />
-  <Attribute
-    name="feed_id"
-    type="string"
-    description="The ID of the feed (the channel ID)"
-  />
-</Attributes>
-
-### Query parameters
-
-<Attributes>
-  <Attribute
-    name="page_size"
-    type="number"
-    description="The total number to retrieve per page. Defaults to 50 and the max limit is 200."
-  />
-  <Attribute
-    name="after"
-    type="string"
-    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
-  />
-  <Attribute
-    name="before"
-    type="string"
-    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
-  />
-  <Attribute
-    name="source"
-    type="string (optional)"
-    description="Limits the feed to only items of the source workflow"
-  />
-  <Attribute
-    name="tenant"
-    type="string (optional)"
-    description="Limits the feed to only display items with the corresponding tenant, or where the tenant is empty"
-  />
-  <Attribute
-    name="has_tenant"
-    type="boolean (optional)"
-    description="Scope the feed to display items with or without any tenancy"
-  />
-  <Attribute
-    name="status"
-    type="string (optional)"
-    description="One of `unread`,`read`, `unseen`,`seen`, `all`"
-  />
-  <Attribute
-    name="workflow_categories"
-    type="string[] (optional)"
-    description="Limits the feed to only display items related to any of the provided categories"
-  />
-  <Attribute
-    name="archived"
-    type="string (optional)"
-    description="One of `include`, `exclude`, `only` (defaults to `exclude`)"
-  />
-  <Attribute
-    name="trigger_data"
-    type="JSON string (optional)"
-    description="Limits the results to only items that were generated with the given data"
-  />
-</Attributes>
-
-### Returns
-
-A feed response.
-
-</ContentColumn>
 </Section>
 
 <Section title="Messages" slug="messages">
@@ -3393,7 +1456,7 @@ A paginated list of `MessageDeliveryLog`.
 <Section title="Updating a message status" slug="update-message-status">
 <ContentColumn>
 
-Marks the given message with the provided `status`, recording an event in the process.
+Marks the given message with the provided `status`, recording an event in the process. Note that message engagement statuses are [mutually inclusive](/send-notifications/message-statuses#engagement-status); a message can have zero, one, or multiple statuses.
 
 ### Endpoint
 
@@ -3424,7 +1487,7 @@ A Message.
 <Section title="Undoing a message status change" slug="undo-message-status">
 <ContentColumn>
 
-Un-marks the given `status` on a message, recording an event in the process.
+Un-marks the given `status` on a message, recording an event in the process. Note that message engagement statuses are [mutually inclusive](/send-notifications/message-statuses#engagement-status); a message can have zero, one, or multiple statuses.
 
 ### Endpoint
 
@@ -3624,70 +1687,40 @@ A `BulkOperation`
 </ExampleColumn>
 </Section>
 
-<Section title="Bulk operations" slug="bulk-operations">
+<Section title="Feeds" slug="feeds">
 <ContentColumn>
 
-A bulk operation is a set of changes applied across 0 or more records triggered via a call to the Knock API and performed asynchronously. The `BulkOperation` record represents the state of the operation, including recording the number of rows that have been modified during the operation.
+A feed exposes the messages delivered to an in-app feed channel, formatted specially to be consumed
+in a notification feed.
 
-Please note here: the `estimated_total_rows` field may have a different value to the `processed_rows` field due to the asynchronous nature of the operation.
+A feed will always return a list of `FeedItems`, which are pointers to a message delivered and contain
+all of the information needed in order to render an item within a notification feed.
+
+**Note: feeds are a specialized form of messages that are designed purely for in-app rendering, and
+as such return information that is required on the client to do so**
 
 ### Attributes
 
 <Attributes>
   <Attribute
-    name="id"
-    type="string"
-    description="The unique ID of this bulk operation"
+    name="entries"
+    type="FeedItem[]"
+    description="An ordered list of feed items (most recent first)"
   />
   <Attribute
-    name="name"
-    type="string"
-    description="The type of operation being performed"
+    name="page_info"
+    type="PageInfo"
+    description="Pagination information for the items returned"
   />
   <Attribute
-    name="estimated_total_rows"
-    type="integer"
-    description="An approximation of the number of rows that will be mutated in this operation"
+    name="vars"
+    type="object"
+    description="Environment specific account variables"
   />
   <Attribute
-    name="processed_rows"
-    type="integer"
-    description="The number of the rows that have been handled in this operation, either successfully or in error"
-  />
-  <Attribute
-    name="success_count"
-    type="integer"
-    description="The number of the rows that have been modified successfully in this operation"
-  />
-  <Attribute
-    name="error_count"
-    type="integer"
-    description="The number of the rows that errored in this operation"
-  />
-  <Attribute
-    name="error_items"
-    type="map[]"
-    description="A list of items that errored in this operation, if available"
-  />
-  <Attribute
-    name="status"
-    type="enum"
-    description="One of `queued`, `processing`, `completed`, `failed`"
-  />
-  <Attribute
-    name="started_at"
-    type="string"
-    description="An ISO-8601 datetime string for when the operation started processing"
-  />
-  <Attribute
-    name="completed_at"
-    type="string"
-    description="An ISO-8601 datetime string for when the operation completed processing"
-  />
-  <Attribute
-    name="failed_at"
-    type="string"
-    description="An ISO-8601 datetime string for when the operation failed processing"
+    name="meta"
+    type="FeedMetadata"
+    description="Information about the total unread and unseen items"
   />
 </Attributes>
 
@@ -3695,25 +1728,321 @@ Please note here: the `estimated_total_rows` field may have a different value to
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint method="GET" path="/bulk_operations/:id" />
+  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
+  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id/settings" />
 </Endpoints>
 
-```json title="BulkOperation object"
+```json title="Response"
 {
-  "__typename": "BulkOperation",
-  "completed_at": "2021-03-05T12:00:00Z",
-  "error_count": 1,
-  "error_items": [{ "id": "foo", "collection": "bar" }],
-  "estimated_total_rows": 342,
-  "failed_at": null,
-  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
-  "inserted_at": "2021-03-05T12:00:00Z",
-  "name": "some_operation",
-  "processed_rows": 342,
-  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
-  "started_at": "2021-03-05T12:00:00Z",
-  "status": "completed",
-  "success_count": 341,
+  "entries": [
+    {
+      "__typename": "FeedItem",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "activities": [
+        {
+          "__typename": "Activity",
+          "actor": {
+            "__typename": "User",
+            "id": "c121a5ea-8f2c-4c60-ab40-9966047d5bea",
+            "created_at": null,
+            "updated_at": "2021-05-08T20:40:01.340Z",
+            "email": "some-user@knock.app",
+            "name": "Some User"
+          },
+          "data": {
+            "dest_environment_name": "Production",
+            "src_environment_name": "Development",
+            "total_merged": 1
+          },
+          "id": "1sMtIwNnDIV52a8G8kmymzDVExQ",
+          "inserted_at": "2021-05-11T00:50:09.895759Z",
+          "recipient": {
+            "__typename": "User",
+            "id": "c121a5ea-8f2c-4c60-ab40-9966047d5bea",
+            "created_at": null,
+            "updated_at": "2021-05-08T20:40:01.340Z",
+            "email": "some-user@knock.app",
+            "name": "Some User"
+          },
+          "updated_at": "2021-05-11T00:50:09.895759Z"
+        }
+      ],
+      "actors": [
+        {
+          "__typename": "User",
+          "id": "c121a5ea-8f2c-4c60-ab40-9966047d5bea",
+          "created_at": null,
+          "updated_at": "2021-05-08T20:40:01.340Z",
+          "email": "some-user@knock.app",
+          "name": "Some User"
+        }
+      ],
+      "blocks": [
+        {
+          "content": "**{{ actor.name }}** merged {{ total_merged }} {% if total_merged == 1 %} change {% else %} changes {% endif %}\nfrom **{{ src_environment_name }}** into **{{ dest_environment_name }}**.",
+          "name": "body",
+          "rendered": "<p><strong>The person</strong> merged 1  change \nfrom <strong>Development</strong> into <strong>Production</strong>.</p>",
+          "type": "markdown"
+        },
+        {
+          "content": "{{ vars.app_url }}/{{ account_slug }}/commits",
+          "name": "action_url",
+          "rendered": "https://example.com/thing/commits",
+          "type": "text"
+        }
+      ],
+      "data": {
+        "dest_environment_name": "Production",
+        "src_environment_name": "Development",
+        "total_merged": 1
+      },
+      "id": "1sMtIsRvZtYf86aOfkM2PCpC6Xc",
+      "inserted_at": "2021-05-11T00:50:09.904531Z",
+      "read_at": "2021-05-13T02:45:28.559124Z",
+      "seen_at": "2021-05-11T00:51:43.617550Z",
+      "interacted_at": null,
+      "link_clicked_at": null,
+      "archived_at": null,
+      "source": {
+        "__typename": "WorkflowSource",
+        "key": "merged-changes",
+        "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de",
+        "categories": ["reminders"]
+      },
+      "tenant": null,
+      "total_activities": 1,
+      "total_actors": 1,
+      "updated_at": "2021-05-13T02:45:28.559863Z"
+    }
+  ],
+  "vars": {
+    "app_name": "The app name"
+  },
+  "meta": {
+    "__typename": "FeedMetadata",
+    "unread_count": 0,
+    "unseen_count": 0
+  },
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get a feed for user" slug="get-feed">
+<ContentColumn>
+
+Retrieves a feed of items in reverse chronological order for a given `user_id` on the given `in_app_feed_channel_id`. In the case where the user has not yet been identified within Knock, this endpoint will return an empty feed.
+
+You can customize the response for this endpoint by using [response filters](/integrations/in-app/knock#customizing-api-response-content) to exclude or only include certain properties on your resources.
+
+**Note: if you're making this call from a client-side environment you should be using your publishable key
+along with a user token to make this request**
+
+### Endpoint
+
+<Endpoint method="GET" path="/users/:user_id/feeds/:in_app_feed_channel_id" />
+
+### Rate limit
+
+<RateLimit tier={2} />
+
+<div className="mt-6">
+  <Callout
+    emoji="⚠️"
+    text={
+      <>
+        <strong>
+          This endpoint's rate limit is always scoped per-user and
+          per-environment.
+        </strong>{" "}
+        This is true even for requests made without a signed user token.
+      </>
+    }
+  />
+</div>
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="user_id" type="string" description="The ID of the user" />
+  <Attribute
+    name="feed_id"
+    type="string"
+    description="The ID of the feed (the channel ID)"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page. Defaults to 50 and the max limit is 200."
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="source"
+    type="string (optional)"
+    description="Limits the feed to only items of the source workflow"
+  />
+  <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="Limits the feed to only display items with the corresponding tenant, or where the tenant is empty"
+  />
+  <Attribute
+    name="has_tenant"
+    type="boolean (optional)"
+    description="Scope the feed to display items with or without any tenancy"
+  />
+  <Attribute
+    name="status"
+    type="string (optional)"
+    description="One of `unread`,`read`, `unseen`,`seen`, `all`"
+  />
+  <Attribute
+    name="workflow_categories"
+    type="string[] (optional)"
+    description="Limits the feed to only display items related to any of the provided categories"
+  />
+  <Attribute
+    name="archived"
+    type="string (optional)"
+    description="One of `include`, `exclude`, `only` (defaults to `exclude`)"
+  />
+  <Attribute
+    name="trigger_data"
+    type="JSON string (optional)"
+    description="Limits the results to only items that were generated with the given data"
+  />
+</Attributes>
+
+### Returns
+
+A feed response.
+
+</ContentColumn>
+</Section>
+
+<Section title="Users" slug="users">
+<ContentColumn>
+
+A user represents an individual who may need to receive a notification from Knock. They are always referenced by your internal identifier.
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the user"
+  />
+  <Attribute name="name" type="string (optional)" description="The full name of the user" />
+  <Attribute name="email" type="string (optional)" description="The email of the user" />
+  <Attribute name="avatar" type="string (optional)" description="A URL for the avatar of the user" />
+  <Attribute name="phone_number" type="string (optional)" description="The phone number of the user to use with SMS channels" />
+  <Attribute
+    name="locale"
+    type="string (optional)"
+    description={
+      <>
+        <span>The locale of the user. Used for </span>
+        <a href="/send-and-manage-data/translations">message localization</a>
+        <span>.</span>
+      </>
+    }
+  />
+  <Attribute
+    name="timezone"
+    type="string (optional)"
+    description={
+      <>
+        <span>
+          The timezone of the user. Must be a valid{" "}
+          <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">
+            tz database time zone string
+          </a>
+          . Used for <a href="/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients">
+            recurring schedules
+          </a> and {""}
+          <a href="/designing-workflows/send-windows">
+          send windows
+          </a>.
+        </span>
+      </>
+    }
+  />
+  <Attribute
+    name="*"
+    type="key-value pairs"
+    description="Any custom properties"
+  />
+</Attributes>
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint name="identify-user" method="PUT" path="/users/:user_id" withLink />
+  <Endpoint name="list-users" method="GET" path="/users" withLink />
+  <Endpoint name="get-user" method="GET" path="/users/:user_id" withLink />
+  <Endpoint
+    name="get-user-messages"
+    method="GET"
+    path="/users/:user_id/messages"
+    withLink
+  />
+  <Endpoint
+    name="delete-user"
+    method="DELETE"
+    path="/users/:user_id"
+    withLink
+  />
+  <Endpoint
+    name="merge-user"
+    method="POST"
+    path="/users/:user_id/merge"
+    withLink
+  />
+  <Endpoint
+    name="bulk-identify-users"
+    method="POST"
+    path="/users/bulk/identify"
+    withLink
+  />
+  <Endpoint
+    name="bulk-delete-users"
+    method="POST"
+    path="/users/bulk/delete"
+    withLink
+  />
+</Endpoints>
+
+```json title="User object"
+{
+  "__typename": "User",
+  "id": "user_1",
+  "name": "User name",
+  "email": "user@example.com",
+  "foo": "bar",
+  "baz": true,
+  "created_at": null,
   "updated_at": "2021-03-05T12:00:00Z"
 }
 ```
@@ -3721,15 +2050,205 @@ Please note here: the `estimated_total_rows` field may have a different value to
 </ExampleColumn>
 </Section>
 
-<Section title="Retrieve a bulk operation" slug="bulk-operation-status">
+<Section title="Identify a user" slug="identify-user">
 <ContentColumn>
 
-Retrieve the bulk operation, revealing the current status and the number of rows processed. You can poll this endpoint
-to understand when a bulk operation has finished executing (either completed, or failed).
+Identifying a user will create or update a user in Knock, merging the properties given with what we currently have set on the user (if any).
 
 ### Endpoint
 
-<Endpoint method="GET" path="/bulk_operations/:id" />
+<Endpoint method="PUT" path="/users/:user_id" />
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier of the user"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="name"
+    type="string (optional)"
+    description="The name of the user"
+  />
+  <Attribute
+    name="email"
+    type="string (optional)"
+    description="The email of the user"
+  />
+  <Attribute
+    name="avatar"
+    type="string (optional)"
+    description="A URL for the avatar of the user"
+  />
+  <Attribute
+    name="phone_number"
+    type="string (optional)"
+    description="The phone number of the user to use with SMS channels"
+  />
+  <Attribute
+    name="locale"
+    type="string (optional)"
+    description={
+      <>
+        <span>The locale of the user. Used for </span>
+        <a href="/send-and-manage-data/translations">message localization</a>
+        <span>.</span>
+      </>
+    }
+  />
+  <Attribute
+    name="timezone"
+    type="string (optional)"
+    description={
+      <>
+        <span>
+          The timezone of the user. Must be a valid{" "}
+          <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">
+            tz database time zone string
+          </a>
+          . Used for <a href="/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients">
+            recurring schedules
+          </a>.
+        </span>
+      </>
+    }
+  />
+  <Attribute
+    name="preferences"
+    type="dictionary<string, PreferenceSet> (optional)"
+    typeSlug="/reference#preferences"
+    description="A set of preferences that determines whether a recipient should receive a particular type of notification."
+  />
+  <Attribute
+    name="channel_data"
+    type="dictionary<string, ChannelData> (optional)"
+    typeSlug="/reference#channel-data"
+    description="Channel-specific information that's needed to deliver a notification to an end provider."
+  />
+  <Attribute
+    name="*"
+    type="key-value pairs"
+    description="Any custom properties"
+  />
+</Attributes>
+
+### Returns
+
+A User.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="users.identify" title="Identify a user" />
+
+```json title="Response"
+{
+  "__typename": "User",
+  "id": "user_1",
+  "name": "User name",
+  "email": "user@example.com",
+  "locale": "en",
+  "timezone": "America/New_York",
+  "foo": "bar",
+  "baz": true,
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List users" slug="list-users">
+<ContentColumn>
+
+Lists all non-deleted users for the environment. You can optionally request all preferences associated with a user while listing by passing `include[]=preferences`.
+
+### Endpoint
+
+<Endpoint method="GET" path="/users" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="include"
+    type="string[]"
+    description="A list of entities to side load as part of the response. Currently only supports `preferences`."
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of `User` records.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Response"
+{
+  "entries": [
+    {
+      "__typename": "User",
+      "id": "user_1",
+      "name": "User name",
+      "email": "user@example.com",
+      "foo": "bar",
+      "baz": true,
+      "created_at": null,
+      "updated_at": "2021-03-05T12:00:00Z"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get a user" slug="get-user">
+<ContentColumn>
+
+Retrieve a user by their ID, including all properties previously set.
+
+### Endpoint
+
+<Endpoint method="GET" path="/users/:user_id" />
 
 ### Rate limit
 
@@ -3741,15 +2260,398 @@ to understand when a bulk operation has finished executing (either completed, or
   <Attribute
     name="id"
     type="string"
-    description="The ID of a bulk operation to retrieve"
+    description="Unique identifier of the user"
   />
 </Attributes>
 
 ### Returns
 
-A `BulkOperation`
+A User.
 
 </ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="users.get" title="Get a user" />
+
+```json title="Response"
+{
+  "__typename": "User",
+  "id": "user_1",
+  "name": "User name",
+  "email": "user@example.com",
+  "foo": "bar",
+  "baz": true,
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="User messages" slug="get-user-messages">
+<ContentColumn>
+
+Retrieve a paginated list of messages for a user. Will return most recent messages first.
+
+### Endpoint
+
+<Endpoint method="GET" path="/users/:id/messages" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute name="id" type="string" description="The ID of the user" />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50)"
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before (hint: use the `__cursor` field)"
+  />
+  <Attribute
+    name="source"
+    type="string (optional)"
+    description="Limits the results to only items of the source workflow"
+  />
+  <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="Limits the results to items with the corresponding tenant, or where the tenant is empty"
+  />
+  <Attribute
+    name="status"
+    type="string[] (optional)"
+    description="One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `bounced`, `not_sent`. Limits results to messages with the given delivery status(es)."
+  />
+  <Attribute
+    name="engagement_status"
+    type="string[] (optional)"
+    description="One or more of `read`, `unread`, `seen`, `unseen`. Limits results to messages with the given engagement status(es)."
+  />
+  <Attribute
+    name="channel_id"
+    type="string (optional)"
+    description="Limits the results to only items that belong to the channel"
+  />
+  <Attribute
+    name="message_ids[]"
+    type="string[] (optional)"
+    description="Limits the results to only the message ids given (max 50). Note: when using this option, the results will be subject to any other filters applied to the query."
+  />
+  <Attribute
+    name="workflow_categories"
+    type="string[] (optional)"
+    description="Limits the results to only items related to any of the provided categories"
+  />
+  <Attribute
+    name="trigger_data"
+    type="JSON string (optional)"
+    description="Limits the results to only items that were generated with the given data"
+  />
+  <Attribute
+    name="inserted_at.gt"
+    type="datetime (optional)"
+    description="Retrieves messages inserted after the given date"
+  />
+  <Attribute
+    name="inserted_at.gte"
+    type="datetime (optional)"
+    description="Retrieves messages inserted after or equal to the given date"
+  />
+  <Attribute
+    name="inserted_at.lt"
+    type="datetime (optional)"
+    description="Retrieves messages inserted before the given date"
+  />
+  <Attribute
+    name="inserted_at.lte"
+    type="datetime (optional)"
+    description="Retrieves messages inserted before or equal to the given date"
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of Message records
+
+</ContentColumn>
+
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="users.messages" title="Get user messages" />
+
+```json title="Response"
+{
+  "items": [
+    {
+      "__typename": "Message",
+      "__cursor": "g3QAAAABZAACaWRtAAAAGzFzTXRJc1J2WnRZZjg2YU9ma00yUENwQzZYYw==",
+      "id": "1rjI9XBgWQ6EUA3D3Ul3VjUimOD",
+      "channel_id": "0bfd9f86-56b0-41f0-ade3-dc5cc6a69bb8",
+      "recipient": "user_12345",
+      "actors": [],
+      "workflow": "merged-changes",
+      "tenant": null,
+      "status": "delivered",
+      "engagement_statuses": ["read", "interacted"],
+      "seen_at": null,
+      "read_at": "2021-05-11T00:00:00.00Z",
+      "interacted_at": "2021-05-11T00:00:00.00Z",
+      "link_clicked_at": null,
+      "archived_at": null,
+      "inserted_at": "2021-03-05T12:00:00Z",
+      "updated_at": "2021-03-05T12:00:00Z",
+      "source": {
+        "__typename": "WorkflowSource",
+        "key": "merged-changes",
+        "version_id": "7251cd3f-0028-4d1a-9466-ee79522ba3de",
+        "categories": ["reminders"]
+      },
+      "data": {
+        "foo": "bar"
+      },
+      "metadata": {
+        "external_id": "external_id_from_provider"
+      }
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Delete a user" slug="delete-user">
+<ContentColumn>
+
+Deletes a user by the id given.
+
+### Endpoint
+
+<Endpoint method="DELETE" path="/users/:user_id" />
+
+### Rate limit
+
+<RateLimit tier={2} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier of the user"
+  />
+</Attributes>
+
+### Returns
+
+No response.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="users.delete" title="Delete a user" />
+
+</ExampleColumn>
+</Section>
+
+<Section title="Merge users" slug="merge-user">
+<ContentColumn>
+
+Merges the two users together, merging the user specified in the `from_user_id` into the `user_id`.
+
+[Read more on how merging works →](/send-and-manage-data/users#merging-users)
+
+### Endpoint
+
+<Endpoint method="POST" path="/users/:user_id/merge" />
+
+### Rate limit
+
+<RateLimit tier={2} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier of the user to merge into"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="from_user_id"
+    type="string"
+    description="Unique identifier of the user to merge from"
+  />
+</Attributes>
+
+### Returns
+
+The merged `User`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="users.merge" title="Merge a user" />
+
+```json title="Response"
+{
+  "__typename": "User",
+  "id": "user_1",
+  "name": "User name",
+  "email": "user@example.com",
+  "foo": "bar",
+  "baz": true,
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk identify users" slug="bulk-identify-users">
+<ContentColumn>
+
+Identifies up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
+
+### Endpoint
+
+<Endpoint method="POST" path="/users/bulk/identify" />
+
+### Rate limit
+
+<RateLimit tier={1} />
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="users"
+    type="User[]"
+    description="A list of users to upsert"
+    typeSlug="#users"
+  />
+</Attributes>
+
+### Returns
+
+A BulkOperation.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.bulkIdentify"
+  title="Bulk identifies users"
+/>
+
+```json title="Response"
+{
+  "__typename": "BulkOperation",
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 0,
+  "error_items": [],
+  "estimated_total_rows": 42,
+  "failed_at": null,
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "users.identify",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk delete users" slug="bulk-delete-users">
+<ContentColumn>
+
+Deletes up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
+
+### Endpoint
+
+<Endpoint method="POST" path="/users/bulk/delete" />
+
+### Rate limit
+
+<RateLimit tier={1} />
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="user_ids"
+    type="string[]"
+    description="Unique identifiers of the users to delete"
+  />
+</Attributes>
+
+### Returns
+
+A BulkOperation.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock snippet="users.bulkDelete" title="Bulk deletes users" />
+
+```json title="Response"
+{
+  "__typename": "BulkOperation",
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 0,
+  "error_items": [],
+  "estimated_total_rows": 42,
+  "failed_at": null,
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "users.delete",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
 </Section>
 
 <Section title="Objects" slug="objects">
@@ -4468,285 +3370,6 @@ Returns a `BulkOperation`.
 </ExampleColumn>
 </Section>
 
-<Section title="Tenants" slug="tenants">
-<ContentColumn>
-
-A Tenant represents a grouping with configurable settings that can be applied to a workflow when it's triggered in order to override account-level settings such as branding.
-
-Use tenants when sending a notification to user(s) that you want to configure specific brand elements for, such as a separate organization logo.
-
-### Attributes
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="A unique identifier for the tenant."
-  />
-  <Attribute
-    name="properties"
-    type="object"
-    description="An object of key-value pairs for attributes you want to associate with the tenant. Currently only name is accepted as an attribute for tenants."
-  />
-  <Attribute
-    name="settings"
-    type="object"
-    description="An object of key-value pairs for configurable settings on a tenant. Currently settings only contain a branding key which points to the following configurable values: primary_color, primary_color_contrast, icon_url, and logo_url."
-  />
-</Attributes>
-
-</ContentColumn>
-<ExampleColumn>
-
-<Endpoints>
-  <Endpoint name="list-tenants" method="GET" path="/tenants" />
-  <Endpoint name="get-tenant" method="GET" path="/tenants/:id" />
-  <Endpoint name="set-tenant" method="PUT" path="/tenants/:id" />
-  <Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" />
-</Endpoints>
-
-```json title="Tenant"
-{
-  "__typename": "Tenant",
-  "id": "tenant-1",
-  "properties": {
-    "name": "Tenant 1"
-  },
-  "settings": {
-    "branding": {
-      "primary_color": "#33FF5B",
-      "primary_color_contrast": "#ffffff",
-      "logo_url": "www.example.com/path-to-logo-asset-url",
-      "icon_url": "www.example.com/path-to-icon-asset-url"
-    }
-  },
-  "created_at": null,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="List tenants for environment" slug="list-tenants">
-<ContentColumn>
-
-Lists tenants for the environment of the API key
-
-### Endpoint
-
-<Endpoint name="list-tenants" method="GET" path="/tenants" />
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Response
-
-Returns a list of `Tenant` objects.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="tenants.list"
-  title="List tenants in an environment"
-/>
-
-```json title="Response"
-[
-  {
-    "__typename": "Tenant",
-    "id": "tenant-1",
-    "properties": {
-      "name": "Tenant 1"
-    },
-    "settings": {
-      "branding": {
-        "primary_color": "#33FF5B",
-        "primary_color_contrast": "#ffffff",
-        "logo_url": "www.example.com/path-to-logo-asset-url",
-        "icon_url": "www.example.com/path-to-icon-asset-url"
-      }
-    },
-    "created_at": null,
-    "updated_at": "2021-03-05T12:00:00Z"
-  }
-]
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Get a tenant" slug="get-tenant">
-<ContentColumn>
-
-Retrieve a tenant by its id.
-
-### Endpoint
-
-<Endpoint name="get-tenant" method="GET" path="/tenants/:id" />
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="A unique identifier for the tenant."
-  />
-</Attributes>
-
-### Response
-
-Returns a `Tenant`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="tenants.get"
-  title="Get tenant in an environment"
-/>
-
-```json title="Response"
-{
-  "__typename": "Tenant",
-  "id": "tenant-1",
-  "properties": {
-    "name": "Tenant 1"
-  },
-  "settings": {
-    "branding": {
-      "primary_color": "#33FF5B",
-      "primary_color_contrast": "#ffffff",
-      "logo_url": "www.example.com/path-to-logo-asset-url",
-      "icon_url": "www.example.com/path-to-icon-asset-url"
-    }
-  },
-  "created_at": null,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Set a tenant" slug="set-tenant">
-<ContentColumn>
-
-Sets a tenant within an environment, performing an upsert operation. Any existing properties will be merged with the incoming properties.
-
-### Endpoint
-
-<Endpoint name="set-tenant" method="PUT" path="/tenants/:id" />
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="A unique identifier for the tenant."
-  />
-</Attributes>
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="name"
-    type="string"
-    description="The name to set on the tenant's name property."
-  />
-  <Attribute
-    name="settings"
-    type="object"
-    description="An object of key-value pairs for configurable settings on a tenant. See example for possible key-value pairs."
-/>
-
-</Attributes>
-
-### Response
-
-Returns a `Tenant`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="tenants.set"
-  title="Set tenant in an environment"
-/>
-
-```json title="Response"
-{
-  "__typename": "Tenant",
-  "id": "tenant-1",
-  "properties": {
-    "name": "Tenant 1"
-  },
-  "settings": {
-    "branding": {
-      "primary_color": "#33FF5B",
-      "primary_color_contrast": "#ffffff",
-      "logo_url": "www.example.com/path-to-logo-asset-url",
-      "icon_url": "www.example.com/path-to-icon-asset-url"
-    }
-  },
-  "created_at": null,
-  "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Delete a tenant" slug="delete-tenant">
-<ContentColumn>
-
-Deletes a tenant by the id provided.
-
-### Endpoint
-
-<Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" />
-
-### Rate limit
-
-<RateLimit tier={2} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="id"
-    type="string"
-    description="A unique identifier for the tenant within the collection."
-  />
-</Attributes>
-
-### Response
-
-No response.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="tenants.delete"
-  title="Delete tenant from an environment"
-/>
-</ExampleColumn>
-</Section>
-
 <Section title="Subscriptions" slug="subscriptions">
 <ContentColumn>
 
@@ -5276,6 +3899,839 @@ A list of deleted `ObjectSubscription`
 ]
 ```
 
+</ExampleColumn>
+</Section>
+
+<Section title="Preferences" slug="preferences">
+<ContentColumn>
+
+A preference determines whether a recipient should receive a particular type of notification. By default
+all preferences are opted in unless a preference explicitly opts the recipient out of the notification.
+
+The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
+
+[Read more about Preferences](/send-and-manage-data/preferences).
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+  <Attribute
+    name="workflows"
+    type="object"
+    description="A set of preferences for workflows, each can resolve to a boolean, to a set of channel types, or to a set of conditions"
+  />
+  <Attribute
+    name="channel_types"
+    type="object"
+    description="A set of preferences for channel types"
+  />
+  <Attribute
+    name="categories"
+    type="object"
+    description="A set of preferences for workflow categories, each can resolve to a boolean, to a set of channel types, or to a set of conditions"
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint
+    name="get-all-preferences-user"
+    method="GET"
+    path="/users/:user_id/preferences"
+  />
+  <Endpoint
+    name="get-all-preferences-object"
+    method="GET"
+    path="/objects/:collection/:id/preferences"
+  />
+  <Endpoint
+    name="get-preferences-user"
+    method="GET"
+    path="/users/:user_id/preferences/:id"
+  />
+  <Endpoint
+    name="get-preferences-object"
+    method="GET"
+    path="/objects/:collection/:id/preferences/:id"
+  />
+  <Endpoint
+    name="set-preferences-user"
+    method="PUT"
+    path="/users/:user_id/preferences/:id"
+  />
+  <Endpoint
+    name="set-preferences-object"
+    method="PUT"
+    path="/objects/:collection/:id/preferences/:id"
+  />
+  <Endpoint
+    name="bulk-set-preferences"
+    method="POST"
+    path="/users/bulk/preferences"
+  />
+</Endpoints>
+
+```json title="PreferenceSet object"
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true,
+    "sms": false
+  },
+  "categories": {
+    "park-wide": {
+      "channel_types": {
+        "sms": false
+      }
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Getting user preferences" slug="get-preferences-user">
+<ContentColumn>
+
+Retrieve a user's preference set. Will always return an empty preference set object,
+even if it does not currently exist for the user.
+
+### Endpoint
+
+<Endpoint
+  name="get-preferences-user"
+  method="GET"
+  path="/users/:user_id/preferences/:id"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="Unique identifier for the user"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="tenant"
+    type="string"
+    description="An optional tenant identifier to supply to return the user's preferences with any tenant defaults applied"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.getPreferences"
+  title="Get a users preferences"
+/>
+
+```json title="Response"
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true,
+    "sms": true
+  },
+  "categories": {
+    "park-wide": {
+      "channel_types": {
+        "sms": false
+      }
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Setting user preferences" slug="set-preferences-user">
+<ContentColumn>
+
+Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given.
+
+If no user exists in the current environment for the given `:user_id`, Knock will create the user entry as part of this request.
+
+The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
+
+### Endpoint
+
+<Endpoint
+  name="set-preferences"
+  method="PUT"
+  path="/users/:user_id/preferences/:id"
+/>
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="Unique identifier for the user"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="channel_types"
+    type="object"
+    description="A set of channel type preferences"
+  />
+  <Attribute
+    name="workflows"
+    type="object"
+    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+  <Attribute
+    name="categories"
+    type="object"
+    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.setPreferences"
+  title="Set a users preferences"
+/>
+
+```json title="Response"
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true,
+        "sms": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true
+  },
+  "categories": {
+    "park-wide": {
+      "sms": false
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk set preferences" slug="bulk-set-preferences">
+<ContentColumn>
+
+Bulk sets the preferences for up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
+
+The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
+
+Please note: This is a destructive operation and will replace any existing users' preferences with the preferences sent.
+
+### Endpoint
+
+<Endpoint
+  name="bulk-set-preferences"
+  method="POST"
+  path="/users/bulk/preferences"
+/>
+
+### Rate limit
+
+<RateLimit tier={1} />
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="user_ids"
+    type="string[]"
+    description="A list of user ids to set preferences for"
+  />
+  <Attribute
+    name="preferences.id"
+    type="string"
+    description="The id of the preference set"
+  />
+  <Attribute
+    name="preferences.channel_types"
+    type="object"
+    description="A set of channel type preferences to set"
+  />
+  <Attribute
+    name="preferences.workflows"
+    type="object"
+    description="A set of workflow preferences, can be a boolean or an object containing channel type preferences"
+  />
+  <Attribute
+    name="preferences.categories"
+    type="object"
+    description="A set of categories preferences, can be a boolean or an object containing channel type preferences"
+  />
+</Attributes>
+
+### Response
+
+Returns a `BulkOperation`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.bulkSetPreferences"
+  title="Bulk set many users preferences"
+/>
+
+```json title="Response"
+{
+  "__typename": "BulkOperation",
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 0,
+  "error_items": [],
+  "estimated_total_rows": 42,
+  "failed_at": null,
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "users.set_preferences",
+  "processed_rows": 42,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 42,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Getting object preferences" slug="get-preferences-object">
+<ContentColumn>
+
+Retrieve an object's preference set. Will always return an empty preference set object,
+even if it does not currently exist for the object.
+
+### Endpoint
+
+<Endpoint
+  name="get-preferences-object"
+  method="GET"
+  path="/objects/:collection/:object_id/preferences/:id"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="tenant"
+    type="string"
+    description="An optional tenant identifier to supply to return the user's preferences with any tenant defaults applied"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.getPreferences"
+  title="Get an objects preferences"
+/>
+
+```json title="Response"
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true,
+    "sms": true
+  },
+  "categories": {
+    "park-wide": {
+      "channel_types": {
+        "sms": false
+      }
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Setting object preferences" slug="set-preferences-object">
+<ContentColumn>
+
+Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given.
+
+If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request.
+
+The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
+
+### Endpoint
+
+<Endpoint
+  name="set-preferences-object"
+  method="PUT"
+  path="/objects/:collection/:object_id/preferences/:id"
+/>
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="channel_types"
+    type="object"
+    description="A set of channel type preferences"
+  />
+  <Attribute
+    name="workflows"
+    type="object"
+    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+  <Attribute
+    name="categories"
+    type="object"
+    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.setPreferences"
+  title="Set an objects preferences"
+/>
+
+```json title="Response"
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true,
+        "sms": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true
+  },
+  "categories": {
+    "park-wide": {
+      "sms": false
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Tenants" slug="tenants">
+<ContentColumn>
+
+A Tenant represents a grouping with configurable settings that can be applied to a workflow when it's triggered in order to override account-level settings such as branding.
+
+Use tenants when sending a notification to user(s) that you want to configure specific brand elements for, such as a separate organization logo.
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the tenant."
+  />
+  <Attribute
+    name="properties"
+    type="object"
+    description="An object of key-value pairs for attributes you want to associate with the tenant. Currently only name is accepted as an attribute for tenants."
+  />
+  <Attribute
+    name="settings"
+    type="object"
+    description="An object of key-value pairs for configurable settings on a tenant. Currently settings only contain a branding key which points to the following configurable values: primary_color, primary_color_contrast, icon_url, and logo_url."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint name="list-tenants" method="GET" path="/tenants" />
+  <Endpoint name="get-tenant" method="GET" path="/tenants/:id" />
+  <Endpoint name="set-tenant" method="PUT" path="/tenants/:id" />
+  <Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" />
+</Endpoints>
+
+```json title="Tenant"
+{
+  "__typename": "Tenant",
+  "id": "tenant-1",
+  "properties": {
+    "name": "Tenant 1"
+  },
+  "settings": {
+    "branding": {
+      "primary_color": "#33FF5B",
+      "primary_color_contrast": "#ffffff",
+      "logo_url": "www.example.com/path-to-logo-asset-url",
+      "icon_url": "www.example.com/path-to-icon-asset-url"
+    }
+  },
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List tenants for environment" slug="list-tenants">
+<ContentColumn>
+
+Lists tenants for the environment of the API key
+
+### Endpoint
+
+<Endpoint name="list-tenants" method="GET" path="/tenants" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Response
+
+Returns a list of `Tenant` objects.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="tenants.list"
+  title="List tenants in an environment"
+/>
+
+```json title="Response"
+[
+  {
+    "__typename": "Tenant",
+    "id": "tenant-1",
+    "properties": {
+      "name": "Tenant 1"
+    },
+    "settings": {
+      "branding": {
+        "primary_color": "#33FF5B",
+        "primary_color_contrast": "#ffffff",
+        "logo_url": "www.example.com/path-to-logo-asset-url",
+        "icon_url": "www.example.com/path-to-icon-asset-url"
+      }
+    },
+    "created_at": null,
+    "updated_at": "2021-03-05T12:00:00Z"
+  }
+]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get a tenant" slug="get-tenant">
+<ContentColumn>
+
+Retrieve a tenant by its id.
+
+### Endpoint
+
+<Endpoint name="get-tenant" method="GET" path="/tenants/:id" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the tenant."
+  />
+</Attributes>
+
+### Response
+
+Returns a `Tenant`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="tenants.get"
+  title="Get tenant in an environment"
+/>
+
+```json title="Response"
+{
+  "__typename": "Tenant",
+  "id": "tenant-1",
+  "properties": {
+    "name": "Tenant 1"
+  },
+  "settings": {
+    "branding": {
+      "primary_color": "#33FF5B",
+      "primary_color_contrast": "#ffffff",
+      "logo_url": "www.example.com/path-to-logo-asset-url",
+      "icon_url": "www.example.com/path-to-icon-asset-url"
+    }
+  },
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Set a tenant" slug="set-tenant">
+<ContentColumn>
+
+Sets a tenant within an environment, performing an upsert operation. Any existing properties will be merged with the incoming properties.
+
+### Endpoint
+
+<Endpoint name="set-tenant" method="PUT" path="/tenants/:id" />
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the tenant."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="name"
+    type="string"
+    description="The name to set on the tenant's name property."
+  />
+  <Attribute
+    name="settings"
+    type="object"
+    description="An object of key-value pairs for configurable settings on a tenant. See example for possible key-value pairs."
+/>
+
+</Attributes>
+
+### Response
+
+Returns a `Tenant`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="tenants.set"
+  title="Set tenant in an environment"
+/>
+
+```json title="Response"
+{
+  "__typename": "Tenant",
+  "id": "tenant-1",
+  "properties": {
+    "name": "Tenant 1"
+  },
+  "settings": {
+    "branding": {
+      "primary_color": "#33FF5B",
+      "primary_color_contrast": "#ffffff",
+      "logo_url": "www.example.com/path-to-logo-asset-url",
+      "icon_url": "www.example.com/path-to-icon-asset-url"
+    }
+  },
+  "created_at": null,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Delete a tenant" slug="delete-tenant">
+<ContentColumn>
+
+Deletes a tenant by the id provided.
+
+### Endpoint
+
+<Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" />
+
+### Rate limit
+
+<RateLimit tier={2} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="A unique identifier for the tenant within the collection."
+  />
+</Attributes>
+
+### Response
+
+No response.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="tenants.delete"
+  title="Delete tenant from an environment"
+/>
 </ExampleColumn>
 </Section>
 
@@ -6008,9 +5464,553 @@ The list of deleted `Schedule` entities.
 </ExampleColumn>
 </Section>
 
+<Section title="Channel data" slug="channel-data">
+<ContentColumn>
+
+<a href="/managing-recipients/setting-channel-data">`ChannelData`</a> is channel-specific
+information stored on a Knock [user](/reference#users) or [object](/reference#objects)
+that's needed to deliver a notification to an end provider.
+
+For a push channel, this includes device-specific tokens that map the recipient to the device they use. For chat apps, such as Slack, this includes the access token used to send
+notifications to a customer's Slack channel.
+
+The shape of the `data` payload varies depending on the channel type; you can learn more about channel data schemas [here](/send-notifications/setting-channel-data#provider-data-requirements).
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The UUID of the channel this data belongs to"
+  />
+  <Attribute
+    name="data"
+    type="object"
+    description="The provider specific channel data"
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint
+    name="get-user-channel-data"
+    method="GET"
+    path="/users/:user_id/channel_data/:channel_id"
+  />
+  <Endpoint
+    name="set-user-channel-data"
+    method="PUT"
+    path="/users/:user_id/channel_data/:channel_id"
+  />
+  <Endpoint
+    name="unset-user-channel-data"
+    method="DELETE"
+    path="/users/:user_id/channel_data/:channel_id"
+  />
+  <Endpoint
+    name="get-object-channel-data"
+    method="GET"
+    path="/objects/:collection/:object_id/channel_data/:channel_id"
+  />
+  <Endpoint
+    name="set-object-channel-data"
+    method="PUT"
+    path="/objects/:collection/:object_id/channel_data/:channel_id"
+  />
+  <Endpoint
+    name="unset-object-channel-data"
+    method="DELETE"
+    path="/objects/:collection/:object_id/channel_data/:channel_id"
+  />
+</Endpoints>
+
+```json title="ChannelData object"
+{
+  "__typename": "ChannelData",
+  "channel_id": "c2189f43-c732-488a-bfa0-fdf16e145cdf",
+  "data": {
+    "tokens": ["some-fcm-token"]
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Getting user channel data" slug="get-user-channel-data">
+<ContentColumn>
+
+Retrieves the channel data for the provided user (or object) on the channel specified.
+
+### Endpoint
+
+<Endpoint method="GET" path="/users/:user_id/channel_data/:channel_id" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="The id of the user to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the Knock channel to lookup"
+  />
+</Attributes>
+
+### Returns
+
+- `200` with a `ChannelData` object (when found)
+- `404` when not found
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.getChannelData"
+  title="Get a users channel data"
+/>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Setting user channel data" slug="set-user-channel-data">
+<ContentColumn>
+
+Sets channel data for the user and the channel specified.
+
+If no user exists in the current environment for the given :user_id, Knock will create the user entry as part of this request.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/users/:user_id/channel_data/:channel_id" />
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="The id of the user to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the Knock channel to lookup"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="object"
+    description={
+      <p>
+        The data to set for the specified <code>channel_id</code>. The shape of
+        the payload varies depending on the channel. You can learn more about
+        channel data schemas{" "}
+        <a
+          href="/send-notifications/setting-channel-data#provider-data-requirements"
+          className="text-brand underline"
+        >
+          here
+        </a>
+        .
+      </p>
+    }
+  />
+</Attributes>
+
+### Returns
+
+- `200` with a `ChannelData` object (when set)
+- `404` when the channel specified cannot be found
+- `422` with errors when the data is incorrectly shaped
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.setChannelData"
+  title="Set a users channel data"
+/>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Unsetting user channel data" slug="unset-user-channel-data">
+<ContentColumn>
+
+Unsets (removes) channel data for the user and the channel specified.
+
+### Endpoint
+
+<Endpoint method="DELETE" path="/users/:user_id/channel_data/:channel_id" />
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="The id of the user to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the Knock channel to lookup"
+  />
+</Attributes>
+
+### Returns
+
+- `204` no content
+- `404` when the channel specified cannot be found
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.unsetChannelData"
+  title="Unset a users channel data"
+/>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Getting object channel data" slug="get-object-channel-data">
+<ContentColumn>
+
+Retrieves the channel data for the provided user (or object) on the channel specified.
+
+### Endpoint
+
+<Endpoint
+  method="GET"
+  path="/objects/:collection/:object_id/channel_data/:channel_id"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the Knock channel to lookup"
+  />
+</Attributes>
+
+### Returns
+
+- `200` with a `ChannelData` (when found)
+- `404` when not found
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.getChannelData"
+  title="Get an objects channel data"
+/>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Setting object channel data" slug="set-object-channel-data">
+<ContentColumn>
+
+Sets channel data for the object and the channel specified.
+
+If no object exists in the current environment for the given :collection and :object_id, Knock will create the object as part of this request.
+
+### Endpoint
+
+<Endpoint
+  method="PUT"
+  path="/objects/:collection/:object_id/channel_data/:channel_id"
+/>
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the Knock channel to lookup"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="object"
+    description={
+      <p>
+        The data to set for the specified <code>channel_id</code>. The shape of
+        the payload varies depending on the channel. You can learn more about
+        channel data schemas{" "}
+        <a
+          href="/send-notifications/setting-channel-data#provider-data-requirements"
+          className="text-brand underline"
+        >
+          here
+        </a>
+        .
+      </p>
+    }
+  />
+</Attributes>
+
+### Returns
+
+- `200` with a `ChannelData` object (when set)
+- `404` when the channel specified cannot be found
+- `422` with errors when the data is incorrectly shaped
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.setChannelData.slack"
+  title="Set an object's channel data"
+/>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Unsetting object channel data" slug="unset-object-channel-data">
+<ContentColumn>
+
+Unsets (removes) channel data for the object and the channel specified.
+
+### Endpoint
+
+<Endpoint
+  method="DELETE"
+  path="/objects/:collection/:object_id/channel_data/:channel_id"
+/>
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The id of the Knock channel to lookup"
+  />
+</Attributes>
+
+### Returns
+
+- `204` no content
+- `404` when the channel specified cannot be found
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.unsetChannelData"
+  title="Unsets an object's channel data"
+/>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk operations" slug="bulk-operations">
+<ContentColumn>
+
+A bulk operation is a set of changes applied across 0 or more records triggered via a call to the Knock API and performed asynchronously. The `BulkOperation` record represents the state of the operation, including recording the number of rows that have been modified during the operation.
+
+Please note here: the `estimated_total_rows` field may have a different value to the `processed_rows` field due to the asynchronous nature of the operation.
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="The unique ID of this bulk operation"
+  />
+  <Attribute
+    name="name"
+    type="string"
+    description="The type of operation being performed"
+  />
+  <Attribute
+    name="estimated_total_rows"
+    type="integer"
+    description="An approximation of the number of rows that will be mutated in this operation"
+  />
+  <Attribute
+    name="processed_rows"
+    type="integer"
+    description="The number of the rows that have been handled in this operation, either successfully or in error"
+  />
+  <Attribute
+    name="success_count"
+    type="integer"
+    description="The number of the rows that have been modified successfully in this operation"
+  />
+  <Attribute
+    name="error_count"
+    type="integer"
+    description="The number of the rows that errored in this operation"
+  />
+  <Attribute
+    name="error_items"
+    type="map[]"
+    description="A list of items that errored in this operation, if available"
+  />
+  <Attribute
+    name="status"
+    type="enum"
+    description="One of `queued`, `processing`, `completed`, `failed`"
+  />
+  <Attribute
+    name="started_at"
+    type="string"
+    description="An ISO-8601 datetime string for when the operation started processing"
+  />
+  <Attribute
+    name="completed_at"
+    type="string"
+    description="An ISO-8601 datetime string for when the operation completed processing"
+  />
+  <Attribute
+    name="failed_at"
+    type="string"
+    description="An ISO-8601 datetime string for when the operation failed processing"
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint method="GET" path="/bulk_operations/:id" />
+</Endpoints>
+
+```json title="BulkOperation object"
+{
+  "__typename": "BulkOperation",
+  "completed_at": "2021-03-05T12:00:00Z",
+  "error_count": 1,
+  "error_items": [{ "id": "foo", "collection": "bar" }],
+  "estimated_total_rows": 342,
+  "failed_at": null,
+  "id": "50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "inserted_at": "2021-03-05T12:00:00Z",
+  "name": "some_operation",
+  "processed_rows": 342,
+  "progress_path": "/v1/bulk_operations/50d2847b-c738-466a-a3d7-e68e4bb1cedd",
+  "started_at": "2021-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 341,
+  "updated_at": "2021-03-05T12:00:00Z"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Retrieve a bulk operation" slug="bulk-operation-status">
+<ContentColumn>
+
+Retrieve the bulk operation, revealing the current status and the number of rows processed. You can poll this endpoint
+to understand when a bulk operation has finished executing (either completed, or failed).
+
+### Endpoint
+
+<Endpoint method="GET" path="/bulk_operations/:id" />
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="id"
+    type="string"
+    description="The ID of a bulk operation to retrieve"
+  />
+</Attributes>
+
+### Returns
+
+A `BulkOperation`
+
+</ContentColumn>
+</Section>
+
 <Section title="Slack" slug="slack">
   <ContentColumn>
-  Handles communication with the Slack API to streamline authentication and data gathering.
+  These endpoints handle communication with the Slack API to streamline authentication and data gathering. They are used by [SlackKit](/integrations/chat/slack-kit/overview) components and hooks.
   </ContentColumn>
 
   <ExampleColumn>
