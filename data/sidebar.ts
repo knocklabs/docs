@@ -313,6 +313,10 @@ const sidebarContent: SidebarSection[] = [
       },
       { slug: "/going-to-production", title: "Going to production" },
       { slug: "/migrate-from-courier", title: "Migrate from Courier" },
+      {
+        slug: "/modeling-users-objects-and-tenants",
+        title: "Modeling Users, Objects, and Tenants",
+      },
     ],
   },
 ];
