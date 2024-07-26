@@ -107,7 +107,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#delete-subscriptions", title: "Delete subscriptions" },
     ],
   },
-  
+
   {
     title: "Preferences",
     slug: "/reference",
@@ -120,7 +120,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#set-preferences-object", title: "Set object preferences" },
     ],
   },
-  
+
   {
     title: "Tenants",
     slug: "/reference",
@@ -132,7 +132,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#delete-tenant", title: "Delete a tenant" },
     ],
   },
-  
+
   {
     title: "Schedules",
     slug: "/reference",
