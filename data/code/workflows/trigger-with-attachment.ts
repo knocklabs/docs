@@ -1,5 +1,5 @@
 const languages = {
-  javascript: `
+  node: `
 import { Knock } from "@knocklabs/node";
 import fs from "fs";
 

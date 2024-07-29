@@ -64,6 +64,35 @@ curl -X POST 'https://api.knock.app/v1/workflows/new-comment/trigger' \\ \n\
          }'
 
 `,
+  node: `
+import { Knock } from "@knocklabs/node";
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+await knock.workflows.trigger("new-comment", {
+  recipients: ["1", "2"],
+
+  // optional
+  data: { "project_name": "My Project" },
+  actor: "3",
+  cancellationKey: "cancel_123",
+  tenant: "jurassic_world_employees"
+});
+`,
+  javascript: `
+// You can use "javascript" when you don't want to make your JS example Node-specific
+
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+await knock.workflows.trigger("new-comment", {
+  recipients: ["1", "2"],
+
+  // optional
+  data: { "project_name": "My Project" },
+  actor: "3",
+  cancellationKey: "cancel_123",
+  tenant: "jurassic_world_employees"
+});
+`,
 };
 
 export default languages;

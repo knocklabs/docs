@@ -1,5 +1,5 @@
 const languages = {
-  javascript: `
+  node: `
     npm install @knocklabs/node
   `,
   python: `
