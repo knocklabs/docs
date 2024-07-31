@@ -1,10 +1,33 @@
 const languages = {
+  curl: `
+curl -X PUT https://api.knock.app/v1/users/1/preferences/default \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "channel_types": {
+          "email": true,
+          "sms": false
+        },
+        "workflows": {
+          "dinosaurs-loose": {
+            "channel_types": {
+              "email": false,
+              "in_app_feed": true,
+              "sms": true
+            }
+          }
+        }
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
-await knockClient.users.setPreferences("jhammond", {
-  channel_types: { email: true, sms: false },
+await knockClient.users.setPreferences(user.id, {
+  channel_types: { 
+    email: true, 
+    sms: false
+  },
   workflows: {
     "dinosaurs-loose": {
       channel_types: {
@@ -15,14 +38,17 @@ await knockClient.users.setPreferences("jhammond", {
     },
   },
 });
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.users.set_preferences(
   user_id=user.id,
-  channel_types={ "email": True, "sms": False },
+  channel_types={ 
+    "email": True, 
+    "sms": False 
+  },
   workflows={
     "dinosaurs-loose": {
       "channel_types": {
@@ -33,7 +59,7 @@ client.users.set_preferences(
     }
   }
 )
-  `,
+`,
   ruby: `
 require "knock"
 Knock.key = "sk_12345"
@@ -66,7 +92,7 @@ var preferenceSetUpdate = new SetPreferencesOptions {
   }
 };
 
-await knockClient.Users.SetPreferences("jhammond", preferenceSetUpdate);
+await knockClient.Users.SetPreferences(user.id, preferenceSetUpdate);
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
@@ -86,7 +112,7 @@ Knock.Users.set_preferences(knock_client, user.id, %{
     }
   }
 })
-  `,
+`,
   php: `
 use Knock\\KnockSdk\\Client;
 
@@ -107,7 +133,7 @@ $client->users()->setPreferences($user->id(), [
     ]
   ]
 ]);
-  `,
+`,
   go: `
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
@@ -130,7 +156,7 @@ request.AddWorkflowsPreference(map[string]interface{}{
 })
 
 preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request)
-  `,
+`,
   java: `
 import app.knock.api.KnockClient;
 import app.knock.api.model.*;
