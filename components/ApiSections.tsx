@@ -7,6 +7,7 @@ export const Section = ({
   children,
   headingClassName = "",
   isIdempotent = false,
+  isRetentionSubject = false,
 }) => (
   <section className="api-docs-section border-b border-gray-200 dark:border-gray-800 py-8 lg:py-16">
     {title && (
@@ -19,6 +20,18 @@ export const Section = ({
           <div className="mb-2">
             <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center mr-3 bg-yellow-100 dark:bg-transparent dark:border-yellow-500">
               <a href="#idempotent-requests">Idempotent</a>
+            </span>
+          </div>
+        )}
+        {isRetentionSubject && (
+          <div className="mb-2">
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center mr-3 bg-orange-100 dark:bg-transparent dark:border-orange-600">
+              <a
+                href="#data-retention"
+                style={{ color: "inherit", textDecoration: "none" }}
+              >
+                Retention policy applied
+              </a>
             </span>
           </div>
         )}
