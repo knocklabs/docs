@@ -13,7 +13,7 @@ curl -X POST https://api.knock.app/v1/workflows/new-comment/trigger \\
         "cancellation_key": "cancel_123",
         "tenant": "jurassic_world_employees"
       }'
-  `,
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
@@ -31,7 +31,7 @@ await knock.workflows.trigger("new-comment", {
   idempotencyKey: "123"
 }
 );
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
