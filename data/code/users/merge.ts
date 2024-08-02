@@ -1,4 +1,12 @@
 const languages = {
+  curl: `
+curl -X POST https://api.knock.app/v1/users/user_1/merge \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "from_user_id": "user-to-merge-from"
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
@@ -9,7 +17,7 @@ await knock.users.merge(user.id, "user-to-merge-from");
 knock_client = MyApp.Knock.client()
 
 Knock.Users.merge(knock_client, user.id, "user-to-merge-from")
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
@@ -18,7 +26,7 @@ client.users.merge(
   user_id=user.id, 
   from_user_id="user-to-merge-from"
 )
-  `,
+`,
   ruby: `
 require "knock"
 Knock.key = "sk_12345"

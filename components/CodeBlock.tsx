@@ -14,6 +14,7 @@ import java from "react-syntax-highlighter/dist/cjs/languages/hljs/java";
 import yaml from "react-syntax-highlighter/dist/cjs/languages/hljs/yaml";
 import kotlin from "react-syntax-highlighter/dist/cjs/languages/hljs/kotlin";
 import swift from "react-syntax-highlighter/dist/cjs/languages/hljs/swift";
+import bash from "react-syntax-highlighter/dist/cjs/languages/hljs/bash";
 import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
 
@@ -36,7 +37,7 @@ SyntaxHighlighter.registerLanguage("liquid", liquid);
 SyntaxHighlighter.registerLanguage("go", go);
 SyntaxHighlighter.registerLanguage("java", java);
 SyntaxHighlighter.registerLanguage("yaml", yaml);
-SyntaxHighlighter.registerLanguage("curl", shell);
+SyntaxHighlighter.registerLanguage("curl", bash);
 SyntaxHighlighter.registerLanguage("swift", swift);
 SyntaxHighlighter.registerLanguage("kotlin", kotlin);
 

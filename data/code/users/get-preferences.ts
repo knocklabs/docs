@@ -1,4 +1,8 @@
 const languages = {
+  curl: `
+curl -X GET https://api.knock.app/v1/users/1/preferences/default \\
+  -H "Authorization: Bearer sk_test_12345"
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
@@ -9,13 +13,13 @@ const preferences = await knockClient.users.getPreferences(user.id);
 knock_client = MyApp.Knock.client()
 
 Knock.Users.get_preferences(knock_client, user.id)
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.users.get_preferences(user.id)
-  `,
+`,
   ruby: `
 require "knock"
 Knock.key = "sk_12345"

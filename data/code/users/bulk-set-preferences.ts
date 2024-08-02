@@ -1,4 +1,19 @@
 const languages = {
+  curl: `
+curl -X POST https://api.knock.app/v1/users/bulk/preferences \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "user_ids": ["jhammond", "dnedry", "imalcolm", "esattler"],
+        "preferences": {
+          "id": "default",
+          "channel_types": {
+            "email": true,
+            "sms": false
+          }
+        }
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
@@ -17,7 +32,7 @@ user_ids = ["jhammond", "dnedry", "imalcolm", "esattler"]
 Knock.Users.bulk_set_preferences(knock_client, user_ids, %{
   channel_types: { email: true, sms: false }
 })
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
@@ -28,7 +43,7 @@ client.users.bulk_set_preferences(
   user_ids=user_ids, 
   channel_types={ "email": True, "sms": False }
 )
-  `,
+`,
   ruby: `
 require "knock"
 Knock.key = "sk_12345"
@@ -87,14 +102,7 @@ result, _ := knockClient.Users.BulkSetPreferences(ctx, &knock.&BulkSetUserPrefer
   }
 })
 `,
-  java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
-
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
-    .build();
-  
+  java: `  
 // This example is currently not supported in the Java SDK
 `,
 };
