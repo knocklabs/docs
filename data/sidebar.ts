@@ -293,6 +293,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/audit-logs", title: "Audit logs" },
       { slug: "/data-obfuscation", title: "Data obfuscation" },
       { slug: "/account-timezone", title: "Account timezone" },
+      { slug: "/data-retention", title: "Data retention" },
     ],
   },
 
