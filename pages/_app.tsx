@@ -12,7 +12,7 @@ import * as gtag from "../lib/gtag";
 import { setClearbitPath } from "../lib/clearbit";
 import { useRemoteRefresh } from "next-remote-refresh/hook";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 import "../styles/index.css";
 
