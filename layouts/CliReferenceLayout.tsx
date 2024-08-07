@@ -55,6 +55,18 @@ const sidebarData = [
   },
 
   {
+    title: "Partials",
+    slug: "/cli",
+    pages: [
+      { slug: "#partial-list", title: "List partials" },
+      { slug: "#partial-get", title: "Get partials" },
+      { slug: "#partial-pull", title: "Pull partials" },
+      { slug: "#partial-push", title: "Push partials" },
+      { slug: "#partial-validate", title: "Validate partials" },
+    ],
+  },
+
+  {
     title: "Commits",
     slug: "/cli",
     pages: [
