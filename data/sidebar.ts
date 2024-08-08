@@ -48,6 +48,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
       { slug: "/send-windows", title: "Send windows" },
+      { slug: "/partials", title: "Partials" },
       {
         title: "Template editor",
         slug: "/template-editor",
