@@ -2069,6 +2069,390 @@ A translation object
 </ExampleColumn>
 </Section>
 
+<Section title="Partials" slug="partials-overview">
+<ContentColumn>
+
+[Partials](/partials) are reusable pieces of content you can use across your channel templates.
+
+You can retrieve, update, and create partials as well as list all partials in a given [environment](/concepts/environments). Partials are identified by their unique partial key.
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints>
+  <Endpoint name="partials-list" method="GET" path="/partials" withLink />
+  <Endpoint
+    name="partials-get"
+    method="GET"
+    path="/partials/:partial_key"
+    withLink
+  />
+  <Endpoint
+    name="partials-upsert"
+    method="PUT"
+    path="/partials/:partial_key"
+    withLink
+  />
+  <Endpoint
+    name="partials-validate"
+    method="PUT"
+    path="/partials/:local_code/validate"
+    withLink
+  />
+</Endpoints>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Partial definition" slug="partials-object">
+<ContentColumn>
+
+### Attributes
+
+<Attributes>
+  <Attribute
+    name="key"
+    type="string (mutable only at creation)"
+    description="The unique key string for the partial object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$."
+  />
+  <Attribute
+    name="type"
+    type="string (mutable only at creation)"
+    description="The partial type. One of 'html', 'json', 'markdown', 'text'."
+  />
+  <Attribute
+    name="name"
+    type="string"
+    description="A name for the partial. Must be at maximum 255 characters in length."
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An arbitrary string attached to a partial object. Useful for adding notes about the partial for internal purposes. Maximum of 280 characters allowed."
+  />
+  <Attribute
+    name="visual_block_enabled"
+    type="boolean"
+    description="Indicates whether the partial can be used in the visual editor. Only applies to HTML partials."
+  />
+  <Attribute
+    name="environment"
+    type="string (read-only)"
+    description="The slug of the environment in which the partial exists."
+  />
+  <Attribute
+    name="icon_name"
+    type="string"
+    description="The name of the icon to be used in the visual editor."
+  />
+  <Attribute name="content" type="string" description="The partial content." />
+  <Attribute
+    name="created_at"
+    type="timestamp (read-only)"
+    description="A timestamp of when the partial was created."
+  />
+  <Attribute
+    name="updated_at"
+    type="timestamp (read-only)"
+    description="A timestamp of when the partial was updated."
+  />
+  <Attribute
+    name="valid"
+    type="boolean (read-only)"
+    description="Whether the partial and its content are in a valid state."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Partial object"
+{
+  "key": "cta",
+  "type": "html",
+  "name": "Call to action",
+  "description": "Call to action",
+  "visual_block_enabled": false,
+  "environment": "development",
+  "icon_name": "BellDot",
+  "content": "<div>{{heading}}<button>{{cta}}</button></div>",
+  "created_at": "2022-12-31T12:00:00.000000Z",
+  "updated_at": "2022-12-31T12:00:00.000000Z",
+  "valid": false
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="List all partials" slug="partials-list">
+<ContentColumn>
+
+Returns a paginated list of partials available in a given environment. The partials are returned in alpha-sorted order by key.
+
+### Endpoint
+
+<Endpoint method="GET" path="/partials" />
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description="A slug of the environment from which to query partials."
+  />
+  <Attribute
+    name="hide_uncommitted_changes"
+    type="boolean"
+    description="Whether to hide saved but uncommitted changes. Only relevant for “development” environment."
+  />
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to retrieve items after."
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to retrieve items before."
+  />
+  <Attribute
+    name="limit"
+    type="number"
+    description="The total number to retrieve per page (defaults to 50, maximum of 100)."
+  />
+</Attributes>
+
+### Returns
+
+A paginated list of partials
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Response"
+{
+  "entries": [
+    {
+      "key": "cta",
+      "type": "html",
+      "name": "Call to action",
+      "description": "Call to action",
+      "visual_block_enabled": false,
+      "environment": "development",
+      "icon_name": "BellDot",
+      "content": "<div>{{heading}}<button>{{cta}}</button></div>",
+      "created_at": "2022-12-31T12:00:00.000000Z",
+      "updated_at": "2022-12-31T12:00:00.000000Z",
+      "valid": false
+    }
+  ],
+  "page_info": {
+    "after": null,
+    "before": null,
+    "page_size": 50
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Get a partial" slug="partials-get">
+<ContentColumn>
+
+Retrieve a partial by its locale and namespace, in a given environment.
+
+### Endpoint
+
+<Endpoint method="GET" path="/partials/:partial_key" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="partial_key"
+    type="string"
+    description="The key of the partial to retrieve."
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description="A slug of the environment from which to query partials."
+  />
+  <Attribute
+    name="hide_uncommitted_changes"
+    type="boolean"
+    description="Whether to hide saved but uncommitted changes. Only relevant for “development” environment."
+  />
+  <Attribute
+    name="namespace"
+    type="string"
+    description="A specific namespace to filter partials for."
+  />
+</Attributes>
+
+### Returns
+
+A partial object
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Response"
+{
+  "key": "cta",
+  "type": "html",
+  "name": "Call to action",
+  "description": "Call to action",
+  "visual_block_enabled": false,
+  "environment": "development",
+  "icon_name": "BellDot",
+  "content": "<div>{{heading}}<button>{{cta}}</button></div>",
+  "created_at": "2022-12-31T12:00:00.000000Z",
+  "updated_at": "2022-12-31T12:00:00.000000Z",
+  "valid": false
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Upsert a partial" slug="partials-upsert">
+<ContentColumn>
+
+Updates a partial of a given key, or creates a new one if it does not yet exist.
+
+Note: this endpoint only operates on partials in the “development” environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/partials/:partial_key" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="partial_key"
+    type="string"
+    description="A partial key for the partial."
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="commit"
+    type="boolean"
+    description="Whether to commit the upserted partial’s changes in the “development” environment."
+  />
+  <Attribute
+    name="commit_message"
+    type="string"
+    description="An optional message to include in a commit."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="partial"
+    type="Partial"
+    description="A partial object with attributes to update or create a partial."
+  />
+</Attributes>
+
+### Returns
+
+A partial object
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Response"
+{
+  "key": "cta",
+  "type": "html",
+  "name": "Call to action",
+  "description": "Call to action",
+  "visual_block_enabled": false,
+  "environment": "development",
+  "icon_name": "BellDot",
+  "content": "<div>{{heading}}<button>{{cta}}</button></div>",
+  "created_at": "2022-12-31T12:00:00.000000Z",
+  "updated_at": "2022-12-31T12:00:00.000000Z",
+  "valid": false
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Validate a partial" slug="partials-validate">
+<ContentColumn>
+
+Validates a partial payload without persisting it.
+
+Note: this endpoint only operates on partials in the “development” environment.
+
+### Endpoint
+
+<Endpoint method="PUT" path="/partials/:partial_key/validate" />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="partial_key"
+    type="string"
+    description="A partial key of the partial."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="partial"
+    type="Partial"
+    description="A partial object to validate."
+  />
+</Attributes>
+
+### Returns
+
+A partial object
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Response"
+{
+  "key": "cta",
+  "type": "html",
+  "name": "Call to action",
+  "description": "Call to action",
+  "visual_block_enabled": false,
+  "environment": "development",
+  "icon_name": "BellDot",
+  "content": "<div>{{heading}}<button>{{cta}}</button></div>",
+  "created_at": "2022-12-31T12:00:00.000000Z",
+  "updated_at": "2022-12-31T12:00:00.000000Z",
+  "valid": false
+}
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="Commits" slug="commits-overview">
 <ContentColumn>
 
