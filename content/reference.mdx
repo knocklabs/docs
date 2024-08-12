@@ -290,7 +290,7 @@ Resources that return multiple entities support the same cursor-based pagination
 <Attributes>
   <Attribute
     name="entries"
-    type="map[]"
+    type="object[]"
     description="A list of items contained in this response"
   />
   <Attribute
@@ -535,7 +535,7 @@ The workflow trigger endpoint enforces the following payload size limits:
   <Attribute
     name="recipients"
     type="RecipientIdentifier[]"
-    description="A list of user ids or object references to notify for this workflow"
+    description="A list of user ids or object references to run this workflow for"
   />
   <Attribute
     name="actor"
@@ -554,8 +554,8 @@ The workflow trigger endpoint enforces the following payload size limits:
   />
   <Attribute
     name="data"
-    type="dictionary"
-    description="A set of key value pairs to pass to the notify"
+    type="object"
+    description="A set of key-value pairs to pass to the workflow trigger"
   />
 </Attributes>
 
@@ -586,7 +586,7 @@ The workflow trigger endpoint enforces the following payload size limits:
 <Section title="Triggering a workflow with inline identifications" slug="trigger-workflow-inline-identify">
 <ContentColumn>
 
-In the `recipients` and `actor` fields in a trigger call, you can optionally include maps of properties describing a user or an object. These can be properties describing a brand new user/object, or properties describing an update to an existing one. When this data is present in a notify call, Knock will persist it as part of processing the workflow. This is comparable to direct calls to the [identify user](#identify-user) or [set object](#set-object) APIs.
+In the `recipients` and `actor` fields in a trigger call, you can optionally include maps of properties describing a user or an object. These can be properties describing a brand new user/object, or properties describing an update to an existing one. When this data is present in a workflow trigger, Knock will persist it as part of processing the workflow. This is comparable to direct calls to the [identify user](#identify-user) or [set object](#set-object) APIs.
 
 Each recipient and actor must have an `id` field set in addition to other properties (e.g. email, name, or phone number).
 
@@ -623,12 +623,12 @@ The workflow trigger endpoint enforces the following payload size limits:
   <Attribute
     name="recipients"
     type="Recipient[]"
-    description="A list of maps of properties describing a user or an object to identify in Knock and notify for this workflow"
+    description="A list of maps of properties describing a user or an object to identify in Knock and trigger this workflow for"
   />
   <Attribute
     name="actor"
     type="Recipient (optional)"
-    description="A map of properties describing a user or an object to identify in Knock and mark as who or what performed the notify action"
+    description="A map of properties describing a user or an object to identify in Knock and mark as who or what performed the action"
   />
   <Attribute
     name="cancellation_key"
@@ -642,8 +642,8 @@ The workflow trigger endpoint enforces the following payload size limits:
   />
   <Attribute
     name="data"
-    type="dictionary"
-    description="A set of key value pairs to pass to the notify call"
+    type="object"
+    description="A set of key-value pairs to pass to the trigger call"
   />
 </Attributes>
 
@@ -2136,13 +2136,13 @@ Identifying a user will create or update a user in Knock, merging the properties
   />
   <Attribute
     name="preferences"
-    type="dictionary<string, PreferenceSet> (optional)"
+    type="object<string, PreferenceSet> (optional)"
     typeSlug="/reference#preferences"
     description="A set of preferences that determines whether a recipient should receive a particular type of notification."
   />
   <Attribute
     name="channel_data"
-    type="dictionary<string, ChannelData> (optional)"
+    type="object<string, ChannelData> (optional)"
     typeSlug="/reference#channel-data"
     description="Channel-specific information that's needed to deliver a notification to an end provider."
   />
@@ -3145,13 +3145,13 @@ Sets an object within a collection, performing an upsert operation. Any existing
   />
   <Attribute
     name="preferences"
-    type="dictionary<string, PreferenceSet>  (optional)"
+    type="object<string, PreferenceSet>  (optional)"
     typeSlug="/reference#preferences"
     description="A set of preferences that determines whether a recipient should receive a particular type of notification."
   />
   <Attribute
     name="channel_data"
-    type="dictionary<string, ChannelData> (optional)"
+    type="object<string, ChannelData> (optional)"
     typeSlug="/reference#channel-data"
     description="Channel-specific information that's needed to deliver a notification to an end provider."
   />
@@ -3510,12 +3510,12 @@ Will return the underlying recipient attached. Note: the object must exist.
   />
   <Attribute
     name="objects"
-    type="dictionary<string, ObjectRef>"
+    type="object<string, ObjectRef>"
     description='A collection of ObjectRefs, containing the object collection and id, to filter subscriptions. Filtering by objects will only be enabled when mode is set to "recipient."'
   />
   <Attribute
     name="recipients"
-    type="string[] | dictionary<string, RecipientRef>"
+    type="string[] | object<string, RecipientRef>"
     description="A collection of recipient identifiers (user_ids and/or ObjectRefs) to filter subscribers of the object. Filtering by recipients will only be enabled when mode is not set."
   />
 </Attributes>
@@ -3611,7 +3611,7 @@ Returns a paginated list of subscriptions for a single user, in descending order
   />
   <Attribute
     name="objects"
-    type="dictionary<string, ObjectRef>"
+    type="object<string, ObjectRef>"
     description="A collection of ObjectRefs, containing the object collection and id, to filter subscriptions."
   />
 </Attributes>
@@ -4910,7 +4910,7 @@ Returns a paginated list of schedules in descending order.
   />
   <Attribute
     name="recipients"
-    type="string[] | dictionary<string, RecipientRef>"
+    type="string[] | object<string, RecipientRef>"
     description="A collection of recipient identifiers (user_ids and/or ObjectRefs) to filter schedules for."
   />
   <Attribute
@@ -5945,7 +5945,7 @@ Please note here: the `estimated_total_rows` field may have a different value to
   />
   <Attribute
     name="error_items"
-    type="map[]"
+    type="object[]"
     description="A list of items that errored in this operation, if available"
   />
   <Attribute
