@@ -81,6 +81,19 @@ const schedules = await knock.workflows.createSchedules("park-alert", {
 | `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted.                                                                                                     |
 | `scheduled_at` | utc_datetime          | A UTC datetime in ISO-8601 format representing the start moment for the recurring schedule, or the exact and only execution moment for the non-recurring schedule. |
 
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Note:</span> when using an object ID as a recipient
+      for a scheduled workflow, only the object itself will receive the notification.
+      Subscribers to that object will not be included. If you want to schedule
+      workflows for subscribers of an object, you must add each subscriber
+      individually as a recipient when creating the workflow schedule.
+    </>
+  }
+/>
+
 ### ScheduleRepeat properties
 
 | Variable       | Type                                 | Description                                                                                                                        |
@@ -227,7 +240,7 @@ Workflows in Knock are triggered either via an API call or via a Source event, b
 There are 2 ways in which to get data into each of your scheduled workflow runs:
 
 1. **Define static data passed to every triggered workflow on a schedule.** We can include an optional `data` payload when we create our schedule. Any workflow runs triggered by that schedule will include the data payload within their workflow run scope.
-2. **Fetch data from an HTTP endpoint to use in your workflow.** You can use an [fetch function step](/designing-workflows/fetch-function) to fetch data for a triggered scheduled workflow to “enrich” the data available with information from a remote server (via HTTP).
+2. **Fetch data from an HTTP endpoint to use in your workflow.** You can use an [fetch function step](/designing-workflows/fetch-function) to fetch data for a triggered scheduled workflow to "enrich" the data available with information from a remote server (via HTTP).
 
 ## Executing schedules in a recipient's timezone
 
@@ -268,7 +281,7 @@ Knock supports a `timezone` property on the recipient that automatically makes a
     rules](/send-notifications/canceling-workflows) take effect.
   </Accordion>
   <Accordion title="Can I still debug a scheduled workflow?">
-    You’ll see workflow runs that initiated from a scheduled workflow in the
+    You'll see workflow runs that initiated from a scheduled workflow in the
     list of workflow runs. From there you can select the debugger and debug a
     given workflow.
   </Accordion>
