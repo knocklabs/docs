@@ -40,7 +40,7 @@ const Sidebar: React.FC<Props> = ({ content, children, isVisible = false }) => {
   // );
 
   // useEffect(() => setIsOpen(isSubPageSelected), []);
-
+  console.log(content);
   const toggleSection = useCallback(() => {
     setIsOpen(!isOpen);
     setTimeout(() => {
