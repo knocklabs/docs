@@ -144,6 +144,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/messagebird", title: "MessageBird" },
       { slug: "/plivo", title: "Plivo" },
       { slug: "/sinch", title: "Sinch" },
+      { slug: "/sinch-message-media", title: "Sinch MessageMedia" },
       { slug: "/twilio", title: "Twilio" },
       { slug: "/telnyx", title: "Telnyx" },
       { slug: "/vonage", title: "Vonage" },
