@@ -228,3 +228,35 @@ In some situations, you may want to limit the number of times that a recipient c
 Workflow trigger frequency lets you control the number of times that a recipient can run through a workflow, controlling if the workflow should trigger every time, or at most once for the recipient. By default, a workflow will trigger every time for a recipient.
 
 If you specify a workflow trigger frequency of "Once per recipient", then you can also optionally choose to include the tenant in the frequency control. When set, your workflow will only trigger once per-recipient, per-tenant.
+
+## Validating workflow trigger data
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      This is a pre-release feature. Please reach out to support@knock.app if you'd like to try it out.
+    </>
+  }
+/>
+
+Given how critical the data is that's passed to your workflow via the trigger API call, you may wish to validate the trigger data sent to Knock before a workflow is run. This is where the trigger data validation feature comes in to play.
+
+Trigger data validation lets you specify a [JSON schema](https://json-schema.org/) that describes the shape of the data that's passed to your workflow. If the data doesn't match the schema, then the trigger endpoint will return a `422` error with details of where the data failed validation.
+
+As an example, let's specify a schema for a workflow that expects a `name` property in the trigger data:
+
+```json title="Trigger data validation schema"
+{
+  "type": "object",
+  "properties": {
+    "name": {"type": "string"}
+  },
+  "required": ["name"]
+}
+```
+
+Now, when the `name` property is not included, or is an invalid type, the trigger endpoint will return a `422` error.
+
+You can enable trigger data validation under the "API params" portion of the trigger step in the workflow builder. To set the schema, you'll need to click "Edit schema" and supply a valid JSON schema. You will also need to commit your changes for the schema to take effect.
+
