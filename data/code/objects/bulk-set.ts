@@ -1,6 +1,26 @@
 const languages = {
+  curl: `
+curl -X POST "https://api.knock.app/v1/objects/projects/bulk/set" \\
+  -H "Authorization: Bearer sk_12345" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+        "objects": [
+          {
+            "id": "project-1",
+            "name": "My project",
+            "total_assets": 10,
+            "tags": ["cool", "fun", "project"]
+          },
+          {
+            "id": "project-2",
+            "name": "My second project",
+            "total_assets": 5,
+            "tags": ["very", "cool", "project"]
+          }
+        ]
+      }'
+`,
   node: `
-import { Knock } from "@knocklabs/node";
 const knock = new Knock("sk_example_12345679");
 
 await knock.objects.bulkSet("projects", [

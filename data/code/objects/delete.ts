@@ -1,4 +1,8 @@
 const languages = {
+  curl: `
+curl -X DELETE "https://api.knock.app/v1/objects/projects/project-1" \\
+  -H "Authorization: Bearer sk_12345"
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock(process.env.KNOCK_API_KEY);

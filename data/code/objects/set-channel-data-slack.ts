@@ -6,15 +6,13 @@ curl -X PUT https://api.knock.app/v1/objects/projects/project-1/channel_data/820
   -H "Authorization: Bearer sk_test_12345" \\
   -d '{
         "data": {
-          "channel_data": {
-            "connections": [
-              {
-                "incoming_webhook": {
-                  "url": "url-from-slack"
-                }
+          "connections": [
+            {
+              "incoming_webhook": {
+                "url": "url-from-slack"
               }
-            ]
-          }
+            }
+          ]
         }
       }'
 `,
