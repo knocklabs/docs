@@ -5,8 +5,10 @@ curl -X GET https://api.knock.app/v1/objects/projects/project-1/messages \\
 
 # supports pagination parameters and filters
 
-curl -X GET "https://api.knock.app/v1/objects/projects/project-1/messages?page_size=20&tenant=my-tenant" \\
+curl -X GET "https://api.knock.app/v1/objects/projects/project-1/messages \\
   -H "Authorization: Bearer sk_test_12345"
+  --url-query page_size=20 \\
+  --url-query tenant=my-tenant
 `,
   node: `
 import { Knock } from "@knocklabs/node";
