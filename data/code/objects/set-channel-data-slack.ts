@@ -95,9 +95,9 @@ var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
 var channelData = new Dictionary<string, object>{
-  { "connections", new List<Dictionary> {
+  { "connections", new List<Dictionary<string, object>> {
     new Dictionary<string, object>{
-      {"incoming_webhook", new Dictionary<string, object>{
+      {"incoming_webhook", new Dictionary<string, string>{
         {"url", "url-from-slack"}
       }}
     }
