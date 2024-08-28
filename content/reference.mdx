@@ -488,11 +488,13 @@ A Workflow orchestrates the delivery of messages to your end users. When you con
     name="trigger-workflow"
     method="POST"
     path="/workflows/:key/trigger"
+    withLink
   />
   <Endpoint
     name="cancel-workflow"
     method="POST"
     path="/workflows/:key/cancel"
+    withLink
   />
 </Endpoints>
 
@@ -827,17 +829,62 @@ A message is a notification delivered on a particular channel to a user.
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint method="GET" path="/messages" />
-  <Endpoint method="GET" path="/messages/:id" />
-  <Endpoint method="GET" path="/messages/:id/activities" />
-  <Endpoint method="GET" path="/messages/:id/events" />
-  <Endpoint method="GET" path="/messages/:id/content" />
-  <Endpoint method="GET" path="/messages/batch/content" />
-  <Endpoint method="GET" path="/messages/:id/delivery_logs" />
-  <Endpoint method="PUT" path="/messages/:id/:status" />
-  <Endpoint method="DELETE" path="/messages/:id/:status" />
-  <Endpoint method="POST" path="/messages/batch/:status" />
-  <Endpoint method="POST" path="/channels/:id/messages/bulk/:status" />
+  <Endpoint method="GET" path="/messages" name="list-messages" withLink />
+  <Endpoint method="GET" path="/messages/:id" name="get-a-message" withLink />
+  <Endpoint
+    method="GET"
+    path="/messages/:id/events"
+    name="get-message-events"
+    withLink
+  />
+  <Endpoint
+    method="GET"
+    path="/messages/:id/activities"
+    name="get-message-activities"
+    withLink
+  />
+  <Endpoint
+    method="GET"
+    path="/messages/:id/content"
+    name="get-message-content"
+    withLink
+  />
+  <Endpoint
+    method="GET"
+    path="/messages/batch/content"
+    name="batch-get-message-content"
+    withLink
+  />
+  <Endpoint
+    method="GET"
+    path="/messages/:id/delivery_logs"
+    name="get-message-delivery-logs"
+    withLink
+  />
+  <Endpoint
+    method="PUT"
+    path="/messages/:id/:status"
+    name="update-message-status"
+    withLink
+  />
+  <Endpoint
+    method="DELETE"
+    path="/messages/:id/:status"
+    name="undo-message-status"
+    withLink
+  />
+  <Endpoint
+    method="POST"
+    path="/messages/batch/:status"
+    name="batch-update-message-status"
+    withLink
+  />
+  <Endpoint
+    method="POST"
+    path="/channels/:id/messages/bulk/:status"
+    name="bulk-update-channel-message-status"
+    withLink
+  />
 </Endpoints>
 
 ```json title="Message object"
@@ -1738,8 +1785,12 @@ as such return information that is required on the client to do so**
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
-  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id/settings" />
+  <Endpoint
+    method="GET"
+    path="/users/:user_id/feeds/:feed_id"
+    name="get-feed"
+    withLink
+  />
 </Endpoints>
 
 ```json title="Response"
@@ -1848,7 +1899,7 @@ as such return information that is required on the client to do so**
 <Section title="Get a feed for user" slug="get-feed">
 <ContentColumn>
 
-Retrieves a feed of items in reverse chronological order for a given `user_id` on the given `in_app_feed_channel_id`. In the case where the user has not yet been identified within Knock, this endpoint will return an empty feed.
+Retrieves a feed of items in reverse chronological order for a given `user_id` on the given `feed_id`. In the case where the user has not yet been identified within Knock, this endpoint will return an empty feed.
 
 You can customize the response for this endpoint by using [response filters](/integrations/in-app/knock#customizing-api-response-content) to exclude or only include certain properties on your resources.
 
@@ -1857,7 +1908,7 @@ along with a user token to make this request**
 
 ### Endpoint
 
-<Endpoint method="GET" path="/users/:user_id/feeds/:in_app_feed_channel_id" />
+<Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
 
 ### Rate limit
 
@@ -2757,13 +2808,13 @@ when sending [Slack notifications](/integrations/slack).
     withLink
   />
   <Endpoint
-    name="bulk-set-object"
+    name="bulk-set-objects"
     method="POST"
     path="/objects/:collection/bulk/set"
     withLink
   />
   <Endpoint
-    name="bulk-delete-object"
+    name="bulk-delete-objects"
     method="POST"
     path="/objects/:collection/bulk/delete"
     withLink
@@ -3408,26 +3459,31 @@ A subscription represents the relationship between a recipient (the subscriber) 
     name="list-subscriptions"
     method="GET"
     path="/objects/:collection/:id/subscriptions"
+    withLink
   />
   <Endpoint
     name="get-user-subscriptions"
     method="GET"
     path="/users/:id/subscriptions"
+    withLink
   />
   <Endpoint
     name="add-subscriptions"
     method="POST"
     path="/objects/:collection/:id/subscriptions"
+    withLink
   />
   <Endpoint
     name="bulk-add-subscriptions"
     method="POST"
     path="/objects/:collection/bulk/subscriptions/add"
+    withLink
   />
   <Endpoint
     name="delete-subscriptions"
     method="DELETE"
     path="/objects/:collection/:id/subscriptions"
+    withLink
   />
 </Endpoints>
 
@@ -3965,26 +4021,31 @@ The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more 
     name="get-preferences-user"
     method="GET"
     path="/users/:user_id/preferences/:id"
+    withLink
   />
   <Endpoint
     name="get-preferences-object"
     method="GET"
     path="/objects/:collection/:id/preferences/:id"
+    withLink
   />
   <Endpoint
     name="set-preferences-user"
     method="PUT"
     path="/users/:user_id/preferences/:id"
+    withLink
   />
   <Endpoint
     name="set-preferences-object"
     method="PUT"
     path="/objects/:collection/:id/preferences/:id"
+    withLink
   />
   <Endpoint
     name="bulk-set-preferences"
     method="POST"
     path="/users/bulk/preferences"
+    withLink
   />
 </Endpoints>
 
@@ -4497,10 +4558,10 @@ Use tenants when sending a notification to user(s) that you want to configure sp
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint name="list-tenants" method="GET" path="/tenants" />
-  <Endpoint name="get-tenant" method="GET" path="/tenants/:id" />
-  <Endpoint name="set-tenant" method="PUT" path="/tenants/:id" />
-  <Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" />
+  <Endpoint name="list-tenants" method="GET" path="/tenants" withLink />
+  <Endpoint name="get-tenant" method="GET" path="/tenants/:id" withLink />
+  <Endpoint name="set-tenant" method="PUT" path="/tenants/:id" withLink />
+  <Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" withLink />
 </Endpoints>
 
 ```json title="Tenant"
@@ -4819,20 +4880,27 @@ A schedule allows you to automatically trigger a workflow at a given time for on
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint name="list-schedules" method="GET" path="/schedules" />
+  <Endpoint name="list-schedules" method="GET" path="/schedules" withLink />
   <Endpoint
     name="get-user-schedules"
     method="GET"
     path="/users/:id/schedules"
+    withLink
   />
   <Endpoint
     name="get-object-schedules"
     method="GET"
     path="/objects/:collection/:id/schedules"
+    withLink
   />
-  <Endpoint name="create-schedules" method="POST" path="/schedules" />
-  <Endpoint name="update-schedules" method="PUT" path="/schedules" />
-  <Endpoint name="delete-schedules" method="DELETE" path="/schedules" />
+  <Endpoint name="create-schedules" method="POST" path="/schedules" withLink />
+  <Endpoint name="update-schedules" method="PUT" path="/schedules" withLink />
+  <Endpoint
+    name="delete-schedules"
+    method="DELETE"
+    path="/schedules"
+    withLink
+  />
 </Endpoints>
 
 ```json title="Schedule"
@@ -5522,31 +5590,37 @@ The shape of the `data` payload varies depending on the channel type; you can le
     name="get-user-channel-data"
     method="GET"
     path="/users/:user_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="set-user-channel-data"
     method="PUT"
     path="/users/:user_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="unset-user-channel-data"
     method="DELETE"
     path="/users/:user_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="get-object-channel-data"
     method="GET"
     path="/objects/:collection/:object_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="set-object-channel-data"
     method="PUT"
     path="/objects/:collection/:object_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="unset-object-channel-data"
     method="DELETE"
     path="/objects/:collection/:object_id/channel_data/:channel_id"
+    withLink
   />
 </Endpoints>
 
@@ -5974,7 +6048,12 @@ Please note here: the `estimated_total_rows` field may have a different value to
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint method="GET" path="/bulk_operations/:id" />
+  <Endpoint
+    method="GET"
+    path="/bulk_operations/:id"
+    name="bulk-operation-status"
+    withLink
+  />
 </Endpoints>
 
 ```json title="BulkOperation object"
@@ -6038,9 +6117,9 @@ A `BulkOperation`
 
   <ExampleColumn>
     <Endpoints>
-      <Endpoint name="auth_check" method="GET" path="/providers/slack/:channel_id/auth_check" />
-      <Endpoint name="channels" method="GET" path="/providers/slack/:channel_id/channels" />
-      <Endpoint name="revoke_access" method="PUT" path="/providers/slack/:channel_id/revoke_access" />
+      <Endpoint name="slack-auth-check" method="GET" path="/providers/slack/:channel_id/auth_check" withLink/>
+      <Endpoint name="slack-channels" method="GET" path="/providers/slack/:channel_id/channels" withLink/>
+      <Endpoint name="slack-revoke-access" method="PUT" path="/providers/slack/:channel_id/revoke_access" withLink/>
     </Endpoints>
   </ExampleColumn>
 </Section>
