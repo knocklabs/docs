@@ -57,7 +57,7 @@ Knock will translate the incoming events from each source into a common format t
 - `data`. The primary contents of the event, e.g. for a Segment `track` with some associated `properties`, Knock would use those `properties` to set the `data` field for the event.
 - `event`. The original event, as originally received by Knock.
 
-### Event-action Mapping
+### Event-action mappings
 
 When a source sends an event to a Knock environment, Knock will match that event with any configured event-action mappings in that environment.
 
@@ -87,7 +87,7 @@ You can then select the event you want to trigger actions in Knock, and configur
   }
 />
 
-### Identifying users
+## Identifying users
 
 For sources that support identifying users (such as Segment or Rudderstack with their `identify` calls), each environment configuration for that source includes a setting to enable or disable identifying users. After creating an integration source, enable identifying users for that environment.
 
@@ -154,6 +154,67 @@ To ensure that the user is notified, we'd change the id reference in `recipients
   "timestamp": "2023-05-23T21:49:54Z"
 }
 ```
+
+## Event idempotency
+
+By default, Knock will process every valid event received from your source. But, you can enable idempotency checks to deduplicate events that have already been received and processed by Knock. This is useful if you know your source may send duplicate events.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>
+        The default idempotency window for Knock Sources is 24 hours.
+      </strong>{" "}
+      If you're interested in configuring a different idempotency window for
+      your account, please contact us at{" "}
+      <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
+
+### Configuring idempotency checks
+
+You can enable source event idempotency checks at any time from the 'Settings' tab for your source environment configuration.
+
+![A screenshot of where to configure idempotency for your Source.](/images/sources/idempotency.png)
+
+Once enabled, Knock will start parsing idempotency keys from your source events for use in deduplication checks. Knock will use an optional, unique attribute made available by your source provider. These attributes are:
+
+- **Segment:** `messageId`
+- **Rudderstack:** `messageId`
+- **HTTP:** `messageId`
+
+Events without an idempotency key attribute will be processed like normal.
+
+```json title="An example source event from Segment with a valid idempotency key."
+{
+	"type": "track",
+	"event": "user.created",
+	"messageId": "some-id-from-source",
+	"properties": {
+	  "id": "user-1",
+	  "email": "user-1@example.com"
+  }
+}
+```
+
+Your idempotency keys must be valid strings no more than 255 characters in length. If an invalid key is found, Knock will still ingest your source event, but it will not attempt to execute your event idempotently. In addition, the invalid idempotency key will be dropped—you will not see it appear in your event logs.
+
+### How Knock handles idempotent events
+
+When Knock executes a source event with an idempotency key, it will first check to see if a preceding execution should be replayed. Knock will find a preceding execution if it is recorded within the idempotency window with the same:
+
+- Idempotency key value
+- Event type
+- Integration source configuration
+- Knock environment in your account
+
+If no preceding execution is found, Knock will execute your event like normal and record *that* execution for future replay by the same idempotency key. However, if Knock fails to execute your source event, it will not record the execution—Knock will only record successful event executions for idempotent replay.
+
+If Knock replays an event via an idempotency check, you will still see an event log for that execution. However, the log will not have any actions associated and Knock will label it as idempotent.
+
+## Logging
 
 ### Event logs
 
