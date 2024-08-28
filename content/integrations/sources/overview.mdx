@@ -199,7 +199,7 @@ Events without an idempotency key attribute will be processed like normal.
 }
 ```
 
-Your idempotency keys must be valid strings no more than 255 characters in length. If an invalid key is found, Knock will still ingest your source event, but it will not attempt to execute your event idempotently. In addition, the invalid idempotency key will be dropped—you will not see it appear in your event logs.
+Your idempotency keys must be valid strings no more than 255 characters in length. If an invalid key is found, Knock will still ingest your source event, but it will not attempt to execute your event idempotently. In addition, Knock will drop the invalid idempotency key and you will not see it appear in your event logs.
 
 ### How Knock handles idempotent events
 
@@ -210,7 +210,7 @@ When Knock executes a source event with an idempotency key, it will first check 
 - Integration source configuration
 - Knock environment in your account
 
-If no preceding execution is found, Knock will execute your event like normal and record _that_ execution for future replay by the same idempotency key. However, if Knock fails to execute your source event, it will not record the execution—Knock will only record successful event executions for idempotent replay.
+If no preceding execution is found, Knock will execute your event like normal and record _that_ execution for future replay by the same idempotency key. However, if Knock fails to execute your source event, it will not record the execution. Knock will only record successful event executions for idempotent replay.
 
 If Knock replays an event via an idempotency check, you will still see an event log for that execution. However, the log will not have any actions associated and Knock will label it as idempotent.
 
