@@ -40,8 +40,8 @@ use Knock\\KnockSdk\\Client;
 
 $client = new Client('sk_12345');
 
-// If no preference set id is provided, the SDK will return the user's "default" preferences
-$client->users()->getPreference($user->id(), 'tenant-1');
+// The preference set id must be "default" or the id of a tenant you have created
+$client->users()->getPreference($user->id(), 'default');
 `,
   go: `
 ctx := context.Background()
