@@ -30,7 +30,8 @@ Knock::Objects.get_preferences(collection: "projects", id: "project-1", preferen
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
-await knockClient.Objects.GetPreferences("projects", "project-1");
+// If no preference set id is provided, the SDK will return the object's "default" preferences
+await knockClient.Objects.GetPreferences("projects", "project-1", preferenceSetId: "tenant-1");
 `,
   php: `
 use Knock\\KnockSdk\\Client;
