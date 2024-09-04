@@ -18,7 +18,21 @@ section: Building in-app UI
 
 `KnockInAppFeedView` is a SwiftUI view that renders the in-app notifications feed using data from `KnockInAppFeedViewModel`. It provides a customizable and interactive user interface for displaying notifications.
 
-Note: If you are using UIKit, use `KnockInAppFeedViewController`.
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Initializing the Feed.</span> Please remember
+      that you will still need to initialize the <code>feedManager</code>{" "}
+      manually before displaying this component. Check out our{" "}
+      <a href="/sdks/ios/reference#feedmanager">
+        FeedManager documentation for more information.
+      </a>{" "}
+      See below for an example of how to initialize the <code>feedManager</code>{" "}
+      .
+    </>
+  }
+/>
 
 ### Properties
 
@@ -34,10 +48,28 @@ Note: If you are using UIKit, use `KnockInAppFeedViewController`.
 
 You can customize almost every aspect of the UI of the `KnockInAppFeedView` using our customizable themes.
 
+### Using UIKit
+
+If you are using UIKit, use `InAppFeedViewController`.
+
+See below for an example of how to use this component.
+
 ### Examples
+
+#### SwiftUI
 
 ```swift
 @EnvironmentObject var viewModel: Knock.InAppFeedViewModel = .init()
+
+init() {
+   Task {
+        if Knock.shared.feedManager == nil {
+            Knock.shared.feedManager = try? await Knock.FeedManager(feedId: "ad06b085-54e2-4fb0-b6e7-050338851868")
+            await viewModel.connectFeedAndObserveNewMessages()
+        }
+    }
+}
+
 KnockInAppFeedView(theme: KnockInAppFeedTheme(titleString: "Notifications"))
     .environmentObject(viewModel)
     .onReceive(viewModel.didTapFeedItemButtonPublisher) { actionString in
@@ -46,6 +78,27 @@ KnockInAppFeedView(theme: KnockInAppFeedTheme(titleString: "Notifications"))
     .onReceive(viewModel.didTapFeedItemRowPublisher) { item in
         print("Row item was tapped")
     }
+```
+
+#### UIKit
+
+```swift
+class MyViewController: InAppFeedViewController {
+    init() {
+        self.viewModel = Knock.InAppFeedViewModel()
+        self.theme: Knock.InAppFeedTheme = .init()
+    }
+
+    override func viewDidLoad() {
+        Task {
+            if Knock.shared.feedManager == nil {
+                Knock.shared.feedManager = try? await Knock.FeedManager(feedId: "ad06b085-54e2-4fb0-b6e7-050338851868")
+                await viewModel.connectFeedAndObserveNewMessages()
+            }
+        }
+        super.viewDidLoad()
+    }
+}
 ```
 
 ## InAppFeedNotificationIconButton
