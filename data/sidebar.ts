@@ -164,7 +164,10 @@ const sidebarContent: SidebarSection[] = [
             slug: "/customization",
             title: "Customization",
           },
-          { slug: "/notification-feeds", title: "Notification feed" },
+          {
+            slug: "/notification-feeds",
+            title: "Custom notifications UI (headless)",
+          },
         ],
       },
       {
