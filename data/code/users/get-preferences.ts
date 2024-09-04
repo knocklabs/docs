@@ -13,14 +13,14 @@ knock_client = MyApp.Knock.client()
 
 # If no preference set id is provided, the SDK will return the user's "default" preferences
 Knock.Users.get_preferences(knock_client, user.id, preference_set: "tenant-1")
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 # If no preference set id is provided, the SDK will return the user's "default" preferences
 client.users.get_preferences(user.id, options={"preference_set": "tenant-1"})
-  `,
+`,
   ruby: `
 require "knock"
 Knock.key = "sk_12345"

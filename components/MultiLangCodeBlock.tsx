@@ -76,6 +76,8 @@ const snippets = {
     .default,
   "objects.getChannelData": require("../data/code/objects/get-channel-data")
     .default,
+  "objects.listPreferences": require("../data/code/objects/list-preferences")
+    .default,
   "objects.getPreferences": require("../data/code/objects/get-preferences")
     .default,
   "objects.setPreferences": require("../data/code/objects/set-preferences")
