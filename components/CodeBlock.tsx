@@ -195,17 +195,14 @@ export const CodeBlock: React.FC<Props> = ({
       <SyntaxHighlighter
         showLineNumbers
         lineNumberStyle={{
+          // ensure consistent line number styles across languages
           color: "#ccc",
-          // default line number styles curl in order to match the rest of the languages
-          ...(language === "curl" && {
-            display: "inline-block",
-            minWidth: "2.25em",
-            paddingRight: "1em",
-            textAlign: "right",
-            userSelect: "none",
-            color: "rgb(204, 204, 204)",
-            paddingLeft: "0px",
-          }),
+          display: "inline-block",
+          minWidth: "2.25em",
+          paddingRight: "1em",
+          textAlign: "right",
+          userSelect: "none",
+          paddingLeft: "0px",
         }}
         language={lang}
         style={theme === "light" ? lightCodeTheme : darkCodeTheme}
