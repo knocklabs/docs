@@ -53,5 +53,5 @@ KnockClient client = KnockClient.builder()
 
 List<PreferenceSet> allPreferences = client.users().getPreferences(user.getId());
 `,
-}
+};
 export default languages;
