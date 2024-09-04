@@ -26,7 +26,7 @@ require "knock"
 Knock.key = "sk_12345"
 
 # If no preference set id is provided, the SDK will return the user's "default" preferences
-Knock::Users.get_preferences(id: user.id, preference_set: "tenant-1")
+Knock::Users.get_preferences(user.id, preference_set: "tenant-1")
 `,
   csharp: `
 var knockClient = new KnockClient(
