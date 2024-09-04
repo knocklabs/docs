@@ -34,7 +34,8 @@ const snippets = {
     require("../data/code/users/set-preferences-per-tenant").default,
   "users.bulkSetPreferences": require("../data/code/users/bulk-set-preferences")
     .default,
-  "users.listPreferences": require("../data/code/users/list-preferences").default,
+  "users.listPreferences": require("../data/code/users/list-preferences")
+    .default,
   "users.getPreferences": require("../data/code/users/get-preferences").default,
   "users.getChannelData": require("../data/code/users/get-channel-data")
     .default,
