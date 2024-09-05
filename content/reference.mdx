@@ -479,7 +479,7 @@ Knock uses standard [HTTP response codes](https://developer.mozilla.org/en-US/We
 <Section title="Workflows" slug="workflows">
 <ContentColumn>
 
-A Workflow orchestrates the delivery of messages to your end users. When you configure a workflow you'll determine which channels its messages should route to, what those messages should look like on each channel, as well as any functions—batch, throttle, digest—you want applied to the messages prior to delivery. A workflow is triggered by a `trigger` call, usually when something occurs in your product that you want your users to know about (e.g. a new comment.)
+A [Workflow](/concepts/workflows) orchestrates the delivery of messages to your end users. When you configure a workflow you'll determine which channels its messages should route to, what those messages should look like on each channel, as well as any functions—batch, throttle, digest—you want applied to the messages prior to delivery. A workflow is triggered by a `trigger` call, usually when something occurs in your product that you want your users to know about (e.g. a new comment.)
 
 </ContentColumn>
 <ExampleColumn>
@@ -488,11 +488,13 @@ A Workflow orchestrates the delivery of messages to your end users. When you con
     name="trigger-workflow"
     method="POST"
     path="/workflows/:key/trigger"
+    withLink
   />
   <Endpoint
     name="cancel-workflow"
     method="POST"
     path="/workflows/:key/cancel"
+    withLink
   />
 </Endpoints>
 
@@ -502,7 +504,15 @@ A Workflow orchestrates the delivery of messages to your end users. When you con
 <Section isIdempotent title="Triggering a workflow" slug="trigger-workflow">
 <ContentColumn>
 
-A trigger calls a workflow created via the Knock dashboard.
+Invokes the workflow with the given key for the given set of recipients. Each recipient will have a workflow run triggered for them against the latest committed version of the workflow in the environment.
+
+Read more about [triggering a workflow](/send-notifications/triggering-workflows).
+
+This endpoint will return errors in the following cases:
+
+- The workflow does not exist, or has not been committed to the environment
+- The workflow is inactive
+- The trigger data does not match the schema defined for the workflow ([learn more](/send-notifications/triggering-workflows#validating-workflow-trigger-data))
 
 ### Endpoint
 
@@ -535,7 +545,7 @@ The workflow trigger endpoint enforces the following payload size limits:
   <Attribute
     name="recipients"
     type="RecipientIdentifier[]"
-    description="A list of user ids or object references to run this workflow for"
+    description="A list of user idenitifers, object references, or inline recipient definitions to run this workflow for"
   />
   <Attribute
     name="actor"
@@ -576,7 +586,7 @@ The workflow trigger endpoint enforces the following payload size limits:
 
 ```json title="Response"
 {
-  "workflow_run_id": "some-result-id"
+  "workflow_run_id": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
@@ -667,7 +677,7 @@ The workflow trigger endpoint enforces the following payload size limits:
 
 ```json title="Response"
 {
-  "workflow_run_id": "some-result-id"
+  "workflow_run_id": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
@@ -827,17 +837,62 @@ A message is a notification delivered on a particular channel to a user.
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint method="GET" path="/messages" />
-  <Endpoint method="GET" path="/messages/:id" />
-  <Endpoint method="GET" path="/messages/:id/activities" />
-  <Endpoint method="GET" path="/messages/:id/events" />
-  <Endpoint method="GET" path="/messages/:id/content" />
-  <Endpoint method="GET" path="/messages/batch/content" />
-  <Endpoint method="GET" path="/messages/:id/delivery_logs" />
-  <Endpoint method="PUT" path="/messages/:id/:status" />
-  <Endpoint method="DELETE" path="/messages/:id/:status" />
-  <Endpoint method="POST" path="/messages/batch/:status" />
-  <Endpoint method="POST" path="/channels/:id/messages/bulk/:status" />
+  <Endpoint method="GET" path="/messages" name="list-messages" withLink />
+  <Endpoint method="GET" path="/messages/:id" name="get-a-message" withLink />
+  <Endpoint
+    method="GET"
+    path="/messages/:id/events"
+    name="get-message-events"
+    withLink
+  />
+  <Endpoint
+    method="GET"
+    path="/messages/:id/activities"
+    name="get-message-activities"
+    withLink
+  />
+  <Endpoint
+    method="GET"
+    path="/messages/:id/content"
+    name="get-message-content"
+    withLink
+  />
+  <Endpoint
+    method="GET"
+    path="/messages/batch/content"
+    name="batch-get-message-content"
+    withLink
+  />
+  <Endpoint
+    method="GET"
+    path="/messages/:id/delivery_logs"
+    name="get-message-delivery-logs"
+    withLink
+  />
+  <Endpoint
+    method="PUT"
+    path="/messages/:id/:status"
+    name="update-message-status"
+    withLink
+  />
+  <Endpoint
+    method="DELETE"
+    path="/messages/:id/:status"
+    name="undo-message-status"
+    withLink
+  />
+  <Endpoint
+    method="POST"
+    path="/messages/batch/:status"
+    name="batch-update-message-status"
+    withLink
+  />
+  <Endpoint
+    method="POST"
+    path="/channels/:id/messages/bulk/:status"
+    name="bulk-update-channel-message-status"
+    withLink
+  />
 </Endpoints>
 
 ```json title="Message object"
@@ -1738,8 +1793,12 @@ as such return information that is required on the client to do so**
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
-  <Endpoint method="GET" path="/users/:user_id/feeds/:feed_id/settings" />
+  <Endpoint
+    method="GET"
+    path="/users/:user_id/feeds/:feed_id"
+    name="get-feed"
+    withLink
+  />
 </Endpoints>
 
 ```json title="Response"
@@ -1848,7 +1907,7 @@ as such return information that is required on the client to do so**
 <Section title="Get a feed for user" slug="get-feed">
 <ContentColumn>
 
-Retrieves a feed of items in reverse chronological order for a given `user_id` on the given `in_app_feed_channel_id`. In the case where the user has not yet been identified within Knock, this endpoint will return an empty feed.
+Retrieves a feed of items in reverse chronological order for a given `user_id` on the given `feed_id`. In the case where the user has not yet been identified within Knock, this endpoint will return an empty feed.
 
 You can customize the response for this endpoint by using [response filters](/integrations/in-app/knock#customizing-api-response-content) to exclude or only include certain properties on your resources.
 
@@ -1857,7 +1916,7 @@ along with a user token to make this request**
 
 ### Endpoint
 
-<Endpoint method="GET" path="/users/:user_id/feeds/:in_app_feed_channel_id" />
+<Endpoint method="GET" path="/users/:user_id/feeds/:feed_id" />
 
 ### Rate limit
 
@@ -2757,13 +2816,13 @@ when sending [Slack notifications](/integrations/slack).
     withLink
   />
   <Endpoint
-    name="bulk-set-object"
+    name="bulk-set-objects"
     method="POST"
     path="/objects/:collection/bulk/set"
     withLink
   />
   <Endpoint
-    name="bulk-delete-object"
+    name="bulk-delete-objects"
     method="POST"
     path="/objects/:collection/bulk/delete"
     withLink
@@ -3417,26 +3476,31 @@ A subscription represents the relationship between a recipient (the subscriber) 
     name="list-subscriptions"
     method="GET"
     path="/objects/:collection/:id/subscriptions"
+    withLink
   />
   <Endpoint
     name="get-user-subscriptions"
     method="GET"
     path="/users/:id/subscriptions"
+    withLink
   />
   <Endpoint
     name="add-subscriptions"
     method="POST"
     path="/objects/:collection/:id/subscriptions"
+    withLink
   />
   <Endpoint
     name="bulk-add-subscriptions"
     method="POST"
     path="/objects/:collection/bulk/subscriptions/add"
+    withLink
   />
   <Endpoint
     name="delete-subscriptions"
     method="DELETE"
     path="/objects/:collection/:id/subscriptions"
+    withLink
   />
 </Endpoints>
 
@@ -3964,36 +4028,43 @@ The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more 
     name="get-all-preferences-user"
     method="GET"
     path="/users/:user_id/preferences"
-  />
-  <Endpoint
-    name="get-all-preferences-object"
-    method="GET"
-    path="/objects/:collection/:id/preferences"
+    withLink
   />
   <Endpoint
     name="get-preferences-user"
     method="GET"
     path="/users/:user_id/preferences/:id"
-  />
-  <Endpoint
-    name="get-preferences-object"
-    method="GET"
-    path="/objects/:collection/:id/preferences/:id"
+    withLink
   />
   <Endpoint
     name="set-preferences-user"
     method="PUT"
     path="/users/:user_id/preferences/:id"
+    withLink
+  />
+  <Endpoint
+    name="get-all-preferences-object"
+    method="GET"
+    path="/objects/:collection/:object_id/preferences"
+    withLink
+  />
+  <Endpoint
+    name="get-preferences-object"
+    method="GET"
+    path="/objects/:collection/:object_id/preferences/:id"
+    withLink
   />
   <Endpoint
     name="set-preferences-object"
     method="PUT"
-    path="/objects/:collection/:id/preferences/:id"
+    path="/objects/:collection/:object_id/preferences/:id"
+    withLink
   />
   <Endpoint
     name="bulk-set-preferences"
     method="POST"
     path="/users/bulk/preferences"
+    withLink
   />
 </Endpoints>
 
@@ -4020,6 +4091,84 @@ The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more 
     }
   }
 }
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Listing user preferences" slug="get-all-preferences-user">
+<ContentColumn>
+
+Retrieve all preference sets for a user. This endpoint returns a list of preference sets associated with the user.
+
+### Endpoint
+
+<Endpoint
+  name="get-all-preferences-user"
+  method="GET"
+  path="/users/:user_id/preferences"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="Unique identifier for the user"
+  />
+</Attributes>
+
+### Response
+
+Returns a list of `PreferenceSet` objects.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.listPreferences"
+  title="List a user's preferences"
+/>
+
+```json title="Response"
+[
+  {
+    "__typename": "PreferenceSet",
+    "id": "default",
+    "workflows": null,
+    "channel_types": {
+      "in_app_feed": true,
+      "sms": true
+    },
+    "categories": {
+      "park-wide": {
+        "sms": false
+      }
+    }
+  },
+  {
+    "__typename": "PreferenceSet",
+    "id": "tenant-1",
+    "workflows": {
+      "new-comment": {
+        "channel_types": {
+          "email": false,
+          "in_app_feed": true
+        }
+      }
+    },
+    "channel_types": {
+      "in_app_feed": true,
+      "sms": false
+    },
+    "categories": null
+  }
+]
 ```
 
 </ExampleColumn>
@@ -4077,7 +4226,7 @@ Returns a `PreferenceSet`.
 
 <MultiLangCodeBlock
   snippet="users.getPreferences"
-  title="Get a users preferences"
+  title="Get a user's preferences"
 />
 
 ```json title="Response"
@@ -4173,7 +4322,7 @@ Returns a `PreferenceSet`.
 
 <MultiLangCodeBlock
   snippet="users.setPreferences"
-  title="Set a users preferences"
+  title="Set a user's preferences"
 />
 
 ```json title="Response"
@@ -4202,7 +4351,277 @@ Returns a `PreferenceSet`.
 </ExampleColumn>
 </Section>
 
-<Section title="Bulk set preferences" slug="bulk-set-preferences">
+<Section title="Listing object preferences" slug="get-all-preferences-object">
+<ContentColumn>
+
+Retrieve all preference sets for an object. This endpoint returns a list of preference sets associated with the object.
+
+### Endpoint
+
+<Endpoint
+  name="get-all-preferences-object"
+  method="GET"
+  path="/objects/:collection/:object_id/preferences"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+</Attributes>
+
+### Response
+
+Returns a list of `PreferenceSet` objects.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.listPreferences"
+  title="List an object's preferences"
+/>
+
+```json title="Response"
+[
+  {
+    "__typename": "PreferenceSet",
+    "id": "default",
+    "workflows": null,
+    "channel_types": {
+      "in_app_feed": true,
+      "sms": true
+    },
+    "categories": {
+      "park-wide": {
+        "sms": false
+      }
+    }
+  },
+  {
+    "__typename": "PreferenceSet",
+    "id": "tenant-1",
+    "workflows": {
+      "new-comment": {
+        "channel_types": {
+          "email": true,
+          "in_app_feed": false
+        }
+      }
+    },
+    "channel_types": {
+      "in_app_feed": true,
+      "sms": false
+    },
+    "categories": null
+  }
+]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Getting object preferences" slug="get-preferences-object">
+<ContentColumn>
+
+Retrieve an object's preference set. Will always return an empty preference set object,
+even if it does not currently exist for the object.
+
+### Endpoint
+
+<Endpoint
+  name="get-preferences-object"
+  method="GET"
+  path="/objects/:collection/:object_id/preferences/:id"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="tenant"
+    type="string"
+    description="An optional tenant identifier to supply to return the user's preferences with any tenant defaults applied"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.getPreferences"
+  title="Get an object's preferences"
+/>
+
+```json title="Response"
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true,
+    "sms": true
+  },
+  "categories": {
+    "park-wide": {
+      "channel_types": {
+        "sms": false
+      }
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Setting object preferences" slug="set-preferences-object">
+<ContentColumn>
+
+Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given.
+
+If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request.
+
+The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
+
+### Endpoint
+
+<Endpoint
+  name="set-preferences-object"
+  method="PUT"
+  path="/objects/:collection/:object_id/preferences/:id"
+/>
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="channel_types"
+    type="object"
+    description="A set of channel type preferences"
+  />
+  <Attribute
+    name="workflows"
+    type="object"
+    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+  <Attribute
+    name="categories"
+    type="object"
+    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.setPreferences"
+  title="Set an object's preferences"
+/>
+
+```json title="Response"
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true,
+        "sms": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true
+  },
+  "categories": {
+    "park-wide": {
+      "sms": false
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk set user preferences" slug="bulk-set-preferences">
 <ContentColumn>
 
 Bulk sets the preferences for up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
@@ -4262,7 +4681,7 @@ Returns a `BulkOperation`.
 
 <MultiLangCodeBlock
   snippet="users.bulkSetPreferences"
-  title="Bulk set many users preferences"
+  title="Bulk set many users' preferences"
 />
 
 ```json title="Response"
@@ -4282,193 +4701,6 @@ Returns a `BulkOperation`.
   "status": "completed",
   "success_count": 42,
   "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Getting object preferences" slug="get-preferences-object">
-<ContentColumn>
-
-Retrieve an object's preference set. Will always return an empty preference set object,
-even if it does not currently exist for the object.
-
-### Endpoint
-
-<Endpoint
-  name="get-preferences-object"
-  method="GET"
-  path="/objects/:collection/:object_id/preferences/:id"
-/>
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="object_id"
-    type="string"
-    description="The id of the object to lookup"
-  />
-  <Attribute
-    name="collection"
-    type="string"
-    description="The parent collection of the object to lookup"
-  />
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the preference set"
-  />
-</Attributes>
-
-### Query parameters
-
-<Attributes>
-  <Attribute
-    name="tenant"
-    type="string"
-    description="An optional tenant identifier to supply to return the user's preferences with any tenant defaults applied"
-  />
-</Attributes>
-
-### Response
-
-Returns a `PreferenceSet`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="objects.getPreferences"
-  title="Get an objects preferences"
-/>
-
-```json title="Response"
-{
-  "__typename": "PreferenceSet",
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "channel_types": {
-        "email": true
-      }
-    }
-  },
-  "channel_types": {
-    "in_app_feed": true,
-    "sms": true
-  },
-  "categories": {
-    "park-wide": {
-      "channel_types": {
-        "sms": false
-      }
-    }
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Setting object preferences" slug="set-preferences-object">
-<ContentColumn>
-
-Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given.
-
-If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request.
-
-The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
-
-### Endpoint
-
-<Endpoint
-  name="set-preferences-object"
-  method="PUT"
-  path="/objects/:collection/:object_id/preferences/:id"
-/>
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="object_id"
-    type="string"
-    description="The id of the object to lookup"
-  />
-  <Attribute
-    name="collection"
-    type="string"
-    description="The parent collection of the object to lookup"
-  />
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the preference set"
-  />
-</Attributes>
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="channel_types"
-    type="object"
-    description="A set of channel type preferences"
-  />
-  <Attribute
-    name="workflows"
-    type="object"
-    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
-  />
-  <Attribute
-    name="categories"
-    type="object"
-    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
-  />
-</Attributes>
-
-### Response
-
-Returns a `PreferenceSet`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="objects.setPreferences"
-  title="Set an objects preferences"
-/>
-
-```json title="Response"
-{
-  "__typename": "PreferenceSet",
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "channel_types": {
-        "email": true,
-        "sms": true
-      }
-    }
-  },
-  "channel_types": {
-    "in_app_feed": true
-  },
-  "categories": {
-    "park-wide": {
-      "sms": false
-    }
-  }
 }
 ```
 
@@ -4506,10 +4738,10 @@ Use tenants when sending a notification to user(s) that you want to configure sp
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint name="list-tenants" method="GET" path="/tenants" />
-  <Endpoint name="get-tenant" method="GET" path="/tenants/:id" />
-  <Endpoint name="set-tenant" method="PUT" path="/tenants/:id" />
-  <Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" />
+  <Endpoint name="list-tenants" method="GET" path="/tenants" withLink />
+  <Endpoint name="get-tenant" method="GET" path="/tenants/:id" withLink />
+  <Endpoint name="set-tenant" method="PUT" path="/tenants/:id" withLink />
+  <Endpoint name="delete-tenant" method="DELETE" path="/tenants/:id" withLink />
 </Endpoints>
 
 ```json title="Tenant"
@@ -4828,20 +5060,27 @@ A schedule allows you to automatically trigger a workflow at a given time for on
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint name="list-schedules" method="GET" path="/schedules" />
+  <Endpoint name="list-schedules" method="GET" path="/schedules" withLink />
   <Endpoint
     name="get-user-schedules"
     method="GET"
     path="/users/:id/schedules"
+    withLink
   />
   <Endpoint
     name="get-object-schedules"
     method="GET"
     path="/objects/:collection/:id/schedules"
+    withLink
   />
-  <Endpoint name="create-schedules" method="POST" path="/schedules" />
-  <Endpoint name="update-schedules" method="PUT" path="/schedules" />
-  <Endpoint name="delete-schedules" method="DELETE" path="/schedules" />
+  <Endpoint name="create-schedules" method="POST" path="/schedules" withLink />
+  <Endpoint name="update-schedules" method="PUT" path="/schedules" withLink />
+  <Endpoint
+    name="delete-schedules"
+    method="DELETE"
+    path="/schedules"
+    withLink
+  />
 </Endpoints>
 
 ```json title="Schedule"
@@ -5531,31 +5770,37 @@ The shape of the `data` payload varies depending on the channel type; you can le
     name="get-user-channel-data"
     method="GET"
     path="/users/:user_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="set-user-channel-data"
     method="PUT"
     path="/users/:user_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="unset-user-channel-data"
     method="DELETE"
     path="/users/:user_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="get-object-channel-data"
     method="GET"
     path="/objects/:collection/:object_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="set-object-channel-data"
     method="PUT"
     path="/objects/:collection/:object_id/channel_data/:channel_id"
+    withLink
   />
   <Endpoint
     name="unset-object-channel-data"
     method="DELETE"
     path="/objects/:collection/:object_id/channel_data/:channel_id"
+    withLink
   />
 </Endpoints>
 
@@ -5983,7 +6228,12 @@ Please note here: the `estimated_total_rows` field may have a different value to
 <ExampleColumn>
 
 <Endpoints>
-  <Endpoint method="GET" path="/bulk_operations/:id" />
+  <Endpoint
+    method="GET"
+    path="/bulk_operations/:id"
+    name="bulk-operation-status"
+    withLink
+  />
 </Endpoints>
 
 ```json title="BulkOperation object"
@@ -6047,9 +6297,9 @@ A `BulkOperation`
 
   <ExampleColumn>
     <Endpoints>
-      <Endpoint name="auth_check" method="GET" path="/providers/slack/:channel_id/auth_check" />
-      <Endpoint name="channels" method="GET" path="/providers/slack/:channel_id/channels" />
-      <Endpoint name="revoke_access" method="PUT" path="/providers/slack/:channel_id/revoke_access" />
+      <Endpoint name="slack-auth-check" method="GET" path="/providers/slack/:channel_id/auth_check" withLink/>
+      <Endpoint name="slack-channels" method="GET" path="/providers/slack/:channel_id/channels" withLink/>
+      <Endpoint name="slack-revoke-access" method="PUT" path="/providers/slack/:channel_id/revoke_access" withLink/>
     </Endpoints>
   </ExampleColumn>
 </Section>

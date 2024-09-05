@@ -48,6 +48,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
       { slug: "/send-windows", title: "Send windows" },
+      { slug: "/partials", title: "Partials" },
       {
         title: "Template editor",
         slug: "/template-editor",
@@ -176,7 +177,14 @@ const sidebarContent: SidebarSection[] = [
       {
         title: "Android (Kotlin)",
         slug: "/android",
-        pages: [{ slug: "/overview", title: "Overview" }],
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/components", title: "Components" },
+          {
+            slug: "/customization",
+            title: "Customization",
+          },
+        ],
       },
       {
         title: "Flutter",
@@ -313,6 +321,10 @@ const sidebarContent: SidebarSection[] = [
       },
       { slug: "/going-to-production", title: "Going to production" },
       { slug: "/migrate-from-courier", title: "Migrate from Courier" },
+      {
+        slug: "/modeling-users-objects-and-tenants",
+        title: "Modeling Users, Objects, and Tenants",
+      },
     ],
   },
 ];

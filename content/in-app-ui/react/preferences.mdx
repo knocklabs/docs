@@ -4,7 +4,7 @@ description: How to build a complete notification preference center, powered by 
 section: Building in-app UI
 ---
 
-In this guide we'll build a `PreferenceCenter` React component with Knock's preference APIs. This component should be flexible enough to handle most of your needs and can easily be customized or extended for more specific use cases.
+In this guide we'll build a `PreferenceCenter` React component with Knock's preference APIs. This component should be flexible enough to handle most of your needs and can easily be customized or extended for more specific use cases. If you want to reference a TypeScript example, you can find one in the [Notion feed example](https://github.com/knocklabs/notion-feed-example/blob/main/components/PreferenceCenter.tsx).
 
 <SdkCard
   title="Video walkthrough"
@@ -51,6 +51,7 @@ In this example we'll assume the user has a default `PreferenceSet` that contain
 
 ```json title="Preference object"
 {
+  "id": "default",
   "categories": {
     "collaboration": {
       "channel_types": {
@@ -58,7 +59,7 @@ In this example we'll assume the user has a default `PreferenceSet` that contain
         "in_app_feed": true
       }
     },
-    "project-updates": {
+    "new-asset": {
       "channel_types": {
         "email": false,
         "in_app_feed": true
@@ -66,12 +67,13 @@ In this example we'll assume the user has a default `PreferenceSet` that contain
     }
   },
   "workflows": {
-    "invoice-issued": {
+    "new-comment": {
       "channel_types": {
         "email": true
       }
     }
-  }
+  },
+  "channel_types": {}
 }
 ```
 
@@ -89,153 +91,150 @@ knockClient.authenticate(currentUser.id);
 <Steps titleSize="h3">
   <Step title="Create a preferences view config">
     Next we'll create an configuration object that will help us drive the view of our preference center. In some cases, you may want to store values in a `PreferenceSet` that you don't directly expose to users or want to provide more descriptive titles, labels, and descriptions.
-  ```jsx title="Power the preference center view"
-  const PreferenceViewConfig = {
-    RowSettings: {
-      "new-asset": {
-        title: "New Asset",
-        description: "New file uploads in workspaces you're a part of",
-      },
-      "new-comment": {
-        title: "Comments & mentions",
-        description: "New comments and replies to threads.",
-      },
-      collaboration: {
-        title: "In-app messages",
-        description: "Messages from other users on the platform",
-      },
+```jsx title="Power the preference center view"
+const PreferenceViewConfig = {
+  RowSettings: {
+    "new-asset": {
+      title: "New Asset",
+      description: "New file uploads in workspaces you're a part of",
     },
-    ChannelTypeLabels: {
-      in_app_feed: "In-app Feed",
-      email: "Email",
-      push: "Push",
+    "new-comment": {
+      title: "Comments & mentions",
+      description: "New comments and replies to threads.",
     },
-  };
-  ```
-  In this example, the `RowSettings` object contains entries that map directly to keys in the `PreferenceSet` we modeled in the previous step. Each entry here will surface those settings to the user and provide additional human readable details with `title` and `description`. If you want to modify this for your own project, you can swap the keys inside of `RowSettings` with a key from your default `PreferenceSet` and update the `title` and `description` properties.
+    collaboration: {
+      title: "In-app messages",
+      description: "Messages from other users on the platform",
+    },
+  },
+  ChannelTypeLabels: {
+    in_app_feed: "In-app Feed",
+    email: "Email",
+    push: "Push",
+  },
+};
+```
+In this example, the `RowSettings` object contains entries that map directly to keys in the `PreferenceSet` we modeled in the previous step. Each entry here will surface those settings to the user and provide additional human readable details with `title` and `description`. If you want to modify this for your own project, you can swap the keys inside of `RowSettings` with a key from your default `PreferenceSet` and update the `title` and `description` properties.
 
 The `ChannelTypeLabels` object is similar in that its contents determine which channel type settings will be surfaced for each row. Adding additional entries to this object will present more checkboxes for the user, and you can modify the label value by updating the value of a particular key.
 
 Copy and paste this `PreferenceViewConfig` object in your component file and make any updates to correspond with the shape of your default `PreferenceSet` and channels.
 
-  </Step>
+</Step>
 
-  <Step title="Display a preference setting row">
-    Next, we'll create a `PreferenceSettingsRow` component that will display the `title`, `description`, and checkbox toggles for each `SettingsRow` entry:
-  ```jsx title="Display a row for each desired preference setting"
-  function PreferenceSettingsRow({
-    preferenceType,
-    preferenceKey,
-    channelTypeSettings,
-    onChange,
-  }) {
+<Step title="Display a preference setting row">
+Next, we'll create a `PreferenceSettingsRow` component that will display the `title`, `description`, and checkbox toggles for each `SettingsRow` entry:
+```jsx title="Display a row for each desired preference setting"
+function PreferenceSettingsRow({
+preferenceType,
+preferenceKey,
+channelTypeSettings,
+onChange,
+}) {
+return (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      padding: ".75rem .25rem",
+      gap: "1rem",
+    }}
+  >
+    <div>
+      <h2>
+        {PreferenceViewConfig.RowSettings[preferenceKey].title}
+      </h2>
+      <p>
+        {PreferenceViewConfig.RowSettings[preferenceKey].description}
+      </p>
+    </div>
+    <div>
+      {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
+        (channelType) => {
+          return (
+            <div
+              key={`${preferenceKey}_${channelType}`}
+              style={{ display: "flex", justifyContent: "space-between" }}
+            >
+              <label htmlFor={`${preferenceKey}_${channelType}`}>
+                {PreferenceViewConfig.ChannelTypeLabels[channelType]}
+              </label>
+              <input
+                id={`${preferenceKey}_${channelType}`}
+                type="checkbox"
+                checked={channelTypeSettings[channelType]}
+                disabled={
+                  typeof channelTypeSettings[channelType] === "undefined"
+                }
+                onChange={(e) => {
+                  onChange({
+                    preferenceKey,
+                    preferenceType,
+                    channelTypeSettings: {
+                      ...channelTypeSettings,
+                      [channelType]: e.target.checked,
+                    },
+                  });
+                }}
+              />
+            </div>
+          );
+        }
+      )}
+    </div>
+  </div>
+);
+}
+```
+
+This component has a lot of functionality built in, so let's unpack what it does.
+
+Using the `preferenceKey` parameter, this component renders a section of UI that displays the `title` and `description` properties stored in the `PreferenceViewConfig` under the matching key:
+
+```jsx title="Displaying preference details"
+<div>
+  <h2>{PreferenceViewConfig.RowSettings[preferenceKey].title}</h2>
+  <p>{PreferenceViewConfig.RowSettings[preferenceKey].description}</p>
+</div>
+```
+
+Next, we'll generate an `input` element tied to each channel type setting for that preference. We do that by looping through the keys of `PreferenceViewConfig.ChannelTypeLabels` to genereate a UI element tied to a particular channel and preference setting:
+
+```jsx
+<div>
+  {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map((channelType) => {
     return (
       <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          padding: ".75rem .25rem",
-          gap: "1rem",
-        }}
+        key={`${preferenceKey}_${channelType}`}
+        style={{ display: "flex", justifyContent: "space-between" }}
       >
-        <div>
-          <h2>
-            {PreferenceViewConfig.RowSettings[preferenceKey].title}
-          </h2>
-          <p>
-            {PreferenceViewConfig.RowSettings[preferenceKey].description}
-          </p>
-        </div>
-        <div>
-          {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
-            (channelType) => {
-              return (
-                <div
-                  key={`${preferenceKey}_${channelType}`}
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  <label htmlFor={`${preferenceKey}_${channelType}`}>
-                    {PreferenceViewConfig.ChannelTypeLabels[channelType]}
-                  </label>
-                  <input
-                    id={`${preferenceKey}_${channelType}`}
-                    type="checkbox"
-                    checked={channelTypeSettings[channelType]}
-                    disabled={
-                      typeof channelTypeSettings[channelType] === "undefined"
-                    }
-                    onChange={(e) => {
-                      onChange({
-                        preferenceKey,
-                        preferenceType,
-                        channelTypeSettings: {
-                          ...channelTypeSettings,
-                          [channelType]: e.target.checked,
-                        },
-                      });
-                    }}
-                  />
-                </div>
-              );
-            }
-          )}
-        </div>
+        <label htmlFor={`${preferenceKey}_${channelType}`}>
+          {PreferenceViewConfig.ChannelTypeLabels[channelType]}
+        </label>
+        <input
+          id={`${preferenceKey}_${channelType}`}
+          type="checkbox"
+          checked={channelTypeSettings[channelType]}
+          disabled={typeof channelTypeSettings[channelType] === "undefined"}
+          onChange={(e) => {
+            onChange({
+              preferenceKey,
+              preferenceType,
+              channelTypeSettings: {
+                ...channelTypeSettings,
+                [channelType]: e.target.checked,
+              },
+            });
+          }}
+        />
       </div>
     );
-  }
-  ```
-  This component has a lot of functionality built in, so let's unpack what it does. 
-  
-  Using the `preferenceKey` parameter, this component renders a section of UI that displays the `title` and `description` properties stored in the `PreferenceViewConfig` under the matching key:
-  ```jsx title="Displaying preference details"
-  <div>
-    <h2>
-      {PreferenceViewConfig.RowSettings[preferenceKey].title}
-    </h2>
-    <p>
-      {PreferenceViewConfig.RowSettings[preferenceKey].description}
-    </p>
-  </div>
-  ```  
-  Next, we'll generate an `input` element tied to each channel type setting for that preference. We do that by looping through the keys of `PreferenceViewConfig.ChannelTypeLabels` to genereate a UI element tied to a particular channel and preference setting:
-  ```jsx
-  <div>
-    {Object.keys(PreferenceViewConfig.ChannelTypeLabels).map(
-      (channelType) => {
-        return (
-          <div
-            key={`${preferenceKey}_${channelType}`}
-            style={{ display: "flex", justifyContent: "space-between" }}
-          >
-            <label htmlFor={`${preferenceKey}_${channelType}`}>
-              {PreferenceViewConfig.ChannelTypeLabels[channelType]}
-            </label>
-            <input
-              id={`${preferenceKey}_${channelType}`}
-              type="checkbox"
-              checked={channelTypeSettings[channelType]}
-              disabled={
-                typeof channelTypeSettings[channelType] === "undefined"
-              }
-              onChange={(e) => {
-                onChange({
-                  preferenceKey,
-                  preferenceType,
-                  channelTypeSettings: {
-                    ...channelTypeSettings,
-                    [channelType]: e.target.checked,
-                  },
-                });
-              }}
-            />
-          </div>
-        );
-      }
-    )}
-  </div>
-  ```
-  This section of UI uses the `channelTypeSettings` passed into the function to drive the `disabled` and `checked` states of the `input` element. These `channelTypeSettings` are the user's existing preferences pulled directly from Knock. By disabling the checkbox if those channel type settings are `undefined` we remove the user's ability to modify that value if it doesn't appear in the default preference set.
+  })}
+</div>
+```
+
+This section of UI uses the `channelTypeSettings` passed into the function to drive the `disabled` and `checked` states of the `input` element. These `channelTypeSettings` are the user's existing preferences pulled directly from Knock. By disabling the checkbox if those channel type settings are `undefined` we remove the user's ability to modify that value if it doesn't appear in the default preference set.
 
 As the user toggles the state of this `input` it fires an `onChange` event handler that calls a function also passed as a parameter. This function is ultimately what updates the user's preferences in Knock, so we pass a modified value of `channelTypeSettings` that includes the current value of the event target's `checked` property:
 
@@ -259,7 +258,31 @@ onChange={(e) => {
 ```jsx title="Compose a preference center"
 export default function PreferenceCenter() {
   //Create some local state to store the user's preferences
-  const [localPreferences, setLocalPreferences] = useState();
+  const [localPreferences, setLocalPreferences] = useState({
+    id: "default",
+    categories: {
+      collaboration: {
+        channel_types: {
+          email: true,
+          in_app_feed: true,
+        },
+      },
+      "new-asset": {
+        channel_types: {
+          email: false,
+          in_app_feed: true,
+        },
+      },
+    },
+    workflows: {
+      "new-comment": {
+        channel_types: {
+          email: true,
+        },
+      },
+    },
+    channel_types: {},
+  });
 
   //We load the current user's preferences from Knock, and set them to local preferences
 
@@ -283,13 +306,21 @@ export default function PreferenceCenter() {
       ...localPreferences,
     };
 
-    //Here we'll make updates to the preference set based on the preferenceType
+    // Here we'll make updates to the preference set based on the preferenceType
     // and override existing channelTypeSettings
-    if (preferenceType === "category") {
+    // since Workflow and Category preferences can also be a Boolean,
+    // we'll check if the preferenceKey contains a channel_types object
+    if (
+      preferenceType === "category" &&
+      typeof preferenceUpdate.categories[preferenceKey] === "object"
+    ) {
       preferenceUpdate.categories[preferenceKey].channel_types =
         channelTypeSettings;
     }
-    if (preferenceType === "workflow") {
+    if (
+      preferenceType === "workflow" &&
+      typeof preferenceUpdate.workflows[preferenceKey] === "object"
+    ) {
       preferenceUpdate.workflows[preferenceKey].channel_types =
         channelTypeSettings;
     }
@@ -311,7 +342,9 @@ export default function PreferenceCenter() {
             preferenceType="category"
             preferenceKey={category}
             channelTypeSettings={
-              localPreferences?.categories[category]?.channel_types
+              typeof localPreferences.categories[category] === "object"
+                ? localPreferences?.categories[category]?.channel_types
+                : {}
             }
             onChange={onPreferenceChange}
           ></PreferenceSettingsRow>
@@ -324,7 +357,9 @@ export default function PreferenceCenter() {
             preferenceType="workflow"
             preferenceKey={workflow}
             channelTypeSettings={
-              localPreferences?.workflows[workflow]?.channel_types
+              typeof localPreferences.workflows[workflow] === "object"
+                ? localPreferences?.workflows[workflow]?.channel_types
+                : {}
             }
             onChange={onPreferenceChange}
           ></PreferenceSettingsRow>
@@ -369,13 +404,21 @@ const onPreferenceChange = async ({
     ...localPreferences,
   };
 
-  //Here we'll make updates to the preference set based on the preferenceType
+  // Here we'll make updates to the preference set based on the preferenceType
   // and override existing channelTypeSettings
-  if (preferenceType === "category") {
+  // since Workflow and Category preferences can also be a Boolean,
+  // we'll check if the preferenceKey contains an channel_types object
+  if (
+    preferenceType === "category" &&
+    typeof preferenceUpdate.categories[preferenceKey] === "object"
+  ) {
     preferenceUpdate.categories[preferenceKey].channel_types =
       channelTypeSettings;
   }
-  if (preferenceType === "workflow") {
+  if (
+    preferenceType === "workflow" &&
+    typeof preferenceUpdate.workflows[preferenceKey] === "object"
+  ) {
     preferenceUpdate.workflows[preferenceKey].channel_types =
       channelTypeSettings;
   }
@@ -399,7 +442,9 @@ Lastly, we actually render our `PreferenceSettingsRow` components:
         preferenceType="category"
         preferenceKey={category}
         channelTypeSettings={
-          localPreferences?.categories[category]?.channel_types
+          typeof localPreferences.categories[category] === "object"
+            ? localPreferences?.categories[category]?.channel_types
+            : {}
         }
         onChange={onPreferenceChange}
       ></PreferenceSettingsRow>
@@ -412,7 +457,9 @@ Lastly, we actually render our `PreferenceSettingsRow` components:
         preferenceType="workflow"
         preferenceKey={workflow}
         channelTypeSettings={
-          localPreferences?.workflows[workflow]?.channel_types
+          typeof localPreferences?.workflows[workflow] === "object"
+            ? localPreferences?.workflows[workflow]?.channel_types
+            : {}
         }
         onChange={onPreferenceChange}
       ></PreferenceSettingsRow>
@@ -530,7 +577,31 @@ function PreferenceSettingsRow({
 
 export default function PreferenceCenter() {
   //Create some local state to store the user's preferences
-  const [localPreferences, setLocalPreferences] = useState();
+  const [localPreferences, setLocalPreferences] = useState({
+    id: "default",
+    categories: {
+      collaboration: {
+        channel_types: {
+          email: true,
+          in_app_feed: true,
+        },
+      },
+      "new-asset": {
+        channel_types: {
+          email: false,
+          in_app_feed: true,
+        },
+      },
+    },
+    workflows: {
+      "new-comment": {
+        channel_types: {
+          email: true,
+        },
+      },
+    },
+    channel_types: {},
+  });
 
   //We load the current user's preferences from Knock, and set them to local preferences
 
@@ -554,13 +625,21 @@ export default function PreferenceCenter() {
       ...localPreferences,
     };
 
-    //Here we'll make updates to the preference set based on the preferenceType
+    // Here we'll make updates to the preference set based on the preferenceType
     // and override existing channelTypeSettings
-    if (preferenceType === "category") {
+    // since Workflow and Category preferences can also be a Boolean,
+    // we'll check if the preferenceKey contains an channel_types object
+    if (
+      preferenceType === "category" &&
+      typeof preferenceUpdate.categories[preferenceKey] === "object"
+    ) {
       preferenceUpdate.categories[preferenceKey].channel_types =
         channelTypeSettings;
     }
-    if (preferenceType === "workflow") {
+    if (
+      preferenceType === "workflow" &&
+      typeof preferenceUpdate.workflows[preferenceKey] === "object"
+    ) {
       preferenceUpdate.workflows[preferenceKey].channel_types =
         channelTypeSettings;
     }
@@ -581,7 +660,9 @@ export default function PreferenceCenter() {
             preferenceType="category"
             preferenceKey={category}
             channelTypeSettings={
-              localPreferences?.categories[category]?.channel_types
+              typeof localPreferences.categories[category] === "object"
+                ? localPreferences?.categories[category]?.channel_types
+                : {}
             }
             onChange={onPreferenceChange}
           ></PreferenceSettingsRow>
@@ -594,7 +675,9 @@ export default function PreferenceCenter() {
             preferenceType="workflow"
             preferenceKey={workflow}
             channelTypeSettings={
-              localPreferences?.workflows[workflow]?.channel_types
+              typeof localPreferences?.workflows[workflow] === "object"
+                ? localPreferences?.workflows[workflow]?.channel_types
+                : {}
             }
             onChange={onPreferenceChange}
           ></PreferenceSettingsRow>

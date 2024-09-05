@@ -55,6 +55,18 @@ const sidebarData = [
     ],
   },
   {
+    title: "Partials",
+    slug: "/mapi",
+    pages: [
+      { slug: "#partials-overview", title: "Introduction" },
+      { slug: "#partials-object", title: "Partial definition" },
+      { slug: "#partials-list", title: "List partials" },
+      { slug: "#partials-get", title: "Get partial" },
+      { slug: "#partials-upsert", title: "Upsert partial" },
+      { slug: "#partials-validate", title: "Validate partial" },
+    ],
+  },
+  {
     title: "Commits",
     slug: "/mapi",
     pages: [

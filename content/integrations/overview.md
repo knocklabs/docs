@@ -114,6 +114,7 @@ Here are the providers we currently support within Knock. We're adding more each
 - [MessageBird](/integrations/sms/messagebird)
 - [Plivo](/integrations/sms/plivo)
 - [Sinch](/integrations/sms/sinch)
+- [Sinch MessageMedia](/integrations/sms/sinch-message-media)
 - [Telnyx](/integrations/sms/telnyx)
 - [Twilio](/integrations/sms/twilio)
 - [Vonage](/integrations/sms/vonage)
