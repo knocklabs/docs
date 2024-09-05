@@ -4019,22 +4019,12 @@ The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more 
     name="get-all-preferences-user"
     method="GET"
     path="/users/:user_id/preferences"
-  />
-  <Endpoint
-    name="get-all-preferences-object"
-    method="GET"
-    path="/objects/:collection/:id/preferences"
+    withLink
   />
   <Endpoint
     name="get-preferences-user"
     method="GET"
     path="/users/:user_id/preferences/:id"
-    withLink
-  />
-  <Endpoint
-    name="get-preferences-object"
-    method="GET"
-    path="/objects/:collection/:id/preferences/:id"
     withLink
   />
   <Endpoint
@@ -4044,9 +4034,21 @@ The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more 
     withLink
   />
   <Endpoint
+    name="get-all-preferences-object"
+    method="GET"
+    path="/objects/:collection/:object_id/preferences"
+    withLink
+  />
+  <Endpoint
+    name="get-preferences-object"
+    method="GET"
+    path="/objects/:collection/:object_id/preferences/:id"
+    withLink
+  />
+  <Endpoint
     name="set-preferences-object"
     method="PUT"
-    path="/objects/:collection/:id/preferences/:id"
+    path="/objects/:collection/:object_id/preferences/:id"
     withLink
   />
   <Endpoint
@@ -4080,6 +4082,84 @@ The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more 
     }
   }
 }
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Listing user preferences" slug="get-all-preferences-user">
+<ContentColumn>
+
+Retrieve all preference sets for a user. This endpoint returns a list of preference sets associated with the user.
+
+### Endpoint
+
+<Endpoint
+  name="get-all-preferences-user"
+  method="GET"
+  path="/users/:user_id/preferences"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="user_id"
+    type="string"
+    description="Unique identifier for the user"
+  />
+</Attributes>
+
+### Response
+
+Returns a list of `PreferenceSet` objects.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="users.listPreferences"
+  title="List a user's preferences"
+/>
+
+```json title="Response"
+[
+  {
+    "__typename": "PreferenceSet",
+    "id": "default",
+    "workflows": null,
+    "channel_types": {
+      "in_app_feed": true,
+      "sms": true
+    },
+    "categories": {
+      "park-wide": {
+        "sms": false
+      }
+    }
+  },
+  {
+    "__typename": "PreferenceSet",
+    "id": "tenant-1",
+    "workflows": {
+      "new-comment": {
+        "channel_types": {
+          "email": false,
+          "in_app_feed": true
+        }
+      }
+    },
+    "channel_types": {
+      "in_app_feed": true,
+      "sms": false
+    },
+    "categories": null
+  }
+]
 ```
 
 </ExampleColumn>
@@ -4137,7 +4217,7 @@ Returns a `PreferenceSet`.
 
 <MultiLangCodeBlock
   snippet="users.getPreferences"
-  title="Get a users preferences"
+  title="Get a user's preferences"
 />
 
 ```json title="Response"
@@ -4233,7 +4313,7 @@ Returns a `PreferenceSet`.
 
 <MultiLangCodeBlock
   snippet="users.setPreferences"
-  title="Set a users preferences"
+  title="Set a user's preferences"
 />
 
 ```json title="Response"
@@ -4262,7 +4342,277 @@ Returns a `PreferenceSet`.
 </ExampleColumn>
 </Section>
 
-<Section title="Bulk set preferences" slug="bulk-set-preferences">
+<Section title="Listing object preferences" slug="get-all-preferences-object">
+<ContentColumn>
+
+Retrieve all preference sets for an object. This endpoint returns a list of preference sets associated with the object.
+
+### Endpoint
+
+<Endpoint
+  name="get-all-preferences-object"
+  method="GET"
+  path="/objects/:collection/:object_id/preferences"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+</Attributes>
+
+### Response
+
+Returns a list of `PreferenceSet` objects.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.listPreferences"
+  title="List an object's preferences"
+/>
+
+```json title="Response"
+[
+  {
+    "__typename": "PreferenceSet",
+    "id": "default",
+    "workflows": null,
+    "channel_types": {
+      "in_app_feed": true,
+      "sms": true
+    },
+    "categories": {
+      "park-wide": {
+        "sms": false
+      }
+    }
+  },
+  {
+    "__typename": "PreferenceSet",
+    "id": "tenant-1",
+    "workflows": {
+      "new-comment": {
+        "channel_types": {
+          "email": true,
+          "in_app_feed": false
+        }
+      }
+    },
+    "channel_types": {
+      "in_app_feed": true,
+      "sms": false
+    },
+    "categories": null
+  }
+]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Getting object preferences" slug="get-preferences-object">
+<ContentColumn>
+
+Retrieve an object's preference set. Will always return an empty preference set object,
+even if it does not currently exist for the object.
+
+### Endpoint
+
+<Endpoint
+  name="get-preferences-object"
+  method="GET"
+  path="/objects/:collection/:object_id/preferences/:id"
+/>
+
+### Rate limit
+
+<RateLimit tier={4} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="tenant"
+    type="string"
+    description="An optional tenant identifier to supply to return the user's preferences with any tenant defaults applied"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.getPreferences"
+  title="Get an object's preferences"
+/>
+
+```json title="Response"
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true,
+    "sms": true
+  },
+  "categories": {
+    "park-wide": {
+      "channel_types": {
+        "sms": false
+      }
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Setting object preferences" slug="set-preferences-object">
+<ContentColumn>
+
+Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given.
+
+If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request.
+
+The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
+
+### Endpoint
+
+<Endpoint
+  name="set-preferences-object"
+  method="PUT"
+  path="/objects/:collection/:object_id/preferences/:id"
+/>
+
+### Rate limit
+
+<RateLimit tier={3} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="collection"
+    type="string"
+    description="The parent collection of the object to lookup"
+  />
+  <Attribute
+    name="object_id"
+    type="string"
+    description="The id of the object to lookup"
+  />
+  <Attribute
+    name="id"
+    type="string"
+    description="Unique identifier for the preference set"
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="channel_types"
+    type="object"
+    description="A set of channel type preferences"
+  />
+  <Attribute
+    name="workflows"
+    type="object"
+    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+  <Attribute
+    name="categories"
+    type="object"
+    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
+  />
+</Attributes>
+
+### Response
+
+Returns a `PreferenceSet`.
+
+</ContentColumn>
+<ExampleColumn>
+
+<MultiLangCodeBlock
+  snippet="objects.setPreferences"
+  title="Set an object's preferences"
+/>
+
+```json title="Response"
+{
+  "__typename": "PreferenceSet",
+  "id": "default",
+  "workflows": {
+    "dinosaurs-loose": {
+      "channel_types": {
+        "email": true,
+        "sms": true
+      }
+    }
+  },
+  "channel_types": {
+    "in_app_feed": true
+  },
+  "categories": {
+    "park-wide": {
+      "sms": false
+    }
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk set user preferences" slug="bulk-set-preferences">
 <ContentColumn>
 
 Bulk sets the preferences for up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
@@ -4322,7 +4672,7 @@ Returns a `BulkOperation`.
 
 <MultiLangCodeBlock
   snippet="users.bulkSetPreferences"
-  title="Bulk set many users preferences"
+  title="Bulk set many users' preferences"
 />
 
 ```json title="Response"
@@ -4342,193 +4692,6 @@ Returns a `BulkOperation`.
   "status": "completed",
   "success_count": 42,
   "updated_at": "2021-03-05T12:00:00Z"
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Getting object preferences" slug="get-preferences-object">
-<ContentColumn>
-
-Retrieve an object's preference set. Will always return an empty preference set object,
-even if it does not currently exist for the object.
-
-### Endpoint
-
-<Endpoint
-  name="get-preferences-object"
-  method="GET"
-  path="/objects/:collection/:object_id/preferences/:id"
-/>
-
-### Rate limit
-
-<RateLimit tier={4} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="object_id"
-    type="string"
-    description="The id of the object to lookup"
-  />
-  <Attribute
-    name="collection"
-    type="string"
-    description="The parent collection of the object to lookup"
-  />
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the preference set"
-  />
-</Attributes>
-
-### Query parameters
-
-<Attributes>
-  <Attribute
-    name="tenant"
-    type="string"
-    description="An optional tenant identifier to supply to return the user's preferences with any tenant defaults applied"
-  />
-</Attributes>
-
-### Response
-
-Returns a `PreferenceSet`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="objects.getPreferences"
-  title="Get an objects preferences"
-/>
-
-```json title="Response"
-{
-  "__typename": "PreferenceSet",
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "channel_types": {
-        "email": true
-      }
-    }
-  },
-  "channel_types": {
-    "in_app_feed": true,
-    "sms": true
-  },
-  "categories": {
-    "park-wide": {
-      "channel_types": {
-        "sms": false
-      }
-    }
-  }
-}
-```
-
-</ExampleColumn>
-</Section>
-
-<Section title="Setting object preferences" slug="set-preferences-object">
-<ContentColumn>
-
-Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given.
-
-If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request.
-
-The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
-
-### Endpoint
-
-<Endpoint
-  name="set-preferences-object"
-  method="PUT"
-  path="/objects/:collection/:object_id/preferences/:id"
-/>
-
-### Rate limit
-
-<RateLimit tier={3} />
-
-### Path parameters
-
-<Attributes>
-  <Attribute
-    name="object_id"
-    type="string"
-    description="The id of the object to lookup"
-  />
-  <Attribute
-    name="collection"
-    type="string"
-    description="The parent collection of the object to lookup"
-  />
-  <Attribute
-    name="id"
-    type="string"
-    description="Unique identifier for the preference set"
-  />
-</Attributes>
-
-### Body parameters
-
-<Attributes>
-  <Attribute
-    name="channel_types"
-    type="object"
-    description="A set of channel type preferences"
-  />
-  <Attribute
-    name="workflows"
-    type="object"
-    description="A set of workflow preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
-  />
-  <Attribute
-    name="categories"
-    type="object"
-    description="A set of category preferences, can be a boolean, an object containing channel type preferences, or a set of conditions"
-  />
-</Attributes>
-
-### Response
-
-Returns a `PreferenceSet`.
-
-</ContentColumn>
-<ExampleColumn>
-
-<MultiLangCodeBlock
-  snippet="objects.setPreferences"
-  title="Set an objects preferences"
-/>
-
-```json title="Response"
-{
-  "__typename": "PreferenceSet",
-  "id": "default",
-  "workflows": {
-    "dinosaurs-loose": {
-      "channel_types": {
-        "email": true,
-        "sms": true
-      }
-    }
-  },
-  "channel_types": {
-    "in_app_feed": true
-  },
-  "categories": {
-    "park-wide": {
-      "sms": false
-    }
-  }
 }
 ```
 

@@ -34,6 +34,8 @@ const snippets = {
     require("../data/code/users/set-preferences-per-tenant").default,
   "users.bulkSetPreferences": require("../data/code/users/bulk-set-preferences")
     .default,
+  "users.listPreferences": require("../data/code/users/list-preferences")
+    .default,
   "users.getPreferences": require("../data/code/users/get-preferences").default,
   "users.getChannelData": require("../data/code/users/get-channel-data")
     .default,
@@ -74,6 +76,8 @@ const snippets = {
   "objects.unsetChannelData": require("../data/code/objects/unset-channel-data")
     .default,
   "objects.getChannelData": require("../data/code/objects/get-channel-data")
+    .default,
+  "objects.listPreferences": require("../data/code/objects/list-preferences")
     .default,
   "objects.getPreferences": require("../data/code/objects/get-preferences")
     .default,
