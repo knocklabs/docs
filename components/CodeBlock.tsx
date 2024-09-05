@@ -194,7 +194,14 @@ export const CodeBlock: React.FC<Props> = ({
       <SyntaxHighlighter
         showLineNumbers
         lineNumberStyle={{
+          // ensure consistent line number styles across languages
           color: "#ccc",
+          display: "inline-block",
+          minWidth: "2.25em",
+          paddingRight: "1em",
+          textAlign: "right",
+          userSelect: "none",
+          paddingLeft: "0px",
         }}
         language={lang}
         style={theme === "light" ? lightCodeTheme : darkCodeTheme}
