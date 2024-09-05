@@ -159,7 +159,15 @@ const sidebarContent: SidebarSection[] = [
         slug: "/react-native",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/notification-feeds", title: "Notification feed" },
+          { slug: "/components", title: "Components" },
+          {
+            slug: "/customization",
+            title: "Customization",
+          },
+          {
+            slug: "/notification-feeds",
+            title: "Custom notifications UI (headless)",
+          },
         ],
       },
       {
