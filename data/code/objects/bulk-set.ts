@@ -21,7 +21,8 @@ curl -X POST "https://api.knock.app/v1/objects/projects/bulk/set" \\
       }'
 `,
   node: `
-const knock = new Knock("sk_example_12345679");
+import { Knock } from "@knocklabs/node";
+const knock = new Knock("sk_12345");
 
 await knock.objects.bulkSet("projects", [
   {
