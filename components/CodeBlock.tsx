@@ -26,6 +26,7 @@ SyntaxHighlighter.registerLanguage("javascript", javascript);
 SyntaxHighlighter.registerLanguage("jsx", javascript);
 SyntaxHighlighter.registerLanguage("js", javascript);
 SyntaxHighlighter.registerLanguage("jsweb", javascript);
+SyntaxHighlighter.registerLanguage("tsx", javascript);
 SyntaxHighlighter.registerLanguage("ruby", ruby);
 SyntaxHighlighter.registerLanguage("elixir", elixir);
 SyntaxHighlighter.registerLanguage("csharp", dotnet);
