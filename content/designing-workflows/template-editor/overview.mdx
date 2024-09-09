@@ -49,14 +49,14 @@ You can find the [full list of supported variables here](/designing-workflows/te
 
 ### Data payload variables
 
-All variables sent in the `data` payload of your workflow trigger call. These don't require a prefixed namespace to reference, so if you send through `{ "a_variable": "something" }` in your data payload you can reference this as `{{ a_variable }}` in your template.
+All variables sent in the `data` payload of your workflow trigger call. If you send through `{ "a_variable": "something" }` in your data payload you can reference this as `{{ data.a_variable }}` in your template.
 
 <Callout
   emoji="💡"
   text={
     <>
       Note: if you want to reference all of the data passed to the workflow, you
-      can use the <code>$data</code> variable.
+      can use the <code>data</code> variable.
     </>
   }
 />
@@ -97,15 +97,15 @@ Here are a few Liquid tag types that are commonly used in Knock notification tem
 
 ```liquid
 {% if total_activities > 1 %}
-  {{ actor.name}} left {{ total_activities }} comments on {{ page_name }}
+  {{ actor.name}} left {{ total_activities }} comments on {{ data.page_name }}
 
   {% for activity in activities %}
-  > {{ activity.comment_body }}
+  > {{ activity.data.comment_body }}
   {% endfor %}
 
 {% else %}
-  {{ actor.name}} left a comment on {{ page_name }}.
-  > {{ comment_body }}
+  {{ actor.name}} left a comment on {{ data.page_name }}.
+  > {{ data.comment_body }}
 {% endif %}
 ```
 
@@ -113,7 +113,7 @@ There are also a number of [Liquid filters](/send-notifications/reference-liquid
 
 ```liquid
 You've been invited by {{ actor.name | split: " " | first }} to
-join {{ account_name }} on Knock.
+join {{ data.account_name }} on Knock.
 ```
 
 To learn more about the variables, Liquid keywords, and other helper functions available to you in the Knock template editor, check out our [liquid helper reference](/send-notifications/reference-liquid-helpers).
