@@ -1,4 +1,15 @@
 const languages = {
+  curl: `
+curl -X GET https://api.knock.app/v1/tenants \\
+  -H "Authorization: Bearer sk_12345"
+
+# supports pagination parameters and filters
+
+curl -X GET https://api.knock.app/v1/tenants \\
+  -H "Authorization: Bearer sk_12345" \\
+  --url-query 'page_size=20' \\
+  --url-query 'name=Tenant 1'
+  `,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
@@ -63,8 +74,12 @@ await knockClient.Tenants.List(params);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
+
+$client->tenants()->list();
+
+// supports pagination parameters and filters
 
 $client->tenants()->list([
   'page_size' => 20,
@@ -75,10 +90,31 @@ $client->tenants()->list([
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
+result, _ := knockClient.Tenants.List(ctx, nil)
+
+// Supports pagination parameters and filters
+
 result, _ := knockClient.Tenants.List(ctx, &knock.ListTenantsRequest{
-  PageSize: 20,
-  Tenant: "Tenant 1",
+    PageSize: 20,
+    Name: "Tenant 1",
 })
+`,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+CursorResult<Tenant> result = client.tenants().list();
+
+// supports pagination parameters and filters
+KnockClient.TenantsResource.QueryParams queryParams = new KnockClient.TenantsResource.QueryParams();
+queryParams.pageSize(20);
+queryParams.name("Tenant 1");
+
+CursorResult<Tenant> result = client.tenants().list(queryParams);
 `,
 };
 

@@ -1,4 +1,8 @@
 const languages = {
+  curl: `
+curl -X GET https://api.knock.app/v1/tenants/tenant-1 \\
+  -H "Authorization: Bearer sk_12345"
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock(process.env.KNOCK_API_KEY);
@@ -9,7 +13,7 @@ await knockClient.tenants.get("tenant-1");
 knock_client = MyApp.Knock.client()
 
 Knock.Tenants.get(knock_client, "tenant-1")
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
@@ -17,7 +21,7 @@ client = Knock(api_key="sk_12345")
 client.tenants.get(
   id="tenant-1"
 )
-  `,
+`,
   ruby: `
 require "knock"
 Knock.key = "sk_12345"
@@ -46,6 +50,16 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 tenant, _ := knockClient.Tenants.Get(ctx, &knock.GetTenantRequest{
   ID:         "tenant-1"
 })
+`,
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+Tenant tenant = client.tenants().get("tenant-1");
 `,
 };
 
