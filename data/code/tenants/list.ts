@@ -4,7 +4,6 @@ curl -X GET https://api.knock.app/v1/tenants \\
   -H "Authorization: Bearer sk_12345"
 
 # supports pagination parameters and filters
-
 curl -X GET https://api.knock.app/v1/tenants \\
   -H "Authorization: Bearer sk_12345" \\
   --url-query 'page_size=20' \\
@@ -17,7 +16,6 @@ const knockClient = new Knock("sk_12345");
 const tenants = await knockClient.tenants.list()
 
 // supports pagination parameters and filters
-
 const tenants = await knockClient.tenants.list(
   {
     page_size: 20,
@@ -31,7 +29,6 @@ knock_client = MyApp.Knock.client()
 Knock.Tenants.list(knock_client)
 
 # supports pagination parameters and filters
-
 Knock.Tenants.list(
   knock_client,
   page_size: 20, name: "Tenant 1"
@@ -44,7 +41,6 @@ client = Knock(api_key="sk_12345")
 client.tenants.list()
 
 # supports pagination parameters and filters
-
 client.tenants.list({'page_size': 20, 'name': "Tenant 1"})
   `,
   ruby: `
@@ -54,7 +50,6 @@ Knock.key = "sk_12345"
 Knock::Tenants.list()
 
 # supports pagination parameters and filters
-
 Knock::Tenants.list(options: {'page_size': 20, 'name': "Tenant 1"})
 `,
   csharp: `
@@ -64,7 +59,6 @@ var knockClient = new KnockClient(
 await knockClient.Tenants.List();
 
 // supports pagination parameters and filters
-
 var params = new Dictionary<string, string> {
                 {"page_size", "20"},
                 {"name", "Tenant 1"}
@@ -80,7 +74,6 @@ $client = new Client('sk_12345');
 $client->tenants()->list();
 
 // supports pagination parameters and filters
-
 $client->tenants()->list([
   'page_size' => 20,
   'name' => 'Tenant 1'
@@ -93,7 +86,6 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 result, _ := knockClient.Tenants.List(ctx, nil)
 
 // Supports pagination parameters and filters
-
 result, _ := knockClient.Tenants.List(ctx, &knock.ListTenantsRequest{
     PageSize: 20,
     Name: "Tenant 1",
