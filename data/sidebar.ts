@@ -222,6 +222,7 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/event-types", title: "Event types" },
         ],
       },
+      { slug: "/validating-trigger-data", title: "Validating trigger data" },
     ],
   },
 
