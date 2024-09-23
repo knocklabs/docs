@@ -21,7 +21,27 @@ const sidebarData = [
     slug: "/mapi",
     pages: [
       { slug: "#workflows-overview", title: "Introduction" },
-      { slug: "#workflows-object", title: "Workflow definition" },
+      {
+        slug: "",
+        title: "Workflow definitions",
+        pages: [
+          { slug: "#workflows-object", title: "Workflow definition" },
+          {
+            slug: "#workflowsettings-definition",
+            title: "WorkflowSettings definition",
+          },
+          {
+            slug: "#workflowstep-definition",
+            title: "WorkflowStep definition",
+          },
+          { slug: "#channelstep-definition", title: "ChannelStep definition" },
+          { slug: "#sendwindow-definition", title: "SendWindow definition" },
+          { slug: "#delay-step-definition", title: "Delay step definition" },
+          { slug: "#branch-step-definition", title: "Branch step definition" },
+          { slug: "#fetch-step-definition", title: "Fetch step definition" },
+        ],
+      },
+
       { slug: "#workflows-list", title: "List workflows" },
       { slug: "#workflows-get", title: "Get workflow" },
       { slug: "#workflows-update", title: "Upsert workflow" },
