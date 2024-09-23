@@ -22,23 +22,23 @@ const sidebarData = [
     pages: [
       { slug: "#workflows-overview", title: "Introduction" },
       {
-        slug: "",
+        slug: "/",
         title: "Workflow definitions",
         pages: [
-          { slug: "#workflows-object", title: "Workflow definition" },
+          { slug: "#workflows-object", title: "Workflow" },
           {
             slug: "#workflowsettings-definition",
-            title: "WorkflowSettings definition",
+            title: "WorkflowSettings",
           },
           {
             slug: "#workflowstep-definition",
-            title: "WorkflowStep definition",
+            title: "WorkflowStep",
           },
-          { slug: "#channelstep-definition", title: "ChannelStep definition" },
-          { slug: "#sendwindow-definition", title: "SendWindow definition" },
-          { slug: "#delay-step-definition", title: "Delay step definition" },
-          { slug: "#branch-step-definition", title: "Branch step definition" },
-          { slug: "#fetch-step-definition", title: "Fetch step definition" },
+          { slug: "#channelstep-definition", title: "ChannelStep" },
+          { slug: "#sendwindow-definition", title: "SendWindow" },
+          { slug: "#delay-step-definition", title: "Delay step" },
+          { slug: "#branch-step-definition", title: "Branch step" },
+          { slug: "#fetch-step-definition", title: "Fetch step" },
         ],
       },
 
