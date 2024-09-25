@@ -141,6 +141,12 @@ You can retrieve, update, or create a workflow as well as list all workflows in 
     description="A list of categories that the workflow belongs to."
   />
   <Attribute
+    name="conditions"
+    type="object (optional)"
+    typeSlug="/concepts/conditions#modeling-conditions"
+    description="A conditions object that describes one or more conditions to be met for the workflow to be executed."
+  />
+  <Attribute
     name="created_at"
     type="timestamp (read-only)"
     description="A timestamp of when the workflow was created."
@@ -166,6 +172,11 @@ You can retrieve, update, or create a workflow as well as list all workflows in 
     description="A name for the workflow. Must be at maximum 255 characters in length."
   />
   <Attribute
+    name="sha"
+    type="string (read-only)"
+    description="The SHA hash of the workflow's most-recent commit."
+  />
+  <Attribute
     name="settings"
     type="WorkflowSettings"
     typeSlug="#workflowsettings-definition"
@@ -178,9 +189,16 @@ You can retrieve, update, or create a workflow as well as list all workflows in 
     description="A list of workflow step objects in the workflow, which may contain any of: channel step, delay step, batch step, fetch step."
   />
   <Attribute
-    name="conditions"
-    type="object"
-    description="A conditions object that describes one or more conditions to be met for the workflow to be executed."
+    name="trigger_data_json_schema"
+    type="object (optional)"
+    typeSlug="/developer-tools/validating-trigger-data#example-schema"
+    description="A JSON schema for the expected structure of the workflow trigger's data payload. Used to validate trigger requests."
+  />
+  <Attribute
+    name="trigger_frequency"
+    type="string"
+    typeSlug="/send-notifications/triggering-workflows#controlling-workflow-trigger-frequency"
+    description="The frequency at which the workflow should be triggered. One of: ”once_per_recipient”, ”every_trigger”. Defaults to ”every_trigger”."
   />
   <Attribute
     name="updated_at"
@@ -201,6 +219,15 @@ You can retrieve, update, or create a workflow as well as list all workflows in 
 {
   "active": false,
   "categories": ["marketing", "black-friday"],
+  "conditions": {
+    "all": [
+      {
+        "argument": "admin",
+        "operator": "equal_to",
+        "variable": "recipient.role"
+      }
+    ]
+  },
   "created_at": "2022-12-16T19:07:50.027113Z",
   "description": "This is a dummy workflow for demo purposes.",
   "environment": "development",
@@ -1077,6 +1104,7 @@ Note: this endpoint only operates on workflows in the `development` environment.
   <Attribute
     name="workflow"
     type="Workflow"
+    typeSlug="#workflows-object"
     description="A workflow object with attributes to update or create a workflow."
   />
 </Attributes>
@@ -1237,6 +1265,7 @@ Note: Validating a workflow is only done in the development environment context.
   <Attribute
     name="workflow"
     type="Workflow"
+    typeSlug="#workflows-object"
     description="A workflow object with attributes to update or create a workflow."
   />
 </Attributes>
@@ -1408,7 +1437,7 @@ You can retrieve, update, and create email layouts as well as listing all in a g
 </ExampleColumn>
 </Section>
 
-<Section title="Email layout definition" slug="email-layouts-object">
+<Section title="EmailLayout definition" slug="email-layouts-object">
 <ContentColumn>
 
 ### Attributes
@@ -1628,7 +1657,8 @@ Note: this endpoint only operates in the “development” environment.
 <Attributes>
   <Attribute
     name="email_layout"
-    type="object"
+    type="EmailLayout"
+    typeSlug="#email-layouts-object"
     description="An email layout object with a content attribute used to update or create an email layout."
   />
 </Attributes>
@@ -1675,7 +1705,8 @@ Note: this endpoint only operates in the “development” environment.
 <Attributes>
   <Attribute
     name="email_layout"
-    type="object"
+    type="EmailLayout"
+    typeSlug="#email-layouts-object"
     description="An email layout object to validate."
   />
 </Attributes>
@@ -1990,7 +2021,8 @@ Note: this endpoint only operates on translations in the “development” envir
 <Attributes>
   <Attribute
     name="translation"
-    type="object"
+    type="Translation"
+    typeSlug="#translations-object"
     description="A translation object with a content attribute used to update or create a translation."
   />
 </Attributes>
@@ -2042,7 +2074,8 @@ Note: this endpoint only operates on translations in the “development” envir
 <Attributes>
   <Attribute
     name="translation"
-    type="object"
+    type="Translation"
+    typeSlug="#translations-object"
     description="A translation object to validate."
   />
 </Attributes>
@@ -2365,6 +2398,7 @@ Note: this endpoint only operates on partials in the “development” environme
   <Attribute
     name="partial"
     type="Partial"
+    typeSlug="#partials-object"
     description="A partial object with attributes to update or create a partial."
   />
 </Attributes>
@@ -2422,6 +2456,7 @@ Note: this endpoint only operates on partials in the “development” environme
   <Attribute
     name="partial"
     type="Partial"
+    typeSlug="#partials-object"
     description="A partial object to validate."
   />
 </Attributes>
