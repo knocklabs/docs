@@ -185,6 +185,17 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#slack-revoke-access", title: "Revoke access" },
     ],
   },
+
+  {
+    title: "Audiences",
+    slug: "/reference",
+    pages: [
+      { slug: "#audiences", title: "Overview" },
+      { slug: "#audiences-list-members", title: "List audience members" },
+      { slug: "#audiences-add-members", title: "Add audience members" },
+      { slug: "#audiences-remove-members", title: "Remove audience members" },
+    ],
+  },
 ];
 
 export default sidebarContent;
