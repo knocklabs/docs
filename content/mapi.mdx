@@ -32,8 +32,9 @@ The Knock management API provides you with a programmatic way to interact with t
 You can use the Knock management API to:
 
 - Create, update, and manage your Knock workflows and the notification templates within those workflows.
-- Create and manage the [translations](/send-and-manage-data/translations) used by your notification templates.
 - Create, update and manage your [email layouts](/integrations/email/layouts).
+- Create and manage the [translations](/send-and-manage-data/translations) used by your notification templates.
+- Create, update, and manage your [partials](/designing-workflows/partials).
 - Commit and promote changes between your Knock environments.
 
 </ContentColumn>
@@ -373,6 +374,12 @@ Contains all properties of the <a href="#workflowstep-definition">`WorkflowStep`
     typeSlug="#sendwindow-definition"
     description="A list of send window objects. Must include one send window object per day of the week."
   />
+  <Attribute
+    name="channel_overrides"
+    type="ChannelSettings (optional)"
+    typeSlug="#channelsettings-definition"
+    description="A map of channel overrides for the channel step."
+  />
 </Attributes>
 
 #### Email template attributes
@@ -461,6 +468,7 @@ Contains all properties of the <a href="#workflowstep-definition">`WorkflowStep`
   <Attribute
     name="settings.payload_overrides"
     type="string"
+    typeSlug="/integrations/push/overview#push-overrides"
     description="A JSON template for any custom overrides to apply to the push notification payload."
   />
 </Attributes>
@@ -590,6 +598,147 @@ Contains all properties of the <a href="#workflowstep-definition">`WorkflowStep`
   "type": "channel"
 }
 ```
+
+</ExampleColumn>
+</Section>
+
+<Section title="ChannelSettings definition" slug="channelsettings-definition">
+<ContentColumn>
+
+Contains all settings that are applied to a channel integration. Used to override a channel's default settings at the <a href="#channelstep-definition">`ChannelStep`</a> level in a workflow.
+
+#### Chat channel settings attributes
+
+<Attributes>
+  <Attribute
+    name="link_tracking"
+    type="boolean"
+    description="Whether to track link clicks on chat notifications."
+  />
+</Attributes>
+
+#### Email channel settings attributes
+
+<Attributes>
+  <Attribute
+    name="from_address"
+    type="string"
+    description="The email address from which this channel will send."
+  />
+  <Attribute
+    name="from_name"
+    type="string"
+    description="A name to show your recipient in place of an email address."
+  />
+  <Attribute
+    name="reply_to_address"
+    type="string"
+    description="The Reply-to address on email notifications."
+  />
+  <Attribute
+    name="cc_address"
+    type="string"
+    description="The Cc address on email notifications."
+  />
+  <Attribute
+    name="bcc_address"
+    type="string"
+    description="The Bcc address on email notifications."
+  />
+  <Attribute
+    name="link_tracking"
+    type="boolean"
+    description="Whether to track link clicks on email notifications."
+  />
+  <Attribute
+    name="open_tracking"
+    type="boolean"
+    description="Whether to track opens on email notifications."
+  />
+  <Attribute
+    name="json_overrides"
+    type="string"
+    typeSlug="/integrations/email/settings#provider-json-overrides"
+    description="A JSON template for any custom overrides to merge into the API payload that is sent to the email provider."
+  />
+</Attributes>
+
+#### In-app feed channel settings attributes
+
+<Attributes>
+  <Attribute
+    name="link_tracking"
+    type="boolean"
+    description="Whether to track link clicks on in-app feed notifications."
+  />
+</Attributes>
+
+#### SMS channel settings attributes
+
+<Attributes>
+  <Attribute
+    name="link_tracking"
+    type="boolean"
+    description="Whether to track link clicks on SMS notifications."
+  />
+</Attributes>
+
+{/* 
+Not relevant to channel_overrides. Should be added if we add endpoints to configure channel integrations.
+
+#### Push channel settings attributes
+
+<Attributes>
+  <Attribute
+    name="token_deregistration"
+    type="boolean"
+    description="Whether Knock should automatically deregister erroneous device tokens."
+  />
+</Attributes> 
+*/}
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Chat channel settings"
+{
+  "link_tracking": true
+}
+```
+
+```json title="Email channel settings"
+{
+  "from_address": "noreply@example.com",
+  "from_name": "Acme",
+  "reply_to_address": "support@example.com",
+  "cc_address": "cc@example.com",
+  "bcc_address": "bcc@example.com",
+  "link_tracking": true,
+  "open_tracking": true,
+  "json_overrides": "{\"custom\": \"value\"}"
+}
+```
+
+```json title="In-app feed channel settings"
+{
+  "link_tracking": true
+}
+```
+
+```json title="SMS channel settings"
+{
+  "link_tracking": true
+}
+```
+
+{/* 
+Not relevant to channel_overrides. Should be added if we add endpoints to configure channel integrations.
+```json title="Push channel settings"
+{
+  "token_deregistration": true
+}
+``` 
+*/}
 
 </ExampleColumn>
 </Section>
