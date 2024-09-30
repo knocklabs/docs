@@ -35,6 +35,7 @@ const sidebarData = [
             title: "WorkflowStep",
           },
           { slug: "#channelstep-definition", title: "ChannelStep" },
+          { slug: "#channelsettings-definition", title: "ChannelSettings" },
           { slug: "#sendwindow-definition", title: "SendWindow" },
           { slug: "#delay-step-definition", title: "Delay step" },
           { slug: "#branch-step-definition", title: "Branch step" },
