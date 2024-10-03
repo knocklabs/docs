@@ -258,6 +258,23 @@ See the [Bulk operations section](#bulk-operations) for more information on pars
 </ContentColumn>
 </Section>
 
+<Section title="Trigger data filtering" slug="trigger-data-filtering">
+<ContentColumn>
+
+Some V1 API endpoints that return lists of message data accept a `trigger_data` parameter. Knock uses this parameter to scope results it returns down to messages generated with the trigger data you provide.
+
+The trigger data that Knock filters against is the _**combined and truncated data from the time the message was generated**_.
+
+If a batch step preceded the creation of your message, the trigger data available for filtering will be the combined data for all the workflow triggers bundled into your batch. If a fetch step preceded, then the filterable data will include any data pulled in via the fetch step request.
+
+Knock truncates trigger data for filtering to ensure it can efficiently process your request. The current data truncation rules are:
+
+- Nested data structures are removed. Trigger data for filtering will be a JSON object with a single level of key-value pairs.
+- String values are limited to 256 characters in length. Strings that exceed this limit are truncated to the maximum.
+
+</ContentColumn>
+</Section>
+
 <Section title="Pagination" slug="pagination">
 <ContentColumn>
 
@@ -1006,6 +1023,7 @@ Returns a paginated list of messages.
     name="trigger_data"
     type="JSON string (optional)"
     description="Limits the results to only items that were generated with the given data"
+    nameSlug="#trigger-data-filtering"
   />
   <Attribute
     name="inserted_at.gt"
@@ -1234,6 +1252,7 @@ Returns a paginated list of activities associated with the message. Note: for no
     name="trigger_data"
     type="JSON string (optional)"
     description="Limits the results to only items that were generated with the given data"
+    nameSlug="#trigger-data-filtering"
   />
 </Attributes>
 
@@ -2005,6 +2024,7 @@ along with a user token to make this request**
     name="trigger_data"
     type="JSON string (optional)"
     description="Limits the results to only items that were generated with the given data"
+    nameSlug="#trigger-data-filtering"
   />
 </Attributes>
 
@@ -2439,6 +2459,7 @@ Retrieve a paginated list of messages for a user. Will return most recent messag
     name="trigger_data"
     type="JSON string (optional)"
     description="Limits the results to only items that were generated with the given data"
+    nameSlug="#trigger-data-filtering"
   />
   <Attribute
     name="inserted_at.gt"
@@ -3065,6 +3086,7 @@ Returns a paginated list of messages for an object. Will return newest messages 
     name="trigger_data"
     type="JSON string (optional)"
     description="Limits the results to only items that were generated with the given data"
+    nameSlug="#trigger-data-filtering"
   />
   <Attribute
     name="inserted_at.gt"
