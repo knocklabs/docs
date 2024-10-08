@@ -2,6 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import useClipboard from "react-use-clipboard";
 import cn from "classnames";
+import { usePathname } from "next/navigation";
 
 const CLASS_SELECTOR = "section-heading";
 
@@ -18,8 +19,8 @@ const SectionHeading: React.FC<Props> = ({
   className,
   ...rest
 }) => {
-  const { asPath } = useRouter();
-  const targetPath = id ? `${asPath}#${id}` : asPath;
+  const pathname = usePathname() ?? "/";
+  const targetPath = id ? `${pathname}#${id}` : pathname;
 
   const targetUrl = global.window ? window.location.origin + targetPath : "";
   const [, onCopy] = useClipboard(targetUrl, { successDuration: 2000 });
