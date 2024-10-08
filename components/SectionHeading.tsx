@@ -1,5 +1,4 @@
 import React from "react";
-import { useRouter } from "next/router";
 import useClipboard from "react-use-clipboard";
 import cn from "classnames";
 import { usePathname } from "next/navigation";
