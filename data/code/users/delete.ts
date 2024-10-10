@@ -1,4 +1,8 @@
 const languages = {
+  curl: `
+curl -X DELETE https://api.knock.app/v1/users/1 \\
+  -H "Authorization: Bearer sk_test_12345"
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
@@ -9,13 +13,13 @@ await knock.users.delete(user.id);
 knock_client = MyApp.Knock.client()
 
 Knock.Users.delete(knock_client, user.id)
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.users.delete(user.id)
-  `,
+`,
   ruby: `
 require "knock"
 Knock.key = "sk_12345"

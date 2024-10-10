@@ -1,4 +1,16 @@
 const languages = {
+  curl: `
+curl -X POST https://api.knock.app/v1/workflows/new-comment/trigger \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "recipients": ["1", "2"],
+        "data": { "project_name": "My Project" },
+        "actor": "3",
+        "cancellation_key": "cancel_123",
+        "tenant": "jurassic_world_employees"
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
@@ -12,7 +24,7 @@ await knock.workflows.trigger("new-comment", {
   cancellationKey: "cancel_123",
   tenant: "jurassic_world_employees"
 });
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")

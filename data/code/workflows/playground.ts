@@ -49,20 +49,19 @@ var workflowTriggerOpts = new TriggerWorkflow {
 var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerOpts)
 `,
   curl: `
-curl -X POST 'https://api.knock.app/v1/workflows/new-comment/trigger' \\ \n\
-     -H 'Authorization: Bearer sk_test_12345' \\ \n\
-     -H 'Content-Type: application/json' \\ \n\
-     -H 'Idempotency-Key: 123' \\ \n\
-     -d '{
-           "recipients": ["1", "2"],
-           "data": {
-             "project_name": "My Project"
-           },
-           "actor": "3",
-           "cancellation_key": "cancel_123",
-           "tenant": "jurassic_world_employees"
-         }'
-
+curl -X POST 'https://api.knock.app/v1/workflows/new-comment/trigger' \\
+  -H 'Authorization: Bearer sk_test_12345' \\
+  -H 'Content-Type: application/json' \\
+  -H 'Idempotency-Key: 123' \\
+  -d '{
+        "recipients": ["1", "2"],
+        "data": {
+          "project_name": "My Project"
+        },
+        "actor": "3",
+        "cancellation_key": "cancel_123",
+        "tenant": "jurassic_world_employees"
+      }'
 `,
   node: `
 import { Knock } from "@knocklabs/node";

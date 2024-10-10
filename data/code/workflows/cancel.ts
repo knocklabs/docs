@@ -1,4 +1,12 @@
 const languages = {
+  curl: `
+curl -X POST https://api.knock.app/v1/workflows/new-user-invited/cancel \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "cancellation_key": "user_invite_id"
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);
@@ -6,7 +14,7 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 const userInvite = await invites.approve(inviteToken);
 
 await knock.workflows.cancel("new-user-invited", userInvite.id);
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")

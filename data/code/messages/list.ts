@@ -1,4 +1,15 @@
 const languages = {
+  curl: `
+curl -X GET https://api.knock.app/v1/messages \\
+  -H "Authorization: Bearer sk_12345"
+
+# supports pagination parameters and filters
+
+curl -X GET https://api.knock.app/v1/messages \\
+  -H "Authorization: Bearer sk_12345" \\
+  --url-query page_size=20 \\
+  --url-query tenant=my_tenant
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
