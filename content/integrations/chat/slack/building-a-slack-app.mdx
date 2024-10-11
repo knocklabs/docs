@@ -17,6 +17,70 @@ If you are new to Slack apps, a few key concepts to understand:
 - Your Slack app is installed to a customer's workspace through the [Slack OAuth flow](https://api.slack.com/authentication/oauth-v2). In this flow, your app requests scopes and the user installing the app confirms which scopes to grant. You’ll need to surface this OAuth flow to your users wherever you want them to install your Slack app.
 - A Slack app can have bot token scopes and user token scopes. For almost all use cases, you’ll be using bot token scopes. ([This Slack doc explains why.](https://api.slack.com/authentication/basics)) When you add bot token scopes to an app, you will **also** need to make sure your app has its display information configured. You can do this under the **App Home** sidebar on the [app management page](https://api.slack.com/apps).
 
-## Next steps
+In this section we'll complete the steps for setting up your Knock account and Slack app to enable SlackKit.
 
-Now you're ready to integrate Slack and Knock with [SlackKit](/integrations/chat/slack-kit/overview) or if you prefer, you can follow the documentation to build the OAuth integration yourself with our [Slack DIY guide](/integrations/chat/slack-diy/slack-apps-and-scopes).
+<Steps titleSize="h2">
+  <Step title="Set up Slack app">
+    See [Build a Slack app](/integrations/chat/slack/building-a-slack-app) to create the bot that you'll use to post notifications.
+
+    <Callout
+      emoji="🤖"
+      text={
+        <>
+          <strong>Prepare existing Slackbot</strong>
+          <br />
+          <br />
+          If you already have a Slackbot you want to use, you'll just need to
+          make sure it has its redirect URL set and that it's publicly distributed, which
+          is described below.
+        </>
+      }
+    />
+
+    The following steps will be completed in the **OAuth & Permissions** sidebar of your Slack app's [management page](https://api.slack.com/apps):
+
+    <AccordionGroup>
+      <Accordion title="Add a scope">
+        Although SlackKit manages your scopes, you have to add one in your Slack application's settings to start with so that it exposes the form for you to add a redirect URL.
+
+        Add `channels:read` to the scopes section. For the rest, you won't be managing SlackKit's scopes directly since the components will request the scopes they need. Here is the list of scopes and the reasons they're required:
+
+        - `chat:write`: This scope allows your bot to send messages to channels that the bot has been explicitly invited to, including private channels. It doesn't grant the ability to send messages to public channels without an invite.
+        - `chat:write.public`: This scope extends the bot's capabilities to send messages to public channels without needing a specific invitation to those channels. It's an addition to the chat:write scope, offering broader access for the bot to interact within the workspace.
+        - `channels:read`: This scope allows your bot to list all channels in a workspace and view details about specific channels (like name, topic, purpose, members), but does not grant access to private channels.
+        - `groups:read`: This scope allows your app to list all private channels that the bot or user is a member of and to view details about those channels.
+
+        You can read more about scopes in general in [building a slack app](/integrations/chat/slack/building-a-slack-app).
+      </Accordion>
+      <Accordion title="Add redirect URL">
+        Under **OAuth & Permissions** in the **Features** sidebar, you need to add a redirect URL so that Knock can receive the Slack OAuth handshake on your behalf.
+
+        Copy and paste this redirect URL:
+
+        <CopyableText
+          label="https://api.knock.app/providers/slack/authenticate"
+          content="https://api.knock.app/providers/slack/authenticate"
+        />
+      </Accordion>
+      <Accordion title="Set up public distribution">
+        Under **Manage Distribution**, click the "Distribute app" button which will show you a list of items to complete to activate public distribution. If you've built the app from scratch and completed the previous steps, you should see all of these complete except for "Remove hard coded information."
+
+        Check the box and then click "Activate Public Distribution."
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+  <Step title="Add Slack app to Knock Slack channel">
+    Now that your Slack app is set up, you'll want to reference three attributes in the **Basic Information** section:
+
+    1. App ID
+    2. Client ID
+    3. Client secret
+
+    You need to add this data to a new or existing Slack channel in the Knock dashboard to link your app to Knock. From the dashboard, [create a Slack channel](/concepts/channels#managing-channels) or open an existing one, and click **Manage configuration**. You'll see where to paste these three strings under **Provider settings**. Click "Update settings" to save.
+
+  </Step>
+  <Step title="Use Slack channel in a workflow">
+    In order to test this flow, you'll want to set up a workflow with a Slack channel step. Later on we'll discuss how you can [design your notification templates for Slack](/integrations/chat/slack/designing-slack-templates), but for now you can just add the channel step to a workflow.
+  </Step>
+</Steps>
