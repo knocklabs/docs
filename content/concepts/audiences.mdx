@@ -1,0 +1,63 @@
+---
+title: Audiences
+description: Learn how to use Audiences to power your lifecycle marketing use cases.
+tags: []
+section: Concepts
+---
+
+An Audience is a user segment that you can notify. You can bring audiences into Knock programmatically with our API or a supported reverse-ETL source.
+
+Once you start creating audiences in Knock, you can use them to:
+
+- trigger workflows for lifecycle messaging (such as new user signups) and transactional messaging (such as payment method updates)
+- orchestrate branch and conditional logic within your workflows (e.g. if a user is in a `paid users` audience, opt them out of the workflow)
+
+## Environments
+
+Audiences exist across environments but have per-environment user lists. When you create an audience, its key instantly exists across all environments. Any users added to an audience are scoped to a specific environment. Audiences do not follow Knock version control and do not need to be committed or promoted to environments.
+
+![Audience selector in the workflow editor](/images/concepts/audiences/workflow-editor-audience-selector.png)
+
+## Creating an audience
+
+Navigate to the “Audiences” section on the Knock dashboard’s sidebar, then click “Create Audience” in the top right corner. Once created, an audience is immediately available for use in every environment.
+
+## Tenants
+
+When adding users to an audience you can optionally include a tenant id to power per-user, per-tenant workflows. A user can exist in an audience with multiple distinct tenants.
+
+![An audience member with multiple distinct tenant ids](/images/concepts/audiences/audience-member-with-multiple-tenant-ids.png)
+
+## Triggering workflows
+
+Workflows can be configured to trigger for every new member added to an audience.
+
+Create or open the workflow you’d like to trigger for your audience, then open the step editor. Click on the “Trigger” step, then click “Edit trigger type” in the top right corner. Click “Audience“ and then select the audience you’d like this workflow to trigger from.
+
+![Audience trigger type config in the workflow editor](/images/concepts/audiences/audience-trigger-type-config.png)
+
+Commit your workflow to development, and when you’re ready promote it to production. At this point, every time a user is added to the selected audience a workflow will be triggered with that user as a recipient. The workflow will run in the environment where the user was added to the audience. In other words, if you use a production API key to add users to the audience, the workflow will trigger in your production environment.
+
+When a workflow triggers from an audience entry event, the tenant id provided for the member will be passed along to the workflow trigger. If no tenant id is provided in the API request, the workflow will trigger with no tenant data. If the same user is added with multiple distinct tenants, the workflow will trigger each time by default. To configure this behavior use [trigger frequency](/send-notifications/triggering-workflows#controlling-workflow-trigger-frequency) controls.
+
+## Audience conditions
+
+Audience membership can be checked in [branch](designing-workflows/branch-function#adding-conditions-to-branches) and [step conditions](https://docs.knock.app/designing-workflows/step-conditions). Create a condition, then select “Audience membership” as the type. When the condition is evaluated during workflow execution it will check if the recipient is a member of the selected audience.
+
+![Audience condition type config in the workflow editor](/images/concepts/audiences/condition-config.png)
+
+Tenancy is taken into account when checking audience membership. For a recipient to be considered a member of an audience during workflow execution, the tenant id provided with the trigger data must match the user’s audience membership record. If no tenant id was provided with the trigger, the user must have been added to the audience with no tenant id.
+
+## Populating an audience
+
+Before populating your audience ensure that your segment’s user data has been [synchronized into Knock](/managing-recipients/identifying-recipients) and that you’ve configured and promoted any workflows you want to trigger with the Audience.
+
+### Supported reverse ETL vendors
+
+Audiences can easily be synced from Hightouch Models and Census Segments by configuring Knock as a sync destination. See our integration docs for Census [todo link] and Hightouch [todo link] for more info.
+
+### Audiences API
+
+The Knock API can be used to sync audiences from any data warehouse or reverse ETL system. Create the audience in the Knock dashboard, then use the add and remove API operations to power your sync.
+
+The API is designed for batch processing and accepts payloads of up to 1,000 members at a time. For more information see the [audiences API docs](/reference#audiences).
