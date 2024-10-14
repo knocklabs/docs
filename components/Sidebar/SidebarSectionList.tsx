@@ -44,7 +44,7 @@ const SidebarSectionList: React.FC<Props> = ({ section, router }) => (
             isBeta={page.isBeta}
           />
         );
-      },
+      }
     )}
   </ul>
 );

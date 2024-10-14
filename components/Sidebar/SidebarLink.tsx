@@ -27,7 +27,7 @@ const SidebarLink: React.FC<Props> = ({ title, path, isSelected, isBeta }) => (
     >
       <span>{title}</span>
       {isBeta && (
-        <span className="ml-2 px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+        <span className="ml-2 px-1.5 py-0.5 text-xs font-medium bg-blue-50 text-blue-800 rounded-full">
           Beta
         </span>
       )}
