@@ -85,32 +85,6 @@ Accepts `KnockFeedProviderProps`:
   />
 </Attributes>
 
-### `KnockExpoPushNotificationProvider`
-
-A React component designed to streamline the integration of Expo push notifications within your React Native application.
-It facilitates the registration of device push tokens with the Knock backend, enabling the delivery of notifications.
-Moreover, this provider empowers developers to define custom behavior for handling notifications when they are received or interacted with, either by tapping or performing another action.
-By default, it provides a basic notification handling strategy, but it also allows for custom logic to be easily implemented according to specific application needs.
-
-**Note:** Must be a child of the `KnockProvider`.
-
-#### Props
-
-Accepts `KnockExpoPushNotificationProviderProps`:
-
-<Attributes>
-  <Attribute
-    name="knockExpoChannelId*"
-    type="string"
-    description="The channel ID of your Expo channel from Knock."
-  />
-  <Attribute
-    name="customNotificationHandler"
-    type="Promise<Notifications.NotificationBehavior>"
-    description="Allows developers to define custom behavior for handling notifications, including whether to show alerts, play sounds, or set badge counts"
-  />
-</Attributes>
-
 ## Hooks
 
 ### `useKnock`
@@ -294,83 +268,6 @@ Exposed under `KnockI18nProvider` child components.
     description="A helper function to get the value of a translation from the current `Translations`."
   />
 </Attributes>
-
-### `useExpoPushNotifications`
-
-The `KnockExpoPushNotificationProvider` exposes a `useExpoPushNotifications` hook for all child components, enabling them to interact with push notification functionalities and state.
-
-**Returns**: `ExpoPushNotificationContextType`
-
-<Attributes>
-  <Attribute
-    name="expoPushToken"
-    type="string | null"
-    description="The Expo push token for the current device."
-  />
-  <Attribute
-    name="registerForPushNotifications"
-    type="() => Promise<void>"
-    description="A function to initiate the push notification registration process."
-  />
-  <Attribute
-    name="registerPushTokenToChannel"
-    type="(token: string, channelId: string) => Promise<void>"
-    description="Registers the device's push token with a specific channel in the Knock backend."
-  />
-  <Attribute
-    name="unregisterPushTokenFromChannel"
-    type="(token: string, channelId: string) => Promise<void>"
-    description="Removes the device's push token from a specific channel in the Knock backend."
-  />
-  <Attribute
-    name="onNotificationReceived"
-    type="(handler: (notification: Notifications.Notification) => void) => void"
-    description="Sets a custom handler for notifications received while the app is in the foreground."
-  />
-  <Attribute
-    name="onNotificationTapped"
-    type="(handler: (response: Notifications.NotificationResponse) => void) => void"
-    description="Sets a custom handler for user interactions with notifications."
-  />
-</Attributes>
-
-**Example**:
-
-```jsx
-import React, { useEffect } from "react";
-import { View, Text } from "react-native";
-import {
-  KnockExpoPushNotificationProvider,
-  usePushNotifications,
-} from "@knocklabs/react-native";
-
-const App = () => (
-  <KnockExpoPushNotificationProvider knockExpoChannelId="{YOUR_CHANNEL_ID}">
-    <MyComponent />
-  </KnockExpoPushNotificationProvider>
-);
-
-const MyComponent = () => {
-  const { expoPushToken, onNotificationReceived, onNotificationTapped } =
-    usePushNotifications();
-
-  useEffect(() => {
-    onNotificationReceived((notification) => {
-      console.log("Notification Received: ", notification);
-    });
-
-    onNotificationTapped((response) => {
-      console.log("Notification Tapped: ", response);
-    });
-  }, []);
-
-  return (
-    <View>
-      <Text>Expo Push Token: {expoPushToken}</Text>
-    </View>
-  );
-};
-```
 
 ## Types
 
