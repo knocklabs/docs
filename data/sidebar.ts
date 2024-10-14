@@ -289,7 +289,7 @@ const sidebarContent: SidebarSection[] = [
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/quick-start", title: "Quick start" },
-          { slug: "/push-notifications", title: "Push notifications" },
+          // TODO { slug: "/push-notifications", title: "Push notifications" }
           { slug: "/reference", title: "API reference" },
         ],
       },
@@ -299,7 +299,7 @@ const sidebarContent: SidebarSection[] = [
         pages: [
           // { slug: "/overview", title: "Overview" },
           // { slug: "/quick-start", title: "Quick start" },
-          // { slug: "/push-notifications", title: "Push notifications" },
+          { slug: "/push-notifications", title: "Push notifications" },
           { slug: "/reference", title: "API reference" },
         ],
       },
