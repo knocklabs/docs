@@ -15,6 +15,7 @@ export type SidebarSection = {
   title: string | null;
   slug: string;
   desc?: string;
+  isBeta?: boolean;
   pages:
     | SidebarPage[]
     | SidebarSubsection[]

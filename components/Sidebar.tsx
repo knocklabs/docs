@@ -34,11 +34,16 @@ const Sidebar: React.FC<Props> = ({ content, children, isVisible = false }) => {
 
         {content.map((section) => (
           <div key={section.title} className="mb-7">
-            {section.title && (
+            <div className="flex items-center justify-between mb-2">
               <span className="uppercase text-xs font-semibold tracking-wider text-gray-800 dark:text-gray-500">
                 {section.title}
               </span>
-            )}
+              {section.isBeta && (
+                <span className="px-2 py-1 text-xs font-medium bg-blue-50 text-blue-800 rounded-full">
+                  Beta
+                </span>
+              )}
+            </div>
 
             <SidebarSectionList section={section} router={router} />
           </div>
