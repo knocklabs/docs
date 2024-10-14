@@ -41,6 +41,7 @@ const SidebarSectionList: React.FC<Props> = ({ section, router }) => (
             title={page.title}
             path={path}
             isSelected={isSelected}
+            isBeta={page.isBeta}
           />
         );
       },
