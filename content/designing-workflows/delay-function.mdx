@@ -5,28 +5,28 @@ tags: ["steps", "delays", "wait", "functions"]
 section: Designing workflows
 ---
 
-A delay function does just what it sounds like: it delays the execution of the workflow for some amount of time, then proceeds to the next step. There are two types of delays we support in Knock today: "wait for set interval" and "wait for a dynamic duration."
+A delay function does just what it sounds like: it delays the execution of the workflow for some amount of time, then proceeds to the next step. There are three types of delays we support in Knock today: "wait for fixed interval", "wait for a dynamic duration", and  "wait until a relative timestamp."
 
-## Wait for a set interval
+## Wait for a fixed interval
 
-The "wait for set interval" delay type waits for an interval of time (provided by you in the workflow editor) and then proceeds to the next step.
+The "wait for fixed interval" delay type waits for an interval of time (provided by you in the workflow editor) and then proceeds to the next step.
 
-Set interval delay functions are helpful for the following use cases:
+Fixed interval delay functions are helpful for the following use cases:
 
 - Check to see if a user's seen or read an in-app message before sending an email
 - Remind a user about a pending invite they haven't accepted
 
-## Wait for a dynamic duration
+## Wait for a dynamic period
 
-You can also set the length of your delay duration dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to set your duration.
+You can also set the length of your delay dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to set your duration.
 
-When specifying a dynamic delay duration you must provide one of the following:
+When specifying a dynamic delay period you must provide one of the following:
 
 - An [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
-- A relative duration unit (e.g `{ "unit": "seconds", "value": 30 }`)
+- A correlated duration unit (e.g `{ "unit": "seconds", "value": 30 }`)
 - A window rule (e.g `{ "frequency": "daily", "hours": 9, "minutes": 30 }`)
 
-A dynamic duration must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `delayUntil` in your `data` schema, your workflow trigger data must contain either an ISO-8601 timestamp, a valid duration unit, or a valid window rule.
+A dynamic delay must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `delayUntil` in your `data` schema, your workflow trigger data must contain either an ISO-8601 timestamp, a valid duration unit, or a valid window rule.
 
 When the key specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the delay will be **skipped**.
 
@@ -121,11 +121,11 @@ You can use our relative delay to wait some time before or after a timestamp tha
 
 When configuring a relative delay, you'll specify:
 
-- The delay interval (e.g., 1 day, 2 hours, 30 minutes)
+- A fixed delay interval (provided by you in the workflow editor)
 - Whether the delay should occur before or after the dynamic timestamp
 - The `key` for the dynamic timestamp (which can come from your trigger data, recipient data, or other sources)
 
-As in the dynamic duration section above, the key specified must be available to be resolved. If the key is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the delay will be skipped.
+As in the dynamic delay section above, the key specified must be available to be resolved. If the key is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the delay will be skipped.
 
 Relative interval delay functions are helpful for various scenarios, including:
 
