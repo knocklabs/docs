@@ -24,14 +24,14 @@ Once you create your Slack app, you’ll be routed to its app management page wi
 If you are new to Slack apps, a few key concepts to understand:
 
 - A [scope](https://api.slack.com/scopes) is a permission granted to your Slack app when it joins a Slack workspace. You configure which scopes your app asks for in the **OAuth & Permissions** sidebar of your [app management page](https://api.slack.com/apps).
-- Your Slack app is installed to a customer's workspace through the [Slack OAuth flow](https://api.slack.com/authentication/oauth-v2). In this flow, your app requests scopes and the user installing the app confirms which scopes to grant. You’ll need to surface this OAuth flow to your users wherever you want them to install your Slack app.
+- Your Slack app is installed to a customer's workspace through the [Slack OAuth flow](https://api.slack.com/authentication/oauth-v2). In this flow, your app requests scopes and the user installing the app confirms which scopes to grant. You’ll need to surface this OAuth flow to your users wherever you want them to install your Slack app. Knock's `SlackAuthButton` component can help you with this.
 - A Slack app can have bot token scopes and user token scopes. For almost all use cases, you’ll be using bot token scopes. ([This Slack doc explains why.](https://api.slack.com/authentication/basics)) When you add bot token scopes to an app, you will **also** need to make sure your app has its display information configured. You can do this under the **App Home** sidebar on the [app management page](https://api.slack.com/apps).
 
 In this section we'll complete the steps for setting up your Knock account and Slack app.
 
 <Steps titleSize="h3">
   <Step title="Set up Slack app">
-    See [Build a Slack app](/integrations/chat/slack/building-a-slack-app) to create the bot that you'll use to post notifications.
+    First, you'll need to create the bot that you'll use to post notifications.
 
     <Callout
       emoji="🤖"
@@ -111,14 +111,21 @@ In this section we'll complete the steps for setting up your Knock account and S
   </Step>
   <Step title="Use Slack channel in a workflow">
     In order to test this flow, you'll want to set up a workflow with a Slack channel step. Later on we'll discuss how you can [design your notification templates for Slack](/integrations/chat/slack/designing-slack-templates), but for now you can just add the channel step to a workflow. To actually send a notification to Slack, you'll need to add channel data to a user or object in Knock. We'll cover that in the next section.
+    <Image
+  src="/images/integrations/chat/slack/workflow-with-slack-step.png"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="workflow with a Slack step"
+  width={2000}
+  height={1450}
+/>
   </Step>
 </Steps>
 
 ## How to set channel data for a Slack integration in Knock
 
-In Knock, the [`ChannelData`](/managing-recipients/setting-channel-data) concept provides you a way of storing recipient-specific connection data for a given channel. If you reference the [channel data requirements for Slack](/managing-recipients/setting-channel-data#chat-app-channels), you'll see that there are two different schemas for `SlackConnection` stored on a [`user`](/send-and-manage-data/users) or an [`object`](/send-and-manage-data/objects) in Knock.
+In Knock, the [`ChannelData`](/managing-recipients/setting-channel-data) concept provides you a way of storing recipient-specific connection data for a given channel. If you reference the [channel data requirements for Slack](/managing-recipients/setting-channel-data#chat-app-channels), you'll see that there are two different schemas for a `SlackConnection` stored on a [`User`](/send-and-manage-data/users) or an [`Object`](/send-and-manage-data/objects) in Knock.
 
-Here's an example of setting channel data on an `object` in Knock.
+Here's an example of setting channel data on an `Object` in Knock.
 
 <MultiLangCodeBlock
   snippet="objects.setChannelData.slack"
@@ -184,7 +191,7 @@ Here's an overview of the data requirements for [setting recipient channel data]
 
 ### Setting channel data: users vs. objects
 
-Depending on the Slack integration you build into your product, you’ll store the connection data you receive from Slack as `channel_data` on either a `user` or an `object` in Knock.
+Depending on the Slack integration you build into your product, you’ll store the connection data you receive from Slack as `channel_data` on either a `User` or an `Object` in Knock.
 
 <AccordionGroup>
   <Accordion title="Users" description="For notifying users via direct message">
@@ -203,7 +210,7 @@ Depending on the Slack integration you build into your product, you’ll store t
     You can find the correct `channel_id` and display a list of channels for your user to select from by querying the Slack API:
     - for [a list of all of a workspace's channels](https://api.slack.com/methods/conversations.list)
 
-    Here's a real-life example of how `objects` would be used in a product you may be familiar with: Notion. In Notion you can connect a Notion page to a Slack channel of your choosing. If we were to power this with Knock, when a user completed the Slack OAuth flow for that Notion page we’d store the connection data on the Knock `object` that maps to that Notion page. Then when something happens on that page that the connected Slack channel should be notified about, we include the Notion page `object` as a recipient on the workflow trigger.
+    The [`SlackChannelCombobox` component](/in-app-ui/react/slack-kit#slackchannelcombobox) of Knock's SlackKit can help you with this.
 
     You can learn more about the Knock object model and see an example how to use it to power Slack notifications in our [Objects concept guide](/send-and-manage-data/objects).
 
