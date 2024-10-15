@@ -5,15 +5,13 @@ section: Integrations > Slack
 layout: integrations
 ---
 
-In this guide you'll learn how to use Knock to send notifications to Slack. There are two ways to do this:
-
-Once you have your Slack app configured and you've figured out which [OAuth scopes](https://api.slack.com/scopes) it will need, you're ready to build the OAuth flow your customers will use to install your Slack app in their Slack workspace.
+In this guide you'll learn how to use Knock to send notifications to Slack. Depending on your use case, there are a few different ways to approach this integration. This guide serves as a starting point and will cover the basics of setting up a Slack integration with Knock regardless of your use case.
 
 Here's what we'll cover in this guide.
 
-- How to build a simple Slack OAuth in your product
-- How to use the response received in that OAuth handshake to set Knock channel data
-- How to decide when to set Knock channel data on `users` vs. `objects`
+- Building a Slack app for your integration
+- How to store Slack connection data in Knock using channel data
+- How to compose templates for Slack notifications using markdown and block kit UI
 
 ## How to connect Slack to Knock
 
@@ -29,7 +27,7 @@ If you are new to Slack apps, a few key concepts to understand:
 - Your Slack app is installed to a customer's workspace through the [Slack OAuth flow](https://api.slack.com/authentication/oauth-v2). In this flow, your app requests scopes and the user installing the app confirms which scopes to grant. You’ll need to surface this OAuth flow to your users wherever you want them to install your Slack app.
 - A Slack app can have bot token scopes and user token scopes. For almost all use cases, you’ll be using bot token scopes. ([This Slack doc explains why.](https://api.slack.com/authentication/basics)) When you add bot token scopes to an app, you will **also** need to make sure your app has its display information configured. You can do this under the **App Home** sidebar on the [app management page](https://api.slack.com/apps).
 
-In this section we'll complete the steps for setting up your Knock account and Slack app to enable SlackKit.
+In this section we'll complete the steps for setting up your Knock account and Slack app.
 
 <Steps titleSize="h3">
   <Step title="Set up Slack app">
@@ -65,14 +63,16 @@ In this section we'll complete the steps for setting up your Knock account and S
         You can read more about scopes in general in [building a slack app](/integrations/chat/slack/building-a-slack-app).
       </Accordion>
       <Accordion title="Add redirect URL">
-        Under **OAuth & Permissions** in the **Features** sidebar, you need to add a redirect URL so that Knock can receive the Slack OAuth handshake on your behalf.
+        Under **OAuth & Permissions** in the **Features** sidebar, you need to add a redirect URL so that Slack knows where to redirect users after they complete the OAuth handshake.
 
-        Copy and paste this redirect URL:
+        If you plan on using SlackKit, copy and paste this redirect URL:
 
         <CopyableText
           label="https://api.knock.app/providers/slack/authenticate"
           content="https://api.knock.app/providers/slack/authenticate"
         />
+
+        If you are building your own OAuth flow, you'll need to use a URL in your frontend application. You can reference this guide on [building a Slack OAuth flow](https://knock.app/blog/how-to-authenticate-users-in-slack-using-oauth) from scratch.
       </Accordion>
       <Accordion title="Set up public distribution">
         Under **Manage Distribution**, click the "Distribute app" button which will show you a list of items to complete to activate public distribution. If you've built the app from scratch and completed the previous steps, you should see all of these complete except for "Remove hard coded information."
@@ -89,17 +89,34 @@ In this section we'll complete the steps for setting up your Knock account and S
     2. Client ID
     3. Client secret
 
-    You need to add this data to a new or existing Slack channel in the Knock dashboard to link your app to Knock. From the dashboard, [create a Slack channel](/concepts/channels#managing-channels) or open an existing one, and click **Manage configuration**. You'll see where to paste these three strings under **Provider settings**. Click "Update settings" to save.
+    You need to add this data to a new or existing Slack channel in the Knock dashboard to link your app to Knock. From the dashboard, you can [create a Slack channel](/concepts/channels#managing-channels)  in the **Integrations** tab.
+    <Image
+    src="/images/integrations/chat/slack/create-slack-channel.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="A Slack message"
+    width={2000}
+    height={1186}
+    />
+    Once the channel exists, you can click "Manage configuration" to access the "Provider settings" section. This is where you'll paste the three strings referenced above.
+    <Image
+    src="/images/integrations/chat/slack/edit-slack-channel-config.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="A Slack message"
+    width={2000}
+    height={1208}
+    />
+
+    Click "Update settings" to save.
 
   </Step>
   <Step title="Use Slack channel in a workflow">
-    In order to test this flow, you'll want to set up a workflow with a Slack channel step. Later on we'll discuss how you can [design your notification templates for Slack](/integrations/chat/slack/designing-slack-templates), but for now you can just add the channel step to a workflow.
+    In order to test this flow, you'll want to set up a workflow with a Slack channel step. Later on we'll discuss how you can [design your notification templates for Slack](/integrations/chat/slack/designing-slack-templates), but for now you can just add the channel step to a workflow. To actually send a notification to Slack, you'll need to add channel data to a user or object in Knock. We'll cover that in the next section.
   </Step>
 </Steps>
 
 ## How to set channel data for a Slack integration in Knock
 
-When you receive an OAuth callback from Slack, you'll need to set the returned identifier (either an `incoming_webhook_url` or an `access_token`) as [channel data](/send-notifications/setting-channel-data) on a [`user`](/send-and-manage-data/users) or an [`object`](/send-and-manage-data/objects) in Knock. We cover how to decide [which to use](/integrations/chat/slack-diy/building-oauth-flow#setting-channel-data-users-vs-objects) in the section below.
+In Knock, the [`ChannelData`](/managing-recipients/setting-channel-data) concept provides you a way of storing recipient-specific connection data for a given channel. If you reference the [channel data requirements for Slack](/managing-recipients/setting-channel-data#chat-app-channels), you'll see that there are two different schemas for `SlackConnection` stored on a [`user`](/send-and-manage-data/users) or an [`object`](/send-and-manage-data/objects) in Knock.
 
 Here's an example of setting channel data on an `object` in Knock.
 
