@@ -49,14 +49,12 @@ section: Building in-app UI
 
 ```tsx
 import {
-  KnockExpoPushNotificationProvider,
   KnockFeedProvider,
   KnockProvider,
   NotificationIconButton,
 } from "@knocklabs/react-native";
-import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, StatusBar } from "react-native";
 
 import NotificationFeedContainer from "./NotificationFeedContainer";
 
@@ -68,35 +66,27 @@ const App: React.FC = () => {
 
   return (
     <KnockProvider
-      apiKey={process.env.EXPO_PUBLIC_KNOCK_PUBLIC_API_KEY}
-      host={process.env.EXPO_PUBLIC_KNOCK_HOST}
-      userId={process.env.EXPO_PUBLIC_KNOCK_USER_ID}
+      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+      host={process.env.KNOCK_HOST}
+      userId={process.env.KNOCK_USER_ID}
       logLevel="debug"
     >
-      <KnockExpoPushNotificationProvider
-        knockExpoChannelId={process.env.EXPO_PUBLIC_KNOCK_PUSH_CHANNEL_ID}
-      >
-        <KnockFeedProvider
-          feedId={process.env.EXPO_PUBLIC_KNOCK_FEED_CHANNEL_ID}
-        >
-          <View style={styles.container}>
-            <StatusBar style="auto" />
-            {!isNotificationFeedOpen && (
-              <NotificationIconButton
-                onClick={onTopActionButtonTap}
-                badgeCountType={"unread"}
-              />
-            )}
-            {isNotificationFeedOpen && (
-              <NotificationFeedContainer
-                handleClose={() =>
-                  setIsNotificationFeedOpen(!isNotificationFeedOpen)
-                }
-              />
-            )}
-          </View>
-        </KnockFeedProvider>
-      </KnockExpoPushNotificationProvider>
+      <View style={styles.container}>
+        <StatusBar />
+        {!isNotificationFeedOpen && (
+          <NotificationIconButton
+            onClick={onTopActionButtonTap}
+            badgeCountType={"unread"}
+          />
+        )}
+        {isNotificationFeedOpen && (
+          <NotificationFeedContainer
+            handleClose={() =>
+              setIsNotificationFeedOpen(!isNotificationFeedOpen)
+            }
+          />
+        )}
+      </View>
     </KnockProvider>
   );
 };
