@@ -85,6 +85,19 @@ Accepts `KnockFeedProviderProps`:
   />
 </Attributes>
 
+### `KnockPushNotificationProvider`
+
+A context provider designed to streamline the integration of push notifications within your React Native application.
+It facilitates the registration of device push tokens with the Knock backend, enabling the delivery of notifications.
+
+It is recommended to use the [`usePushNotifications`](#usepushnotifications) hook to interact with this context provider.
+
+**Note:** Must be a child of the `KnockProvider`.
+
+#### Props
+
+None other than `children`.
+
 ## Hooks
 
 ### `useKnock`
@@ -268,6 +281,63 @@ Exposed under `KnockI18nProvider` child components.
     description="A helper function to get the value of a translation from the current `Translations`."
   />
 </Attributes>
+
+### `usePushNotifications`
+
+The `KnockPushNotificationProvider` exposes a `usePushNotifications` hook for all child components, enabling them to register and unregister a device's push token from a channel.
+
+**Returns**: `KnockPushNotificationContextType`
+
+<Attributes>
+  <Attribute
+    name="registerPushTokenToChannel"
+    type="(token: string, channelId: string) => Promise<void>"
+    description="Registers the device's push token with a specific channel in the Knock backend."
+  />
+  <Attribute
+    name="unregisterPushTokenFromChannel"
+    type="(token: string, channelId: string) => Promise<void>"
+    description="Removes the device's push token from a specific channel in the Knock backend."
+  />
+</Attributes>
+
+**Example**:
+
+```jsx
+import React, { useEffect } from "react";
+import { View, Text } from "react-native";
+import {
+  KnockExpoPushNotificationProvider,
+  useExpoPushNotifications,
+} from "@knocklabs/expo";
+
+const App = () => (
+  <KnockExpoPushNotificationProvider knockExpoChannelId="{YOUR_CHANNEL_ID}">
+    <MyComponent />
+  </KnockExpoPushNotificationProvider>
+);
+
+const MyComponent = () => {
+  const { expoPushToken, onNotificationReceived, onNotificationTapped } =
+    useExpoPushNotifications();
+
+  useEffect(() => {
+    onNotificationReceived((notification) => {
+      console.log("Notification Received: ", notification);
+    });
+
+    onNotificationTapped((response) => {
+      console.log("Notification Tapped: ", response);
+    });
+  }, []);
+
+  return (
+    <View>
+      <Text>Expo Push Token: {expoPushToken}</Text>
+    </View>
+  );
+};
+```
 
 ## Types
 
