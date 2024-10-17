@@ -307,33 +307,30 @@ The `KnockPushNotificationProvider` exposes a `usePushNotifications` hook for al
 import React, { useEffect } from "react";
 import { View, Text } from "react-native";
 import {
-  KnockExpoPushNotificationProvider,
-  useExpoPushNotifications,
-} from "@knocklabs/expo";
+  KnockPushNotificationProvider,
+  usePushNotifications,
+} from "@knocklabs/react-native";
 
 const App = () => (
-  <KnockExpoPushNotificationProvider knockExpoChannelId="{YOUR_CHANNEL_ID}">
+  <KnockPushNotificationProvider>
     <MyComponent />
-  </KnockExpoPushNotificationProvider>
+  </KnockPushNotificationProvider>
 );
 
 const MyComponent = () => {
-  const { expoPushToken, onNotificationReceived, onNotificationTapped } =
-    useExpoPushNotifications();
+  // How the push token is retrieved depends upon the push notification service you are using
+  const pushToken = getPushTokenForCurrentDevice();
+  const { registerPushTokenToChannel } = usePushNotifications();
 
   useEffect(() => {
-    onNotificationReceived((notification) => {
-      console.log("Notification Received: ", notification);
-    });
-
-    onNotificationTapped((response) => {
-      console.log("Notification Tapped: ", response);
-    });
-  }, []);
+    registerPushTokenToChannel(pushToken, process.env.KNOCK_PUSH_CHANNEL_ID)
+      .then(() => console.log("Push token registered"))
+      .catch(console.error);
+  }, [registerPushTokenToChannel, pushToken]);
 
   return (
     <View>
-      <Text>Expo Push Token: {expoPushToken}</Text>
+      <Text>Push Token: {pushToken}</Text>
     </View>
   );
 };
