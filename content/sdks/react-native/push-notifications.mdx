@@ -1,0 +1,135 @@
+---
+title: "Handling Push Notifications with React Native and Firebase Cloud Messaging"
+description: A guide on integrating FCM push notifications with the Knock SDK in your React Native application.
+section: SDKs
+---
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Using Expo?</strong> See our{" "}
+      <a href="/sdks/expo/push-notifications">
+        guide to handling push notifications using our Expo SDK
+      </a>
+      .
+    </>
+  }
+/>
+
+## Step 1: Set up a Firebase Cloud Messaging channel in Knock
+
+If you haven't already, create a new Firebase Cloud Messaging channel in the _Integrations_ page of your Knock dashboard. Follow our [Firebase Cloud Messaging push notification guide](/integrations/push/firebase) to configure FCM with Knock using your Service Account JSON file.
+
+## Step 2: Set up React Native Firebase
+
+The simplest way to get started with FCM in your React Native app is to use [React Native Firebase](https://rnfirebase.io/), which simplifies the process of handling push notifications and device tokens. Follow their Getting Started guide to set up React Native Firebase in your project.
+
+## Step 3: Add `KnockPushNotificationProvider` to your app
+
+Ensure your app is wrapped with both `KnockProvider` and `KnockPushNotificationProvider`.
+
+```tsx
+import React from "react";
+import { View } from "react-native";
+import {
+  KnockProvider,
+  KnockPushNotificationProvider,
+} from "@knocklabs/react-native";
+
+export default function App() {
+  return (
+    <KnockProvider apiKey="{YOUR_KNOCK_PUBLIC_API_KEY}" userId="{YOUR_USER_ID}">
+      <KnockPushNotificationProvider>
+        <View> {/* Your app content here */} </View>
+      </KnockPushNotificationProvider>
+    </KnockProvider>
+  );
+}
+```
+
+## Step 4: Request permissions
+
+Depending upon the platforms supported by your app, you may need to request permissions to receive push notifications on the user's device. See React Native Firebase's documentation on [how to request permissions on Android](https://rnfirebase.io/messaging/usage#android---requesting-permissions) and [how to request permissions on iOS](https://rnfirebase.io/messaging/usage#ios---requesting-permissions). Alternatively, consider using a third-party library such as [react-native-permissions](https://github.com/zoontek/react-native-permissions).
+
+## Step 5: Register for push notifications
+
+When your app launches, retrieve the device token using [React Native Firebase's `getToken` function](https://rnfirebase.io/reference/messaging#getToken). Pass this token to the `registerPushTokenToChannel` function provided by Knock's [`usePushNotifications` hook](/sdks/react-native/reference#usepushnotifications) and include the channel ID of your FCM channel.
+
+Additionally, when your app is in the foreground, register a listener using [`onTokenRefresh`](https://rnfirebase.io/reference/messaging#onTokenRefresh) and invoke `registerPushTokenToChannel` whenever the token is refreshed.
+
+```tsx
+import { Text } from "react-native";
+import { usePushNotifications } from "@knocklabs/react-native";
+import messaging from "@react-native-firebase/messaging";
+
+const MyComponent = () => {
+  const { registerPushTokenToChannel } = usePushNotifications();
+
+  useEffect(() => {
+    messaging()
+      .getToken()
+      .then((token) =>
+        registerPushTokenToChannel(token, "{YOUR_KNOCK_FCM_CHANNEL_ID}"),
+      )
+      .catch(console.error);
+
+    const unsubscribe = messaging().onTokenRefresh((token) =>
+      registerPushTokenToChannel(token, "{YOUR_KNOCK_FCM_CHANNEL_ID}").catch(
+        console.error,
+      ),
+    );
+    return unsubscribe;
+  }, [registerPushTokenToChannel]);
+
+  return <Text>Hello, world!</Text>;
+};
+```
+
+## Step 6: Handle incoming push notifications
+
+Listen for push notifications using React Native Firebase's [`getInitialNotification`](https://rnfirebase.io/reference/messaging#getInitialNotification) and [`onNotificationOpenedApp`](https://rnfirebase.io/reference/messaging#onNotificationOpenedApp) functions. See [React Native Firebase's Notifications guide](https://rnfirebase.io/messaging/notifications#handling-interaction) for more details on these two functions.
+
+```tsx
+useEffect(() => {
+  messaging()
+    .getInitialNotification()
+    .then((remoteMessage) => {
+      if (remoteMessage) {
+        console.log("App opened via notification from quit state");
+      }
+    })
+    .catch(console.error);
+
+  const unsubscribe = messaging().onNotificationOpenedApp(() => {
+    console.log("App opened via notification while in the background");
+  });
+
+  return unsubscribe;
+}, []);
+```
+
+## Step 7: Send a test notification
+
+Use the Knock dashboard or API to send a test notification to ensure your setup is correct. Verify that the notification appears on your device and that tapping on it triggers the expected behavior.
+
+## Troubleshooting
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      Check out our{" "}
+      <a href="https://github.com/knocklabs/javascript/tree/main/examples/react-native-example">
+        React Native example app
+      </a>{" "}
+      to see a fully working example of how to integrate push notifications with
+      Knock, Firebase Cloud Messaging, and React Native Firebase.
+    </>
+  }
+/>
+
+- **Not Receiving Notifications:** Ensure your FCM device token is correctly registered with Knock and that your device's notification settings allow push notifications from your app.
+- **Handling Silent Notifications:** If implementing silent notifications, ensure that your notification payload is correctly configured to not display an alert or sound.
+
+For further assistance, visit our [support documentation](https://docs.knock.app) or reach out to our support team.
