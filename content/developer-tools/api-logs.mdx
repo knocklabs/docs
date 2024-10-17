@@ -4,7 +4,17 @@ description: Learn more about viewing and debugging API request logs in Knock.
 section: Developer tools
 ---
 
-Knock automatically captures and stores all of the API requests you make to the Knock API, and makes these requests accessible under the **Developers** > **Logs** section of the left-hand navigation in the Knock dashboard.
+Knock automatically captures and stores all of the API requests you make to the Knock API, and makes these requests accessible under the **Developers** > **Logs** section of the Knock dashboard.
+
+<Callout
+  emoji="👀"
+  text={
+    <>
+      <strong>Note:</strong> Knock does not store response bodies for the{" "}
+      <code>/feeds</code> endpoint in our logs.
+    </>
+  }
+/>
 
 ## Filtering API logs
 
@@ -16,9 +26,25 @@ You can filter API logs in your Knock account using the following filters:
 
 ## Log truncation
 
-Knock truncates logs with long binaries, lists, and maps to prevent the logs from becoming too large. The truncation is done at the top level of the JSON object, and the truncation is indicated by the presence of the `__knock_truncated__` key in the JSON object.
+Knock truncates logs with long binaries, lists, maps, and strings to prevent the logs from becoming too large. The truncation occurs at the top level of the JSON object and is noted by the presence of either the `__knock_truncated__` key in the JSON object (indicating that some of the keys were dropped) or as a `[TRUNCATED]` value under a given key.
 
-Knock does not store response bodies for the `/feeds` endpoint.
+```json title="Example of a truncated log"
+// Original JSON object with many keys
+{
+  "foo": "bar",
+  "biz": "this is a very long string value",
+  "baz": null,
+  ...
+}
+
+// Truncated JSON object
+{
+  // indicates that some of the key-value pairs were dropped
+  "__knock_truncated__": true,
+  "foo": "bar",
+  "biz": "[TRUNCATED]"
+}
+```
 
 ## Frequently asked questions
 
