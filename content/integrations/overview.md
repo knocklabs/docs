@@ -23,7 +23,7 @@ We support the following channel types today:
 
 ## Source integrations
 
-We support receiving events from customer data platforms which can be configured to trigger notification workflows in Knock.
+We support receiving events from customer data platforms which can be configured to trigger notification workflows and populate [Audiences](/concepts/audiences) in Knock.
 
 - [Segment](/integrations/sources/segment)
 - [Rudderstack](/integrations/sources/rudderstack)
