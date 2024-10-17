@@ -13,6 +13,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#batch-rate-limits", title: "Batch rate limits" },
       { slug: "#idempotent-requests", title: "Idempotent requests" },
       { slug: "#bulk-endpoints", title: "Bulk endpoints" },
+      { slug: "#trigger-data-filtering", title: "Trigger data filtering" },
       { slug: "#pagination", title: "Pagination" },
       { slug: "#errors", title: "Errors" },
       { slug: "#error-codes", title: "Common error codes" },
