@@ -16,13 +16,13 @@ Here's what we'll cover in this guide:
 
 ## Slack channels are connections on Objects
 
-In Knock, we model channels in a Slack workspace as connections on objects. [Objects](/concepts/objects) allow you to model any resource in your system within Knock, and while their primary purpose is to act as non-user recipients, they are very flexible abstractions.
+In Knock, we model channels in a Slack workspace as connections on Objects. [Objects](/concepts/objects) allow you to model any resource in your system within Knock, and while their primary purpose is to act as non-user recipients, they are very flexible abstractions.
 
 ### An overview of Objects
 
-Individual objects exist within [a collection](/concepts/objects#collection-naming) and always have [a unique ID](/concepts/objects#the-object-identifier) or key within that collection. The object itself can store any number and type of properties as key-value pairs. You can see some examples of possible object structures in [the official documentation on setting object data](/concepts/objects#sending-object-data-to-knock).
+Individual Objects exist within [a collection](/concepts/objects#collection-naming) and always have [a unique ID](/concepts/objects#the-object-identifier) or key within that collection. The Object itself can store any number and type of properties as key-value pairs. You can see some examples of possible Object structures in [the official documentation on setting Object data](/concepts/objects#sending-object-data-to-knock).
 
-Let’s say you are building a devtool product like GitHub, and want to set up Slack notifications whenever someone comments on an issue within a repository. First, you’ll want to create an object to model your repository as part of the `repositories` collection:
+Let’s say you are building a devtool product like GitHub and want to set up Slack notifications whenever someone comments on an issue within a repository. First, you’ll want to create an Object to model your repository as part of the `repositories` collection:
 
 ```javascript
 import { Knock } from "@knocklabs/node";
@@ -60,9 +60,9 @@ your webhook, or you can connect another channel and then copy the webhook URL:
 
 ### Set the webhook as channel data
 
-Now that you have the webhook URL, we’ll store that webhook as a special property on the repository object called channel data. [Channel data is both channel and recipient-specific data](https://docs.knock.app/managing-recipients/setting-channel-data) stored for use with particular channels, like a token used for push notifications or webhooks stored for chat apps like Slack, Teams, and Discord. Both users and objects can store channel data.
+Now that you have the webhook URL, we’ll store that webhook as a special property on the repository Object called channel data. [Channel data is both channel and recipient-specific data](https://docs.knock.app/managing-recipients/setting-channel-data) stored for use with particular channels, like a token used for push notifications or webhooks stored for chat apps like Slack, Teams, and Discord. Both Users and Objects can store channel data.
 
-In the code example below, we’ll use the `knockClient.objects.setChannelData` method to update the channel data for our repository object.
+In the code example below, we’ll use the `knockClient.objects.setChannelData` method to update the channel data for our repository Object.
 
 ```javascript
 import { Knock } from "@knocklabs/node";
@@ -82,27 +82,27 @@ await knockClient.objects.setChannelData(
 );
 ```
 
-Here, you’ll also need your `KNOCK_SLACK_CHANNEL_ID` as the third parameter, which is the channel ID for Slack within Knock, so that Knock can reference that channel when it processes workflows that use it. The last parameter is an object of a specific format that varies based on [the type of message provider](/managing-recipients/setting-channel-data#provider-data-requirements). In this case, it is a `SlackConnection` object with an `incoming_webhook` property that contains the URL you copied from Slack.
+Here, you’ll also need your `KNOCK_SLACK_CHANNEL_ID` as the third parameter, which is the channel ID of your Slack integration within Knock, so that Knock can reference that channel when it processes workflows that use it. The last parameter is an object of a specific format that varies based on [the type of message provider](/managing-recipients/setting-channel-data#provider-data-requirements). In this case, it is a `SlackConnection` object with an `incoming_webhook` property that contains the URL you copied from Slack.
 
 ### Trigger a workflow with an object recipient
 
 With the channel data in place, you can add Slack as a workflow step in any workflow. For this example, we’ll create a `new-issue` workflow that pings users in our connected Slack channel whenever someone adds a new issue.
 
 <Image
-  src="/images/integrations/chat/slack/workflow-with-slack-step.png"
+  src="/images/integrations/chat/slack/workflow-with-slack-step-new.png"
   className="rounded-md mx-auto border border-gray-200"
   alt="workflow with a Slack step"
-  width={2000}
-  height={1450}
+  width={2202}
+  height={1922}
 />
 
-As you create your message template, remember that in this case the repository object is the recipient. That means any properties you reference on your liquid template tags need to exist as properties of the object as well:
+As you create your message template, remember that in this case the repository Object is the recipient of your workflow. That means any properties you reference on your Liquid template tags need to exist as properties of the Object as well:
 
 ```markdown
 There was an issue opened on the following repo: **{{ recipient.name }}**
 ```
 
-Finally, we’ll add the workflow trigger to our code and add the repository object details as a recipient.
+Finally, we’ll add the workflow trigger to our code with the repository Object as a recipient.
 
 ```javascript
 const { Knock } = require("@knocklabs/node");

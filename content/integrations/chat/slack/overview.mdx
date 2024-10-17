@@ -15,17 +15,17 @@ Here's what we'll cover in this guide.
 
 ## How to connect Slack to Knock
 
-Regardless of whether you're using Knock's managed approach to integrating Slack with Knock's [SlackKit components](/in-app-ui/react/slack-kit) or building the flow entirely yourself, you'll need a Slack app to send notifications from Knock to a Slack workspace. If you haven’t built a Slack app yet, you can get started in [Slack’s app documentation](https://api.slack.com/start/quickstart#creating).
+Regardless of whether you're using Knock's managed approach to integrating Slack with our [SlackKit components](/in-app-ui/react/slack-kit) or building the flow entirely yourself, you'll need a Slack app to send notifications from Knock to a Slack workspace. If you haven’t built a Slack app yet, you can get started in <a href="https://api.slack.com/start/quickstart#creating" target="_blank">Slack’s app documentation</a>.
 
 Once you create your Slack app, you’ll be routed to its app management page within the Slack dashboard. It looks like this.
 
 ![Slack app management page](/images/slack-app-management-page.png)
 
-If you are new to Slack apps, a few key concepts to understand:
+If you are new to Slack apps, there are a few key concepts to understand:
 
-- A [scope](https://api.slack.com/scopes) is a permission granted to your Slack app when it joins a Slack workspace. You configure which scopes your app asks for in the **OAuth & Permissions** sidebar of your [app management page](https://api.slack.com/apps).
-- Your Slack app is installed to a customer's workspace through the [Slack OAuth flow](https://api.slack.com/authentication/oauth-v2). In this flow, your app requests scopes and the user installing the app confirms which scopes to grant. You’ll need to surface this OAuth flow to your users wherever you want them to install your Slack app. Knock's `SlackAuthButton` component can help you with this.
-- A Slack app can have bot token scopes and user token scopes. For almost all use cases, you’ll be using bot token scopes. ([This Slack doc explains why.](https://api.slack.com/authentication/basics)) When you add bot token scopes to an app, you will **also** need to make sure your app has its display information configured. You can do this under the **App Home** sidebar on the [app management page](https://api.slack.com/apps).
+- A <a href="https://api.slack.com/scopes" target="_blank">scope</a> is a permission granted to your Slack app when it joins a Slack workspace. You configure which scopes your app asks for in the **OAuth & Permissions** sidebar of your <a href="https://api.slack.com/apps" target="_blank">app management page</a>.
+- Your Slack app is installed to a customer's workspace through the <a href="https://api.slack.com/authentication/oauth-v2" target="_blank">Slack OAuth flow</a>. In this flow, your app requests scopes and the user installing the app confirms which scopes to grant. You’ll need to surface this OAuth flow to your users wherever you want them to install your Slack app. Knock's [`SlackAuthButton` component](/in-app-ui/react/slack-kit#slackauthbutton--container) can help you with this.
+- A Slack app can have bot token scopes and user token scopes. For almost all use cases, you’ll be using bot token scopes (<a href="https://api.slack.com/authentication/basics" target="_blank">this Slack doc explains why</a>). When you add bot token scopes to an app, you will **also** need to make sure your app has its display information configured. You can do this under the **App Home** sidebar on the <a href="https://api.slack.com/apps" target="_blank">app management page</a>.
 
 In this section we'll complete the steps for setting up your Knock account and Slack app.
 
@@ -47,7 +47,7 @@ In this section we'll complete the steps for setting up your Knock account and S
       }
     />
 
-    The following steps will be completed in the **OAuth & Permissions** sidebar of your Slack app's [management page](https://api.slack.com/apps):
+    The following steps will be completed in the **OAuth & Permissions** sidebar of your Slack app's <a href="https://api.slack.com/apps" target="_blank">management page</a>:
 
     <AccordionGroup>
       <Accordion title="Add a scope">
@@ -82,14 +82,14 @@ In this section we'll complete the steps for setting up your Knock account and S
     </AccordionGroup>
 
   </Step>
-  <Step title="Add Slack app to Knock Slack channel">
+  <Step title="Add Slack app to Knock Slack integration">
     Now that your Slack app is set up, you'll want to reference three attributes in the **Basic Information** section:
 
     1. App ID
     2. Client ID
     3. Client secret
 
-    You need to add this data to a new or existing Slack channel in the Knock dashboard to link your app to Knock. From the dashboard, you can [create a Slack channel](/concepts/channels#managing-channels)  in the **Integrations** tab.
+    You need to add this data to a new or existing Slack integration in the Knock dashboard to link your app to Knock. From the dashboard, you can [create a Slack integration](/concepts/channels#managing-channels) in the **Integrations** tab.
     <Image
     src="/images/integrations/chat/slack/create-slack-channel.png"
     className="rounded-md mx-auto border border-gray-200"
@@ -123,7 +123,7 @@ In this section we'll complete the steps for setting up your Knock account and S
 
 ## How to set channel data for a Slack integration in Knock
 
-In Knock, the [`ChannelData`](/managing-recipients/setting-channel-data) concept provides you a way of storing recipient-specific connection data for a given channel. If you reference the [channel data requirements for Slack](/managing-recipients/setting-channel-data#chat-app-channels), you'll see that there are two different schemas for a `SlackConnection` stored on a [`User`](/send-and-manage-data/users) or an [`Object`](/send-and-manage-data/objects) in Knock.
+In Knock, the [`ChannelData`](/managing-recipients/setting-channel-data) concept provides you a way of storing recipient-specific connection data for a given integration. If you reference the [channel data requirements for Slack](/managing-recipients/setting-channel-data#chat-app-channels), you'll see that there are two different schemas for a `SlackConnection` stored on a [`User`](/send-and-manage-data/users) or an [`Object`](/send-and-manage-data/objects) in Knock.
 
 Here's an example of setting channel data on an `Object` in Knock.
 
@@ -153,41 +153,30 @@ Here's an example of setting channel data on an `Object` in Knock.
 
 Here's an overview of the data requirements for [setting recipient channel data](/send-notifications/setting-channel-data) for either an incoming webhook or an access token Slack connection. Both will need to live under the `connections` key
 
-<Attributes>
-  <Attribute
-    name="connections"
-    type="SlackConnection[]*"
-    description="One or more connections to Slack"
-  />
-</Attributes>
+| Property    | Type                | Description                      |
+| ----------- | ------------------- | -------------------------------- |
+| connections | `SlackConnection[]` | One or more connections to Slack |
 
-<br />
+    A `SlackConnection` can have one of two schemas, depending on whether you're using standard Slack OAuth scopes or an incoming webhook.
+    We cover Slack app scopes in detail in our [Slack scopes guide](/integrations/chat/slack-diy/slack-apps-and-scopes).
 
-#### `SlackConnection` with incoming webhook url
+    #### `SlackConnection` with an access token
 
-<Attributes>
-  <Attribute
-    name="incoming_webhook.url"
-    type="string*"
-    description="The Slack incoming webhook URL"
-  />
-</Attributes>
+    If you're using standard Slack OAuth with access token scopes, your `SlackConnection` schema looks like this. You'll use
+    either a `channel_id` or `user_id` depending on whether you're storing connection data to message a channel or user in Slack:
 
-#### `SlackConnection` with an access token
+    | Property     | Type     | Description        |
+    | ------------ | -------- | ------------------ |
+    | access_token | `string` | A bot access token |
+    | channel_id   | `string` | A Slack channel ID |
+    | user_id      | `string` | A Slack user ID    |
+    #### `SlackConnection` with incoming webhook url
 
-<Attributes>
-  <Attribute
-    name="access_token"
-    type="string*"
-    description="A bot access token"
-  />
-  <Attribute
-    name="channel_id"
-    type="string*"
-    description="A Slack channel ID"
-  />
-  <Attribute name="user_id" type="string*" description="A Slack channel ID" />
-</Attributes>
+    If you're using a Slack app with the `incoming-webhook` scope your `SlackConnection` schema is quite simple:
+
+    | Property             | Type     | Description                                                                 |
+    | -------------------- | -------- | --------------------------------------------------------------------------- |
+    | incoming_webhook.url | `string` | The Slack incoming webhook URL (to be used instead of the properties above) |
 
 ### Setting channel data: users vs. objects
 
@@ -210,7 +199,7 @@ Depending on the Slack integration you build into your product, you’ll store t
     You can find the correct `channel_id` and display a list of channels for your user to select from by querying the Slack API:
     - for [a list of all of a workspace's channels](https://api.slack.com/methods/conversations.list)
 
-    The [`SlackChannelCombobox` component](/in-app-ui/react/slack-kit#slackchannelcombobox) of Knock's SlackKit can help you with this.
+    The [`SlackChannelCombobox`](/in-app-ui/react/slack-kit#slackchannelcombobox) component of Knock's SlackKit can help you with this.
 
     You can learn more about the Knock object model and see an example how to use it to power Slack notifications in our [Objects concept guide](/send-and-manage-data/objects).
 
@@ -223,7 +212,7 @@ When you add a new Slack channel step to a workflow in Knock, you'll need to con
 
 ### Markdown templates
 
-Editing a markdown template for Slack is just like editing any other markdown-based template in Knock. You can use [liquid](https://shopify.github.io/liquid/) to inject variables and add control tags (e.g. if-then, for-loop) into your template.
+Editing a markdown template for Slack is just like editing any other markdown-based template in Knock. You can use [Liquid](https://shopify.github.io/liquid/) to inject variables and add control tags (e.g. if-then, for-loop) into your template.
 
 <Callout
   emoji="🌠"
@@ -258,7 +247,7 @@ There are {{ total_activities }} comments left on {{ page_name }}.
 [**View page**]({{vars.base_url}}/{{account_id}}/pages/{{ page_id }})
 ```
 
-In the example above we're using [liquid's for-loop tag](https://shopify.github.io/liquid/tags/iteration/) to iterate over the activities array produced by a Knock batch function. You can learn more about Knock batch functions and the state they produce in our [batch function guide](/send-notifications/designing-workflows/batch-function).
+In the example above we're using [Liquid's for-loop tag](https://shopify.github.io/liquid/tags/iteration/) to iterate over the activities array produced by a Knock batch function. You can learn more about Knock batch functions and the state they produce in our [batch function guide](/send-notifications/designing-workflows/batch-function).
 
 ### Block-based templates
 
@@ -344,7 +333,7 @@ Here's an example of a block kit UI template with liquid syntax added to iterate
 }
 ```
 
-In the template above, we're using the `activities` array produced by a [batch function](/send-notifications/designing-workflows/batch-function) to iterate over a number of items that we want to display in our Slack message. For each one of those items, we're producing a `section` that includes both `text` and an `image`, both of which are injected with variables from the `activity` from our `activities` array.
+In the template above, we're using the `activities` array produced by a [batch function](/send-notifications/designing-workflows/batch-function) to iterate over a number of items that we want to display in our Slack message. For each one of those items, we're producing a `section` that includes both `text` and `image` blocks which reference variables from the `activity` from our `activities` array.
 
 Here's an example of a Slack message produced with this template. **Note:** this template was produced by three separate workflow trigger calls to the Knock API, all of which were batched into a single message automatically using our batch function.
 
