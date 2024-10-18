@@ -1,0 +1,57 @@
+---
+title: "Knock Expo SDK"
+description: Learn more about integrating Knock into your Expo applications through our Expo SDK.
+section: SDKs
+tags: ["expo", "rn", "react native"]
+---
+
+Our [`@knocklabs/expo`](https://www.npmjs.com/package/@knocklabs/expo) library lets you create in-app notification experiences using Knock's client APIs in applications built with React Native and Expo.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Not using Expo?</strong> See our{" "}
+      <a href="/sdks/react-native/overview">React Native SDK</a>. Our Expo SDK
+      is only meant for use with React Native apps that are built with Expo.
+    </>
+  }
+/>
+
+The Expo library is built on top of the `@knocklabs/client` JS SDK and includes that library as an implicit dependency.
+
+**Quick links:**
+
+- [`@knocklabs/expo` on npm](https://www.npmjs.com/package/@knocklabs/expo)
+- [`@knocklabs/client` on npm](https://www.npmjs.com/package/@knocklabs/client)
+- [Expo SDK reference](/sdks/expo/reference)
+- [Javascript SDK reference](/sdks/javascript/reference)
+
+Using the Expo SDK it's possible to build:
+
+- [Notification feeds](/in-app-ui/react-native/notification-feeds) that update in real time
+- Notification preference control centers
+- Push notification management
+
+## Example app
+
+Our [Expo SDK example app](https://github.com/knocklabs/javascript/tree/main/examples/expo-example) shows patterns for handling push token registration, building an in-app feed, and managing user notification preferences.
+
+## Need help?
+
+Our Expo SDK is worked on full-time by the Knock JavaScript team.
+
+### Join the community
+
+Ask questions and find answers on the following platforms:
+
+- [Knock community Slack](https://knock.app/join-slack)
+
+### Provide feedback
+
+- [Open an issue](https://github.com/knocklabs/javascript/issues/new)
+- Use the "Help" dropdown at the top of this page to contact support.
+
+### Contributing
+
+All contributors are welcome, from casual to regular. Feel free to open a [pull request](https://github.com/knocklabs/javascript/pulls/new).

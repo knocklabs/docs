@@ -13,9 +13,8 @@ import {
 } from "react-icons/fa";
 import { DiRuby, DiDotnet } from "react-icons/di";
 import { FaGolang } from "react-icons/fa6";
-import { SiElixir, SiFlutter } from "react-icons/si";
+import { SiElixir, SiFlutter, SiExpo } from "react-icons/si";
 import { TbBrandKotlin, TbBrandReactNative } from "react-icons/tb";
-
 import { Card } from "./Card";
 
 export type SupportedIcon =
@@ -36,9 +35,10 @@ export type SupportedIcon =
   | "reactnative"
   | "angular"
   | "vue"
-  | "youtube";
+  | "youtube"
+  | "expo";
 
-const icons = {
+const icons: Record<SupportedIcon, React.ReactNode> = {
   default: <IoCubeOutline />,
   node: <FaNodeJs />,
   python: <FaPython />,
@@ -57,6 +57,7 @@ const icons = {
   angular: <FaAngular />,
   vue: <FaVuejs />,
   youtube: <FaYoutube />,
+  expo: <SiExpo />,
 };
 
 type Props = {
