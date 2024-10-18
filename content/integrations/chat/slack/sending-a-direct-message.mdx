@@ -8,7 +8,7 @@ layout: integrations
 
 In this guide we'll cover how to create a self-serve Slack integration for a multi-tenant application using Knock. It assumes that you have already created a Slack app and created a Slack channel in Knock as outlined in the [Slack integration overview](/integrations/chat/slack/overview) guide.
 
-In this implementation, users will connect their Slack workspace to Knock and be able to send messages to individual users via DM. To make this easier to implement, we'll use Knock's [SlackKit components](/in-app-ui/react/slack-kit) to facilitate the OAuth flow.
+In this implementation, your application's users will connect their Slack workspace to Knock and be able to send messages to individual users via DM. To make this easier to implement, we'll use Knock's [SlackKit components](/in-app-ui/react/slack-kit) to facilitate the OAuth flow.
 
 Here's what we'll cover in this guide:
 
@@ -19,7 +19,7 @@ Here's what we'll cover in this guide:
 
 ## Key concepts
 
-SlackKit connects multiple concepts in Knock to make it easier for users to create a Slack integration. `Tenants` are a concept you'll see throughout the following docs that are foundational to how SlackKit works, but might not be used in every implementation of Knock.
+SlackKit connects multiple concepts in Knock to make it easier for your application's users to create a Slack integration. `Tenants` are a concept you'll see throughout the following docs that are foundational to how SlackKit works, but might not be used in every implementation of Knock.
 
 ### About tenants
 
@@ -48,7 +48,7 @@ When you trigger a workflow using this recipient and tenant, Knock will merge th
 
 ## Implementing SlackKit
 
-To facilitate the OAuth flow and channel selection process, we'll use Knock's [SlackKit components](/in-app-ui/react/slack-kit). SlackKit is a set of React components that make it easier to build Slack integrations in Knock. You can use SlackKit to build a self-serve Slack integration that allows users to connect their Slack workspace to Knock.
+To facilitate the OAuth flow and channel selection process, we'll use Knock's [SlackKit components](/in-app-ui/react/slack-kit). SlackKit is a set of React components that make it easier to build Slack integrations in Knock. You can use SlackKit to build a self-serve Slack integration that allows your users to connect their Slack workspace to Knock.
 
 ### Signing a user token
 
@@ -100,13 +100,16 @@ The `KnockSlackProvider` gives your components access to the status of the conne
 
 Your users will give your Slack app access to their own Slack workspaces via the `SlackAuthButton`. This button can be used on its own, or nested in the `SlackAuthContainer` for a bigger visual footprint.
 
-<Image
-  src="/images/integrations/chat/slack/slackauthbutton.png"
-  className="rounded-md mx-auto border border-gray-200"
-  alt="activating incoming webhooks in Slack"
-  width={1310}
-  height={564}
-/>
+<figure>
+  <Image
+    src="/images/integrations/chat/slack/slackauthbutton.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="The SlackAuthButton component with SlackAuthContainer"
+    width={1310}
+    height={564}
+  />
+  <figcaption>The SlackAuthButton component with SlackAuthContainer</figcaption>
+</figure>
 
 Since we'll also be using this `access_token` to resolve a user's email address to their Slack ID, we'll need to add some additional scopes to this OAuth request. We can do that by adding the `users:read` and `users:read.email` scopes to the `SlackAuthButton` component with the `additionalScopes` paramters.
 
@@ -174,46 +177,49 @@ export async function fetchUserId(email: string): Promise<string> {
 
 We'll break this function down step-by-step:
 
-#### Get the `access_token` stored in Knock for the user's tenant
+<Steps titleSize="h4">
+  <Step title="Get the `access_token` stored in Knock for the user's tenant">
+    Since your users have already connected their Slack workspace to Knock, you can use the `knockClient.objects.getChannelData` method to get the `access_token` for the user's tenant. Tenants in Knock are stored in a system-reserved object collection called `$tenants`.
 
-Since your users have already connected their Slack workspace to Knock, you can use the `knockClient.objects.getChannelData` method to get the `access_token` for the user's tenant. Tenants in Knock are stored in a system-reserved object collection called `$tenants`.
+    ```javascript
+    await knock.objects.getChannelData(
+        "$tenants",
+        'knocklabs',
+        process.env.NEXT_PUBLIC_KNOCK_SLACK_CHANNEL_ID as string,
+    );
+    ```
 
-```javascript
-await knock.objects.getChannelData(
-    "$tenants",
-    'knocklabs',
-    process.env.NEXT_PUBLIC_KNOCK_SLACK_CHANNEL_ID as string,
-);
-```
+  </Step>
+  <Step title="Make a request to the Slack API">
+    Once you have the tenant's `access_token`, you can use it to make a request to the Slack API to resolve the user's email address to their Slack ID using the `users.lookupByEmail` endpoint.
 
-#### Make a request to the Slack API
+    ```javascript
+    const response = await fetch(
+      `https://slack.com/api/users.lookupByEmail?email=${email}`,
+      {
+        headers: {
+          Authorization: `Bearer ${channelData.data.token.access_token}`,
+        },
+      },
+    );
+    ```
 
-Once you have the tenant's `access_token`, you can use it to make a request to the Slack API to resolve the user's email address to their Slack ID using the `users.lookupByEmail` endpoint.
+  </Step>
+  <Step title="Save the user's Slack ID as channel data on the user">
+    Assuming the request to the Slack API is successful, you can save the user's Slack ID as channel data on the user in Knock. This will allow you to send messages to the user's Slack DM channel.
 
-```javascript
-const response = await fetch(
-  `https://slack.com/api/users.lookupByEmail?email=${email}`,
-  {
-    headers: {
-      Authorization: `Bearer ${channelData.data.token.access_token}`,
-    },
-  },
-);
-```
+    ```javascript
+    await knock.users.setChannelData(
+        userId,
+        process.env.NEXT_PUBLIC_KNOCK_SLACK_CHANNEL_ID as string,
+        {
+            connections: [{ user_id: slackUserId }],
+        },
+    );
+    ```
 
-#### Save the user's Slack ID as channel data on the user
-
-Assuming the request to the Slack API is successful, you can save the user's Slack ID as channel data on the user in Knock. This will allow you to send messages to the user's Slack DM channel.
-
-```javascript
-await knock.users.setChannelData(
-    userId,
-    process.env.NEXT_PUBLIC_KNOCK_SLACK_CHANNEL_ID as string,
-    {
-        connections: [{ user_id: slackUserId }],
-    },
-);
-```
+  </Step>
+</Steps>
 
 ## Triggering a workflow
 
