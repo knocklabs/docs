@@ -326,6 +326,70 @@ const nextConfig = {
         destination: "/in-app-ui/flutter/overview",
         permanent: false,
       },
+      //SlackKit redirects
+      {
+        source: "/integrations/chat/slack/how-knock-slacks",
+        destination: "/integrations/chat/slack/overview",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack/building-a-slack-app",
+        destination:
+          "/integrations/chat/slack/overview#how-to-connect-slack-to-knock",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack/designing-slack-templates",
+        destination:
+          "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack/slack-interactivity",
+        destination:
+          "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack/slack-examples",
+        destination: "/integrations/chat/slack/overview",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack-kit/overview",
+        destination: "/integrations/chat/slack/overview",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack-kit/setup",
+        destination: "/integrations/chat/slack/overview",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack-kit/resource-access-grants",
+        destination: "/in-app-ui/react/slack-kit#resources-access-grants",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack-kit/ui",
+        destination: "/in-app-ui/react/slack-kit#getting-started",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack-kit/trigger-workflow",
+        destination: "/integrations/chat/slack/overview",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack-diy/slack-apps-and-scopes",
+        destination: "/integrations/chat/slack/overview",
+        permanent: false,
+      },
+      {
+        source: "/integrations/chat/slack-diy/building-oauth-flow",
+        destination: "/integrations/chat/slack/overview",
+        permanent: false,
+      },
     ];
   },
 };

@@ -1,0 +1,253 @@
+---
+title: Sending a message to public and private channels
+description: How to configure basic and interactive Slack notification templates in Knock.
+tags: ["slack", "chat"]
+section: Integrations > Slack
+layout: integrations
+---
+
+In this guide we'll cover how to create a self-serve Slack integration for a multi-tenant application using Knock. It assumes that you have already created a Slack app and created a Slack channel in Knock as outlined in the [Slack integration overview](/integrations/chat/slack/overview) guide.
+
+In this implementation, your application's users will connect their Slack workspace to Knock and be able to send messages to public and private channels. To make this easier to implement, we'll use Knock's [SlackKit components](/in-app-ui/react/slack-kit) to facilitate the OAuth flow and channel selection process.
+
+Here's what we'll cover in this guide:
+
+- Modeling a multi-tenant application in Knock using `Tenants` and `Objects`
+- Implementing a Slack OAuth flow using Knock's `SlackAuthButton` component
+- Choosing channels to send messages to using Knock's `SlackChannelCombobox` component
+- Triggering a workflow with an object recipient to send a message to a Slack channel
+
+## Key concepts
+
+SlackKit connects multiple concepts in Knock to make it easier for your users to create a Slack integration. There are two key concepts you'll see throughout the following docs that are foundational to how SlackKit works, but might not be used in every implementation of Knock: tenants and objects.
+
+### About tenants
+
+[Tenants](/concepts/tenants) in Knock are meant to represent groups of users who typically share the same resources. You might call these "accounts," "organizations," "workspaces," or something similar. In a standard SlackKit implementation, you'll store a Slack workspace's `access_token` on a corresponding tenant in Knock.
+
+If you already use Knock's tenant concept to power other 'account-based' features, you likely create tenants in Knock when an account or organization is created in your application. If you don't already use tenants in Knock, SlackKit can create tenants for you on the fly if they don't already exist.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note: </strong>
+      Our best-practice recommendation is that tenants in Knock should map one-to-one
+      to whatever abstraction you use to model accounts, organizations, or workspaces.
+      You can think of tenants as the top-level container within your data model
+      that you use to power multi-tenancy in your application.
+    </>
+  }
+/>
+
+### About objects
+
+[Objects](/concepts/objects) in Knock are flexible abstractions meant to map to a resource in your system. Each individual object in Knock exists within a `collection` and requires an `id` unique to that collection.
+
+In the context of SlackKit, objects serve two purposes. First, they store the Slack channel or channels you want to notify. Second, they act as the recipient of the workflow that sends a message to Slack.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note: </strong>
+      You can think of collections as the different tables within your database that
+      represent resources in your application. Objects are the rows within those
+      tables.
+    </>
+  }
+/>
+#### Example
+
+Let's say we're building an example source control application like GitHub, where teams can collaborate and share code repositories. In this context, each GitHub organization would map to a tenant in Knock, and each repository would become an object inside of a `repositories` collection.
+
+If we want to be notified in Slack each time an issue is opened against a repository, we would store a Slack channel on each repository object and then trigger a `new-issue` workflow. Knock will use the data stored on the object and tenant to route a message to the correct Slack channel:
+
+```javascript
+await knockClient.workflows.trigger("new-issue", {
+  recipients: [
+    {
+      collection: "repositories",
+      id: "knocklabs/javascript",
+    },
+  ],
+  tenant: "knocklabs",
+  data: {
+    message: formData.get("newIssue"),
+  },
+});
+```
+
+### Merging channel data
+
+In this implementation, we'll actually store [the required channel data](/integrations/chat/slack/overview#channel-data-requirements) for a `SlackConnection` across two different entities in Knock: a `Tenant` and an `Object`. This is because we want to store the `access_token` for the Slack workspace on the `Tenant` and the `channel_id` for the Slack channel on the `Object`.
+
+When you trigger a workflow using this recipient and tenant, Knock will merge the channel data from the `Tenant` and the `Object` to send the message to the correct Slack channel. By storing the `access_token` on the `Tenant`, your customers only need to complete the OAuth flow once to connect their Slack workspace to Knock.
+
+## Implementing SlackKit
+
+To facilitate the OAuth flow and channel selection process, we'll use Knock's [SlackKit components](/in-app-ui/react/slack-kit). SlackKit is a set of React components that make it easier to build Slack integrations in Knock. You can use SlackKit to build a self-serve Slack integration that allows your application's users to connect their Slack workspace to Knock and send messages to public and private channels.
+
+### Signing a user token
+
+The only access you'll need to manage when using SlackKit are grants for your users to interact with their [Tenants](/concepts/tenants) and [Objects](/concepts/objects) in Knock. This is necessary because the user in this context is an end user in your application who does not have access to Knock as a [member of the account](/manage-your-account/managing-members). Therefore, these grants provide them elevated privileges to operate on specific resources using the API.
+
+We've made it easy for you to tell Knock which resources your users should have access to by making it a part of their user token. In this section you'll learn how to generate these grants using the Node SDK and, if you're not using the SDK, how to structure them for other languages.
+
+You'll need to generate a token for your user that includes access to the tenant storing the Slack access token as well as any recipient objects storing Slack channel data described in this reference on [SlackKit resource access grants](/in-app-ui/react/slack-kit#resources-access-grants).
+
+Using the below example, you can quickly generate a token with the [Node SDK](https://github.com/knocklabs/knock-node#signing-jwts).
+
+```javascript
+import { Knock } from "@knocklabs/node";
+import { Grants } from "@knocklabs/node/dist/src/common/userTokens";
+
+const token = await Knock.signUserToken("user-1", {
+  grants: [
+    Knock.buildUserTokenGrant({ type: "tenant", id: "org_3sh72ds78" }, [
+      Grants.SlackChannelsRead,
+    ]),
+    Knock.buildUserTokenGrant(
+      { type: "object", id: "repo-1", collection: "repositories" },
+      [Grants.ChannelDataRead, Grants.ChannelDataWrite],
+    ),
+  ],
+});
+```
+
+You'll need to pass this token along with the public API key to the `KnockProvider` that wraps `KnockSlackProvider` and the rest of your components. We recommend storing the generated user token in local storage so that your client application has easy access to it.
+
+### Adding provider components
+
+In order to give your components the data they need, they must be wrapped in the `KnockSlackProvider`. We recommend putting this high in your component tree so that any Slack components that you use will be rendered within it. The Slack provider goes inside of the `KnockProvider`. Your hierarchy will look like this:
+
+```javascript title="Wrap your UI components in data providers"
+<KnockProvider
+    apiKey="Public API key"
+    userId="User ID"
+    userToken="Generated user token with resource grants"
+>
+    <KnockSlackProvider
+        knockSlackChannelId="Knock Slack channel ID"
+        tenant="Tenant ID"
+    >
+        {child components}
+    </KnockSlackProvider>
+</KnockProvider>
+```
+
+The `KnockSlackProvider` gives your components access to the status of the connection to your Slack app, so that they can all be in sync when a user is connecting, disconnecting, or experiencing a connection error.
+
+### Implementing the OAuth flow with `SlackAuthButton`
+
+Your users will give your Slack app access to their own Slack workspaces via the `SlackAuthButton`. This button can be used on its own, or nested in the `SlackAuthContainer` for a bigger visual footprint.
+
+<figure>
+  <Image
+    src="/images/integrations/chat/slack/slackauthbutton.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="The SlackAuthButton component with SlackAuthContainer"
+    width={1310}
+    height={564}
+  />
+  <figcaption>The SlackAuthButton component with SlackAuthContainer</figcaption>
+</figure>
+
+Here's an example of how to use them:
+
+```javascript title="Initiate OAuth and display auth state with SlackAuthButton"
+// Without container
+<SlackAuthButton
+    slackClientId="Slack app client ID"
+    redirectUrl="The URL of your application to return to once Slack authorization is complete"
+/>
+
+// With container
+<SlackAuthContainer
+    actionButton={
+        <SlackAuthButton
+            slackClientId="Slack app client ID"
+            redirectUrl="The URL of your application to return to once Slack authorization is complete"
+        />
+    }
+/>
+```
+
+The `SlackAuthButton` maps a tenant in your product to a customer's Slack workspace. This means in most cases you'll just need a single instance of the `SlackAuthButton`.
+
+Remember to consider which roles in your application can access the `SlackAuthButton` component. Knock does not control access to the component. In most cases, you'll add this connect button and container in the settings area of your product.
+
+### Choosing channels with `SlackChannelCombobox`
+
+This combobox contains the list of channels in the connected Slack workspace. You users will use this combobox to search and select a channel (or more than one channel) to be notified when an event in your application occurs, for example a comment on a video. They can also use this combobox to deselect a connected channel.
+
+The combobox has an option to show connected channels below it, which is a list of channel tags. This is useful to show the user which channels are already connected, and gives them an easy way to remove them as well.
+
+<figure>
+  <Image
+    src="/images/integrations/chat/slack/slackchannelcombobox.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="The SlackChannelCombobox component showing connected channels"
+    width={1068}
+    height={492}
+  />
+  <figcaption>
+    The SlackChannelCombobox component showing connected channels
+  </figcaption>
+</figure>
+
+Add your combobox to your application where you'd like the user to select channels to notify:
+
+```javascript title="The SlackChannelCombobox connects an object to one or more channels"
+<SlackChannelCombobox
+  slackChannelsRecipientObject={{
+    id: "object id",
+    collection: "object collection",
+  }}
+  showConnectedChannelTags // defaults to false; include to show
+/>
+```
+
+<br />
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <strong>Limitations</strong>
+      <ul>
+        <li>
+          The combobox will only show channels for Slack workspaces with fewer
+          than 1000 channels (public and private; not including archived). If
+          there are more, the combobox will turn into a text input that accepts
+          a channel ID to connect.
+        </li>
+        <li>
+          The combobox will only show private channels from your users' Slack
+          workspaces if your Slack app has been invited to those channels.
+        </li>
+        <li>
+          The combobox does not show individual users for Slack direct messages.
+        </li>
+      </ul>
+    </>
+  }
+/>
+
+## Triggering a workflow
+
+Once you have used the `SlackChannelCombobox` to connect an object to one or more channels, you can trigger a workflow to send a message to those channels. Here's an example of how to trigger a workflow using the Knock Node SDK:
+
+```javascript
+const workflow_run_id = await knockClient.workflows.trigger("new-issue", {
+  recipients: [
+    {
+      collection: "repositories",
+      id: "knocklabs/javascript",
+    },
+  ],
+  tenant: "knocklabs",
+  data: {
+    message: formData.get("newIssue"),
+  },
+});
+```
