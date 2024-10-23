@@ -95,7 +95,7 @@ const PageNav: React.FC<Props> = ({ title, sourcePath }) => {
     ) as HTMLHeadingElement[];
 
     setHeaders(buildHeaderTree(documentHeaders));
-  }, [title]);
+  }, [title, sourcePath]);
 
   if (headers.length === 0) {
     return null;
