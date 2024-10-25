@@ -98,6 +98,7 @@ Here are the providers we currently support within Knock. We're adding more each
 - [Postmark](/integrations/email/postmark)
 - [Resend](/integrations/email/resend)
 - [Sendgrid](/integrations/email/sendgrid)
+- [SMTP](/integrations/email/smtp)
 - [Sparkpost](/integrations/email/sparkpost)
 
 ### Push
