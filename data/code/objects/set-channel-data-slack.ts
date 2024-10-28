@@ -140,18 +140,18 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 knockSlackChannelID := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
 channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
-  Collection: "projects",
-  ObjectID: "project-1",
-  ChannelID: knockSlackChannelID,
-  Data: map[string]interface{}{
-    "connections": []interface{}{
-      map[string]interface{}{
-        "incoming_webhook": map[string]interface{}{
-          "url": "url-from-slack"
-        }
-      }
-    },
-  },
+	Collection: "projects",
+	ObjectID:   "project-1",
+	ChannelID:  knockSlackChannelID,
+	Data: map[string]interface{}{
+		"connections": []interface{}{
+			map[string]interface{}{
+				"incoming_webhook": map[string]interface{}{
+					"url": "url-from-slack",
+				},
+			},
+		},
+	},
 })
 `,
   java: `
