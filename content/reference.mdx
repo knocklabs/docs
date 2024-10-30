@@ -246,6 +246,16 @@ If you are making calls to Knock from a job queue, the ID of the job can be a go
 </ExampleColumn>
 </Section>
 
+<Section title="Data retention" slug="data-retention">
+<ContentColumn>
+
+Several V1 API endpoints return data that is subject to deletion according to the data retention policy associated with your account. These endpoints are tagged with the `Retention policy applied` badge.
+
+For more information, see the [data retention docs](/manage-your-account/data-retention).
+
+</ContentColumn>
+</Section>
+
 <Section title="Bulk endpoints" slug="bulk-endpoints">
 <ContentColumn>
 
@@ -953,7 +963,7 @@ A message is a notification delivered on a particular channel to a user.
 </ExampleColumn>
 </Section>
 
-<Section title="Listing messages" slug="list-messages">
+<Section isRetentionSubject title="Listing messages" slug="list-messages">
 <ContentColumn>
 
 Returns a paginated list of messages.
@@ -965,6 +975,10 @@ Returns a paginated list of messages.
 ### Rate limit
 
 <RateLimit tier={4} />
+
+### Data retention rule
+
+Messages outside the account's retention window will not be included in the results.
 
 ### Query parameters
 
@@ -1106,7 +1120,7 @@ A paginated list of Message records
 </ExampleColumn>
 </Section>
 
-<Section title="Fetching a message" slug="get-a-message">
+<Section isRetentionSubject title="Fetching a message" slug="get-a-message">
 <ContentColumn>
 
 Retrieve a message by the id.
@@ -1118,6 +1132,10 @@ Retrieve a message by the id.
 ### Rate limit
 
 <RateLimit tier={4} />
+
+### Data retention rule
+
+Returns a `404 Not Found` error for a message outside the account's retention window.
 
 ### Path parameters
 
@@ -1137,7 +1155,7 @@ A Message
 
 </Section>
 
-<Section title="Events" slug="get-message-events">
+<Section isRetentionSubject title="Events" slug="get-message-events">
 <ContentColumn>
 
 Returns a paginated list of events for a message.
@@ -1149,6 +1167,10 @@ Returns a paginated list of events for a message.
 ### Rate limit
 
 <RateLimit tier={4} />
+
+### Data retention rule
+
+Returns a `404 Not Found` error for a message outside the account's retention window.
 
 ### Path parameters
 
@@ -1211,7 +1233,7 @@ A paginated list of MessageEvent records
 </ExampleColumn>
 </Section>
 
-<Section title="Activities" slug="get-message-activities">
+<Section isRetentionSubject title="Activities" slug="get-message-activities">
 <ContentColumn>
 
 Returns a paginated list of activities associated with the message. Note: for non batched messages this will always return a single activity. For messages produced after a batch step, this will contain one or more activities.
@@ -1223,6 +1245,10 @@ Returns a paginated list of activities associated with the message. Note: for no
 ### Rate limit
 
 <RateLimit tier={4} />
+
+### Data retention rule
+
+Returns a `404 Not Found` error for a message outside the account's retention window.
 
 ### Path parameters
 
@@ -1312,7 +1338,7 @@ A paginated list of Activity records
 </ExampleColumn>
 </Section>
 
-<Section title="Message content" slug="get-message-content">
+<Section isRetentionSubject title="Message content" slug="get-message-content">
 <ContentColumn>
 
 Retrieves the contents of a message, as generated and sent to the end provider.
@@ -1324,6 +1350,10 @@ Retrieves the contents of a message, as generated and sent to the end provider.
 ### Rate limit
 
 <RateLimit tier={3} />
+
+### Data retention rule
+
+Returns a `404 Not Found` error for a message outside the account's retention window.
 
 ### Path parameters
 
@@ -1367,7 +1397,7 @@ of message being sent (email, chat, in-app feed, sms, and push).**
 </ExampleColumn>
 </Section>
 
-<Section title="Batch message content" slug="batch-get-message-content">
+<Section isRetentionSubject title="Batch message content" slug="batch-get-message-content">
 <ContentColumn>
 
 Retrieves the contents of a list of messages, as generated and sent to the end provider.
@@ -1379,6 +1409,10 @@ Retrieves the contents of a list of messages, as generated and sent to the end p
 ### Rate limit
 
 <RateLimit tier={4} />
+
+### Data retention rule
+
+Returns a `404 Not Found` error for a message outside the account's retention window.
 
 ### Query parameters
 
@@ -1444,7 +1478,7 @@ of message being sent (email, chat, in-app feed, sms, and push).**
 </ExampleColumn>
 </Section>
 
-<Section title="Delivery logs" slug="get-message-delivery-logs">
+<Section isRetentionSubject title="Delivery logs" slug="get-message-delivery-logs">
 <ContentColumn>
 
 Retrieves the delivery logs of a message, generated while sending and checking the delivery status of the message sent to an end provider. Note: for in-app channels, the delivery logs will always be an empty list.
@@ -1456,6 +1490,10 @@ Retrieves the delivery logs of a message, generated while sending and checking t
 ### Rate limit
 
 <RateLimit tier={4} />
+
+### Data retention rule
+
+Returns a `404 Not Found` error for a message outside the account's retention window.
 
 ### Path parameters
 
@@ -1670,7 +1708,7 @@ A list of Messages that were mutated during the call.
 </ContentColumn>
 </Section>
 
-<Section title="Bulk changing message statuses in a channel" slug="bulk-update-channel-message-status">
+<Section isRetentionSubject title="Bulk changing message statuses in a channel" slug="bulk-update-channel-message-status">
 <ContentColumn>
 
 Apply the given `status` to a set of messages for the given channel. Will modify all valid messages, or a subset based on the filters provided.
@@ -1684,6 +1722,10 @@ Returns a `BulkOperation` that executes the job asynchronously. Progress can be 
 ### Rate limit
 
 <RateLimit tier={2} />
+
+### Data retention rule
+
+For in-app channels, messages can be updated indefinitely via this operation. For all other channel types, messages outside the account's retention window will not be updated as part of this operation.
 
 ### Path parameters
 
@@ -2383,7 +2425,7 @@ A User.
 </ExampleColumn>
 </Section>
 
-<Section title="User messages" slug="get-user-messages">
+<Section isRetentionSubject title="User messages" slug="get-user-messages">
 <ContentColumn>
 
 Retrieve a paginated list of messages for a user. Will return most recent messages first.
@@ -2395,6 +2437,10 @@ Retrieve a paginated list of messages for a user. Will return most recent messag
 ### Rate limit
 
 <RateLimit tier={4} />
+
+### Data retention rule
+
+Messages outside the account's retention window will not be included in the results.
 
 ### Path parameters
 
@@ -3005,7 +3051,7 @@ Returns an `Object`.
 </ExampleColumn>
 </Section>
 
-<Section title="Object messages" slug="get-object-messages">
+<Section isRetentionSubject title="Object messages" slug="get-object-messages">
 <ContentColumn>
 
 Returns a paginated list of messages for an object. Will return newest messages first.
@@ -3017,6 +3063,10 @@ Returns a paginated list of messages for an object. Will return newest messages 
 ### Rate limit
 
 <RateLimit tier={4} />
+
+### Data retention rule
+
+Messages outside the account's retention window will not be included in the results.
 
 ### Path parameters
 
