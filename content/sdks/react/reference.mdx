@@ -195,6 +195,47 @@ const MyFeedComponent = () => {
 };
 ```
 
+### `KnockInAppMessagesChannelProvider`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="channelId*"
+    type="string"
+    description="The in-app messaging channel ID obtained from the Knock dashboard under “Integrations > Channels”. Should be a UUID."
+  />
+  <Attribute
+    name="defaultOptions*"
+    type="string"
+    description="A set of default options to apply to all fetches for in-app messages. Here you can set common defaults, like the tenants you wish to scope messages for etc."
+  />
+  <Attribute
+    name="colorMode*"
+    type="string"
+    description="Either light or dark to pass a theme down to components."
+  />
+</Attributes>
+
+#### `useInAppMessagesChannel`
+
+Only available under the `KnockInAppMessagesChannelProvider`.
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="inAppMessagesChannelClient*"
+    type="string"
+    description="An in-app message client that stores the shared state of in-app messages."
+  />
+  <Attribute
+    name="colorMode*"
+    type="string"
+    description="The current color mode."
+  />
+</Attributes>
+
 ### `KnockSlackProvider`
 
 The Slack-specific provider that connects to a Slack workspace for the given tenant. Must be a child of the `KnockProvider`.
@@ -509,6 +550,72 @@ Renders a notification bell icon, with a badge showing the number of unseen item
   />
 </Attributes>
 
+## Messaging components
+
+By default, our React library exposes 3 different out of the box components: `Banner`, `Card`, and `Modal`. Each component maps to a message type that Knock ships.
+
+Each of the components exports a `*View` component that contains granular view components that can be composed to override specific parts of the pre-built components.
+
+### `Banner`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="filters"
+    type="UseInAppMessageOptions"
+    description="A set of query filters"
+  />
+</Attributes>
+
+#### Example
+
+```jsx
+import { Banner } from "@knocklabs/react";
+
+<Banner filters={{ tenant_id: "tenant-1" }} />
+```
+
+### `Card`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="filters"
+    type="UseInAppMessageOptions"
+    description="A set of query filters"
+  />
+</Attributes>
+
+#### Example
+
+```jsx
+import { Card } from "@knocklabs/react";
+
+<Card filters={{ tenant_id: "tenant-1" }} />
+```
+
+### `Modal`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="filters"
+    type="UseInAppMessageOptions"
+    description="A set of query filters"
+  />
+</Attributes>
+
+#### Example
+
+```jsx
+import { Modal } from "@knocklabs/react";
+
+<Modal filters={{ tenant_id: "tenant-1" }} />
+```
+
 ## Slack components
 
 ### `SlackAuthButton`
@@ -735,6 +842,68 @@ const MyComponent = () => {
 };
 ```
 
+## Messaging hooks
+
+### `useInAppMessages`
+
+A hook used to fetch in-app messages for a particular user, channel, message type triple.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="messageType"
+    type="string"
+    description="The key of the message type you wish to fetch messages about"
+  />
+  <Attribute
+    name="options"
+    type="InAppMessagesClientOptions"
+    description="A set of filtering options to apply to the message fetched from this hook"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="messages"
+    type="Message[]"
+    description="The returned in-app messages"
+  />
+  <Attribute
+    name="loading"
+    type="boolean"
+    description="Whether the network request is currently in-flight"
+  />
+  <Attribute
+    name="networkStatus"
+    type="NetworkStatus"
+    description="Granular information about the current network status"
+  />
+  <Attribute
+    name="inAppMessagesClient"
+    type="InAppMessagesClient"
+    description="A message client instance to interact with the message"
+  />
+</Attributes>
+
+**Example**:
+
+```jsx
+import { useInAppMessage } from "@knocklabs/react";
+
+const MyMessage = () => {
+  const { message, inAppMessagesClient } = useInAppMessage("type", {
+    tenant_id: "tenant-1"
+  }); 
+  
+  if (!message) return null;
+  
+  return <div>Fetched message: {message.id}</div>
+} 
+```
+
 ## Slack hooks
 
 Exposed under `KnockSlackProvider` child components.
@@ -955,3 +1124,4 @@ type ConnectionStatus =
   | "error"
   | "disconnecting";
 ```
+
