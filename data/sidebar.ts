@@ -122,16 +122,24 @@ const sidebarContent: SidebarSection[] = [
         title: "Security & authentication",
       },
       {
+        slug: "/message-types",
+        title: "Message types",
+      },
+      {
         title: "React",
         slug: "/react",
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/feed", title: "Notification feed" },
+          {
+            slug: "/messaging-components",
+            title: "Messaging components",
+          },
           { slug: "/toasts", title: "Toasts" },
           { slug: "/inbox", title: "Notification inbox" },
           {
             slug: "/custom-notifications-ui",
-            title: "Custom notifications UI (headless)",
+            title: "Custom feed UI (headless)",
           },
           { slug: "/preferences", title: "Preferences" },
           { slug: "/slack-kit", title: "SlackKit" },
