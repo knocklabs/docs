@@ -12,5 +12,6 @@ Knock integrates with popular third-party platforms, enabling new functionality 
 - [New Relic](/integrations/extensions/new-relic)
 - [Segment](/integrations/extensions/segment)
 - [Heap](/integrations/extensions/heap)
+- [Data warehouse sync](/integrations/extensions/data-sync)
 
 If you want us to add a new extension to this list, please let us know through the feedback button at the top of this page.
