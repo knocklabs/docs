@@ -232,7 +232,26 @@ Although batches will accumulate every activity added to the batch, only ten ite
 
 Note that for both settings, the `activities` variable will always be sorted in chronological order (oldest to most recent).
 
-## Using batch variables
+## Immediately flushing the first item in a batch
+
+Batch steps optionally support a mode to immediately flush the first item in a batch. This mode is useful when you want to immediately notify a user about the first item in a batch, and then accumulate additional items over a window of time.
+
+To enable this mode, you can toggle on "Immediately flush leading item" in the "Advanced settings" section of the batch step.
+
+When this mode is enabled, the first item for an unopened batch will "open" the batch and the usual batching rules will apply. However, unlike a normal batch, the first item will **not be included in the `activities` of the batch** and will instead continue execution past the batch step.
+
+If you want to branch on whether the first item in a batch was flushed or not, you can use the `total_activities` variable to do so. When it is set to 1, you know that you're working with the first item in a batch.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Please note:</span> if there is never a second item added to the batch, the batch will noop on closing as there is nothing in it to execute.
+    </>
+  }
+/>
+
+## Working with batches in your templates
 
 Another important aspect of batch functions is that they generate state that can be used in your templates. Let's continue the commenting example we used above.
 
