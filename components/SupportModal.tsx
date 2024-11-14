@@ -123,7 +123,7 @@ const SupportModal: React.FC<Props> = ({ currentUser, currentAccount }) => {
             </div>
             <div className="py-4 px-6 bg-gray-50 border-t dark:border-t-black dark:bg-gray-900">
               <div className="mt-5">
-                <form onSubmit={() => handleSubmit()}>
+                <form onSubmit={(e) => handleSubmit(e)}>
                   <div className="h-[200px]">
                     <textarea
                       className="text-gray-600 font-normal p-2 text-[14px] dark:text-white w-full h-full dark:border-gray-700 border border-gray-200 dark:bg-gray-800 focus-visible:outline-none rounded-sm"

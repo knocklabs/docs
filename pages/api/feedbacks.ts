@@ -2,8 +2,7 @@
 // - Removed `withSentry` wrapper from handler
 import fetch from "isomorphic-unfetch";
 
-const API_KEY = process.env.AIRTABLE_API_KEY;
-const BASE_ID = process.env.AIRTABLE_FEEDBACK_BASE_ID;
+const API_KEY = process.env.KNOCK_API_KEY;
 
 const handler = async (req, res) => {
   if (req.method !== "POST") {
@@ -24,14 +23,17 @@ const handler = async (req, res) => {
 
   try {
     const response = await fetch(
-      `https://api.airtable.com/v0/${BASE_ID}/Feedback`,
+      `https://api.knock.app/v1/workflows/docs-feedback/trigger`,
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${API_KEY}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ fields: req.body }),
+        body: JSON.stringify({
+          data: req.body,
+          recipients: ["support-bot-internal@knock.app"],
+        }),
       },
     );
 
