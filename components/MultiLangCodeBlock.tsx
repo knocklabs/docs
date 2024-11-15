@@ -59,6 +59,7 @@ const snippets = {
   "messages.getEvents": require("../data/code/messages/get-events").default,
 
   // Objects
+  "objects.list": require("../data/code/objects/list").default,
   "objects.set": require("../data/code/objects/set").default,
   "objects.get": require("../data/code/objects/get").default,
   "objects.delete": require("../data/code/objects/delete").default,

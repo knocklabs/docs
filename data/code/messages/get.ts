@@ -1,4 +1,8 @@
 const languages = {
+  curl: `
+curl -X GET https://api.knock.app/v1/messages/3mY9N4p7DcmL9j1K44qmrdO6t7W \\
+  -H "Authorization: Bearer sk_12345"
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knock = new Knock(process.env.KNOCK_API_KEY);

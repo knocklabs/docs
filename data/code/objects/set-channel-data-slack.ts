@@ -1,12 +1,32 @@
 const languages = {
+  curl: `
+# Find the channel_id in your Knock dashboard under Integrations > Channels
+curl -X PUT https://api.knock.app/v1/objects/projects/project-1/channel_data/8209f26c-62a5-461d-95e2-a5716a26e652 \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "data": {
+          "connections": [
+            {
+              "incoming_webhook": {
+                "url": "url-from-slack"
+              }
+            }
+          ]
+        }
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock(process.env.KNOCK_API_KEY);
 
+// Find this value in your Knock dashboard under Integrations > Channels
+const KNOCK_SLACK_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
+
 await knockClient.objects.setChannelData(
   "projects",
   project.id,
-  process.env.KNOCK_SLACK_CHANNEL_ID,
+  KNOCK_SLACK_CHANNEL_ID,
   {
     connections: [
       {
@@ -19,9 +39,10 @@ await knockClient.objects.setChannelData(
   elixir: `
 knock_client = MyApp.Knock.client()
 
-slack_channel_id = "knock-slack-channel-id"
+# Find this value in your Knock dashboard under Integrations > Channels
+knock_slack_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-Knock.Objects.set_channel_data(knock_client, "projects", project.id, slack_channel_id, %{
+Knock.Objects.set_channel_data(knock_client, "projects", project.id, knock_slack_channel_id, %{
   connections: [
     %{
       incoming_webhook: %{ url: "url-from-slack" }
@@ -33,10 +54,13 @@ Knock.Objects.set_channel_data(knock_client, "projects", project.id, slack_chann
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
+# Find this value in your Knock dashboard under Integrations > Channels
+knock_slack_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
+
 client.objects.set_channel_data(
   collection="projects",
   id=project.id,
-  channel_id="knock-slack-channel-id", 
+  channel_id=knock_slack_channel_id, 
   channel_data={
     "connections": [
       { 
@@ -50,10 +74,13 @@ client.objects.set_channel_data(
 require "knock"
 Knock.key = "sk_12345"
 
+# Find this value in your Knock dashboard under Integrations > Channels
+knock_slack_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
+
 Knock::Objects.set_channel_data(
   collection: "projects",
   id: project.id,
-  channel_id: "knock-slack-channel-id",
+  channel_id: knock_slack_channel_id,
   channel_data: {
     connections: [
       { 
@@ -68,19 +95,22 @@ var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
 var channelData = new Dictionary<string, object>{
-  { "connections", new List<Dictionary> {
+  { "connections", new List<Dictionary<string, object>> {
     new Dictionary<string, object>{
-      {"incoming_webhook", new Dictionary<string, object>{
+      {"incoming_webhook", new Dictionary<string, string>{
         {"url", "url-from-slack"}
       }}
     }
   } }
 };
 
+// Find this value in your Knock dashboard under Integrations > Channels
+var knockSlackChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
+
 await knockClient.Objects.SetChannelData(
   "projects", 
   project.Id, 
-  "knock-slack-channel-id", 
+  knockSlackChannelId, 
   channelData
 );
 `,
@@ -89,7 +119,10 @@ use Knock\\KnockSdk\\Client;
     
 $client = new Client('sk_12345');
 
-$client->objects()->setChannelData('projects', 'project-1', 'knock-slack-channel-id', [
+// Find this value in your Knock dashboard under Integrations > Channels
+$knockSlackChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
+
+$client->objects()->setChannelData('projects', 'project-1', $knockSlackChannelId, [
   'connections' => [
     [
       'incoming_webhook' => [
@@ -103,19 +136,22 @@ $client->objects()->setChannelData('projects', 'project-1', 'knock-slack-channel
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
+// Find this value in your Knock dashboard under Integrations > Channels
+knockSlackChannelID := "8209f26c-62a5-461d-95e2-a5716a26e652"
+
 channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
-  Collection: "projects",
-  ObjectID:   "project-1",
-  ChannelID:  "knock-slack-channel-id",
-  Data: map[string]interface{}{
-    "connections": []interface{}{
-      map[string]interface{}{
-        "incoming_webhook": map[string]interface{}{
-          "url": "url-from-slack"
-        }
-      }
-    },
-  },
+	Collection: "projects",
+	ObjectID:   "project-1",
+	ChannelID:  knockSlackChannelID,
+	Data: map[string]interface{}{
+		"connections": []interface{}{
+			map[string]interface{}{
+				"incoming_webhook": map[string]interface{}{
+					"url": "url-from-slack",
+				},
+			},
+		},
+	},
 })
 `,
   java: `
@@ -132,10 +168,13 @@ Map<String, Object> data = Map.of(
   )
 );
 
+// Find this value in your Knock dashboard under Integrations > Channels
+String knockSlackChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
+
 ChannelData channelData = client.objects().setChannelData(
   "projects",
   "project-1",
-  "knock-slack-channel-id",
+  knockSlackChannelId,
   data
 );
 `,

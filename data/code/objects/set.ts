@@ -1,4 +1,16 @@
 const languages = {
+  curl: `
+curl -X PUT https://api.knock.app/v1/objects/projects/project-1 \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "name": "My project",
+        "total_assets": 10,
+        "tags": ["cool", "fun", "project"],
+        "locale": "en-US",
+        "timezone": "America/New_York"
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock(process.env.KNOCK_API_KEY);
@@ -7,6 +19,8 @@ knockClient.objects.set("projects", "project-1", {
   name: "My project",
   total_assets: 10,
   tags: ["cool", "fun", "project"],
+  locale: "en-US",
+  timezone: "America/New_York"
 });
 `,
   elixir: `
@@ -16,6 +30,8 @@ Knock.Objects.set(knock_client, "projects", "project-1", %{
   name: "My project",
   total_assets: 10,
   tags: ["cool", "fun", "project"],
+  locale: "en-US",
+  timezone: "America/New_York"
 })
   `,
   python: `
@@ -28,7 +44,9 @@ client.objects.set_object(
   data={
     "name": "My project",
     "total_assets": 10,
-    "tags": ["cool", "fun", "project"]
+    "tags": ["cool", "fun", "project"],
+    "locale": "en-US",
+    "timezone": "America/New_York"
   }
 )
   `,
@@ -43,6 +61,8 @@ Knock::Objects.set(
     name: "My project",
     total_assets: 10,
     tags: ["cool", "fun", "project"],
+    locale: "en-US",
+    timezone: "America/New_York"
   }
 )
 `,
@@ -55,7 +75,9 @@ var objectParams = new Dictionary<string, object>{
   { "total_assets", 10 },
   { "tags", new List {
     "cool", "fun", "project"
-  }}
+  }},
+  { "locale", "en-US" },
+  { "timezone", "America/New_York" }
 };
 
 await knockClient.Objects.Set("projects", "project-1", objectParams)
@@ -68,7 +90,9 @@ $client = new Client('sk_12345');
 $client->objects()->set('projects', 'project-1', [
   'name' => 'My project',
   'total_assets' => 10,
-  'tags' => ['cool', 'fun', 'project']
+  'tags' => ['cool', 'fun', 'project'],
+  'locale' => 'en-US',
+  'timezone' => 'America/New_York'
 ]);
 `,
   go: `
@@ -78,10 +102,12 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
   Collection: "projects",
   ID:         "project-1",
-  Properties: map[string]interface{
+  Properties: map[string]interface{}{
     "name":         "My project",
     "total_assets": 10,
-    "tags":         string[]{ "cool", "fun", "project" }
+    "tags":         []string{"cool", "fun", "project"},
+    "locale":       "en-US",
+    "timezone":     "America/New_York"
   }
 })
 `,
@@ -96,7 +122,9 @@ KnockClient client = KnockClient.builder()
 KnockObject object = client.objects().set("projects", "project-1", Map.of(
   "name", "Project one",
   "total_assets", 10,
-  "tags", List.of("cool", "fun", "project")
+  "tags", List.of("cool", "fun", "project"),
+  "locale", "en-US",
+  "timezone", "America/New_York"
 ));
 `,
 };

@@ -18,7 +18,7 @@ await knock.workflows.trigger("new-comment", {
     },
   ],
 });
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")

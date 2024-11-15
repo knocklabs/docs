@@ -1,10 +1,33 @@
 const languages = {
+  curl: `
+curl -X PUT https://api.knock.app/v1/objects/projects/project-1/preferences/default \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer sk_test_12345" \\
+  -d '{
+        "channel_types": {
+          "email": true,
+          "sms": false
+        },
+        "workflows": {
+          "dinosaurs-loose": {
+            "channel_types": {
+              "email": false,
+              "in_app_feed": true,
+              "sms": true
+            }
+          }
+        }
+      }'
+`,
   node: `
 import { Knock } from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
 await knockClient.objects.setPreferences("projects", "project-1", {
-  channel_types: { email: true, sms: false },
+  channel_types: { 
+    email: true, 
+    sms: false 
+  },
   workflows: {
     "dinosaurs-loose": {
       channel_types: {
@@ -15,7 +38,7 @@ await knockClient.objects.setPreferences("projects", "project-1", {
     },
   },
 });
-  `,
+`,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
@@ -23,7 +46,10 @@ client = Knock(api_key="sk_12345")
 client.objects.set_preferences(
   collection="projects",
   id="project-1",
-  channel_types={ "email": True, "sms": False },
+  channel_types={ 
+    "email": True, 
+    "sms": False 
+  },
   workflows={
     "dinosaurs-loose": {
       "channel_types": {
@@ -34,7 +60,7 @@ client.objects.set_preferences(
     }
   }
 )
-  `,
+`,
   ruby: `
 require "knock"
 Knock.key = "sk_12345"
@@ -97,7 +123,7 @@ Knock.Objects.set_preferences(knock_client, "projects", "project-1", %{
     }
   }
 })
-  `,
+`,
   php: `
 use Knock\\KnockSdk\\Client;
 
