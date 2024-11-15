@@ -124,6 +124,7 @@ const sidebarContent: SidebarSection[] = [
       {
         slug: "/message-types",
         title: "Message types",
+        isBeta: true,
       },
       {
         title: "React",
