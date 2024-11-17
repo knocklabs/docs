@@ -337,6 +337,10 @@ const sidebarContent: SidebarSection[] = [
     slug: "/guides",
     pages: [
       {
+        slug: "/implementation-guide",
+        title: "Plan your Knock integration",
+      },
+      {
         slug: "/alerting",
         title: "Alerting",
       },
@@ -348,7 +352,6 @@ const sidebarContent: SidebarSection[] = [
         slug: "/building-recurring-digests",
         title: "Recurring digests",
       },
-      { slug: "/going-to-production", title: "Going to production" },
       { slug: "/migrate-from-courier", title: "Migrate from Courier" },
       {
         slug: "/modeling-users-objects-and-tenants",
