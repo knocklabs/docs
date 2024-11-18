@@ -283,8 +283,8 @@ const nextConfig = {
       },
       {
         source: "/getting-started/going-to-production",
-        destination: "/guides/going-to-production",
-        permanent: false,
+        destination: "/guides/implementation-guide#going-to-production",
+        permanent: true,
       },
       {
         source: "/getting-started/knock-and-postman",
@@ -325,6 +325,11 @@ const nextConfig = {
         source: "/in-app-ui/flutter",
         destination: "/in-app-ui/flutter/overview",
         permanent: false,
+      },
+      {
+        source: "/guides/going-to-production",
+        destination: "/guides/implementation-guide#going-to-production",
+        permanent: true,
       },
       //SlackKit redirects
       {
