@@ -338,7 +338,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       {
         slug: "/implementation-guide",
-        title: "Plan your Knock integration",
+        title: "Knock implementation guide",
       },
       {
         slug: "/alerting",
