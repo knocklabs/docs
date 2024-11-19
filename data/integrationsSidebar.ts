@@ -76,6 +76,14 @@ const sidebarContent: SidebarSection[] = [
             slug: "/sending-an-internal-message",
             title: "Sending an internal message",
           },
+          {
+            slug: "/sending-a-direct-message",
+            title: "Sending a direct message",
+          },
+          {
+            slug: "/sending-a-message-to-channels",
+            title: "Sending a message to channels",
+          },
         ],
       },
       { slug: "/discord", title: "Discord" },
