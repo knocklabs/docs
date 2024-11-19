@@ -25,8 +25,8 @@ knockClient.tenants.set("tenant-1", {
     branding: {
       primary_color: "#33FF5B",
       primary_color_contrast: "#ffffff",
-      logo_url: "www.example.com/path-to-logo-asset-url",
-      icon_url: "www.example.com/path-to-icon-asset-url"
+      logo_url: "https:www.example.com/path-to-logo-asset-url",
+      icon_url: "https:www.example.com/path-to-icon-asset-url"
     }
   }
 });
@@ -40,8 +40,8 @@ Knock.Tenants.set(knock_client, "tenant-1", %{
     branding: %{
       primary_color: "#33FF5B",
       primary_color_contrast: "#ffffff",
-      logo_url: "www.example.com/path-to-logo-asset-url",
-      icon_url: "www.example.com/path-to-icon-asset-url"
+      logo_url: "https:www.example.com/path-to-logo-asset-url",
+      icon_url: "https:www.example.com/path-to-icon-asset-url"
     }
   }
 })
@@ -58,8 +58,8 @@ client.tenants.set_tenant(
       "branding": {
         "primary_color": "#33FF5B",
         "primary_color_contrast": "#ffffff",
-        "logo_url": "www.example.com/path-to-logo-asset-url",
-        "icon_url": "www.example.com/path-to-icon-asset-url"
+        "logo_url": "https:www.example.com/path-to-logo-asset-url",
+        "icon_url": "https:www.example.com/path-to-icon-asset-url"
       }
     }
   }
@@ -77,8 +77,8 @@ Knock::Tenants.set(
       branding: {
         primary_color: "#33FF5B",
         primary_color_contrast: "#ffffff",
-        logo_url: "www.example.com/path-to-logo-asset-url",
-        icon_url: "www.example.com/path-to-icon-asset-url"
+        logo_url: "https:www.example.com/path-to-logo-asset-url",
+        icon_url: "https:www.example.com/path-to-icon-asset-url"
       }
     }
   }
@@ -94,8 +94,8 @@ var tenantParams = new Dictionary<string, object>{
       "branding", new Dictionary<string, string>{
         {"primary_color", "#33FF5B"},
         {"primary_color_contrast", "#ffffff"},
-        {"logo_url", "www.example.com/path-to-logo-asset-url"},
-        {"icon_url", "www.example.com/path-to-icon-asset-url"}
+        {"logo_url", "https:www.example.com/path-to-logo-asset-url"},
+        {"icon_url", "https:www.example.com/path-to-icon-asset-url"}
       }
     }
   }
@@ -114,8 +114,8 @@ $client->tenants()->set('tenant-1', [
     'branding' => [
       'primary_color' => "#33FF5B",
       'primary_color_contrast' => "#ffffff",
-      'logo_url' => "www.example.com/path-to-logo-asset-url",
-      'icon_url' => "www.example.com/path-to-icon-asset-url"
+      'logo_url' => "https:www.example.com/path-to-logo-asset-url",
+      'icon_url' => "https:www.example.com/path-to-icon-asset-url"
     ]
   ]
 ]);
@@ -133,8 +133,8 @@ tenant, _ := knockClient.Tenants.Set(ctx, &knock.SetTenantRequest{
     "branding":  map[string]interface{
       "primary_color":          "#33FF5B",
       "primary_color_contrast": "#ffffff",
-      "logo_url":               "www.example.com/path-to-logo-asset-url",
-      "icon_url":               "www.example.com/path-to-icon-asset-url"
+      "logo_url":               "https:www.example.com/path-to-logo-asset-url",
+      "icon_url":               "https:www.example.com/path-to-icon-asset-url"
     }
   }
 })
@@ -153,8 +153,8 @@ Tenant tenant = client.tenants().set("tenant-1", Map.of(
         "branding", Map.of(
             "primary_color", "#33FF5B",
             "primary_color_contrast", "#ffffff",
-            "logo_url", "www.example.com/path-to-logo-asset-url",
-            "icon_url", "www.example.com/path-to-icon-asset-url"
+            "logo_url", "https:www.example.com/path-to-logo-asset-url",
+            "icon_url", "https:www.example.com/path-to-icon-asset-url"
         )
     )
 ));
