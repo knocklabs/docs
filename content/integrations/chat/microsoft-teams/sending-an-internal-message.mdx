@@ -34,3 +34,77 @@ await knockClient.objects.set("repositories", "repo-1", {
 ```
 
 Once you have a repository object created, you can add the channel data for Microsoft Teams as a connection on the object.
+
+## Objects as workflow recipients
+
+To add channel data, we’ll set up an incoming webhook in Microsoft Teams. There are two ways to generate an incoming webhook URL for a Teams channel:
+
+1. Your customer can [create an incoming webhook](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook) and send it to you.
+2. You can [build a Microsoft 365 Connector](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-creating) that your customers will install in Teams and add to their channels. When a customer adds your Connector to a channel, you receive an incoming webhook URL.
+
+Whichever method you choose, the end result is the same: an incoming webhook URL.
+
+### Set the webhook as channel data
+
+Now that you have the webhook URL, we’ll store that webhook as a special property on the repository Object called channel data. [Channel data is both channel and recipient-specific data](https://docs.knock.app/managing-recipients/setting-channel-data) stored for use with particular channels, like a token used for push notifications or webhooks stored for chat apps like Slack, Teams, and Discord. Both Users and Objects can store channel data.
+
+In the code example below, we’ll use the `knockClient.objects.setChannelData` method to update the channel data for our repository Object.
+
+```javascript
+import { Knock } from "@knocklabs/node";
+const knockClient = new Knock(process.env.KNOCK_API_KEY);
+
+await knockClient.objects.setChannelData(
+  "repositories",
+  repository.id,
+  process.env.KNOCK_MS_TEAMS_CHANNEL_ID,
+  {
+    connections: [
+      {
+        incoming_webhook: { url: "url-from-ms-teams" },
+      },
+    ],
+  },
+);
+```
+
+Here, you’ll also need your `KNOCK_MS_TEAMS_CHANNEL_ID` as the third parameter, which is the channel ID of your Microsoft Teams integration within Knock, so that Knock can reference that channel when it processes workflows that use it. The last parameter is an object of a specific format that varies based on [the type of message provider](/managing-recipients/setting-channel-data#provider-data-requirements). In this case, it is an `MsTeamsConnection` object with an `incoming_webhook` property that contains the URL you copied from Microsoft Teams.
+
+### Trigger a workflow with an object recipient
+
+With the channel data in place, you can add Microsoft Teams as a workflow step in any workflow. For this example, we’ll create a `new-issue` workflow that pings users in our connected Microsoft Teams channel whenever someone adds a new issue.
+
+<Image
+  src="/images/integrations/chat/slack/workflow-with-slack-step-new.png"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="workflow with a Slack step"
+  width={2202}
+  height={1922}
+/>
+
+As you create your message template, remember that in this case the repository Object is the recipient of your workflow. That means any properties you reference on your Liquid template tags need to exist as properties of the Object as well:
+
+```markdown
+There was an issue opened on the following repo: **{{ recipient.name }}**
+```
+
+Finally, we’ll add the workflow trigger to our code with the repository Object as a recipient.
+
+```javascript
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+await knock.workflows.trigger("new-issue", {
+  recipients: [{ collection: "repositories", id: "repo-1" }],
+});
+```
+
+With that, you should see a message in your selected Microsoft Teams channel:
+
+<Image
+  src="/images/integrations/chat/slack/slack-message.png"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="A Slack message"
+  width={2000}
+  height={552}
+/>
