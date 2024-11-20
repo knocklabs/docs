@@ -135,6 +135,7 @@ const sidebarContent: SidebarSection[] = [
           {
             slug: "/messaging-components",
             title: "Messaging components",
+            isBeta: true,
           },
           { slug: "/toasts", title: "Toasts" },
           { slug: "/inbox", title: "Notification inbox" },
