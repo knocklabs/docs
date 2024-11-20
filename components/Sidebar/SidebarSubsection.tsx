@@ -75,6 +75,7 @@ const SidebarSubsectionList: React.FC<Props> = ({
                 title={page.title}
                 path={fullPath}
                 isSelected={isSelected}
+                isBeta={page.isBeta}
               />
             );
           })}
