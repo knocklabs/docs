@@ -67,7 +67,25 @@ const sidebarContent: SidebarSection[] = [
           },
         ],
       },
-      { slug: "/microsoft-teams", title: "Microsoft Teams" },
+      {
+        title: "Microsoft Teams",
+        slug: "/microsoft-teams",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/sending-an-internal-message",
+            title: "Sending an internal message",
+          },
+          {
+            slug: "/sending-a-direct-message",
+            title: "Sending a direct message",
+          },
+          {
+            slug: "/sending-a-message-to-channels",
+            title: "Sending a message to channels",
+          },
+        ],
+      },
       { slug: "/discord", title: "Discord" },
       { slug: "/whatsapp", title: "WhatsApp" },
     ],

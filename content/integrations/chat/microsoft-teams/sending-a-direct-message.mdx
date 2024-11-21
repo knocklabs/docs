@@ -1,0 +1,136 @@
+---
+title: Sending a direct message to a user in Microsoft Teams
+description: How to send a message to a user in Microsoft Teams using Knock.
+tags: ["msteams", "teams", "chat"]
+section: Integrations > Microsoft Teams
+layout: integrations
+---
+
+In this guide, we'll cover how to update a multi-tenant Microsoft Teams bot to send direct messages to Teams users using Knock. It assumes that you have already created a Microsoft Teams channel in Knock as outlined in the [Microsoft Teams integration overview](/integrations/chat/microsoft-teams/overview) guide.
+
+Here's what we'll cover in this guide:
+
+- Modeling a multi-tenant application in Knock using `Tenants`
+- Adding required scopes to your Microsoft Teams app's manifest
+- Setting required Tenant and User channel data when a Microsoft Teams bot is installed in a user's personal scope
+- Triggering a workflow with a user recipient to send a direct message to a Teams user
+
+## Prerequisites
+
+Make sure your bot has been registered with <a href="https://dev.botframework.com/" target="_blank">Microsoft Bot Framework</a> and is deployed to Azure. Knock does not manage deploying and configuring your bot. To set up Knock to send notifications as your bot, see [How to connect to Teams with Knock](/integrations/chat/microsoft-teams/overview#how-to-connect-to-teams-with-knock).
+
+## Key concepts
+
+There are two key concepts you'll see throughout the following docs that are foundational to how Knock's Microsoft Teams integration works: tenants and objects.
+
+### About tenants
+
+[Tenants](/concepts/tenants) in Knock are meant to represent groups of users who typically share the same resources. You might call these "accounts," "organizations," "workspaces," or something similar. In a typical Microsoft Teams implementation, you'll store <a href="https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-create-new-tenant" target="_blank">the ID of a Microsoft Entra tenant</a> on a corresponding tenant in Knock.
+
+If you already use Knock's tenant concept to power other 'account-based' features, you likely create tenants in Knock when an account or organization is created in your application.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note: </strong>
+      Our best-practice recommendation is that tenants in Knock should map one-to-one
+      to whatever abstraction you use to model accounts, organizations, or workspaces.
+      You can think of tenants as the top-level container within your data model
+      that you use to power multi-tenancy in your application.
+    </>
+  }
+/>
+
+### Merging channel data
+
+In this implementation, we'll actually store [the required channel data](/integrations/chat/microsoft-teams/overview#channel-data-requirements) for an `MsTeamsConnection` across two different entities in Knock: a `Tenant` and an `User`. This is because we want to store the `ms_teams_tenant_id` for the Microsoft Entra tenant on the Knock `Tenant` and the `ms_teams_user_id` for the Microsoft Teams user on the Knock `User`.
+
+When you trigger a workflow using this recipient and tenant, Knock will merge the channel data from the `Tenant` and the `User` to send the message to the correct Microsoft Teams user.
+
+## Adding required scopes to your app's manifest
+
+In order for your bot to send direct messages to users in Microsoft Teams, you'll need to update your <a href="https://learn.microsoft.com/en-us/microsoftteams/platform/resources/schema/manifest-schema" target="_blank">Microsoft Teams app's manifest</a> so that it includes the `personal` scope for your bot.
+
+In your `manifest.json` file, add `personal` to your bot's array of scopes:
+
+```json
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "{{YOUR_TEAMS_APP_ID}}",
+  "bots": [
+    {
+      "botId": "{{YOUR_BOT_ID}}",
+      "scopes": ["personal"]
+    }
+  ]
+}
+```
+
+## Setting Tenant and User channel data
+
+Your application should provide a method for admin users to set up your bot within a Microsoft Teams tenant. When this occurs, your backend should update the channel data associated with the Knock `Tenant`, passing in the tenant ID of the Microsoft Teams tenant.
+
+If you're using Knock's Node SDK, your code might look like this:
+
+```javascript
+await knockClient.objects.setChannelData(
+  "$tenants",
+  "knocklabs",
+  process.env.KNOCK_MS_TEAMS_CHANNEL_ID,
+  { ms_teams_tenant_id: msTeamsTenantId },
+);
+```
+
+Here, `KNOCK_MS_TEAMS_CHANNEL_ID` is the channel ID of your Microsoft Teams integration within Knock, and `"knocklabs"` is the ID of the current `Tenant` logged into the application.
+
+Once your Microsoft Teams bot is installed in a user's personal scope, your bot's messaging endpoint will receive <a href="https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/subscribe-to-conversation-events#installation-update-event" target="_blank">an installation update event</a>. You can use this event to update the channel data associated with the Knock `User`.
+
+If you're using the <a href="https://github.com/microsoft/botbuilder-js" target="_blank">Bot Framework SDK for JavaScript</a> with the Knock Node SDK, your code will look something like this:
+
+```javascript
+import { Knock } from "@knocklabs/node";
+const knockClient = new Knock(process.env.KNOCK_API_KEY);
+
+export class TeamsBot extends TeamsActivityHandler {
+  constructor() {
+    super();
+    this.onInstallationUpdateAdd(async (context, next) => {
+      const { activity } = context;
+
+      // Bot was installed into a user's personal scope
+      if (activity.conversation.conversationType === "personal") {
+        const msTeamsUserId = activity.from.id;
+
+        knockClient.users
+          .setChannelData(
+            "user_1n38knd",
+            process.env.KNOCK_MS_TEAMS_CHANNEL_ID,
+            { connections: [{ ms_teams_user_id: msTeamsUserId }] },
+          )
+          .catch(console.error);
+      }
+
+      await next();
+    });
+  }
+}
+```
+
+Here, `"user_1n38knd"` represents the ID of the Knock `User` associated with this Microsoft Teams user, and should be replaced with a Knock `User` ID that you retrieve from your database. How you get this ID depends upon your specific application.
+
+## Triggering a workflow
+
+Once you have saved the user's Microsoft Teams user ID as channel data, you can trigger a workflow to send a message to that user's DM channel. Here's an example of how to trigger a workflow using the Knock Node SDK:
+
+```javascript
+const workflow_run_id = await knockClient.workflows.trigger("new-issue", {
+  recipients: ["user_1n38knd"],
+  tenant: "knocklabs",
+  data: {
+    message: formData.get("newIssue"),
+  },
+});
+```

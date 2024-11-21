@@ -1,0 +1,167 @@
+---
+title: Sending a message to public and private channels
+description: How to send a message to public and private channels in Microsoft Teams using Knock.
+tags: ["msteams", "teams", "chat"]
+section: Integrations > Microsoft Teams
+layout: integrations
+---
+
+In this guide, we'll cover how to update a multi-tenant Microsoft Teams bot to send messages to channels in Microsoft Teams using Knock. It assumes that you have already created a Microsoft Teams channel in Knock as outlined in the [Microsoft Teams integration overview](/integrations/chat/microsoft-teams/overview) guide.
+
+Here's what we'll cover in this guide:
+
+- Modeling a multi-tenant application in Knock using `Tenants`
+- Adding required scopes to your Microsoft Teams app's manifest
+- Setting required Tenant and Object channel data when a Microsoft Teams bot is installed in a channel
+- Triggering a workflow with an object recipient to send a message to a Microsoft Teams channel
+
+## Prerequisites
+
+Make sure your bot has been registered with <a href="https://dev.botframework.com/" target="_blank">Microsoft Bot Framework</a> and is deployed to Azure. Knock does not manage deploying and configuring your bot. To set up Knock to send notifications as your bot, see [How to connect to Teams with Knock](/integrations/chat/microsoft-teams/overview#how-to-connect-to-teams-with-knock).
+
+## Key concepts
+
+There are two key concepts you'll see throughout the following docs that are foundational to how Knock's Microsoft Teams integration works: tenants and objects.
+
+### About tenants
+
+[Tenants](/concepts/tenants) in Knock are meant to represent groups of users who typically share the same resources. You might call these "accounts," "organizations," "workspaces," or something similar. In a typical Microsoft Teams implementation, you'll store <a href="https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-create-new-tenant" target="_blank">the ID of a Microsoft Entra tenant</a> on a corresponding tenant in Knock.
+
+If you already use Knock's tenant concept to power other 'account-based' features, you likely create tenants in Knock when an account or organization is created in your application.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note: </strong>
+      Our best-practice recommendation is that tenants in Knock should map one-to-one
+      to whatever abstraction you use to model accounts, organizations, or workspaces.
+      You can think of tenants as the top-level container within your data model
+      that you use to power multi-tenancy in your application.
+    </>
+  }
+/>
+
+### About objects
+
+[Objects](/concepts/objects) in Knock are flexible abstractions meant to map to a resource in your system. Each individual object in Knock exists within a `collection` and requires an `id` unique to that collection.
+
+In the context of Knock's Microsoft Teams integration, objects serve two purposes. First, they store the Microsoft Teams channel or channels you want to notify. Second, they act as the recipient of the workflow used to send a message to Microsoft Teams.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note: </strong>
+      You can think of collections as the different tables within your database that
+      represent resources in your application. Objects are the rows within those
+      tables.
+    </>
+  }
+/>
+
+#### Example
+
+Let's say we're building a source control application like GitHub, where teams can collaborate and share code repositories. In this context, each GitHub organization would map to a tenant in Knock, and each repository would become an object inside of a `repositories` collection.
+
+If we want to be notified in Microsoft Teams each time an issue is opened against a repository, we would store a Microsoft Teams channel on each repository object and then trigger a `new-issue` workflow. Knock will use the data stored on the object and tenant to route a message to the correct Microsoft Teams channel:
+
+```javascript
+await knockClient.workflows.trigger("new-issue", {
+  recipients: [
+    {
+      collection: "repositories",
+      id: "knocklabs/javascript",
+    },
+  ],
+  tenant: "knocklabs",
+  data: {
+    message: formData.get("newIssue"),
+  },
+});
+```
+
+### Merging channel data
+
+In this implementation, we'll actually store [the required channel data](/integrations/chat/microsoft-teams/overview#channel-data-requirements) for an `MsTeamsConnection` across two different entities in Knock: a `Tenant` and an `Object`. This is because we want to store the `ms_teams_tenant_id` for the Microsoft Teams tenant on the Knock `Tenant` and the `ms_teams_channel_id` for the Microsoft Teams channel on the Knock `Object`.
+
+When you trigger a workflow using this recipient and tenant, Knock will merge the channel data from the `Tenant` and the `Object` to send the message to the correct Microsoft Teams channel.
+
+## Adding required scopes to your app's manifest
+
+In order for your bot to send messages to channels in Microsoft Teams, you'll need to update your <a href="https://learn.microsoft.com/en-us/microsoftteams/platform/resources/schema/manifest-schema" target="_blank">Microsoft Teams app's manifest</a> so that it includes the `team` scope for your bot.
+
+In your `manifest.json` file, add `team` to your bot's array of scopes:
+
+```json
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "{{YOUR_TEAMS_APP_ID}}",
+  "bots": [
+    {
+      "botId": "{{YOUR_BOT_ID}}",
+      "scopes": ["team"]
+    }
+  ]
+}
+```
+
+## Setting Tenant and Object channel data
+
+Your application should provide a method for admin users to associate a Microsoft Teams channel with a Knock `Object`. Using our repositories example, this might look like a combobox allowing the admin to select one or more Microsoft Teams channels to associate with a repository. (You can use <a href="https://learn.microsoft.com/en-us/graph/use-the-api" target="_blank">the Microsoft Graph API</a> to retrieve a list of Microsoft Teams channels.)
+
+Once the admin has selected one or more Microsoft Teams channels, your backend should update the channel data associated with the Knock `Tenant` and `Object`. If you're using Knock's Node SDK, your code might look like this:
+
+```javascript
+await knockClient.objects.setChannelData(
+  "$tenants",
+  "knocklabs",
+  process.env.KNOCK_MS_TEAMS_CHANNEL_ID,
+  { ms_teams_tenant_id: msTeamsTenantId },
+);
+
+await knockClient.objects.setChannelData(
+  "repositories",
+  "knocklabs/javascript",
+  process.env.KNOCK_MS_TEAMS_CHANNEL_ID,
+  { connections: [{ ms_teams_channel_id: msTeamsChannelId }] },
+);
+```
+
+Here, `KNOCK_MS_TEAMS_CHANNEL_ID` is the channel ID of your Microsoft Teams integration within Knock. `"knocklabs"` is the ID of the current `Tenant` logged into the application, and `"knocklabs/javascript"` is the ID of the `Object` (in this case, a repository).
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <strong>Note: </strong>
+      Make sure your Microsoft Teams app has been <a
+        href="https://support.microsoft.com/en-us/office/add-an-app-to-microsoft-teams-b2217706-f7ed-4e64-8e96-c413afd02f77"
+        target="_blank"
+      >
+        added to the team
+      </a> associated with the <code>Tenant</code> before you send notifications.
+    </>
+  }
+/>
+
+## Triggering a workflow
+
+Once you have saved the Microsoft Teams channel ID as channel data, you can trigger a workflow to send a message to that channel. Here's an example of how to trigger a workflow using the Knock Node SDK:
+
+```javascript
+const workflow_run_id = await knockClient.workflows.trigger("new-issue", {
+  recipients: [
+    {
+      collection: "repositories",
+      id: "knocklabs/javascript",
+    },
+  ],
+  tenant: "knocklabs",
+  data: {
+    message: formData.get("newIssue"),
+  },
+});
+```
