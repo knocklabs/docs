@@ -101,11 +101,23 @@ Here are the providers we currently support within Knock. We're adding more each
 - [SMTP](/integrations/email/smtp)
 - [Sparkpost](/integrations/email/sparkpost)
 
+### Chat apps
+
+- [Slack](/integrations/chat/slack/overview)
+- [Microsoft Teams](/integrations/chat/microsoft-teams/overview)
+- [Discord](/integrations/chat/discord)
+- [WhatsApp](/integrations/chat/whatsapp)
+
+### In-app
+
+- [Knock in-app](/integrations/in-app/knock)
+
 ### Push
 
 - [Apple Push Notification Service](/integrations/push/apns)
-- [Expo](/integrations/push/expo)
 - [Firebase Cloud Messaging](/integrations/push/firebase)
+- [Expo](/integrations/push/expo)
+- [OneSignal](/integrations/push/one-signal)
 
 ### SMS
 
@@ -119,14 +131,3 @@ Here are the providers we currently support within Knock. We're adding more each
 - [Telnyx](/integrations/sms/telnyx)
 - [Twilio](/integrations/sms/twilio)
 - [Vonage](/integrations/sms/vonage)
-
-### Chat apps
-
-- [Slack](/integrations/chat/slack)
-- [Discord](/integrations/chat/discord)
-- [Microsoft Teams](/integrations/chat/microsoft-teams)
-- [WhatsApp](/integrations/chat/whatsapp)
-
-### In-app
-
-- [Knock in-app](/integrations/in-app/knock)

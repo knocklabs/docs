@@ -85,6 +85,11 @@ const nextConfig = {
         destination: "/integrations/sms/twilio",
         permanent: true,
       },
+      {
+        source: "/integrations/chat/microsoft-teams",
+        destination: "/integrations/chat/microsoft-teams/overview",
+        permanent: true,
+      },
       // Old feed docs
       {
         source: "/client-integration/authenticating-users",
