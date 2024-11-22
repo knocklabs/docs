@@ -17,8 +17,16 @@ Like other functions, the trigger workflow function runs independently for each 
 
 ## Configuring a trigger function
 
-- select an active workflow
-- define step settings
+1. Select an active workflow
+    - Choose from any currently active workflows in your system
+    - Ensure the workflow is committed with your intended changes
+    - Note that inactive or archived workflows cannot be used
+2. Configure step settings for trigger data
+    - Recipients
+    - Optional: actor
+    - Optional: tenant
+    - Optional: data
+    - Optional: cancellation key
 
 ### Selecting the workflow
 
@@ -35,15 +43,21 @@ The trigger workflow function uses Liquid variables to define the trigger data f
 | `recipients` | The recipient(s) who will receive the nested workflow. | `{{ recipient.id }}` |
 | `actor` | The user or system initiating the nested workflow. | `{{ actor.id }}` |
 | `tenant` | The tenant context for the nested workflow. | `{{ tenant.id }}` |
-| `data` | Data payload passed to the nested workflow. | `{{ json  }}` |
+| `data` | Data payload passed to the nested workflow. | `{{ data json  }}` |
 | `cancellation_key` | Unique identifier used to cancel nested workflow runs. | `{{ workflow.cancellation_key }}` |
 
 
 ## Example use cases
 
-Here are some common ways to use the trigger function:
+{/* TODO */}
 
 ## Workflow cancelation
+
+When using trigger workflow functions, both parent and nested workflows can be canceled if they contain cancelable steps (batch, delay, or fetch functions) and are configured with cancellation keys. Here's how cancellation works in nested workflows:
+
+If the parent workflow is canceled before the trigger workflow step executes, the nested workflow will not be triggered, so no separate cancellation is needed.
+
+If you need to cancel a nested workflow that has already been triggered, you can do so by making a separate cancellation request using the cancellation key configured in the trigger workflow step. Canceling the parent workflow after the trigger workflow step has executed will not automatically cancel the nested workflow - you'll need to cancel each workflow separately.
 
 
 ## Frequently asked questions
