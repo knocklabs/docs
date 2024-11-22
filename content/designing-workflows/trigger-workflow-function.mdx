@@ -1,0 +1,61 @@
+---
+title: Trigger workflow function
+description: Learn more about the trigger workflow function within Knock's notification engine.
+tags: ["steps", "functions"]
+section: Designing workflows
+---
+
+A trigger workflow function enables you to invoke a workflow from within another workflow. This function allows you to compose complex notifications by reusing logic across multiple workflows, improving maintainability and reducing duplication.
+
+When using the trigger workflow function, you can utilize the data passed directly from the parent workflow or specify custom data for use when triggering the nested workflow.
+
+## How trigger functions work
+
+The trigger workflow step functions similarly to a standard workflow trigger, executing a specified workflow with a specified payload. The payload is constructed based on the configuration settings defined in the step.
+
+Like other functions, the trigger workflow function runs independently for each recipient in the parent workflow. This means that if your parent workflow has x number of recipients, the trigger function will execute x number of times, creating distinct workflow runs each time. This behavior ensures that each recipient's context and data is properly isolated in the nested workflow.
+
+## Configuring a trigger function
+
+- select an active workflow
+- define step settings
+
+### Selecting the workflow
+
+You can select any *active* workflow for use in the trigger workflow step. The trigger function will always use the most recently committed version of the selected workflow. To ensure that the correct workflow version is triggered, you must commit any intended changes to the selected workflow. Any uncommitted changes to the selected workflow will not be reflected when the step is executed.
+
+If the selected workflow is later set to inactive or is archived, the trigger workflow step will be in an invalid state and the step will be skipped.
+
+### Setting the trigger data 
+
+The trigger workflow function uses Liquid variables to define the trigger data for the nested workflow. You can reference any variables available in the parent workflow run.
+
+| Field | Description | Default Value |
+|-------|-------------|---------------|
+| `recipients` | The recipient(s) who will receive the nested workflow. | `{{ recipient.id }}` |
+| `actor` | The user or system initiating the nested workflow. | `{{ actor.id }}` |
+| `tenant` | The tenant context for the nested workflow. | `{{ tenant.id }}` |
+| `data` | Data payload passed to the nested workflow. | `{{ json  }}` |
+| `cancellation_key` | Unique identifier used to cancel nested workflow runs. | `{{ workflow.cancellation_key }}` |
+
+
+## Example use cases
+
+Here are some common ways to use the trigger function:
+
+## Workflow cancelation
+
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="How are nested workflow runs tracked?">
+    Each recipient run for the nested workflow step creates its own workflow run for the nested workflow. You can see these relationships in the workflow run logs.
+  </Accordion>
+  <Accordion title="Can I pass environment variables to nested workflows?">
+    Yes, you can reference any environment variables available in the parent workflow when setting the trigger data for the nested workflow.
+  </Accordion>
+  <Accordion title="What happens if the nested workflow fails?">
+    If a nested workflow fails, the error will be logged in the parent workflow run but won't automatically fail the parent workflow. You can use step conditions to check for and handle failures.
+  </Accordion>
+</AccordionGroup>

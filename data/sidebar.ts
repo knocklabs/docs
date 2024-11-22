@@ -46,6 +46,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/branch-function", title: "Branch function" },
       { slug: "/fetch-function", title: "Fetch function" },
       { slug: "/throttle-function", title: "Throttle function" },
+      { slug: "/trigger-workflow-function", title: "Trigger workflow function" },
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
       { slug: "/send-windows", title: "Send windows" },
