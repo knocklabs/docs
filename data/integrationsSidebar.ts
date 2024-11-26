@@ -27,7 +27,7 @@ const sidebarContent: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/layouts", title: "Layouts" },
-      { slug: "/settings", title: "Settings" },
+      { slug: "/settings", title: "Settings and overrides" },
       { slug: "/aws-ses", title: "AWS SES" },
       { slug: "/mailersend", title: "Mailersend" },
       { slug: "/mailgun", title: "Mailgun" },
