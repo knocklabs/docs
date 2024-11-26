@@ -1,0 +1,80 @@
+---
+title: "Referencing data in templates"
+description: A guide for working with data in your templates.
+tags: ["liquid", "template", "variables"]
+section: Designing workflows
+---
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      Referencing entity data via Liquid is currently in beta. If you'd like
+      early access, or this is blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Referencing%20entity%20data%20via%20Liquid">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+In addition to the variables available as part of the workflow run scope, you can also reference data from the users, objects, and tenants that exist within your Knock environment.
+
+Referencing data is a powerful way to share context across entities in your templates, without needing to manually pass the data in the `data` argument of your workflow trigger.
+
+## Referencing users via the `user` filter
+
+To reference a user, you can use the `user` filter. This will return a serialized `User`, which you can then use to output data in your template.
+
+Users returned will have all custom properties available, as well as the `id`, `name`, `email`, `phone_number`, `created_at`, and `updated_at` properties.
+
+```liquid title="Referencing a user via a static identifier"
+{% assign user = "chris" | user %}
+```
+
+```liquid title="Referencing a user via a dynamic identifier"
+{% assign user = data.other_user_id | user %}
+```
+
+## Referencing objects via the `object` filter
+
+To reference an object, you can use the `object` filter. This will return a serialized `Object`, which you can then use to output data in your template. When referencing an object, you'll also need to specify the `collection` of the object you're loading.
+
+Objects returned will have all custom properties available, as well as the `id`, `collection`, `created_at`, and `updated_at` properties. Read more about [working with objects](/concepts/objects).
+
+```liquid title="Referencing an object in the 'projects' collection via a static identifier"
+{% assign project = "proj_1" | object: "projects" %}
+```
+
+```liquid title="Referencing an object in the 'projects' collection via a dynamic identifier"
+{% assign project = data.project_id | object: "projects" %}
+```
+
+## Referencing tenants via the `tenant` filter
+
+To reference a tenant, you can use the `tenant` filter. This will return a serialized `Tenant`, which you can then use to output data in your template.
+
+Tenants returned will have all custom properties available, as well as the `id`, `created_at`, and `updated_at` properties. Read more about [working with tenants](/concepts/tenants).
+
+```liquid title="Referencing a tenant via a static identifier"
+{% assign tenant = "acme" | tenant %}
+```
+
+```liquid title="Referencing a tenant via a dynamic identifier"
+{% assign tenant = data.other_tenant_id | tenant %}
+```
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="What happens if I reference a user, object, or tenant that doesn't exist?">
+    If you reference a user, object, or tenant that doesn't exist, the value will be `null` in your template. Trying to use it to output data will return an empty string.
+
+    If you want to conditionally display data based on whether a user, object, or tenant exists, you can do so using Liquid's `if` statement.
+
+  </Accordion>
+  <Accordion title="How can I ensure that only certain users, objects, or tenants are available in my template?">
+    Knock cannot constrain the entities that are available in your template based on the recipient of the workflow run or the tenant passed in. It is your responsibility to ensure that any entities loaded as part of executing a template are accessible to the recipient.
+  </Accordion>
+</AccordionGroup>
