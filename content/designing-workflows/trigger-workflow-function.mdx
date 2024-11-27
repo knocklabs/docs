@@ -5,6 +5,20 @@ tags: ["steps", "functions"]
 section: Designing workflows
 ---
 
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      Trigger workflow function is currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Trigger workflow function beta access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
 A trigger workflow function enables you to invoke a workflow from within another workflow. This function allows you to compose complex notifications by reusing logic across multiple workflows, improving maintainability and reducing duplication.
 
 When using the trigger workflow function, you can utilize the data passed directly from the parent workflow or specify custom data for use when triggering the nested workflow.
@@ -17,16 +31,22 @@ Like other functions, the trigger workflow function runs independently for each 
 
 ## Configuring a trigger function
 
-1. Select an active workflow
-    - Choose from any currently active workflows in your system
-    - Ensure the workflow is committed with your intended changes
-    - Note that inactive or archived workflows will fail step if used
-2. Configure step settings for trigger data
-    - Recipients
-    - Optional: actor
-    - Optional: tenant
-    - Optional: data
-    - Optional: cancellation key
+<Steps>
+  <Step title="Select an active workflow">
+    <ul>
+      <li>Choose from any currently *active* workflows in your system</li>
+    </ul>
+  </Step>
+  <Step title="Configure step settings for trigger data">
+    <ul>
+      <li>Recipients</li>
+      <li>Actor (optional)</li>
+      <li>Tenant (optional)</li>
+      <li>Data (optional)</li>
+      <li>Cancellation key (optional)</li>
+    </ul>
+  </Step>
+</Steps>
 
 ### Selecting the workflow
 
@@ -43,13 +63,8 @@ The trigger workflow function uses Liquid variables to define the trigger data f
 | `recipients`     | string     | `{{ recipient.id }}`        | The recipient(s) who will receive the nested workflow.                      |
 | `actor`          | string     | `{{ actor.id }}`            | The user or system initiating the nested workflow.                          |
 | `tenant`         | string     | `{{ tenant.id }}`           | The tenant context for the nested workflow.                                 |
-| `data`           | string       | `{{ data \| json }}`      | Data payload passed to the nested workflow.                                 |
+| `data`           | string     | `{{ data \| json }}`      | Data payload passed to the nested workflow.                                 |
 | `cancellation_key` | string   | `{{ workflow.cancellation_key }}` | Unique identifier used to cancel nested workflow runs.                      |
-
-
-## Example use cases
-
-{/* TODO */}
 
 ## Workflow cancelation
 
@@ -58,18 +73,3 @@ When using trigger workflow functions, both parent and nested workflows can be c
 If the parent workflow is canceled before the trigger workflow step executes, the nested workflow will not be triggered, so no separate cancellation is needed.
 
 If you need to cancel a nested workflow that has already been triggered, you can do so by making a separate cancellation request using the cancellation key configured in the trigger workflow step. Canceling the parent workflow after the trigger workflow step has executed will not automatically cancel the nested workflow - you'll need to cancel each workflow separately.
-
-
-## Frequently asked questions
-
-<AccordionGroup>
-  <Accordion title="How are nested workflow runs tracked?">
-    Each recipient run for the nested workflow step creates its own workflow run for the nested workflow. You can see these relationships in the workflow run logs.
-  </Accordion>
-  <Accordion title="Can I pass environment variables to nested workflows?">
-    Yes, you can reference any environment variables available in the parent workflow when setting the trigger data for the nested workflow.
-  </Accordion>
-  <Accordion title="What happens if the nested workflow fails?">
-    If a nested workflow fails, the error will be logged in the parent workflow run but won't automatically fail the parent workflow. You can use step conditions to check for and handle failures.
-  </Accordion>
-</AccordionGroup>
