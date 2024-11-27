@@ -19,8 +19,8 @@ Objects are a powerful and flexible way to ensure Knock always has the most up-t
 
 You can use objects to:
 
-- Send out-of-app notifications to non-user recipients (such as a Slack channel).
-- Reference mutable data in your notification templates (such as when a user edits a comment before a notification is sent).
+- Send out-of-app notifications to non-user recipients (such as a [Slack channel](#slack-channel-notifications)).
+- [Reference mutable data in your notification templates](/designing-workflows/template-editor/referencing-data) (such as when a user edits a comment before a notification is sent).
 - **Coming soon:** send in-app notifications to non-user resources in your product (the activity feed you see on a Notion page is a good example).
 
 <Callout
@@ -28,8 +28,7 @@ You can use objects to:
   text={
     <>
       <span className="font-bold">Knock roadmap alert.</span> We have Objects
-      API support for in-app notifications and mutable data referencing on our
-      near-term roadmap.
+      API support for in-app notifications on our near-term roadmap.
       <br />
       <br /> If you're interested in trying this functionality, please shoot us
       a note at <a href="mailto:support@knock.app">support@knock.app</a> or use
@@ -46,35 +45,40 @@ Objects follow the same rules as all other items in Knock in that they are uniqu
 
 The way you manage object data in Knock is largely the same as [how you manage your user data](/send-and-manage-data/users#sending-user-data-to-knock). As with users, we support three approaches for managing Knock objects: individual, bulk, and inline.
 
-### 1. Set individual objects
+<AccordionGroup>
+  <Accordion title="Set individual objects">
+    You can use the set object API to send us data for a single object.
 
-You can use the set object API to send us data for a single object.
+    [API reference →](/reference#set-object)
 
-[API reference →](/reference#set-object)
+    <MultiLangCodeBlock snippet="objects.set" title="Set an object in Knock" />
 
-<MultiLangCodeBlock snippet="objects.set" title="Set an object in Knock" />
+  </Accordion>
 
-### 2. Bulk set objects
+  <Accordion title="Bulk set objects">
+    You can use the bulk set objects API to send us data for many objects at once. This endpoint allows you to identify up to 1000 objects at a time.
 
-You can use the bulk set objects API to send us data for many objects at once. This endpoint allows you to identify up to 1000 objects at a time.
+    [API reference →](/reference#bulk-set-objects)
 
-[API reference →](/reference#bulk-set-objects)
+    <MultiLangCodeBlock
+      snippet="objects.bulkSet"
+      title="Bulk set objects in Knock"
+        />
 
-<MultiLangCodeBlock
-  snippet="objects.bulkSet"
-  title="Bulk set objects in Knock"
-/>
+  </Accordion>
 
-### 3. Set objects inline
+  <Accordion title="Set objects inline">
+    You can also integrate object management into your workflow trigger calls. If you include additional object metadata (other than `id` and `collection`) in a workflow trigger call, Knock will perform an asynchronous action to upsert these objects as part of processing the workflow.
 
-Lastly, you can also integrate object management into your workflow trigger calls. If you include additional object metadata (other than `id` and `collection`) in a workflow trigger call, Knock will perform an asynchronous action to upsert these objects as part of processing the workflow.
+    [API reference →](/reference#trigger-workflow-inline-identify)
 
-[API reference →](/reference#trigger-workflow-inline-identify)
+    <MultiLangCodeBlock
+      snippet="workflows.trigger-with-object-identification"
+      title="Trigger a workflow with inlined identification data"
+        />
 
-<MultiLangCodeBlock
-  snippet="workflows.trigger-with-object-identification"
-  title="Trigger a workflow with inlined identification data"
-/>
+  </Accordion>
+</AccordionGroup>
 
 ## Guidelines for use
 
@@ -90,7 +94,7 @@ The object `id` should be unique within the collection. It should also be a stab
 
 Objects can contain any number of key-value property pairs that you can then reference in templates and trigger conditions. Properties will always be deeply merged between upserts, meaning that existing properties (including nested properties) will be updated with the newly provided values. Note that this means that existing properties cannot be explicitly removed, but you can overwrite them with a `null` value.
 
-### Object subscribers
+## Object subscribers
 
 You can use [subscriptions](/send-and-manage-data/subscriptions) to subscribe [recipients](/send-and-manage-data/recipients) to objects as subscribers. When an object is passed to a workflow trigger, Knock will automatically fan out and run a workflow for every subscriber on that object.
 
@@ -117,6 +121,40 @@ You can use [subscriptions](/send-and-manage-data/subscriptions) to subscribe [r
     </>
   }
 />
+
+## Referencing object data in templates
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      Referencing object data via Liquid is currently in beta. If you'd like
+      early access, or this is blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Referencing%20entity%20data%20via%20Liquid">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+You can reference object data in templates using the `object` filter to load object data into a template. You can reference an object by a static identifier, or by a dynamic identifier passed in via data in your workflow trigger.
+
+For example, if we have a `projects` collection that contains an object under the identifier `proj_1`, we can load that object into a template via a static identifier like this:
+
+```liquid title="Referencing an object by a static identifier"
+{% assign project = "proj_1" | object: "projects" %}
+```
+
+Or, we can load an object by a dynamic identifier. For example, if we have a workflow trigger that contains a `project_id` property, we can load that object into a template like this:
+
+```liquid title="Referencing an object by a dynamic identifier"
+{% assign project = data.project_id | object: "projects" %}
+```
+
+Once an object is loaded into a template, you can reference any of the properties of that object using the dot notation.
+
+You can read more about referencing data in templates in our [guide on referencing data in templates](/designing-workflows/template-editor/referencing-data).
 
 ## Examples
 

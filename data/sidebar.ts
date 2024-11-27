@@ -63,6 +63,11 @@ const sidebarContent: SidebarSection[] = [
             title: "Variables",
           },
           {
+            slug: "/referencing-data",
+            title: "Referencing data",
+            isBeta: true,
+          },
+          {
             slug: "/reference-liquid-helpers",
             title: "Liquid helpers",
           },
