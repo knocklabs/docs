@@ -1,23 +1,21 @@
 ---
-title: Email configuration
+title: Email settings and overrides
 description: Learn more about how to configure your email channels in Knock.
 section: Integrations
 layout: integrations
-tags: ["bcc", "cc", "JSON overrides"]
+tags: ["bcc", "cc", "JSON overrides", "email settings", "email overrides"]
 ---
 
-In this guide we cover how to configure email channels in Knock.
+Knock email channel configurations support a number of settings. These include email-specific fields (such as `cc`, `bcc`, and `reply-to`) as well as JSON overrides to be passed in API calls to the configured provider's API endpoints.
 
-## An intro to email channel settings
+When you configure a setting in a channel's configuration, it will be used on all instances of that channel across all workflows.
 
-Knock email channel configurations support a number of settings. These include include email-specific fields (such as cc, bcc, and reply-to) as well as JSON overrides to be pass in API calls to the configured provider's API endpoints.
+## Configuring email settings
 
-When you configure a setting in a channel's configuration, it will be used on all instances of that channel across all workflows. Note that you can override this on a given workflow step by going to the template editor and clicking "Manage template settings."
+You can override email settings on a per-channel basis, or on a per-template basis.
 
-### Configuring email settings
-
-The cc, bcc, and reply-to fields can be found at the bottom of the channel environment configuration modal's "Settings" tab.
-The JSON overrides field can be found under the "Overrides" Tab.
+- **At the channel level**. The `to`, `cc`, `bcc`, and `reply-to` fields can be found in the "Overrides" section of the channel's "Settings" tab.
+- **At the template level**. You'll find the email settings under the "Manage template settings" button.
 
 All email configuration fields support Liquid usage. You will be able to use any variables available in your workflow trigger payloads, as well as system variables such as the current workflow, activities, and any other variables you have access to when building templates.
 
@@ -27,9 +25,15 @@ As an example, if you wanted to conditionally change the "From name" on an email
 {{ actor.from_name | default: "no-reply@knock.app" }}
 ```
 
-### CC and BCC fields
+## Overriding the default `to` address
 
-The cc and bcc fields can be used to support a single or multiple addresses. In order to use several addresses on any of these fields, make sure to separate them with a comma.
+By default Knock will send your emails to the `email` property stored on the `recipient` for the workflow run. If you need to override this, you can do so by setting the `to` field in your email configuration either at the channel or the template level.
+
+As an example, if you wanted to send all emails to a single address, you could set the `to` field at the channel level to either a static value (like `hello@example.com`) or a dynamic value (like `{{ data.email_to_override }}`).
+
+## Setting `cc` and `bcc` addresses
+
+The `cc` and `bcc` fields can be used to support a single or multiple addresses. In order to use several addresses on any of these fields, make sure to separate them with a comma.
 
 <Callout
   emoji="🌠"
@@ -42,7 +46,7 @@ The cc and bcc fields can be used to support a single or multiple addresses. In 
   }
 />
 
-### Provider JSON overrides
+## Provider JSON overrides
 
 Sometimes you may want to customize the API call Knock sends to your email provider.
 A good example of this is passing custom arguments as part of the API payload.
@@ -59,9 +63,3 @@ In this example, we want to add two arguments to the `custom_args` attribute of 
 In this case, the first argument will be hardcoded, and the second
 argument's value will be the value of `workflow_variable`, which we expect to be passed
 in the payload of the workflow trigger call.
-
-## Template-level overrides
-
-You can also override all of these settings for specific workflow step templates.
-You can configure the overrides by clicking on the "Manage template settings" button. Once clicked, a modal will
-open and you will be able to override the attributes described above by accessing the "Overrides" tab.
