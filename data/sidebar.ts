@@ -46,7 +46,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/branch-function", title: "Branch function" },
       { slug: "/fetch-function", title: "Fetch function" },
       { slug: "/throttle-function", title: "Throttle function" },
-      { slug: "/trigger-workflow-function", title: "Trigger workflow function" },
+      { slug: "/trigger-workflow-function", title: "Trigger workflow function" , isBeta: true},
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
       { slug: "/send-windows", title: "Send windows" },
@@ -88,7 +88,7 @@ const sidebarContent: SidebarSection[] = [
     slug: "/send-notifications",
     desc: "Learn how to send and debug notifications using Knock.",
     pages: [
-      { slug: "/triggering-workflows", title: "Triggering workflows" },
+      { slug: "/triggering-workflows", title: "Triggering workflows", isBeta: true},
       { slug: "/canceling-workflows", title: "Canceling workflows" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/message-statuses", title: "Message statuses" },
