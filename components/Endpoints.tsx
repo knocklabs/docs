@@ -28,6 +28,8 @@ const EndpointText = ({ method, path }) => (
           method === "PUT",
         "bg-red-100 dark:bg-transparent dark:border-red-500":
           method === "DELETE",
+        "bg-purple-100 dark:bg-transparent dark:border-purple-500":
+          method === "PATCH",
       })}
     >
       {method}
