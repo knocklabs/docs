@@ -57,7 +57,7 @@ Knock.key = "sk_12345"
 Knock::Objects.set(
   collection: "projects",
   id: "project-1",
-  data: {
+  properties: {
     name: "My project",
     total_assets: 10,
     tags: ["cool", "fun", "project"],
