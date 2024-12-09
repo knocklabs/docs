@@ -62,7 +62,7 @@ Knock's shared conditions model supports the following types of conditions:
 
 Knock models each condition as a combination of three properties: a `variable`, an `operator`, and an `argument`. This will feel familiar to boolean logic with infix operators in many modern programming languages.
 
-In our JSON representation this will look something like:
+In our [JSON representation of a workflow](/mapi#workflows-object) this will look something like:
 
 ```json title="A workflow run condition"
 {
@@ -147,6 +147,82 @@ You can use any of the following operators in condition comparisons:
 
 Note: the `empty` and `not_empty` operators do not require a companion argument value in the condition, since Knock is checking for the absence of data from the variable path.
 
+### Combining conditions
+
+You can combine multiple conditions together via either `AND` or `OR` operators.
+
+- `AND` combined conditions require all conditions to be true for the evaluation to pass.
+
+```json title="JSON representation of AND combined conditions"
+"conditions": {
+  // the AND operator is represented by the "all" key
+  "all": [
+    {
+      "argument": "true",
+      "operator": "equal_to",
+      "variable": "recipient.is_active"
+    },
+    {
+      "argument": "true",
+      "operator": "equal_to",
+      "variable": "actor.is_active"
+    }
+  ]
+}
+```
+
+- `OR` combined conditions require at least one condition to be true for the evaluation to pass.
+
+```json title="JSON representation of OR combined conditions"
+"conditions": {
+  // the OR operator is represented by the "any" key
+  "any": [
+    {
+      "argument": "true",
+      "operator": "equal_to",
+      "variable": "recipient.is_active"
+    },
+    {
+      "argument": "true",
+      "operator": "equal_to",
+      "variable": "actor.is_active"
+    }
+  ]
+}
+```
+
+- You may also use a combination of `AND` and `OR` operators to create more complex conditions.
+
+```json title="JSON representation of OR plus AND combined conditions"
+"conditions": {
+  "any": [
+    {
+      "all": [
+        {
+          "argument": "true",
+          "operator": "equal_to",
+          "variable": "recipient.is_active"
+        },
+        {
+          "argument": "true",
+          "operator": "equal_to",
+          "variable": "actor.is_active"
+        }
+      ]
+    },
+    {
+      "all": [
+        {
+          "argument": "true",
+          "operator": "equal_to",
+          "variable": "data.force_delivery"
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## The conditions editor
 
 The Knock Dashboard ships with a conditions editor that provides helpful abstractions on top of this data model. Rather than needing to remember how to format variables or name operators, Knock makes the appropriate options available to you.
@@ -164,10 +240,7 @@ When creating or modifying a condition, you'll see:
   Working with the conditions editor to build a recipient data condition.
 </figcaption>
 
-You can also use the conditions editor to combine multiple conditions together via either 'AND' or 'OR' operators.
-
-- `AND` combined conditions require all conditions to be true for the evaluation to pass.
-- `OR` combined conditions require at least one condition to be true for the evaluation to pass.
+You can also use the conditions editor to combine multiple conditions together via either `AND` or `OR` operators.
 
 ![Managing condition groups in the conditions editor.](/images/notifications/conditions-groups-example.png)
 
