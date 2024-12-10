@@ -280,6 +280,11 @@ const nextConfig = {
         destination: "/in-app-ui/react/filtering-in-app-feeds",
         permanent: false,
       },
+      {
+        source: "/concepts/message-types",
+        destination: "/in-app-ui/message-types",
+        permanent: true,
+      },
       // Reference redirects
       {
         source: "/in-app-ui/:sdk/reference",
