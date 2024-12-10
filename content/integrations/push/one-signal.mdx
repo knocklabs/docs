@@ -66,6 +66,18 @@ We have full support for overriding the payload sent to OneSignal for adding thi
 
 Overrides are merged into the notification payload sent to OneSignal. See the <a href="https://documentation.onesignal.com/reference/push-notification" target="_blank">OneSignal documentation for more details</a>. Knock uses the "Aliases" targeting strategy to send push notifications to specific users via External ID.
 
+## Managing tokens
+
+By default, Knock makes no assumptions about managing your device tokens. The way token management works depends on your chosen recipient mode:
+
+### When using `external_id` mode (recommended)
+Token management is handled automatically by OneSignal, as Knock only maintains the mapping between your user's ID and OneSignal's external ID. While Knock's token deregistration feature is technically enabled for this mode, it has no practical effect since Knock doesn't directly manage any tokens.
+
+### When using `player_id` mode
+You are responsible for managing the player IDs stored in your recipients' channel data. This includes updating or removing player IDs when a recipient opts out of notifications or when their token expires. Token deregistration is not available for OneSignal channels using `player_id` mode.
+
+You can configure token deregistration on a per-environment basis in your channel's environment configurations. See our [token deregistration guide](/integrations/push/token-deregistration) for more details.
+
 ## Channel data requirements
 
 When your OneSignal push channel is configured to use `player_ids` you must supply ChannelData per-recipient that contains one or more `player_ids` for a user.
