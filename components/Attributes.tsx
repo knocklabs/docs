@@ -40,7 +40,7 @@ const Attribute = ({
         )}
       </span>
       {isRequired && (
-        <span className="font-semibold text-brand bg-beige-light text-xs ml-2 py-0.5 px-1">
+        <span className="font-semibold text-brand dark:text-brand-light bg-beige-light dark:bg-zinc-800 text-xs ml-2 py-0.5 px-1">
           required
         </span>
       )}
