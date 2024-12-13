@@ -156,9 +156,9 @@ Here's an example of setting channel data on an `Object` in Knock.
   }
 />
 
-### Channel data requirements
+### Recipient channel data requirements
 
-Here's an overview of the data requirements for [setting recipient channel data](/send-notifications/setting-channel-data) for either an incoming webhook or an access token Slack connection. Both will need to live under the `connections` key
+Here's an overview of the data requirements for [setting recipient channel data](/send-notifications/setting-channel-data) for either an incoming webhook or an access token Slack connection. Both will need to live under the `connections` key.
 
 | Property    | Type                | Description                      |
 | ----------- | ------------------- | -------------------------------- |
@@ -178,6 +178,18 @@ Here's an overview of the data requirements for [setting recipient channel data]
     | channel_id   | `string` | A Slack channel ID |
     | user_id      | `string` | A Slack user ID    |
 
+    ```json title="Slack channel_data with an access token"
+    {
+      "connections": [
+        {
+          "access_token": "ACCESS_TOKEN",
+          "channel_id": "CHANNEL_ID",
+          "user_id": "USER_ID"
+        }
+      ]
+    }
+    ```
+
   </Accordion>
   <Accordion title="SlackConnection with an incoming webhook url" description="For internal or one-off integrations">
      If you're using a Slack app with the `incoming-webhook` scope your `SlackConnection` schema is quite simple:
@@ -186,10 +198,38 @@ Here's an overview of the data requirements for [setting recipient channel data]
     | -------------------- | -------- | --------------------------------------------------------------------------- |
     | incoming_webhook.url | `string` | The Slack incoming webhook URL (to be used instead of the properties above) |
 
+
+    ```json title="Slack channel_data with an incoming webhook URL"
+    {
+      "connections": [
+        {
+          "incoming_webhook": { "url": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX" }
+        }
+      ]
+    }
+    ```
+
   </Accordion>
 </AccordionGroup>
 
-### Setting channel data: users vs. objects
+### Tenant channel data requirements
+
+When you [map a Slack workspace to a tenant](/integrations/chat/slack/sending-a-message-to-channels#key-concepts) in Knock (as our [SlackKit](/in-app-ui/react/slack-kit) components do), you'll store the access token for that workspace as `channel_data` on the tenant. Then, when you apply the `tenant` to your workflow triggers Knock will [combine that access token with the recipient's](/integrations/chat/slack/sending-a-message-to-channels#merging-channel-data) `channel_data` to send notifications to the correct Slack workspace and channel. For this implementation method, the `access_token` on the recipient's `SlackConnection[]` data above is not required.
+
+Here's an overview of the data requirements for setting channel data when storing an access token on a tenant.
+
+| Property           | Type     | Description                                                 |
+| ------------------ | -------- | ----------------------------------------------------------- |
+| token              | `object` | An object containing the `access_token` obtained from Slack |
+| token.access_token | `string` | The `access_token` obtained from Slack                      |
+
+```json title="Slack channel_data on a tenant"
+{
+  "token": { "access_token": "ACCESS_TOKEN" }
+}
+```
+
+### Choosing where to store channel data: users vs. objects
 
 Depending on the Slack integration you build into your product, you’ll store the connection data you receive from Slack as `channel_data` on either a `User` or an `Object` in Knock.
 
@@ -216,6 +256,7 @@ Depending on the Slack integration you build into your product, you’ll store t
 
   </Accordion>
 </AccordionGroup>
+<br />
 
 ## Designing notification templates for Slack
 
