@@ -87,6 +87,8 @@ Channel groups solve this problem. With a channel group, you can combine multipl
 
 Here are the providers we currently support within Knock. We're adding more each week. If you want us to add a new provider to this list, please let us know through the feedback button at the top of this page.
 
+<!-- Reminder: when adding a new integration provider to this list, please be sure to update the `getting-started/what-is-knock.mdx` file to include the new provider in the accordion. -->
+
 ### Email
 
 - [AWS SES](/integrations/email/aws-ses)
