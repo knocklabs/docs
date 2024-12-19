@@ -78,21 +78,7 @@ We also provide a [conditions editor](#the-conditions-editor) that provides some
 
 A condition variable is always a string formatted like `"<prefix>.<path>"`. Knock uses the variable `prefix` to determine the condition type and the variable `path` to determine where to look up the data for evaluation.
 
-Knock allows the following variable formats:
-
-| Variable                              | Description                                                                                                                                                                                                                                                                                   |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `data.<path>`                         | A data condition, where `<path>` is used to select a property from the workflow trigger data payload.                                                                                                                                                                                         |
-| `recipient.<prop>`                    | A recipient condition, where `<prop>` is used to select a property on the current recipient.                                                                                                                                                                                                  |
-| `actor.<prop>`                        | An actor condition, where `<prop>` is used to select a property on the current actor.                                                                                                                                                                                                         |
-| `vars.<var>`                          | An environment variable condition, where `<var>` is the name of one of your environment variables.                                                                                                                                                                                            |
-| `workflow.{id,name,categories}`       | A workflow condition.                                                                                                                                                                                                                                                                         |
-| `run.{total_activities,total_actors}` | A workflow run condition.                                                                                                                                                                                                                                                                     |
-| `tenant.<prop>`                       | A tenant condition, where `<prop>` is used to select a property on the current tenant.                                                                                                                                                                                                        |
-| `refs.<ref>.delivery_status`          | A [message status condition](/designing-workflows/step-conditions#message-status-conditions) that evaluates against a message's [delivery status](/send-notifications/message-statuses#delivery-status), where `<ref>` identifies the preceding workflow step that generated the message.     |
-| `refs.<ref>.engagement_status`        | A [message status condition](/designing-workflows/step-conditions#message-status-conditions) that evaluates against a message's [engagement status](/send-notifications/message-statuses#engagement-status), where `<ref>` identifies the preceding workflow step that generated the message. |
-
-In cases where data is not found at the path given by the variable, Knock falls back to an empty string as the default value.
+See the [conditions scope](#conditions-scope) for a list of available prefixes.
 
 ### Arguments
 
@@ -113,19 +99,7 @@ Plus arrays of any of the above.
 
 Dynamic arguments are nearly identical to variables. Knock will expect a string formatted like `"<prefix>.<path>"` and use the information within to resolve a value from some runtime data property.
 
-Knock allows the following dynamic argument formats:
-
-| Argument                              | Description                                                                          |
-| ------------------------------------- | ------------------------------------------------------------------------------------ |
-| `data.<path>`                         | `<path>` is used to select a property from the workflow trigger data payload.        |
-| `recipient.<prop>`                    | `<prop>` is used to select a property on the current recipient.                      |
-| `actor.<prop>`                        | `<prop>` is used to select a property on the current actor.                          |
-| `var.<var>`                           | `<var>` is the name of one of your environment variables.                            |
-| `workflow.{id,name,categories}`       | Selects the `id`, `name`, or `categories` value for the current workflow.            |
-| `run.{total_activities,total_actors}` | Selects the `total_activities` or `total_actors` value for the current workflow run. |
-| `tenant.<prop>`                       | `<prop>` is used to select a property on the current tenant.                         |
-
-In cases where data is not found at the path given by the argument, Knock falls back to an empty string as the default value.
+See the [conditions scope](#conditions-scope) for a list of available prefixes.
 
 ### Operators
 
@@ -146,6 +120,24 @@ You can use any of the following operators in condition comparisons:
 | `not_empty`                | `variable not in ["", null, []]`                                                      |
 
 Note: the `empty` and `not_empty` operators do not require a companion argument value in the condition, since Knock is checking for the absence of data from the variable path.
+
+### Conditions scope
+
+Knock makes the following available to be used in a condition variable or dynamic argument:
+
+| Property                              | Description                                                                                                                                                                                                                                                                                   |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data.<path>`                         | A data condition, where `<path>` is used to select a property from the workflow trigger data payload.                                                                                                                                                                                         |
+| `recipient.<prop>`                    | A recipient condition, where `<prop>` is used to select a property on the current recipient. [See full list of properties available](/designing-workflows/template-editor/variables#recipient-user-or-object).                                                                                |
+| `actor.<prop>`                        | An actor condition, where `<prop>` is used to select a property on the current actor. [See full list of properties available](/designing-workflows/template-editor/variables#recipient-user-or-object).                                                                                       |
+| `vars.<var>`                          | An environment variable condition, where `<var>` is the name of one of your environment variables.                                                                                                                                                                                            |
+| `workflow.{id,name,categories}`       | A workflow condition.                                                                                                                                                                                                                                                                         |
+| `run.{total_activities,total_actors}` | A workflow run condition.                                                                                                                                                                                                                                                                     |
+| `tenant.<prop>`                       | A tenant condition, where `<prop>` is used to select a property on the current tenant. [See full list of properties available](/designing-workflows/template-editor/variables#tenant).                                                                                                        |
+| `refs.<ref>.delivery_status`          | A [message status condition](/designing-workflows/step-conditions#message-status-conditions) that evaluates against a message's [delivery status](/send-notifications/message-statuses#delivery-status), where `<ref>` identifies the preceding workflow step that generated the message.     |
+| `refs.<ref>.engagement_status`        | A [message status condition](/designing-workflows/step-conditions#message-status-conditions) that evaluates against a message's [engagement status](/send-notifications/message-statuses#engagement-status), where `<ref>` identifies the preceding workflow step that generated the message. |
+
+In cases where data is not found at the path given by the variable, Knock falls back to an empty string as the default value.
 
 ### Combining conditions
 
