@@ -4,7 +4,14 @@ const Attributes = ({ children }) => (
   </div>
 );
 
-const Attribute = ({ name, type, description, typeSlug, nameSlug }) => (
+const Attribute = ({
+  name,
+  type,
+  description,
+  typeSlug,
+  nameSlug,
+  isRequired,
+}) => (
   <div className="attribute border-b dark:border-b-gray-800 py-2">
     <span>
       <span className="font-mono text-xs">
@@ -32,6 +39,11 @@ const Attribute = ({ name, type, description, typeSlug, nameSlug }) => (
           type
         )}
       </span>
+      {isRequired && (
+        <span className="font-semibold text-brand dark:text-brand-light bg-beige-light dark:bg-zinc-800 text-xs ml-2 py-0.5 px-1">
+          required
+        </span>
+      )}
     </span>
     <span className="block text-sm mt-0 text-gray-600 dark:text-gray-300">
       {description}
