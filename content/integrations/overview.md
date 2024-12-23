@@ -137,5 +137,3 @@ Here are the providers we currently support within Knock. We're adding more each
 - [Telnyx](/integrations/sms/telnyx)
 - [Twilio](/integrations/sms/twilio)
 - [Vonage](/integrations/sms/vonage)
-
-<!-- adding this for a test-->
