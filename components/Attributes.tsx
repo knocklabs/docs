@@ -40,15 +40,9 @@ const Attribute = ({
         )}
       </span>
       {isRequired && (
-        // option 1
-        <span className="font-semibold text-brand-dark bg-brand-light/20 dark:text-brand-light dark:bg-brand-dark/20 text-xs ml-2 py-0.5 px-1">
-  required
-</span>
-        // option 2
-//         <span className="font-semibold text-brand-dark bg-brand-light/10 dark:text-brand-light dark:bg-zinc-800/30 text-xs ml-2 py-0.5 px-1">
-//   required
-// </span>
-
+        <span className="font-semibold text-brand-dark bg-brand-light/10 dark:text-brand-light dark:bg-zinc-800/30 dark:border dark:border-zinc-700/50 text-xs ml-2 py-0.5 px-1">
+          required
+        </span>
       )}
     </span>
     <span className="block text-sm mt-0 text-gray-600 dark:text-gray-300">
