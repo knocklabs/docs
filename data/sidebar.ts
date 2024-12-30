@@ -70,7 +70,6 @@ const sidebarContent: SidebarSection[] = [
           {
             slug: "/referencing-data",
             title: "Referencing data",
-            isBeta: true,
           },
           {
             slug: "/reference-liquid-helpers",
