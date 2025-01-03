@@ -69,7 +69,13 @@ You can use channel conditions to place a [condition](/send-and-manage-data/cond
 
 To add a condition to a channel's environment configuration, navigate to **Integrations** > **Channels** in your dashboard, click on the channel you'd like to update, then click "Manage configuration" next to the relevant environment. Select "Conditions" in the modal that is opened.
 
-![Managing channel conditions in Knock.](/images/integrations/channel-conditions-editor.png)
+<Image
+  src="/images/integrations/channel-conditions-editor-example.png"
+  alt="Managing channel conditions in Knock."
+  width={800}
+  height={450}
+  className="rounded-md mx-auto border border-gray-200"
+/>
 
 <figcaption>Managing channel conditions in Knock.</figcaption>
 
