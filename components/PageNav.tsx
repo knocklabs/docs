@@ -70,7 +70,7 @@ const HeaderList: React.FC<{ headers: IHeader[]; nesting: number }> = ({
           <Link
             href={`#${h.id}`}
             className={cn({
-              "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100":
+              "pr-3 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100":
                 true,
             })}
           >
@@ -103,24 +103,30 @@ const PageNav: React.FC<Props> = ({ title, sourcePath }) => {
 
   return (
     <aside
-      className="fixed top-30 pl-5 pb-4 w-64 overflow-y-auto"
-      style={{ height: "calc(100vh - 15.8rem)" }}
+      className="fixed top-30 pl-5 w-72 overflow-y-auto"
+      style={{ height: "calc(100vh - 15rem)" }}
     >
-      <h5 className="text-xs uppercase text-gray-900 dark:text-gray-500 font-semibold tracking-wider mb-3">
-        On this page
-      </h5>
-      <ul className="space-y-2">
-        <HeaderList headers={headers} nesting={0} />
-      </ul>
-      <div className="my-4 border-t border-gray-200 dark:border-gray-800"></div>
-      <a
-        href={`https://github.com/knocklabs/docs/edit/main/${sourcePath}`}
-        className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Edit this page on GitHub &rarr;
-      </a>
+      <div className="pb-4">
+        <h5 className="text-xs uppercase text-gray-900 dark:text-gray-500 font-semibold tracking-wider mb-3">
+          On this page
+        </h5>
+        <ul className="space-y-2">
+          <HeaderList headers={headers} nesting={0} />
+        </ul>
+        <div className="my-4 border-t border-gray-200 dark:border-gray-800"></div>
+        <a
+          href={`https://github.com/knocklabs/docs/edit/main/${sourcePath}`}
+          className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Edit this page on GitHub &rarr;
+        </a>
+        <div
+          id="gradient"
+          className="sticky bottom-0 left-0 right-0 h-24 pointer-events-none bg-gradient-to-t from-white dark:from-gray-900 to-transparent"
+        />
+      </div>
     </aside>
   );
 };
