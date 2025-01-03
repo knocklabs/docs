@@ -122,7 +122,10 @@ const PageNav: React.FC<Props> = ({ title, sourcePath }) => {
         >
           Edit this page on GitHub &rarr;
         </a>
-        <div id="gradient" className="sticky bottom-0 left-0 right-0 h-24 pointer-events-none bg-gradient-to-t from-white dark:from-gray-900 to-transparent" />
+        <div
+          id="gradient"
+          className="sticky bottom-0 left-0 right-0 h-24 pointer-events-none bg-gradient-to-t from-white dark:from-gray-900 to-transparent"
+        />
       </div>
     </aside>
   );
