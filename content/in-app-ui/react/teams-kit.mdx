@@ -21,7 +21,7 @@ Once you've provided access to the necessary data, you can drop Knock's pre-buil
 
 ### Add the providers
 
-In order to give your components the data they need, they must be wrapped in the `KnockMSTeamsProvider`. We recommend putting this high in your component tree so that any TeamsKit components that you use will be rendered within it. The Microsoft Teams provider goes inside of the `KnockProvider`. Your hierarchy will look like this:
+In order to give your components the data they need, they must be wrapped in the `KnockMsTeamsProvider`. We recommend putting this high in your component tree so that any TeamsKit components that you use will be rendered within it. The Microsoft Teams provider goes inside of the `KnockProvider`. Your hierarchy will look like this:
 
 ```javascript title="Wrap your UI components in data providers"
 <KnockProvider
@@ -29,45 +29,45 @@ In order to give your components the data they need, they must be wrapped in the
     userId="User ID"
     userToken="Generated user token with resource grants"
 >
-    <KnockMSTeamsProvider
-        knockMSTeamsChannelId="Knock Microsoft Teams channel ID"
+    <KnockMsTeamsProvider
+        knockMsTeamsChannelId="Knock Microsoft Teams channel ID"
         tenantId="Tenant ID"
     >
         {child components}
-    </KnockMSTeamsProvider>
+    </KnockMsTeamsProvider>
 </KnockProvider>
 ```
 
-The `KnockMSTeamsProvider` gives your components access to the status of the connection to your Microsoft Teams bot, so that they can all be in sync when a user is connecting, disconnecting, or experiencing a connection error.
+The `KnockMsTeamsProvider` gives your components access to the status of the connection to your Microsoft Teams bot, so that they can all be in sync when a user is connecting, disconnecting, or experiencing a connection error.
 
 ### Add the components
 
-#### MSTeamsAuthButton & Container
+#### MsTeamsAuthButton & Container
 
 <figure>
   <Image
     src="/images/integrations/chat/microsoft-teams/msteamsauthbutton.png"
     className="rounded-md mx-auto border border-gray-200"
-    alt="The MSTeamsAuthButton component with MSTeamsAuthContainer"
+    alt="The MsTeamsAuthButton component with MsTeamsAuthContainer"
     width={1310}
     height={564}
   />
-  <figcaption>The MSTeamsAuthButton component with MSTeamsAuthContainer</figcaption>
+  <figcaption>The MsTeamsAuthButton component with MsTeamsAuthContainer</figcaption>
 </figure>
 
-Your users will give your Microsoft Teams bot access to their own Microsoft Teams tenants via the `MSTeamsAuthButton`. This button can be used on its own, or nested in the `MSTeamsAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
+Your users will give your Microsoft Teams bot access to their own Microsoft Teams tenants via the `MsTeamsAuthButton`. This button can be used on its own, or nested in the `MsTeamsAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
 
-```javascript title="Initiate OAuth and display auth state with MSTeamsAuthButton"
+```javascript title="Initiate OAuth and display auth state with MsTeamsAuthButton"
 // Without container
-<MSTeamsAuthButton
+<MsTeamsAuthButton
     msTeamsBotId="Microsoft Teams bot ID"
     redirectUrl="The URL of your application to return to once Microsoft Teams authorization is complete"
 />
 
 // With container
-<MSTeamsAuthContainer
+<MsTeamsAuthContainer
     actionButton={
-        <MSTeamsAuthButton
+        <MsTeamsAuthButton
             msTeamsBotId="Microsoft Teams bot ID"
             redirectUrl="The URL of your application to return to once Microsoft Teams authorization is complete"
         />
@@ -75,13 +75,13 @@ Your users will give your Microsoft Teams bot access to their own Microsoft Team
 />
 ```
 
-The `MSTeamsAuthButton` maps a tenant in your product to a customer's Microsoft Teams tenant. This means in most cases you'll just need a single instance of the `MSTeamsAuthButton`.
+The `MsTeamsAuthButton` maps a tenant in your product to a customer's Microsoft Teams tenant. This means in most cases you'll just need a single instance of the `MsTeamsAuthButton`.
 
-Remember to consider which roles in your application can access the `MSTeamsAuthButton` component. Knock does not control access to the component. In most cases, you'll add this connect button/container in the settings area of your product.
+Remember to consider which roles in your application can access the `MsTeamsAuthButton` component. Knock does not control access to the component. In most cases, you'll add this connect button/container in the settings area of your product.
 
 ### Complete sample code
 
-Here's an example of `MSTeamsAuthButton` in a React application.
+Here's an example of `MsTeamsAuthButton` in a React application.
 
 ```javascript title="Store Knock and Microsoft Teams credentials as .env vars"
 // .env
@@ -100,23 +100,23 @@ MS_TEAMS_BOT_ID = "f1b85cf4-58e1-4cef-8d3f-ce6ccf60734d";
   userId={currentUser.id}
   userToken={localStorage.getItem("knock-user-token")}
 >
-  <KnockMSTeamsProvider
-    knockMSTeamsChannelId={process.env.KNOCK_MS_TEAMS_CHANNEL_ID}
+  <KnockMsTeamsProvider
+    knockMsTeamsChannelId={process.env.KNOCK_MS_TEAMS_CHANNEL_ID}
     tenantId={currentAccount.id}
   >
     <NotificationSettings />
-  </KnockMSTeamsProvider>
+  </KnockMsTeamsProvider>
 </KnockProvider>
 ```
 
 <br />
 
-```javascript title="Render your MSTeamsAuthButton inside of KnockMSTeamsProvider"
+```javascript title="Render your MsTeamsAuthButton inside of KnockMsTeamsProvider"
 const NotificationSettings = () => {
   return (
-    <MSTeamsAuthContainer
+    <MsTeamsAuthContainer
       actionButton={
-        <MSTeamsAuthButton
+        <MsTeamsAuthButton
           msTeamsBotId={process.env.MS_TEAMS_BOT_ID}
           redirectUrl={"www.my-example-app.com/notification-settings"}
         />
@@ -134,7 +134,7 @@ TeamsKit exposes three levels of support: React hooks, client functions, and API
 
 ### Hooks
 
-You can use the [Microsoft Teams React hooks](/in-app-ui/react/reference#microsoft-teams-hooks) under the hood to access and set Microsoft Teams integration data with your own components. All of them are available from the `@knocklabs/react-core` package. All of them must still be nested under the `KnockMSTeamsProvider` to work.
+You can use the [Microsoft Teams React hooks](/in-app-ui/react/reference#microsoft-teams-hooks) under the hood to access and set Microsoft Teams integration data with your own components. All of them are available from the `@knocklabs/react-core` package. All of them must still be nested under the `KnockMsTeamsProvider` to work.
 
 To use a hook in your component, all you need to to is import it and pass it the necessary params, and then you can use the data and functions returned in each to pass to your own component UI.
 
@@ -181,7 +181,7 @@ import { Grants } from "@knocklabs/node/dist/src/common/userTokens";
 await Knock.signUserToken("user-1", {
   grants: [
     Knock.buildUserTokenGrant({ type: "tenant", id: "jurassic-park" }, [
-      Grants.MSTeamsChannelsRead,
+      Grants.MsTeamsChannelsRead,
     ]),
     Knock.buildUserTokenGrant(
       { type: "object", id: "dinosaurs-loose", collection: "videos" },
@@ -195,7 +195,7 @@ await Knock.signUserToken("user-1", {
 });
 ```
 
-You'll need to pass this token along with the public API key to the `KnockProvider` that wraps `KnockMSTeamsProvider` and the rest of your components. We recommend storing the generated user token in local storage so that your client application has easy access to it.
+You'll need to pass this token along with the public API key to the `KnockProvider` that wraps `KnockMsTeamsProvider` and the rest of your components. We recommend storing the generated user token in local storage so that your client application has easy access to it.
 
 ### Other languages
 
