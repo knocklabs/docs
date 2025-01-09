@@ -4,7 +4,7 @@ description: How to let users authorize and select Microsoft Teams channels in y
 section: TeamsKit
 ---
 
-Our `@knocklabs/react` library comes with pre-built components for allowing your users to connect their Microsoft Teams tenants to Knock. TeamsKit manages your OAuth connection and tokens, and integrates seamlessly with the rest of Knock.
+Our `@knocklabs/react` library comes with pre-built components for allowing your users to connect their Microsoft Teams instances to Knock. TeamsKit manages your OAuth connection and tokens, and integrates seamlessly with the rest of Knock.
 
 ## Getting started
 
@@ -12,8 +12,8 @@ To get started you'll need a [Knock account](https://dashboard.knock.app), a [Mi
 
 Depending on your use case, you can follow one of these guides for step-by-step instructions on how to set up your Microsoft Teams integration:
 
-- [Sending messages to public channels](/integrations/chat/microsoft-teams/sending-a-message-to-channels) in your customer's Microsoft Teams tenants
-- [Sending direct messages](/integrations/chat/microsoft-teams/sending-a-direct-message) to users in your customer's Microsoft Teams tenants
+- [Sending messages to public channels](/integrations/chat/microsoft-teams/sending-a-message-to-channels) in your customers' Microsoft Teams instances
+- [Sending direct messages](/integrations/chat/microsoft-teams/sending-a-direct-message) to users in your customers' Microsoft Teams instances
 
 ## Configuring your bot in Microsoft Entra
 
@@ -90,7 +90,7 @@ The `KnockMsTeamsProvider` gives your components access to the status of the con
   <figcaption>The MsTeamsAuthButton component with MsTeamsAuthContainer</figcaption>
 </figure>
 
-Your users will give your Microsoft Teams bot access to their own Microsoft Teams tenants via the `MsTeamsAuthButton`. This button can be used on its own, or nested in the `MsTeamsAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
+Your users will give your Microsoft Teams bot access to their own Microsoft Entra tenants via the `MsTeamsAuthButton`. This button can be used on its own, or nested in the `MsTeamsAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
 
 ```javascript title="Initiate OAuth and display auth state with MsTeamsAuthButton"
 // Without container
@@ -110,7 +110,7 @@ Your users will give your Microsoft Teams bot access to their own Microsoft Team
 />
 ```
 
-The `MsTeamsAuthButton` maps a tenant in your product to a customer's Microsoft Teams tenant. This means in most cases you'll just need a single instance of the `MsTeamsAuthButton`.
+The `MsTeamsAuthButton` maps a tenant in your product to a customer's Microsoft Entra tenant. This means in most cases you'll just need a single instance of the `MsTeamsAuthButton`.
 
 Remember to consider which roles in your application can access the `MsTeamsAuthButton` component. Knock does not control access to the component. In most cases, you'll add this connect button/container in the settings area of your product.
 
@@ -178,7 +178,7 @@ To use a hook in your component, all you need to to is import it and pass it the
 If you want more fine grain control of your data, you can skip the hooks and simply use the functions Knock exposes in the [`@knocklabs/client` library](https://github.com/knocklabs/javascript/tree/main/packages/client) as long as you wrap the component you're calling it in inside of `KnockProvider`. You can accomplish anything we provide with hooks or the components with the following functions:
 
 - `knock.msTeams.authCheck`: Get the status of Microsoft Teams authorization
-- `knock.msTeams.revokeAccessToken`: Removes the Microsoft Teams tenant ID from the tenant
+- `knock.msTeams.revokeAccessToken`: Removes the Microsoft Entra tenant ID from the tenant
 - `knock.objects.getChannelData`: Use this to get the connected channels stored as channel data on the recipient object
 - `knock.objects.setChannelData`: Use this to set the connected channels for a recipient object or an access token for a tenant
 
@@ -187,7 +187,7 @@ If you want more fine grain control of your data, you can skip the hooks and sim
 Lastly, you can interact directly with the API endpoints for all of the above functionality. Here are the endpoints used in TeamsKit that you would need to support an implementation of the managed UI:
 
 - [Microsoft Teams auth check](/reference#ms-teams-auth-check): status of Microsoft Teams authorization
-- [Microsoft Teams revoke access](/reference#ms-teams-revoke-access): remove a Microsoft Teams tenant ID from a Knock tenant
+- [Microsoft Teams revoke access](/reference#ms-teams-revoke-access): remove a Microsoft Entra tenant ID from a Knock tenant
 - [Get channel data](/reference#get-object-channel-data): get channel data for your recipient object, which gives you access to the connected Microsoft Teams channels
 - [Set channel data](/reference#set-object-channel-data): set channel data for your recipient object, which allows you to set connected Microsoft Teams channels
 
@@ -199,7 +199,7 @@ We've made it easy for you to tell Knock which resources your users should have 
 
 ### With the Node SDK
 
-You'll need to generate a token for your user that includes access to the tenant storing the Microsoft Teams tenant ID as well as any recipient objects storing Teams channel data as described in [Microsoft Teams notifications with Knock](/integrations/chat/microsoft-teams/overview#channel-data-requirements). If you need to enable access to multiple recipient objects, you can include multiple grants in the user token.
+You'll need to generate a token for your user that includes access to the tenant storing the Microsoft Entra tenant ID as well as any recipient objects storing Teams channel data as described in [Microsoft Teams notifications with Knock](/integrations/chat/microsoft-teams/overview#channel-data-requirements). If you need to enable access to multiple recipient objects, you can include multiple grants in the user token.
 
 Example:
 
@@ -259,7 +259,7 @@ You may already be familiar with generating a user token to be used with your pu
 
 The two resources you'll be granting access to are:
 
-- **The tenant**: the user needs access to this because this is where Knock stores the Microsoft Teams tenant ID (`ms_teams_tenant_id`) that will be used to send a notification as your Microsoft Teams bot
+- **The tenant**: the user needs access to this because this is where Knock stores the Microsoft Entra tenant ID (`ms_teams_tenant_id`) that will be used to send a notification as your Microsoft Teams bot
 - **The recipient object**: the user needs access to this because this is where Knock is storing the connected Microsoft Teams channels as channel data on the object
 
 These resources need different permissions. Here are the permissions needed for each:
