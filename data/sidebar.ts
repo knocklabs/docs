@@ -154,6 +154,7 @@ const sidebarContent: SidebarSection[] = [
           },
           { slug: "/preferences", title: "Preferences" },
           { slug: "/slack-kit", title: "SlackKit" },
+          { slug: "/teams-kit", title: "TeamsKit" },
           {
             slug: "/filtering-in-app-feeds",
             title: "Filtering feeds",
