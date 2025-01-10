@@ -191,11 +191,19 @@ Remember to consider which roles in your application can access the `MsTeamsAuth
 
 Once your Microsoft Teams bot is installed in a user's personal scope, your bot's messaging endpoint will receive <a href="https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/subscribe-to-conversation-events#installation-update-event" target="_blank">an installation update event</a>. You can use this event to update the channel data associated with the Knock `User`.
 
-If you're using the <a href="https://github.com/microsoft/botbuilder-js" target="_blank">Bot Framework SDK for JavaScript</a> with the Knock Node SDK, your code will look something like this:
+In order to determine the user ID of the Knock `User`, you'll likely want to query your application's database based on the attributes of the Microsoft Teams user who installed your bot. The <a href="https://learn.microsoft.com/en-us/graph/api/user-get" target="_blank">get user API of the Microsoft Graph API</a> provides a convenient way to look up the email address of the user who installed your bot.
+
+If you're using the <a href="https://github.com/microsoft/botbuilder-js" target="_blank">Bot Framework SDK for JavaScript</a> and the <a href="https://github.com/microsoftgraph/msgraph-sdk-javascript" target="_blank">Microsoft Graph JavaScript client library</a> with the Knock Node SDK, your code will look something like this:
 
 ```javascript
 import { Knock } from "@knocklabs/node";
+import { Client } from "@microsoft/microsoft-graph-client";
+
 const knockClient = new Knock(process.env.KNOCK_API_KEY);
+
+const graphApiClient = Client.initWithMiddleware({
+  // Initialize your Microsoft Graph API client here
+});
 
 export class TeamsBot extends TeamsActivityHandler {
   constructor() {
@@ -205,14 +213,24 @@ export class TeamsBot extends TeamsActivityHandler {
 
       // Bot was installed into a user's personal scope
       if (activity.conversation.conversationType === "personal") {
+        // The unique ID of the Microsoft user in Entra
+        const { aadObjectId } = activity.from;
+
+        // Get the user's email address via the Microsoft Graph API
+        const userDetails = await graphApiClient
+          .api(`/users/${aadObjectId}`)
+          .get();
+        const emailAddress = userDetails.mail;
+
+        const knockUserId = getKnockUserIdFromEmailAddress(emailAddress);
+
+        // This user ID is unique to the Microsoft Teams user AND your bot
         const msTeamsUserId = activity.from.id;
 
         knockClient.users
-          .setChannelData(
-            "user_1n38knd",
-            process.env.KNOCK_MS_TEAMS_CHANNEL_ID,
-            { connections: [{ ms_teams_user_id: msTeamsUserId }] },
-          )
+          .setChannelData(knockUserId, process.env.KNOCK_MS_TEAMS_CHANNEL_ID, {
+            connections: [{ ms_teams_user_id: msTeamsUserId }],
+          })
           .catch(console.error);
       }
 
@@ -222,7 +240,9 @@ export class TeamsBot extends TeamsActivityHandler {
 }
 ```
 
-Here, `KNOCK_MS_TEAMS_CHANNEL_ID` is the channel ID of your Microsoft Teams integration within Knock. `"user_1n38knd"` represents the ID of the Knock `User` associated with this Microsoft Teams user, and should be replaced with a Knock `User` ID that you retrieve from your database. How you get this ID depends upon your specific application.
+Here, `KNOCK_MS_TEAMS_CHANNEL_ID` is the channel ID of your Microsoft Teams integration within Knock. `getKnockUserIdFromEmailAddress` is a function that you'll need to implement to look up a Knock `User` ID in your application's database for a given email address. How you get this ID depends upon your specific application.
+
+Please keep in mind that if you intend to use the Microsoft Graph API in this fashion, you'll need to add the `User.Read.All` API permission when [configuring your bot in Microsoft Entra](/integrations/chat/microsoft-teams/overview#configuring-your-bot-in-microsoft-entra).
 
 ## Triggering a workflow
 
