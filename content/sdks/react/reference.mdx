@@ -257,6 +257,27 @@ Accepts `KnockSlackProviderProps`
   />
 </Attributes>
 
+### `KnockMsTeamsProvider`
+
+The Microsoft Teams-specific provider that connects to Microsoft Teams for the given tenant. Must be a child of the `KnockProvider`.
+
+#### Props
+
+Accepts `KnockMsTeamsProviderProps`
+
+<Attributes>
+  <Attribute
+    name="knockMsTeamsChannelId*"
+    type="string"
+    description="The ID of the Microsoft Teams channel in the Knock dashboard that the Microsoft Teams bot is linked to."
+  />
+  <Attribute
+    name="tenantId*"
+    type="string"
+    description="The ID of the Knock tenant that will be storing the Microsoft Entra tenant ID"
+  />
+</Attributes>
+
 #### `useKnockSlackClient`
 
 The `KnockSlackProvider` exposes a `useKnockSlackClient` hook for all child components.
@@ -669,6 +690,42 @@ import { Modal } from "@knocklabs/react";
   />
 </Attributes>
 
+## Microsoft Teams components
+
+### `MsTeamsAuthButton`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="msTeamsBotId*"
+    type="string"
+    description="The ID of your Microsoft Teams bot."
+  />
+  <Attribute
+    name="redirectUrl"
+    type="string"
+    description="The URL of your application to return to once Microsoft Teams authorization is complete."
+  />
+  <Attribute
+    name="onAuthenticationComplete"
+    type="(authenticationResult: 'authComplete' | 'authFailed') => void;"
+    description="An optional callback function you can pass to this component that will execute upon completion of the authentication flow. Takes one argument of the authentication result for you to handle in your callback."
+  />
+</Attributes>
+
+### `MsTeamsAuthContainer`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="actionButton*"
+    type="ReactNode"
+    description="Render a button, either a custom one or the MsTeamsAuthButton, to connect to Microsoft Teams"
+  />
+</Attributes>
+
 ## General hooks
 
 ### `useAuthenticatedKnockClient`
@@ -1020,11 +1077,49 @@ This hook returns partial data about the Slack channels that are present on the 
   />
 </Attributes>
 
+## Microsoft Teams hooks
+
+Exposed under `KnockMsTeamsProvider` child components.
+
+### `useMsTeamsAuth`
+
+Builds a Microsoft Teams authorization URL generator and a disconnect function.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="msTeamsBotId"
+    type="string"
+    description="The ID of your Microsoft Teams bot"
+  />
+  <Attribute
+    name="redirectUrl"
+    type="string"
+    description="The URL to redirect back to after authorizing; should be your own application's URL"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="buildMsTeamsAuthUrl"
+    type="function"
+    description="Function to build a valid Microsoft Teams authorization URL"
+  />
+  <Attribute
+    name="disconnectFromMsTeams"
+    type="function"
+    description="Function to disconnect from Microsoft Teams which removes the Microsoft Entra tenant ID from the tenant in Knock"
+  />
+</Attributes>
+
 ## Types
 
 ### `I18nContent`
 
-Used to set translations available in the child components exposed under `KnockFeedProvider` and `KnockSlackProvider`. Used in the `useTranslations` hook.
+Used to set translations available in the child components exposed under `KnockFeedProvider`, `KnockSlackProvider`, and `KnockMsTeamsProvider`. Used in the `useTranslations` hook.
 
 **Note:** `locale` must be a valid locale code.
 
@@ -1040,6 +1135,16 @@ interface Translations {
   readonly unread: string;
   readonly read: string;
   readonly unseen: string;
+
+  readonly msTeamsConnect: string;
+  readonly msTeamsConnected: string;
+  readonly msTeamsConnecting: string;
+  readonly msTeamsConnectContainerDescription: string;
+  readonly msTeamsDisconnect: string;
+  readonly msTeamsDisconnecting: string;
+  readonly msTeamsError: string;
+  readonly msTeamsReconnect: string;
+  readonly msTeamsTenantIdNotSet: string;
 
   readonly slackConnectChannel: string;
   readonly slackChannelId: string;
