@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+const fs = require('fs');
+const path = require('path');
+const matter = require('gray-matter');
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://docs.knock.app';
 const CONTENT_DIR = path.join(process.cwd(), 'content');
