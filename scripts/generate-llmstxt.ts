@@ -1,10 +1,10 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://docs.knock.app';
-const CONTENT_DIR = path.join(process.cwd(), 'content');
-const OUTPUT_FILE = path.join(process.cwd(), 'public', 'llms.txt');
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://docs.knock.app";
+const CONTENT_DIR = path.join(process.cwd(), "content");
+const OUTPUT_FILE = path.join(process.cwd(), "public", "llms.txt");
 
 interface PageMetadata {
   title: string;
@@ -30,7 +30,7 @@ function findMdxFiles(dir: string): string[] {
 
 function getPageMetadata(filePath: string): PageMetadata | null {
   try {
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const fileContent = fs.readFileSync(filePath, "utf-8");
     const { data: frontmatter } = matter(fileContent);
 
     if (!frontmatter.title || !frontmatter.description) {
@@ -41,9 +41,9 @@ function getPageMetadata(filePath: string): PageMetadata | null {
     // Convert file path to URL path
     const relativePath = path.relative(CONTENT_DIR, filePath);
     const urlPath = relativePath
-      .replace(/\.(mdx?|md)$/, '') // Remove extension
-      .replace(/\/index$/, '') // Remove trailing index
-      .replace(/\\/g, '/'); // Convert Windows paths to URL paths
+      .replace(/\.(mdx?|md)$/, "") // Remove extension
+      .replace(/\/index$/, "") // Remove trailing index
+      .replace(/\\/g, "/"); // Convert Windows paths to URL paths
 
     return {
       title: frontmatter.title,
@@ -65,7 +65,7 @@ function generateLlmsTxt(): void {
 
   // Find all MDX files
   const mdxFiles = findMdxFiles(CONTENT_DIR);
-  
+
   // Process all files and collect metadata
   const pages = mdxFiles
     .map(getPageMetadata)
@@ -74,16 +74,18 @@ function generateLlmsTxt(): void {
 
   // Generate llms.txt content
   const content = [
-    '# Knock Documentation',
-    '> Complete documentation for Knock - the notifications infrastructure for developers.',
-    '',
-    '## Pages',
-    ...pages.map(page => `- [${page.title}](${page.url}): ${page.description}`),
-    ''
-  ].join('\n');
+    "# Knock Documentation",
+    "> Complete documentation for Knock - the notifications infrastructure for developers.",
+    "",
+    "## Pages",
+    ...pages.map(
+      (page) => `- [${page.title}](${page.url}): ${page.description}`,
+    ),
+    "",
+  ].join("\n");
 
   // Write to file
-  fs.writeFileSync(OUTPUT_FILE, content, 'utf-8');
+  fs.writeFileSync(OUTPUT_FILE, content, "utf-8");
   console.log(`Generated ${OUTPUT_FILE}`);
 }
 
