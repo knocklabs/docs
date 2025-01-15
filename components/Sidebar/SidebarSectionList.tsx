@@ -14,39 +14,41 @@ type Props = {
   router: NextRouter;
 };
 
-const SidebarSectionList: React.FC<Props> = ({ section, router }) => (
-  <ul className="space-y-2 mt-2">
-    {section.pages.map(
-      (pageOrSection: SidebarPage | SidebarSubsection, idx) => {
-        if ("pages" in pageOrSection) {
-          // Render the accordion because this is a subsection which contains another list of pages
+function SidebarSectionList({ section, router }: Props) {
+  return (
+    <ul className="space-y-2 mt-2">
+      {section.pages.map(
+        (pageOrSection: SidebarPage | SidebarSubsection, idx) => {
+          if ("pages" in pageOrSection) {
+            // Render the accordion because this is a subsection which contains another list of pages
+            return (
+              <SidebarSubsectionList
+                key={idx}
+                section={pageOrSection}
+                router={router}
+                path={section.slug}
+              />
+            );
+          }
+
+          // Render a list of subpages for this section
+          const page = pageOrSection as SidebarPage;
+          const path = pagePath(section.slug, page);
+          const isSelected = isHighlighted(section.slug, page.slug, router);
+
           return (
-            <SidebarSubsectionList
+            <SidebarLink
               key={idx}
-              section={pageOrSection}
-              router={router}
-              path={section.slug}
+              title={page.title}
+              path={path}
+              isSelected={isSelected}
+              isBeta={page.isBeta}
             />
           );
-        }
-
-        // Render a list of subpages for this section
-        const page = pageOrSection as SidebarPage;
-        const path = pagePath(section.slug, page);
-        const isSelected = isHighlighted(section.slug, page.slug, router);
-
-        return (
-          <SidebarLink
-            key={idx}
-            title={page.title}
-            path={path}
-            isSelected={isSelected}
-            isBeta={page.isBeta}
-          />
-        );
-      },
-    )}
-  </ul>
-);
+        },
+      )}
+    </ul>
+  );
+}
 
 export default SidebarSectionList;
