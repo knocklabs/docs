@@ -189,6 +189,21 @@ const nextConfig = {
         permanent: false,
       },
       {
+        source: "/send-notifications/designing-workflows/reference-:match",
+        destination: "/designing-workflows/references/reference-:match",
+        permanent: true,
+      },
+      {
+        source: "/send-notifications/designing-workflows/:any",
+        destination: "/designing-workflows/:any",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/references",
+        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
+        permanent: true,
+      },
+      {
         source: "/designing-workflows/references/reference-liquid-helpers",
         destination:
           "/designing-workflows/template-editor/reference-liquid-helpers",
