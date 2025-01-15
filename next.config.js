@@ -144,8 +144,7 @@ const nextConfig = {
       },
       {
         source: "/send-notifications/reference-liquid-helpers",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
@@ -205,8 +204,7 @@ const nextConfig = {
       },
       {
         source: "/designing-workflows/references/reference-liquid-helpers",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
