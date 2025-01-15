@@ -128,7 +128,7 @@ const nextConfig = {
       },
       {
         source: "/send-notifications/workflow-functions",
-        destination: "/send-notifications/designing-workflows#function-steps",
+        destination: "/designing-workflows/overview",
         permanent: true,
       },
       {
@@ -144,8 +144,7 @@ const nextConfig = {
       },
       {
         source: "/send-notifications/reference-liquid-helpers",
-        destination:
-          "/send-notifications/designing-workflows/reference-liquid-helpers",
+        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
@@ -189,26 +188,9 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: "/send-notifications/designing-workflows/reference-:match",
-        destination: "/designing-workflows/references/reference-:match",
-        permanent: false,
-      },
-      {
-        source: "/send-notifications/designing-workflows/:any",
-        destination: "/designing-workflows/:any",
-        permanent: false,
-      },
-      {
-        source: "/designing-workflows/references",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
-        permanent: false,
-      },
-      {
         source: "/designing-workflows/references/reference-liquid-helpers",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
-        permanent: false,
+        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
+        permanent: true,
       },
       {
         source: "/designing-workflows/template-editor",
