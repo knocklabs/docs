@@ -144,7 +144,8 @@ const nextConfig = {
       },
       {
         source: "/send-notifications/reference-liquid-helpers",
-        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination:
+          "/designing-workflows/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
@@ -199,12 +200,14 @@ const nextConfig = {
       },
       {
         source: "/designing-workflows/references",
-        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination:
+          "/designing-workflows/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
         source: "/designing-workflows/references/reference-liquid-helpers",
-        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination:
+          "/designing-workflows/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
@@ -341,17 +344,20 @@ const nextConfig = {
       },
       {
         source: "/integrations/chat/slack/building-a-slack-app",
-        destination: "/integrations/chat/slack/overview#how-to-connect-slack-to-knock",
+        destination:
+          "/integrations/chat/slack/overview#how-to-connect-slack-to-knock",
         permanent: false,
       },
       {
         source: "/integrations/chat/slack/designing-slack-templates",
-        destination: "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
+        destination:
+          "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
         permanent: false,
       },
       {
         source: "/integrations/chat/slack/slack-interactivity",
-        destination: "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
+        destination:
+          "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
         permanent: false,
       },
       {
