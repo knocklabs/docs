@@ -20,14 +20,14 @@ const SidebarLink: React.FC<Props> = ({ title, path, isSelected, isBeta }) => (
       href={path}
       scroll={false}
       passHref
-      className={cn("transition-colors flex items-center", {
+      className={cn("transition-colors flex items-center group", {
         "hover:text-gray-900 dark:hover:text-gray-100": true,
         "text-brand font-medium hover:!text-brand-dark": isSelected,
       })}
     >
-      <span>{title}</span>
+      <span className="truncate max-w-[160px]">{title}</span>
       {isBeta && (
-        <span className="ml-2 px-1.5 py-0.5 text-xs font-medium bg-blue-50 text-blue-800 rounded-full">
+        <span className="beta-tag ml-2 px-1.5 py-0.5 text-xs font-medium bg-blue-50 text-blue-800 rounded-full group-hover:hidden">
           Beta
         </span>
       )}
