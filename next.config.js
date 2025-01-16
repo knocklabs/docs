@@ -13,7 +13,7 @@ const nextConfig = {
       {
         source: "/integrations",
         destination: "/integrations/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/email",
@@ -53,7 +53,7 @@ const nextConfig = {
       {
         source: "/integrations/chat",
         destination: "/integrations/chat/slack",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/push",
@@ -73,7 +73,7 @@ const nextConfig = {
       {
         source: "/integrations/sms",
         destination: "/integrations/sms/twilio-sms",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/twilio-sms",
@@ -186,7 +186,7 @@ const nextConfig = {
       {
         source: "/send-notifications/designing-workflows",
         destination: "/designing-workflows",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-notifications/designing-workflows/reference-:match",
@@ -340,30 +340,30 @@ const nextConfig = {
       {
         source: "/integrations/chat/slack/how-knock-slacks",
         destination: "/integrations/chat/slack/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack/building-a-slack-app",
         destination:
           "/integrations/chat/slack/overview#how-to-connect-slack-to-knock",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack/designing-slack-templates",
         destination:
           "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack/slack-interactivity",
         destination:
           "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack/slack-examples",
         destination: "/integrations/chat/slack/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack-kit/overview",
