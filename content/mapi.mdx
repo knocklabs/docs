@@ -120,6 +120,12 @@ You can retrieve, update, or create a workflow as well as list all workflows in 
     path="/workflows/:workflow_key/activate"
     withLink
   />
+  <Endpoint
+    name="workflows-preview-template"
+    method="POST"
+    path="/workflows/:workflow_key/steps/:step_ref/preview_template"
+    withLink
+  />
 </Endpoints>
 
 </ExampleColumn>
@@ -1537,6 +1543,199 @@ Note: This immediately enables or disables a workflow in a given environment wit
   }
 }
 ```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Preview a workflow template" slug="workflows-preview-template">
+<ContentColumn>
+
+Generates a rendered template for a given channel step in a workflow.
+
+### Endpoint
+
+<Endpoint
+  method="POST"
+  path="/workflows/:workflow_key/steps/:step_ref/preview_template"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="workflow_key"
+    type="string"
+    description="The key of the workflow."
+  />
+  <Attribute
+    name="step_ref"
+    type="string"
+    description="The reference of the channel step in the workflow to preview."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description='The environment slug. (Defaults to "development.")'
+  />
+  <Attribute
+    name="recipient"
+    type="string"
+    description="The id of the recipient."
+  />
+  <Attribute
+    name="actor"
+    type="string (optional)"
+    description="The id of the actor."
+  />
+  <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="The id of the tenant."
+  />
+  <Attribute
+    name="data"
+    type="map"
+    description="The data to use for the template."
+  />
+</Attributes>
+
+### Returns
+
+A rendered template or a template error.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Request"
+{
+  "environment": "development",
+  "recipient": "user-id",
+  "data": {
+    "name": "John Doe"
+  }
+}
+```
+
+```json title="Successful response"
+{
+  "channel_type": "email",
+  "result": "success",
+  "template": {
+    // ... see below
+  }
+}
+```
+
+```json title="Error response"
+{
+  "channel_type": "email",
+  "result": "error",
+  "error": {
+    // details about the error
+  }
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Email template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "email",
+      "template": {
+        "html_content": "<p>Hello world!</p>",
+        "text_content": "Hello world!",
+        "subject": "New activity"
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="SMS template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "sms",
+      "template": {
+        "blocks": [
+          {
+            "content": "Hello world!",
+            "label": null,
+            "name": "body",
+            "type": "text"
+          }
+        ]
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="Push template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "sms",
+      "template": {
+        "blocks": [
+          {
+            "content": "Hello world!",
+            "label": null,
+            "name": "body",
+            "type": "text"
+          }
+        ],
+        "title": "New activity"
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="Chat template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "chat",
+      "template": {
+        "blocks": [
+          {
+            "content": "<p>Hello world!</p>",
+            "name": "body",
+            "type": "markdown"
+          }
+        ],
+        "json_content": null,
+        "summary": "A generated summary"
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="In-app feed template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "in_app_feed",
+      "template": {
+        "blocks": [
+          {
+            "content": "Hello world!",
+            "name": "body",
+            "rendered": "<p>Hello world!</p>",
+            "type": "markdown"
+          },
+          {
+            "content": "{{ vars.app_url }}",
+            "name": "action_url",
+            "rendered": "http://example.com",
+            "type": "text"
+          }
+        ]
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
 
 </ExampleColumn>
 </Section>
