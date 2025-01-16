@@ -65,7 +65,7 @@ Sandbox mode is supported across all channel types (except for in-app) and can b
 
 ### Channel conditions
 
-You can use channel conditions to place a [condition](/send-and-manage-data/conditions) on all instances of a channel within a given environment. As an example, if you want to ensure that your email channel only sends to recipients from your domain when it's executing in your staging environment, a channel-level condition would be great way to do that.
+You can use channel conditions to place a [condition](/concepts/conditions) on all instances of a channel within a given environment. As an example, if you want to ensure that your email channel only sends to recipients from your domain when it's executing in your staging environment, a channel-level condition would be great way to do that.
 
 To add a condition to a channel's environment configuration, navigate to **Integrations** > **Channels** in your dashboard, click on the channel you'd like to update, then click "Manage configuration" next to the relevant environment. Select "Conditions" in the modal that is opened.
 
@@ -73,7 +73,7 @@ To add a condition to a channel's environment configuration, navigate to **Integ
 
 <figcaption>Managing channel conditions in Knock.</figcaption>
 
-Knock will execute your channel conditions for every step using the given channel across all your workflow runs. Knock will join these channel conditions with any [step conditions](/designing-workflows/step-conditions) via an `AND`, meaning both channel and step conditions will need to pass evaluation for the step to execute. You can then use Knock's [conditions debugger](/send-and-manage-data/conditions#debugging-conditions) to examine the evaluations of your channel conditions.
+Knock will execute your channel conditions for every step using the given channel across all your workflow runs. Knock will join these channel conditions with any [step conditions](/designing-workflows/step-conditions) via an `AND`, meaning both channel and step conditions will need to pass evaluation for the step to execute. You can then use Knock's [conditions debugger](/concepts/conditions#debugging-conditions) to examine the evaluations of your channel conditions.
 
 ### Channel groups
 
