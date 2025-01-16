@@ -12,7 +12,7 @@ You can use Knock to power sophisticated cross-channel notification workflows fo
 
 We support the following channel types today:
 
-- [Email](/integrations/email/attachments) (such as Sendgrid, Postmark)
+- [Email](/integrations/email/overview) (such as Sendgrid, Postmark)
 - [In-app](/integrations/in-app/overview) (such as feeds, toasts, banners)
 - [Push](/integrations/push/overview) (such as APNS, FCM)
 - [SMS](/integrations/sms/overview) (such as Twilio, Telnyx)
