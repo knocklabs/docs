@@ -49,6 +49,7 @@ const sidebarData = [
       { slug: "#workflows-run", title: "Run workflow" },
       { slug: "#workflows-validate", title: "Validate workflow" },
       { slug: "#workflows-activate", title: "Activate workflow" },
+      { slug: "#workflows-preview-template", title: "Preview template" },
     ],
   },
   {
