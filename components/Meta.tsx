@@ -41,6 +41,15 @@ export default function Meta(props) {
     const title = props.title ?? DEFAULT_META.title;
     const description = props.description ?? DEFAULT_META.description;
     const ogImage = props.ogImage ?? getDefaultOgImage(title, description);
+    
+    // Enhanced debug logging for title and SEO investigation
+    console.log("=== Title Debug Info ===");
+    console.log("Raw title prop:", props.title);
+    console.log("Processed title:", title);
+    console.log("Router path:", router.asPath);
+    console.log("Is client navigation:", typeof window !== "undefined");
+    console.log("Current document title:", typeof window !== "undefined" ? document.title : "SSR");
+    console.log("=====================");
 
     return {
       title: props.title ?? DEFAULT_META.title,
