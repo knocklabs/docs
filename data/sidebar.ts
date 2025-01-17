@@ -233,7 +233,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
-      { slug: "/security", title: "Security", path: "/security" },
+      { slug: "/security", title: "Security" },
       { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
       {
         slug: "/outbound-webhooks",
