@@ -104,7 +104,7 @@ Since there is no one-size-fits-all approach here, you’ll need to weigh these 
   height={944}
 />
 
-The first step in creating an alerting system with Knock as the source of truth involves modeling your alert as an [Object](https://docs.knock.app/concepts/objects). Objects allow you to represent non-user recipients and create a relationship with users through subscriptions, which we’ll cover in the next step.
+The first step in creating an alerting system with Knock as the source of truth involves modeling your alert as an [Object](/concepts/objects). Objects allow you to represent non-user recipients and create a relationship with users through subscriptions, which we’ll cover in the next step.
 
 ```javascript title="Create an Object to represent the alert and config"
 const alert = await knock.objects.set("alert", alertId, {
@@ -114,11 +114,11 @@ const alert = await knock.objects.set("alert", alertId, {
 });
 ```
 
-Using custom properties, you can store additional information directly on the Object, like the `channels` that should be used in the alert, or the `events` that the alert is configured for. This allows you to encode the conditional logic of where and when a notification should send directly into Knock. Using the `batchWindow` property, you could even store [a custom window rule](https://docs.knock.app/designing-workflows/batch-function#set-a-dynamic-batch-window-using-a-variable) on the alert object to represent how it should batch notifications.
+Using custom properties, you can store additional information directly on the Object, like the `channels` that should be used in the alert, or the `events` that the alert is configured for. This allows you to encode the conditional logic of where and when a notification should send directly into Knock. Using the `batchWindow` property, you could even store [a custom window rule](/designing-workflows/batch-function#set-a-dynamic-batch-window-using-a-variable) on the alert object to represent how it should batch notifications.
 
 ### Subscribe Users to the alert
 
-Once you have an Object modeled to store your alert data, you can add individual recipient [subscriptions](https://docs.knock.app/concepts/subscriptions) to your alert object. This allows you to fan out to an unlimited number of recipients while still triggering a single workflow.
+Once you have an Object modeled to store your alert data, you can add individual recipient [subscriptions](/concepts/subscriptions) to your alert object. This allows you to fan out to an unlimited number of recipients while still triggering a single workflow.
 
 <Image
   className="rounded-md mx-auto border border-gray-200"
@@ -128,7 +128,7 @@ Once you have an Object modeled to store your alert data, you can add individual
   height={1336}
 />
 
-Subscriptions can also hold their [own unique properties](https://docs.knock.app/concepts/subscriptions#subscribing-recipients-to-an-object) that can be accessed during a workflow run. For example, users could select their own `channels`, `events`, or `batchWindow` if they wanted to and store them as properties of the subscription.
+Subscriptions can also hold their [own unique properties](/concepts/subscriptions#subscribing-recipients-to-an-object) that can be accessed during a workflow run. For example, users could select their own `channels`, `events`, or `batchWindow` if they wanted to and store them as properties of the subscription.
 
 ```javascript title="Subscribe a user to an alert Object"
 knock.objects.addSubscriptions("alerts", alertId, {
@@ -192,32 +192,32 @@ For our alert workflow, we find it’s best to have a single workflow that has a
 
 Since our application lets alerts subscribe to specific events, we’ll also want to ignore any events that the alert isn’t configured for.
 
-To do that, we can use a [Trigger Step Condition](https://docs.knock.app/designing-workflows/step-conditions#trigger-step-conditions) to evaluate if `data.alerts.events` contains `data.event`. If it does, then we can continue to the next step. If not, we can halt the workflow immediately.
+To do that, we can use a [Trigger Step Condition](/designing-workflows/step-conditions#trigger-step-conditions) to evaluate if `data.alerts.events` contains `data.event`. If it does, then we can continue to the next step. If not, we can halt the workflow immediately.
 
-Knock’s [conditions model](https://docs.knock.app/concepts/conditions) is very expressive, so it’s also possible to represent conditions other than basic string matching. For example, if you had an alert property like `usageThreshold` you could create a greater than comparison to a piece of data in the payload.
+Knock’s [conditions model](/concepts/conditions) is very expressive, so it’s also possible to represent conditions other than basic string matching. For example, if you had an alert property like `usageThreshold` you could create a greater than comparison to a piece of data in the payload.
 
 ### Deciding when to send notifications
 
-Next, we might want to either send notifications immediately or open a batch to catch multiple notifications of the same type. We can do that with [a branch step](https://docs.knock.app/designing-workflows/branch-function), where we examine whether or not there is a value for the batch window in `data.alert.batchWindow`. If there is, we’ll proceed to a batch step. If not, we’ll execute channel steps immediately.
+Next, we might want to either send notifications immediately or open a batch to catch multiple notifications of the same type. We can do that with [a branch step](/designing-workflows/branch-function), where we examine whether or not there is a value for the batch window in `data.alert.batchWindow`. If there is, we’ll proceed to a batch step. If not, we’ll execute channel steps immediately.
 
 ### Deciding how to batch notifications
 
-Let’s take a look at the batching example first. When using the batch function, Knock provides multiple ways to express when a batch window should close using [a dynamic batch window](https://docs.knock.app/designing-workflows/batch-function#set-a-dynamic-batch-window-using-a-variable). All batches are automatically created on a per-recipient basis, so in the case of a fan-out like we have here, a batch will be created for each recipient subscribed to the alert.
+Let’s take a look at the batching example first. When using the batch function, Knock provides multiple ways to express when a batch window should close using [a dynamic batch window](/designing-workflows/batch-function#set-a-dynamic-batch-window-using-a-variable). All batches are automatically created on a per-recipient basis, so in the case of a fan-out like we have here, a batch will be created for each recipient subscribed to the alert.
 
-You might also want to create a particular batch per event type. You can do that by using a [batch key](https://docs.knock.app/designing-workflows/batch-function#selecting-a-batch-key), which in this case could be `data.event`. As you trigger alerting events in your app, Knock will use this key to open a batch per-recipient and per-event.
+You might also want to create a particular batch per event type. You can do that by using a [batch key](/designing-workflows/batch-function#selecting-a-batch-key), which in this case could be `data.event`. As you trigger alerting events in your app, Knock will use this key to open a batch per-recipient and per-event.
 
 ### Deciding which channels to use
 
-Lastly, let’s look at how you would decide which channels to send notifications to. When you configured your `alert` you stored an array of `channels` on the Object. As the workflow processes each channel step you can use [a step condition](https://docs.knock.app/designing-workflows/step-conditions) to evaluate whether the current channel type exists in the array of configured channels: `data.alert.channels contains "sms"`.
+Lastly, let’s look at how you would decide which channels to send notifications to. When you configured your `alert` you stored an array of `channels` on the Object. As the workflow processes each channel step you can use [a step condition](/designing-workflows/step-conditions) to evaluate whether the current channel type exists in the array of configured channels: `data.alert.channels contains "sms"`.
 
 If that condition doesn’t evaluate to `true`, that particular channel step is skipped.
 
 ### Interacting with user preferences
 
-Up until now, much of the configuration on when and where to send notifications has existed in the `alert` object we created. But since users have [preferences](https://docs.knock.app/preferences/overview) as well, it’s possible that those preferences interact with some values configured in the `alert` itself. For example, even if the `alert` is configured to send email, if a user has opted out of the email channel, they will not get that notification.
+Up until now, much of the configuration on when and where to send notifications has existed in the `alert` object we created. But since users have [preferences](/preferences/overview) as well, it’s possible that those preferences interact with some values configured in the `alert` itself. For example, even if the `alert` is configured to send email, if a user has opted out of the email channel, they will not get that notification.
 
 There are a few ways to look at preferences in this context:
 
-1. Developers control [which preferences](https://docs.knock.app/preferences/overview#how-preferences-work) are exposed to the user, so it’s worth considering how you want to create a preference center and at what level of granularity you want users to be able to opt out. For example, you may just never want to expose global `channel_type` preference settings and instead expose `workflow` or `category` settings. In this case, just omitting a setting for your alerting workflow means users can’t opt out.
-2. Developers can always [override user preferences](https://docs.knock.app/preferences/overview#advanced-concepts) at the workflow level in the dashboard. Enabling this option means that every message sent from that particular workflow will override preferences set by the user.
-3. You can always [examine the preferences](https://docs.knock.app/preferences/overview#preference-evaluation-rules) Knock evaluates on a given recipient in the workflow debugger.
+1. Developers control [which preferences](/preferences/overview#how-preferences-work) are exposed to the user, so it’s worth considering how you want to create a preference center and at what level of granularity you want users to be able to opt out. For example, you may just never want to expose global `channel_type` preference settings and instead expose `workflow` or `category` settings. In this case, just omitting a setting for your alerting workflow means users can’t opt out.
+2. Developers can always [override user preferences](/preferences/overview#advanced-concepts) at the workflow level in the dashboard. Enabling this option means that every message sent from that particular workflow will override preferences set by the user.
+3. You can always [examine the preferences](/preferences/overview#preference-evaluation-rules) Knock evaluates on a given recipient in the workflow debugger.

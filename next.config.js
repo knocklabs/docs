@@ -13,12 +13,12 @@ const nextConfig = {
       {
         source: "/integrations",
         destination: "/integrations/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/email",
         destination: "/integrations/email/attachments",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/email-attachments",
@@ -53,12 +53,12 @@ const nextConfig = {
       {
         source: "/integrations/chat",
         destination: "/integrations/chat/slack",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/push",
         destination: "/integrations/push/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/slack",
@@ -73,7 +73,7 @@ const nextConfig = {
       {
         source: "/integrations/sms",
         destination: "/integrations/sms/twilio-sms",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/twilio-sms",
@@ -161,32 +161,32 @@ const nextConfig = {
       {
         source: "/in-app-ui/react",
         destination: "/in-app-ui/react/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/javascript",
         destination: "/in-app-ui/javascript/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/react-native",
         destination: "/in-app-ui/react-native/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/ios",
         destination: "/in-app-ui/ios/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/android",
         destination: "/in-app-ui/android/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-notifications/designing-workflows",
         destination: "/designing-workflows",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-notifications/designing-workflows/reference-:match",
@@ -213,7 +213,7 @@ const nextConfig = {
       {
         source: "/designing-workflows/template-editor",
         destination: "/designing-workflows/template-editor/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-and-manage-data/outbound-webhooks",
@@ -228,12 +228,12 @@ const nextConfig = {
       {
         source: "/in-app-ui/angular",
         destination: "/in-app-ui/angular/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-and-manage-data/concepts",
         destination: "/concepts/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-and-manage-data/:slug*",
@@ -248,12 +248,12 @@ const nextConfig = {
       {
         source: "/managing-recipients/setting-preferences",
         destination: "/preferences/overview#set-a-users-preferences",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-notifications/setting-channel-data",
         destination: "/managing-recipients/setting-channel-data",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/designing-workflows",
@@ -268,17 +268,17 @@ const nextConfig = {
       {
         source: "/developer-tools/outbound-webhooks",
         destination: "/developer-tools/outbound-webhooks/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/guides/customizing-react-in-app-feed-components",
         destination: "/in-app-ui/react/customizing-feed-components",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/guides/filtering-in-app-feeds",
         destination: "/in-app-ui/react/filtering-in-app-feeds",
-        permanent: false,
+        permanent: true,
       },
       // Reference redirects
       {
@@ -314,22 +314,22 @@ const nextConfig = {
       {
         source: "/concepts",
         destination: "/concepts/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/javascript/quick-start",
         destination: "/sdks/javascript/quick-start",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/android/quick-start",
         destination: "/sdks/android/quick-start",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/flutter",
         destination: "/in-app-ui/flutter/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/guides/going-to-production",
@@ -340,65 +340,65 @@ const nextConfig = {
       {
         source: "/integrations/chat/slack/how-knock-slacks",
         destination: "/integrations/chat/slack/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack/building-a-slack-app",
         destination:
           "/integrations/chat/slack/overview#how-to-connect-slack-to-knock",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack/designing-slack-templates",
         destination:
           "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack/slack-interactivity",
         destination:
           "/integrations/chat/slack/overview#designing-notification-templates-for-slack",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack/slack-examples",
         destination: "/integrations/chat/slack/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack-kit/overview",
         destination: "/integrations/chat/slack/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack-kit/setup",
         destination: "/integrations/chat/slack/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack-kit/resource-access-grants",
         destination: "/in-app-ui/react/slack-kit#resources-access-grants",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack-kit/ui",
         destination: "/in-app-ui/react/slack-kit#getting-started",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack-kit/trigger-workflow",
         destination: "/integrations/chat/slack/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack-diy/slack-apps-and-scopes",
         destination: "/integrations/chat/slack/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/chat/slack-diy/building-oauth-flow",
         destination: "/integrations/chat/slack/overview",
-        permanent: false,
+        permanent: true,
       },
     ];
   },
