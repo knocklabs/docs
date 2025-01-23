@@ -6650,11 +6650,65 @@ Revoke an access token from Slack and remove it from the access token object.
   <ExampleColumn>
     <Endpoints>
       <Endpoint name="ms-teams-auth-check" method="GET" path="/providers/ms-teams/:channel_id/auth_check" withLink/>
-      <Endpoint name="ms-teams-teams" method="GET" path="/providers/ms-teams/:channel_id/teams" withLink/>
-      <Endpoint name="ms-teams-channels" method="GET" path="/providers/ms-teams/:channel_id/channels" withLink/>
       <Endpoint name="ms-teams-revoke-access" method="PUT" path="/providers/ms-teams/:channel_id/revoke_access" withLink/>
     </Endpoints>
   </ExampleColumn>
+</Section>
+
+<Section title="Microsoft Teams auth check" slug="ms-teams-auth-check">
+<ContentColumn>
+Get the status of Microsoft Teams authentication.
+
+### Endpoint
+
+<Endpoint
+  name="auth-check"
+  method="GET"
+  path="/providers/ms-teams/:channel_id/auth_check"
+/>
+
+### Rate limit
+
+<RateLimit tier={2} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The Knock Microsoft Teams channel ID"
+  />
+</Attributes>
+
+### Returns
+
+- `200` When authentication is valid.
+- `403` When authentication is invalid.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json
+// Success response
+
+{
+  "authenticated": true
+}
+```
+
+```json
+// Error response
+
+{
+  "code": "authorization",
+  "message": "Microsoft Teams authentication is invalid.",
+  "status": 403,
+  "type": "authentication_error"
+}
+```
+
+</ExampleColumn>
 </Section>
 
 <Section title="Microsoft Teams teams" slug="ms-teams-teams">
@@ -6697,9 +6751,9 @@ Get a list of teams belonging to the Microsoft Teams tenant.
     description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
   />
   <Attribute
-    name="$skiptoken"
+    name="query_options"
     type="string"
-    description="A token used to retrieve the next page of results."
+    description="Query options used with the Microsoft Graph API for pagination and filtering."
   />
 </Attributes>
 
@@ -6782,7 +6836,7 @@ Get a list of channels within a Microsoft Teams team. By default, archived and p
   <Attribute
     name="team_id"
     type="string"
-    description="The ID of the team to list channels from."
+    description="The ID of the Microsoft Teams team to list channels from."
   />
 </Attributes>
 
@@ -6825,7 +6879,7 @@ Get a list of channels within a Microsoft Teams team. By default, archived and p
 </ExampleColumn>
 </Section>
 
-<Section title="Microsoft Teams auth check" slug="ms-teams-auth-check">
+<Section title="Microsoft Teams revoke access" slug="ms-teams-revoke-access">
   <ContentColumn>
   Get the status of Microsoft Teams authentication.
   ### Endpoint
