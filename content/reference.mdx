@@ -6658,13 +6658,12 @@ Revoke an access token from Slack and remove it from the access token object.
 </Section>
 
 <Section title="Microsoft Teams auth check" slug="ms-teams-auth-check">
-<ContentColumn>
-Get the status of Microsoft Teams authentication.
-
-### Endpoint
+  <ContentColumn>
+  Get the status of Microsoft Teams authentication.
+  ### Endpoint
 
 <Endpoint
-  name="auth-check"
+  name="auth_check"
   method="GET"
   path="/providers/ms-teams/:channel_id/auth_check"
 />
@@ -6683,28 +6682,56 @@ Get the status of Microsoft Teams authentication.
   />
 </Attributes>
 
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="ms_teams_tenant_object[object_id]"
+    type="string"
+    description="ID of the Object or Tenant."
+  />
+  <Attribute
+    name="ms_teams_tenant_object[collection]"
+    type="string"
+    description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
+  />
+</Attributes>
+
 ### Returns
 
-- `200` When authentication is valid.
-- `403` When authentication is invalid.
+- `200` Success response
+- `403` When no Microsoft Entra tenant ID is set for the given object.
 
 </ContentColumn>
 <ExampleColumn>
 
 ```json
-// Success response
+// Connection data success response
 
 {
-  "authenticated": true
+  "connection": {
+    "ok": true
+  }
 }
 ```
 
 ```json
-// Error response
+// Connection data error response
+
+{
+  "connection": {
+    "ok": false,
+    "reason": "Knock Object containing Microsoft Teams tenant not found."
+  }
+}
+```
+
+```json
+// Missing Microsoft Entra tenant ID error response
 
 {
   "code": "authorization",
-  "message": "Microsoft Teams authentication is invalid.",
+  "message": "Microsoft Teams tenant ID not set.",
   "status": 403,
   "type": "authentication_error"
 }
