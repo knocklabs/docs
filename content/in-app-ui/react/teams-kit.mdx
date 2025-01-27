@@ -4,7 +4,7 @@ description: How to let users connect to your Microsoft Teams integration with K
 section: TeamsKit
 ---
 
-Our `@knocklabs/react` library comes with pre-built components for allowing your users to connect their Microsoft Teams instances to Knock. TeamsKit manages your OAuth connection and tokens, and integrates seamlessly with the rest of Knock.
+Our `@knocklabs/react` library comes with pre-built components for allowing your users to connect their Microsoft Teams instances to Knock and select the channels they want to be notified on. TeamsKit manages your OAuth connection and tokens, helps your customers select which channels they want to receive notifications in, and integrates seamlessly with the rest of Knock.
 
 ## Getting started
 
@@ -17,7 +17,7 @@ Depending on your use case, you can follow one of these guides for step-by-step 
 
 ## Using TeamsKit components
 
-Once you've provided access to the necessary data, you can drop Knock's pre-built components into your React application to immediately set up Microsoft Teams authorization for your users. [See the reference](/sdks/react/reference##microsoft-teams-components) for full documentation of these components.
+Once you've provided access to the necessary data, you can drop Knock's pre-built components into your React application to immediately set up Microsoft Teams authorization and channel selection for your users for your users. [See the reference](/sdks/react/reference##microsoft-teams-components) for full documentation of these components.
 
 ### Add the providers
 
@@ -117,6 +117,56 @@ Remember to consider which roles in your application can access the `MsTeamsAuth
   }
 />
 
+#### MsTeamsChannelCombobox
+
+{/* TODO */}
+
+<figure>
+  <Image
+    src="/images/integrations/chat/slack/slackchannelcombobox.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="The SlackChannelCombobox component showing connected channels"
+    width={1068}
+    height={492}
+  />
+  <figcaption>TODO</figcaption>
+</figure>
+
+This combobox contains the list of teams and channels belonging to the connected Microsoft Entra tenant. Users will use this combobox to search and select a channel (or more than one channel) to be notified when an event in your application occurs, for example a comment on a video. They can also use this combobox to deselect a connected channel.
+
+The combobox automatically shows connected channels below it, which is a list of channel tags. This is useful to show the user which channels are already connected, and gives them an easy way to remove them as well.
+
+Add your combobox to your application where you'd like the user to select channels to notify:
+
+```javascript title="The MsTeamsChannelCombobox connects an object to one or more channels"
+<MsTeamsChannelCombobox
+  msTeamsChannelsRecipientObject={{
+    objectId: "object id",
+    collection: "object collection",
+  }}
+/>
+```
+
+<br />
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Limitations</strong>
+      <ul>
+        <li>
+          The combobox will only show public channels. Microsoft Teams bots do
+          not support sending messages to private channels.
+        </li>
+        <li>
+          The combobox does not show individual users for Microsoft Teams direct
+          messages.
+        </li>
+      </ul>
+    </>
+  }
+/>
+
 ### Complete sample code
 
 Here's an example of `MsTeamsAuthButton` in a React application.
@@ -143,6 +193,7 @@ MS_TEAMS_BOT_ID = "f1b85cf4-58e1-4cef-8d3f-ce6ccf60734d";
     tenantId={currentAccount.id}
   >
     <NotificationSettings />
+    <VideoProjectsIndex />
   </KnockMsTeamsProvider>
 </KnockProvider>
 ```
@@ -164,6 +215,38 @@ const NotificationSettings = () => {
 };
 ```
 
+<br />
+
+```javascript title="Render an MsTeamsChannelCombobox for each object"
+
+const VideoProjectsPage = ({videos}) => {
+    return (
+        videos.map(video => {
+            return <VideoPage {video} />
+        })
+    )
+}
+
+const VideoPage = ({video}) => {
+  return (
+    <div>
+      <div>{video.name}</div>
+      <div>{video.content}</div>
+      <div>{video.comments}</div>
+      <MsTeamsChannelCombobox
+        msTeamsChannelsRecipientObject={{
+          id: video.id,
+          collection: "videos",
+        }}
+      />
+    </div>
+  )
+}
+
+```
+
+<br />
+
 ## Using TeamsKit headless
 
 If you need custom designs or want to display additional information around your Microsoft Teams integration, you don't need to use Knock's pre-built components to take advantage of TeamsKit.
@@ -181,6 +264,8 @@ To use a hook in your component, all you need to to is import it and pass it the
 If you want more fine grain control of your data, you can skip the hooks and simply use the functions Knock exposes in the [`@knocklabs/client` library](https://github.com/knocklabs/javascript/tree/main/packages/client) as long as you wrap the component you're calling it in inside of `KnockProvider`. You can accomplish anything we provide with hooks or the components with the following functions:
 
 - `knock.msTeams.authCheck`: Get the status of Microsoft Teams authorization
+- `knock.msTeams.getTeams`: Get a list of teams in the connected Microsoft Entra tenant
+- `knock.msTeams.getChannels`: Get a list of Microsoft Teams channels within a single team
 - `knock.msTeams.revokeAccessToken`: Removes the Microsoft Entra tenant ID from the tenant
 - `knock.objects.getChannelData`: Use this to get the connected channels stored as channel data on the recipient object
 - `knock.objects.setChannelData`: Use this to set the connected channels for a recipient object or an access token for a tenant
@@ -190,13 +275,15 @@ If you want more fine grain control of your data, you can skip the hooks and sim
 Lastly, you can interact directly with the API endpoints for all of the above functionality. Here are the endpoints used in TeamsKit that you would need to support an implementation of the managed UI:
 
 - [Microsoft Teams auth check](/reference#ms-teams-auth-check): status of Microsoft Teams authorization
+- [Microsoft Teams teams](/reference#ms-teams-teams): list of teams in the connected Microsoft Entra tenant
+- [Microsoft Teams channels](/reference#ms-teams-channels): list of Microsoft Teams channels within a single team
 - [Microsoft Teams revoke access](/reference#ms-teams-revoke-access): remove a Microsoft Entra tenant ID from a Knock tenant
 - [Get channel data](/reference#get-object-channel-data): get channel data for your recipient object, which gives you access to the connected Microsoft Teams channels
 - [Set channel data](/reference#set-object-channel-data): set channel data for your recipient object, which allows you to set connected Microsoft Teams channels
 
 ## Resource access grants
 
-The only access you'll need to manage when using TeamsKit are grants for your users to interact with their [Tenants](/concepts/tenants). This is necessary because the user in this context is an end user in your application who does not have access to Knock as a [member of the account](/manage-your-account/managing-members). Therefore, these grants provide them elevated privileges to operate on specific resources using the API.
+The only access you'll need to manage when using TeamsKit are grants for your users to interact with their [Tenants](/concepts/tenants) and [Objects](/concepts/objects) in Knock. This is necessary because the user in this context is an end user in your application who does not have access to Knock as a [member of the account](/manage-your-account/managing-members). Therefore, these grants provide them elevated privileges to operate on specific resources using the API.
 
 We've made it easy for you to tell Knock which resources your users should have access to by making it a part of their user token. In this section you'll learn how to generate these grants using the Node SDK and, if you're not using the SDK, how to structure them for other languages.
 
