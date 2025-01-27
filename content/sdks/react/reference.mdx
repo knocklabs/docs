@@ -1144,9 +1144,12 @@ interface Translations {
   readonly read: string;
   readonly unseen: string;
 
+  readonly msTeamsChannelSetError: string;
   readonly msTeamsConnect: string;
   readonly msTeamsConnected: string;
   readonly msTeamsConnecting: string;
+  readonly msTeamsConnectionErrorExists: string;
+  readonly msTeamsConnectionErrorOccurred: string;
   readonly msTeamsConnectContainerDescription: string;
   readonly msTeamsDisconnect: string;
   readonly msTeamsDisconnecting: string;
@@ -1183,7 +1186,7 @@ interface I18nContent {
 }
 ```
 
-### `QueryOptions`
+### `SlackChannelQueryOptions`
 
 ```typescript
 type SlackChannelQueryOptions = {
@@ -1215,6 +1218,63 @@ type SlackChannelConnection = {
   channel_id?: string;
   incoming_webhook?: string;
   user_id?: null;
+};
+```
+
+### `MsTeamsTeamQueryOptions`
+
+```typescript
+type MsTeamsTeamQueryOptions = {
+  maxCount?: number; // The max number of teams to return; default: 1000
+  limitPerPage?: number; // How many teams will be returned per request; default: 100
+  filter?: string; // OData $filter query param to filter teams; default: null
+  select?: string; // OData $select query param to select fields; default: "id,displayName"
+};
+```
+
+### `MsTeamsChannelQueryOptions`
+
+```typescript
+type MsTeamsChannelQueryOptions = {
+  filter?: string; // OData $filter query param to filter channels; default: "isArchived eq false and membershipType eq 'standard'"
+  select?: string; // OData $select query param to select fields; default: "id,displayName"
+};
+```
+
+### `MsTeamsTeam`
+
+```typescript
+type MsTeamsTeam = {
+  id: string;
+  displayName: string;
+  description?: string;
+};
+```
+
+### `MsTeamsChannel`
+
+```typescript
+type MsTeamsChannel = {
+  id: string;
+  displayName: string;
+  description?: string;
+  membershipType?: string;
+  isArchived?: boolean;
+  createdDateTime?: string;
+};
+```
+
+### `MsTeamsChannelConnection`
+
+```typescript
+type MsTeamsChannelConnection = {
+  ms_teams_tenant_id?: string;
+  ms_teams_team_id?: string;
+  ms_teams_channel_id?: string;
+  ms_teams_user_id?: null;
+  incoming_webhook?: {
+    url: string;
+  };
 };
 ```
 
