@@ -8,14 +8,14 @@ layout: integrations
 
 In this guide, we'll cover how to update a multi-tenant Microsoft Teams bot to send messages to channels in Microsoft Teams using Knock. It assumes that you have already created a Microsoft Teams channel in Knock as outlined in the [Microsoft Teams integration overview](/integrations/chat/microsoft-teams/overview) guide.
 
-In this implementation, your application's users will connect their Microsoft Entra tenant to Knock and be able to send messages to public channels. To make this easier to implement, we'll use Knock's [TeamsKit components](/in-app-ui/react/teams-kit) to facilitate the OAuth flow.
+In this implementation, your application's users will connect their Microsoft Entra tenant to Knock and be able to send messages to public channels. To make this easier to implement, we'll use Knock's [TeamsKit components](/in-app-ui/react/teams-kit) to facilitate the OAuth flow and channel selection process.
 
 Here's what we'll cover in this guide:
 
 - Modeling a multi-tenant application in Knock using `Tenants`
 - Adding required scopes to your Microsoft Teams app's manifest
 - Implementing a Microsoft OAuth flow using Knock's `MsTeamsAuthButton` component
-- Setting required Object channel data when a Microsoft Teams bot is installed in a channel
+- Choosing public channels to send messages to using Knock's `MsTeamsChannelCombobox` component
 - Triggering a workflow with an object recipient to send a message to a Microsoft Teams channel
 
 <Callout
@@ -247,22 +247,55 @@ Remember to consider which roles in your application can access the `MsTeamsAuth
   }
 />
 
-## Setting Object channel data
+### Choosing channels with `MsTeamsChannelCombobox`
 
-Your application should provide a method for admin users to associate a Microsoft Teams channel with a Knock `Object`. Using our repositories example, this might look like a combobox allowing the admin to select one or more Microsoft Teams channels to associate with a repository. (You can use <a href="https://learn.microsoft.com/en-us/graph/use-the-api" target="_blank">the Microsoft Graph API</a> to retrieve a list of Microsoft Teams channels.)
+This combobox contains the list of teams and channels belonging to the connected Microsoft Entra tenant. Users will use this combobox to search and select a channel (or more than one channel) to be notified when an event in your application occurs, for example a comment on a video. They can also use this combobox to deselect a connected channel.
 
-Once the admin has selected one or more Microsoft Teams channels, your backend should update the channel data associated with the `Object`. If you're using Knock's Node SDK, your code might look like this:
+The combobox automatically shows connected channels below it, which is a list of channel tags. This is useful to show the user which channels are already connected, and gives them an easy way to remove them as well.
 
-```javascript
-await knockClient.objects.setChannelData(
-  "repositories",
-  "knocklabs/javascript",
-  process.env.KNOCK_MS_TEAMS_CHANNEL_ID,
-  { connections: [{ ms_teams_channel_id: msTeamsChannelId }] },
-);
+<figure>
+  <Image
+    src="/images/integrations/chat/microsoft-teams/msteamschannelcombobox.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="The MsTeamsChannelCombobox component showing connected channels"
+    width={1088}
+    height={584}
+  />
+  <figcaption>
+    The MsTeamsChannelCombobox component showing connected channels
+  </figcaption>
+</figure>
+
+Add your combobox to your application where you'd like the user to select channels to notify:
+
+```javascript title="The MsTeamsChannelCombobox connects an object to one or more channels"
+<MsTeamsChannelCombobox
+  msTeamsChannelsRecipientObject={{
+    objectId: "object id",
+    collection: "object collection",
+  }}
+/>
 ```
 
-Here, `KNOCK_MS_TEAMS_CHANNEL_ID` is the channel ID of your Microsoft Teams integration within Knock. `"knocklabs/javascript"` is the ID of the `Object` (in this case, a repository).
+<br />
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Limitations</strong>
+      <ul>
+        <li>
+          The combobox will only show public channels. Microsoft Teams bots do
+          not support sending messages to private channels.
+        </li>
+        <li>
+          The combobox does not show individual users for Microsoft Teams direct
+          messages.
+        </li>
+      </ul>
+    </>
+  }
+/>
 
 ## Triggering a workflow
 
