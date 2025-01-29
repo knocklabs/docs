@@ -675,8 +675,8 @@ import { Modal } from "@knocklabs/react";
 
 <Attributes>
   <Attribute
-    name="slackChannelRecipientObject*"
-    type="ContainerObject"
+    name="slackChannelsRecipientObject*"
+    type="RecipientObject"
     description="Object ID and collection of the Knock object that will store the channel data of the connected Slack channels."
   />
   <Attribute
@@ -719,6 +719,18 @@ import { Modal } from "@knocklabs/react";
     name="actionButton*"
     type="ReactNode"
     description="Render a button, either a custom one or the MsTeamsAuthButton, to connect to Microsoft Teams"
+  />
+</Attributes>
+
+### `MsTeamsChannelCombobox`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="msTeamsChannelsRecipientObject*"
+    type="RecipientObject"
+    description="Object ID and collection of the Knock object that will store the channel data of the connected Microsoft Teams channels."
   />
 </Attributes>
 
@@ -1038,7 +1050,7 @@ This hook returns partial data about the Slack channels that are present on the 
 <Attributes>
   <Attribute
     name="slackChannelsRecipientObject"
-    type="ContainerObject"
+    type="RecipientObject"
     description="The object that holds connected Slack channels as channel data"
   />
 </Attributes>
@@ -1111,6 +1123,123 @@ Builds a Microsoft Teams authorization URL generator and a disconnect function.
   />
 </Attributes>
 
+### `useMsTeamsTeams`
+
+This hook will continually fetch partial data about Microsoft Teams teams within a given Microsoft Entra tenant up to the max limit given.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="queryOptions"
+    type="MsTeamsTeamQueryOptions"
+    description="An optional map of params to control the query to the Microsoft Graph API"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="MsTeamsTeam[]"
+    description="List of partial data about each team"
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="Whether the teams are loading"
+  />
+  <Attribute
+    name="refetch"
+    type="function"
+    description="Function to fetch the teams again"
+  />
+</Attributes>
+
+### `useMsTeamsChannels`
+
+This hook will continually fetch partial data about Microsoft Teams channels within a given team.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="teamId"
+    type="string"
+    description="The ID of the team to fetch channels from"
+  />
+  <Attribute
+    name="queryOptions"
+    type="MsTeamsChannelQueryOptions"
+    description="An optional map of params to control the query to the Microsoft Graph API"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="MsTeamsChannel[]"
+    description="List of partial data about each Microsoft Teams channel"
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="Whether the Microsoft Teams channels are loading"
+  />
+  <Attribute
+    name="refetch"
+    type="function"
+    description="Function to fetch the Microsoft Teams channels again"
+  />
+</Attributes>
+
+### `useConnectedMsTeamsChannels`
+
+This hook returns partial data about the Microsoft Teams channels that are present on the given recipient object's channel data. These are the Microsoft Teams channels that would be notified with this object as a recipient of a workflow.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="msTeamsChannelsRecipientObject"
+    type="RecipientObject"
+    description="The object that holds connected Microsoft Teams channels as channel data"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="MsTeamsChannelConnection[]"
+    description="List of data about the connected Microsoft Teams channels"
+  />
+  <Attribute
+    name="loading"
+    type="boolean"
+    description="Whether the Microsoft Teams channels are loading"
+  />
+  <Attribute
+    name="error"
+    type="string"
+    description="Error message if something went wrong; otherwise null"
+  />
+  <Attribute
+    name="updateConnectedChannels"
+    type="(connectedChannels: MsTeamsChannelConnection[]) => Promise<void>;"
+    description="Function to set the connected Microsoft Teams channels. Updates all connected channels for the object, does not add to the current ones."
+  />
+  <Attribute
+    name="updating"
+    type="boolean"
+    description="Whether the Microsoft Teams channels are currently being set"
+  />
+</Attributes>
+
 ## Types
 
 ### `I18nContent`
@@ -1132,9 +1261,12 @@ interface Translations {
   readonly read: string;
   readonly unseen: string;
 
+  readonly msTeamsChannelSetError: string;
   readonly msTeamsConnect: string;
   readonly msTeamsConnected: string;
   readonly msTeamsConnecting: string;
+  readonly msTeamsConnectionErrorExists: string;
+  readonly msTeamsConnectionErrorOccurred: string;
   readonly msTeamsConnectContainerDescription: string;
   readonly msTeamsDisconnect: string;
   readonly msTeamsDisconnecting: string;
@@ -1171,7 +1303,7 @@ interface I18nContent {
 }
 ```
 
-### `QueryOptions`
+### `SlackChannelQueryOptions`
 
 ```typescript
 type SlackChannelQueryOptions = {
@@ -1206,10 +1338,67 @@ type SlackChannelConnection = {
 };
 ```
 
-### `ContainerObject`
+### `MsTeamsTeamQueryOptions`
 
 ```typescript
-type ContainerObject = {
+type MsTeamsTeamQueryOptions = {
+  maxCount?: number; // The max number of teams to return; default: 1000
+  limitPerPage?: number; // How many teams will be returned per request; default: 100
+  filter?: string; // OData $filter query param to filter teams; default: null
+  select?: string; // OData $select query param to select fields; default: "id,displayName"
+};
+```
+
+### `MsTeamsChannelQueryOptions`
+
+```typescript
+type MsTeamsChannelQueryOptions = {
+  filter?: string; // OData $filter query param to filter channels; default: "isArchived eq false and membershipType eq 'standard'"
+  select?: string; // OData $select query param to select fields; default: "id,displayName"
+};
+```
+
+### `MsTeamsTeam`
+
+```typescript
+type MsTeamsTeam = {
+  id: string;
+  displayName: string;
+  description?: string;
+};
+```
+
+### `MsTeamsChannel`
+
+```typescript
+type MsTeamsChannel = {
+  id: string;
+  displayName: string;
+  description?: string;
+  membershipType?: string;
+  isArchived?: boolean;
+  createdDateTime?: string;
+};
+```
+
+### `MsTeamsChannelConnection`
+
+```typescript
+type MsTeamsChannelConnection = {
+  ms_teams_tenant_id?: string;
+  ms_teams_team_id?: string;
+  ms_teams_channel_id?: string;
+  ms_teams_user_id?: null;
+  incoming_webhook?: {
+    url: string;
+  };
+};
+```
+
+### `RecipientObject`
+
+```typescript
+type RecipientObject = {
   objectId: string;
   collection: string;
 };
