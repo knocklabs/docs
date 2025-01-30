@@ -69,15 +69,16 @@ You can use channel conditions to place a [condition](/send-and-manage-data/cond
 
 To add a condition to a channel's environment configuration, navigate to **Integrations** > **Channels** in your dashboard, click on the channel you'd like to update, then click "Manage configuration" next to the relevant environment. Select "Conditions" in the modal that is opened.
 
-<Image
-  src="/images/integrations/channel-conditions-editor-example.png"
-  alt="Managing channel conditions in Knock."
-  width={800}
-  height={450}
-  className="rounded-md mx-auto border border-gray-200"
-/>
-
-<figcaption>Managing channel conditions in Knock.</figcaption>
+<figure>
+    <Image
+        src="/images/integrations/channel-conditions-editor-example.png"
+        alt="Managing channel conditions in Knock."
+        width={1242}
+        height={854}
+        className="rounded-md mx-auto border border-gray-200"
+    />
+    <figcaption>Managing channel conditions in Knock.</figcaption>
+</figure>
 
 Knock will execute your channel conditions for every step using the given channel across all your workflow runs. Knock will join these channel conditions with any [step conditions](/designing-workflows/step-conditions) via an `AND`, meaning both channel and step conditions will need to pass evaluation for the step to execute. You can then use Knock's [conditions debugger](/send-and-manage-data/conditions#debugging-conditions) to examine the evaluations of your channel conditions.
 
