@@ -96,7 +96,17 @@ const sidebarContent: SidebarSection[] = [
     slug: "/send-notifications",
     desc: "Learn how to send and debug notifications using Knock.",
     pages: [
-      { slug: "/triggering-workflows", title: "Triggering workflows" },
+      {
+        slug: "/triggering-workflows",
+        title: "Triggering workflows",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/api", title: "Via the API" },
+          { slug: "/schedules", title: "On a schedule" },
+          { slug: "/events", title: "By an event" },
+          { slug: "/audiences", title: "For an audience" },
+        ],
+      },
       { slug: "/canceling-workflows", title: "Canceling workflows" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/message-statuses", title: "Message statuses" },

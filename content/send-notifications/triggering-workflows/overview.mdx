@@ -1,0 +1,37 @@
+---
+title: Triggering workflows
+description: Learn more about how to trigger cross-channel notification workflows in Knock.
+tags: ["trigger", "notify", "data", "actor"]
+section: Send notifications
+---
+
+Workflows that you design within Knock are triggered, which executes a workflow run for one or more recipients that are specified. Workflows can be triggered in a number of ways:
+
+- By a [direct API call](/send-notifications/triggering-workflows/api) to the `trigger` endpoint
+- By a [source event](/send-notifications/triggering-workflows/source-events)
+- On a [recurring, or one-off schedule](/send-notifications/triggering-workflows/schedules)
+- When a user becomes [a member of an audience](/send-notifications/triggering-workflows/audiences)
+
+It's important to realize that triggering a workflow in Knock may result in no messages being sent to your recipients. This is because your recipients may have indicated through their `preferences` that they don't wish to be notified by workflows of that type. The good news is that Knock handles all [preference-based opt-outs](/preferences/overview) for you automatically.
+
+## Conditionally executing a workflow trigger
+
+A trigger step on a workflow can have one or more [step conditions](/designing-workflows/step-conditions), which determine if the workflow will execute. When the conditions are evaluated as false, then the workflow will terminate and no other steps will be executed.
+
+## Controlling workflow trigger frequency
+
+In some situations, you may want to limit the number of times that a recipient can run through a workflow. For example, for an account signup workflow, you may want to ensure that a recipient can only ever run through the workflow once. That's where workflow trigger frequency comes in.
+
+Workflow trigger frequency lets you control the number of times that a recipient can run through a workflow, controlling if the workflow should trigger every time, or at most once for the recipient. By default, a workflow will trigger every time for a recipient.
+
+If you specify a workflow trigger frequency of "Once per recipient", then you can also optionally choose to include the tenant in the frequency control. When set, your workflow will only trigger once per-recipient, per-tenant.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="What happens when I trigger a workflow whose status is set to Inactive?">
+    A workflow whose [status](/concepts/workflows#workflow-status) is set to
+    `Inactive` will return a `workflow_inactive` [error](/reference#error-codes)
+    when triggered and will not generate any workflow recipient runs.
+  </Accordion>
+</AccordionGroup>

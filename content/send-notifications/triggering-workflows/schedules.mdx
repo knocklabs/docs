@@ -1,0 +1,55 @@
+---
+title: Triggering workflows on a schedule
+description: Learn more about how to trigger cross-channel notification workflows in Knock on a schedule.
+tags: ["trigger", "notify", "data", "actor"]
+section: Send notifications
+---
+
+Schedules allow you to express complex repeating schedules for your workflow triggers, so that you can trigger workflows on a one-off or a recurring basis for one or more recipients.
+
+You can think of a schedule as a managed, recipient-timezone-aware cron job that Knock will run on your behalf.
+
+[Learn more about schedules](/concepts/schedules)
+
+## Creating a schedule
+
+You can create a workflow schedule via the API. Schedules cannot be created in the Knock dashboard.
+
+```typescript title="Creating a schedule for multiple recipients"
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const schedules = await knock.workflows.createSchedules("park-alert", {
+  recipients: ["jhammond", "esattler", "dnedry"],
+  repeats: [
+    // Repeat daily at 9.30am only on weekdays
+    {
+      frequency: "daily",
+      days: "weekdays",
+      hours: 9,
+      minutes: 30,
+    },
+  ],
+});
+```
+
+## Providing per-recipient schedule data
+
+It's possible to provide per-recipient schedule data to your workflow runs by setting the `data` property on each schedule created via the API. When your schedule runs, the data provided will be set on the workflow run for each recipient.
+
+## Reviewing scheduled workflow runs
+
+You can see all scheduled workflows under the "Schedules" section of the workflow. Please note: schedules will not display if there are no schedules setup for any recipients.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I setup a workflow to trigger on a schedule for all my users?">
+    Yes, but you'll need to add each user to the schedule manually via the API.
+    There's no way to automatically add all users to a schedule.
+  </Accordion>
+  <Accordion title="Can I trigger a workflow for a set of subscribers to an object?">
+    No, it's currently not possible to trigger a workflow for a set of
+    subscribers to an object.
+  </Accordion>
+</AccordionGroup>
