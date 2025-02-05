@@ -1,6 +1,6 @@
 ---
 title: Knock Extensions
-description: Learn how to extend Knock with connections to popular third-party platforms.
+description: Integrate Knock with third-party platforms to sync data, track analytics, and extend notification capabilities.
 section: Integrations > Extensions
 layout: integrations
 ---

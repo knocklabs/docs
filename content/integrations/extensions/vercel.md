@@ -1,6 +1,6 @@
 ---
 title: Connecting Knock to your Vercel account
-description: Learn more about how to connect Knock with your Vercel account.
+description: Deploy and manage Knock notification workflows using Vercel's deployment platform and integration.
 layout: integrations
 tags: ["vercel", "extensions"]
 section: Integrations > Extensions

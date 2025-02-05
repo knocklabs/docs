@@ -1,6 +1,6 @@
 ---
 title: Knock's features
-description: Learn about the features available in Knock and how they help you ship a better notifications experience.
+description: Explore Knock's key features for building notification systems, including multi-channel delivery, workflow orchestration, and preference management.
 tags: ["getting started"]
 section: Getting started
 ---

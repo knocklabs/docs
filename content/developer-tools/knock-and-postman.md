@@ -1,6 +1,6 @@
 ---
 title: Using Knock with Postman
-description: A Postman collection for the Knock API.
+description: Test and explore Knock's API endpoints using our official Postman collection with example requests and environments.
 tags: ["postman", "api", "getting started"]
 section: Getting started
 ---
