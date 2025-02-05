@@ -1,15 +1,15 @@
 ---
 title: "In-app messaging UI in React"
-description: How to build in-app messaging experiences like banners, cards, modals and more, powered by Knock and React.
+description: How to build in-app messaging experiences like banners, cards, modals, and more—powered by Knock and React.
 section: Building in-app UI
 ---
 
 <Callout
-  emoji="🚧"
+  emoji="💡"
   text={
     <>
-      In-app messaging and message types are currently in beta. If you'd like
-      early access, or this is blocking your adoption of Knock, please{" "}
+      In-app messaging and message types are currently in beta. If you would like
+      early access or if this is blocking your adoption of Knock, please{" "}
       <a href="mailto:support@knock.app?subject=Message%20types">
         get in touch
       </a>
@@ -20,28 +20,36 @@ section: Building in-app UI
 
 ![In-app messaging](/images/in-app-ui/in-app-messaging-components.png)
 
-Using our React SDK, it's possible to create in-app messaging experiences either using our pre-built components, or by building your own custom components on top of custom [in-app message types](/in-app-ui/message-types).
+Using our React SDK, you can create in-app messaging experiences either using our pre-built components or by building your own custom components on top of custom [in-app message types](/in-app-ui/message-types).
 
-Note: this guide assumes that already have a Knock account with a configured in-app channel. If you haven't yet signed up for Knock, you can do so [here](https://dashboard.knock.app/signup).
+Note: this guide assumes you already have a Knock account with a configured in-app channel. If you have not yet signed up for Knock, you can do so [here](https://dashboard.knock.app/signup).
 
 ## Using our pre-built components
 
 The React library (`@knocklabs/react`) provides pre-built components that map to our out-of-the-box message types for `banner`, `card`, and `modal`.
 
-You can use these components by dropping them into your application where ever you’d like them to display.
+You can use these components by dropping them into your application wherever you would like them to display.
 
 <Steps>
   <Step title="Setup the KnockProvider and KnockInAppMessagesChannelProvider">
-    The `KnockProvider` is a React context provider that makes the Knock client SDK available to your application. The `KnockInAppMessagesChannelProvider` is a React context provider that makes the Knock in-app messages client in to your application.
+    The `KnockProvider` is a React context provider that makes the Knock client SDK available to your application. The `KnockInAppMessagesChannelProvider` is a React context provider that makes the Knock in-app messages client available to your application.
 
 ```tsx
-import { KnockProvider, KnockInAppMessagesChannelProvider } from "@knocklabs/react";
+import { 
+  KnockProvider, 
+  KnockInAppMessagesChannelProvider 
+} from "@knocklabs/react";
 
 const MyApp = () => {
   return (
-    <KnockProvider publicKey={process.env.KNOCK_PUBLIC_KEY} userId={currentUser.id}>
-      <KnockInAppMessagesChannelProvider channelId={process.env.KNOCK_IAM_CHANNEL_ID}>
-        <MyAppLayout>
+    <KnockProvider 
+      publicKey={process.env.KNOCK_PUBLIC_KEY} 
+      userId={currentUser.id}
+    >
+      <KnockInAppMessagesChannelProvider 
+        channelId={process.env.KNOCK_IAM_CHANNEL_ID}
+      >
+        <MyAppLayout />
       </KnockInAppMessagesChannelProvider>
     </KnockProvider>
   );
@@ -50,17 +58,27 @@ const MyApp = () => {
 
   </Step>
   <Step title="Mount one or more pre-built components">
-    Mount one or more of the pre-built components (`<Banner />`, `<Card />`, `<Modal />`) under the `KnockInAppMessagesChannelProvider` in your application tree.
+    Mount one or more of the pre-built components (`<Banner />`, `<Card />`, and `<Modal />`) under the `KnockInAppMessagesChannelProvider` in your application tree—these components will handle displaying notifications based on their type.
+
+    Note: Make sure to provide the `channelId` prop to the `KnockInAppMessagesChannelProvider` component. You can find your channel ID in the Knock dashboard under **Integrations** and **Channels**.
 
 ```tsx
-import { Banner, KnockProvider, KnockInAppMessagesChannelProvider } from "@knocklabs/react";
+import { 
+  Banner, 
+  KnockProvider, 
+  KnockInAppMessagesChannelProvider 
+} from "@knocklabs/react";
 
 const MyApp = () => {
   return (
-    <KnockProvider publicKey={process.env.KNOCK_PUBLIC_KEY} userId={currentUser.id}>
+    <KnockProvider 
+      publicKey={process.env.KNOCK_PUBLIC_KEY} 
+      userId={currentUser.id}
+    >
       <KnockInAppMessagesChannelProvider>
         <MyAppLayout>
-        <Banner />
+          <Banner />
+        </MyAppLayout>
       </KnockInAppMessagesChannelProvider>
     </KnockProvider>
   );
@@ -72,24 +90,29 @@ const MyApp = () => {
 
 ## Building custom components
 
-In addition to the pre-built components, you can also write custom messaging components on top of our hooks and data layer. This makes it possible for you to create custom message types, and build custom messaging UI experiences, all powered by Knock's infrastructure.
+In addition to the pre-built components, you can write custom messaging components using our hooks and data layer—making it possible to create custom message types and build custom messaging UI experiences—all powered by Knock's infrastructure.
 
 <Steps>
   <Step title="Create a custom message type (optional)">
-    If you'd like to create a custom message type, you can do so by following the guide on [creating custom message types](/in-app-ui/message-types).
+    If you would like to create a custom message type, you can do so by following the guide on [creating custom message types](/in-app-ui/message-types).
 
     Otherwise, you can create a custom component on top of the out-of-the-box message types that Knock provides.
 
   </Step>
   <Step title="Setup the KnockProvider and KnockInAppMessagesChannelProvider">
-    The `KnockProvider` is a React context provider that makes the Knock client SDK available to your application. The `KnockInAppMessagesChannelProvider` is a React context provider that makes the Knock in-app messages client in to your application.
+    The `KnockProvider` is a React context provider that makes the Knock client SDK available to your application. The `KnockInAppMessagesChannelProvider` is a React context provider that makes the Knock in-app messages client available to your application.
 
 ```tsx
 const MyApp = () => {
   return (
-    <KnockProvider publicKey={process.env.KNOCK_PUBLIC_KEY} userId={currentUser.id}>
-      <KnockInAppMessagesChannelProvider channelId={process.env.KNOCK_IAM_CHANNEL_ID}>
-        <MyAppLayout>
+    <KnockProvider 
+      publicKey={process.env.KNOCK_PUBLIC_KEY} 
+      userId={currentUser.id}
+    >
+      <KnockInAppMessagesChannelProvider 
+        channelId={process.env.KNOCK_IAM_CHANNEL_ID}
+      >
+        <MyAppLayout />
       </KnockInAppMessagesChannelProvider>
     </KnockProvider>
   );
@@ -101,20 +124,37 @@ const MyApp = () => {
     Create a custom messaging component that uses the `useInAppMessage` or `useInAppMessages` hook to render one or more in-app messages.
 
 ```tsx
-import { useInAppMessage } from "@knocklabs/react";
+// This example includes optional routing using Next.js router
+import { 
+  useInAppMessage 
+} from "@knocklabs/react";
+import { useRouter } from "next/router"; // Optional: import your framework's router
 
 const MyBanner = () => {
-  const { message, inAppMessagesClient } = useInAppMessage("my-custom-banner");
+  // Optional: initialize your framework's router if using navigation
+  const router = useRouter();
+  const { 
+    message, 
+    inAppMessagesClient 
+  } = useInAppMessage("my-custom-banner");
 
   if (!message) return null;
 
   const onBannerClick = async () => {
+    // Mark the message as interacted with
     await inAppMessagesClient.markAsInteracted(message);
-    router.push(actionUrl);
+    // Optional: navigate to the action URL if provided
+    if (message.content.actionUrl) {
+      await router.push(message.content.actionUrl);
+    }
   };
 
   return (
-    <div onClick={onBannerClick} role="button" className="my-banner">
+    <div 
+      onClick={onBannerClick} 
+      role="button" 
+      className="my-banner"
+    >
       {message.content.body}
     </div>
   );
@@ -123,15 +163,21 @@ const MyBanner = () => {
 
   </Step>
   <Step title="Mount your component">
-    Mount your component under the `KnockInAppMessagesChannelProvider` in your application tree. You can mount your component anywhere in the tree, but it must be a descendant of the `KnockInAppMessagesChannelProvider`.
+    Mount your component under the `KnockInAppMessagesChannelProvider` in your application tree—it can be placed anywhere in the component hierarchy as long as it is a descendant of the provider.
 
 ```tsx
 const MyApp = () => {
   return (
-    <KnockProvider publicKey={process.env.KNOCK_PUBLIC_KEY} userId={currentUser.id}>
-      <KnockInAppMessagesChannelProvider>
+    <KnockProvider 
+      publicKey={process.env.KNOCK_PUBLIC_KEY} 
+      userId={currentUser.id}
+    >
+      <KnockInAppMessagesChannelProvider 
+        channelId={process.env.KNOCK_IAM_CHANNEL_ID}
+      >
         <MyAppLayout>
-        <MyBanner />
+          <MyBanner />
+        </MyAppLayout>
       </KnockInAppMessagesChannelProvider>
     </KnockProvider>
   );
