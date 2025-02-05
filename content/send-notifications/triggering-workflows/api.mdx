@@ -5,7 +5,7 @@ tags: ["trigger", "notify", "data", "actor"]
 section: Send notifications
 ---
 
-Triggering workflows by the trigger API endpoint is the most common and most direct way to execute your workflows for your recipients. Calling the `trigger` endpoint tells Knock to run a specified payload of [Recipients](/concepts/recipients) and `data` through the workflow specified by the call.
+The trigger API endpoint executes workflows for your recipients. When you call the `trigger` endpoint, Knock runs your specified [Recipients](/concepts/recipients) and `data` through the workflow.
 
 <MultiLangCodeBlock
   snippet="workflows.trigger"
@@ -59,7 +59,7 @@ Triggering a workflow will always return a unique UUID v4 representing the workf
 
 ## Passing data to your trigger
 
-You can also pass the schema data required by the workflow into the `trigger` call. The payload must be a valid JSON object, with nested objects and arrays supported.
+Pass schema data required by the workflow in your `trigger` call. The payload must be a valid JSON object and can include nested objects and arrays.
 
 The data requirements for the payload are determined in the workflow builder, including indicating which keys are required.
 
@@ -79,39 +79,30 @@ The data requirements for the payload are determined in the workflow builder, in
 
 ## Attributing the action to a user or object
 
-Knock supports passing an `actor` in your workflow trigger calls, which allows you to attribute the workflow trigger to an individual recipient (user or object).
+Pass an `actor` in your trigger call to attribute the workflow run to a specific user or object.
 
 <MultiLangCodeBlock
   snippet="workflows.trigger-with-actor"
   title="Triggering a Knock workflow with an actor"
 />
 
-Calling a workflow trigger with an actor will have the following effect:
+Calling a workflow trigger with an actor:
 
-- The `actor` property will be available within your message templates including the full user or object that performed this action.
-- When the `actor` is also a [subscriber](/concepts/subscriptions) to an Object recipient, they are **always** excluded from the `recipients` list. No notification will be sent to the subscribed `actor`.
-- When a workflow includes a [batch step](/designing-workflows/batch-function), the `actor` will be recorded as one actor who performed an action in the batch, which you can access via the `actors` key in your template.
-- Any workflows that contain an in-app feed channel step will produce a message that links the actor, and the actor will be loaded in any requests to this feed.
+- Records who triggered the workflow
+- Links the actor to any in-app feed messages
+- Includes the actor in batch steps via the `actors` key
+- Excludes the actor from notifications when they are a [subscriber](/concepts/subscriptions) to an Object recipient
 
 ## Generating a cancellation key
 
-Each `trigger` call can optionally include a `cancellation_key` that allows you to uniquely identify
-it when canceling. Providing your own cancellation key means that you don't need to keep track of
-the Knock internal identifiers generated when calling `trigger`.
+Include a `cancellation_key` in your `trigger` call to enable workflow cancellation.
 
 You can read more about canceling workflows [in our guide](/send-notifications/canceling-workflows).
 
-**Keep the following in mind when generating a cancellation key:**
-
-1. Provide a value that allows you to uniquely identify the trigger run for the batch of recipients.
-   A good example in an invite notification is the `id` of a user invite so that we can easily stop reminders
-   for that invite once a user has accepted it.
-
-2. The cancellation key represents the workflow _run_, not the notifications generated per recipient, so
-   you usually don't need to include a recipient identifier within the `cancellation_key`.
-
-3. The cancellation key is _scoped per workflow_ so you don't need to include the workflow key
-   in the cancellation key.
+The key should uniquely identify the workflow run you want to cancel. We recommend using:
+- A UUID v4
+- A hash of relevant workflow data
+- A timestamp combined with recipient and workflow identifiers
 
 ## Identifying recipients inline
 
