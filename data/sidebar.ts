@@ -101,9 +101,9 @@ const sidebarContent: SidebarSection[] = [
         title: "Triggering workflows",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/api", title: "Via the API" },
+          { slug: "/api", title: "With the API" },
           { slug: "/schedules", title: "On a schedule" },
-          { slug: "/events", title: "By an event" },
+          { slug: "/events", title: "From an event" },
           { slug: "/audiences", title: "For an audience" },
         ],
       },
