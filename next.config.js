@@ -400,6 +400,11 @@ const nextConfig = {
         destination: "/integrations/chat/slack/overview",
         permanent: true,
       },
+      {
+        source: "/send-notifications/triggering-workflows",
+        destination: "/send-notifications/triggering-workflows/overview",
+        permanent: true,
+      },
     ];
   },
 };

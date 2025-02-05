@@ -1,0 +1,49 @@
+---
+title: Triggering workflows via an audience
+description: Learn more about how to trigger cross-channel notification workflows in Knock via an audience.
+tags: ["trigger", "audience"]
+section: Send notifications
+---
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      <strong>Note:</strong> Audiences is in beta. To request early access,{" "}
+      <a href="mailto:support@knock.app?subject=Audiences beta access">
+        contact us
+      </a>
+      .
+    </>
+  }
+/>
+
+Audience workflow triggers execute a workflow run when a user joins a specific audience.
+
+An audience consists of users who share a common characteristic, such as users on a paid plan or users who made a purchase in the past 30 days.
+
+To use audience triggers, you need an [audience](/concepts/audiences) created in Knock. Create an audience in the "Audiences" section of the dashboard.
+
+## Configuring an audience trigger
+
+Configure an audience trigger by selecting "Audience" trigger type in the workflow builder and selecting your target audience.
+
+Remember: you must have an audience created in Knock before you can use it to trigger workflows.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I trigger a workflow to all users in an audience?">
+    No, workflows trigger only for **new users** who join an audience.
+  </Accordion>
+  <Accordion title="Can I specify multiple audiences as a trigger source of a workflow?">
+    No, a workflow accepts only one audience as its trigger source.
+  </Accordion>
+  <Accordion title="Can I trigger a workflow for a user who is removed from an audience?">
+    No, workflows trigger only when users join an audience.
+  </Accordion>
+  <Accordion title="Can I prevent a workflow from being run if the user has already run through the workflow?">
+    Yes, use the workflow trigger frequency setting to control if a workflow
+    should trigger for users who have already completed the workflow.
+  </Accordion>
+</AccordionGroup>
