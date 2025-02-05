@@ -5,92 +5,89 @@ tags: ["delivery status", "engagement status", "delivery rates"]
 section: Send notifications
 ---
 
-Knock uses the [Message](/concepts/messages) model to represent a notification delivered to a recipient on a particular channel. Knock Messages can have one or more statuses, which indicate the delivery state of your notification or how your recipient is engaging with the message. Knock captures changes in message status as Message Events, which you can hook into with [outbound webhooks](/developer-tools/outbound-webhooks/overview).
+The [Message](/concepts/messages) model tracks notifications delivered to recipients through specific channels. Each message has delivery and engagement statuses. Knock records status changes as Message Events, which integrate with [outbound webhooks](/developer-tools/outbound-webhooks/overview).
 
-Knock manages two types of notification statuses:
+Knock tracks two status types:
 
-- **Delivery status** — Was the message successfully delivered to your messaging providers and to your recipient? Delivery statuses are mutually exclusive, hierarchical, and implicitly managed by Knock as part of notification delivery.
-- **Engagement status** — How has your recipient engaged with the notification once received? A message can have multiple engagement statuses, or none. Knock will implicitly manage some engagement statuses for you, but you can also manage them yourself via the Knock API.
+- **Delivery status**—Tracks successful delivery to providers and recipients. These statuses are mutually exclusive, hierarchical, and managed by Knock during delivery.
+- **Engagement status**—Tracks recipient interactions with notifications. Messages can have multiple engagement statuses or none. Knock manages some engagement statuses automatically, while others require manual updates through the API.
 
 ## Delivery status
 
-When you trigger a Knock workflow, any channel step within that workflow generates a Message for each recipient. Once the message is generated, Knock manages delivery to the recipient via the downstream provider for your channel (e.g. SendGrid for email delivery). Knock uses delivery statuses to track this lifecycle and show you where a given message resides within it.
+Each channel step in a triggered workflow creates a Message for each recipient. Knock then delivers these messages through channel-specific providers (e.g., SendGrid for email). Delivery statuses track the message lifecycle.
 
-You can use the "Logs" tab in the message detail view in the Knock dashboard to examine the history of requests Knock makes to the downstream provider to determine delivery status. The "Delivery status" field will show you the current status for your message.
+View delivery history in the "Logs" tab of the message detail view. The "Delivery status" field displays the current message status.
 
 ![Knock message delivery status lifecycle](/images/notifications/delivery-status-lifecycle.png)
 
-<figcaption>Figure 1 — The Knock message delivery status lifecycle.</figcaption>
+<figcaption>Figure 1—The Knock message delivery status lifecycle.</figcaption>
 
-Figure 1 above illustrates the full delivery status lifecycle. As the diagram implies, a message can only ever have one delivery status at a time. Plus, not all delivery statuses are available to all channels.
+The diagram shows the delivery status lifecycle. Messages have one delivery status at a time, with channel-specific status availability. 
 
-Lastly, delivery statuses are also hierarchical. Knock considers certain statuses more precedent than others when performing comparisons for things like [message status conditions](/designing-workflows/step-conditions#message-status-conditions).
+Delivery statuses follow a hierarchy, affecting comparisons in [message status conditions](/designing-workflows/step-conditions#message-status-conditions).
 
-Below we break down each status in detail (including any channel-specific limitations) in ascending order of precedence.
+Each status is detailed below in ascending order of precedence, including channel-specific limitations.
 
 ### 1) Undelivered
 
-We attempted to deliver your message, we encountered an error, and _we will not retry delivery_. Your message has not made it from Knock to your provider.
-
-You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
+Message failed to reach the provider and will not be retried. Check message delivery logs to debug provider connection issues. See [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for details on retry logic.
 
 ### 2) Bounced
 
-Your message was successfully sent to the downstream provider, but the message was dropped by your provider due to bad recipient data, resulting in a bounce, and _we will not retry delivery_.
-
-You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
+Message reached the provider but bounced due to invalid recipient data. No further retry attempts. Check message delivery logs and [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for troubleshooting.
 
 ### 3) Delivery attempted
 
-We attempted to deliver your message, but we encountered an error. If we deem the error retryable and we have not hit our retry limit, we will re-enqueue the message for another delivery attempt.
-
-You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
+Message delivery failed but may be retried if the error is retryable and within retry limits. Check message delivery logs and [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for details.
 
 ### 4) Queued
 
-Your message has been created and has been queued to be sent to the provider. This may be the first attempt to deliver the message, or it may be a retry following an error. Messages sent outside a send window will remain queued until their scheduled send time.
+Message awaits delivery to provider, either as first attempt or retry. Messages outside send windows remain queued until scheduled send time.
 
 ### 5) Not sent
 
-Your message was processed successfully but was not sent to the downstream provider because your channel is in [sandbox mode](/integrations/overview#sandbox-mode).
+Message processed but not sent because channel is in [sandbox mode](/integrations/overview#sandbox-mode).
 
 ### 6) Sent
 
-Your message has successfully made it from Knock to the delivery provider. It is their responsibility to ensure the message is properly _delivered_ to the recipient. Knock may be awaiting further information to determine if the message was successfully delivered.
+Message successfully reached delivery provider. Provider handles final delivery to recipient. Knock awaits delivery confirmation.
 
-On a per-channel level, `sent` means that:
+Channel-specific `sent` status meanings:
 
-- **Chat** — Your message has successfully been sent by Knock to the destination chat platform.
-- **Email** — Your message made it to the delivery provider. We're waiting to learn if it made it to recipient.
-- **In-app** — In-app messages automatically skip to the [`delivered`](#7-delivered) status. We always successfully deliver the message to the Knock Feed API.
-- **Push** — Your message has successfully been sent by Knock to the destination push platform.
-- **SMS** — Your message made it to the delivery provider. We're waiting to learn if it made it to recipient.
-- **Webhook** — Webhook messages automatically skip to the [`delivered`](#7-delivered) status when Knock receives a `2xx`-status response from your endpoint.
+- **Chat**—Message reached destination chat platform
+- **Email**—Message reached delivery provider, awaiting recipient confirmation
+- **In-app**—Skips to [`delivered`](#7-delivered) status via Knock Feed API
+- **Push**—Message reached destination push platform
+- **SMS**—Message reached delivery provider, awaiting recipient confirmation
+- **Webhook**—Skips to [`delivered`](#7-delivered) status on `2xx` response
 
 ### 7) Delivered
 
-We've received confirmation from the delivery provider that your message was successfully sent to the recipient.
+Delivery provider confirmed message reached recipient.
 
-On a per-channel level, `delivered` means that:
+Channel-specific `delivered` status meanings:
 
-- **Email** — Your message was successfully delivered to the recipient's email service provider.
-- **In-app** — Your message was successfully delivered to the recipient's feed.
-- **Push** — We do not support delivery tracking for push channels, so push channel messages will never have a delivery status greater than `sent`. However, you can introduce a handler into your mobile app to update a given message's [engagement status](#engagement-status) when the message has successfully made it to your recipient's device, using the `knock_message_id` from the push notification payload.
-- **SMS** — Your message was successfully sent to the recipient's SMS provider. Note that not all SMS delivery providers support delivery tracking. See the [Knock integration guides for SMS providers](/integrations/sms/overview) for more information.
-- **Chat** — Delivery tracking is not available for chat platforms, so chat channel messages will never have a delivery status greater than `sent`. In most cases, a `sent` status will also mean that the message has been delivered to the recipient.
-- **Webhook** — Your message was successfully delivered to your webhook endpoint.
+- **Email**—Message reached recipient's email service provider
+- **In-app**—Message reached recipient's feed
+- **Push**—Status remains at `sent` (no delivery tracking). Use mobile app handler with `knock_message_id` to update [engagement status](#engagement-status)
+- **SMS**—Message reached recipient's SMS provider (tracking varies by provider). See [SMS provider guides](/integrations/sms/overview)
+- **Chat**—Status remains at `sent` (no delivery tracking). Usually indicates successful delivery
+- **Webhook**—Message reached webhook endpoint
 
 ## Engagement status
 
-Once delivered, Knock uses a set of engagement statuses to track how the recipient interacts with the notification. There are a few important things to note about how this works:
+Engagement statuses track recipient interactions with delivered notifications. Key characteristics:
 
-- **Engagement statuses are mutually inclusive.** Unlike delivery status, a message can have zero, one, or multiple engagement statuses. As an example, an in-app message can have an engagement status of both `seen` and `marked as read`.
-- **Engagement statuses are hierarchical.** Like delivery status, engagement statuses have a concept of hierarchy. Knock sometimes uses this hierarchy when evaluating [message status step conditions](/designing-workflows/step-conditions#message-status-conditions).
-- **Implicitly managed only sometimes.** In a couple cases, Knock will manage engagement status on your behalf. The [Knock React SDK](/in-app-ui/react/overview) will set engagement statuses for your in-app feed channels. Knock will also manage engagement statuses for any channel configured to use [Knock link and open tracking](/send-notifications/tracking). For other cases, you can use the [Knock Message status API](/reference#update-message-status) to explicitly manage engagement statuses yourself.
+- **Multiple statuses possible**—Messages can have zero, one, or multiple engagement statuses (e.g., both `seen` and `marked as read`)
+- **Hierarchical structure**—Status hierarchy affects [message status step conditions](/designing-workflows/step-conditions#message-status-conditions)
+- **Mixed management**—Knock manages statuses automatically for:
+  - In-app feeds via [React SDK](/in-app-ui/react/overview)
+  - Channels with [link and open tracking](/send-notifications/tracking)
+  - Other cases require manual updates via [Message status API](/reference#update-message-status)
 
-Knock will include the set of current engagement statuses for your message in API responses as a list under the `engagement_statuses` field. Knock also uses timestamp columns to model the latest such action for each engagement type.
+API responses include current statuses in `engagement_statuses` field with timestamps for each engagement type.
 
-Below we review the possible engagement statuses and various per-channel caveats for how they work.
+Available engagement statuses:
 
 ### Seen
 
@@ -98,9 +95,7 @@ Below we review the possible engagement statuses and various per-channel caveats
 | --------------- | ------ |
 | `seen_at`       | `seen` |
 
-Knock only implicitly manages this status for the in-app feed channel.
-
-The `seen` status indicates that the message has been retrieved for display in the recipient's in-app feed at least once. The timestamp represents the time of the most recent action. The `seen` status is separate from an [opened/read status](/send-notifications/message-statuses#2b-marked-as-read--opened-read_at-iso8601-timestamp), in that it doesn't indicate the recipient has explicitly interacted with the message itself.
+Message displayed in recipient's in-app feed. Managed automatically for in-app feed channel only. Distinct from [opened/read status](/send-notifications/message-statuses#2b-marked-as-read--opened-read_at-iso8601-timestamp) as it doesn't require explicit interaction.
 
 ### Marked as read / opened
 
@@ -108,33 +103,24 @@ The `seen` status indicates that the message has been retrieved for display in t
 | --------------- | ------ |
 | `read_at`       | `read` |
 
-The message has been opened and read by the recipient at least once. The timestamp represents the time of the most recent action.
+Message opened/read by recipient. Automatically managed for:
 
-Knock will implicitly manage this status only for the following channel configurations:
-
-- **Email** — [Knock open tracking](/send-notifications/tracking) needs to be enabled.
-- **In-app** — When you're using the [Knock ReactFeedProvider SDK](/in-app-ui/react/feed).
-- **Push** — Not currently supported.
-- **SMS** — Not directly supported. But, if [Knock link tracking](/send-notifications/tracking) is enabled, we will count a link-click action as also an open event.
-- **Chat** — Not directly supported. But, if [Knock link tracking](/send-notifications/tracking) is enabled, we will count a link-click action as also an open event.
-- **Webhook** — Not currently supported.
+- **Email**—Requires [open tracking](/send-notifications/tracking)
+- **In-app**—Requires [ReactFeedProvider SDK](/in-app-ui/react/feed)
+- **SMS/Chat**—Link clicks count as opens with [link tracking](/send-notifications/tracking)
+- **Push/Webhook**—Not supported
 
 ### Link clicked
 
 | Timestamp field                     | Badge          |
 | ----------------------------------- | -------------- |
-| `link_clicked_at` -or- `clicked_at` | `link_clicked` |
+| `link_clicked_at` or `clicked_at` | `link_clicked` |
 
-A link within your message was clicked by the recipient. The timestamp represents the time of the most recent action.
+Recipient clicked a link in the message. Automatically managed for:
 
-Knock will implicitly manage this status only for the following channel configurations:
-
-- **Email** — [Knock link tracking](/send-notifications/tracking) needs to be enabled.
-- **In-app** — [Knock link tracking](/send-notifications/tracking) needs to be enabled for link-clicks to count towards this status. In addition, for in-app messages where the message is itself a link, message clicks will also count. (Note: that clicking “mark all as read” does not result in a message being marked as clicked; rather, as the phrasing implies, we bulk update the message engagement statuses to opened/read.)
-- **Push** — Not currently supported.
-- **SMS** — [Knock link tracking](/send-notifications/tracking) needs to be enabled.
-- **Chat** — [Knock link tracking](/send-notifications/tracking) needs to be enabled.
-- **Webhook** — Not currently supported.
+- **Email/SMS/Chat**—Requires [link tracking](/send-notifications/tracking)
+- **In-app**—Requires [link tracking](/send-notifications/tracking). Message clicks count if message is a link. "Mark all as read" updates to opened/read status instead
+- **Push/Webhook**—Not supported
 
 ### Interacted
 
@@ -142,9 +128,7 @@ Knock will implicitly manage this status only for the following channel configur
 | --------------- | ------------ |
 | `interacted_at` | `interacted` |
 
-Knock only implicitly manages this status for the in-app feed channel.
-
-For the in-app feed case, this indicates that your recipient has explicitly clicked on the notification cell in their feed. The timestamp represents the time of the most recent action.
+Recipient clicked notification cell in feed. Only managed for in-app feed channel.
 
 ### Archived
 
@@ -152,10 +136,8 @@ For the in-app feed case, this indicates that your recipient has explicitly clic
 | --------------- | ---------- |
 | `archived_at`   | `archived` |
 
-Knock only implicitly manages this status for the in-app feed channel.
-
-The message has been archived by the recipient. The timestamp represents the time of the most recent action.
+Message archived by recipient. Only managed for in-app feed channel.
 
 ## Message events
 
-Knock records each change in message status, whether delivery or engagement, as a message event. You can view these events in chronological order of occurrence in the message timeline view in the Knock dashboard. Knock also uses these message events to power webhooks. See our [guide on outbound webhooks](/developer-tools/outbound-webhooks/overview) to learn more about how you can hook into the Knock message status lifecycle.
+Status changes create message events, viewable in chronological order in the message timeline. Events power webhooks—see [outbound webhooks guide](/developer-tools/outbound-webhooks/overview) to integrate with the message lifecycle.
