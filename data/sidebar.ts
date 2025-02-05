@@ -104,7 +104,7 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/api", title: "With the API" },
           { slug: "/schedules", title: "On a schedule" },
           { slug: "/events", title: "From an event" },
-          { slug: "/audiences", title: "For an audience" },
+          { slug: "/audiences", title: "For an audience", isBeta: true },
         ],
       },
       { slug: "/canceling-workflows", title: "Canceling workflows" },
