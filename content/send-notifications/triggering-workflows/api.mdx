@@ -7,23 +7,20 @@ section: Send notifications
 
 The trigger API endpoint executes workflows for your recipients. When you call the `trigger` endpoint, Knock runs your specified [Recipients](/concepts/recipients) and `data` through the workflow.
 
-<MultiLangCodeBlock
-  snippet="workflows.trigger"
-  title="Trigger a workflow"
-/>
+<MultiLangCodeBlock snippet="workflows.trigger" title="Trigger a workflow" />
 
 Learn more about triggering workflows in [our API reference](/reference#workflows).
 
 ## Trigger payload
 
-| Property         | Type                  | Description                                                                                                 |
-| ---------------- | --------------------- | ----------------------------------------------------------------------------------------------------------- |
-| workflow_key     | string                | The key of the workflow to trigger                                                                         |
-| actor            | string \| Recipient   | An optional identifier of who performed the action                                                         |
-| recipients       | string[] \| Recipient[] | One or more recipients to notify                                                                        |
-| data             | object                | The data to pass through to the workflow                                                                   |
-| cancellation_key | string                | A unique identifier to reference the workflow when canceling                                                |
-| tenant           | string                | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
+| Property         | Type                    | Description                                                                                                 |
+| ---------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| workflow_key     | string                  | The key of the workflow to trigger                                                                          |
+| actor            | string \| Recipient     | An optional identifier of who performed the action                                                          |
+| recipients       | string[] \| Recipient[] | One or more recipients to notify                                                                            |
+| data             | object                  | The data to pass through to the workflow                                                                    |
+| cancellation_key | string                  | A unique identifier to reference the workflow when canceling                                                |
+| tenant           | string                  | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
 
 ## Recipient identifiers
 
@@ -67,6 +64,7 @@ Define data requirements in the workflow builder, including required keys.
 Pass an `actor` in your trigger call to attribute the workflow run to a specific user or object.
 
 Calling a workflow trigger with an actor:
+
 - Records who triggered the workflow
 - Links the actor to any in-app feed messages
 - Includes the actor in batch steps via the `actors` key
@@ -76,6 +74,7 @@ Calling a workflow trigger with an actor:
 Include a `cancellation_key` in your `trigger` call to enable workflow cancellation.
 
 The key should uniquely identify the workflow run you want to cancel. We recommend using:
+
 - A UUID v4
 - A hash of relevant workflow data
 - A timestamp combined with recipient and workflow identifiers
@@ -86,14 +85,14 @@ You can read more about canceling workflows [in our guide](/send-notifications/c
 
 Pass a complete `Recipient` entity to `recipients` or `actor` when triggering a workflow. Recipients are identified before the workflow triggers with the properties you provide.
 
-| Property        | Description                                                                                            |
-| --------------- | ------------------------------------------------------------------------------------------------------ |
-| `id`            | Required. An identifier for this user or object                                                        |
-| `collection`    | Required when identifying an object. Indicates the collection the object belongs to                    |
-| `channel_data`  | A dictionary containing a `channelId` key and a dictionary of channel data to set for the recipient |
-| `preferences`   | A dictionary containing a preference set ID key and a `PreferenceSet` object to set for the recipient  |
-| `$trigger_data` | Any recipient-specific trigger data to merge with the `data` available on the workflow run          |
-| \*              | An arbitrary set of key/value pairs to set for the recipient                                           |
+| Property        | Description                                                                                           |
+| --------------- | ----------------------------------------------------------------------------------------------------- |
+| `id`            | Required. An identifier for this user or object                                                       |
+| `collection`    | Required when identifying an object. Indicates the collection the object belongs to                   |
+| `channel_data`  | A dictionary containing a `channelId` key and a dictionary of channel data to set for the recipient   |
+| `preferences`   | A dictionary containing a preference set ID key and a `PreferenceSet` object to set for the recipient |
+| `$trigger_data` | Any recipient-specific trigger data to merge with the `data` available on the workflow run            |
+| \*              | An arbitrary set of key/value pairs to set for the recipient                                          |
 
 ```json title="Example inline recipient definition"
 {
