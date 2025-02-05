@@ -1,0 +1,199 @@
+---
+title: Triggering workflows via the API
+description: Learn how to trigger cross-channel notification workflows in Knock via the API.
+tags: ["trigger", "notify", "data", "actor"]
+section: Send notifications
+---
+
+The trigger API endpoint executes workflows for your recipients. When you call the `trigger` endpoint, Knock runs your specified [Recipients](/concepts/recipients) and `data` through the workflow.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger"
+  title="Trigger a workflow"
+/>
+
+Learn more about triggering workflows in [our API reference](/reference#workflows).
+
+## Trigger payload
+
+| Property         | Type                  | Description                                                                                                 |
+| ---------------- | --------------------- | ----------------------------------------------------------------------------------------------------------- |
+| workflow_key     | string                | The key of the workflow to trigger                                                                         |
+| actor            | string \| Recipient   | An optional identifier of who performed the action                                                         |
+| recipients       | string[] \| Recipient[] | One or more recipients to notify                                                                        |
+| data             | object                | The data to pass through to the workflow                                                                   |
+| cancellation_key | string                | A unique identifier to reference the workflow when canceling                                                |
+| tenant           | string                | An optional identifier of the owning tenant object for the notifications generated during this workflow run |
+
+## Recipient identifiers
+
+When identifying a recipient in a workflow as an actor or recipient, you can send:
+
+- A string identifier of a user you have previously set within Knock (e.g. `user-1`)
+- A reference of an object you have previously set within Knock (e.g. `{ id: "project-1", collection: "projects" }`)
+- A complete `Recipient` to identify inline during workflow execution
+
+## Response
+
+Triggering a workflow returns a unique UUID v4 representing the workflow run.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-response"
+  title="Workflow trigger response"
+/>
+
+## Passing data to your trigger
+
+Pass schema data required by the workflow in your `trigger` call. The payload must be a valid JSON object and can include nested objects and arrays.
+
+Define data requirements in the workflow builder, including required keys.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      For more information on validating trigger data and working with JSON
+      schemas, see our guide on{" "}
+      <a href="/developer-tools/validating-trigger-data">
+        validating trigger data
+      </a>
+      .
+    </>
+  }
+/>
+
+## Attributing the action to a user or object
+
+Pass an `actor` in your trigger call to attribute the workflow run to a specific user or object.
+
+Calling a workflow trigger with an actor:
+- Records who triggered the workflow
+- Links the actor to any in-app feed messages
+- Includes the actor in batch steps via the `actors` key
+
+## Generating a cancellation key
+
+Include a `cancellation_key` in your `trigger` call to enable workflow cancellation.
+
+The key should uniquely identify the workflow run you want to cancel. We recommend using:
+- A UUID v4
+- A hash of relevant workflow data
+- A timestamp combined with recipient and workflow identifiers
+
+You can read more about canceling workflows [in our guide](/send-notifications/canceling-workflows).
+
+## Identifying recipients inline
+
+Pass a complete `Recipient` entity to `recipients` or `actor` when triggering a workflow. Recipients are identified before the workflow triggers with the properties you provide.
+
+| Property        | Description                                                                                            |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| `id`            | Required. An identifier for this user or object                                                        |
+| `collection`    | Required when identifying an object. Indicates the collection the object belongs to                    |
+| `channel_data`  | A dictionary containing a `channelId` key and a dictionary of channel data to set for the recipient |
+| `preferences`   | A dictionary containing a preference set ID key and a `PreferenceSet` object to set for the recipient  |
+| `$trigger_data` | Any recipient-specific trigger data to merge with the `data` available on the workflow run          |
+| \*              | An arbitrary set of key/value pairs to set for the recipient                                           |
+
+```json title="Example inline recipient definition"
+{
+  "id": "ntunney",
+  "email": "nedry@ingen.net",
+  "name": "Dennis Nedry",
+  "channel_data": {
+    "email": {
+      "email": "nedry@ingen.net"
+    },
+    "slack": {
+      "slack_user_id": "UXXXXXXXX"
+    }
+  },
+  "preferences": {
+    "default": {
+      "email": true,
+      "in_app_feed": false
+    }
+  }
+}
+```
+
+## Per-recipient trigger data
+
+Pass per-recipient data using the `$trigger_data` property for each recipient. This data merges with the `data` property to create the final data for each recipient's workflow run.
+
+```json title="Example per-recipient data"
+{
+  "data": {
+    "role": "Lieutenant"
+  },
+  "recipients": [
+    {
+      "id": "jeanluc",
+      "name": "Jean-Luc Picard",
+      "$trigger_data": {
+        "role": "Captain"
+      }
+    }
+  ]
+}
+```
+
+## Multi-tenancy in notifications
+
+Pass a `tenant` to your `trigger` call to support users belonging to multiple tenants. This enables tenant-specific notification preferences and channel settings.
+
+Read more about [supporting multi-tenancy in our guide](/concepts/tenants).
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="How do I trigger a workflow for a single recipient?">
+    Pass a single recipient identifier to the `recipients` property in your trigger call.
+  </Accordion>
+  <Accordion title="How do I trigger a workflow for multiple recipients?">
+    Pass an array of recipient identifiers to the `recipients` property in your trigger call.
+  </Accordion>
+  <Accordion title="How do I trigger a workflow for an object?">
+    Pass an object identifier to the `recipients` property in your trigger call.
+
+    An object identifier looks like:
+
+    ```json
+    {
+      "id": "project-1",
+      "collection": "projects"
+    }
+    ```
+
+  </Accordion>
+  <Accordion title="How do I trigger a workflow for the subscribers of an object?">
+    Pass an object identifier to the `recipients` property in your trigger call. Knock automatically creates a workflow run for each subscriber of the object.
+
+    <MultiLangCodeBlock
+      snippet="workflows.trigger-with-object-as-recipient"
+      title="Workflow trigger with an object as a recipient"
+    />
+
+  </Accordion>
+  <Accordion title="How do I trigger a workflow for an audience?">
+    It's not yet possible to trigger a workflow for an audience via the API. If you need this functionality, please contact us to discuss your specific needs.
+  </Accordion>
+  <Accordion title="What's the maximum number of recipients I can trigger a workflow for?">
+    You can trigger a workflow for up to 1000 recipients at a time. For larger recipient lists, consider using our [subscriptions feature](/concepts/subscriptions).
+  </Accordion>
+  <Accordion title="Can I bulk trigger workflows?">
+    The API does not support bulk trigger requests. For multiple recipients with per-recipient data, use per-recipient trigger data.
+  </Accordion>
+  <Accordion title="How do I cancel a workflow run?">
+    Call the `cancel` endpoint to cancel a workflow run.
+
+    <MultiLangCodeBlock
+      snippet="workflows.cancel"
+      title="Cancel a workflow run"
+    />
+
+  </Accordion>
+  <Accordion title="Can I validate the data I'm passing to a workflow trigger?">
+    Yes, you can [validate trigger data](/developer-tools/validating-trigger-data) by providing a JSON schema in your workflow trigger step.
+  </Accordion>
+</AccordionGroup>
