@@ -64,11 +64,12 @@ import {
   KnockFeedProvider,
   KnockProvider,
   NotificationIconButton,
-  NotificationFeed,
-  FilterStatus,
 } from "@knocklabs/react-native";
 import React, { useCallback, useState } from "react";
 import { StyleSheet, View, StatusBar } from "react-native";
+
+// Your custom notification container component; see code example below
+import NotificationContainer from "./NotificationContainer";
 
 const App: React.FC = () => {
   const [isNotificationFeedOpen, setIsNotificationFeedOpen] = useState(false);
@@ -93,13 +94,10 @@ const App: React.FC = () => {
             />
           )}
           {isNotificationFeedOpen && (
-            <NotificationFeed
-              onRowTap={(item) => {
-                console.log("Row tapped", item);
-              }}
-              headerConfig={{
-                filters: [FilterStatus.All, FilterStatus.Unread],
-              }}
+            <NotificationContainer
+              handleClose={() =>
+                setIsNotificationFeedOpen(!isNotificationFeedOpen)
+              }
             />
           )}
         </View>
@@ -128,43 +126,17 @@ const MyNotificationFeed = () => {
 
 <br />
 
-### Basic usage
-
-```tsx
-import { NotificationFeed } from "@knocklabs/react-native";
-
-const MyNotificationFeed = () => {
-  return (
-    <NotificationFeed
-      onCellActionButtonTap={({ button, item }) => {
-        console.log("Action button tapped", button, item);
-      }}
-      onRowTap={(item) => {
-        console.log("Row tapped", item);
-      }}
-      headerConfig={{
-        filters: [FilterStatus.All, FilterStatus.Unread],
-      }}
-    />
-  );
-};
-```
-
-### Creating a custom container
-
-The following example demonstrates how to create your own container component to wrap the NotificationFeed with custom styling and behavior, such as a header with a close button:
-
 ```tsx
 import { ActionButton, FeedItem } from "@knocklabs/client";
 import { NotificationFeed } from "@knocklabs/react-native";
 import React, { useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export interface NotificationFeedContainerProps {
+export interface NotificationContainerProps {
   handleClose: () => void;
 }
 
-const NotificationFeedContainer: React.FC<NotificationFeedContainerProps> = ({
+const NotificationContainer: React.FC<NotificationContainerProps> = ({
   handleClose,
 }) => {
   const onCellActionButtonTap = useCallback(
@@ -194,7 +166,7 @@ const NotificationFeedContainer: React.FC<NotificationFeedContainerProps> = ({
   );
 };
 
-export default NotificationFeedContainer;
+export default NotificationContainer;
 ```
 
 ## NotificationIconButton
