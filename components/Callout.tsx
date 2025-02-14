@@ -11,7 +11,11 @@ const Callout = ({ emoji, children, text }) => (
         </div>
       </div>
     )}
-    <div className={`flex-col min-w-0 w-full text-[14px] not-prose ${emoji ? "ml-3" : "ml-1.5"}`}>
+    <div
+      className={`flex-col min-w-0 w-full text-[14px] not-prose ${
+        emoji ? "ml-3" : "ml-1.5"
+      }`}
+    >
       {text || children}
     </div>
   </div>
