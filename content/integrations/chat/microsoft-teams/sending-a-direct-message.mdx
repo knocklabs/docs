@@ -8,11 +8,14 @@ layout: integrations
 
 In this guide, we'll cover how to update a multi-tenant Microsoft Teams bot to send direct messages to Teams users using Knock. It assumes that you have already created a Microsoft Teams channel in Knock as outlined in the [Microsoft Teams integration overview](/integrations/chat/microsoft-teams/overview) guide.
 
+In this implementation, your application's users will connect their Microsoft Entra tenant to Knock and be able to send messages to individual users via direct message. To make this easier to implement, we'll use Knock's [TeamsKit components](/in-app-ui/react/teams-kit) to facilitate the OAuth flow.
+
 Here's what we'll cover in this guide:
 
 - Modeling a multi-tenant application in Knock using `Tenants`
 - Adding required scopes to your Microsoft Teams app's manifest
-- Setting required Tenant and User channel data when a Microsoft Teams bot is installed in a user's personal scope
+- Implementing a Microsoft OAuth flow using Knock's `MsTeamsAuthButton` component
+- Setting required User channel data when a Microsoft Teams bot is installed in a user's personal scope
 - Triggering a workflow with a user recipient to send a direct message to a Teams user
 
 ## Prerequisites
@@ -21,13 +24,13 @@ Make sure your bot has been registered with <a href="https://dev.botframework.co
 
 ## Key concepts
 
-There are two key concepts you'll see throughout the following docs that are foundational to how Knock's Microsoft Teams integration works: tenants and objects.
+TeamsKit connects multiple concepts in Knock to make it easier for your application's users to start using your Microsoft Teams integration. `Tenants` are a concept you'll see throughout the following docs that are foundational to how TeamsKit works, but might not be used in every implementation of Knock.
 
 ### About tenants
 
-[Tenants](/concepts/tenants) in Knock are meant to represent groups of users who typically share the same resources. You might call these "accounts," "organizations," "workspaces," or something similar. In a typical Microsoft Teams implementation, you'll store <a href="https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-create-new-tenant" target="_blank">the ID of a Microsoft Entra tenant</a> on a corresponding tenant in Knock.
+[Tenants](/concepts/tenants) in Knock are meant to represent groups of users who typically share the same resources. You might call these "accounts," "organizations," "workspaces," or something similar. In a typical implementation using TeamsKit, you'll store <a href="https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-create-new-tenant" target="_blank">the ID of a Microsoft Entra tenant</a> on a corresponding tenant in Knock.
 
-If you already use Knock's tenant concept to power other 'account-based' features, you likely create tenants in Knock when an account or organization is created in your application.
+If you already use Knock's tenant concept to power other 'account-based' features, you likely create tenants in Knock when an account or organization is created in your application. If you don't already use tenants in Knock, TeamsKit can create tenants for you on the fly if they don't already exist.
 
 <Callout
   emoji="💡"
@@ -44,9 +47,9 @@ If you already use Knock's tenant concept to power other 'account-based' feature
 
 ### Merging channel data
 
-In this implementation, we'll actually store [the required channel data](/integrations/chat/microsoft-teams/overview#channel-data-requirements) for an `MsTeamsConnection` across two different entities in Knock: a `Tenant` and an `User`. This is because we want to store the `ms_teams_tenant_id` for the Microsoft Entra tenant on the Knock `Tenant` and the `ms_teams_user_id` for the Microsoft Teams user on the Knock `User`.
+In this implementation, we'll actually store [the required channel data](/integrations/chat/microsoft-teams/overview#how-to-set-channel-data-for-a-microsoft-teams-integration-in-knock) for an `MsTeamsConnection` across two different entities in Knock: a `Tenant` and an `User`. This is because we want to store the `ms_teams_tenant_id` for the Microsoft Entra tenant on the Knock `Tenant` and the `ms_teams_user_id` for the Microsoft Teams user on the Knock `User`.
 
-When you trigger a workflow using this recipient and tenant, Knock will merge the channel data from the `Tenant` and the `User` to send the message to the correct Microsoft Teams user.
+When you trigger a workflow using this recipient and tenant, Knock will merge the channel data from the `Tenant` and the `User` to send the message to the correct Microsoft Teams user. By storing the `ms_teams_tenant_id` on the Knock `Tenant`, your customers only need to complete the OAuth flow once to connect their Microsoft Teams instances to Knock. From there, you can create UI that allows users to link their Microsoft Teams user ID to their Knock user ID or automate this process during user registration.
 
 ## Adding required scopes to your app's manifest
 
@@ -69,30 +72,138 @@ In your `manifest.json` file, add `personal` to your bot's array of scopes:
 }
 ```
 
-## Setting Tenant and User channel data
+## Implementing TeamsKit
 
-Your application should provide a method for admin users to set up your bot within a Microsoft Teams tenant. When this occurs, your backend should update the channel data associated with the Knock `Tenant`, passing in the tenant ID of the Microsoft Teams tenant.
+To facilitate the OAuth flow and channel selection process, we'll use Knock's [TeamsKit components](/in-app-ui/react/teams-kit). TeamsKit is a set of React components that make it easier to build Microsoft Teams integrations in Knock. You can use TeamsKit to build a self-serve Microsoft Teams integration that allows your users to connect their Microsoft Teams instances to Knock.
 
-If you're using Knock's Node SDK, your code might look like this:
+### Signing a user token
 
-```javascript
-await knockClient.objects.setChannelData(
-  "$tenants",
-  "knocklabs",
-  process.env.KNOCK_MS_TEAMS_CHANNEL_ID,
-  { ms_teams_tenant_id: msTeamsTenantId },
-);
-```
+The only access you'll need to manage when using TeamsKit are grants for your users to interact with their [Tenant](/concepts/tenants) in Knock. This is necessary because the user in this context is an end user in your application who does not have access to Knock as a [member of the account](/manage-your-account/managing-members). Therefore, these grants provide them elevated privileges to operate on specific resources using the API.
 
-Here, `KNOCK_MS_TEAMS_CHANNEL_ID` is the channel ID of your Microsoft Teams integration within Knock, and `"knocklabs"` is the ID of the current `Tenant` logged into the application.
+We've made it easy for you to tell Knock which resources your users should have access to by making it a part of their user token. In this section you'll learn how to generate these grants using the Node SDK and, if you're not using the SDK, how to structure them for other languages.
 
-Once your Microsoft Teams bot is installed in a user's personal scope, your bot's messaging endpoint will receive <a href="https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/subscribe-to-conversation-events#installation-update-event" target="_blank">an installation update event</a>. You can use this event to update the channel data associated with the Knock `User`.
+You'll need to generate a token for your user that includes access to the Knock tenant storing the Microsoft Entra tenant ID as well as any recipient objects storing Microsoft Teams channel data described in this reference on [TeamsKit resource access grants](/in-app-ui/react/teams-kit#resource-access-grants).
 
-If you're using the <a href="https://github.com/microsoft/botbuilder-js" target="_blank">Bot Framework SDK for JavaScript</a> with the Knock Node SDK, your code will look something like this:
+Using the below example, you can quickly generate a token with the [Node SDK](https://github.com/knocklabs/knock-node#signing-jwts).
 
 ```javascript
 import { Knock } from "@knocklabs/node";
+import { Grants } from "@knocklabs/node/dist/src/common/userTokens";
+
+const token = await Knock.signUserToken("user-1", {
+  grants: [
+    Knock.buildUserTokenGrant({ type: "tenant", id: "org_3sh72ds78" }, [
+      Grants.MsTeamsChannelsRead,
+    ]),
+  ],
+});
+```
+
+You'll need to pass this token along with the public API key to the `KnockProvider` that wraps `KnockMsTeamsProvider` and the rest of your components. We recommend storing the generated user token in local storage so that your client application has easy access to it.
+
+### Adding provider components
+
+In order to give your components the data they need, they must be wrapped in the `KnockMsTeamsProvider`. We recommend putting this high in your component tree so that any TeamsKit components that you use will be rendered within it. The Microsoft Teams provider goes inside of the `KnockProvider`. Your hierarchy will look like this:
+
+```javascript title="Wrap your UI components in data providers"
+<KnockProvider
+    apiKey="Public API key"
+    userId="User ID"
+    userToken="Generated user token with resource grants"
+>
+    <KnockMsTeamsProvider
+        knockMsTeamsChannelId="Knock Microsoft Teams channel ID"
+        tenantId="Knock tenant ID"
+    >
+        {child components}
+    </KnockMsTeamsProvider>
+</KnockProvider>
+```
+
+The `KnockMsTeamsProvider` gives your components access to the status of the connection to your Microsoft Teams bot, so that they can all be in sync when a user is connecting, disconnecting, or experiencing a connection error.
+
+### Implementing the OAuth flow with `MsTeamsAuthButton`
+
+<figure>
+  <Image
+    src="/images/integrations/chat/microsoft-teams/msteamsauthbutton.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="The MsTeamsAuthButton component with MsTeamsAuthContainer"
+    width={1310}
+    height={564}
+  />
+  <figcaption>
+    The MsTeamsAuthButton component with MsTeamsAuthContainer
+  </figcaption>
+</figure>
+
+Your users will give your Microsoft Teams bot access to their own Microsoft Entra tenants via the `MsTeamsAuthButton`. This button can be used on its own, or nested in the `MsTeamsAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
+
+```javascript title="Initiate OAuth and display auth state with MsTeamsAuthButton"
+// Without container
+<MsTeamsAuthButton
+    msTeamsBotId="Microsoft Teams bot ID"
+    redirectUrl="The URL of your application to return to once Microsoft Teams authorization is complete"
+/>
+
+// With container
+<MsTeamsAuthContainer
+    actionButton={
+        <MsTeamsAuthButton
+            msTeamsBotId="Microsoft Teams bot ID"
+            redirectUrl="The URL of your application to return to once Microsoft Teams authorization is complete"
+        />
+    }
+/>
+```
+
+The `MsTeamsAuthButton` maps a tenant in your product to a customer's Microsoft Entra tenant. This means in most cases you'll just need a single instance of the `MsTeamsAuthButton`.
+
+Remember to consider which roles in your application can access the `MsTeamsAuthButton` component. Knock does not control access to the component. In most cases, you'll add this connect button/container in the settings area of your product.
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <strong>Note:</strong> The <code>MsTeamsAuthButton</code> component does
+      not automatically install your Microsoft Teams bot into a user's personal
+      scope. Your users will need to{" "}
+      <a
+        href="https://support.microsoft.com/en-us/office/add-an-app-to-microsoft-teams-b2217706-f7ed-4e64-8e96-c413afd02f77"
+        target="_blank"
+      >
+        manually install your bot into their personal scope
+      </a>{" "}
+      before you can send direct messages to them. Alternatively, provide
+      instructions to your app's admins to{" "}
+      <a
+        href="https://learn.microsoft.com/en-us/microsoftteams/install-teams-apps"
+        target="_blank"
+      >
+        preinstall your bot for all Microsoft Teams users in their organization
+      </a>
+      .
+    </>
+  }
+/>
+
+## Setting User channel data
+
+Once your Microsoft Teams bot is installed in a user's personal scope, your bot's messaging endpoint will receive <a href="https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/subscribe-to-conversation-events#installation-update-event" target="_blank">an installation update event</a>. You can use this event to update the channel data associated with the Knock `User`.
+
+In order to determine the user ID of the Knock `User`, you'll likely want to query your application's database based on the attributes of the Microsoft Teams user who installed your bot. The <a href="https://learn.microsoft.com/en-us/graph/api/user-get" target="_blank">get user API of the Microsoft Graph API</a> provides a convenient way to look up the email address of the user who installed your bot.
+
+If you're using the <a href="https://github.com/microsoft/botbuilder-js" target="_blank">Bot Framework SDK for JavaScript</a> and the <a href="https://github.com/microsoftgraph/msgraph-sdk-javascript" target="_blank">Microsoft Graph JavaScript client library</a> with the Knock Node SDK, your code will look something like this:
+
+```javascript
+import { Knock } from "@knocklabs/node";
+import { Client } from "@microsoft/microsoft-graph-client";
+
 const knockClient = new Knock(process.env.KNOCK_API_KEY);
+
+const graphApiClient = Client.initWithMiddleware({
+  // Initialize your Microsoft Graph API client here
+});
 
 export class TeamsBot extends TeamsActivityHandler {
   constructor() {
@@ -102,14 +213,24 @@ export class TeamsBot extends TeamsActivityHandler {
 
       // Bot was installed into a user's personal scope
       if (activity.conversation.conversationType === "personal") {
+        // The unique ID of the Microsoft user in Entra
+        const { aadObjectId } = activity.from;
+
+        // Get the user's email address via the Microsoft Graph API
+        const userDetails = await graphApiClient
+          .api(`/users/${aadObjectId}`)
+          .get();
+        const emailAddress = userDetails.mail;
+
+        const knockUserId = getKnockUserIdFromEmailAddress(emailAddress);
+
+        // This user ID is unique to the Microsoft Teams user AND your bot
         const msTeamsUserId = activity.from.id;
 
         knockClient.users
-          .setChannelData(
-            "user_1n38knd",
-            process.env.KNOCK_MS_TEAMS_CHANNEL_ID,
-            { connections: [{ ms_teams_user_id: msTeamsUserId }] },
-          )
+          .setChannelData(knockUserId, process.env.KNOCK_MS_TEAMS_CHANNEL_ID, {
+            connections: [{ ms_teams_user_id: msTeamsUserId }],
+          })
           .catch(console.error);
       }
 
@@ -119,7 +240,9 @@ export class TeamsBot extends TeamsActivityHandler {
 }
 ```
 
-Here, `"user_1n38knd"` represents the ID of the Knock `User` associated with this Microsoft Teams user, and should be replaced with a Knock `User` ID that you retrieve from your database. How you get this ID depends upon your specific application.
+Here, `KNOCK_MS_TEAMS_CHANNEL_ID` is the channel ID of your Microsoft Teams integration within Knock. `getKnockUserIdFromEmailAddress` is a function that you'll need to implement to look up a Knock `User` ID in your application's database for a given email address. How you get this ID depends upon your specific application.
+
+Please keep in mind that if you intend to use the Microsoft Graph API in this fashion, you'll need to add the `User.Read.All` API permission when [configuring your bot in Microsoft Entra](/integrations/chat/microsoft-teams/overview#configuring-your-bot-in-microsoft-entra).
 
 ## Triggering a workflow
 

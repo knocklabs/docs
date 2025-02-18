@@ -7,7 +7,7 @@ section: SDKs
 
 In this section, you'll find the complete documentation for the components exposed in `@knocklabs/react`, including the props available.
 
-**Note**: You can see a reference for the methods available for the `Knock` class, as well as a `Feed` instance under the [client JS docs](/in-app-ui/javascript/reference).
+**Note**: You can see a reference for the methods available for the `Knock` class, as well as a `Feed` instance under the [client JS docs](/sdks/javascript/reference).
 
 ## Context
 
@@ -144,16 +144,7 @@ The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components.
     type="UseStore<FeedStoreState>"
     description="A zustand store containing the FeedStoreState"
   />
-  <Attribute
-    name="status"
-    type="FilterStatus"
-    description="Current value of the filter status for the Feed"
-  />
-  <Attribute
-    name="setStatus"
-    type="function"
-    description="A function to set the current FilterStatus"
-  />
+
   <Attribute
     name="colorMode"
     type="ColorMode"
@@ -254,6 +245,27 @@ Accepts `KnockSlackProviderProps`
     name="tenant*"
     type="string"
     description="The ID of the tenant that will be storing the Slack access token"
+  />
+</Attributes>
+
+### `KnockMsTeamsProvider`
+
+The Microsoft Teams-specific provider that connects to Microsoft Teams for the given tenant. Must be a child of the `KnockProvider`.
+
+#### Props
+
+Accepts `KnockMsTeamsProviderProps`
+
+<Attributes>
+  <Attribute
+    name="knockMsTeamsChannelId*"
+    type="string"
+    description="The ID of the Microsoft Teams channel in the Knock dashboard that the Microsoft Teams bot is linked to."
+  />
+  <Attribute
+    name="tenantId*"
+    type="string"
+    description="The ID of the Knock tenant that will be storing the Microsoft Entra tenant ID"
   />
 </Attributes>
 
@@ -450,6 +462,11 @@ A provider to inject translations into components.
     name="onMarkAllAsReadClick"
     type="function"
     description="A custom function to be invoked when the `Mark all as read` button is clicked."
+  />
+  <Attribute
+    name="initialFilterStatus"
+    type="FilterStatus"
+    description="The initial filter applied by the NotificationFeed (e.g., `FilterStatus.All` or `FilterStatus.Unread`). If unspecified, defaults to 'All'."
   />
 </Attributes>
 
@@ -658,14 +675,62 @@ import { Modal } from "@knocklabs/react";
 
 <Attributes>
   <Attribute
-    name="slackChannelRecipientObject*"
-    type="ContainerObject"
+    name="slackChannelsRecipientObject*"
+    type="RecipientObject"
     description="Object ID and collection of the Knock object that will store the channel data of the connected Slack channels."
   />
   <Attribute
-    name="showConnectedChannelTags"
-    type="boolean"
-    description="Optionally show tags of the Slack channels that are connected, defaults to false."
+    name="queryOptions"
+    type="SlackChannelQueryOptions"
+    description="An optional map of params to control the query to the Slack API"
+  />
+</Attributes>
+
+## Microsoft Teams components
+
+### `MsTeamsAuthButton`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="msTeamsBotId*"
+    type="string"
+    description="The ID of your Microsoft Teams bot."
+  />
+  <Attribute
+    name="redirectUrl"
+    type="string"
+    description="The URL of your application to return to once Microsoft Teams authorization is complete."
+  />
+  <Attribute
+    name="onAuthenticationComplete"
+    type="(authenticationResult: 'authComplete' | 'authFailed') => void;"
+    description="An optional callback function you can pass to this component that will execute upon completion of the authentication flow. Takes one argument of the authentication result for you to handle in your callback."
+  />
+</Attributes>
+
+### `MsTeamsAuthContainer`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="actionButton*"
+    type="ReactNode"
+    description="Render a button, either a custom one or the MsTeamsAuthButton, to connect to Microsoft Teams"
+  />
+</Attributes>
+
+### `MsTeamsChannelCombobox`
+
+#### Props
+
+<Attributes>
+  <Attribute
+    name="msTeamsChannelsRecipientObject*"
+    type="RecipientObject"
+    description="Object ID and collection of the Knock object that will store the channel data of the connected Microsoft Teams channels."
   />
 </Attributes>
 
@@ -985,7 +1050,7 @@ This hook returns partial data about the Slack channels that are present on the 
 <Attributes>
   <Attribute
     name="slackChannelsRecipientObject"
-    type="ContainerObject"
+    type="RecipientObject"
     description="The object that holds connected Slack channels as channel data"
   />
 </Attributes>
@@ -1010,7 +1075,7 @@ This hook returns partial data about the Slack channels that are present on the 
   />
   <Attribute
     name="updateConnectedChannels"
-    type="(connectedChannels: SlackChannelConnection[]) => void;"
+    type="(connectedChannels: SlackChannelConnection[]) => Promise<void>;"
     description="Function to set the connected channels. Updates all connected channels for the object, does not add to the current ones."
   />
   <Attribute
@@ -1020,11 +1085,166 @@ This hook returns partial data about the Slack channels that are present on the 
   />
 </Attributes>
 
+## Microsoft Teams hooks
+
+Exposed under `KnockMsTeamsProvider` child components.
+
+### `useMsTeamsAuth`
+
+Builds a Microsoft Teams authorization URL generator and a disconnect function.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="msTeamsBotId"
+    type="string"
+    description="The ID of your Microsoft Teams bot"
+  />
+  <Attribute
+    name="redirectUrl"
+    type="string"
+    description="The URL to redirect back to after authorizing; should be your own application's URL"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="buildMsTeamsAuthUrl"
+    type="function"
+    description="Function to build a valid Microsoft Teams authorization URL"
+  />
+  <Attribute
+    name="disconnectFromMsTeams"
+    type="function"
+    description="Function to disconnect from Microsoft Teams which removes the Microsoft Entra tenant ID from the tenant in Knock"
+  />
+</Attributes>
+
+### `useMsTeamsTeams`
+
+This hook will continually fetch partial data about Microsoft Teams teams within a given Microsoft Entra tenant up to the max limit given.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="queryOptions"
+    type="MsTeamsTeamQueryOptions"
+    description="An optional map of params to control the query to the Microsoft Graph API"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="MsTeamsTeam[]"
+    description="List of partial data about each team"
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="Whether the teams are loading"
+  />
+  <Attribute
+    name="refetch"
+    type="function"
+    description="Function to fetch the teams again"
+  />
+</Attributes>
+
+### `useMsTeamsChannels`
+
+This hook will continually fetch partial data about Microsoft Teams channels within a given team.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="teamId"
+    type="string"
+    description="The ID of the team to fetch channels from"
+  />
+  <Attribute
+    name="queryOptions"
+    type="MsTeamsChannelQueryOptions"
+    description="An optional map of params to control the query to the Microsoft Graph API"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="MsTeamsChannel[]"
+    description="List of partial data about each Microsoft Teams channel"
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="Whether the Microsoft Teams channels are loading"
+  />
+  <Attribute
+    name="refetch"
+    type="function"
+    description="Function to fetch the Microsoft Teams channels again"
+  />
+</Attributes>
+
+### `useConnectedMsTeamsChannels`
+
+This hook returns partial data about the Microsoft Teams channels that are present on the given recipient object's channel data. These are the Microsoft Teams channels that would be notified with this object as a recipient of a workflow.
+
+**Props**:
+
+<Attributes>
+  <Attribute
+    name="msTeamsChannelsRecipientObject"
+    type="RecipientObject"
+    description="The object that holds connected Microsoft Teams channels as channel data"
+  />
+</Attributes>
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="MsTeamsChannelConnection[]"
+    description="List of data about the connected Microsoft Teams channels"
+  />
+  <Attribute
+    name="loading"
+    type="boolean"
+    description="Whether the Microsoft Teams channels are loading"
+  />
+  <Attribute
+    name="error"
+    type="string"
+    description="Error message if something went wrong; otherwise null"
+  />
+  <Attribute
+    name="updateConnectedChannels"
+    type="(connectedChannels: MsTeamsChannelConnection[]) => Promise<void>;"
+    description="Function to set the connected Microsoft Teams channels. Updates all connected channels for the object, does not add to the current ones."
+  />
+  <Attribute
+    name="updating"
+    type="boolean"
+    description="Whether the Microsoft Teams channels are currently being set"
+  />
+</Attributes>
+
 ## Types
 
 ### `I18nContent`
 
-Used to set translations available in the child components exposed under `KnockFeedProvider` and `KnockSlackProvider`. Used in the `useTranslations` hook.
+Used to set translations available in the child components exposed under `KnockFeedProvider`, `KnockSlackProvider`, and `KnockMsTeamsProvider`. Used in the `useTranslations` hook.
 
 **Note:** `locale` must be a valid locale code.
 
@@ -1041,6 +1261,19 @@ interface Translations {
   readonly read: string;
   readonly unseen: string;
 
+  readonly msTeamsChannelSetError: string;
+  readonly msTeamsConnect: string;
+  readonly msTeamsConnected: string;
+  readonly msTeamsConnecting: string;
+  readonly msTeamsConnectionErrorExists: string;
+  readonly msTeamsConnectionErrorOccurred: string;
+  readonly msTeamsConnectContainerDescription: string;
+  readonly msTeamsDisconnect: string;
+  readonly msTeamsDisconnecting: string;
+  readonly msTeamsError: string;
+  readonly msTeamsReconnect: string;
+  readonly msTeamsTenantIdNotSet: string;
+
   readonly slackConnectChannel: string;
   readonly slackChannelId: string;
   readonly slackConnecting: string;
@@ -1049,7 +1282,6 @@ interface Translations {
   readonly slackConnected: string;
   readonly slackConnectContainerDescription: string;
   readonly slackSearchbarDisconnected: string;
-  readonly slackSearchbarMultipleChannels: string;
   readonly slackSearchbarNoChannelsConnected: string;
   readonly slackSearchbarNoChannelsFound: string;
   readonly slackSearchbarChannelsError: string;
@@ -1070,7 +1302,7 @@ interface I18nContent {
 }
 ```
 
-### `QueryOptions`
+### `SlackChannelQueryOptions`
 
 ```typescript
 type SlackChannelQueryOptions = {
@@ -1105,10 +1337,67 @@ type SlackChannelConnection = {
 };
 ```
 
-### `ContainerObject`
+### `MsTeamsTeamQueryOptions`
 
 ```typescript
-type ContainerObject = {
+type MsTeamsTeamQueryOptions = {
+  maxCount?: number; // The max number of teams to return; default: 1000
+  limitPerPage?: number; // How many teams will be returned per request; default: 100
+  filter?: string; // OData $filter query param to filter teams; default: null
+  select?: string; // OData $select query param to select fields; default: "id,displayName"
+};
+```
+
+### `MsTeamsChannelQueryOptions`
+
+```typescript
+type MsTeamsChannelQueryOptions = {
+  filter?: string; // OData $filter query param to filter channels; default: "isArchived eq false and membershipType eq 'standard'"
+  select?: string; // OData $select query param to select fields; default: "id,displayName"
+};
+```
+
+### `MsTeamsTeam`
+
+```typescript
+type MsTeamsTeam = {
+  id: string;
+  displayName: string;
+  description?: string;
+};
+```
+
+### `MsTeamsChannel`
+
+```typescript
+type MsTeamsChannel = {
+  id: string;
+  displayName: string;
+  description?: string;
+  membershipType?: string;
+  isArchived?: boolean;
+  createdDateTime?: string;
+};
+```
+
+### `MsTeamsChannelConnection`
+
+```typescript
+type MsTeamsChannelConnection = {
+  ms_teams_tenant_id?: string;
+  ms_teams_team_id?: string;
+  ms_teams_channel_id?: string;
+  ms_teams_user_id?: null;
+  incoming_webhook?: {
+    url: string;
+  };
+};
+```
+
+### `RecipientObject`
+
+```typescript
+type RecipientObject = {
   objectId: string;
   collection: string;
 };

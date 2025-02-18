@@ -89,7 +89,7 @@ Each endpoint in the Knock API is rate limited. Knock uses a tier system to dete
   }
 />
 
-Knock's default behavior scopes rate limits based on the authorizing credential used in your requests. When you use a public or private API key to authorize a request, Knock will scope the rate limit for each endpoint by the [environment](/send-and-manage-data/environments) associated with the key. If you use a signed user token as your authorizing credential, Knock will scope the rate limit by both the key's environment and the signing user. See our guide on [enhanced security mode](/in-app-ui/security-and-authentication#authentication-with-enhanced-security) for more details on working with signed user tokens.
+Knock's default behavior scopes rate limits based on the authorizing credential used in your requests. When you use a public or private API key to authorize a request, Knock will scope the rate limit for each endpoint by the [environment](/concepts/environments) associated with the key. If you use a signed user token as your authorizing credential, Knock will scope the rate limit by both the key's environment and the signing user. See our guide on [enhanced security mode](/in-app-ui/security-and-authentication#authentication-with-enhanced-security) for more details on working with signed user tokens.
 
 If you're concerned about exceeding a Knock rate limit, please [contact us](https://knock.app/contact-sales) and we can help figure out a usage rate that's right for your specific needs.
 
@@ -412,7 +412,7 @@ Knock uses standard [HTTP response codes](https://developer.mozilla.org/en-US/We
 <span className="mb-6">
   {"Here's a list of common "}
   <span className="bg-code-background text-code rounded text-sm font-normal py-0.75 px-1.5 font-mono inline-block border-1 border-gray-200">
-    400
+    4xx
   </span>
   {
     " error codes you may encounter while working with the Knock API. We also provide additional context on how to resolve them."
@@ -553,7 +553,7 @@ This endpoint will return errors in the following cases:
 
 - The workflow does not exist, or has not been committed to the environment
 - The workflow's [status](/concepts/workflows#workflow-status) is set to inactive
-- The trigger data does not match the schema defined for the workflow ([learn more](/send-notifications/triggering-workflows#validating-workflow-trigger-data))
+- The trigger data does not match the schema defined for the workflow ([learn more](/developer-tools/validating-trigger-data))
 
 ### Endpoint
 
@@ -828,7 +828,7 @@ A message is a notification delivered on a particular channel to a user.
   <Attribute
     name="status"
     type="string"
-    description="The delivery status for the message. One of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `seen`, `unseen`."
+    description="The delivery status for the message. One of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `not_sent`, `bounced`."
   />
   <Attribute
     name="engagement_statuses"
@@ -2118,7 +2118,7 @@ A user represents an individual who may need to receive a notification from Knoc
     description={
       <>
         <span>The locale of the user. Used for </span>
-        <a href="/send-and-manage-data/translations">message localization</a>
+        <a href="/concepts/translations">message localization</a>
         <span>.</span>
       </>
     }
@@ -2248,7 +2248,7 @@ Identifying a user will create or update a user in Knock, merging the properties
     description={
       <>
         <span>The locale of the user. Used for </span>
-        <a href="/send-and-manage-data/translations">message localization</a>
+        <a href="/concepts/translations">message localization</a>
         <span>.</span>
       </>
     }
@@ -2636,7 +2636,7 @@ No response.
 
 Merges the two users together, merging the user specified in the `from_user_id` into the `user_id`.
 
-[Read more on how merging works →](/send-and-manage-data/users#merging-users)
+[Read more on how merging works →](/concepts/users#merging-users)
 
 ### Endpoint
 
@@ -2835,7 +2835,7 @@ when sending [Slack notifications](/integrations/slack).
     description={
       <>
         <span>The locale of the object. Used for </span>
-        <a href="/send-and-manage-data/translations">message localization</a>
+        <a href="/concepts/translations">message localization</a>
         <span>.</span>
       </>
     }
@@ -3274,7 +3274,7 @@ Sets an object within a collection, performing an upsert operation. Any existing
     description={
       <>
         <span>The locale of the object. Used for </span>
-        <a href="/send-and-manage-data/translations">message localization</a>
+        <a href="/concepts/translations">message localization</a>
         <span>.</span>
       </>
     }
@@ -4090,7 +4090,7 @@ all preferences are opted in unless a preference explicitly opts the recipient o
 
 The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
 
-[Read more about Preferences](/send-and-manage-data/preferences).
+[Read more about Preferences](/concepts/preferences).
 
 ### Attributes
 
@@ -5108,7 +5108,7 @@ No response.
 
 A schedule allows you to automatically trigger a workflow at a given time for one or more recipients. You can think of a schedule as a managed, recipient-timezone-aware cron job that Knock will run on your behalf.
 
-[Learn more about schedules](/send-and-manage-data/schedules)
+[Learn more about schedules](/concepts/schedules)
 
 ### Attributes
 
@@ -6407,7 +6407,7 @@ A `BulkOperation`
 
 <Section title="Slack" slug="slack">
   <ContentColumn>
-  These endpoints handle communication with the Slack API to streamline authentication and data gathering. They are used by [SlackKit](/integrations/chat/slack-kit/overview) components and hooks.
+  These endpoints handle communication with the Slack API to streamline authentication and data gathering. They are used by [SlackKit](/in-app-ui/react/slack-kit) components and hooks.
   </ContentColumn>
 
   <ExampleColumn>
@@ -6432,7 +6432,7 @@ A `BulkOperation`
 
 ### Rate limit
 
-<RateLimit tier={3} />
+<RateLimit tier={2} />
 
 ### Path parameters
 
@@ -6444,52 +6444,31 @@ A `BulkOperation`
   />
 </Attributes>
 
-### Body parameters
+### Query parameters
 
 <Attributes>
   <Attribute
-    name="access_token_object"
-    type="AccessTokenObject"
-    description="An object containing the `object_id` and `collection` of the Object or Tenant that contains the access token for Slack."
-    isRequired
-  />
-</Attributes>
-
-#### AccessTokenObject
-
-<Attributes>
-  <Attribute
-    name="objectId"
+    name="access_token_object[object_id]"
     type="string"
     description="ID of the Object or Tenant."
   />
   <Attribute
-    name="collection"
+    name="access_token_object[collection]"
     type="string"
     description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
   />
 </Attributes>
 
-### Response
+### Returns
 
-Connection data from the Slack API.
+- `200` Connection data from the Slack API.
+- `403` When no access token is set for the given object.
 
 </ContentColumn>
 <ExampleColumn>
 
 ```json
-// Request (GET to /providers/slack/:channel_id)
-
-{
-  "access_token_object": {
-    "object_id": "jurassic-park",
-    "collection": "$tenants"
-  }
-}
-```
-
-```json
-// Success response
+// Connection data success response
 
 {
   "connection": {
@@ -6504,13 +6483,24 @@ Connection data from the Slack API.
 ```
 
 ```json
-// Error response
+// Connection data error response
 
 {
   "connection": {
     "ok": false,
     "error": "invalid_auth"
   }
+}
+```
+
+```json
+// Missing access token error response
+
+{
+  "code": "authorization",
+  "message": "Access token not set.",
+  "status": 403,
+  "type": "authentication_error"
 }
 ```
 
@@ -6531,7 +6521,7 @@ Get a list of the Slack channels for the access token stored in the given access
 
 ### Rate limit
 
-<RateLimit tier={3} />
+<RateLimit tier={2} />
 
 ### Path parameters
 
@@ -6543,71 +6533,61 @@ Get a list of the Slack channels for the access token stored in the given access
   />
 </Attributes>
 
-### Body parameters
+### Query parameters
 
 <Attributes>
   <Attribute
-    name="access_token_object"
-    type="AccessTokenObject"
-    description="An object containing the `object_id` and `collection` of the Object or Tenant that contains the access token for Slack."
-    isRequired
-  />
-  <Attribute
-    name="query_options"
-    type="object"
-    description="An optional object containing the query options passed to Slack. See Slack documentation for options: https://api.slack.com/methods/conversations.list#arg_cursor"
-  />
-</Attributes>
-
-#### AccessTokenObject
-
-<Attributes>
-  <Attribute
-    name="objectId"
+    name="access_token_object[object_id]"
     type="string"
     description="ID of the Object or Tenant."
   />
   <Attribute
-    name="collection"
+    name="access_token_object[collection]"
     type="string"
     description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
   />
+  <Attribute
+    name="query_options[:option]"
+    type="string"
+    description="An optional query option passed to Slack. One of `cursor`, `exclude_archived`, `limit`, `team_id`, `types`. 
+    See Slack documentation for more information: https://api.slack.com/methods/conversations.list#arg_cursor"
+    typeSlug="https://api.slack.com/methods/conversations.list#arg_cursor"
+  />
 </Attributes>
 
-### Response
+### Returns
 
-List of partial data about the Slack channels requested.
+- `200` List of partial data about the Slack channels requested.
+- `403` When no access token is set for the given object.
 
 </ContentColumn>
 <ExampleColumn>
 
 ```json
-// Request (GET to /providers/slack/:channel_id)
+// Success response
 
 {
-  "access_token_object": {
-    "object_id": "jurassic-park",
-    "collection": "$tenants"
-  },
-  "query_options": {
-    "limit": "200",
-    "exclude_archived": "true"
-  }
+  "slack_channels": [
+    {
+      "name": "general",
+      "id": "CMYK1234",
+      "is_private": "false",
+      "is_im": "false",
+      "context_team_id": ""
+    }
+  ],
+  "next_cursor": ""
 }
 ```
 
 ```json
-// Response
+// Missing access token error response
 
-%{
-  "slack_channels": {
-    "name": "general",
-    "id": "CMYK1234",
-    "is_private": "false",
-    "is_im": "false",
-    "context_team_id": "",
-  },
-  "next_cursor": ""
+{
+  "code": "authorization",
+  "message": "Access token not set.",
+  "status": 403,
+  "type": "authentication_error"
 }
 ```
 
@@ -6622,13 +6602,13 @@ Revoke an access token from Slack and remove it from the access token object.
 
 <Endpoint
   name="channels"
-  method="GET"
+  method="PUT"
   path="/providers/slack/:channel_id/revoke_access"
 />
 
 ### Rate limit
 
-<RateLimit tier={3} />
+<RateLimit tier={2} />
 
 ### Path parameters
 
@@ -6640,50 +6620,404 @@ Revoke an access token from Slack and remove it from the access token object.
   />
 </Attributes>
 
-### Body parameters
+### Query parameters
 
 <Attributes>
   <Attribute
-    name="access_token_object"
-    type="AccessTokenObject"
-    description="An object containing the `object_id` and `collection` of the Object or Tenant that contains the access token for Slack."
-    isRequired
-  />
-</Attributes>
-
-#### AccessTokenObject
-
-<Attributes>
-  <Attribute
-    name="objectId"
+    name="access_token_object[object_id]"
     type="string"
     description="ID of the Object or Tenant."
   />
   <Attribute
-    name="collection"
+    name="access_token_object[collection]"
     type="string"
     description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
   />
 </Attributes>
 
+### Returns
+
+- `200` Success response
+- `403` When no access token is set for the given object.
+
 </ContentColumn>
 <ExampleColumn>
-
-```json
-// Request (GET to /providers/slack/:channel_id)
-
-{
-  "access_token_object": {
-    "object_id": "jurassic-park",
-    "collection": "$tenants"
-  }
-}
-```
 
 ```json
 // Success response
 
 "ok"
+```
+
+```json
+// Missing access token error response
+
+{
+  "code": "authorization",
+  "message": "Access token not set.",
+  "status": 403,
+  "type": "authentication_error"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Microsoft Teams" slug="ms-teams">
+  <ContentColumn>
+  These endpoints handle communication with the Microsoft Graph API to streamline authentication and data gathering. They are used by [TeamsKit](/in-app-ui/react/teams-kit) components and hooks.
+  </ContentColumn>
+
+  <ExampleColumn>
+    <Endpoints>
+      <Endpoint name="ms-teams-auth-check" method="GET" path="/providers/ms-teams/:channel_id/auth_check" withLink/>
+      <Endpoint name="ms-teams-teams" method="GET" path="/providers/ms-teams/:channel_id/teams" withLink/>
+      <Endpoint name="ms-teams-channels" method="GET" path="/providers/ms-teams/:channel_id/channels" withLink/>
+      <Endpoint name="ms-teams-revoke-access" method="PUT" path="/providers/ms-teams/:channel_id/revoke_access" withLink/>
+    </Endpoints>
+  </ExampleColumn>
+</Section>
+
+<Section title="Microsoft Teams auth check" slug="ms-teams-auth-check">
+  <ContentColumn>
+  Get the status of Microsoft Teams authentication.
+  ### Endpoint
+
+<Endpoint
+  name="auth_check"
+  method="GET"
+  path="/providers/ms-teams/:channel_id/auth_check"
+/>
+
+### Rate limit
+
+<RateLimit tier={2} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The Knock Microsoft Teams channel ID"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="ms_teams_tenant_object[object_id]"
+    type="string"
+    description="ID of the Object or Tenant."
+  />
+  <Attribute
+    name="ms_teams_tenant_object[collection]"
+    type="string"
+    description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
+  />
+</Attributes>
+
+### Returns
+
+- `200` Success response
+- `403` When no Microsoft Entra tenant ID is set for the given object.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json
+// Connection data success response
+
+{
+  "connection": {
+    "ok": true
+  }
+}
+```
+
+```json
+// Connection data error response
+
+{
+  "connection": {
+    "ok": false,
+    "reason": "Knock Object containing Microsoft Teams tenant not found."
+  }
+}
+```
+
+```json
+// Missing Microsoft Entra tenant ID error response
+
+{
+  "code": "authorization",
+  "message": "Microsoft Teams tenant ID not set.",
+  "status": 403,
+  "type": "authentication_error"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Microsoft Teams teams" slug="ms-teams-teams">
+<ContentColumn>
+Get a list of teams belonging to the Microsoft Entra tenant.
+
+### Endpoint
+
+<Endpoint
+  name="teams"
+  method="GET"
+  path="/providers/ms-teams/:channel_id/teams"
+/>
+
+### Rate limit
+
+<RateLimit tier={2} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The Knock Microsoft Teams channel ID"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="ms_teams_tenant_object[object_id]"
+    type="string"
+    description="ID of the Object or Tenant."
+  />
+  <Attribute
+    name="ms_teams_tenant_object[collection]"
+    type="string"
+    description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
+  />
+  <Attribute
+    name="query_options[:option]"
+    type="string"
+    description={
+      <>
+        An optional query option passed to the Microsoft Graph API. One of{" "}
+        <code>$filter</code>, <code>$select</code>, <code>$top</code>,{" "}
+        <code>$skiptoken</code>. See the{" "}
+        <a
+          href="https://learn.microsoft.com/en-us/graph/api/teams-list#optional-query-parameters"
+          target="_blank"
+        >
+          Microsoft Graph API documentation
+        </a>{" "}
+        for more information.
+      </>
+    }
+  />
+</Attributes>
+
+### Returns
+
+- `200` List of teams in the Microsoft Entra tenant.
+- `403` When no Microsoft Entra tenant ID is set for the given object.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json
+// Success response
+
+{
+  "ms_teams_teams": [
+    {
+      "id": "team-id-1",
+      "displayName": "Engineering Team"
+    }
+  ],
+  "skip_token": "token-for-next-page"
+}
+```
+
+```json
+// Missing Microsoft Entra tenant ID error response
+
+{
+  "code": "authorization",
+  "message": "Microsoft Teams tenant ID not set.",
+  "status": 403,
+  "type": "authentication_error"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Microsoft Teams channels" slug="ms-teams-channels">
+<ContentColumn>
+Get a list of the Microsoft Teams channels within a team. By default, archived and private channels are excluded from the results.
+
+### Endpoint
+
+<Endpoint
+  name="channels"
+  method="GET"
+  path="/providers/ms-teams/:channel_id/channels"
+/>
+
+### Rate limit
+
+<RateLimit tier={2} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The Knock Microsoft Teams channel ID"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="ms_teams_tenant_object[object_id]"
+    type="string"
+    description="ID of the Object or Tenant."
+  />
+  <Attribute
+    name="ms_teams_tenant_object[collection]"
+    type="string"
+    description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
+  />
+  <Attribute
+    name="team_id"
+    type="string"
+    description="The ID of the Microsoft Teams team to list channels from."
+  />
+  <Attribute
+    name="query_options[:option]"
+    type="string"
+    description={
+      <>
+        An optional query option passed to the Microsoft Graph API. One of{" "}
+        <code>$filter</code>, <code>$select</code>. See the{" "}
+        <a
+          href="https://learn.microsoft.com/en-us/graph/api/channel-list#optional-query-parameters"
+          target="_blank"
+        >
+          Microsoft Graph API documentation
+        </a>{" "}
+        for more information.
+      </>
+    }
+  />
+</Attributes>
+
+### Returns
+
+- `200` List of Microsoft Teams channels in the specified team.
+- `403` When no Microsoft Entra tenant ID is set for the given object.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json
+// Success response
+
+{
+  "ms_teams_channels": [
+    {
+      "id": "channel-id-1",
+      "displayName": "General"
+    }
+  ]
+}
+```
+
+```json
+// Missing Microsoft Entra tenant ID error response
+
+{
+  "code": "authorization",
+  "message": "Microsoft Teams tenant ID not set.",
+  "status": 403,
+  "type": "authentication_error"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Microsoft Teams revoke access" slug="ms-teams-revoke-access">
+<ContentColumn>
+Removes a Microsoft Entra tenant ID from the Microsoft Teams tenant object.
+
+### Endpoint
+
+<Endpoint
+  name="channels"
+  method="PUT"
+  path="/providers/ms-teams/:channel_id/revoke_access"
+/>
+
+### Rate limit
+
+<RateLimit tier={2} />
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string"
+    description="The Knock Microsoft Teams channel ID"
+  />
+</Attributes>
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="ms_teams_tenant_object[object_id]"
+    type="string"
+    description="ID of the Object or Tenant."
+  />
+  <Attribute
+    name="ms_teams_tenant_object[collection]"
+    type="string"
+    description="Collection of the Object or Tenant. If Tenant, should be `$tenants`."
+  />
+</Attributes>
+
+### Returns
+
+- `200` Success response
+- `403` When no Microsoft Entra tenant ID is set for the given object.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json
+// Success response
+
+"ok"
+```
+
+```json
+// Missing Microsoft Entra tenant ID error response
+
+{
+  "code": "authorization",
+  "message": "Microsoft Teams tenant ID not set.",
+  "status": 403,
+  "type": "authentication_error"
+}
 ```
 
 </ExampleColumn>

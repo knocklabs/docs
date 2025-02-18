@@ -189,6 +189,18 @@ const sidebarContent: SidebarSection[] = [
   },
 
   {
+    title: "Microsoft Teams",
+    slug: "/reference",
+    pages: [
+      { slug: "#ms-teams", title: "Overview" },
+      { slug: "#ms-teams-auth-check", title: "Auth check" },
+      { slug: "#ms-teams-teams", title: "Teams" },
+      { slug: "#ms-teams-channels", title: "Channels" },
+      { slug: "#ms-teams-revoke-access", title: "Revoke access" },
+    ],
+  },
+
+  {
     title: "Audiences",
     slug: "/reference",
     isBeta: true,

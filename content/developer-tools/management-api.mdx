@@ -10,7 +10,7 @@ You can use the Knock management API to:
 
 - Create, update, and manage your Knock workflows and the notification templates within those workflows.
 - Create, update and manage your [email layouts](/integrations/email/layouts).
-- Create and manage the [translations](/send-and-manage-data/translations) used by your notification templates.
+- Create and manage the [translations](/concepts/translations) used by your notification templates.
 - Create, update, and manage your [partials](/designing-workflows/partials).
 - Commit and promote changes between your Knock environments.
 
@@ -19,3 +19,34 @@ You can use the Knock management API to:
 ## Interacting with the management API
 
 Currently, we do not ship SDKs that wrap the management API but we do ship a [CLI](/developer-tools/knock-cli) for easily interacting with the resources in your Knock account.
+
+## Use cases
+
+### Previewing templates
+
+Using the management API, you can generate previews of the templates within your workflows. One example use case is providing a way for your users to customize the content of notifications sent through Knock.
+
+To preview a template, you [use the preview template endpoint exposed by the management API](/mapi#workflows-preview-template). This API endpoint accepts a workflow key, and a [step reference](/mapi#workflowstep-definition) (`ref`) for the step that contains the template you want to preview.
+
+Using the endpoint, you pass through details about the `recipient`, `actor`, `tenant`, and any other data variables that are used within the template. The endpoint will return a JSON object with fully rendered template generated using the data you provided. It will be the same as previewing the template in the Knock dashboard.
+
+```bash title="An example request to preview a template"
+curl -X POST https://control.knock.com/v1/workflows/my-workflow/steps/my-step/preview_template \
+  -H "Authorization: Bearer $SERVICE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"recipient": "chris", "data": {"project_name": "My Project"}}'
+```
+
+<br />
+
+```json title="An example response from the preview template endpoint"
+{
+  "result": "success",
+  "content_type": "email",
+  "template": {
+    "html_content": "<html><body><p>Hello world!</p></body></html>",
+    "text_content": "Hello world!",
+    "subject": "Hello, world!"
+  }
+}
+```

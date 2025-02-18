@@ -48,6 +48,7 @@ const schedules = await knock.workflows.createSchedules("park-alert", {
       minutes: 30,
     },
   ],
+  ending_at: "2024-01-02T10:00:00Z", // Schedule will stop after this date
   data: { type: "dinosaurs-loose" },
   tenant: "jpark",
 });
@@ -63,7 +64,8 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 
 const schedules = await knock.workflows.createSchedules("park-alert", {
   recipients: ["jhammond", "esattler", "dnedry"],
-  scheduled_at: "2023-12-22 17:45:00Z",
+  scheduled_at: "2023-12-22T17:45:00Z",
+  ending_at: "2023-12-31T23:59:59Z", // Schedule will not execute after this time
   data: { type: "dinosaurs-loose" },
   tenant: "jpark",
 });
@@ -71,15 +73,16 @@ const schedules = await knock.workflows.createSchedules("park-alert", {
 
 ### Schedule properties
 
-| Variable       | Type                  | Description                                                                                                                                                        |
-| -------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `recipients`   | RecipientIdentifier[] | One or more recipient identifiers, or complete recipients to be upserted.                                                                                          |
-| `workflow`     | string                | The workflow to trigger.                                                                                                                                           |
-| `repeats`      | ScheduleRepeat[]      | A list of one or more repeats (see below). Required if you're creating a recurring schedule.                                                                       |
-| `data`         | map                   | Custom data to pass to every workflow trigger.                                                                                                                     |
-| `tenant`       | string                | A tenant to pass to the workflow trigger.                                                                                                                          |
-| `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted.                                                                                                     |
-| `scheduled_at` | utc_datetime          | A UTC datetime in ISO-8601 format representing the start moment for the recurring schedule, or the exact and only execution moment for the non-recurring schedule. |
+| Variable       | Type                  | Description                                                                                                                                                                 |
+| -------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `recipients`   | RecipientIdentifier[] | One or more recipient identifiers, or complete recipients to be upserted.                                                                                                   |
+| `workflow`     | string                | The workflow to trigger.                                                                                                                                                    |
+| `repeats`      | ScheduleRepeat[]      | A list of one or more repeats (see below). Required if you're creating a recurring schedule.                                                                                |
+| `data`         | map                   | Custom data to pass to every workflow trigger.                                                                                                                              |
+| `tenant`       | string                | A tenant to pass to the workflow trigger.                                                                                                                                   |
+| `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted.                                                                                                              |
+| `scheduled_at` | utc_datetime          | A UTC datetime in ISO-8601 format representing the start moment for the recurring schedule, or the exact and only execution moment for the non-recurring schedule.          |
+| `ending_at`    | utc_datetime          | A UTC datetime in ISO-8601 format that indicates when the schedule should end. Once the current schedule time passes `ending_at`, no further occurrences will be scheduled. |
 
 <Callout
   emoji="🚨"
@@ -192,6 +195,7 @@ const knock = new Knock(process.env.KNOCK_API_KEY);
 
 const schedules = await knock.workflows.updateSchedules({
   schedule_ids: workflowScheduleIds,
+  ending_at: "2024-06-01T00:00:00Z", // Update when the schedule should end
   data: { foo: "bar" },
 });
 ```
@@ -247,7 +251,7 @@ There are 2 ways in which to get data into each of your scheduled workflow runs:
 
 Knock supports a `timezone` property on the recipient that automatically makes a scheduled workflow run timezone aware, meaning you can express recurring schedules like "every monday at 9am in the recipient's timezone." Recipient timezones must be a [valid tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), like `America/New_York`.
 
-[Read more about recipient timezone support](/send-and-manage-data/recipients#recipient-timezones).
+[Read more about recipient timezone support](/concepts/recipients#recipient-timezones).
 
 <Callout
   emoji="💡"
@@ -288,6 +292,14 @@ Knock supports a `timezone` property on the recipient that automatically makes a
   </Accordion>
   <Accordion title="Can I model exclusion rules in my repeat logic?">
     Currently no, but we'll be looking to add this feature in the near future.
+  </Accordion>
+  <Accordion title="How does the ending_at parameter work with schedules?">
+    The `ending_at` parameter allows you to set an expiration time for both
+    recurring and one-off schedules. For recurring schedules, no new occurrences
+    will be scheduled after the `ending_at` time is reached. For one-off
+    schedules, the schedule will not execute if the `scheduled_at` time is after
+    the `ending_at` time. The `ending_at` time must be specified in UTC ISO-8601
+    format, for example: "2024-01-02T10:00:00Z".
   </Accordion>
   <Accordion title="Can I change a recurring schedule to be non-recurring?">
     Yes, you can update the schedule to change from recurring to non-recurring

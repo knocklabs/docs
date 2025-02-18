@@ -5,13 +5,13 @@ tags: ["preference conditions"]
 section: Preferences
 ---
 
-Preference conditions are [Knock condition models](/send-and-manage-data/conditions) that are evaluated when computing the current state of your preferences during workflow execution.
+Preference conditions are [Knock condition models](/concepts/conditions) that are evaluated when computing the current state of your preferences during workflow execution.
 
 ## Overview
 
-Typically, a `PreferenceSet` evaluates to boolean values representing if your recipient has opted in or out of receiving notifications on a given channel, workflow, or category.
+Typically, a `PreferenceSet` evaluates to boolean values representing whether your recipient has opted in or out of receiving notifications on a given channel, workflow, or category.
 
-With preference conditions you can add additional custom expressions to a `PreferenceSet`, where the notification is only sent if all preferences (including the preference condition statement) evaluate to `true`.
+With preference conditions you can add additional custom expressions to a `PreferenceSet`, where the notification is only sent if all preferences (including every condition in the preference `conditions` list) evaluate to `true` at runtime.
 
 <Callout
   emoji="⚠️"
@@ -84,6 +84,30 @@ Here's how to set preference conditions for a user.
 
   </Accordion>
   <Accordion title="How do I debug preference conditions?">
-    Knock will capture conditions evaluation details for all preference conditions resolved while executing your workflows. See the [guide on debugging conditions](/send-and-manage-data/conditions#debugging-conditions) for more info.
+    Knock will capture conditions evaluation details for all preference conditions resolved while executing your workflows. See the [guide on debugging conditions](/concepts/conditions#debugging-conditions) for more info.
+  </Accordion>
+  <Accordion title="Can I use multiple conditions on a single preference?">
+    Yes. You can use multiple conditions within a single preference `conditions` array. Note that all conditions in the array must evaluate to `true` in order for the notification to be sent; this is a logical `AND` operation.
+
+    ```json title="An example of multiple conditions on a single preference"
+    {
+      "conditions": [
+        {
+          "variable": "recipient.muted_dinos",
+          "operator": "not_contains",
+          "argument": "data.dino"
+        },
+        {
+          "variable": "recipient.id",
+          "operator": "not_equal_to",
+          "argument": "actor.id"
+        }
+      ]
+    }
+    ```
+
+  </Accordion>
+  <Accordion title="Can I set OR conditions on a preference?">
+    No, this is not currently supported. Each condition in the `conditions` array must evaluate to `true` for a notification to be sent.
   </Accordion>
 </AccordionGroup>

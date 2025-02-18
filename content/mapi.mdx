@@ -33,7 +33,7 @@ You can use the Knock management API to:
 
 - Create, update, and manage your Knock workflows and the notification templates within those workflows.
 - Create, update and manage your [email layouts](/integrations/email/layouts).
-- Create and manage the [translations](/send-and-manage-data/translations) used by your notification templates.
+- Create and manage the [translations](/concepts/translations) used by your notification templates.
 - Create, update, and manage your [partials](/designing-workflows/partials).
 - Commit and promote changes between your Knock environments.
 
@@ -89,7 +89,7 @@ You can use our [Management API Postman collection](https://www.postman.com/knoc
 
 To define a logical flow of your notifications, you create a workflow consisting of workflow steps. Workflow steps can be [functions](/designing-workflows#function-steps) or [channels](/designing-workflows#channel-steps), and can have conditional logic that determines whether to execute that step when the workflow is triggered.
 
-You can retrieve, update, or create a workflow as well as list all workflows in a given [environment](/send-and-manage-data/environments). Workflows are identified by their unique workflow key.
+You can retrieve, update, or create a workflow as well as list all workflows in a given [environment](/concepts/environments). Workflows are identified by their unique workflow key.
 
 </ContentColumn>
 <ExampleColumn>
@@ -118,6 +118,12 @@ You can retrieve, update, or create a workflow as well as list all workflows in 
     name="workflows-activate"
     method="PUT"
     path="/workflows/:workflow_key/activate"
+    withLink
+  />
+  <Endpoint
+    name="workflows-preview-template"
+    method="POST"
+    path="/workflows/:workflow_key/steps/:step_ref/preview_template"
     withLink
   />
 </Endpoints>
@@ -324,7 +330,8 @@ All workflow steps, regardless of its type, share a common set of core attribute
   />
   <Attribute
     name="conditions"
-    type="object"
+    type="object (optional)"
+    typeSlug="/concepts/conditions#modeling-conditions"
     description="A conditions object that describes one or more conditions to be met in order for the step to be executed."
   />
 </Attributes>
@@ -338,7 +345,15 @@ All workflow steps, regardless of its type, share a common set of core attribute
   "ref": "delay_1",
   "name": "Delay step",
   "description": null,
-  "conditions": null
+  "conditions": {
+    "all": [
+      {
+        "variable": "recipient.role",
+        "operator": "equal_to",
+        "argument": "admin"
+      }
+    ]
+  }
 }
 ```
 
@@ -950,6 +965,7 @@ Contains all properties of the <a href="#workflowstep-definition">`WorkflowStep`
   <Attribute
     name="conditions"
     type="object"
+    typeSlug="/concepts/conditions#modeling-conditions"
     description="A set of conditions to be evaluated for this branch."
   />
 </Attributes>
@@ -965,7 +981,15 @@ Contains all properties of the <a href="#workflowstep-definition">`WorkflowStep`
       "name": "Pro plan",
       "terminates": false,
       "steps": [],
-      "conditions": {}
+      "conditions": {
+        "all": [
+          {
+            "variable": "recipient.role",
+            "operator": "equal_to",
+            "argument": "admin"
+          }
+        ]
+      }
     },
     {
       "name": "Default",
@@ -1523,12 +1547,206 @@ Note: This immediately enables or disables a workflow in a given environment wit
 </ExampleColumn>
 </Section>
 
+<Section title="Preview a workflow template" slug="workflows-preview-template">
+<ContentColumn>
+
+Generates a rendered template for a given channel step in a workflow.
+
+### Endpoint
+
+<Endpoint
+  method="POST"
+  path="/workflows/:workflow_key/steps/:step_ref/preview_template"
+/>
+
+### Path parameters
+
+<Attributes>
+  <Attribute
+    name="workflow_key"
+    type="string"
+    description="The key of the workflow."
+  />
+  <Attribute
+    name="step_ref"
+    type="string"
+    typeslug="/mapi#workflowstep-definition"
+    description="The reference key of the channel step in the workflow to preview."
+  />
+</Attributes>
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="environment"
+    type="string"
+    description='The environment slug. (Defaults to "development.")'
+  />
+  <Attribute
+    name="recipient"
+    type="string"
+    description="The id of the recipient."
+  />
+  <Attribute
+    name="actor"
+    type="string (optional)"
+    description="The id of the actor."
+  />
+  <Attribute
+    name="tenant"
+    type="string (optional)"
+    description="The id of the tenant."
+  />
+  <Attribute
+    name="data (optional)"
+    type="map"
+    description="The data to use for the template."
+  />
+</Attributes>
+
+### Returns
+
+A rendered template or a template error.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Request"
+{
+  "environment": "development",
+  "recipient": "user-id",
+  "data": {
+    "name": "John Doe"
+  }
+}
+```
+
+```json title="Successful response"
+{
+  "channel_type": "email",
+  "result": "success",
+  "template": {
+    // ... see below
+  }
+}
+```
+
+```json title="Error response"
+{
+  "channel_type": "email",
+  "result": "error",
+  "error": {
+    // details about the error
+  }
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Email template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "email",
+      "template": {
+        "html_content": "<p>Hello world!</p>",
+        "text_content": "Hello world!",
+        "subject": "New activity"
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="SMS template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "sms",
+      "template": {
+        "blocks": [
+          {
+            "content": "Hello world!",
+            "label": null,
+            "name": "body",
+            "type": "text"
+          }
+        ]
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="Push template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "sms",
+      "template": {
+        "blocks": [
+          {
+            "content": "Hello world!",
+            "label": null,
+            "name": "body",
+            "type": "text"
+          }
+        ],
+        "title": "New activity"
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="Chat template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "chat",
+      "template": {
+        "blocks": [
+          {
+            "content": "<p>Hello world!</p>",
+            "name": "body",
+            "type": "markdown"
+          }
+        ],
+        "json_content": null,
+        "summary": "A generated summary"
+      }
+    }
+    ```
+  </Accordion>
+  <Accordion title="In-app feed template response">
+    ```json
+    {
+      "result": "success",
+      "content_type": "in_app_feed",
+      "template": {
+        "blocks": [
+          {
+            "content": "Hello world!",
+            "name": "body",
+            "rendered": "<p>Hello world!</p>",
+            "type": "markdown"
+          },
+          {
+            "content": "{{ vars.app_url }}",
+            "name": "action_url",
+            "rendered": "http://example.com",
+            "type": "text"
+          }
+        ]
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+</ExampleColumn>
+</Section>
+
 <Section title="Email layouts" slug="email-layouts-overview">
 <ContentColumn>
 
-[Email layouts](https://docs.knock.app/integrations/email/layouts) wrap email message templates to share consistent design components between the email notifications that your recipients receive.
+[Email layouts](/integrations/email/layouts) wrap email message templates to share consistent design components between the email notifications that your recipients receive.
 
-You can retrieve, update, and create email layouts as well as listing all in a given [environment](/send-and-manage-data/environments). Email layouts are identified by their unique key.
+You can retrieve, update, and create email layouts as well as listing all in a given [environment](/concepts/environments). Email layouts are identified by their unique key.
 
 </ContentColumn>
 <ExampleColumn>
@@ -1860,7 +2078,7 @@ An email layout
 <Section title="Translations" slug="translations-overview">
 <ContentColumn>
 
-[Translations](/send-and-manage-data/translations) support localization in Knock. They hold the translated content for a given locale, which you can reference in your message templates with the `t` Liquid function filter.
+[Translations](/concepts/translations) support localization in Knock. They hold the translated content for a given locale, which you can reference in your message templates with the `t` Liquid function filter.
 
 You can retrieve, update, and create translations as well as list all translations in a given [environment](/concepts/environments). Translations are identified by their locale code + an optional namespace.
 
@@ -2230,7 +2448,7 @@ A translation object
 <Section title="Partials" slug="partials-overview">
 <ContentColumn>
 
-[Partials](/partials) are reusable pieces of content you can use across your channel templates.
+[Partials](/designing-workflows/partials) are reusable pieces of content you can use across your channel templates.
 
 You can retrieve, update, and create partials as well as list all partials in a given [environment](/concepts/environments). Partials are identified by their unique partial key.
 
@@ -2616,7 +2834,7 @@ A partial object
 <Section title="Commits" slug="commits-overview">
 <ContentColumn>
 
-To version the changes you make in your environments, Knock uses a commit model. When you make changes to a workflow, a layout, a translation or an event action mapping, you will need to commit them in your development environment, then promote to subsequent environments before those changes will appear in the respective environments.
+To version the changes you make in your environments, Knock uses a commit model. When you make changes to a workflow, a layout, or a translation, you will need to commit them in your development environment, then promote to subsequent environments before those changes will appear in the respective environments.
 
 You can retrieve all commits in a given environment, or show the details of one single commit based on the target commit id.
 

@@ -6,7 +6,7 @@ section: Integrations > Microsoft Teams
 layout: integrations
 ---
 
-In this guide you'll learn how to use Knock to send notifications to Microsoft Teams.
+In this guide you'll learn how to use Knock to send notifications to Microsoft Teams. Depending on your use case, there are a few different ways to approach this integration. This guide serves as a starting point and will cover the basics of setting up a Microsoft Teams integration with Knock regardless of your use case.
 
 Here's what we'll cover in this guide.
 
@@ -31,6 +31,8 @@ How you configure your Microsoft Teams channel in Knock depends on the method yo
 If you're using an incoming webhook URL, there are no prerequisites.
 
 If you're using a Microsoft Teams bot, make sure your bot has been registered with <a href="https://dev.botframework.com/" target="_blank">Microsoft Bot Framework</a> and is deployed to Azure. Knock does not manage deploying and configuring your bot. To set up Knock to send notifications as your bot, you'll need your bot's ID and password. These are sometimes called the App ID and App Password, and were provided to you when you registered your bot with Microsoft Bot Framework.
+
+Additionally, if you intend to use [TeamsKit](/in-app-ui/react/teams-kit) or Knock's [Microsoft Teams-related React hooks](/in-app-ui/react/teams-kit#using-teamskit-headless), you'll need to [configure your bot in the Microsoft Entra admin center](#configuring-your-bot-in-microsoft-entra).
 
 ### Add Teams to Knock as a channel
 
@@ -57,9 +59,48 @@ Now you're ready to notify Teams. [Trigger the workflow](/send-notifications/tri
 
 Your Teams channel should have received a notification. If you need to debug your integration, you can view the logs page in the Knock dashboard.
 
+## Configuring your bot in Microsoft Entra
+
+To use TeamsKit, you'll need to configure the API permissions and OAuth redirect URL associated with your Microsoft Teams bot in the Microsoft Entra admin center.
+
+<Steps titleSize="h3">
+  <Step title="Find your bot in the Microsoft Entra admin center">
+    Log in to the <a href="https://entra.microsoft.com/" target="_blank">Microsoft Entra admin center</a>. In the sidebar, navigate to **Identity** > **Applications** > **App registrations**, and locate your bot.
+  </Step>
+  <Step title="Add a redirect URL">
+    On your bot's app registration page, click **Authentication**. Under **Platform configurations**, click **Add a platform** and select **Web**.
+
+    Copy and paste the following URL into the **Redirect URI** text field:
+
+    <CopyableText
+      label="https://api.knock.app/providers/ms-teams/authenticate"
+      content="https://api.knock.app/providers/ms-teams/authenticate"
+    />
+
+    This will allow Knock to handle the OAuth redirect on behalf of your bot, and manage connecting a Microsoft Entra tenant to a Knock tenant.
+
+    Leave the **Front-channel logout URL** text field empty. Click **Configure** to save your changes.
+
+  </Step>
+  <Step title="Add API permissions">
+    In the top-level sidebar, navigate to **API permissions** and click **Add a permission**. Select **Microsoft Graph** > **Application permissions**.
+
+    Under **Select permissions**, add the following permissions:
+
+    - `Team.ReadBasic.All`: This permission allows your bot to read a list of all teams within a Microsoft Entra tenant.
+    - `Channel.ReadBasic.All`: This permission allows your bot to read a list of all channels within a team.
+    - `AppCatalog.Read.All`: This permission allows your bot to locate itself in the Microsoft Teams app catalog.
+    - `TeamsAppInstallation.ReadWriteSelfForTeam.All`: This permission allows your bot to install itself into a team.
+    - `TeamsAppInstallation.ReadWriteSelfForUser.All`: This permission allows your bot to install itself into a user's personal scope.
+
+    Click **Add permissions** to save your changes.
+
+  </Step>
+</Steps>
+
 ## How to set channel data for a Microsoft Teams integration in Knock
 
-In Knock, the [`ChannelData`](/managing-recipients/setting-channel-data) concept provides you a way of storing recipient-specific connection data for a given integration. If you reference the [channel data requirements for Microsoft Teams](/managing-recipients/setting-channel-data#chat-app-channels), you'll see that there are two different schemas for an `MsTeamsConnection` stored on a [`User`](/send-and-manage-data/users) or an [`Object`](/send-and-manage-data/objects) in Knock.
+In Knock, the [`ChannelData`](/managing-recipients/setting-channel-data) concept provides you a way of storing recipient-specific connection data for a given integration. If you reference the [channel data requirements for Microsoft Teams](/managing-recipients/setting-channel-data#chat-app-channels), you'll see that there are two different schemas for an `MsTeamsConnection` stored on a [`User`](/concepts/users) or an [`Object`](/concepts/objects) in Knock.
 
 Here's an example of setting channel data on an `Object` in Knock.
 
@@ -85,7 +126,7 @@ Here's an example of setting channel data on an `Object` in Knock.
   }
 />
 
-### Channel data requirements
+### Recipient channel data requirements
 
 Here's an overview of the data requirements for [setting recipient channel data](/send-notifications/setting-channel-data) for either an incoming webhook URL or a Microsoft Teams bot connection. Both will need to live under the `connections` key.
 
@@ -102,7 +143,8 @@ An `MsTeamsConnection` can have one of two schemas, depending on whether you're 
 
     | Property            | Type     | Description                    |
     | ------------------- | -------- | ------------------------------ |
-    | ms_teams_tenant_id  | `string` | A Microsoft Teams tenant ID    |
+    | ms_teams_tenant_id  | `string` | A Microsoft Entra tenant ID    |
+    | ms_teams_team_id    | `string` | A Microsoft Teams team ID      |
     | ms_teams_channel_id | `string` | A Microsoft Teams channel ID   |
     | ms_teams_user_id    | `string` | A Microsoft Teams user ID      |
 
@@ -116,6 +158,22 @@ An `MsTeamsConnection` can have one of two schemas, depending on whether you're 
 
   </Accordion>
 </AccordionGroup>
+
+### Tenant channel data requirements
+
+When you [map a Microsoft Entra tenant to a Knock tenant](/integrations/chat/microsoft-teams/sending-a-message-to-channels#key-concepts), you'll store the ID of the Microsoft Entra tenant as `channel_data` on the Knock tenant. Then, when you apply the Knock `tenant` to your workflow triggers, Knock will [combine that Microsoft Entra tenant ID with the recipient's](/integrations/chat/microsoft-teams/sending-a-message-to-channels#merging-channel-data) `channel_data` to send notifications to the correct Microsoft Teams channel within a Microsoft Entra tenant. For this implementation method, the `ms_teams_tenant_id` on the recipient's `MsTeamsConnection[]` data above is not required.
+
+Here's an overview of the data requirements for setting channel data when storing a Microsoft Entra tenant ID on a Knock tenant.
+
+| Property           | Type     | Description                 |
+| ------------------ | -------- | --------------------------- |
+| ms_teams_tenant_id | `string` | A Microsoft Entra tenant ID |
+
+```json title="Microsoft Teams channel_data on a tenant"
+{
+  "ms_teams_tenant_id": "MS_TEAMS_TENANT_ID"
+}
+```
 
 ### Setting channel data: users vs. objects
 
@@ -131,7 +189,7 @@ Depending on the Microsoft Teams integration you build into your product, you'll
   <Accordion title="Objects" description="For notifying Microsoft Teams channels about non-user resources">
     If your integration involves a customer connecting a _non-user resource_ in their product (such as a project or a page) to a Microsoft Teams channel, you’ll want to store that channel data [on an object](/reference#set-object-channel-data) in Knock, as it’s not specific to any single user.
 
-    For this integration, you'll store a Microsoft Teams `ms_teams_channel_id` in the `MsTeamsConnection` object.
+    For this integration, you'll store a Microsoft Teams `ms_teams_channel_id` in the `MsTeamsConnection` object. The [`MsTeamsChannelCombobox`](/in-app-ui/react/teams-kit#msteamschannelcombobox) component of Knock's TeamsKit can help you with this.
 
   </Accordion>
 </AccordionGroup>

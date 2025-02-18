@@ -70,7 +70,6 @@ const sidebarContent: SidebarSection[] = [
           {
             slug: "/referencing-data",
             title: "Referencing data",
-            isBeta: true,
           },
           {
             slug: "/reference-liquid-helpers",
@@ -97,7 +96,17 @@ const sidebarContent: SidebarSection[] = [
     slug: "/send-notifications",
     desc: "Learn how to send and debug notifications using Knock.",
     pages: [
-      { slug: "/triggering-workflows", title: "Triggering workflows" },
+      {
+        slug: "/triggering-workflows",
+        title: "Triggering workflows",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/api", title: "With the API" },
+          { slug: "/schedules", title: "On a schedule" },
+          { slug: "/events", title: "From an event" },
+          { slug: "/audiences", title: "For an audience", isBeta: true },
+        ],
+      },
       { slug: "/canceling-workflows", title: "Canceling workflows" },
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/message-statuses", title: "Message statuses" },
@@ -155,6 +164,7 @@ const sidebarContent: SidebarSection[] = [
           },
           { slug: "/preferences", title: "Preferences" },
           { slug: "/slack-kit", title: "SlackKit" },
+          { slug: "/teams-kit", title: "TeamsKit" },
           {
             slug: "/filtering-in-app-feeds",
             title: "Filtering feeds",
@@ -233,7 +243,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
-      { slug: "/security", title: "Security", path: "/security" },
+      { slug: "/security", title: "Security" },
       { slug: "/integrating-into-cicd", title: "Integrating into CI/CD" },
       {
         slug: "/outbound-webhooks",
