@@ -28,6 +28,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/layouts", title: "Layouts" },
       { slug: "/settings", title: "Settings and overrides" },
+      { slug: "/attachments", title: "Sending attachments" },
       { slug: "/aws-ses", title: "AWS SES" },
       { slug: "/mailersend", title: "Mailersend" },
       { slug: "/mailgun", title: "Mailgun" },
@@ -39,7 +40,6 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/sendgrid", title: "SendGrid" },
       { slug: "/smtp", title: "SMTP" },
       { slug: "/sparkpost", title: "Sparkpost" },
-      { slug: "/attachments", title: "Sending attachments" },
     ],
   },
 
