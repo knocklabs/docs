@@ -6,138 +6,16 @@ section: Integrations > Email
 layout: integrations
 ---
 
-Knock integrates with [AWS Simple Email Service (SES)](https://aws.amazon.com/ses/) to send email notifications to your users.
+Knock integrates with <a href="https://aws.amazon.com/ses/" target="_blank">AWS Simple Email Service (SES)</a> to send email notifications to your users.
 
 In this guide you'll learn how to get started sending transactional email notifications with SES through Knock. We also cover provider configuration and additional data you can pass through to SES.
 
-<Callout>
-  <h2 id="features">Features</h2>
-  <ul
-    className="text-base"
-    style={{ paddingLeft: "1rem", paddingTop: "0.5rem" }}
-  >
-    <li>Attachments support</li>
-    <li>Knock link and open tracking</li>
-    <li>Per environment configuration</li>
-    <li>Sandbox mode</li>
-  </ul>
-</Callout>
+## Features
 
-## Channel configuration
-
-The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Integrations** > **Channels** in your dashboard, select your AWS SES [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
-
-<AccordionGroup>
-  <Accordion title="Settings">
-    Fields marked with an `*` are required.
-    
-    **Knock settings**
-    <Attributes>
-      <Attribute
-        name="Sandbox mode"
-        type="boolean"
-        nameSlug="/integrations/overview#sandbox-mode"
-        description="Whether to enable sandbox mode for your SES channel"
-      />
-      <Attribute
-        name="Knock open tracking"
-        nameSlug="/send-notifications/tracking#email-open-tracking"
-        type="boolean"
-        description="Whether to enable Knock email-open tracking"
-      />
-      <Attribute
-        name="Knock link tracking"
-        nameSlug="/send-notifications/tracking#link-click-tracking"
-        type="boolean"
-        description="Whether to enable Knock link-click tracking"
-      />
-    </Attributes>
-
-    **Provider settiings for AWS SES**
-    <Attributes>
-      <Attribute
-        name="AWS region"
-        type="string*"
-        description="The region your AWS account is in"
-      />
-      <Attribute
-        name="Authentication scheme"
-        type="Access Key | External ID*"
-        description="The authentication scheme to use for your SES channel"
-      />
-      <Attribute
-        name="Access key ID"
-        type="string*"
-        description="The access key ID from your AWS account. Required when using Access Key authentication."
-      />
-      <Attribute
-        name="Secret access key"
-        type="string*"
-        description="The secret access key from your AWS account. Required when using Access Key authentication."
-      />
-      <Attribute
-        name="AWS IAM Role ARN to assume"
-        type="string*"
-        description="The ARN of the role in your AWS Account that this channel will use. Required when using External ID authentication."
-      />
-      <Attribute
-        name="External ID"
-        type="string*"
-        description="The external ID for your AWS IAM Role. Required when using External ID authentication."
-      />
-    </Attributes>
-
-    **Channel default settings**
-    <Attributes>
-      <Attribute
-        name="From email address"
-        type="string | liquid*"
-        description="The default sender email address (can use Liquid tags)"
-      />
-      <Attribute
-        name="From name"
-        type="string | liquid"
-        description="The default sender name (can use Liquid tags)"
-      />
-    </Attributes>
-
-  </Accordion>
-  <Accordion title="Overrides">
-    When configured, these optional overrides will apply to all emails sent from this channel. Learn more about email channel overrides [here](/integrations/email/settings).
-    
-    <Attributes>
-      <Attribute
-        name="To"
-        type="string | liquid"
-        description="The To email address that email notifications will be sent to (can use Liquid tags). This value will override the designated recipient's email address."
-      />
-      <Attribute
-        name="Cc"
-        type="string | liquid"
-        description="The CC email address that email notifications will be sent to (can use Liquid tags)."
-      />
-      <Attribute
-        name="Bcc"
-        type="string | liquid"
-        description="The BCC email address that email notifications will be sent to (can use Liquid tags)."
-      />
-      <Attribute
-        name="Reply-to"
-        type="string | liquid"
-        description="The reply-to email address that will be included on email notifications (can use Liquid tags)."
-      />
-      <Attribute
-        name="Payload overrides"
-        nameSlug="/integrations/email/settings#provider-json-overrides"
-        type="JSON (string) | liquid"
-        description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
-      />
-    </Attributes>
-  </Accordion>
-  <Accordion title="Conditions">
-    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters this channel step. If the conditions are not met, the step will be skipped.
-  </Accordion>
-</AccordionGroup>
+- Attachments support
+- Knock link and open tracking
+- Per environment configuration
+- Sandbox mode
 
 ## Getting started
 
@@ -221,72 +99,117 @@ Here are a few other things to keep in mind once you have your SES channel confi
 - **SES sandbox mode.** By default, AWS places all new accounts in the SES sandbox. While your account is in the sandbox, you can only send emails to verified email address—keep this in mind if you're testing in development before you've moved your account out of the SES sandbox. For more information on the SES sandbox and how to move your account out of it, see the [SES sandbox documentation](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html).
 - **Deliverability tracking.** We cannot currently track deliverability through SES channels. This means that all notifications sent through SES will show up as "Sent" in the Knock messages log, but not "Delivered."
 
-## Provider configuration
+## Channel configuration
 
-<Attributes>
-  <Attribute
-    name="Access key ID"
-    type="string*"
-    description="The access key ID from your AWS account"
-  />
-  <Attribute
-    name="Secret access key"
-    type="string*"
-    description="The secret access key from your AWS account"
-  />
-  <Attribute
-    name="AWS region"
-    type="string*"
-    description="The region your AWS account is in"
-  />
-  <Attribute
-    name="Open tracking"
-    type="boolean"
-    description="Should the provider track opens on their service?"
-  />
-  <Attribute
-    name="Link tracking"
-    type="boolean"
-    description="Should the provider track link clicks on their service?"
-  />
-  <Attribute
-    name="From email address"
-    type="string | liquid*"
-    description="The sender email address (can use Liquid tags)"
-  />
-  <Attribute
-    name="From name"
-    type="string | liquid"
-    description="The sender name (can use Liquid tags)"
-  />
-</Attributes>
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Integrations** > **Channels** in your dashboard, select your AWS SES [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
 
-## Environment default settings
+<AccordionGroup>
+  <Accordion title="Settings">
+    Fields marked with an `*` are required.
+    
+    **Knock settings**
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your SES channel."
+      />
+      <Attribute
+        name="Knock open tracking"
+        nameSlug="/send-notifications/tracking#email-open-tracking"
+        type="boolean"
+        description="Whether to enable Knock email-open tracking."
+      />
+      <Attribute
+        name="Knock link tracking"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        type="boolean"
+        description="Whether to enable Knock link-click tracking."
+      />
+    </Attributes>
 
-The following fields are optional and if set, will be applied to all email messages sent via this channel within the environment:
+    **Provider settings for AWS SES**
+    <Attributes>
+      <Attribute
+        name="AWS region"
+        type="string*"
+        description="The region your AWS account is in."
+      />
+      <Attribute
+        name="Authentication scheme"
+        type="enum*"
+        description="The authentication scheme (Access Key or External ID) to use for your SES channel."
+      />
+      <Attribute
+        name="Access key ID"
+        type="string*"
+        description="The access key ID from your AWS account. Required when using Access Key authentication."
+      />
+      <Attribute
+        name="Secret access key"
+        type="string*"
+        description="The secret access key from your AWS account. Required when using Access Key authentication."
+      />
+      <Attribute
+        name="AWS IAM Role ARN to assume"
+        type="string*"
+        description="The ARN of the role in your AWS Account that this channel will use. Required when using External ID authentication."
+      />
+      <Attribute
+        name="External ID"
+        type="string*"
+        description="The external ID for your AWS IAM Role. Required when using External ID authentication."
+      />
+      <Attribute
+        name="From email address"
+        type="string | liquid*"
+        description="The default sender email address (can use Liquid tags)."
+      />
+      <Attribute
+        name="From name"
+        type="string | liquid"
+        description="The default sender name (can use Liquid tags)."
+      />
+    </Attributes>
 
-<Attributes>
-  <Attribute
-    name="Reply-to address"
-    type="string | liquid"
-    description="The reply-to email address (can use Liquid tags)"
-  />
-  <Attribute
-    name="CC address"
-    type="string | liquid"
-    description="The cc email address (can use Liquid tags)"
-  />
-  <Attribute
-    name="BCC address"
-    type="string | liquid"
-    description="The bcc email address (can use Liquid tags)"
-  />
-  <Attribute
-    name="JSON overrides"
-    type="string | liquid"
-    description="Provider API's parameter overrides"
-  />
-</Attributes>
+  </Accordion>
+  <Accordion title="Overrides">
+    When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. Learn more about email channel overrides [here](/integrations/email/settings).
+    
+    <Attributes>
+      <Attribute
+        name="To"
+        type="string | liquid"
+        description="The To email address that email notifications will be sent to (can use Liquid tags). This value will override the designated recipient's email address."
+      />
+      <Attribute
+        name="Cc"
+        type="string | liquid"
+        description="The CC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Bcc"
+        type="string | liquid"
+        description="The BCC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Reply-to"
+        type="string | liquid"
+        description="The reply-to email address that will be included on email notifications (can use Liquid tags)."
+      />
+      <Attribute
+        name="Payload overrides"
+        nameSlug="/integrations/email/settings#provider-json-overrides"
+        type="JSON (string) | liquid"
+        description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
+      />
+    </Attributes>
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
 
 ## Additional data sent
 
