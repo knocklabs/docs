@@ -143,20 +143,6 @@ const Autocomplete = () => {
                   __isAskAiItem: true,
                 };
 
-                // Get the Algolia results
-                const algoliaResults = getAlgoliaResults({
-                  searchClient,
-                  queries: [
-                    {
-                      indexName: algoliaIndex,
-                      query,
-                      params: {
-                        hitsPerPage: 8,
-                      },
-                    },
-                  ],
-                });
-
                 // Get the Algolia results and add the "Ask AI" item at the top
                 return getAlgoliaResults({
                   searchClient,
