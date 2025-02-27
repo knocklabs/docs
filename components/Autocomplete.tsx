@@ -18,6 +18,7 @@ import React, {
 } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { createRoot } from "react-dom/client";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -129,7 +130,12 @@ const Autocomplete = () => {
                 return (item as ResultItem).title;
               },
               getItems({ query }) {
-                return getAlgoliaResults({
+                if (!query) {
+                  return [];
+                }
+
+                // Get the regular search results
+                const algoliaResults = getAlgoliaResults({
                   searchClient,
                   queries: [
                     {
@@ -141,6 +147,18 @@ const Autocomplete = () => {
                     },
                   ],
                 });
+
+                // Add the "Ask AI" item at the top of the results
+                return [
+                  {
+                    objectID: "ask-ai",
+                    path: "#",
+                    title: `Can you tell me about ${query}`,
+                    section: "Use AI to answer your question",
+                    __isAskAiItem: true,
+                  },
+                  ...(Array.isArray(algoliaResults) ? algoliaResults : []),
+                ];
               },
               getItemUrl({ item }: { item: BaseItem }): string {
                 return (item as ResultItem).path;
@@ -238,24 +256,66 @@ const Autocomplete = () => {
               <div key={`source-${index}`} className="aa-Source">
                 {items.length > 0 ? (
                   <ul className="aa-List" {...autocomplete.getListProps()}>
-                    {items.map((item) => (
-                      <li
-                        style={{ padding: "16px" }}
-                        key={(item as ResultItem).objectID}
-                        className="aa-Item !text-gray-800 dark:!text-gray-200 hover:text-blue-600 cursor-pointer"
-                        {...(autocomplete.getItemProps({
-                          item,
-                          source,
-                        }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
-                      >
-                        <Link href={`/${item.path}`} passHref>
-                          <Highlight hit={item} attribute="title" />
-                          <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
-                            {(item as ResultItem).section}
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
+                    {items.map((item) => {
+                      // Check if this is our custom "Ask AI" item
+                      if ((item as any).__isAskAiItem) {
+                        return (
+                          <li
+                            style={{ padding: "16px" }}
+                            key={(item as ResultItem).objectID}
+                            className="aa-Item !text-gray-800 dark:!text-gray-200 hover:text-blue-600 cursor-pointer"
+                            {...(autocomplete.getItemProps({
+                              item,
+                              source,
+                            }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
+                          >
+                            <div
+                              onClick={() => {
+                                // Open the inkeep Ask AI with the search term pre-filled
+                                const searchTerm = (inputProps as any).value;
+                                const aiLauncher =
+                                  document.createElement("div");
+                                document.body.appendChild(aiLauncher);
+                                const root = createRoot(aiLauncher);
+                                root.render(
+                                  <AiLauncher searchTerm={searchTerm} />,
+                                );
+                                // Simulate a click to open the inkeep Ask AI
+                                setTimeout(() => {
+                                  const link = aiLauncher.querySelector("a");
+                                  if (link) link.click();
+                                }, 0);
+                              }}
+                            >
+                              <p>{(item as ResultItem).title}</p>
+                              <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
+                                {(item as ResultItem).section}
+                              </span>
+                            </div>
+                          </li>
+                        );
+                      }
+
+                      // Regular search result item
+                      return (
+                        <li
+                          style={{ padding: "16px" }}
+                          key={(item as ResultItem).objectID}
+                          className="aa-Item !text-gray-800 dark:!text-gray-200 hover:text-blue-600 cursor-pointer"
+                          {...(autocomplete.getItemProps({
+                            item,
+                            source,
+                          }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
+                        >
+                          <Link href={`/${item.path}`} passHref>
+                            <Highlight hit={item} attribute="title" />
+                            <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
+                              {(item as ResultItem).section}
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <div className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium ">
