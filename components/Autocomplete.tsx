@@ -160,9 +160,9 @@ const Autocomplete = () => {
                   ],
                   transformResponse({ hits }) {
                     // Add the "Ask AI" item at the top of the results
-                    // Filter out any empty items to prevent empty entries in the dropdown
+                    // Filter out any empty items or items with invalid paths to prevent empty entries in the dropdown
                     const filteredHits = hits[0].filter(
-                      (hit) => hit && hit.objectID,
+                      (hit) => hit && hit.objectID && hit.path && !hit.path.includes("send-window-preferences")
                     );
                     return [askAiItem, ...filteredHits];
                   },
