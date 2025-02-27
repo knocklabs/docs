@@ -39,7 +39,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/resend", title: "Resend" },
       { slug: "/sendgrid", title: "SendGrid" },
       { slug: "/smtp", title: "SMTP" },
-      { slug: "/sparkpost", title: "Sparkpost" },
+      { slug: "/sparkpost", title: "SparkPost" },
     ],
   },
 
