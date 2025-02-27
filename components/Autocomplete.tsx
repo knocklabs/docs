@@ -66,8 +66,8 @@ const AiLauncher = ({ searchTerm }) => {
     baseSettings,
     aiChatSettings,
     modalSettings,
-    searchSettings: { 
-      ...searchSettings, 
+    searchSettings: {
+      ...searchSettings,
       prefilledQuery: searchTerm,
     },
   };
@@ -161,7 +161,9 @@ const Autocomplete = () => {
                   transformResponse({ hits }) {
                     // Add the "Ask AI" item at the top of the results
                     // Filter out any empty items to prevent empty entries in the dropdown
-                    const filteredHits = hits[0].filter(hit => hit && hit.objectID);
+                    const filteredHits = hits[0].filter(
+                      (hit) => hit && hit.objectID,
+                    );
                     return [askAiItem, ...filteredHits];
                   },
                 });
