@@ -113,7 +113,7 @@ const Autocomplete = () => {
   const router = useRouter();
   const searchClient = useMemo(
     () => algoliasearch(algoliaAppId, algoliaSearchApiKey),
-    [],
+    [algoliaAppId, algoliaSearchApiKey],
   );
 
   const autocomplete = useMemo(
@@ -134,7 +134,16 @@ const Autocomplete = () => {
                   return [];
                 }
 
-                // Get the regular search results
+                // Create our custom "Ask AI" item
+                const askAiItem = {
+                  objectID: "ask-ai",
+                  path: "#",
+                  title: `Can you tell me about ${query}`,
+                  section: "Use AI to answer your question",
+                  __isAskAiItem: true,
+                };
+
+                // Get the Algolia results
                 const algoliaResults = getAlgoliaResults({
                   searchClient,
                   queries: [
@@ -148,17 +157,23 @@ const Autocomplete = () => {
                   ],
                 });
 
-                // Add the "Ask AI" item at the top of the results
-                return [
-                  {
-                    objectID: "ask-ai",
-                    path: "#",
-                    title: `Can you tell me about ${query}`,
-                    section: "Use AI to answer your question",
-                    __isAskAiItem: true,
+                // Get the Algolia results and add the "Ask AI" item at the top
+                return getAlgoliaResults({
+                  searchClient,
+                  queries: [
+                    {
+                      indexName: algoliaIndex,
+                      query,
+                      params: {
+                        hitsPerPage: 8,
+                      },
+                    },
+                  ],
+                  transformResponse({ hits }) {
+                    // Add the "Ask AI" item at the top of the results
+                    return [askAiItem, ...hits[0]];
                   },
-                  ...(Array.isArray(algoliaResults) ? algoliaResults : []),
-                ];
+                });
               },
               getItemUrl({ item }: { item: BaseItem }): string {
                 return (item as ResultItem).path;
