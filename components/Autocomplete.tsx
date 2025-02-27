@@ -161,9 +161,37 @@ const Autocomplete = () => {
                   transformResponse({ hits }) {
                     // Add the "Ask AI" item at the top of the results
                     // Filter out any empty items or items with invalid paths to prevent empty entries in the dropdown
-                    const filteredHits = hits[0].filter(
-                      (hit) => hit && hit.objectID && hit.path && !hit.path.includes("send-window-preferences")
-                    );
+
+                    // List of valid content directories based on the content structure
+                    const validContentDirs = [
+                      "concepts",
+                      "designing-workflows",
+                      "developer-tools",
+                      "getting-started",
+                      "guides",
+                      "in-app-ui",
+                      "integrations",
+                      "manage-your-account",
+                      "managing-recipients",
+                      "preferences",
+                      "sdks",
+                      "send-notifications",
+                      "reference",
+                    ];
+
+                    const filteredHits = hits[0].filter((hit) => {
+                      if (!hit || !hit.objectID || !hit.path) return false;
+
+                      // Check if the path starts with any of the valid content directories
+                      // or is exactly one of the valid directories
+                      const path = hit.path as string;
+                      return validContentDirs.some(
+                        (dir) =>
+                          path.startsWith(dir + "/") ||
+                          path === dir ||
+                          path.startsWith(dir + "#"),
+                      );
+                    });
                     return [askAiItem, ...filteredHits];
                   },
                 });
