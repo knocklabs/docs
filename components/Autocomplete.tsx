@@ -181,7 +181,7 @@ const Autocomplete = () => {
           },
         },
       }),
-    [],
+    [algoliaIndex, router, searchClient],
   );
 
   useHotkeys("/, cmd+k", (e) => {
