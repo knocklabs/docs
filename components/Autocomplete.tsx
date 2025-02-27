@@ -179,19 +179,71 @@ const Autocomplete = () => {
                       "reference",
                     ];
 
+                    // Define a list of valid paths based on the content structure
+                    // This is a more comprehensive approach than just checking directory prefixes
+                    const validPaths = [
+                      // Top-level pages
+                      "cli",
+                      "mapi",
+                      "playground",
+                      "reference",
+                    ];
+
+                    // Add all valid content directories to the valid paths list
+                    validContentDirs.forEach((dir) => {
+                      validPaths.push(dir);
+                    });
+
+                    // Add specific paths for preferences section (which had the reported issue)
+                    validPaths.push(
+                      "preferences/overview",
+                      "preferences/object-preferences",
+                      "preferences/preference-conditions",
+                      "preferences/tenant-preferences",
+                    );
+
+                    // Add specific paths for designing-workflows section (which contains the correct send-windows page)
+                    validPaths.push(
+                      "designing-workflows/overview",
+                      "designing-workflows/send-windows",
+                      "designing-workflows/batch-function",
+                      "designing-workflows/branch-function",
+                      "designing-workflows/channel-step",
+                      "designing-workflows/delay-function",
+                      "designing-workflows/fetch-function",
+                      "designing-workflows/partials",
+                      "designing-workflows/step-conditions",
+                      "designing-workflows/throttle-function",
+                      "designing-workflows/trigger-workflow-function",
+                    );
+
                     const filteredHits = hits[0].filter((hit) => {
                       if (!hit || !hit.objectID || !hit.path) return false;
 
-                      // Check if the path starts with any of the valid content directories
-                      // or is exactly one of the valid directories
                       const path = hit.path as string;
+
+                      // First check if the path exactly matches one of our valid paths
+                      if (validPaths.includes(path)) return true;
+
+                      // Then check if the path starts with any of our valid paths followed by a hash (for anchors)
+                      for (const validPath of validPaths) {
+                        if (path.startsWith(validPath + "#")) return true;
+                      }
+
+                      // Finally, check if the path is a subdirectory of a valid content directory
+                      // but also ensure it's not just a prefix match but actually exists in our content structure
                       return validContentDirs.some(
                         (dir) =>
-                          path.startsWith(dir + "/") ||
-                          path === dir ||
-                          path.startsWith(dir + "#"),
+                          path.startsWith(dir + "/") &&
+                          validPaths.some(
+                            (validPath) =>
+                              path === validPath ||
+                              path.startsWith(validPath + "/") ||
+                              path.startsWith(validPath + "#"),
+                          ),
                       );
                     });
+
                     return [askAiItem, ...filteredHits];
                   },
                 });
