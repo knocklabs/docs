@@ -177,8 +177,8 @@ const Autocomplete = () => {
                 const askAiItem = {
                   objectID: "ask-ai",
                   path: "#",
-                  title: `Tell me about ${query}`,
-                  section: "Use AI to answer your question",
+                  title: `Ask AI: ${query}`,
+                  section: "Use AI to answer your question.",
                   __isAskAiItem: true,
                 };
 
@@ -394,7 +394,7 @@ const Autocomplete = () => {
                                   {(item as ResultItem).section}
                                 </span>
                               </div>
-                              <IoSparkles className="text-xl text-yellow-400 dark:text-yellow-400" />
+                              <IoSparkles className="text-xl text-brand-light dark:text-brand" />
                             </div>
                           </li>
                         );
