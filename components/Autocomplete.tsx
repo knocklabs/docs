@@ -18,13 +18,14 @@ import React, {
 } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { createRoot } from "react-dom/client";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
 import "@algolia/autocomplete-theme-classic";
 
 import { IoIosSearch } from "react-icons/io";
-import { InkeepCustomTriggerProps } from "@inkeep/widgets";
+import { InkeepCustomTriggerProps, AIChatFunctions } from "@inkeep/widgets";
 
 const InKeepTrigger = dynamic(
   () => import("@inkeep/widgets").then((mod) => mod.InkeepCustomTrigger),
@@ -56,21 +57,41 @@ const AiLauncher = ({ searchTerm }) => {
   const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
     useInkeepSettings();
   const [isOpen, setIsOpen] = useState(false);
+  const chatFunctionsRef = useRef<AIChatFunctions>(null);
 
   const handleClose = useCallback(() => setIsOpen(false), []);
+
+  // Function to open the chat and auto-submit the query
+  const openChatAndSubmit = useCallback(() => {
+    setIsOpen(true);
+
+    // Use a small timeout to ensure the chat is fully loaded before submitting
+    setTimeout(() => {
+      if (chatFunctionsRef.current) {
+        chatFunctionsRef.current.submitCurrentInputMessage();
+      }
+    }, 500);
+  }, []);
 
   const inkeepCustomTriggerProps: InkeepCustomTriggerProps = {
     isOpen,
     onClose: handleClose,
     baseSettings,
-    aiChatSettings,
+    aiChatSettings: {
+      ...aiChatSettings,
+      chatFunctionsRef,
+    },
     modalSettings,
     searchSettings: { ...searchSettings, prefilledQuery: searchTerm },
   };
 
   return (
     <>
-      <Link href="#" className="text-brand" onClick={() => setIsOpen(true)}>
+      <Link
+        href="javascript:void(0)"
+        className="text-brand"
+        onClick={openChatAndSubmit}
+      >
         Ask AI ✨
       </Link>
       <InKeepTrigger {...inkeepCustomTriggerProps} />
@@ -129,6 +150,20 @@ const Autocomplete = () => {
                 return (item as ResultItem).title;
               },
               getItems({ query }) {
+                if (!query) {
+                  return [];
+                }
+
+                // Create our custom "Ask AI" item
+                const askAiItem = {
+                  objectID: "ask-ai",
+                  path: "javascript:void(0)", // Use javascript:void(0) instead of # to prevent hash in URL
+                  title: `Can you tell me about ${query}`,
+                  section: "Use AI to answer your question",
+                  __isAskAiItem: true,
+                };
+
+                // Get the Algolia results and add the "Ask AI" item at the top
                 return getAlgoliaResults({
                   searchClient,
                   queries: [
@@ -140,6 +175,94 @@ const Autocomplete = () => {
                       },
                     },
                   ],
+                  transformResponse({ hits }) {
+                    // Add the "Ask AI" item at the top of the results
+                    // Filter out any empty items or items with invalid paths to prevent empty entries in the dropdown
+
+                    // List of valid content directories based on the content structure
+                    const validContentDirs = [
+                      "concepts",
+                      "designing-workflows",
+                      "developer-tools",
+                      "getting-started",
+                      "guides",
+                      "in-app-ui",
+                      "integrations",
+                      "manage-your-account",
+                      "managing-recipients",
+                      "preferences",
+                      "sdks",
+                      "send-notifications",
+                      "reference",
+                    ];
+
+                    // Define a list of valid paths based on the content structure
+                    // This is a more comprehensive approach than just checking directory prefixes
+                    const validPaths = [
+                      // Top-level pages
+                      "cli",
+                      "mapi",
+                      "playground",
+                      "reference",
+                    ];
+
+                    // Add all valid content directories to the valid paths list
+                    validContentDirs.forEach((dir) => {
+                      validPaths.push(dir);
+                    });
+
+                    // Add specific paths for preferences section (which had the reported issue)
+                    validPaths.push(
+                      "preferences/overview",
+                      "preferences/object-preferences",
+                      "preferences/preference-conditions",
+                      "preferences/tenant-preferences",
+                    );
+
+                    // Add specific paths for designing-workflows section (which contains the correct send-windows page)
+                    validPaths.push(
+                      "designing-workflows/overview",
+                      "designing-workflows/send-windows",
+                      "designing-workflows/batch-function",
+                      "designing-workflows/branch-function",
+                      "designing-workflows/channel-step",
+                      "designing-workflows/delay-function",
+                      "designing-workflows/fetch-function",
+                      "designing-workflows/partials",
+                      "designing-workflows/step-conditions",
+                      "designing-workflows/throttle-function",
+                      "designing-workflows/trigger-workflow-function",
+                    );
+
+                    const filteredHits = hits[0].filter((hit) => {
+                      if (!hit || !hit.objectID || !hit.path) return false;
+
+                      const path = hit.path as string;
+
+                      // First check if the path exactly matches one of our valid paths
+                      if (validPaths.includes(path)) return true;
+
+                      // Then check if the path starts with any of our valid paths followed by a hash (for anchors)
+                      for (const validPath of validPaths) {
+                        if (path.startsWith(validPath + "#")) return true;
+                      }
+
+                      // Finally, check if the path is a subdirectory of a valid content directory
+                      // but also ensure it's not just a prefix match but actually exists in our content structure
+                      return validContentDirs.some(
+                        (dir) =>
+                          path.startsWith(dir + "/") &&
+                          validPaths.some(
+                            (validPath) =>
+                              path === validPath ||
+                              path.startsWith(validPath + "/") ||
+                              path.startsWith(validPath + "#"),
+                          ),
+                      );
+                    });
+
+                    return [askAiItem, ...filteredHits];
+                  },
                 });
               },
               getItemUrl({ item }: { item: BaseItem }): string {
@@ -153,11 +276,15 @@ const Autocomplete = () => {
         },
         navigator: {
           navigate({ itemUrl }) {
+            // Don't navigate if the URL is javascript:void(0)
+            if (itemUrl === "javascript:void(0)") {
+              return;
+            }
             router.push(`/${itemUrl}`);
           },
         },
       }),
-    [],
+    [algoliaIndex, router, searchClient],
   );
 
   useHotkeys("/, cmd+k", (e) => {
@@ -175,6 +302,34 @@ const Autocomplete = () => {
 
   // Fix hydration error by hiding autocomplete during ssr
   const [mounted, setMounted] = useState(false);
+  const autocompleteRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close the autocomplete dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        autocompleteRef.current &&
+        !autocompleteRef.current.contains(event.target as Node) &&
+        autocompleteState?.isOpen
+      ) {
+        // Reset the input value to close the dropdown
+        if (inputRef.current) {
+          const inputElement = inputRef.current as HTMLInputElement;
+          inputElement.value = "";
+          autocomplete.setQuery("");
+          setAutocompleteState((prev) =>
+            prev ? { ...prev, isOpen: false } : null,
+          );
+        }
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [autocomplete, autocompleteState]);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -205,6 +360,7 @@ const Autocomplete = () => {
       {...autocomplete.getRootProps({})}
       id="docs-search"
       className="aa-Autocomplete hidden md:block"
+      ref={autocompleteRef}
     >
       <form
         className="aa-Form shadow-none !border-[#E4E8EE] dark:!border-gray-700 !bg-white dark:!bg-gray-800"
@@ -238,24 +394,69 @@ const Autocomplete = () => {
               <div key={`source-${index}`} className="aa-Source">
                 {items.length > 0 ? (
                   <ul className="aa-List" {...autocomplete.getListProps()}>
-                    {items.map((item) => (
-                      <li
-                        style={{ padding: "16px" }}
-                        key={(item as ResultItem).objectID}
-                        className="aa-Item !text-gray-800 dark:!text-gray-200 hover:text-blue-600 cursor-pointer"
-                        {...(autocomplete.getItemProps({
-                          item,
-                          source,
-                        }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
-                      >
-                        <Link href={`/${item.path}`} passHref>
-                          <Highlight hit={item} attribute="title" />
-                          <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
-                            {(item as ResultItem).section}
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
+                    {items.map((item) => {
+                      // Check if this is our custom "Ask AI" item
+                      if ((item as any).__isAskAiItem) {
+                        return (
+                          <li
+                            style={{ padding: "16px" }}
+                            key={(item as ResultItem).objectID}
+                            className="aa-Item !text-gray-800 dark:!text-gray-200 hover:text-blue-600 cursor-pointer"
+                            {...(autocomplete.getItemProps({
+                              item,
+                              source,
+                            }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
+                          >
+                            <div
+                              onClick={() => {
+                                // Open the inkeep Ask AI with the search term pre-filled and auto-submit
+                                const searchTerm = (inputProps as any).value;
+                                const aiLauncher =
+                                  document.createElement("div");
+                                document.body.appendChild(aiLauncher);
+                                const root = createRoot(aiLauncher);
+
+                                // Render the AiLauncher component with the search term
+                                root.render(
+                                  <AiLauncher searchTerm={searchTerm} />,
+                                );
+
+                                // Simulate a click to open the inkeep Ask AI and auto-submit
+                                setTimeout(() => {
+                                  const link = aiLauncher.querySelector("a");
+                                  if (link) link.click();
+                                }, 0);
+                              }}
+                            >
+                              <p>{(item as ResultItem).title}</p>
+                              <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
+                                {(item as ResultItem).section}
+                              </span>
+                            </div>
+                          </li>
+                        );
+                      }
+
+                      // Regular search result item
+                      return (
+                        <li
+                          style={{ padding: "16px" }}
+                          key={(item as ResultItem).objectID}
+                          className="aa-Item !text-gray-800 dark:!text-gray-200 hover:text-blue-600 cursor-pointer"
+                          {...(autocomplete.getItemProps({
+                            item,
+                            source,
+                          }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
+                        >
+                          <Link href={`/${item.path}`} passHref>
+                            <Highlight hit={item} attribute="title" />
+                            <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
+                              {(item as ResultItem).section}
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <div className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium ">
