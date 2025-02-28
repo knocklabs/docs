@@ -181,8 +181,8 @@ const Autocomplete = () => {
                 const askAiItem = {
                   objectID: "ask-ai",
                   path: "#",
-                  title: `Ask AI: ${query}`,
-                  section: "Use AI to answer your question.",
+                  title: `Can you tell me about ${query}`,
+                  section: "Use AI to answer your question",
                   __isAskAiItem: true,
                 };
 
