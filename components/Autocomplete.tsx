@@ -279,6 +279,32 @@ const Autocomplete = () => {
     };
   }, [autocomplete, autocompleteState?.isOpen]);
 
+  // Add this near your other hooks
+  useEffect(() => {
+    const handleRouteChangeStart = () => {
+      // Store the current scroll position
+      const scrollPos = window.scrollY;
+      sessionStorage.setItem("scrollPosition", scrollPos.toString());
+    };
+
+    const handleRouteChangeComplete = () => {
+      // Restore the scroll position
+      const savedPosition = sessionStorage.getItem("scrollPosition");
+      if (savedPosition) {
+        window.scrollTo(0, parseInt(savedPosition));
+        sessionStorage.removeItem("scrollPosition");
+      }
+    };
+
+    router.events.on("routeChangeStart", handleRouteChangeStart);
+    router.events.on("routeChangeComplete", handleRouteChangeComplete);
+
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChangeStart);
+      router.events.off("routeChangeComplete", handleRouteChangeComplete);
+    };
+  }, [router]);
+
   if (!mounted) {
     return null;
   }

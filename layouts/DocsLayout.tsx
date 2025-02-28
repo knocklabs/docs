@@ -16,13 +16,33 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
 
   useEffect(() => {
     const content = document.querySelector(".main-content");
+    const savedPosition = sessionStorage.getItem("scrollPosition");
 
-    // Right now we need this hack to ensure that we scroll the main content to
-    // the top of the view when navigating.
-    if (content) {
-      content.scrollTop = 0;
-    }
-  }, [paths]);
+    // Store scroll position before navigation
+    const handleRouteChangeStart = () => {
+      if (content) {
+        sessionStorage.setItem("scrollPosition", content.scrollTop.toString());
+      }
+    };
+
+    // Restore scroll position after navigation
+    const handleRouteChangeComplete = () => {
+      if (content && savedPosition) {
+        content.scrollTop = parseInt(savedPosition, 10);
+        sessionStorage.removeItem("scrollPosition");
+      } else if (content) {
+        content.scrollTop = 0; // Keep existing behavior for new routes
+      }
+    };
+
+    router.events.on("routeChangeStart", handleRouteChangeStart);
+    router.events.on("routeChangeComplete", handleRouteChangeComplete);
+
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChangeStart);
+      router.events.off("routeChangeComplete", handleRouteChangeComplete);
+    };
+  }, [router, paths]);
 
   const { breadcrumbs, nextPage, prevPage } = useMemo(
     () => getSidebarInfo(paths, sidebarContent),
