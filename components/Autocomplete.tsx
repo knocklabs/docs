@@ -25,7 +25,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import "@algolia/autocomplete-theme-classic";
 
 import { IoIosSearch } from "react-icons/io";
-import { InkeepCustomTriggerProps } from "@inkeep/widgets";
+import { InkeepCustomTriggerProps, AIChatFunctions } from "@inkeep/widgets";
 
 const InKeepTrigger = dynamic(
   () => import("@inkeep/widgets").then((mod) => mod.InkeepCustomTrigger),
@@ -57,6 +57,7 @@ const AiLauncher = ({ searchTerm }) => {
   const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
     useInkeepSettings();
   const [isOpen, setIsOpen] = useState(false);
+  const chatFunctionsRef = useRef<AIChatFunctions | null>(null);
 
   const handleClose = useCallback(() => setIsOpen(false), []);
 
@@ -66,10 +67,7 @@ const AiLauncher = ({ searchTerm }) => {
     baseSettings,
     aiChatSettings,
     modalSettings,
-    searchSettings: {
-      ...searchSettings,
-      prefilledQuery: searchTerm,
-    },
+    searchSettings: { ...searchSettings, prefilledQuery: searchTerm },
   };
 
   return (
@@ -119,6 +117,18 @@ const Autocomplete = () => {
     [algoliaAppId, algoliaSearchApiKey],
   );
 
+  const openAiLauncher = useCallback((searchTerm: string) => {
+    const aiLauncher = document.createElement("div");
+    document.body.appendChild(aiLauncher);
+    const root = createRoot(aiLauncher);
+    root.render(<AiLauncher searchTerm={searchTerm} />);
+    // Simulate a click to open the inkeep Ask AI
+    setTimeout(() => {
+      const link = aiLauncher.querySelector("a");
+      if (link) link.click();
+    }, 0);
+  }, []);
+
   const autocomplete = useMemo(
     () =>
       createAutocomplete({
@@ -129,8 +139,14 @@ const Autocomplete = () => {
           return [
             {
               sourceId: "docSearchResults",
-              getItemInputValue({ item }: { item: BaseItem }): string {
-                return (item as ResultItem).title;
+              getItemInputValue({
+                item,
+                state,
+              }: {
+                item: BaseItem;
+                state: AutocompleteState<BaseItem>;
+              }): string {
+                return state.query;
               },
               getItems({ query }) {
                 if (!query) {
@@ -160,87 +176,17 @@ const Autocomplete = () => {
                   ],
                   transformResponse({ hits }) {
                     // Add the "Ask AI" item at the top of the results
-                    // Filter out any empty items or items with invalid paths to prevent empty entries in the dropdown
-
-                    // List of valid content directories based on the content structure
-                    const validContentDirs = [
-                      "concepts",
-                      "designing-workflows",
-                      "developer-tools",
-                      "getting-started",
-                      "guides",
-                      "in-app-ui",
-                      "integrations",
-                      "manage-your-account",
-                      "managing-recipients",
-                      "preferences",
-                      "sdks",
-                      "send-notifications",
-                      "reference",
-                    ];
-
-                    // Define a list of valid paths based on the content structure
-                    // This is a more comprehensive approach than just checking directory prefixes
-                    const validPaths = [
-                      // Top-level pages
-                      "cli",
-                      "mapi",
-                      "playground",
-                      "reference",
-                    ];
-
-                    // Add all valid content directories to the valid paths list
-                    validContentDirs.forEach((dir) => {
-                      validPaths.push(dir);
-                    });
-
-                    // Add specific paths for preferences section (which had the reported issue)
-                    validPaths.push(
-                      "preferences/overview",
-                      "preferences/object-preferences",
-                      "preferences/preference-conditions",
-                      "preferences/tenant-preferences",
-                    );
-
-                    // Add specific paths for designing-workflows section (which contains the correct send-windows page)
-                    validPaths.push(
-                      "designing-workflows/overview",
-                      "designing-workflows/send-windows",
-                      "designing-workflows/batch-function",
-                      "designing-workflows/branch-function",
-                      "designing-workflows/channel-step",
-                      "designing-workflows/delay-function",
-                      "designing-workflows/fetch-function",
-                      "designing-workflows/partials",
-                      "designing-workflows/step-conditions",
-                      "designing-workflows/throttle-function",
-                      "designing-workflows/trigger-workflow-function",
-                    );
-
+                    // Filter out any items that don't have required properties or have invalid paths
                     const filteredHits = hits[0].filter((hit) => {
-                      if (!hit || !hit.objectID || !hit.path) return false;
+                      if (!hit?.objectID || !hit?.path) return false;
 
+                      // Ensure the path is not empty and doesn't contain any malformed segments
                       const path = hit.path as string;
-
-                      // First check if the path exactly matches one of our valid paths
-                      if (validPaths.includes(path)) return true;
-
-                      // Then check if the path starts with any of our valid paths followed by a hash (for anchors)
-                      for (const validPath of validPaths) {
-                        if (path.startsWith(validPath + "#")) return true;
-                      }
-
-                      // Finally, check if the path is a subdirectory of a valid content directory
-                      // but also ensure it's not just a prefix match but actually exists in our content structure
-                      return validContentDirs.some(
-                        (dir) =>
-                          path.startsWith(dir + "/") &&
-                          validPaths.some(
-                            (validPath) =>
-                              path === validPath ||
-                              path.startsWith(validPath + "/") ||
-                              path.startsWith(validPath + "#"),
-                          ),
+                      return (
+                        path.length > 0 &&
+                        !path.includes("//") &&
+                        !path.startsWith("/") &&
+                        !path.endsWith("/")
                       );
                     });
 
@@ -258,12 +204,18 @@ const Autocomplete = () => {
           return !!state.query;
         },
         navigator: {
-          navigate({ itemUrl }) {
+          navigate({ itemUrl, item, state }) {
+            // Check if this is our Ask AI item
+            if ((item as any).__isAskAiItem) {
+              openAiLauncher(state.query);
+              return;
+            }
+            // Handle regular navigation
             router.push(`/${itemUrl}`);
           },
         },
       }),
-    [algoliaIndex, router, searchClient],
+    [algoliaIndex, router, searchClient, openAiLauncher],
   );
 
   useHotkeys("/, cmd+k", (e) => {
@@ -359,20 +311,8 @@ const Autocomplete = () => {
                           >
                             <div
                               onClick={() => {
-                                // Open the inkeep Ask AI with the search term pre-filled
                                 const searchTerm = (inputProps as any).value;
-                                const aiLauncher =
-                                  document.createElement("div");
-                                document.body.appendChild(aiLauncher);
-                                const root = createRoot(aiLauncher);
-                                root.render(
-                                  <AiLauncher searchTerm={searchTerm} />,
-                                );
-                                // Simulate a click to open the inkeep Ask AI
-                                setTimeout(() => {
-                                  const link = aiLauncher.querySelector("a");
-                                  if (link) link.click();
-                                }, 0);
+                                openAiLauncher(searchTerm);
                               }}
                             >
                               <p>{(item as ResultItem).title}</p>
