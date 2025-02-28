@@ -81,9 +81,13 @@ const AiLauncher = ({ searchTerm }) => {
     aiChatSettings: {
       ...aiChatSettings,
       chatFunctionsRef,
+      placeholder: "Ask a question...",
     },
     modalSettings,
-    searchSettings: { ...searchSettings, prefilledQuery: searchTerm },
+    searchSettings: {
+      ...searchSettings,
+      prefilledQuery: searchTerm,
+    },
   };
 
   return (
