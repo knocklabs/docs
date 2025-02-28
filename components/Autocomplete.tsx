@@ -25,6 +25,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import "@algolia/autocomplete-theme-classic";
 
 import { IoIosSearch } from "react-icons/io";
+import { IoSparkles } from "react-icons/io5";
 import { InkeepCustomTriggerProps, AIChatFunctions } from "@inkeep/widgets";
 
 const InKeepTrigger = dynamic(
@@ -61,18 +62,37 @@ const AiLauncher = ({ searchTerm }) => {
 
   const handleClose = useCallback(() => setIsOpen(false), []);
 
+  // Function to open the chat and auto-submit the query
+  const openChatAndSubmit = useCallback(() => {
+    setIsOpen(true);
+
+    // Use a small timeout to ensure the chat is fully loaded before submitting
+    setTimeout(() => {
+      if (chatFunctionsRef.current) {
+        chatFunctionsRef.current.submitCurrentInputMessage();
+      }
+    }, 500);
+  }, []);
+
   const inkeepCustomTriggerProps: InkeepCustomTriggerProps = {
     isOpen,
     onClose: handleClose,
     baseSettings,
-    aiChatSettings,
+    aiChatSettings: {
+      ...aiChatSettings,
+      chatFunctionsRef,
+    },
     modalSettings,
     searchSettings: { ...searchSettings, prefilledQuery: searchTerm },
   };
 
   return (
     <>
-      <Link href="#" className="text-brand" onClick={() => setIsOpen(true)}>
+      <Link
+        href="javascript:void(0)"
+        className="text-brand"
+        onClick={openChatAndSubmit}
+      >
         Ask AI ✨
       </Link>
       <InKeepTrigger {...inkeepCustomTriggerProps} />
@@ -157,7 +177,7 @@ const Autocomplete = () => {
                 const askAiItem = {
                   objectID: "ask-ai",
                   path: "#",
-                  title: `Can you tell me about ${query}`,
+                  title: `Tell me about ${query}`,
                   section: "Use AI to answer your question",
                   __isAskAiItem: true,
                 };
@@ -237,6 +257,28 @@ const Autocomplete = () => {
     setMounted(true);
   }, []);
 
+  // Add a ref for the root element
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        rootRef.current &&
+        !rootRef.current.contains(event.target as Node) &&
+        autocompleteState?.isOpen
+      ) {
+        // Reset the autocomplete state
+        autocomplete.setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [autocomplete, autocompleteState?.isOpen]);
+
   if (!mounted) {
     return null;
   }
@@ -261,6 +303,7 @@ const Autocomplete = () => {
   return (
     <div
       {...autocomplete.getRootProps({})}
+      ref={rootRef}
       id="docs-search"
       className="aa-Autocomplete hidden md:block"
     >
@@ -288,7 +331,10 @@ const Autocomplete = () => {
       </form>
 
       {autocompleteState?.isOpen && (
-        <div className="!w-[500px] !bg-white dark:!bg-gray-800 !p-2 !rounded z-50 aa-Panel">
+        <div
+          className="!w-[500px] !bg-white dark:!bg-gray-800 !p-2 !rounded z-50 aa-Panel"
+          style={{ overscrollBehavior: "none" }}
+        >
           {autocompleteState?.collections.map((collection, index) => {
             const { source, items } = collection;
 
@@ -314,11 +360,15 @@ const Autocomplete = () => {
                                 const searchTerm = (inputProps as any).value;
                                 openAiLauncher(searchTerm);
                               }}
+                              className="flex justify-between items-center"
                             >
-                              <p>{(item as ResultItem).title}</p>
-                              <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
-                                {(item as ResultItem).section}
-                              </span>
+                              <div>
+                                <p>{(item as ResultItem).title}</p>
+                                <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
+                                  {(item as ResultItem).section}
+                                </span>
+                              </div>
+                              <IoSparkles className="text-xl text-yellow-400 dark:text-yellow-400" />
                             </div>
                           </li>
                         );
