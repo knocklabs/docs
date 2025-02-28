@@ -23,7 +23,7 @@ const MinimalHeader = ({ pageType, toggleSidebar, sidebarShown }: Props) => {
   useEffect(() => setMounted(true), []);
 
   return (
-    <header className="border-b dark:border-b-gray-800 px-5 h-16 dark:bg-transparent bg-gray-50 flex items-center fixed top-0 left-0 right-0 z-50">
+    <header className="border-b dark:border-b-gray-800 px-5 h-16 dark:bg-transparent bg-gray-50 flex items-center">
       <div className="mr-4">
         <Link href="/" className="flex justify-center items-center">
           <svg

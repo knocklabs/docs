@@ -35,7 +35,7 @@ export const Page: React.FC<Props> = ({
           sidebarShown: toggleSidebar,
         })}
 
-        <div className="flex overflow-y-hidden h-full pt-16">
+        <div className="flex overflow-y-hidden h-full">
           {sidebar && React.cloneElement(sidebar, { isVisible: toggleSidebar })}
 
           <main className="w-full h-full overflow-x-hidden overflow-y-auto main-content">

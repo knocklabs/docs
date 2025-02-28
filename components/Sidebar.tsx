@@ -25,8 +25,7 @@ const Sidebar: React.FC<Props> = ({ content, children, isVisible = false }) => {
   return (
     <section
       className={classNames(
-        "w-full h-[calc(100vh-64px)] md:h-auto md:w-72 border-r dark:border-r-gray-800 bg-white dark:bg-gray-900 z-10 fixed md:sticky top-16",
-        !isVisible && "hidden md:block",
+        "w-full h-full md:h-auto md:w-72 border-r dark:border-r-gray-800 bg-white dark:bg-gray-900 z-10 absolute md:relative",
       )}
     >
       <nav className="overflow-y-auto h-full pl-5 pr-4 py-5">
