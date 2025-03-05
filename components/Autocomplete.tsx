@@ -54,56 +54,6 @@ const highlightingStyles = {
   background: "transparent",
 };
 
-const AiLauncher = ({ searchTerm }) => {
-  const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
-    useInkeepSettings();
-  const [isOpen, setIsOpen] = useState(false);
-  const chatFunctionsRef = useRef<AIChatFunctions | null>(null);
-
-  const handleClose = useCallback(() => setIsOpen(false), []);
-
-  // Function to open the chat and auto-submit the query
-  const openChatAndSubmit = useCallback(() => {
-    setIsOpen(true);
-
-    // Use a small timeout to ensure the chat is fully loaded before submitting
-    setTimeout(() => {
-      if (chatFunctionsRef.current) {
-        chatFunctionsRef.current.submitCurrentInputMessage();
-      }
-    }, 500);
-  }, []);
-
-  const inkeepCustomTriggerProps: InkeepCustomTriggerProps = {
-    isOpen,
-    onClose: handleClose,
-    baseSettings,
-    aiChatSettings: {
-      ...aiChatSettings,
-      chatFunctionsRef,
-      placeholder: "Ask a question...",
-    },
-    modalSettings,
-    searchSettings: {
-      ...searchSettings,
-      prefilledQuery: searchTerm,
-    },
-  };
-
-  return (
-    <>
-      <Link
-        href="javascript:void(0)"
-        className="text-brand"
-        onClick={openChatAndSubmit}
-      >
-        Ask AI ✨
-      </Link>
-      <InKeepTrigger {...inkeepCustomTriggerProps} />
-    </>
-  );
-};
-
 const Highlight = ({ hit, attribute }) => (
   <p>
     {parseAlgoliaHitHighlight({ hit, attribute }).map((x, index) => {
@@ -134,6 +84,14 @@ const Autocomplete = () => {
   const [autocompleteState, setAutocompleteState] =
     useState<AutocompleteState<BaseItem> | null>(null);
 
+  // Add state for the AI chat
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+  const [aiSearchTerm, setAiSearchTerm] = useState("");
+  const chatFunctionsRef = useRef<AIChatFunctions | null>(null);
+
+  const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
+    useInkeepSettings();
+
   const inputRef = useRef(null);
   const router = useRouter();
   const searchClient = useMemo(
@@ -141,17 +99,31 @@ const Autocomplete = () => {
     [algoliaAppId, algoliaSearchApiKey],
   );
 
-  const openAiLauncher = useCallback((searchTerm: string) => {
-    const aiLauncher = document.createElement("div");
-    document.body.appendChild(aiLauncher);
-    const root = createRoot(aiLauncher);
-    root.render(<AiLauncher searchTerm={searchTerm} />);
-    // Simulate a click to open the inkeep Ask AI
-    setTimeout(() => {
-      const link = aiLauncher.querySelector("a");
-      if (link) link.click();
-    }, 0);
+  // Function to handle opening the AI chat
+  const handleOpenAiChat = useCallback((searchTerm: string) => {
+    setAiSearchTerm(searchTerm);
+    setIsAiChatOpen(true);
   }, []);
+
+  // Function to handle closing the AI chat
+  const handleCloseAiChat = useCallback(() => {
+    setIsAiChatOpen(false);
+  }, []);
+
+  // Add this effect to update the chat input when aiSearchTerm changes
+  useEffect(() => {
+    if (isAiChatOpen && chatFunctionsRef.current && aiSearchTerm) {
+      // Update the input message with the search term
+      chatFunctionsRef.current.updateInputMessage(aiSearchTerm);
+
+      // Use a small timeout to ensure the chat is fully loaded before submitting
+      setTimeout(() => {
+        if (chatFunctionsRef.current) {
+          chatFunctionsRef.current.submitCurrentInputMessage();
+        }
+      }, 500);
+    }
+  }, [isAiChatOpen, aiSearchTerm]);
 
   const autocomplete = useMemo(
     () =>
@@ -231,7 +203,7 @@ const Autocomplete = () => {
           navigate({ itemUrl, item, state }) {
             // Check if this is our Ask AI item
             if ((item as any).__isAskAiItem) {
-              openAiLauncher(state.query);
+              handleOpenAiChat(state.query);
               return;
             }
             // Handle regular navigation
@@ -239,7 +211,7 @@ const Autocomplete = () => {
           },
         },
       }),
-    [algoliaIndex, router, searchClient, openAiLauncher],
+    [algoliaIndex, router, searchClient, handleOpenAiChat],
   );
 
   useHotkeys("/, cmd+k", (e) => {
@@ -388,7 +360,7 @@ const Autocomplete = () => {
                             <div
                               onClick={() => {
                                 const searchTerm = (inputProps as any).value;
-                                openAiLauncher(searchTerm);
+                                handleOpenAiChat(searchTerm);
                               }}
                               className="flex justify-between items-center"
                             >
@@ -428,7 +400,15 @@ const Autocomplete = () => {
                 ) : (
                   <div className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium ">
                     <span className="inline-block">No matching results.</span>{" "}
-                    <AiLauncher searchTerm={(inputProps as any).value} />
+                    <Link
+                      href="javascript:void(0)"
+                      className="text-brand"
+                      onClick={() =>
+                        handleOpenAiChat((inputProps as any).value)
+                      }
+                    >
+                      Ask AI ✨
+                    </Link>
                   </div>
                 )}
               </div>
@@ -436,6 +416,23 @@ const Autocomplete = () => {
           })}
         </div>
       )}
+
+      {/* Add the InKeep trigger component directly in the Autocomplete component */}
+      <InKeepTrigger
+        isOpen={isAiChatOpen}
+        onClose={handleCloseAiChat}
+        baseSettings={baseSettings}
+        aiChatSettings={{
+          ...aiChatSettings,
+          chatFunctionsRef,
+          placeholder: "Ask a question...",
+        }}
+        modalSettings={modalSettings}
+        searchSettings={{
+          ...searchSettings,
+          prefilledQuery: aiSearchTerm,
+        }}
+      />
     </div>
   );
 };
