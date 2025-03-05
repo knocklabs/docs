@@ -1,0 +1,117 @@
+---
+title: Broadcasts
+description: Power one-time, cross-channel messaging to your users through Knock.
+tags: []
+section: Concepts
+---
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      Broadcasts are currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Broadcasts%20beta%20access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+Broadcasts are a way to power one-time, cross-channel messaging to your users through Knock. They are built on Knock's [workflow engine](/concepts/workflows), giving you the power to create intelligent messaging across all of the [channels you've configured in Knock](/concepts/channels).
+
+## Broadcasts and the environment model
+
+Unlike workflows and other resources in Knock, broadcasts do not have to be committed or promoted to an environment before they can be used. In fact, unlike workflows, broadcasts are **environment-specific** and can be created in any environment (including production).
+
+If you wish to mirror a flow where you create a broadcast in development, and then use it in production you can do so by _cloning_ the broadcast to the production environment.
+
+## Targeting users for a broadcast
+
+Broadcasts can be targeted to a specific set of users [via an audience](/concepts/audiences), sent to all users in an environment, or sent to a specific set of users by uploading a CSV.
+
+Your users **must** exist within Knock in order to send them a broadcast. If you're looking to send a broadcast to users who don't exist within Knock, you can use a CSV to upload a list of users who will first be identified as users, and then sent the broadcast. You can also add a CSV of users as a new audience on the fly when when uploading it to a broadcast.
+
+## Creating and managing broadcast content
+
+To manage the contents of a broadcast, click the "Edit steps" button in the broadcast overview. This will open the broadcast builder, where you can add steps that will be executed for each user the broadcast is sent to.
+
+In the broadcast builder, you can add:
+
+- [Delay functions](/designing-workflows/delay-function): to pause the execution of a broadcast for a specific amount of time.
+- [Branch functions](/designing-workflows/branch-function): to conditionally execute steps based on the value of a variable.
+- [Channel steps](/designing-workflows/channel-step): to send a message to a user on a specific channel.
+
+When adding a channel step, you can select from any of the channel types you've configured in Knock to send a message to a user on that channel. Once you've added a channel step, you can design and manage the template for the step by selecting the channel step and clicking the "Edit template" button.
+
+### Working with the template editor
+
+The broadcast template editor is the same template editor you've come to know and love from [workflows](/concepts/workflows). You can read more about working in the template editor [here](/designing-workflows/template-editor/overview).
+
+### Broadcast state
+
+Knock will automatically expose the following variables to the broadcast builder and template editor which you can use to personalize and control the broadcast:
+
+- `recipient`: the user that the broadcast is being sent to.
+- `vars`: the environment variables available to the broadcast.
+- `tenant`: in the event that your broadcast has been triggered to a user-tenant audience member, this will be the full tenant object linked.
+
+You can access the broadcast state in the broadcast builder by toggling the state pane. All of these variables are also available [in the template editor](/designing-workflows/template-editor/variables).
+
+## Scheduling broadcasts
+
+Broadcasts can optionally be scheduled to send at a specific time. When a broadcast is scheduled, you will see the status of the broadcast reflected as scheduled on the date and time you specified. Scheduled broadcasts can be canceled before they are sent, should you wish to make any changes.
+
+## Broadcast analytics
+
+Broadcasts produce messages, exactly as workflows do. As such, messages sent as part of a broadcast will be visible in the **Analytics** page within the Knock dashboard. Additionally, broadcast engagement metrics are available in the any [connected data warehouses](/integrations/extensions/data-sync).
+
+We'll be adding in additional inline analytics to the broadcast page in the coming months. Please [reach out to us](mailto:support@knock.app?subject=Broadcast%20analytics) if you'd like to learn more about this.
+
+## Testing broadcasts
+
+You can test a broadcast by clicking the "Run test" button in the broadcast overview or on the broadcast builder. This will allow you to select a specific test user to send the broadcast to. When you've run a test, you'll see the run log for the broadcast in the "Runs" tab. You'll also see any messages generated as part of the test run in the "Messages" tab.
+
+## Debugging and observing broadcasts
+
+Broadcasts are processed in the same way as workflows, and as such, you can use the same tools to debug and observe broadcasts as you can workflows.
+
+- **Messages** generated from a broadcast are available under the "Messages" logs, which you can find in the main sidebar on the dashboard, under a user's profile, or within a specific broadcast.
+- **Runs** generated from executing broadcasts are available under the "Runs" tab, which you can find under the "Developers" section of the sidebar, under a user's profile, or within a specific broadcast.
+
+Additionally, developer tools and extensions are available for broadcasts as they are workflows.
+
+- [Outbound webhooks](/developer-tools/outbound-webhooks/overview): all messages produced by a broadcast will emit outbound webhook events.
+- [Observability extensions](/integrations/extensions/overview): all processing metrics produced by a broadcast will be sent to the observability tools you have configured (Datadog and New Relic).
+- [CDP and analytics extensions](/integrations/extensions/overview): all message events produced by a broadcast will be sent to the CDP and analytics tools you have configured (Segment and Heap).
+- [Data warehouse sync](/integrations/extensions/data-sync): all messages produced by a broadcast will be visible within your Knock `messages` table.
+
+## Broadcasts and user preferences
+
+Broadcasts respect all [user preferences](/concepts/preferences) that are configured in Knock. That means for any categories added to a broadcast, preferences linked to those categories will be respected. Additionally, any channel type preferences set for a user will be respected during the execution of a broadcast.
+
+We're also working on a new set of promotional preference settings that will automatically add a 1-click unsubscribe header and link to your email messages, to respect CAN-SPAM compliance. This will be available in the coming weeks.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Who can create and send broadcasts?">
+    `owner`, `admin`, and `member` [roles](/manage-your-account/roles-and-permissions) can create and send broadcasts to users.
+  </Accordion>
+  <Accordion title="Can I call a broadcast via the API?">
+    No, broadcasts are not callable via the API.
+  </Accordion>
+  <Accordion title="Can I work with broadcasts in the Knock CLI?">
+    No, currently broadcasts cannot be managed via the Knock CLI.
+  </Accordion>
+  <Accordion title="Can I send a broadcast to a set of objects?">
+    No, currently broadcasts can only be sent to a set of users, not objects. If
+    you have an object sending use case, we'd [love to hear from
+    you](mailto:support@knock.app?subject=Broadcast%20to%20objects).
+  </Accordion>
+  <Accordion title="Can I send a broadcast to a set of users who don't exist in Knock?">
+    No, your users must be identified as users in Knock before you can send them
+    a broadcast.
+  </Accordion>
+</AccordionGroup>
