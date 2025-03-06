@@ -18,7 +18,6 @@ import React, {
 } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { createRoot } from "react-dom/client";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
