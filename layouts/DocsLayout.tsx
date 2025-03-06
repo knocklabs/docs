@@ -16,7 +16,6 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
 
   useEffect(() => {
     const content = document.querySelector(".main-content");
-    const savedPosition = sessionStorage.getItem("scrollPosition");
 
     // Right now we need this hack to ensure that we scroll the main content to
     // the top of the view when navigating.
