@@ -343,7 +343,7 @@ const Autocomplete = () => {
                                   {(item as ResultItem).section}
                                 </span>
                               </div>
-                              <IoSparkles className="text-lg text-brand-light dark:text-brand" />
+                              <IoSparkles className="text-lg text-gray-600 dark:text-gray-200" />
                             </div>
                           </li>
                         );
