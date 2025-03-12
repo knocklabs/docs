@@ -92,7 +92,7 @@ function ApiReferenceSection({ resourceName, resource }: Props) {
 
                 {schema.properties && (
                   <>
-                    <h3>Attributes</h3>
+                    <h3 className="!text-base font-medium">Attributes</h3>
                     <SchemaProperties schema={schema} />
                   </>
                 )}

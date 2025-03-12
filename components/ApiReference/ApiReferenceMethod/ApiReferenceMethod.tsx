@@ -44,7 +44,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
       <ContentColumn>
         <p>{method.description}</p>
 
-        <h3>Endpoint</h3>
+        <h3 className="!text-sm font-medium">Endpoint</h3>
 
         <Endpoint
           method={methodType.toUpperCase()}
@@ -54,32 +54,32 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
 
         {pathParameters.length > 0 && (
           <>
-            <h3>Path parameters</h3>
+            <h3 className="!text-base font-medium">Path parameters</h3>
             <OperationParameters parameters={pathParameters} />
           </>
         )}
 
         {queryParameters.length > 0 && (
           <>
-            <h3>Query parameters</h3>
+            <h3 className="!text-base font-medium">Query parameters</h3>
             <OperationParameters parameters={queryParameters} />
           </>
         )}
 
         {requestBody && (
           <>
-            <h3>Request body</h3>
+            <h3 className="!text-base font-medium">Request body</h3>
             <SchemaProperties schema={requestBody} />
           </>
         )}
 
-        <h3>Returns</h3>
+        <h3 className="!text-base font-medium">Returns</h3>
 
         {responseSchema && (
           <PropertyRow.Wrapper>
             <PropertyRow.Container>
               <PropertyRow.Header>
-                <PropertyRow.Name>{responseSchema.title}</PropertyRow.Name>
+                <PropertyRow.Type>{responseSchema.title}</PropertyRow.Type>
               </PropertyRow.Header>
               <PropertyRow.Description>
                 {responseSchema.description}
