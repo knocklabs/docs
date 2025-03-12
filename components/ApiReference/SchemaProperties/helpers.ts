@@ -61,7 +61,9 @@ function maybeFlattenUnionSchema(
     .flat()
     .filter((schema) => schema !== undefined);
 
-  if (nonNullableInnerSchemas.length > 0) return nonNullableInnerSchemas;
+  if (nonNullableInnerSchemas && nonNullableInnerSchemas.length > 0) {
+    return nonNullableInnerSchemas as OpenAPIV3.SchemaObject[];
+  }
 
   return nonNullableSchemas;
 }
