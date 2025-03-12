@@ -10,6 +10,7 @@ import { Attribute, Attributes } from "../../Attributes";
 import { StainlessResource } from "../../../lib/openApiSpec";
 import { useApiReference } from "../ApiReferenceContext";
 import { resolveEndpointFromMethod } from "../helpers";
+import { SchemaProperties } from "../SchemaProperties";
 
 type Props = {
   resourceName: string;
@@ -51,61 +52,6 @@ function ApiReferenceSection({ resourceName, resource }: Props) {
         </Section>
       </div>
 
-      {Object.entries(models).map(([modelName, modelReference]) => {
-        const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
-          openApiSpec,
-          modelReference.replace("#", ""),
-        );
-
-        if (!schema) {
-          return null;
-        }
-
-        return (
-          <div
-            key={modelName}
-            data-resource-path={`/${resourceName}/${modelName}`}
-          >
-            <Section title={schema.title} slug={modelName}>
-              <ContentColumn>
-                <Markdown>{schema.description}</Markdown>
-
-                {schema.properties && (
-                  <>
-                    <h3>Attributes</h3>
-
-                    <Attributes>
-                      {Object.entries(schema.properties).map(
-                        ([propertyName, property]) => (
-                          <Attribute
-                            key={propertyName}
-                            name={propertyName}
-                            type={property.type}
-                            description={
-                              property.description || property.example
-                            }
-                            isRequired={property.required}
-                          />
-                        ),
-                      )}
-                    </Attributes>
-                  </>
-                )}
-              </ContentColumn>
-              <ExampleColumn>
-                <CodeBlock
-                  title={schema.title}
-                  language="json"
-                  languages={["json"]}
-                >
-                  {JSON.stringify(schema.example, null, 2)}
-                </CodeBlock>
-              </ExampleColumn>
-            </Section>
-          </div>
-        );
-      })}
-
       {Object.entries(methods).map(([methodName, endpointOrMethodConfig]) => {
         const [methodType, endpoint] = resolveEndpointFromMethod(
           endpointOrMethodConfig,
@@ -121,6 +67,46 @@ function ApiReferenceSection({ resourceName, resource }: Props) {
               methodType={methodType as "get" | "post" | "put" | "delete"}
               endpoint={endpoint}
             />
+          </div>
+        );
+      })}
+
+      {Object.entries(models).map(([modelName, modelReference]) => {
+        const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
+          openApiSpec,
+          modelReference.replace("#", ""),
+        );
+
+        if (!schema) {
+          return null;
+        }
+
+        return (
+          <div
+            key={modelName}
+            data-resource-path={`/${resourceName}/schemas/${modelName}`}
+          >
+            <Section title={schema.title} slug={modelName}>
+              <ContentColumn>
+                <Markdown>{schema.description}</Markdown>
+
+                {schema.properties && (
+                  <>
+                    <h3>Attributes</h3>
+                    <SchemaProperties schema={schema} />
+                  </>
+                )}
+              </ContentColumn>
+              <ExampleColumn>
+                <CodeBlock
+                  title={schema.title}
+                  language="json"
+                  languages={["json"]}
+                >
+                  {JSON.stringify(schema.example, null, 2)}
+                </CodeBlock>
+              </ExampleColumn>
+            </Section>
           </div>
         );
       })}
