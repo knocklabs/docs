@@ -1,6 +1,7 @@
 import { OpenAPIV3 } from "@scalar/openapi-types";
 import { StainlessConfig, StainlessResource } from "../../lib/openApiSpec";
 import JSONPointer from "jsonpointer";
+import { SidebarSection, SidebarSubsection } from "../../data/types";
 
 const docsOrdering = [
   "workflows",
@@ -30,7 +31,7 @@ function resolveEndpointFromMethod(
 function getSidebarContent(
   openApiSpec: OpenAPIV3.Document,
   stainlessSpec: StainlessConfig,
-) {
+): SidebarSection[] {
   return docsOrdering.map((resourceName) => {
     const resource = stainlessSpec.resources[resourceName];
 
@@ -46,10 +47,11 @@ function buildSidebarPages(
   resource: StainlessResource,
   openApiSpec: OpenAPIV3.Document,
 ) {
-  let pages: { title: string; slug: string }[] = [
+  let pages: SidebarSubsection[] = [
     {
       title: "Overview",
       slug: `/`,
+      pages: [],
     },
   ];
 
@@ -62,6 +64,7 @@ function buildSidebarPages(
         return {
           title: openApiOperation.summary,
           slug: `/${methodName}`,
+          pages: [],
         };
       }),
     );

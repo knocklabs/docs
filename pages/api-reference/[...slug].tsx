@@ -2,6 +2,7 @@ import { readOpenApiSpec, readStainlessSpec } from "../../lib/openApiSpec";
 import ApiReference from "../../components/ApiReference/ApiReference";
 import { getSidebarContent } from "../../components/ApiReference/helpers";
 import { OpenAPIV3 } from "@scalar/openapi-types";
+import { SidebarSubsection } from "../../data/types";
 
 function ApiReferenceNew({ openApiSpec, stainlessSpec }) {
   return (
@@ -28,7 +29,7 @@ export async function getStaticPaths() {
         params: { slug: [slug, subPage.slug.replace("/", "")] },
       });
 
-      for (const subSubPage of subPage.pages ?? []) {
+      for (const subSubPage of (subPage as SidebarSubsection).pages ?? []) {
         paths.push({
           params: {
             slug: [
