@@ -21,7 +21,7 @@ function ApiReference({ openApiSpec, stainlessSpec }: Props) {
   useEffect(() => {
     const path = router.asPath;
 
-    const resourcePath = path.replace("/reference-new", "");
+    const resourcePath = path.replace("/api-reference", "");
     const element = document.querySelector(
       `[data-resource-path="${resourcePath}"]`,
     );
@@ -44,15 +44,15 @@ function ApiReference({ openApiSpec, stainlessSpec }: Props) {
               window.history.replaceState(
                 null,
                 "",
-                `/reference-new${resourcePath}`,
+                `/api-reference${resourcePath}`,
               );
             }
           }
         });
       },
       {
-        threshold: 0.25,
-        rootMargin: "150px 0px 0px 0px",
+        threshold: 0.1,
+        rootMargin: "-64px 0px -80% 0px",
       },
     );
 

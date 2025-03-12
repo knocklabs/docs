@@ -36,7 +36,7 @@ function getSidebarContent(
 
     return {
       title: resource.name || resourceName,
-      slug: `/reference-new/${resourceName}`,
+      slug: `/api-reference/${resourceName}`,
       pages: buildSidebarPages(resource, openApiSpec),
     };
   });
@@ -53,22 +53,6 @@ function buildSidebarPages(
     },
   ];
 
-  if (resource.models) {
-    pages.push(
-      ...Object.entries(resource.models).map(([modelName, modelRef]) => {
-        const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
-          openApiSpec,
-          modelRef.replace("#", ""),
-        );
-
-        return {
-          title: schema?.title ?? modelName,
-          slug: `/${modelName}`,
-        };
-      }),
-    );
-  }
-
   if (resource.methods) {
     pages.push(
       ...Object.entries(resource.methods).map(([methodName, method]) => {
@@ -81,6 +65,24 @@ function buildSidebarPages(
         };
       }),
     );
+  }
+
+  if (resource.models) {
+    pages.push({
+      title: "Object definitions",
+      slug: `/schemas`,
+      pages: Object.entries(resource.models).map(([modelName, modelRef]) => {
+        const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
+          openApiSpec,
+          modelRef.replace("#", ""),
+        );
+
+        return {
+          title: schema?.title ?? modelName,
+          slug: `/${modelName}`,
+        };
+      }),
+    });
   }
 
   return pages;

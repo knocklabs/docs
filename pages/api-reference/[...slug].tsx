@@ -27,9 +27,20 @@ export async function getStaticPaths() {
       paths.push({
         params: { slug: [slug, subPage.slug.replace("/", "")] },
       });
+
+      for (const subSubPage of subPage.pages ?? []) {
+        paths.push({
+          params: {
+            slug: [
+              slug,
+              subPage.slug.replace("/", ""),
+              subSubPage.slug.replace("/", ""),
+            ],
+          },
+        });
+      }
     }
   }
-
   return {
     paths,
     fallback: false,

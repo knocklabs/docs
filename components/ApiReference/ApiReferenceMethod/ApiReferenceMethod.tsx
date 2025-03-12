@@ -4,6 +4,10 @@ import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
 import { CodeBlock } from "../../CodeBlock";
 import { useApiReference } from "../ApiReferenceContext";
 import type { OpenAPIV3 } from "@scalar/openapi-types";
+import { SchemaProperties } from "../SchemaProperties";
+import OperationParameters from "../OperationParameters/OperationParameters";
+import { PropertyRow } from "../SchemaProperties/PropertyRow";
+import { useState } from "react";
 type Props = {
   methodName: string;
   methodType: "get" | "post" | "put" | "delete";
@@ -12,6 +16,7 @@ type Props = {
 
 function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
   const { openApiSpec } = useApiReference();
+  const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];
 
   if (!method) {
@@ -22,8 +27,13 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
   const responses = method.responses || {};
   const response = responses[Object.keys(responses)[0]];
 
-  const pathParameters = parameters.filter((p) => p.in === "path");
-  const queryParameters = parameters.filter((p) => p.in === "query");
+  const pathParameters = parameters.filter(
+    (p) => p.in === "path",
+  ) as OpenAPIV3.ParameterObject[];
+  const queryParameters = parameters.filter(
+    (p) => p.in === "query",
+  ) as OpenAPIV3.ParameterObject[];
+
   const responseSchema: OpenAPIV3.SchemaObject | undefined =
     response?.content?.["application/json"]?.schema;
   const requestBody: OpenAPIV3.SchemaObject | undefined =
@@ -45,68 +55,55 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
         {pathParameters.length > 0 && (
           <>
             <h3>Path parameters</h3>
-
-            <Attributes>
-              {pathParameters.map((maybeParameter) => {
-                const parameter = maybeParameter as OpenAPIV3.ParameterObject;
-
-                return (
-                  <Attribute
-                    key={parameter.name!}
-                    name={parameter.name!}
-                    type={parameter.schema?.type}
-                    description={parameter.description || ""}
-                    isRequired={parameter.required}
-                  />
-                );
-              })}
-            </Attributes>
+            <OperationParameters parameters={pathParameters} />
           </>
         )}
 
         {queryParameters.length > 0 && (
           <>
             <h3>Query parameters</h3>
-
-            <Attributes>
-              {queryParameters.map((maybeParameter) => {
-                const parameter = maybeParameter as OpenAPIV3.ParameterObject;
-
-                return (
-                  <Attribute
-                    key={parameter.name!}
-                    name={parameter.name!}
-                    type={parameter.schema?.type}
-                    description={parameter.description || ""}
-                    isRequired={parameter.required}
-                  />
-                );
-              })}
-            </Attributes>
+            <OperationParameters parameters={queryParameters} />
           </>
         )}
 
         {requestBody && (
           <>
             <h3>Request body</h3>
-
-            <Attributes>
-              {Object.entries(requestBody.properties || {}).map(
-                ([propertyName, property]) => (
-                  <Attribute
-                    key={propertyName}
-                    name={propertyName}
-                    type={property.type}
-                    description={property.description}
-                  />
-                ),
-              )}
-            </Attributes>
+            <SchemaProperties schema={requestBody} />
           </>
         )}
 
         <h3>Returns</h3>
-        <span>{responseSchema?.title}</span>
+
+        {responseSchema && (
+          <PropertyRow.Wrapper>
+            <PropertyRow.Container>
+              <PropertyRow.Header>
+                <PropertyRow.Name>{responseSchema.title}</PropertyRow.Name>
+              </PropertyRow.Header>
+              <PropertyRow.Description>
+                {responseSchema.description}
+              </PropertyRow.Description>
+
+              {responseSchema.properties && (
+                <>
+                  <PropertyRow.ExpandableButton
+                    isOpen={isResponseExpanded}
+                    onClick={() => setIsResponseExpanded(!isResponseExpanded)}
+                  >
+                    {isResponseExpanded ? "Hide properties" : "Show properties"}
+                  </PropertyRow.ExpandableButton>
+
+                  {isResponseExpanded && (
+                    <PropertyRow.ChildProperties>
+                      <SchemaProperties schema={responseSchema} />
+                    </PropertyRow.ChildProperties>
+                  )}
+                </>
+              )}
+            </PropertyRow.Container>
+          </PropertyRow.Wrapper>
+        )}
       </ContentColumn>
       <ExampleColumn>
         <CodeBlock
