@@ -51,7 +51,6 @@ function buildSidebarPages(
     {
       title: "Overview",
       slug: `/`,
-      pages: [],
     },
   ];
 
@@ -64,7 +63,6 @@ function buildSidebarPages(
         return {
           title: openApiOperation.summary,
           slug: `/${methodName}`,
-          pages: [],
         };
       }),
     );
