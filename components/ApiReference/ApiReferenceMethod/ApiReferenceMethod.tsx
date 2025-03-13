@@ -8,6 +8,7 @@ import { SchemaProperties } from "../SchemaProperties";
 import OperationParameters from "../OperationParameters/OperationParameters";
 import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import { useState } from "react";
+import MultiLangExample from "../MultiLangExample";
 type Props = {
   methodName: string;
   methodType: "get" | "post" | "put" | "delete";
@@ -106,14 +107,10 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
         )}
       </ContentColumn>
       <ExampleColumn>
-        <CodeBlock
+        <MultiLangExample
           title={`${method.summary} (example)`}
-          language="node"
-          languages={["node", "python", "go", "ruby", "php"]}
-        >
-          {method["x-stainless-snippets"].typescript}
-        </CodeBlock>
-
+          examples={method["x-stainless-snippets"]}
+        />
         <CodeBlock title="Response" language="json" languages={["json"]}>
           {JSON.stringify(responseSchema?.example, null, 2)}
         </CodeBlock>
