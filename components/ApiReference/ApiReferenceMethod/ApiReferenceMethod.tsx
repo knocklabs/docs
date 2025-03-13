@@ -1,14 +1,16 @@
-import { Attribute, Attributes } from "../../Attributes";
+import type { OpenAPIV3 } from "@scalar/openapi-types";
+import { useState } from "react";
+
 import { Endpoint } from "../../Endpoints";
 import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
 import { CodeBlock } from "../../CodeBlock";
 import { useApiReference } from "../ApiReferenceContext";
-import type { OpenAPIV3 } from "@scalar/openapi-types";
 import { SchemaProperties } from "../SchemaProperties";
 import OperationParameters from "../OperationParameters/OperationParameters";
 import { PropertyRow } from "../SchemaProperties/PropertyRow";
-import { useState } from "react";
 import MultiLangExample from "../MultiLangExample";
+import { augmentSnippetsWithCurlRequest } from "../helpers";
+
 type Props = {
   methodName: string;
   methodType: "get" | "post" | "put" | "delete";
@@ -109,7 +111,14 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
       <ExampleColumn>
         <MultiLangExample
           title={`${method.summary} (example)`}
-          examples={method["x-stainless-snippets"]}
+          examples={augmentSnippetsWithCurlRequest(
+            method["x-stainless-snippets"],
+            {
+              methodType,
+              endpoint,
+              body: requestBody?.example,
+            },
+          )}
         />
         <CodeBlock title="Response" language="json" languages={["json"]}>
           {JSON.stringify(responseSchema?.example, null, 2)}
