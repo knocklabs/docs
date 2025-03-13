@@ -43,7 +43,7 @@ import {
 import RateLimit from "../components/RateLimit";
 import { FrontMatter } from "../types";
 
-const components = {
+export const MDX_COMPONENTS = {
   pre: CodeBlock,
   h2: (props) => <SectionHeading tag="h2" {...props} />,
   h3: (props) => <SectionHeading tag="h3" {...props} />,
@@ -79,7 +79,7 @@ export default function ContentPage({ source, sourcePath }) {
       <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
         <MDXRemote
           {...source}
-          components={components}
+          components={MDX_COMPONENTS}
           scope={{
             datadogDashboardJson,
             newRelicDashboardJson,
