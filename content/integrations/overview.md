@@ -14,7 +14,7 @@ We support the following channel types today:
 
 - [Email](/integrations/email/overview) (such as Sendgrid, Postmark)
 - [In-app](/integrations/in-app/overview) (such as feeds, toasts, banners)
-- [Push](/integrations/push/overview) (such as APNS, FCM)
+- [Push](/integrations/push/overview) (such as APNs, FCM)
 - [SMS](/integrations/sms/overview) (such as Twilio, Telnyx)
 - [Chat](/integrations/chat/overview) (such as Slack, Microsoft Teams, and Discord)
 - [Webhook](/integrations/webhook/overview) (send webhooks to custom channels or enable your own customers to configure webhooks in your product)
@@ -84,9 +84,9 @@ Knock will execute your channel conditions for every step using the given channe
 
 ### Channel groups
 
-You may encounter a use case where you consistently want to send the same template to two providers across all of your workflows. Push is a good example. If you're sending notifications directly to iOS and Android devices (through APNS and Firebase, respectively), you don't want to have to replicate templates across channel steps for each of those providers in all of your workflows.
+You may encounter a use case where you consistently want to send the same template to two providers across all of your workflows. Push is a good example. If you're sending notifications directly to iOS and Android devices (through APNs and Firebase, respectively), you don't want to have to replicate templates across channel steps for each of those providers in all of your workflows.
 
-Channel groups solve this problem. With a channel group, you can combine multiple providers into a single channel that you can use to send the a single notification template across multiple providers. As an example, I could have a "Push" channel group that hosts my connections for APNS and FCM, then use that single "Push" step for any workflows where I want to notify users across my mobile apps.
+Channel groups solve this problem. With a channel group, you can combine multiple providers into a single channel that you can use to send the a single notification template across multiple providers. As an example, I could have a "Push" channel group that hosts my connections for APNs and FCM, then use that single "Push" step for any workflows where I want to notify users across my mobile apps.
 
 **Note:** Channel groups is currently in beta. If you'd like access, please reach out via the feedback button at the top of this page and we'll enable it for you.
 
