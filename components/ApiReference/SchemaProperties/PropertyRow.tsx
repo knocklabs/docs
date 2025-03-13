@@ -37,7 +37,9 @@ const Description = ({ children }) => (
   <div className="text-sm text-gray-500 dark:text-gray-300">{children}</div>
 );
 
-const Required = () => <span className="font-mono text-xs">Required</span>;
+const Required = () => (
+  <span className="font-mono text-xs text-red-500 px-2">Required</span>
+);
 
 const ExpandableButton = ({ children, isOpen, onClick }) => (
   <button

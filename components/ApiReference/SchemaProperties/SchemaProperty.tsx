@@ -3,6 +3,7 @@ import { PropertyRow } from "./PropertyRow";
 import { useState } from "react";
 import {
   getTypesForDisplay,
+  innerEnumSchema,
   innerUnionSchema,
   maybeFlattenUnionSchema,
   resolveChildProperties,
@@ -21,12 +22,11 @@ const SchemaProperty = ({ name, schema }: Props) => {
   // If the schema is an array, then we want to show the possible types that the array can contain.
   // Otherwise, we want to show the possible types that the schema can be
   const maybeUnion = innerUnionSchema(schema);
+  const maybeEnum = innerEnumSchema(schema);
   const maybeChildProperties = resolveChildProperties(schema);
 
   const typesForDisplay = getTypesForDisplay(schema);
   const hasAdditionalTypes = typesForDisplay.length > MAX_TYPES_TO_DISPLAY;
-
-  const isEnum = schema.type === "string" && Array.isArray(schema.enum);
 
   return (
     <PropertyRow.Container>
@@ -42,10 +42,13 @@ const SchemaProperty = ({ name, schema }: Props) => {
             </span>
           )}
         </PropertyRow.Types>
+        {schema.required && (
+          <PropertyRow.Required>Required</PropertyRow.Required>
+        )}
       </PropertyRow.Header>
       <PropertyRow.Description>{schema.description}</PropertyRow.Description>
 
-      {isEnum && (
+      {maybeEnum && (
         <>
           <PropertyRow.ExpandableButton
             isOpen={isChildPropertiesOpen}
@@ -56,7 +59,7 @@ const SchemaProperty = ({ name, schema }: Props) => {
 
           {isChildPropertiesOpen && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {schema.enum?.map((item) => (
+              {maybeEnum.map((item) => (
                 <PropertyRow.PropertyTag key={item}>
                   {item}
                 </PropertyRow.PropertyTag>
