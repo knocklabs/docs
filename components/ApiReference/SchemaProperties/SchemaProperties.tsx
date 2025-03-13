@@ -4,9 +4,10 @@ import { PropertyRow } from "./PropertyRow";
 
 type Props = {
   schema: OpenAPIV3.SchemaObject;
+  hideRequired?: boolean;
 };
 
-const SchemaProperties = ({ schema }: Props) => {
+const SchemaProperties = ({ schema, hideRequired = false }: Props) => {
   return (
     <PropertyRow.Wrapper>
       {Object.entries(schema.properties || {}).map(
@@ -14,7 +15,12 @@ const SchemaProperties = ({ schema }: Props) => {
           <SchemaProperty
             key={propertyName}
             name={propertyName}
-            schema={property as OpenAPIV3.SchemaObject}
+            schema={{
+              ...(property as OpenAPIV3.SchemaObject),
+              required: !hideRequired
+                ? property.required || schema.required?.includes(propertyName)
+                : false,
+            }}
           />
         ),
       )}
