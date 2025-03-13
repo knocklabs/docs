@@ -96,7 +96,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
                 {schema.properties && (
                   <>
                     <h3 className="!text-base font-medium">Attributes</h3>
-                    <SchemaProperties schema={schema} />
+                    <SchemaProperties schema={schema} hideRequired />
                   </>
                 )}
               </ContentColumn>
