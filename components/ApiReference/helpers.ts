@@ -164,9 +164,31 @@ function buildSidebarPages(
   return pages;
 }
 
+function augmentSnippetsWithCurlRequest(
+  snippets: Record<string, string>,
+  {
+    methodType,
+    endpoint,
+    body,
+  }: { methodType: string; endpoint: string; body?: Record<string, unknown> },
+) {
+  const maybeBodyString = body ? `-d '${JSON.stringify(body)}'` : "";
+
+  return {
+    curl: `
+    curl -X ${methodType.toUpperCase()} ${endpoint} \\
+    -H "Content-Type: application/json" \\
+    -H "Authorization: Bearer sk_test_12345" \\
+    ${maybeBodyString}
+    `,
+    ...snippets,
+  };
+}
+
 export {
   getSidebarContent,
   resolveEndpointFromMethod,
   buildSidebarPages,
   docsOrdering,
+  augmentSnippetsWithCurlRequest,
 };
