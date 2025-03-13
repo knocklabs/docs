@@ -32,15 +32,76 @@ function getSidebarContent(
   openApiSpec: OpenAPIV3.Document,
   stainlessSpec: StainlessConfig,
 ): SidebarSection[] {
-  return docsOrdering.map((resourceName) => {
-    const resource = stainlessSpec.resources[resourceName];
+  return [
+    {
+      title: "API Reference",
+      slug: "/api-reference/overview",
+      pages: [
+        {
+          title: "Overview",
+          slug: `/`,
+        },
+        {
+          title: "Client libraries",
+          slug: `/client-libraries`,
+        },
+        {
+          title: "API keys",
+          slug: `/api-keys`,
+        },
+        {
+          title: "Authentication",
+          slug: `/authentication`,
+        },
+        {
+          title: "Rate limits",
+          slug: `/rate-limits`,
+        },
+        {
+          title: "Batch rate limits",
+          slug: `/batch-rate-limits`,
+        },
+        {
+          title: "Idempotent requests",
+          slug: `/idempotent-requests`,
+        },
+        {
+          title: "Data retention",
+          slug: `/data-retention`,
+        },
+        {
+          title: "Bulk endpoints",
+          slug: `/bulk-endpoints`,
+        },
+        {
+          title: "Trigger data filtering",
+          slug: `/trigger-data-filtering`,
+        },
+        {
+          title: "Pagination",
+          slug: `/pagination`,
+        },
+        {
+          title: "Errors",
+          slug: `/errors`,
+        },
+        {
+          title: "Error codes",
+          slug: `/error-codes`,
+        },
+      ],
+    },
+  ].concat(
+    docsOrdering.map((resourceName) => {
+      const resource = stainlessSpec.resources[resourceName];
 
-    return {
-      title: resource.name || resourceName,
-      slug: `/api-reference/${resourceName}`,
-      pages: buildSidebarPages(resource, openApiSpec),
-    };
-  });
+      return {
+        title: resource.name || resourceName,
+        slug: `/api-reference/${resourceName}`,
+        pages: buildSidebarPages(resource, openApiSpec),
+      };
+    }),
+  );
 }
 
 function buildSidebarPages(
@@ -84,6 +145,20 @@ function buildSidebarPages(
         };
       }),
     });
+  }
+
+  if (resource.subresources) {
+    pages.push(
+      ...Object.entries(resource.subresources).map(
+        ([subresourceName, subresource]) => {
+          return {
+            title: subresource.name || subresourceName,
+            slug: `/${subresourceName}`,
+            pages: buildSidebarPages(subresource, openApiSpec),
+          };
+        },
+      ),
+    );
   }
 
   return pages;

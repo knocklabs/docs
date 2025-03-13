@@ -13,9 +13,10 @@ import { docsOrdering, getSidebarContent } from "./helpers";
 type Props = {
   openApiSpec: OpenAPIV3.Document;
   stainlessSpec: StainlessConfig;
+  preContent?: React.ReactNode;
 };
 
-function ApiReference({ openApiSpec, stainlessSpec }: Props) {
+function ApiReference({ openApiSpec, stainlessSpec, preContent }: Props) {
   const router = useRouter();
 
   useEffect(() => {
@@ -92,6 +93,7 @@ function ApiReference({ openApiSpec, stainlessSpec }: Props) {
           <div className="w-full max-w-5xl lg:flex mx-auto relative">
             <div className="w-full flex-auto">
               <div className="docs-content api-docs-content">
+                {preContent}
                 {docsOrdering.map((resourceName) => (
                   <ApiReferenceSection
                     key={resourceName}
