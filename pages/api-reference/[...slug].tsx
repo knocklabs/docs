@@ -3,10 +3,22 @@ import ApiReference from "../../components/ApiReference/ApiReference";
 import { getSidebarContent } from "../../components/ApiReference/helpers";
 import { OpenAPIV3 } from "@scalar/openapi-types";
 import { SidebarSubsection } from "../../data/types";
+import { CONTENT_DIR } from "../../lib/content.server";
 
-function ApiReferenceNew({ openApiSpec, stainlessSpec }) {
+import remarkGfm from "remark-gfm";
+import { serialize } from "next-mdx-remote/serialize";
+import rehypeMdxCodeProps from "rehype-mdx-code-props";
+import fs from "fs";
+import { MDXRemote } from "next-mdx-remote";
+import { MDX_COMPONENTS } from "../[...slug]";
+
+function ApiReferenceNew({ openApiSpec, stainlessSpec, preContentMdx }) {
   return (
-    <ApiReference openApiSpec={openApiSpec} stainlessSpec={stainlessSpec} />
+    <ApiReference
+      openApiSpec={openApiSpec}
+      stainlessSpec={stainlessSpec}
+      preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
+    />
   );
 }
 
@@ -42,6 +54,7 @@ export async function getStaticPaths() {
       }
     }
   }
+
   return {
     paths,
     fallback: false,
@@ -52,7 +65,19 @@ export async function getStaticProps() {
   const openApiSpec = await readOpenApiSpec();
   const stainlessSpec = await readStainlessSpec();
 
-  return { props: { openApiSpec, stainlessSpec } };
+  const preContent = fs.readFileSync(
+    `${CONTENT_DIR}/__api-reference/content.mdx`,
+  );
+
+  const preContentMdx = await serialize(preContent, {
+    parseFrontmatter: true,
+    mdxOptions: {
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [rehypeMdxCodeProps] as any,
+    },
+  });
+
+  return { props: { openApiSpec, stainlessSpec, preContentMdx } };
 }
 
 export default ApiReferenceNew;

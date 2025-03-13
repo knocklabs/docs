@@ -19,6 +19,8 @@ type StainlessResource = {
   subresources?: Record<
     string,
     {
+      name?: string;
+      description?: string;
       models?: Record<string, string>;
       methods?: Record<string, StainlessResourceMethod>;
     }
