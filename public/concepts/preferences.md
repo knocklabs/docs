@@ -1,0 +1,38 @@
+---
+title: "Preferences"
+description: "Learn how the notification preference system works in Knock."
+tags:
+  [
+    "recipients",
+    "conditions",
+    "prefs",
+    "preferences",
+    "users",
+    "user preferences",
+  ]
+section: Concepts
+---
+
+[Preferences](/reference#preferences) enable your users to opt-out of the notifications you send using Knock.
+
+## How preferences work
+
+A user has a `PreferenceSet`. A `PreferenceSet` is a JSON object that tells Knock which channels, categories, and/or workflows a user has opted out of receiving.
+
+When Knock runs a workflow for a user, we evaluate their `PreferenceSet`. A message will not send if the user has opted out of receiving it.
+
+With Knock preferences you can power standard preference use cases, such as the topic-channel preferences grid picture below, as well as advanced use cases such as per-workflow preferences, send time preferences, and more.
+
+To learn more about how to build your preference center with Knock, how to set preferences for your users, and advanced concepts like per-tenant preferences, object preferences, and preference conditions, go to our [preferences overview](/preferences/overview).
+
+<Image
+  src="/images/what-is-knock/preferences.png"
+  alt="An image of a preference set"
+  width={1356}
+  height={1452}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+## Learn more
+
+To learn more about how to build your preference center with Knock, how to set preferences for your users, and advanced concepts like per-tenant preferences, object preferences, and preference conditions, go to our [preferences overview](/preferences/overview).

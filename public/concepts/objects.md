@@ -1,0 +1,186 @@
+---
+title: Objects
+description: Learn the basics of Objects in Knock.
+tags: ["recipients", "identify"]
+section: Concepts
+---
+
+An [Object](/reference#objects) represents a resource in your system that you want to map into Knock.
+
+In this guide we'll walk through how to use objects for a few different use cases in Knock.
+
+We'll start with an overview of objects and how to use them, then we'll walk through two common use cases for objects: Slack channel notifications and handling mutable data on long-running notifications (such as digests).
+
+**Note:** Objects are an advanced feature within Knock. You can send multi-channel notifications across all channel types (except Slack) without touching the Objects API. If you're just getting started, we'd recommend coming back to objects when you've already started to leverage a few channels using Knock.
+
+## An overview of objects
+
+Objects are a powerful and flexible way to ensure Knock always has the most up-to-date information required to send your notifications. They also enable you to send notifications to non-user recipients.
+
+You can use objects to:
+
+- Send out-of-app notifications to non-user recipients (such as a [Slack channel](#slack-channel-notifications)).
+- [Reference mutable data in your notification templates](/designing-workflows/template-editor/referencing-data) (such as when a user edits a comment before a notification is sent).
+- **Coming soon:** send in-app notifications to non-user resources in your product (the activity feed you see on a Notion page is a good example).
+
+<Callout
+  emoji="🛣"
+  text={
+    <>
+      <span className="font-bold">Knock roadmap alert.</span> We have Objects
+      API support for in-app notifications on our near-term roadmap.
+      <br />
+      <br /> If you're interested in trying this functionality, please shoot us
+      a note at <a href="mailto:support@knock.app">support@knock.app</a> or use
+      the feedback button at the top of this page.
+    </>
+  }
+/>
+
+## Sending object data to Knock
+
+All objects belong to a `collection`, which groups objects of the same type together. An object should be unique within a collection, identified by the `id` given. We use the `{collection, id}` pair to know when to create or update an object.
+
+Objects follow the same rules as all other items in Knock in that they are unique and logically separated per Knock environment.
+
+The way you manage object data in Knock is largely the same as [how you manage your user data](/concepts/users#sending-user-data-to-knock). As with users, we support three approaches for managing Knock objects: individual, bulk, and inline.
+
+<AccordionGroup>
+  <Accordion title="Set individual objects">
+    You can use the set object API to send us data for a single object.
+
+    [API reference →](/reference#set-object)
+
+    <MultiLangCodeBlock snippet="objects.set" title="Set an object in Knock" />
+
+  </Accordion>
+
+  <Accordion title="Bulk set objects">
+    You can use the bulk set objects API to send us data for many objects at once. This endpoint allows you to identify up to 1000 objects at a time.
+
+    [API reference →](/reference#bulk-set-objects)
+
+    <MultiLangCodeBlock
+      snippet="objects.bulkSet"
+      title="Bulk set objects in Knock"
+        />
+
+  </Accordion>
+
+  <Accordion title="Set objects inline">
+    You can also integrate object management into your workflow trigger calls. If you include additional object metadata (other than `id` and `collection`) in a workflow trigger call, Knock will perform an asynchronous action to upsert these objects as part of processing the workflow.
+
+    [API reference →](/reference#trigger-workflow-inline-identify)
+
+    <MultiLangCodeBlock
+      snippet="workflows.trigger-with-object-identification"
+      title="Trigger a workflow with inlined identification data"
+        />
+
+  </Accordion>
+</AccordionGroup>
+
+## Guidelines for use
+
+### Collection naming
+
+Use plural collection names when possible. The collection name should describe the group of one or many objects within the collection. Good examples of collection names are `projects`, `teams`, `accounts`.
+
+### The object identifier
+
+The object `id` should be unique within the collection. It should also be a stable identifier, likely the primary key of the object in your system so it can be easily referenced later. Please note: object ids **cannot be changed once set**.
+
+### Properties
+
+Objects can contain any number of key-value property pairs that you can then reference in templates and trigger conditions. Properties will always be deeply merged between upserts, meaning that existing properties (including nested properties) will be updated with the newly provided values. Note that this means that existing properties cannot be explicitly removed, but you can overwrite them with a `null` value.
+
+## Object subscribers
+
+You can use [subscriptions](/concepts/subscriptions) to subscribe [recipients](/concepts/recipients) to objects as subscribers. When an object is passed to a workflow trigger, Knock will automatically fan out and run a workflow for every subscriber on that object.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Nested object hierarchies.</span> One of the
+      most powerful things about object subscriptions is that they can contain
+      other objects.
+      <br />
+      <br />
+      As an example, a <code>workspace</code> object may have a list of <code>
+        projects
+      </code> as subscribers, each of which has a list of <code>
+        project follower
+      </code> subscribers.
+      <br />
+      <br />
+      When you trigger a workflow with that <code>workspace</code> as a
+      recipient, Knock will fan out through the hierarchical relationship you've
+      created and notify all <code>projects</code> and{" "}
+      <code>project followers</code> under that <code>workspace</code>.
+    </>
+  }
+/>
+
+## Referencing object data in templates
+
+You can reference object data in templates using the `object` filter to load object data into a template. You can reference an object by a static identifier, or by a dynamic identifier passed in via data in your workflow trigger.
+
+For example, if we have a `projects` collection that contains an object under the identifier `proj_1`, we can load that object into a template via a static identifier like this:
+
+```liquid title="Referencing an object by a static identifier"
+{% assign project = "proj_1" | object: "projects" %}
+```
+
+Or, we can load an object by a dynamic identifier. For example, if we have a workflow trigger that contains a `project_id` property, we can load that object into a template like this:
+
+```liquid title="Referencing an object by a dynamic identifier"
+{% assign project = data.project_id | object: "projects" %}
+```
+
+Once an object is loaded into a template, you can reference any of the properties of that object using the dot notation.
+
+You can read more about referencing data in templates in our [guide on referencing data in templates](/designing-workflows/template-editor/referencing-data).
+
+## Examples
+
+### Slack channel notifications
+
+A common notification use case we see in SaaS applications is the ability for users to connect a object in the product they're using to a channel in their own Slack workspace. That way when something happens in that object (e.g. a comment is left) they receive a notification about it in their connected Slack channel.
+
+Let's take a fictional example here where we have an audio collaboration service that allows its customers to connect a Project object to a Slack channel. Once the Project and Slack channel are connected, all Comments left within the Project will result in notifications sent to the customer's Slack channel.
+
+Here's how we'd use Knock objects to solve this.
+
+1. **Register our Project object to Knock**
+
+Typically whenever the project is created or updated we'll want to send it through to Knock.
+
+<MultiLangCodeBlock
+  snippet="objects.set"
+  title="Send project object to Knock"
+/>
+
+2. **Store the Slack connection information for the Project**
+
+Once our customer chooses to connect their Slack channel to the Project, we have a callback that then adds the Slack information as Channel Data.
+
+<MultiLangCodeBlock
+  snippet="objects.setChannelData.slack"
+  title="Store Slack connection on object"
+/>
+
+3. **Add Slack as a step to our workflow**
+
+Inside of the Knock dashboard, we're going to add a new Slack step to our `new-comment` workflow that will send a notification displaying the comment that was left in our product.
+
+4. **Send the Project as a recipient in your workflow trigger**
+
+Now when we trigger our `new-comment` workflow, we also want to add our Project object as a recipient so that the newly added Slack step will be triggered.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-object-as-recipient"
+  title="Triggering a workflow with an object as a recipient"
+/>
+
+Knock then executes the workflow for this Project object as it would for any user recipients sent in the workflow trigger, skipping over any steps that aren't relevant. (In this case, the Project object only has one piece of channel data mapped to it—the Slack channel—so it won't trigger notifications for any other channel steps in our `new-comment` workflow.) When the Slack step is reached, the connection information we stored earlier will be used as a means to know which channel to send a message to and how to authenticate to that channel.

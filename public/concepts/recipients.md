@@ -1,0 +1,78 @@
+---
+title: Recipients
+description: A Recipient in Knock represents a person or a non-user entity that receives notifications.
+tags:
+  [
+    "RecipientIdentifier",
+    "recipient",
+    "user",
+    "timezone",
+    "time zone",
+    "locale",
+  ]
+section: Concepts
+---
+
+A Recipient within Knock is any [User](/concepts/users) or [Object](/concepts/objects) that may wish to receive notifications. Knock persists information about recipients to send those recipients notifications and give a single source of truth for the notifications sent for debugging and logging purposes.
+
+Recipients have:
+
+- **Identifiers.** A string from your system that uniquely represents the recipient.
+- **Properties.** Structured and unstructured data for the recipient, including but not limited to the name, email, and phone number.
+- **Preferences.** The rules under which the recipient should or should not receive notifications.
+- **Channel data.** Channel data send a recipient a notification on a particular channel, such as tokens for sending push notifications to a given channel or access tokens to send notifications to a chat channel like Slack.
+
+## `RecipientIdentifier` definition
+
+A recipient identifier can be one of:
+
+- A string user ID for a previously identified user (`user-1`)
+- An object reference dictionary (`{ "collection": "my-collection", "id": "object-1" }`) for a previously identified object
+- A dictionary containing a recipient to be [identified inline](/managing-recipients/identifying-recipients#inline-identifying-recipients)
+
+This can be expressed as the following type:
+
+```typescript
+type RecipientIdentifier =
+  | string
+  | { collection: string; id: string }
+  | Record<string, any>;
+```
+
+## Identifying recipients
+
+For Knock to be able to send notifications to your recipients, you must first identify those recipients to synchronize them with Knock. We call this process "identification", and it can be done ahead of time, or lazily via inline-identification in your workflow triggers. Identifying sets the properties associated with your recipients into Knock, so that you can reference those properties in the notifications you send out.
+
+[Read more about identifying your recipients ->](/managing-recipients/identifying-recipients)
+
+## Custom properties
+
+Recipients in Knock can have any number of custom properties set on them, which you set during the identification process. Some properties, like `email` or `phone_number` are required for notifications to be delivered to the recipient.
+
+## Managing lists of recipients
+
+You can use our [Subscriptions](/concepts/subscriptions) feature to create a Knock-managed list of recipients that should be notified. Subscriptions are useful for modeling pub/sub behavior.
+
+## Recipient timezones
+
+A recipient can have an optional `timezone` property, which should be a [valid tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), like `America/New_York` or `Europe/London`. By default, if no recipient timezone is set `Etc/UTC` will be used however a [default timezone](/manage-your-account/account-timezone) can be specified at the account level under "Settings" which will override this default for all recipients.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Is there a limit on the number of recipients I can have in Knock?">
+    No, there's no limit on the number of recipients you can have within Knock.
+  </Accordion>
+  <Accordion title="Why would I need a non-user recipient?">
+    We support non-user entities (Objects) receiving notifications in Knock
+    because some notifications are delivered to non-user entities. For example,
+    a Slack notification that sends to a channel. That notification is not
+    delivered to a user but to an entity that connects Slack and your system
+    (such as a Project or a Team).
+  </Accordion>
+  <Accordion title="Is there a limit to the size of the properties I can pass on a recipient to Knock?">
+    Currently, there's no limit to the size of the properties you can add to a
+    recipient. We reserve the right to impose a limit here in the future,
+    however.
+  </Accordion>
+</AccordionGroup>

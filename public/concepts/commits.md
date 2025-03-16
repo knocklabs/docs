@@ -1,0 +1,89 @@
+---
+title: Commits
+description: Learn about how Knock's commit and promotion model works.
+tags:
+  [
+    "branches",
+    "env",
+    "version control",
+    "versions",
+    "commit",
+    "promote",
+    "promotion",
+    "revert",
+    "rollback",
+    "staging",
+    "active",
+    "inactive",
+    "diffs",
+    "push",
+  ]
+section: Concepts
+---
+
+To version the changes you make in your [environments](/concepts/environments), Knock uses a commit model. When you make a change to a workflow or a layout in the Knock dashboard, you'll need to commit it to your development environment before those changes will appear in workflows triggered via the API.
+
+After you modify a resource, you'll see a "Save" button that allows you to store those changes. When you're ready to permanently store your updates with version control, they should be committed with the "Commit to development" button that will come into focus after changes have been saved.
+
+**A few things to note:**
+
+- Channel configurations, branding, and variables do not need to be committed, as they live at the account-level. This means that if you make a change to a channel configuration, it will update immediately on notifications sent in that environment.
+- Any changes you have saved but not yet committed **will** apply when you're using the test runner. This allows you to test your latest changes before you commit them to your development environment.
+- You can work with Knock resources outside of your dashboard if you prefer. We offer both a [Management API](/developer-tools/management-api) and a [command line interface](/developer-tools/knock-cli) for interacting with Knock resources programmatically. The commit model applies to all methods of interacting with Knock resources, whether directly in the dashboard or with the Management API or CLI.
+
+## Visualizing changes between commits
+
+Clicking the "Commit to development" button will show you a view of changes between your current commit and the most recent version of the resource that you're updating. Commit diffs are also available on your full commit log (viewable on the "Commits" page in your dashboard), so you can view the commit history for a resource and know exactly what was changed with each commit.
+
+![Commit diffs in Knocks version control](/images/commit-diff-showcase.gif)
+
+## Promoting commits
+
+Knock is designed to allow large teams to create and manage notifications at scale. That means that
+changes must be versioned, tested, and promoted to production environments, so that if there are
+any issues they can be rolled back with ease.
+
+Knock uses a model where all changes to the production environment must be **promoted** and cannot be made directly.
+Changes must be made in the development environment, then staged and tested before being rolled out (similar to a git-based workflow).
+
+<Callout
+  emoji={"🚨"}
+  text={
+    <>
+      <span className="font-bold">Note:</span> There is one exception to the
+      commit and promote rule — the active/inactive{" "}
+      <a href="/concepts/workflows#workflow-status">status</a> on a workflow
+      lives independently from the commit model so that you can immediately
+      enable or disable a workflow in any environment without needing to go
+      through environment promotion. A workflow's status is environment-specific
+      and will only be applied to the current environment.
+    </>
+  }
+/>
+
+To promote a committed change to a higher environment, navigate to the "Commits" page in your Knock dashboard and click on "Unpromoted changes." Here you'll see a list of commits that are ready for promotion. Clicking "View commit" on a given commit will show you a commit diff for that change, and clicking the "Promote to [environment]" button will promote the staged commit to the next-higher environment (whose name is displayed on the button).
+
+**A typical deployment lifecycle in Knock looks like:**
+
+1. Introduce any backend changes to support a new workflow (users and preference properties)
+2. Build the workflow in a dev environment in Knock and commit it to that environment
+3. Test the workflow
+4. When you're ready to go live, promote the workflow to production
+
+## Reverting a commit
+
+If you've made a change in a commit that you want to revert, you can use the "Revert commit" feature to "undo" that change. You can find the revert commit action on the "Commits" page in the dashboard, under the "Unpromoted changes" and "Commit log" tabs.
+
+<Callout emoji={"🚨"}>
+  **Note**: you can only revert a commit in the development environment. If you
+  need to revert a change to a higher environment, you must first revert it in
+  development and then promote the revert commit.
+</Callout>
+
+**Reverting a commit will**:
+
+- Create a new commit with a message that indicates the commit reverts a preceding commit
+- Wind back the state of the resource to the change that precedes the commit
+- Undo any uncommitted changes on the resource
+
+Because the revert will produce a new commit, you can then promote that commit to other environments to make that change live in those environments.

@@ -1,0 +1,35 @@
+---
+title: Environments
+description: Learn about how Knock's isolated environment model works and how it fits into your system development lifecycle.
+tags: ["env", "version control", "variables", "promote", "promotion", "staging"]
+section: Concepts
+---
+
+Knock uses the concept of environments to ensure logical separation of your data between
+local, staging, and production environments. This means that recipients and preferences created
+in one environment are **never** accessible to another.
+
+The API key you use determines the environment into which you'll be sending data. You can find your environment-specific API keys under the "Developer" section of the Knock dashboard.
+
+## Working with Knock resources across environments
+
+In order to prevent unintended changes to Knock resources (like a [workflow](/concepts/workflows) or [layout](/integrations/email/layouts)) in a production setting, we use a commit model that requires changes to be saved and committed in your Development environment and [promoted](/concepts/commits#promotion-and-rollback) to higher environments.
+
+[Read more about Commits](/concepts/commits)
+
+## Create additional environments
+
+By default your Knock account comes with two environments: Development and Production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a Staging environment) you can add it on the settings page of the Knock dashboard.
+
+To create a new environment, go to **Settings** > **Environments**. You'll see a button to "Create environment."
+
+When you create an additional environment, it will be inserted between Development and Production. This means all changes will continue to be introduced in your Development environment and will need to be promoted through additional environments until they land in Production. Subsequent new environments will always be added one "level" lower than Production; environments cannot be re-ordered, as this would break the promotion model for previously-promoted changes.
+
+## Environment-based access controls
+
+We recognize the importance of protecting your sensitive data, so we designed Knock from the ground-up with privacy and security in mind.
+
+There are two tools you can use to control access to your data in the Knock dashboard:
+
+- [Roles and permissions.](/manage-your-account/roles-and-permissions) Knock offers granular roles for the different functions your team members may want to carry out in Knock, such as support team members that need to debug issues for customers but shouldn't be making changes to notification logic.
+- [Customer data obfuscation.](/manage-your-account/data-obfuscation) You can use our per-environment data obfuscation controls to configure whether you want your team members to be able to view customer data in the Knock dashboard.
