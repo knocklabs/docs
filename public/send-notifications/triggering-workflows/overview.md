@@ -1,0 +1,46 @@
+---
+title: Triggering workflows
+description: Learn more about how to trigger cross-channel notification workflows in Knock.
+tags: ["trigger", "notify", "data", "actor"]
+section: Send notifications
+---
+
+Knock executes workflow runs when workflows are triggered. A workflow can be triggered in these ways:
+
+- By a [direct API call](/send-notifications/triggering-workflows/api) to the `trigger` endpoint
+- By a [source event](/send-notifications/triggering-workflows/events)
+- On a [recurring, or one-off schedule](/send-notifications/triggering-workflows/schedules)
+- When a user becomes [a member of an audience](/send-notifications/triggering-workflows/audiences)
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note:</strong> Recipients can opt out of notifications through
+      preferences. Knock handles all preference-based opt-outs automatically.
+      Learn more about [preference management](/preferences/overview).
+    </>
+  }
+/>
+
+## Conditionally executing a workflow trigger
+
+A trigger step can have one or more [step conditions](/designing-workflows/step-conditions) that determine if the workflow executes. When conditions evaluate to false, the workflow terminates and no other steps execute.
+
+## Controlling workflow trigger frequency
+
+Sometimes you need to limit how often a recipient runs through a workflow. For example, you might want an account signup workflow to run only once per recipient. Workflow trigger frequency controls this behavior.
+
+Trigger frequency lets you set if a workflow should run every time or at most once per recipient. By default, workflows trigger every time for a recipient.
+
+When you specify "Once per recipient" frequency, you can include the tenant in this control. This ensures your workflow triggers once per-recipient, per-tenant.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="What happens when I trigger a workflow whose status is set to Inactive?">
+    A workflow whose [status](/concepts/workflows#workflow-status) is set to
+    `Inactive` will return a `workflow_inactive` [error](/reference#error-codes)
+    when triggered and will not generate any workflow recipient runs.
+  </Accordion>
+</AccordionGroup>

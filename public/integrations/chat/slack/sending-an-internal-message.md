@@ -1,0 +1,124 @@
+---
+title: Sending a message to an internal Slack workspace
+description: How to send a message to an internal Slack workspace using Knock.
+tags: ["slack", "chat"]
+section: Integrations > Slack
+layout: integrations
+---
+
+In this guide we'll cover how to send a message to an internal Slack workspace using Knock. It assumes that you have already created a Slack app and created a Slack channel in Knock as outlined in the [Slack integration overview](/integrations/chat/slack/overview) guide.
+
+Here's what we'll cover in this guide:
+
+- Retrieving an incoming webhook URL from your Slack app
+- Setting channel data for an `Object` in Knock
+- Triggering a workflow with an object recipient to send a message to a Slack channel
+
+## Slack channels are connections on Objects
+
+In Knock, we model channels in a Slack workspace as connections on Objects. [Objects](/concepts/objects) allow you to model any resource in your system within Knock, and while their primary purpose is to act as non-user recipients, they are very flexible abstractions.
+
+### An overview of Objects
+
+Individual Objects exist within [a collection](/concepts/objects#collection-naming) and always have [a unique ID](/concepts/objects#the-object-identifier) or key within that collection. The Object itself can store any number and type of properties as key-value pairs. You can see some examples of possible Object structures in [the official documentation on setting Object data](/concepts/objects#sending-object-data-to-knock).
+
+Let’s say you are building a devtool product like GitHub and want to set up Slack notifications whenever someone comments on an issue within a repository. First, you’ll want to create an Object to model your repository as part of the `repositories` collection:
+
+```javascript
+import { Knock } from "@knocklabs/node";
+const knockClient = new Knock(process.env.KNOCK_API_KEY);
+
+await knockClient.objects.set("repositories", "repo-1", {
+  name: "My repo",
+});
+```
+
+Once you have a repository object created, you can add the channel data for Slack as a connection on the object.
+
+## Objects as workflow recipients
+
+To add channel data, we’ll set up an [incoming webhook in Slack](https://api.slack.com/messaging/webhooks). To get this URL from Slack, you can go to “Incoming Webhooks” within your dashboard and toggle the "Activate Incoming Webhooks" feature. If you’ve already installed your app into a workspace, you will be asked to reinstall it and select a channel the app will post messages to.
+
+<Image
+  src="/images/integrations/chat/slack/activate-incoming-webhooks.png"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="activating incoming webhooks in Slack"
+  width={2000}
+  height={1130}
+/>
+To generate a new webhook, scroll to the bottom of the page where you see the “Add
+New Webhook to Workspace” button. If you connected an initial channel, you can copy
+your webhook, or you can connect another channel and then copy the webhook URL:
+
+<Image
+  src="/images/integrations/chat/slack/copy-webhook.png"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="creating a Slack channel in Knock dashboard"
+  width={2000}
+  height={1734}
+/>
+
+### Set the webhook as channel data
+
+Now that you have the webhook URL, we’ll store that webhook as a special property on the repository Object called channel data. [Channel data is both channel and recipient-specific data](https://docs.knock.app/managing-recipients/setting-channel-data) stored for use with particular channels, like a token used for push notifications or webhooks stored for chat apps like Slack, Teams, and Discord. Both Users and Objects can store channel data.
+
+In the code example below, we’ll use the `knockClient.objects.setChannelData` method to update the channel data for our repository Object.
+
+```javascript
+import { Knock } from "@knocklabs/node";
+const knockClient = new Knock(process.env.KNOCK_API_KEY);
+
+await knockClient.objects.setChannelData(
+  "repositories",
+  repository.id,
+  process.env.KNOCK_SLACK_CHANNEL_ID,
+  {
+    connections: [
+      {
+        incoming_webhook: { url: "url-from-slack" },
+      },
+    ],
+  },
+);
+```
+
+Here, you’ll also need your `KNOCK_SLACK_CHANNEL_ID` as the third parameter, which is the channel ID of your Slack integration within Knock, so that Knock can reference that channel when it processes workflows that use it. The last parameter is an object of a specific format that varies based on [the type of message provider](/managing-recipients/setting-channel-data#provider-data-requirements). In this case, it is a `SlackConnection` object with an `incoming_webhook` property that contains the URL you copied from Slack.
+
+### Trigger a workflow with an object recipient
+
+With the channel data in place, you can add Slack as a workflow step in any workflow. For this example, we’ll create a `new-issue` workflow that pings users in our connected Slack channel whenever someone adds a new issue.
+
+<Image
+  src="/images/integrations/chat/slack/workflow-with-slack-step-new.png"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="workflow with a Slack step"
+  width={2202}
+  height={1922}
+/>
+
+As you create your message template, remember that in this case the repository Object is the recipient of your workflow. That means any properties you reference on your Liquid template tags need to exist as properties of the Object as well:
+
+```markdown
+There was an issue opened on the following repo: **{{ recipient.name }}**
+```
+
+Finally, we’ll add the workflow trigger to our code with the repository Object as a recipient.
+
+```javascript
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+await knock.workflows.trigger("new-issue", {
+  recipients: [{ collection: "repositories", id: "repo-1" }],
+});
+```
+
+With that, you should see a message in your selected Slack channel:
+
+<Image
+  src="/images/integrations/chat/slack/slack-message.png"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="A Slack message"
+  width={2000}
+  height={552}
+/>

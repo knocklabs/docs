@@ -1,0 +1,36 @@
+---
+title: API keys
+description: Learn more about API keys in Knock and what they're used for.
+section: Developer tools
+---
+
+In Knock, all requests to the [Knock API](/reference) are issued using a API key. Your API keys are [environment](/concepts/environments) specific and allow Knock to tie a request on the API back to an isolated Knock environment.
+
+## Finding your API keys
+
+You can find your **environment-specific API keys** under **Developers** > **API keys** in the left-hand side bar. Remember: each environment has its own unique set of API keys.
+
+## Secret vs public API keys
+
+Each Knock environment will be generated with two API keys: a secret key and a public key. You can uniquely identify these keys as they start with `sk_` for a secret key, vs `pk_` for a public key.
+
+- Public keys are only meant to identify your account with Knock. They aren't secret, and can safely be made public in any of your client-side code.
+
+- Secret keys can perform any API request to Knock, they should be kept secure and private! Be sure to prevent secret keys from being made publicly accessible, such as in client-side code, GitHub, unsecured S3 buckets, and so forth.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I revoke an API key once generated?">
+    Yes. If you need to revoke and rotate your API keys in a given environment,
+    navigate to **Developers** > **API keys** in your dashboard, select the
+    "..." menu next to the key you want to rotate, and click "Roll API key."
+    This will prompt you to confirm the operation, which will immediately issue
+    a new key and invalidate the previous key. This action cannot be undone.
+  </Accordion>
+  <Accordion title="Can I further scope API key access?">
+    Currently, it's not possible to reduce the scope of an API key and limit it
+    to a particular set of resources. Please contact our [support team if you
+    need this feature](mailto:support@knock.app).
+  </Accordion>
+</AccordionGroup>

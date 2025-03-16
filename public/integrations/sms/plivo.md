@@ -1,0 +1,104 @@
+---
+title: How to send SMS messages with Plivo
+description: Setup guide for SMS notifications with Plivo and Knock.
+section: Integrations > SMS
+layout: integrations
+---
+
+Knock integrates with <a href="https://www.plivo.com/" target="_blank">Plivo</a> to send SMS notifications to your recipients.
+
+## Features
+
+- Delivery tracking
+- Knock link tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+You can create a new Plivo channel in the dashboard under the **Integrations** > **Channels** section. From there, you'll need to take the following steps in Plivo before you can configure your channel within Knock.
+
+<Steps titleSize="h3">
+  <Step title="Create a Plivo account">
+    <a href="https://console.plivo.com/accounts/register/" target="_blank">Sign up</a> for a Plivo account if you haven't already. 
+    
+    After doing this you will gain access to your dashboard where you can find your **Auth ID** and **Auth Token**.
+
+  </Step>
+  <Step title="Verify a phone number">
+    You can add a <a href="https://console.plivo.com/phone-numbers/sandbox-numbers/" target="_blank">sandbox number</a> for testing, or you can buy a <a href="https://console.plivo.com/active-phone-numbers/" target="_blank">Plivo phone number</a> to use as the from field on your Knock channel.
+  
+  </Step>
+  <Step title="Configuring Plivo in Knock">
+    Now that you have your **verified phone number**, **Auth ID** and **Auth Token**, you're ready to configure your Plivo channel in the Knock dashboard under the **Integrations** > **Channels** section.
+  
+  </Step>
+</Steps>
+
+## Channel configuration
+
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Integrations** > **Channels** in your dashboard, select your Plivo [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+
+<AccordionGroup>
+  <Accordion title="Settings">
+    Fields marked with an `*` are required.
+    
+    **Knock settings**
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your Plivo channel."
+      />
+      <Attribute
+        name="Knock link tracking"
+        type="boolean"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        description="Whether to enable Knock link-click tracking."
+      />
+    </Attributes>
+
+    **Provider settings for Plivo**
+    <Attributes>
+      <Attribute
+        name="Authentication ID"
+        type="string*"
+        description="The authentication ID from Plivo."
+      />
+      <Attribute
+        name="Authentication token"
+        type="string*"
+        description="The authentication token from Plivo."
+      />
+      <Attribute
+        name="From"
+        type="enum*"
+        description="The method used to send your SMS messages. One of Phone number, Short code, or Sender ID."
+      />
+      <Attribute
+        name="Phone number"
+        type="string*"
+        description="The phone number to send messages from. Required when From is set to Phone number."
+      />
+      <Attribute
+        name="Short code"
+        type="string*"
+        description="The Plivo short code to send messages from. Required when From is set to Short code."
+      />
+      <Attribute
+        name="Sender ID"
+        type="string*"
+        description="The Plivo Sender ID to send messages from. Required when From is set to Sender ID."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
+## Recipient data requirements
+
+In order to send an SMS notification you'll need a valid `phone_number` property set on your recipient.

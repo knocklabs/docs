@@ -1,0 +1,491 @@
+---
+title: In-app message types
+description: Learn more about working with in-app message types.
+section: Building in-app UI
+---
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      Message types are currently in beta. If you'd like early access, or this
+      is blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Message%20types">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+Knock’s in-app message template system is built on our concept of Message Types. Within the Knock model, a message type represents a _type_ of message that you map to a UI component/element within your application to show to your users.
+
+Knock comes with the following in-app messages types to use as message templates out-of-the-box, each of which maps to a component you’ll find in `@knocklabs/react`
+
+- Banner (`<Banner />`)
+- Modal (`<Modal />` )
+- Card (`<Card />`)
+
+Once a template type exists, you can use it in the [Knock in-app template editor](/designing-workflows/template-editor/overview):
+
+<img
+  src="/images/in-app-ui/message-types-template-editor.png"
+  alt="In-app message types"
+  className="rounded-md mx-auto border border-gray-200"
+  width={1243}
+  height={457}
+/>
+
+### Variants
+
+Message types can have one or more _variants_. For example, the `card` template type comes with 3 variants:
+
+- **Default**: content with an action URL to determine where the cell should route to.
+- **Single action**: content with a single primary button.
+- **Multi-action:** content with two buttons, one primary and one secondary.
+
+When creating an in-app template, your content editors can select from the available variants and customize the message's contents based on the selected variant.
+
+### Schemas
+
+A schema defines _a message type and its variants._ The schema indicates the fields a message type will have in the template editor and forms the structure of the message contents generated when a message is produced from an in-app step.
+
+You can think of the schema as a blueprint for how the content editor will create the message template and what fields they can edit within that experience.
+
+The template type schema in Knock determines its template editing experience which governs the content that will be returned by the Knock API and rendered in your UI components.
+
+<AccordionGroup>
+  <Accordion title="A schema example">
+    As an example, the `Banner` schema is defined as:
+
+```json
+{
+  "variants": [
+    {
+      "key": "default",
+      "name": "Default",
+      "fields": [
+        {
+          "type": "text",
+          "key": "title",
+          "label": "Title",
+          "settings": {
+            "required": true,
+            "description": null,
+            "default": "Banner title",
+            "minLength": null,
+            "maxLength": null
+          }
+        },
+        {
+          "type": "textarea",
+          "key": "body",
+          "label": "Body",
+          "settings": {
+            "required": true,
+            "description": null,
+            "default": "Copy about a feature or an action that the user should be aware of.",
+            "minLength": null,
+            "maxLength": null
+          }
+        },
+        {
+          "type": "boolean",
+          "key": "dismissible",
+          "label": "Dismissible?",
+          "settings": {
+            "required": false,
+            "description": null,
+            "default": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "single-action",
+      "name": "Single-action",
+      "fields": [
+        {
+          "type": "text",
+          "key": "title",
+          "label": "Title",
+          "settings": {
+            "required": true,
+            "description": null,
+            "default": "Banner title",
+            "minLength": null,
+            "maxLength": null
+          }
+        },
+        {
+          "type": "textarea",
+          "key": "body",
+          "label": "Body",
+          "settings": {
+            "required": true,
+            "description": null,
+            "default": "Copy about a feature or an action that the user should be aware of.",
+            "minLength": null,
+            "maxLength": null
+          }
+        },
+        {
+          "type": "boolean",
+          "key": "dismissible",
+          "label": "Dismissible?",
+          "settings": {
+            "required": false,
+            "description": null,
+            "default": true
+          }
+        },
+        {
+          "type": "button",
+          "key": "primary_button",
+          "label": "Primary button",
+          "text": {
+            "type": "text",
+            "key": "text",
+            "label": "Button text",
+            "settings": {
+              "required": true,
+              "description": null,
+              "default": "Primary",
+              "minLength": null,
+              "maxLength": null
+            }
+          },
+          "action": {
+            "type": "text",
+            "key": "action",
+            "label": "Button action",
+            "settings": {
+              "required": true,
+              "description": null,
+              "default": "action",
+              "minLength": null,
+              "maxLength": null
+            }
+          },
+          "settings": {
+            "required": true,
+            "description": null
+          }
+        }
+      ]
+    },
+    {
+      "key": "multi-action",
+      "name": "Multi-action",
+      "fields": [
+        {
+          "type": "text",
+          "key": "title",
+          "label": "Title",
+          "settings": {
+            "required": true,
+            "description": null,
+            "default": "Banner title",
+            "minLength": null,
+            "maxLength": null
+          }
+        },
+        {
+          "type": "textarea",
+          "key": "body",
+          "label": "Body",
+          "settings": {
+            "required": true,
+            "description": null,
+            "default": "Copy about a feature or an action that the user should be aware of.",
+            "minLength": null,
+            "maxLength": null
+          }
+        },
+        {
+          "type": "boolean",
+          "key": "dismissible",
+          "label": "Dismissible?",
+          "settings": {
+            "required": false,
+            "description": null,
+            "default": true
+          }
+        },
+        {
+          "type": "button",
+          "key": "primary_button",
+          "label": "Primary button",
+          "text": {
+            "type": "text",
+            "key": "text",
+            "label": "Button text",
+            "settings": {
+              "required": true,
+              "description": null,
+              "default": "Primary",
+              "minLength": null,
+              "maxLength": null
+            }
+          },
+          "action": {
+            "type": "text",
+            "key": "action",
+            "label": "Button action",
+            "settings": {
+              "required": true,
+              "description": null,
+              "default": "action",
+              "minLength": null,
+              "maxLength": null
+            }
+          },
+          "settings": {
+            "required": true,
+            "description": null
+          }
+        },
+        {
+          "type": "button",
+          "key": "secondary_button",
+          "label": "Secondary button",
+          "text": {
+            "type": "text",
+            "key": "text",
+            "label": "Button text",
+            "settings": {
+              "required": true,
+              "description": null,
+              "default": "Secondary",
+              "minLength": null,
+              "maxLength": null
+            }
+          },
+          "action": {
+            "type": "text",
+            "key": "action",
+            "label": "Button action",
+            "settings": {
+              "required": true,
+              "description": null,
+              "default": "action",
+              "minLength": null,
+              "maxLength": null
+            }
+          },
+          "settings": {
+            "required": true,
+            "description": null
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+If the editor creates an in-app message template using the “default” variant for this component, then the structure of a generated message’s content will be:
+
+```json
+{
+  "content": {
+    "body": "<p>Hello this is my message</p>",
+    "action_url": "https://knock.app"
+  }
+}
+```
+
+    </Accordion>
+
+</AccordionGroup>
+
+### Customizing message types
+
+Each message type and its variants can be customized or removed entirely. You can also introduce completely new in-app message types to match your product's needs. This can be especially useful if you want to build custom in-app UI elements and power their content generation using Knock.
+
+An in-app message schema has the following structure:
+
+```json
+{
+  // One or more variants for this message type
+  "variants": [
+    {
+      // A unique key for the variant (required)
+      "key": "default",
+      // A name for the variant, displayed in the message editor
+      "name": "Default",
+      // One or more fields for this variant
+      "fields": []
+    }
+  ]
+}
+```
+
+#### Variants
+
+Your schema must have one or more variants. You can name your variants anything you would like, but the variant key must be unique.
+
+Each variant must have:
+
+- A `key` uniquely identifying the variant for the message type
+- A `name` to display in the message template editor to select the variant
+- One or more `fields` (see below)
+
+#### Fields
+
+All fields must have:
+
+- `type`: The type of the field to render (see below)
+- `key`: A unique key for the field in the variant
+- `label`: A label to render
+
+#### Field types
+
+<AccordionGroup>
+  <Accordion title="Text">
+A plain text, single line text field.
+
+**Settings**
+
+- `required` (boolean): indicates this field is required
+- `description` (string): an optional friendly description
+- `default` (string): The default value to display
+- `minLength` (integer): The minimum length to validate
+- `maxLength` (integer): The maximum length to validate against
+
+**Example**
+
+```json
+{
+  "type": "text",
+  "key": "title",
+  "label": "Title",
+  "settings": {
+    "required": true,
+    "default": "Card title",
+    "minLength": 3,
+    "maxLength": 32
+  }
+}
+```
+
+  </Accordion>
+  <Accordion title="Markdown">
+A markdown editor for creating rich text. Will always be rendered as HTML.
+
+**Settings**
+
+- `required` (boolean): indicates this field is required
+- `description` (string): an optional friendly description
+- `default` (string): The default value to display
+
+```json
+{
+  "type": "markdown",
+  "key": "body",
+  "label": "Body",
+  "settings": {
+    "default": "**Default markdown**"
+  }
+}
+```
+
+  </Accordion>
+  <Accordion title="Textarea">
+A multi-line plain text area
+
+**Settings**
+
+- `required` (boolean): indicates this field is required
+- `description` (string): an optional friendly description
+- `default` (string): The default value to display
+- `minLength` (integer): The minimum length to validate
+- `maxLength` (integer): The maximum length to validate against
+
+**Example**
+
+```json
+{
+  "type": "textarea",
+  "key": "body",
+  "label": "Body",
+  "settings": {
+    "default": "My body"
+  }
+}
+```
+
+  </Accordion>
+  <Accordion title="Boolean">
+  A checkbox that returns either true or false (checked or unchecked).
+
+**Settings**
+
+- `required` (boolean): indicates this field is required
+- `description` (string): an optional friendly description
+- `default` (string): The default value to set
+
+**Example**
+
+```json
+{
+  "type": "boolean",
+  "key": "dismissable",
+  "label": "Can be dismissed?",
+  "settings": {
+    "default": true
+  }
+}
+```
+
+  </Accordion>
+  <Accordion title="Select">
+  A single select box that defines a static list of options for editors to pick from.
+
+**Settings**
+
+- `options` (object[]): A list of option objects that must include a `label` and a `value`
+- `required` (boolean): indicates this field is required
+
+**Example**
+
+```json
+{
+  "type": "select",
+  "key": "icon",
+  "label": "Icon",
+  "settings": {
+    "options": [{ "label": "Skull", "value": "skull" }]
+  }
+}
+```
+
+  </Accordion>
+  <Accordion title="Image 🔜">
+*This type is not yet available, but we’re going to be adding it in the near future.*
+  </Accordion>
+</AccordionGroup>
+
+### Creating an in-app message template in Knock
+
+To create an in-app message in Knock:
+
+1. Add an in-app channel step to your workflow.
+2. Select which message type to use for the in-app message (and its variant, if applicable).
+3. Customize the contents of the in-app message in the template editor.
+
+### Versioning in-app message types
+
+Message types are versioned using Knock’s commit model, meaning changes to a message type schema are committed into the current environment. Workflows use the latest committed version of a message type.
+
+### Triggering in-app messages
+
+In-app messages are just another channel step within the Knock workflow builder, meaning that it’s possible to trigger an in-app message in the same way that you can trigger a workflow today:
+
+- via the API
+- via a source event being ingested
+- via a recurring or one-off Schedule
+- via a subscription to an object
+- via being added to an audience
+
+For more information, see the documentation for [triggering workflows](https://docs.knock.app/send-notifications/triggering-workflows).

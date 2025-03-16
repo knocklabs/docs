@@ -1,0 +1,55 @@
+---
+title: Audit logs
+description: Learn more about audit logs of actions performed on your Knock account.
+tags: ["audit", "audit log", "access log", "security"]
+section: Manage your account
+---
+
+Search your account's audit log to review member actions and events.
+
+## Overview
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">
+        Data subject to retention policy enforcement.
+      </span>{" "}
+      See the{" "}
+      <a href="/manage-your-account/data-retention">data retention docs</a> for
+      more details on how Knock enforces this policy.
+    </>
+  }
+/>
+
+The account audit log lets you review actions performed by individual members of the account. In addition, each audit log includes events detailing who performed the action, when it happened, and information about the originating IP address and location of the action.
+
+**Note**: accessing an account's audit log is restricted to admins and account owners.
+
+## Review your account audit log
+
+You can review your account audit log under your Knock account settings: `dashboard.knock.app/<slug>/settings/audit-log` where the `slug` is your account identifier (e.g. `foo-corp`).
+
+Once there, you can filter the audit log by the **Actor** who performed the action, and/or the type of **Action** performed.
+
+<Image
+  src="/images/manage-your-account/audit-logs.png"
+  width={1624}
+  height={1056}
+  alt="Viewing audit logs in the dashboard"
+/>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Why do I see migration-bot@knock.app perform changes on my account?">
+    When events occur that do not originate from a user action (like a side
+    effect as the result of a merge), we attribute these events to a
+    Knock-created "Migration Bot."
+  </Accordion>
+  <Accordion title="Can I export my account audit logs?">
+    Please contact the [Knock support team](mailto:support@knock.app) if you
+    need to export the data inside your audit logs. We'd be happy to assist.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,153 @@
+---
+title: "Customizing Knock UI components in iOS"
+description: "How to customize Knock's iOS UI components."
+section: Building in-app UI
+---
+
+## InAppFeedTheme
+
+### Overview
+
+`InAppFeedTheme` allows for UI customization of the `KnockInAppFeedView`.
+
+### Properties
+
+<Attributes>
+  <Attribute
+    name="rowTheme"
+    type="FeedNotificationRowTheme"
+    description="Defines the UI customization of the row items."
+  />
+  <Attribute
+    name="titleString"
+    type="String?"
+    description="Sets the title of the view. If set to nil, then the title view will be hidden entirely. This is useful if you want to have a completely custom title view."
+  />
+  <Attribute
+    name="titleFont"
+    type="Font?"
+    description="Sets the font of the title view."
+  />
+  <Attribute
+    name="titleColor"
+    type="Color?"
+    description="Sets the color of the title view."
+  />
+  <Attribute
+    name="upperBackgroundColor"
+    type="Color?"
+    description="Sets the background color of the top portion of the view (title view, filter view, and top action buttons view)."
+  />
+  <Attribute
+    name="lowerBackgroundColor"
+    type="Color?"
+    description="Sets the background color of the bottom portion of the view (the list)."
+  />
+</Attributes>
+
+## FeedNotificationRowTheme
+
+### Overview
+
+`FeedNotificationRowTheme` allows for UI customization of the row items in the `KnockInAppFeedView`.
+
+### Properties
+
+<Attributes>
+  <Attribute
+    name="showAvatarView"
+    type="Bool"
+    description="Show or hide the avatar/initials view in the upper left corner of the row."
+  />
+  <Attribute
+    name="avatarViewTheme"
+    type="AvatarViewTheme"
+    description="Customize styling of avatarview."
+  />
+  <Attribute
+    name="notificationContentCSS"
+    type="String?"
+    description="Customize the css of the markdown html of the notification body."
+  />
+  <Attribute
+    name="backgroundColor"
+    type="Color"
+    description="Background color of the FeedNotificationRow."
+  />
+  <Attribute
+    name="markAsReadSwipeConfig"
+    type="SwipeButtonConfig?"
+    description="This is the config to set the mark as read/unread swipe actions. Set to null to remove the action entirely."
+  />
+  <Attribute
+    name="archiveSwipeConfig"
+    type="SwipeButtonConfig?"
+    description="This is the config to set the archive/unarchive swipe actions. Set to null to remove the action entirely."
+  />
+  <Attribute
+    name="unreadNotificationCircleColor"
+    type="Color"
+    description="Color of the unread circle indicator in the top left of the row."
+  />
+  <Attribute
+    name="sentAtDateFormatter"
+    type="DateFormatter"
+    description="DateFormatter for the sent timestamp at the bottom of the row."
+  />
+  <Attribute
+    name="sentAtDateFont"
+    type="Font"
+    description="Font for sent timestamp."
+  />
+  <Attribute
+    name="sentAtDateTextColor"
+    type="Color"
+    description="Color for sent timestamp."
+  />
+  <Attribute
+    name="primaryActionButtonConfig"
+    type="ActionButtonConfig"
+    description="Styling for primary action buttons."
+  />
+  <Attribute
+    name="secondaryActionButtonConfig"
+    type="ActionButtonConfig"
+    description="Styling for secondary action buttons."
+  />
+  <Attribute
+    name="tertiaryActionButtonConfig"
+    type="ActionButtonConfig"
+    description="Styling for tertiary action buttons."
+  />
+</Attributes>
+
+## AvatarViewTheme
+
+### Overview
+
+`AvatarViewTheme` allows for UI customization of the user avatar view in the row item.
+
+### Properties
+
+<Attributes>
+  <Attribute
+    name="avatarViewBackgroundColor"
+    type="Color"
+    description="Background color of the view. This is more apparent when the view is showing initials instead of an image."
+  />
+  <Attribute
+    name="avatarViewInitialsFont"
+    type="Font"
+    description="Font for the initials view."
+  />
+  <Attribute
+    name="avatarViewInitialsColor"
+    type="Color"
+    description="Text color for the initials view."
+  />
+  <Attribute
+    name="avatarViewSize"
+    type="CGFloat"
+    description="Overall size of the avatar view."
+  />
+</Attributes>

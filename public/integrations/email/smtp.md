@@ -1,0 +1,167 @@
+---
+title: How to send email with SMTP
+description: How to send transactional email notifications using SMTP with Knock.
+section: Integrations > Email
+layout: integrations
+---
+
+Knock supports sending email notifications to your users via the Simple Mail Transfer Protocol (SMTP). In this configuration, Knock will act as an SMTP client and send email notifications to a specified SMTP server.
+
+In this guide, we'll cover how to get started sending email notifications using SMTP with Knock.
+
+## Features
+
+- Attachments support
+- Knock link and open tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+You can create a new SMTP Relay channel in the dashboard under the **Integrations** {">"} **Channels** section. From there, you'll need to configure the channel for each environment you have.
+
+The following information is required to configure an SMTP Relay channel:
+
+- SMTP server host
+- SMTP server port
+- Username
+- Password
+
+Please note the following:
+
+- **Knock only supports authenticated SMTP connections.**
+- **The port must support TLS.** Email providers commonly use port 587 for TLS, but check your provider's documentation to confirm.
+- **We cannot currently track deliverability through SMTP Relay channels.** This means that all notifications sent via SMTP will show up as "Sent" in the Knock messages log, but not "Delivered."
+
+## Channel configuration
+
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Integrations** > **Channels** in your dashboard, select your SMTP [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+
+<AccordionGroup>
+  <Accordion title="Settings">
+    Fields marked with an `*` are required.
+    
+    **Knock settings**
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your SMTP channel."
+      />
+      <Attribute
+        name="Knock open tracking"
+        nameSlug="/send-notifications/tracking#email-open-tracking"
+        type="boolean"
+        description="Whether to enable Knock email-open tracking."
+      />
+      <Attribute
+        name="Knock link tracking"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        type="boolean"
+        description="Whether to enable Knock link-click tracking."
+      />
+    </Attributes>
+
+    **Provider settings for SMTP Relay**
+    <Attributes>
+      <Attribute
+        name="SMTP host"
+        type="string*"
+        description="The SMTP server host."
+      />
+      <Attribute
+        name="Username"
+        type="string*"
+        description="The username to use when authenticating with the SMTP server."
+      />
+      <Attribute
+        name="Password"
+        type="string*"
+        description="The password to use when authenticating with the SMTP server."
+      />
+      <Attribute
+        name="Port"
+        type="number*"
+        description="The SMTP server port. This port must support TLS."
+      />
+      <Attribute
+        name="From email address"
+        type="string | liquid*"
+        description="The default sender email address (can use Liquid tags)."
+      />
+      <Attribute
+        name="From name"
+        type="string | liquid"
+        description="The default sender name (can use Liquid tags)."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Overrides">
+    When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. Learn more about email channel overrides [here](/integrations/email/settings).
+    
+    <Attributes>
+      <Attribute
+        name="To"
+        type="string | liquid"
+        description="The To email address that email notifications will be sent to (can use Liquid tags). This value will override the designated recipient's email address."
+      />
+      <Attribute
+        name="Cc"
+        type="string | liquid"
+        description="The CC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Bcc"
+        type="string | liquid"
+        description="The BCC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Reply-to"
+        type="string | liquid"
+        description="The reply-to email address that will be included on email notifications (can use Liquid tags)."
+      />
+      <Attribute
+        name="Payload overrides"
+        nameSlug="#setting-smtp-headers"
+        type="JSON (string) | liquid"
+        description="For SMTP Relay channels, only header overrides are supported. See 'Setting SMTP headers' below for more details."
+      />
+    </Attributes>
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
+## Setting SMTP headers
+
+For SMTP Relay channels, the JSON overrides field can be used to set SMTP headers. Overrides can be set in either the environment settings or per template.
+
+Knock supports overriding existing SMTP headers and adding custom headers.
+
+```json title="Adding a custom SMTP header via JSON overrides"
+{
+  "headers": {
+    "X-SMTPAPI": "{\"category\": \"transactional\"}"
+  }
+}
+```
+
+Headers must be nested under the `headers` key. Other keys will be ignored.
+
+<Callout
+  emoji="🔦"
+  text={
+    <>
+      <b>SMTP headers are sent as strings.</b> If one of your header overrides
+      is not already a string, Knock will automatically convert it to a string
+      before sending.
+    </>
+  }
+/>
+
+## Recipient data requirements
+
+In order to send an email notification you'll need a valid `email` property set on your recipient.

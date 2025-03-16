@@ -1,0 +1,27 @@
+---
+title: "Building in-app UI for iOS and macOS"
+description: Learn more about the in-app notifications experiences you can build for iOS and macOS applications with Knock.
+section: Building in-app UI
+---
+
+Our Swift SDK library lets you create notification experiences using Knock's APIs. It comes with pre-built UI components that you can use to easily get up and running with a fully functional notification feed experience in your product.
+
+## Getting started
+
+Please reference our iOS SDK [documentation](/sdks/ios/quick-start) to set up the library.
+
+## Pre-built components
+
+The Knock iOS SDK ships the following pre-built UI elements:
+
+### In-app notifications
+
+- [`InAppFeedView`](/in-app-ui/ios/components#knockinappfeedview): A full-page list of notifications.
+- [`InAppFeedViewController`](/in-app-ui/ios/components#knockinappfeedview): A wrapper for InAppFeedView to be used with UIKit.
+- [`InAppFeedViewModel`](/in-app-ui/ios/components#knockinappfeedviewmodel): All of the logic needed to support your in-app feed. Can be used independently from `InAppFeedView` if you want to build your own UI.
+- [`InAppFeedNotificationIconButton`](/in-app-ui/ios/components#inappfeednotificationiconbutton): For adding a bell icon to your application that shows the current count of unread or unseen notifications.
+
+## Links
+
+- [iOS SDK on GitHub](https://github.com/knocklabs/knock-swift)
+- [SDK reference](/sdks/ios/reference)

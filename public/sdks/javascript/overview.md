@@ -1,0 +1,43 @@
+---
+title: Knock Javascript (Web) SDK
+description: Learn more about integrating Knock into your web applications through our Javascript SDKs.
+section: SDKs
+---
+
+The `@knocklabs/client` library is a low-level JavaScript SDK for interacting with Knock from the client side of your JS application.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      If you're looking to use pre-built in-app UI elements for a web
+      application, you can look at{" "}
+      <a href="/in-app-ui/react/overview">React components</a>.
+    </>
+  }
+/>
+
+**Quick links**
+
+- [`@knocklabs/client` on npm](https://www.npmjs.com/package/@knocklabs/client)
+- [Package on GitHub](https://github.com/knocklabs/javascript/tree/main/packages/client)
+- [Full reference guide](/sdks/javascript/reference)
+
+## Need help?
+
+Our `@knocklabs/client` library is worked on full-time by the Knock JavaScript team.
+
+### Join the community
+
+Ask questions and find answers on the following platforms:
+
+- [Knock community Slack](https://knock.app/join-slack)
+
+### Provide feedback
+
+- [Open an issue](https://github.com/knocklabs/javascript/issues)
+- Use the "Help" dropdown at the top of this page to contact support.
+
+### Contributing
+
+All contributors are welcome, from casual to regular. Feel free to open a [pull request](https://github.com/knocklabs/javascript/pulls).

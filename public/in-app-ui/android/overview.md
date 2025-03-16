@@ -1,0 +1,58 @@
+---
+title: "Building in-app UI for Android"
+description: Learn more about the in-app notifications experiences you can build for Android applications with Knock.
+section: Building in-app UI
+---
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Note</span> in the current version of the
+      Android SDK there are no pre-built UI elements.
+    </>
+  }
+/>
+
+The Knock Android SDK is a low-level set of methods for interacting with the Knock APIs from Android applications. The SDK is designed to help you easily integrate Knock into your application and build in-app notification experiences powered by Knock.
+
+## Features
+
+- API methods for interacting with the [Knock in-app API](/in-app-ui/api-overview).
+- Managed websocket connections to the Knock real-time service.
+
+## Getting started
+
+### 1. Add Jitpack repository support in your `settings.gradle` file
+
+```gradle
+pluginManagement {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+### 2. Add the implementation to your app `build.gradle` file
+
+```gradle 
+
+dependencies {
+    implementation 'com.github.knocklabs:knock-android:<VERSION>'
+}
+```
+
+[Read more in the quick start guide ->](/sdks/android/quick-start)
+
+## Links
+
+- [Android SDK on GitHub](https://github.com/knocklabs/knock-android)
+- [Android SDK reference](/sdks/android/reference)

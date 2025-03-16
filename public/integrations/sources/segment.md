@@ -1,0 +1,242 @@
+---
+title: How to use Segment events to power Knock
+description: Learn how to connect your Segment events to Knock to power your product notifications.
+section: Integrations > Sources
+layout: integrations
+---
+
+This guide covers using Segment as a [Knock source](/integrations/sources/overview) to bring track and identify event data from Segment into Knock to power your notifications.
+
+Knock also provides a separate [Segment extension](/integrations/extensions/segment) for sending Knock notification data into Segment for use in your downstream tools.
+
+## Getting started
+
+When using Segment as a Knock source, you also need to configure Knock as a [destination](https://segment.com/docs/connections/destinations/) within Segment. This means you can use events coming through Segment to power actions in Knock, such as triggering a workflow.
+
+To start routing your Segment events to Knock, click the "Create Source" button in the Knock dashboard under the **Integrations** > **Sources** section and select Segment. Once created, select it from the list to navigate to the environment configuration page, where you can copy the unique webhook destination URLs for each environment you have configured in Knock.
+
+## Configure a Knock destination in Segment
+
+<Callout
+  emoji="✨"
+  text={
+    <>
+      <span className="font-bold">Use webhooks to connect to Knock.</span> Knock
+      does not have a first-party integration with Segment, so you will not find
+      us in Segment's destination catalog. Instead, you'll configure the
+      connection to Knock via a webhook destination as described below.
+    </>
+  }
+/>
+
+<Steps>
+  <Step title="Add webhook destination in Segment">
+    In your Segment workspace, navigate to the **Destinations** tab and click "Add Destination." From here, search for **Webhooks** or navigate to **Raw Data** in the sidebar and click the "Webhooks (Actions)" option. This is the destination type we'll use for Knock.
+    <Image 
+      src="/images/integrations/sources/configure-webhooks.png" 
+      width={2188}
+      height={1236}
+      className="rounded-md mx-auto border border-gray-200"
+      alt="Configure webhooks"
+    />  
+  </Step>
+  <Step title="Configure webhook">
+    Click the "Configure Webhooks (Actions)" button in the top right to enter the setup flow to configure your webhook:
+    - Select the data source you'd like to receive events from and click "Next."
+    - Give a name to the destination, like "Knock," and keep the "Fill in settings manually" option selected, then click "Create destination."
+  </Step>
+  <Step title="Save changes">
+    Now you'll see a **Settings** page. Check the "Enable Destination" button and click "Save changes."
+  </Step>
+  <Step title="Add mapping">
+    At the top of the page, navigate to the **Mappings** tab. Click "New Mapping," and under Actions, click "Send".
+
+    You will then be directed to a form to configure the webhook:
+    - Select the events to map and send to Knock. If you'd like to send all events to Knock, you can add the condition **Event type is Track,** a condition for **Event type is Identify,** and change the top operator to **any** instead of all:
+        <Image
+          src="/images/integrations/sources/webhooks-select-events.png"
+          width={1698}
+          height={874}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select event conditions"
+        />
+    - You can load a test or sample event; either way, ensure it matches your trigger conditions (Segment will warn you if it doesn't).
+    - Click "Test Mapping" to send the loaded or sample event from the previous step to Knock.
+    - If the test is successful, click "Save" to exit the form, and then click to enable the mapping you just created.
+
+  </Step>
+</Steps>
+
+## Viewing Segment track events in Knock
+
+Once your Segment destination is set up, all events you trigger from the Segment source will be forwarded to Knock. Unique events will appear in your list of events under the Source so that you can set up triggers for your workflows.
+
+From the source environment configuration page, click the "View in environment" button on one of the source environments. You'll be taken to the Segment source in the environment you selected, and you should see events sent. If you don't, try clicking the refresh button at the top of the list to refetch any incoming events.
+
+## Triggering workflows from received events
+
+You can add a **track event** as a trigger to your workflow directly from the workflow builder. Click on the workflow's trigger step and change the type from "API" to "Source Event." Then you'll be able to select the event and map its properties into the data the workflow needs.
+
+<Callout
+  emoji="✨"
+  text={
+    <>
+      <span className="font-bold">Using event data in workflow triggers.</span> When connecting an event to a workflow, you can use any data available within the event payload in the workflow's parameters. For example, if your payload looks like this:
+      <div className="mt-2 mb-2">
+        <pre>
+          <code>{eventPayload}</code>
+        </pre>
+      </div>
+      and you wanted the commenter from the event to appear as the{" "}
+      <code>actor</code> in the workflow, then in the{" "}
+      <code>actor</code> field, you would write{" "}
+      <code>properties.commenter.id</code> to supply their ID as the actor.
+      <br/><br/>
+      If you wanted to supply the event's <code>userId</code> as the workflow's recipient,
+      you'd write <code>userId</code> in the <code>Recipients</code> field.
+      <br/><br/>
+
+      <span className="font-bold">Note:</span> when you edit message templates,
+      all <code>properties</code> are available to you as data variables. You can access them directly in your templates without
+      the <code>properties.</code> prefix.
+    </>
+
+}
+/>
+
+[Read more on configuring workflow triggers](/integrations/sources/overview#workflow-triggers)
+
+## Disabling a trigger
+
+Triggers are automatically enabled when you create them. If you want to stop an event from triggering a workflow, you can go to the trigger page and toggle its status to "Inactive." Keep in mind that this will disable that trigger for the current environment only. When you're ready to trigger the workflow again, you can set it back to "Active."
+
+## Enabling Identify events
+
+When Segment sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `id`, `email`, `phone`, `avatar`, `name`, and any other custom properties.
+
+To enable the handling of identify events, open the settings for the source in the environment. You can then enable or disable handling identify events accordingly.
+
+<Image
+  src="/images/integrations/sources/segment-identify.png"
+  width={1954}
+  height={442}
+  className="rounded-md mx-auto border border-gray-200"
+  alt="A screenshot of how to toggle Knock handling Segment identify calls"
+/>
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Remember:</span> if you send Knock an event
+      that includes a recipient not yet identified in Knock, our system will not
+      generate a workflow run for that user. <br />
+      <br />
+      For use cases such as new signup events, where events often reach Knock
+      before identify calls, consider{" "}
+      <a href="#inline-identify-users-in-a-segment-event">
+        inline identification
+      </a>{" "}
+      of users in your Segment events.
+    </>
+  }
+/>
+
+## Inline identify users in a Segment event
+
+<Callout
+  emoji="☝️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> Inline identification is not
+      supported by our{" "}
+      <a href="/send-notifications/testing-workflows#the-workflow-test-runner">
+        workflow test runner
+      </a>
+      , which can only trigger test runs for existing users. To test inline identification
+      with a source event, you should send a test event from Segment.
+    </>
+  }
+/>
+
+In cases where you send a Segment event to Knock with recipients who may not yet have been identified in our system, it's good practice to [inline identify](/managing-recipients/identifying-recipients#inline-identifying-recipients) your users. By inline identifying your users within your Segment events, you ensure that those users are identified in Knock when your event triggers a workflow.
+
+As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified.
+
+```json title="A Segment event without inline identify"
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "segment-test-message-123",
+  "properties": {
+    "recipients": ["sam10"],
+    "account_id": "123"
+  },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
+
+To ensure the user is notified, we'd change the id reference in `recipients` to a complete user object, as in the example below. This way, Knock has all the information it needs to identify the user during workflow runtime.
+
+```json title="A Segment event with inline identify"
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "segment-test-message-123",
+  "properties": {
+    "recipients": [
+      {
+        "id": "sam10",
+        "name": "Sam Seely",
+        "email": "sam@example.com"
+      }
+    ],
+    "account_id": "123"
+  },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
+
+You can learn more about inline identification in [our guide on identifying recipients](/managing-recipients/identifying-recipients).
+
+## Video walkthrough
+
+<div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+  <iframe
+    src="https://www.youtube.com/embed/Fj8wl6TNbrI?si=D5Wt6etwiahGvKs3"
+    frameBorder="0"
+    allowFullScreen
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+    }}
+  ></iframe>
+</div>
+
+<br />
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I use a single Segment event to trigger multiple workflows?">
+    Yes. Under the **Developers** > **Sources** section in your Knock dashboard,
+    select an event from Segment to view a list of triggers configured for that
+    event. Then, in the upper right-hand corner, click the "Create workflow
+    trigger" button to select the additional workflow you want this event to
+    trigger, then click "Create." You can then make any changes to the schema
+    mapping before saving and committing the workflow with its new trigger.
+  </Accordion>
+  <Accordion title="Can I use multiple different Segment events to trigger the same workflow?">
+    Yes. To do so, go to the **Developers** > **Sources** section in your Knock
+    dashboard, select an event, and then click the "Create workflow trigger"
+    button in the upper right-hand corner. You will choose the same workflow
+    from the **Create workflow trigger** modal.
+  </Accordion>
+</AccordionGroup>

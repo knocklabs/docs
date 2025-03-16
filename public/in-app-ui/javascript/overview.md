@@ -1,0 +1,37 @@
+---
+title: "Building in-app UI in Javascript (Web)"
+description: Learn more about the in-app notification UI you can build in your web application with Knock.
+section: Building in-app UI
+---
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      If you're looking to use pre-built in-app UI elements for a web
+      application, you can look at{" "}
+      <a href="/in-app-ui/react/overview">React components</a>.
+    </>
+  }
+/>
+
+The Knock Javascript client SDK is a low-level set of methods for interacting with the Knock APIs from client-side Javascript web applications. The SDK is designed to help you easily integrate Knock into your application and build in-app notification experiences powered by Knock.
+
+## Features
+
+- API methods for interacting with the [Knock in-app API](/in-app-ui/api-overview).
+- Managed websocket connections to the Knock real-time service.
+- State management for powering in-app feeds, with optimistic client-side updates.
+
+## Getting started
+
+```bash title="Installing the package"
+npm install @knocklabs/client
+```
+
+## Links
+
+- [`@knocklabs/client` on npm](https://www.npmjs.com/package/@knocklabs/client)
+- [Package on GitHub](https://github.com/knocklabs/javascript/tree/main/packages/client)
+- [Javascript SDK reference](/sdks/javascript/reference)
+- [Javascript SDK quick start](/sdks/javascript/quick-start)

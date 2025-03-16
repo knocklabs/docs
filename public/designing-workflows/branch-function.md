@@ -1,0 +1,90 @@
+---
+title: Branch function
+description: Learn more about the branch workflow function within Knock's notification engine.
+tags:
+  [
+    "steps",
+    "branch",
+    "switch",
+    "conditions",
+    "conditional",
+    "if else",
+    "branching",
+  ]
+section: Designing workflows
+---
+
+The branch function allows you to execute discrete branches of logic within your workflows using our powerful [conditions builder](/concepts/conditions) to specify the criteria for when a branch should execute.
+
+You can think about the branch function in Knock as an `if/else` step, with the ability to add multiple `else if` clauses. Each branch has access to the full [workflow run scope](/concepts/conditions#condition-types) to evaluate conditions. Knock will execute the first branch whose conditions evaluate to `true`.
+
+<Image
+  src="/images/branch-step.png"
+  alt="Branching by a recipient plan type"
+  width={1710}
+  height={550}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+## Adding conditions to branches
+
+Each non-default branch must have at least one condition for the branch function to be valid. Conditions are added through the conditions builder, which allows you to compose conditions via `and` or `or` boolean operators. You can build conditions for branches that contain any of the types called out in the [conditions documentation](/concepts/conditions#condition-types), including access to any messages previously generated within the workflow run.
+
+## The default branch
+
+For each branch step, a default branch must always exist, although the default branch does not need to contain any steps. When none of the preceding branches evaluate to `true`, the default branch is executed.
+
+## Terminating branches
+
+Each branch in a branch function can optionally terminate the workflow. This can be useful to ensure that for certain cases you don't want the workflow to continue executing.
+
+You can toggle the ability to terminate the branch by checking the "Exit the workflow at the end of the branch" under the conditions section.
+
+## Managing branches
+
+Branches within your branch function can be:
+
+- Renamed for clarity to give a visual indicator of when the branch executes
+- Re-ordered to change the execution order
+- Deleted, removing all steps inside of the branch
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note</strong>: the default branch cannot be deleted or re-ordered.
+    </>
+  }
+/>
+
+## Debugging branches
+
+You can debug branch execution in the [workflow debugger](/send-notifications/debugging-workflows). During a workflow run for a workflow with branches, we'll highlight the specific branch paths that were executed to help you debug. We'll also highlight the conditions that led to why a particular branch was executed.
+
+<Image
+  src="/images/branch-step-debugging.png"
+  alt="Debugging a workflow run with a branch step"
+  width={1600}
+  height={900}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Do branches work with delays, throttles, and batch functions?">
+    Yes, absolutely. You can nest delays, throttles, batches, and other branch
+    steps inside of branches as well.
+  </Accordion>
+  <Accordion title="What's the maximum depth or number of branch steps I can have in a workflow?">
+    The maximum depth for branches is set at 5. If you have needs that go beyond
+    this, please reach out to discuss.
+  </Accordion>
+  <Accordion title="What's the maximum number of branches I can have in a branch function?">
+    The maximum number is currently 10 branches, including the default,
+    per-branch function.
+  </Accordion>
+  <Accordion title="Can I have conditions on the execution of the branch step itself?">
+    No, you cannot have step conditions on the branch step.
+  </Accordion>
+</AccordionGroup>

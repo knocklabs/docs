@@ -1,0 +1,39 @@
+---
+title: "Knock Flutter SDK"
+description: Learn more about integrating Knock into your Flutter applications.
+section: SDKs
+tags: ["flutter", "dart"]
+---
+
+Our [`knock_flutter`](https://pub.dev/packages/knock_flutter) library lets you create in-app notification experiences in Flutter applications using Knock's client APIs.
+
+**Quick links:**
+
+- [`knock_flutter` on pub.dev](https://pub.dev/packages/knock_flutter)
+- [Example application using the Flutter SDK](https://github.com/knocklabs/knock-flutter/tree/main/example)
+- [Full reference](/sdks/flutter/reference)
+- [GitHub repository](https://github.com/knocklabs/knock-flutter)
+
+Using the Flutter SDK it's possible to:
+
+- Integrate push notifications
+- Build in-app experiences, like feeds that update in real-time
+- Create notification preference control centers
+
+## Need help?
+
+Our Flutter library is worked on full-time by the Knock Mobile team.
+
+### Join the community
+
+Ask questions and find answers on the following platforms:
+
+- [Knock community Slack](https://knock.app/join-slack)
+
+### Provide feedback
+
+- Use the "Help" dropdown at the top of this page to contact support.
+
+### Contributing
+
+All contributors are welcome, from casual to regular. Feel free to open a [pull request](https://github.com/knocklabs/knock-flutter/pulls/new).

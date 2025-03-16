@@ -1,0 +1,31 @@
+---
+title: Knock CLI
+description: Learn how to use the Knock CLI to build, test, and manage your Knock notification system from the terminal.
+section: Developer tools
+---
+
+The Knock CLI helps you build, test, and manage your Knock notification system, right from the terminal. You can use the CLI to:
+
+- Pull Knock workflows down to your local machine and work with your notification logic and templates in your code editor.
+- [Integrate Knock into your CI/CD pipeline](/developer-tools/integrating-into-cicd) and automatically promote changes between Knock environments on release.
+- Map your translation files into Knock to localize your notifications.
+
+## Installing the CLI
+
+You can install the Knock CLI using `npm`, a node package manager, with the following command:
+
+```bash title="Installing the Knock CLI"
+npm install -g @knocklabs/cli
+```
+
+Once the CLI is installed, you can call it by using the `knock` command in your terminal. The CLI is also available via homebrew for macOS, see the installation guide [here](/cli#installation).
+
+## Authenticating the CLI
+
+The Knock CLI relies on [service tokens](/developer-tools/service-tokens) in order to authenticate against your Knock account.
+
+Once you have generated a service token, you can verify it works by running `knock whoami --service-token=YOUR_SERVICE_TOKEN`. If your token is valid and configured properly, you'll receive a 200 response that shows the account name and the service token name.
+
+## CLI reference
+
+You can find a complete reference for all of the commands and flags available on the [CLI in our comprehensive reference](/cli).

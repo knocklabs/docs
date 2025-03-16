@@ -1,0 +1,114 @@
+---
+title: How to send SMS messages with Twilio
+description: Setup guide for SMS notifications with Twilio and Knock.
+section: Integrations > SMS
+layout: integrations
+---
+
+Knock integrates with <a href="https://twilio.com/" target="_blank">Twilio</a> to send SMS notifications to your recipients.
+
+## Features
+
+- Delivery tracking
+- Bounce Support
+- Knock link tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+You can create a new Twilio channel in the dashboard under the **Integrations** > **Channels** section. From there, you'll need to take some steps in Twilio before you can configure your Twilio channel within Knock.
+
+<Steps titleSize="h3">
+  <Step title="Sign up for Twilio">
+    <a href="https://www.twilio.com/try-twilio" target="_blank">Sign up</a> for a Twilio account if you haven't already.
+  </Step>
+  <Step title="Get a Twilio phone number">
+    <a href="https://www.twilio.com/docs/messaging/guides/how-to-use-your-free-trial-account#get-your-free-twilio-phone-number" target="_blank">Get your first SMS-enabled phone number</a> in Twilio. You'll use this as the "From" phone number in your channel configuration within Knock.
+
+    (We also support Twilio <a href="https://www.twilio.com/sms/short-codes" target="_blank">short codes</a> and <a href="https://www.twilio.com/docs/messaging/services" target="_blank">messaging services</a>.)
+
+  </Step>
+  <Step title="Verify phone numbers (trial accounts only)">
+    If your Twilio account is in trial mode, you'll need to <a href="https://www.twilio.com/docs/messaging/guides/how-to-use-your-free-trial-account#appendix-one-adding-more-verified-personal-phone-numbers-to-your-account" target="_blank">pre-verify any phone numbers</a> that you plan to send SMS messages to during testing with Knock.
+  </Step>
+  <Step title="Configuring Twilio in Knock">
+    Now that you have your **Twilio phone number**, **account ID** and **auth token**, you're ready to configure your Twilio channel in the Knock dashboard under the **Integrations** > **Channels** section.
+  </Step>
+</Steps>
+
+## Channel configuration
+
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Integrations** > **Channels** in your dashboard, select your Twilio [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+
+<AccordionGroup>
+  <Accordion title="Settings">
+    Fields marked with an `*` are required.
+    
+    **Knock settings**
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your Twilio channel."
+      />
+      <Attribute
+        name="Knock link tracking"
+        type="boolean"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        description="Whether to enable Knock link-click tracking."
+      />
+    </Attributes>
+
+    **Provider settings for Twilio**
+    <Attributes>
+      <Attribute
+        name="Account ID"
+        type="string*"
+        description="The account ID from Twilio."
+      />
+      <Attribute
+        name="Auth token"
+        type="string*"
+        description="The auth token from Twilio."
+      />
+      <Attribute
+        name="From"
+        type="enum*"
+        description="The method used to send your SMS messages. One of Phone number, Short code, or Messaging Service SID."
+      />
+      <Attribute
+        name="Phone number"
+        type="string*"
+        description="The phone number to send messages from. Required when From is set to Phone number."
+      />
+      <Attribute
+        name="Short code"
+        type="string*"
+        description="The short code to send messages from. Required when From is set to Short code."
+      />
+      <Attribute
+        name="Messaging Service SID"
+        type="string*"
+        description="The Messaging Service SID to send messages from. Required when From is set to Messaging Service SID."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
+## Recipient data requirements
+
+In order to send an SMS notification you'll need a valid `phone_number` property set on your recipient.
+
+## Delivery tracking
+
+Delivery tracking for Twilio can result in the following status updates to your message:
+
+- The message delivery is confirmed and Knock updates the message to `delivered`
+- The message was not delivered due to bad recipient(s) and Knock updates the message to `bounced`
+- The message was not delivered due to an error reported by Twilio and Knock updates the message to `undelivered`

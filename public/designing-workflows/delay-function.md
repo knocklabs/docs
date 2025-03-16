@@ -1,0 +1,168 @@
+---
+title: Delay function
+description: Learn more about the delay workflow function within Knock's notification engine.
+tags: ["steps", "delays", "wait", "functions"]
+section: Designing workflows
+---
+
+A delay function does just what it sounds like: it delays the execution of the workflow for some amount of time, then proceeds to the next step. There are three types of delays we support in Knock today: "wait for fixed interval", "wait for a dynamic period", and "wait until a relative timestamp."
+
+## Wait for a fixed interval
+
+The "wait for fixed interval" delay type waits for an interval of time (provided by you in the workflow editor) and then proceeds to the next step.
+
+Fixed interval delay functions are helpful for the following use cases:
+
+- Check to see if a user's seen or read an in-app message before sending an email
+- Remind a user about a pending invite they haven't accepted
+
+## Wait for a dynamic period
+
+You can also set the length of your delay dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to set your duration.
+
+When specifying a dynamic delay period you must provide one of the following:
+
+- An [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
+- A duration unit (e.g `{ "unit": "seconds", "value": 30 }`)
+- A window rule (e.g `{ "frequency": "daily", "hours": 9, "minutes": 30 }`)
+
+A dynamic delay must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `delayUntil` in your `data` schema, your workflow trigger data must contain either an ISO-8601 timestamp, a valid duration unit, or a valid window rule.
+
+When the key specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the delay will be **skipped**.
+
+<AccordionGroup>
+  <Accordion title="Using a fixed timestamp">
+    Timestamp-based delays are helpful for reminders about resources in your product that need to be completed or addressed by a specific point in time. As an example, if a user has a task that's due three days from now and you want to remind them 24 hours before it's due, you can set a timestamp delay for the task's due date minus 24 hours.
+
+    #### An example timestamp
+
+    ```json title="Setting a delay until timestamp"
+    {
+      "delayUntil": "2024-01-05T14:00:00Z"
+    }
+    ```
+
+    You can then reference that in your delay step settings as `data.delayUntil`.
+
+  </Accordion>
+  <Accordion title="Using durations">
+    A duration will take the current time that the delay step is executing and add the duration to it to produce the delay until time. A duration object is an entity that you can set on recipients, tenants, environment variables, or in your data payload and reference on your delay step.
+
+    #### The duration schema
+
+    ```typescript title="A relative duration"
+    type Duration = {
+      unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
+      value: number;
+    };
+    ```
+
+    #### An example duration
+
+    Let's say you want to express a duration that delays for 15 minutes, here's how you structure that:
+
+    ```json title="Setting a duration"
+    {
+      "delayDuration": {
+        "unit": "minutes",
+        "value": 15
+      }
+    }
+    ```
+
+    You then reference that as `data.delayDuration` in the delay step configuration.
+
+  </Accordion>
+  <Accordion title="Using window rules">
+    A window rule determines a dynamic interval for when the delay should close. It allows you to express rules like "delay until Monday at 9am".
+
+    The window rule will always be evaluated in the [recipient's timezone](/concepts/recipients#recipient-timezones) (when set) and will fall back to the account default timezone, or "Etc/UTC".
+
+    #### The window rule schema
+
+    ```typescript title="A window rule"
+    type WindowRule = {
+      frequency: "hourly" | "daily" | "weekly" | "monthly",
+      // The specific days the rule is valid on
+      days?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"> | "weekdays" | "weekends",
+      // The hour which the rule should evaluate (defaults to 0)
+      hours?: number,
+      // The minute at which the rule should evaluate (default to 0)
+      minutes?: number,
+      // What day of the month should this rule execute (useful when monthly)
+      day_of_month?: number,
+      // How often should this rule repeat? Defaults to 1
+      interval?: number
+    };
+    ```
+
+    #### Example window rule
+
+    Let's say you want to express setting a window rule for delaying until Monday at 9am, here's how you might structure that on your recipient:
+
+    ```json title="Recipient delay window"
+    {
+      "delayUntil": {
+        "frequency": "weekly",
+        "days": ["mon"],
+        "hours": 9
+      }
+    }
+    ```
+
+    Now you can set the delay window key to `recipient.delayUntil` to reference this window rule.
+
+  </Accordion>
+</AccordionGroup>
+
+## Wait until a relative timestamp
+
+You can use our relative delay to wait some time before or after a timestamp that you provide in your workflow payload. This computes a delay time for a fixed interval relative to a dynamic timestamp.
+
+Relative delay functions are helpful for various scenarios, including:
+
+- Appointment reminders: send a notification one day before an appointment time
+- Follow-up reminders: send a follow-up message two hours after an event
+
+When configuring a relative delay, you'll specify:
+
+- A fixed delay interval (provided by you in the workflow editor)
+- Whether the delay should occur before or after the dynamic timestamp
+- The `key` for the dynamic timestamp (which can come from your trigger data, recipient data, or other sources)
+
+As in the dynamic delay section above, the key specified must be available to be resolved. If the key is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the delay will be skipped.
+
+## Using workflow cancellation with delays
+
+In cases where you're waiting to see if a user will complete an action before sending a notification, you can use our [workflow cancellation API](/send-notifications/canceling-workflows) to ensure a user doesn't receive an unnecessary reminder.
+
+If the user completes the action you were going to remind them about, cancel the workflow to keep any additional notifications from being sent.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="How do I set per-environment delay periods?">
+    Often when you're testing your Knock workflows, you'll want your delay durations to be shorter in non-production environments to aid with testing. To set per-environment delay duration you can:
+
+    - Create a new variable under **Settings** > **Variables** with a relative duration as JSON (`{ "unit": "seconds", "value": 30 }`) and a name of `delayDuration`. You can set per-environment values to specify a shorter or longer window as needed
+    - Set your delay duration to "Wait until a dynamic interval"
+    - Specify that your delay duration will come from an environment variable
+    - Set the key to `delayDuration`, which will resolve the delay duration from the variable you created
+
+  </Accordion>
+  <Accordion title="How can I cancel an open delay?">
+    You can use the [workflow cancellation API](/send-notifications/canceling-workflows) to cancel a delayed workflow. You must use a unique cancellation key to cancel a previously triggered workflow run.
+  </Accordion>
+  <Accordion title="How long can a workflow be delayed?">
+    A workflow can be delayed for a maximum of 365 days (1 year).
+  </Accordion>
+  <Accordion title="What are the guarantees around delayed workflows?">
+    Knock will ensure that your delayed workflow run will execute within ~1 - 5s of the delayed time.
+  </Accordion>
+  <Accordion title="How can I see delayed workflow runs?">
+    We currently don't have a way to view all delayed workflow runs with pending messages. If this is a feature you need, please reach out as we'd love to hear your use case.
+  </Accordion>
+  <Accordion title="What happens to paused workflow runs when I update the underlying workflow?">
+    Workflow recipient runs will always reference the workflow version that was current when the run was triggered, so your changes will not be reflected in workflow runs that are already in flight. If you need to stop a delayed workflow run because you've updated your workflow, you can use the [workflow cancellation API](/send-notifications/canceling-workflows).
+  </Accordion>
+</AccordionGroup>

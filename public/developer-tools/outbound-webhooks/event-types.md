@@ -1,0 +1,482 @@
+---
+title: Webhook event types
+description: Learn more about the types of events that Knock sends webhook events for.
+section: Developer tools > Outbound Webhooks
+tags: ["events", "data", "analytics", "webhook configuration"]
+---
+
+## Message events
+
+### `message.sent`
+
+Occurs when a message is successfully sent to a channel provider.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+</Attributes>
+
+### `message.delivered`
+
+Occurs when a message is marked as delivered to the user by the provider. This is only available on email providers with delivery tracking enabled.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+</Attributes>
+
+### `message.delivery_attempted`
+
+Occurs when a message delivery attempt fails and may be retried.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+  <Attribute
+    name="event_data"
+    type="EventData"
+    description="Additional information about the attempt, the total attempts, and whether or not it will be retried"
+  />
+</Attributes>
+
+`EventData` attributes:
+
+<Attributes>
+  <Attribute
+    name="attempt"
+    type="number"
+    description="The current attempt count"
+  />
+  <Attribute
+    name="max_attempts"
+    type="number"
+    description="The total number of attempts that can be tried"
+  />
+  <Attribute
+    name="retryable"
+    type="boolean"
+    description="Whether or not the current attempt is retryable"
+  />
+</Attributes>
+
+### `message.undelivered`
+
+Occurs when a message delivery attempt fails permanently. Delivery will not be retried.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+  <Attribute
+    name="event_data"
+    type="EventData"
+    description="May include additional information about the failure"
+  />
+</Attributes>
+
+`EventData` attributes:
+
+<Attributes>
+  <Attribute
+    name="failure_reason"
+    type="string"
+    description="The reason for a message failure"
+  />
+  <Attribute
+    name="failure_details"
+    type="string"
+    description="Details about a message failure"
+  />
+</Attributes>
+
+### `message.bounced`
+
+Occurs when a message delivery attempt fails due to bounce or a delivery status check results in a bounce because of a bad recipient(s) identifier. Delivery will not be retried.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+  <Attribute
+    name="event_data"
+    type="EventData"
+    description="May include additional information about the failure."
+  />
+</Attributes>
+
+`EventData` attributes:
+
+<Attributes>
+  <Attribute
+    name="failure_reason"
+    type="string"
+    description="The reason for a message failure"
+  />
+  <Attribute
+    name="failure_details"
+    type="string"
+    description="Details about a message bounce"
+  />
+  <Attribute
+    name="token"
+    type="string"
+    description="The erroneous token causing the bounce. Only applicable for push messages."
+  />
+</Attributes>
+
+### `message.seen`
+
+Occurs when a message is seen by its recipient.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+</Attributes>
+
+### `message.unseen`
+
+Occurs when a message is unseen by its recipient.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+</Attributes>
+
+### `message.read`
+
+Occurs when a message is read by its recipient.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+</Attributes>
+
+### `message.unread`
+
+Occurs when a message is unread by its recipient.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+</Attributes>
+
+### `message.archived`
+
+Occurs when a message is archived by its recipient.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+</Attributes>
+
+### `message.unarchived`
+
+Occurs when a message is unarchived by its recipient.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+</Attributes>
+
+### `message.interacted`
+
+Occurs when a message is interacted with by its recipient. For the Knock in-app feed, this indicates that your recipient has explicitly clicked on the notification cell in their feed.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+  <Attribute
+    name="event_data"
+    type="object"
+    description="Includes any additional metadata included in the interacted event"
+  />
+</Attributes>
+
+### `message.link_clicked`
+
+Occurs when a link is clicked by the message recipient. This is only available when Knock link tracking is enabled.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Message"
+    description="The associated message"
+    typeSlug="/reference#messages"
+  />
+  <Attribute
+    name="event_data"
+    type="EventData"
+    description="May include additional information about the link click event"
+  />
+</Attributes>
+
+`EventData` attributes:
+
+<Attributes>
+  <Attribute
+    name="url"
+    type="string"
+    description="The target URL that was clicked"
+  />
+</Attributes>
+
+## Workflow events
+
+### `workflow.updated`
+
+Occurs whenever a workflow is updated in the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Workflow"
+    description="The associated workflow"
+    typeSlug="/mapi#workflows-object"
+  />
+</Attributes>
+
+### `workflow.committed`
+
+Occurs whenever a workflow is committed to the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Workflow"
+    description="The associated workflow"
+    typeSlug="/mapi#workflows-object"
+  />
+  <Attribute
+    name="event_data"
+    type="EventData"
+    description="Additional information about the commit"
+  />
+</Attributes>
+
+`EventData` attributes:
+
+<Attributes>
+  <Attribute
+    name="commit_id"
+    type="string"
+    description="The ID of the corresponding commit for the event"
+  />
+</Attributes>
+
+## Email layout events
+
+### `email_layout.updated`
+
+Occurs whenever an email layout is updated in the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="EmailLayout"
+    description="The associated email layout"
+    typeSlug="/mapi#email-layouts-object"
+  />
+</Attributes>
+
+### `email_layout.committed`
+
+Occurs whenever an email layout is committed to the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="EmailLayout"
+    description="The associated email layout"
+    typeSlug="/mapi#email-layouts-object"
+  />
+  <Attribute
+    name="event_data"
+    type="EventData"
+    description="Additional information about the commit"
+  />
+</Attributes>
+
+`EventData` attributes:
+
+<Attributes>
+  <Attribute
+    name="commit_id"
+    type="string"
+    description="The ID of the corresponding commit for the event"
+  />
+</Attributes>
+
+## Translation events
+
+### `translation.updated`
+
+Occurs whenever a translation is updated in the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Translation"
+    description="The associated translation"
+    typeSlug="/mapi#translations-object"
+  />
+</Attributes>
+
+### `translation.committed`
+
+Occurs whenever a translation is committed to the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Translation"
+    description="The associated translation"
+    typeSlug="/mapi#translations-object"
+  />
+  <Attribute
+    name="event_data"
+    type="EventData"
+    description="Additional information about the commit"
+  />
+</Attributes>
+
+`EventData` attributes:
+
+<Attributes>
+  <Attribute
+    name="commit_id"
+    type="string"
+    description="The ID of the corresponding commit for the event"
+  />
+</Attributes>
+
+## Source event action events
+
+### `source_event_action.updated`
+
+Occurs whenever a source event action is updated in the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="SourceEventAction"
+    description="The associated source event action"
+    typeSlug="/integrations/sources/overview#events"
+  />
+</Attributes>
+
+### `source_event_action.committed`
+
+Occurs whenever a source event action is committed to the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="SourceEventAction"
+    description="The associated source event action"
+    typeSlug="/integrations/sources/overview#events"
+  />
+  <Attribute
+    name="event_data"
+    type="EventData"
+    description="Additional information about the commit"
+  />
+</Attributes>
+
+`EventData` attributes:
+
+<Attributes>
+  <Attribute
+    name="commit_id"
+    type="string"
+    description="The ID of the corresponding commit for the event"
+  />
+</Attributes>
+
+## Partial events
+
+### `partial.updated`
+
+Occurs whenever a partial is updated in the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Partial"
+    description="The associated partial"
+    typeSlug="/mapi#partials-object"
+  />
+</Attributes>
+
+### `partial.committed`
+
+Occurs whenever a partial is committed to the environment.
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="Partial"
+    description="The associated partial"
+    typeSlug="/mapi#partials-object"
+  />
+  <Attribute
+    name="event_data"
+    type="EventData"
+    description="Additional information about the commit"
+  />
+</Attributes>
+
+`EventData` attributes:
+
+<Attributes>
+  <Attribute
+    name="commit_id"
+    type="string"
+    description="The ID of the corresponding commit for the event"
+  />
+</Attributes>

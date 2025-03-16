@@ -1,0 +1,50 @@
+---
+title: Push notifications with Knock
+description: Learn how to send mobile push notifications with Knock.
+tags: ["push", "android", "ios", "react native"]
+section: Integrations > Push
+layout: integrations
+---
+
+Knock supports sending push notifications directly to native services such as Apple Push Notifications service (APNs) (for iOS notifications) and Firebase Cloud Messaging (for Android push notifications). We also support delivery of notifications through push intermediary services such as Expo.
+
+## Features
+
+- **No stateful connections to manage**: we take care of all of the complexity of managing and maintaining stateful connections to your push providers, just simply send us notifications and we'll get them delivered!
+- **Cross-provider, single template**: you can send the same templated message across multiple providers to reduce the amount of templates to maintain.
+- **Token deregistration**: if a recipient's token(s) is invalid resulting in a `bounced` message when attempting to send, remove the token.
+
+## Channel groups
+
+When you create your first push channel in Knock, you'll notice that we offer a channel group that combines both Apple Push Notifications service (APNs) and Firebase Cloud Messaging. If you are sending notifications directly to each of these services today, consider using a channel group in Knock.
+
+A **channel group** can send to multiple providers at once from a single channel step within a workflow. Here's why that's powerful.
+
+Without a channel group in place, any workflows that send push notifications will need two channel steps in place, one for Apple and one for Firebase. This can be valuable when you want to take advantage of provider-specific functionality, but in cases where you want to send identical notifications to both providers, it means duplicating (and maintaining) the notification design across both channel steps.
+
+With a channel group in place, you can send identical notifications to Apple and Firebase, from the same channel step. This means you can design the notification once, and move on.
+
+<Image
+  src="/images/integrations/push/channel-group-example.png"
+  width={2252}
+  height={928}
+  className="rounded-md mx-auto border border-gray-200"
+  alt="Workflow with push channel group. One step with a single notification design to update and manage."
+/>
+
+Channel groups are currently enabled on an on-demand basis. If you'd like it enabled for your account, you can request access in the dashboard or send us a note using the feedback button at the top of this page.
+
+## Push overrides
+
+For push-specific sending needs, a set of overrides can be set per template from the "Template settings" button on the push message template page. The overrides provided are merged into the push payload sent to the underlying provider and can be used to set badge counts, custom sound files, and any other provider-specific settings.
+
+By default, all overrides are applied with a `merge` strategy, which can be customized by adding a `__strategy__` key to the top level of the JSON payload and setting as `replace`. When the strategy is set to replace, all existing properties will be overridden with what's included in the overrides JSON.
+
+## Supported providers
+
+- [Apple Push Notifications service (APNs)](/integrations/push/apns)
+- [Expo (React Native)](/integrations/push/expo)
+- [Firebase Cloud Messaging (Android)](/integrations/push/firebase)
+- [OneSignal](/integrations/push/one-signal)
+
+If you want us to add a new provider to this list, please let us know through the feedback button at the top of this page.

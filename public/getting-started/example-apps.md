@@ -1,0 +1,100 @@
+---
+title: Knock example apps
+description: Example applications to help you get started with Knock.
+tags: ["nodejs", "using knock", "getting started", "react"]
+section: Getting started
+---
+
+Below you'll find a number of Knock example apps to learn from or incorporate into your project.
+
+## In-app notification examples (web)
+
+<SdkCardGroup>
+  <SdkCard
+    title="In-app feed & toasts"
+    linkUrl="https://github.com/knocklabs/in-app-notifications-example-nextjs"
+    icon="react"
+    languages={["React", "Next.js"]}
+    isExternal={true}
+  />
+  <SdkCard
+    title="In-app feed"
+    linkUrl="https://github.com/knocklabs/angular-in-app-feed-example"
+    icon="angular"
+    languages={["Angular"]}
+    isExternal={true}
+  />
+  <SdkCard
+    title="Notion-style feed"
+    linkUrl="https://github.com/knocklabs/notion-feed-example"
+    icon="react"
+    languages={["React", "Next.js"]}
+    isExternal={true}
+  />
+  <SdkCard
+    title="In-app feed & toasts"
+    linkUrl="https://github.com/knocklabs/nuxt-feed-example"
+    icon="vue"
+    languages={["Vue.js", "Nuxt"]}
+    isExternal={true}
+  />
+  <SdkCard
+    title="Linear-style inbox"
+    linkUrl="https://github.com/knocklabs/inbox-example-app"
+    icon="react"
+    languages={["Next.js", "React"]}
+    isExternal={true}
+  />
+</SdkCardGroup>
+
+## Web app examples
+
+<SdkCardGroup>
+  <SdkCard
+    title="SlackKit example"
+    linkUrl="https://github.com/knocklabs/slack-kit-example"
+    icon="react"
+    languages={["React", "Next.js"]}
+    isExternal={true}
+  />
+  <SdkCard
+    title="Webhook example"
+    linkUrl="https://github.com/knocklabs/customer-facing-webhooks-example"
+    icon="react"
+    languages={["React", "Next.js"]}
+    isExternal={true}
+  />
+  <SdkCard
+    title="Alerting example"
+    linkUrl="https://github.com/knocklabs/alerting-example"
+    icon="react"
+    languages={["React", "Next.js"]}
+    isExternal={true}
+  />
+  <SdkCard
+    title="Marketplace example"
+    linkUrl="https://github.com/knocklabs/marketplace-example"
+    icon="react"
+    languages={["React", "Next.js"]}
+    isExternal={true}
+  />
+</SdkCardGroup>
+
+## Mobile examples
+
+<SdkCardGroup>
+  <SdkCard
+    title="iOS example"
+    linkUrl="https://github.com/knocklabs/ios-example-app"
+    icon="swift"
+    languages={["Swift"]}
+    isExternal={true}
+  />
+  <SdkCard
+    title="Android example"
+    linkUrl="https://github.com/knocklabs/knock-android/tree/main/knock-example-app"
+    icon="kotlin"
+    languages={["Kotlin"]}
+    isExternal={true}
+  />
+</SdkCardGroup>

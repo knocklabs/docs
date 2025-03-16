@@ -1,0 +1,406 @@
+---
+title: Batch function
+description: Learn more about the batch workflow function within Knock's notification engine.
+tags: ["steps", "batch", "batched messages", "batching", "digests", "functions"]
+section: Designing workflows
+---
+
+A batch function collects notifications that have to do with the same subject, so you can send fewer notifications to your users.
+
+Batch functions are helpful when a recipient needs to be notified about a lot of activity happening at once, but doesn't need a notification for every single activity within the batch.
+Commenting is a common use case. If a user leaves ten comments in a page in fifteen minutes, you don't want to send the user ten separate notifications. You want to send them one notification about the ten comments they just received.
+
+## How batching works
+
+Here's a step-by-step breakdown of how a batch function works:
+
+- When a given per-recipient workflow run hits a batch step, the batch function will stay open for an interval of time which you define (the [batch window](#setting-the-batch-window)).
+- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient**. If a [batch key](#selecting-a-batch-key) is provided in your batch step, the incoming triggers **for that recipient** will be grouped into **separate batches based on batch key.**
+- When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch available in the workflow run scope. You can read more in the ["using batch variables" section](#using-batch-variables) of this guide.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      By default the batch will only return the first (or last) 10 items to be
+      rendered in your template. This limit can be configured on our Enterprise
+      Plan (up to 100 items). The batch can, however, accumulate{" "}
+      <strong>any number of items</strong> over the window that it's open.
+    </>
+  }
+/>
+
+## Selecting a batch key
+
+A batch function always batches incoming notifications **per recipient**. If you do not provide a batch key, your batch function will just batch per recipient. If you do provide a batch key, your batch function will batch by recipient and then by your batch key. A batch key resolves to a value in your `data` payload by which to group incoming notifications.
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">A quick tip.</span> Here's a helpful way to
+      think about batching. By default the batch function batches on a key of{" "}
+      <code>recipient_id</code>. When a batch key is provided, it batches on a
+      key of <code>concat(recipient_id, batch_key)</code>.
+    </>
+  }
+/>
+
+As an example, in a document editing app where a recipient is receiving notifications about activity across different pages, you can provide a batch key of `page_id` and the user will receive different batch notifications about each page that was included in the batch.
+
+<figure>
+  <Image
+    src="/images/functions/functions_batch_page.png"
+    alt="Using the batch function to batch new comment notifications by page."
+    width={1710}
+    height={550}
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Using the batch function to batch new comment notifications by page.
+  </figcaption>
+</figure>
+
+Here's a detailed walkthrough of how this example might work in practice:
+
+- You have a `new-comment` workflow that includes a batch step.
+- You send six trigger calls to that workflow: three about `page A` and three about `page B`. The trigger calls are all for the same recipient Elmo.
+- If your batch step does not have a batch key, Elmo will receive a batched notification about six activities.
+- If your batch step includes a batch key of `page_id`, Elmo will receive two notifications: one for the three activities about `page A` and one for the three activities about `page B`.
+
+## Setting the batch window
+
+The batch window determines the length of time that the batch will be open, with the window opening from the **first** time the batch is triggered.
+
+### Set a fixed batch window
+
+You can set a fixed duration batch window using the "Batch for a fixed window" option in the batch step. The window accepts a relative duration, which can be specified in seconds, minutes, hours, or days.
+
+The batch is opened when it is first triggered for a given recipient. The batch is closed after the fixed duration of time has elapsed.
+
+### Set a dynamic batch window using a variable
+
+You can also set the length of your batch windows dynamically using a variable. You can use any of the data, recipient, actor, or environment variables associated with the workflow run to retrieve your dynamic batch window.
+
+When specifying a dynamic batch window you must provide one of the following:
+
+- An [ISO-8601 timestamp](https://en.wikipedia.org/wiki/ISO_8601) (e.g. `2022-05-04T20:34:07Z`) which must be a datetime in the future
+- A relative duration (e.g `{ "unit": "seconds", "value": 30 }`)
+- A window rule (e.g `{ "frequency": "daily", "hours": 9, "minutes": 30 }`)
+
+A dynamic window must be available to be resolved via the `key` you specify on the given schema, meaning that if you specify a key of `batchWindow` in your `data` schema, your workflow trigger data must contain either an ISO-8601 timestamp, a valid duration unit, or a valid window rule.
+
+When the key specified is missing or resolves to an invalid value, a corresponding error will be logged on the workflow run, and the batch will be **skipped**.
+
+<AccordionGroup>
+  <Accordion title="Using a fixed timestamp">
+    A fixed timestamp will tell Knock to close the batch window at the exact date time you provide. It must be a valid ISO-8601 timestamp in the future.
+
+    #### An example timestamp
+
+    ```json title="Setting a batch until timestamp"
+    {
+      "batchUntil": "2024-01-05T14:00:00Z"
+    }
+    ```
+
+    You can then reference that in your batch step settings as `data.batchUntil`.
+
+  </Accordion>
+  <Accordion title="Using durations">
+    A duration will take the current time that the batch step is executing and add the duration to it to produce the batch window closing time. A duration object is an entity that you can set on recipients, tenants, environment variables, or in your data payload and reference on your batch window.
+
+    #### The duration schema
+
+    ```typescript title="A relative duration"
+    type Duration = {
+      unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
+      value: number;
+    };
+    ```
+
+    #### An example duration
+
+    Let's say you want to express a duration that will always close a batch window 1 day after the batch is started, here's how you structure that:
+
+    ```json title="Setting a duration"
+    {
+      "batchDuration": {
+        "unit": "days",
+        "value": 1
+      }
+    }
+    ```
+
+    You then reference that as `data.batchDuration` in the batch step configuration.
+
+  </Accordion>
+  <Accordion title="Using window rules">
+    A window rule determines when the next occurrence of the batch window should be executed. It allows you to express rules like "batch until Monday at 9am", or "keep the batch window open for 2 weeks until the next Friday."
+
+    The window rule will always be evaluated in the [recipient's timezone](/concepts/recipients#recipient-timezones) (when set) and will fall back to the account default timezone, or "Etc/UTC".
+
+    #### The window rule schema
+
+    ```typescript title="A window rule"
+    type WindowRule = {
+      frequency: "hourly" | "daily" | "weekly" | "monthly",
+      // The specific days the rule is valid on
+      days?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"> | "weekdays" | "weekends",
+      // The hour which the rule should evaluate (defaults to 0)
+      hours?: number,
+      // The minute at which the rule should evaluate (default to 0)
+      minutes?: number,
+      // What day of the month should this rule execute (useful when monthly)
+      day_of_month?: number,
+      // How often should this rule repeat? Defaults to 1
+      interval?: number
+    };
+    ```
+
+    #### Example window rule
+
+    Let's say you want to express setting a window rule for batching weekly on a Monday at 9am, here's how you might structure that on your recipient:
+
+    ```json title="Recipient batch window"
+    {
+      "batchWindow": {
+        "frequency": "weekly",
+        "days": ["mon"],
+        "hours": 9
+      }
+    }
+    ```
+
+    And now you can set the batch window key to `recipient.batchWindow` to reference this window rule.
+
+  </Accordion>
+</AccordionGroup>
+
+**Please note**: an open batch window will never be extended by a subsequent workflow trigger with a different dynamic batch window specified. Once a given batch has been opened by a workflow trigger, its window interval is immutable.
+
+When the key specified is missing, or resolves to an invalid value, a corresponding error will be logged on the workflow run and the batch will be **skipped**.
+
+### Using a sliding batch window
+
+By default, all batch windows are fixed, where the closing of the batch window is determined by the first trigger that starts the batch. In some situations, you may wish to "extend" the batch window when a new trigger is received to recompute the closing time of the batch. This option is supported in the batch step as a "sliding window."
+
+When a sliding window is enabled on a batch function, subsequent workflow triggers that are detected by the already-open batch window will add the configured default window duration onto the already-open batch window. Let's walk through an example:
+
+- 🎛️ [Initial batch window: 1 minute]
+- Trigger: the batch opens with a closing window of `now() + 1 min`
+- ⏲️ [30 seconds pass]
+- Trigger: new item added to the batch, the closing window is recomputed to be `now() + 1 min`, a total of 1 minute and 30 seconds from when the batch was opened
+- ⏲️ [1 minute passes]
+- The batch closes after 1 minute and 30 seconds
+
+#### Setting a maximum batch window duration
+
+When using a sliding batch window, you must set an extension limit for the batch. This value represents the maximum amount of time that a batch window can remain open if it is extended by subsequent workflow triggers.
+This "Max window limit" option is displayed once you enable a sliding window by selecting "Extend window when new activities are received," and can be set as any duration unit.
+
+Once configured, Knock will compute the maximum extended batch window for subsequent triggers as the time your batch was initially opened plus the maximum window duration. For example:
+
+- 🎛️ [Initial batch window: 12 hours]
+- 🎛️ [Max extension limit: 24 hours]
+- Trigger: the batch opens with a closing window of `now() + 12 hrs`
+- ⏲️ [6 hours pass]
+- Trigger: new item added to the batch, the closing window is recomputed to be `now() + 12 hrs`, a total of 18 hours from when the batch was opened
+- ⏲️ [Another 7 hours pass]
+- Trigger: new item added to the batch, the closing window is recomputed to be `now() + 12 hrs`, which would be a total of 25 hours. Because this exceeds the maximum extension limit, the window is set to close 24 hours after it was opened
+- ⏲️ [Another 3 hours pass]
+- Trigger: new item added to the batch. The closing window is not recomputed because the maximum extension has already been reached
+- ⏲️ [Another 8 hours pass]
+- The batch closes after 24 hours
+
+If you configure your maximum window with a value that is _less_ than the initial window duration, subsequent batched triggers will shorten the overall window. If this new maximum duration has already elapsed, the batch window will immediately close and the workflow run will proceed.
+
+- 🎛️ [Initial batch window: 24 hours]
+- 🎛️ [Max extension limit: 12 hours]
+- Trigger: the batch opens with a closing window of `now() + 24 hrs`
+- ⏲️ [23 hours pass]
+- Trigger: new item added to the batch, the closing window is recomputed to be `now() + 24 hrs`, a total of 47 hours from when the batch was opened. This exceeds the configured maximum of 12 hours, so the window is set to close 12 hours after it was opened
+- Because 12 hours have already elapsed, the batch window closes immediately (after 23 hours have elapsed)
+
+To avoid confusion, we recommend always choosing a max extension limit duration that is greater than your initial batch window duration.
+
+## Setting the maximum activity limit
+
+Optionally, you can also set a maximum limit for the number of activities allowed to be accumulated in a given batch, at anywhere between 2 and 1000 activities.
+
+When this option is set, your batch window will close as soon as the number of activities accumulated in the batch reaches the maximum limit set, regardless of the amount of time remaining in its fixed or sliding batch window.
+
+## Setting the batch order
+
+Although batches will accumulate every activity added to the batch, only ten items will be returned in `activities` once the batch step window closes. There are two options for which ten activity objects will be returned when the batch step closes:
+
+- **The first ten (default):** The ten oldest activity objects added to the batch step will be returned.
+- **The last ten:** The ten newest activity objects added to the batch will be returned.
+
+Note that for both settings, the `activities` variable will always be sorted in chronological order (oldest to most recent).
+
+## Immediately flushing the first item in a batch
+
+Batch steps optionally support a mode to immediately flush the first item in a batch. This mode is useful when you want to immediately notify a user about the first item in a batch, and then accumulate additional items over a window of time.
+
+To enable this mode, you can toggle on "Immediately flush leading item" in the "Advanced settings" section of the batch step.
+
+When this mode is enabled, the first item for an unopened batch will "open" the batch and the usual batching rules will apply. However, unlike a normal batch, the first item will **not be included in the `activities` of the batch** and will instead continue execution past the batch step.
+
+If you want to branch on whether the first item in a batch was flushed or not, you can use the `total_activities` variable to do so. When it is set to 1, you know that you're working with the first item in a batch.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Please note:</span> if there is never a second
+      item added to the batch, the batch will noop on closing as there is
+      nothing in it to execute.
+    </>
+  }
+/>
+
+## Working with batches in your templates
+
+Another important aspect of batch functions is that they generate state that can be used in your templates. Let's continue the commenting example we used above.
+
+In this scenario, we'll want different copy in our notification for when a batch includes one item ("Jane left a comment") v. when a batch includes more than one item ("Jane left _n_ comments").
+
+We can address use cases like this by referencing the `total_activities` variable within our workflow.
+Here's an example of a message template that uses this variable to determine what type of copy to use:
+
+```markdown
+{% if total_activities > 1 %}
+{{ actor.name}} left {{ total_activities }} comments on {{ page_name }}
+{% else %}
+{{ actor.name}} left a comment on {{ page_name }}.
+{% endif %}
+```
+
+Here's a list of the variables that you can use to work with batch-related state.
+
+- `total_activities`. The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight).
+- `total_actors`. The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification).
+- `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your trigger call. The `activities` variable lists the _first_ or _last_ ten activity objects added to the batch (configurable by setting the [batch order](#setting-the-batch-order)). Each activity includes any data properties you sent along in the trigger call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
+
+  ```
+  {% for activity in activities %}
+  <p>{{ activity.actor.name }} commented on {{ activity.pageName }} with:</p>
+
+  <blockquote>
+  {{ activity.content }}
+  </blockquote>
+  {% endfor %}
+  ```
+
+- `actors`. A list of up to ten of the unique actors included within the batch, where each actor is a user object with the properties available on your Knock user schema. The `actors` variable lists the _first_ or _last_ ten actors added to the batch.
+
+### Setting the batch render limit (beyond 10)
+
+<Callout
+  emoji="✨"
+  text={
+    <>
+      <span className="font-bold">Enterprise plan feature.</span> The render
+      limit setting for batch activities and actors is only available on our{" "}
+      <a href="https://knock.app/pricing">Enterprise plan.</a>
+    </>
+  }
+/>
+
+By default, up to ten items will be returned in `activities` and `actors` variables inside your templates after the batch window closes.
+
+On the Enterprise plan, you can configure the maximum number of `activities` and `actors` to be rendered in your templates beyond the default limit of 10, to any number between 2 and 100.
+
+## Using workflow cancellation with batches
+
+If you want to remove an item from a batch (example: a user deletes a comment), you can use our [workflow cancellation API](/send-notifications/canceling-workflows) to cancel a batched item, thereby removing it from the batch.
+
+<Callout
+  emoji="⛔"
+  text={
+    <>
+      <span className="font-bold">Important:</span> Once a batch window has been
+      opened, it will remain open until its full duration has elapsed. Any
+      workflow cancellation will remove the specific individual workflow run
+      that it references from the batch.
+      <br />
+      <br />
+      Because of this behavior, it's important to remember that <span className="font-bold">
+        canceling a workflow run that opened a batch window will never close the
+        batch window itself.
+      </span> Any subsequent triggers to that recipient/workflow key combination
+      will add activities to the open batch, and those activities will proceed when
+      the batch window closes if their respective workflow runs are not also canceled.
+      See the FAQs below for a workaround to close an open batch window.
+    </>
+  }
+/>
+
+---
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="How do I set per-environment batch windows?">
+    Often when you're testing your Knock workflows, you'll want your batch windows to be shorter in non-production environments to aid with testing. To set per-environment batch windows you can:
+
+    - Create a new variable under **Settings** > **Variables** with a relative duration as JSON (`{ "unit": "seconds", "value": 30 }`) and a name of `batchWindow`. You can set per-environment values to specify a shorter or longer window as needed
+    - Set your batch window to "Batch for a dynamic interval"
+    - Specify that your batch window will come from an environment variable
+    - Set the key to be `batchWindow`, which will resolve the batch window from the variable you created
+
+  </Accordion>
+  <Accordion title="Can I close a batch early?">
+    Right now we don't offer a way to close a batch from a workflow trigger. One workaround is to use a [sliding batch window](/designing-workflows/batch-function#using-a-sliding-batch-window) and then set the max extension window to be a very small duration (i.e. 1 second), meaning that the batch will immediately close when a subsequent trigger occurs.
+  </Accordion>
+  <Accordion title="How can items be removed from a batch?">
+    You can use the [workflow cancellation API](/send-notifications/canceling-workflows) to remove an item that has been accumulated into an active batch. If all items have been removed from the batch when its window closes, any channel steps proceeding will be skipped.
+  </Accordion>
+  <Accordion title="How many items can a batch contain?">
+    A batch can support an unbounded number of items per recipient, although we will only ever return either the first 10 or last 10 items to be rendered in your template. On Enterprise plan, you can configure to include up to 100 via the [render limit setting](/designing-workflows/batch-function#setting-the-batch-render-limit-beyond-10).
+  </Accordion>
+  <Accordion title="How many items can I reference in my templates from a batch?">
+    We will by default expose at most 10 activities to your template rendered in your batch (available under the `activities` variable). The `total_activities` will always include the total amount of bundled
+    activities in the batch. On Enterprise plan, you can configure to include up to 100 via the [render limit setting](/designing-workflows/batch-function#setting-the-batch-render-limit-beyond-10).
+  </Accordion>
+  <Accordion title="How can I change the order of the batch to retrieve the last 10 items instead of the first 10 items?">
+    You can use the "Batch order" setting on the batch step to set if you want the first 10 items (the default) or the last 10 items added to the batch.
+  </Accordion>
+  <Accordion title="Once activities are batched in an activity, how can I access them?">
+    You can use the `activities` property in your template to access the items included in the batch. Each `activity` will include any `data` sent along with the workflow trigger that was batched.
+  </Accordion>
+  <Accordion title="Is batching the same as digesting notifications?">
+    You can think about batching as a per-recipient, per-workflow summary of notifications that should be sent together. Many of our Knock customers use batching as a form of digest to reduce the number of notifications that their users receive. If you have more advance digesting needs that aren't covered by our current batching implementation, [please get in touch](mailto:support@knock.app).
+  </Accordion>
+  <Accordion title="Do you support per-recipient batch windows and timezones?">
+    We're currently working on this feature! If you'd like early access, please [get in touch with us](mailto:support@knock.app?subject=Per%20recipient%20batch%20windows).
+  </Accordion>
+  <Accordion title="How can I query for messages or feed items that were generated from activities with given workflow trigger call data?">
+    When messages are generated from a batch step, the workflow trigger call data for the first (or last) 10 activities of the batch will be combined into one single entity at batch closing time.
+    You will be able to filter messages or feed items using the `trigger_data` parameter of our API, which will filter the results to only the items whose workflow trigger call's data
+    contain the given `trigger_data` value.
+
+    This means that using the `trigger_data` parameter will only return items for which the combined workflow trigger call data of the
+    first (or last) 10 activities contain the value used on the `trigger_data` parameter. If you are using a value for the `trigger_data` parameter which is not included in the
+    first (or last) 10 activities of an item, then the item will be returned.
+
+    To understand how the combined trigger call data will look like, let's take a look at the following example:
+
+    Let's consider the case where a message was generated after a batch step with 2 batched activities closes.
+    The first activity was generated by workflow trigger call with the following trigger data: `{page: "A"}`.
+    The second activity was generated by a workflow trigger with the following trigger data: `{page: "B"}`.
+    When the batch closes, the trigger data of both activities will be merged into a single object that will contain the `{page: "B"}`.
+    If we try to filter messages or feed items using the `trigger_data` filter with value`{page: "A"}`, the message in the example won't be returned.
+
+  </Accordion>
+  <Accordion title="Can I dynamically extend the batch window?">
+    Yes, if you use the [sliding batch window](#using-a-sliding-batch-window) option then the batch window can always be extended past its original setting. When combined with a dynamic batch window from a variable, this allows you to control exactly when a specific batch window should close.
+  </Accordion>
+  <Accordion title="Can I close a batch window by the number of items in the batch?">
+    Yes, you can optionally set the [maximum activity limit](#setting-the-maximum-activity-limit) to conditionally close the batch window based on the number of items contained in the batch.
+  </Accordion>
+  <Accordion title="Is the order of my batch activities guaranteed?">
+    We cannot guarantee the order of requests made within quick succession (&lt; 2s) and the order they appear in the batch. If you need a guaranteed order, then you will need to enqueue requests with latency in your system.
+  </Accordion>
+</AccordionGroup>

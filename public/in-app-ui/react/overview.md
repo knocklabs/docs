@@ -1,0 +1,62 @@
+---
+title: "Building in-app UI in React"
+description: Learn more about the in-app notifications experiences you can build in React with Knock. Easily power notification feeds, toasts, and inbox experiences.
+section: Building in-app UI
+---
+
+Our [`@knocklabs/react`](https://github.com/knocklabs/javascript/tree/main/packages/react) library lets you create notification experiences using Knock's APIs. It comes with pre-built UI components that you can use to easily get up and running with a fully functional notification feed experience in your product.
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">New Knock React components.</span> If you're
+      currently using <code>@knocklabs/react-notification-feed</code>, check out
+      our{" "}
+      <a href="/in-app-ui/react/migrating-from-react-notification-feed">
+        migration guide
+      </a>{" "}
+      to learn how to use our new React library.
+    </>
+  }
+/>
+
+## Pre-built components
+
+The Knock React SDK ships the following pre-built UI elements:
+
+### In-app notifications
+
+- `NotificationFeedPopover`: a managed popover for displaying a list of notifications.
+- `NotificationFeed`: a full-page list of notifications.
+- `NotificationIconButton`: for adding a bell icon to your application that shows the current count of unread or unseen notifications.
+
+### SlackKit
+
+- `SlackChannelCombobox`: for picking one or more Slack channels to route notifications to.
+- `SlackAuthButton`: for managing the OAuth process between your Slack application and your customer's Slack workspace.
+
+### TeamsKit
+
+- `MsTeamsChannelCombobox`: for picking one or more Microsoft Teams channels to route notifications to.
+- `MsTeamsAuthButton`: for managing the OAuth process between your Microsoft Teams bot and your customer's Microsoft Entra tenant.
+
+## Hooks for headless UI
+
+If you don't want to use the pre-built UI components, you can also use this library in a headless way and bring your own UI. The Knock React SDK includes a complete set of React hooks that you can use to build your own UI on top of.
+
+## Guides
+
+- [Integrating the `NotificationFeedPopover`](/in-app-ui/react/feed)
+- [Real-time notification toasts](/in-app-ui/react/toasts)
+- [Notification inbox](/in-app-ui/react/inbox)
+- [Building custom notification UI using hooks](/in-app-ui/react/custom-notifications-ui)
+- [Building a notification preferences page](/in-app-ui/react/preferences)
+
+## Links
+
+- [`@knocklabs/react` on npm](https://www.npmjs.com/package/@knocklabs/react)
+- [`@knocklabs/client` on npm](https://www.npmjs.com/package/@knocklabs/client)
+- [Package on GitHub](https://github.com/knocklabs/javascript/tree/main/packages/react)
+- [React SDK reference](/sdks/react/reference)
+- [JS SDK reference](/sdks/javascript/reference)

@@ -1,0 +1,260 @@
+---
+title: "Preferences overview"
+description: "Learn how to implement notification preferences in Knock."
+tags: ["recipients", "conditions", "prefs", "preferences"]
+section: Preferences
+---
+
+[Preferences](/reference#preferences) enable your users to opt-out of the notifications you send using Knock.
+
+## How preferences work
+
+A user has a <a href="/reference#preferences">`PreferenceSet`</a>. A `PreferenceSet` is a JSON object that tells Knock which channels, categories, and/or workflows a user has opted out of receiving.
+
+When Knock runs a workflow for a user, we evaluate their `PreferenceSet`. A message will not send if the user has opted out of receiving it.
+
+A preference set is built using three keys: `categories`, `channel_types`, `workflows`. These keys resolve to boolean values to determine if a user has opted out of receiving a notification.
+
+A few examples:
+
+```json title="Unsubscribe user from admin category notifications"
+{
+  "categories": { "admin": false }
+}
+```
+
+<br/>
+```json title="Unsubscribe user from email notifications"
+{
+  "channel_types": { "email": false }
+}
+```
+<br/>
+```json title="Unsubscribe user from at-mention notifications"
+{
+  "workflows": { "mention": false }
+}
+```
+
+You can combine these keys to create preference grids like the one in the image below:
+
+```json title="A preference grid for categories and channels"
+{
+  "categories": {
+    "collaboration": {
+      "channel_types": {
+        "email": true,
+        "in_app_feed": true
+      }
+    },
+    "project-updates": {
+      "channel_types": {
+        "email": false,
+        "in_app_feed": true
+      }
+    }
+  },
+  "workflows": {
+    "invoice-issued": {
+      "channel_types": {
+        "email": true
+      }
+    }
+  }
+}
+```
+
+The `PreferenceSet` above models this preference grid in your application:
+
+<Image
+  src="/images/what-is-knock/preferences.png"
+  alt="An image of a preference set"
+  width={1356}
+  height={1452}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+<Callout
+  mt={4}
+  emoji="👩‍💻"
+  text={
+    <>
+      <span className="font-bold">See an example.</span> Check out{" "}
+      <a href="https://in-app-demo.knock.app/preferences" target="_blank">
+        our interactive example app
+      </a>{" "}
+      to see how making changes to the preference center UI updates the values
+      of a&nbsp;
+      <code>PreferenceSet</code>
+    </>
+  }
+/>
+
+## Build your preference center
+
+Before you start setting preferences for your users, you need to build a preference center in your application. A preference center is a place where users can manage their notification preferences.
+
+There are four steps to building a preference center with Knock:
+
+<Steps titleSize="h3">
+  <Step title="Create a default PreferenceSet">
+    A default preference set is the `PreferenceSet` users default to using when they first sign up for your product. Any users who don't have a preference set will default to using the default preference set. You can create a default preference set in the Knock dashboard under **Developers** > **Preferences**.
+
+    <Image
+      src="/images/concepts/preferences/preferences default set environment.png"
+      alt="Creating a default preference set in Knock dashboard"
+      width={1331}
+      height={737}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
+
+    The default preference set is environment-specific for testing purposes. You can copy the default preference set from one environment to another to keep your environments in sync.
+    <Callout
+
+    mt={4}
+    emoji="💡"
+    text={
+    <>
+    <span className="font-bold">A note on merging preferences</span>
+    <p>
+    If you create either a environment or tenant default{" "}
+    <code>PreferenceSet</code> those preferences will be merged with changes
+    a user makes in the UI, with the user-specified changes taking
+    precedence.
+    </p>
+    </>
+    }
+
+/>
+
+  </Step>
+  {/* TODO: We need to scope and build this with Chris then can add this step. 
+  <Step title="Create a PreferenceView">
+    
+    
+    A `PreferenceView` defines the user-facing labels for any workflows or categories in your default preference set. This enables you to introduce new keys into your default preference set and have them update in your preference center, without needing to make changes within your codebase.
+
+    You can create your `PreferenceView` in the Knock dashboard under **Developers** > **Preferences**. Your `PreferenceView` will be environment-specific for testing purposes. You can copy the `PreferenceView` from one environment to another to keep them in sync.
+
+  </Step> */}
+  <Step title="Get a user's preferences">
+    {/* TODO add once we have pre-built react component for prefs
+    You can use our pre-built React component to render your preference center in your application. Here's an example of how you can use the component:
+
+    ```jsx
+    TODO: We need this component built and documented.
+    ``` */}
+
+    Once you have your default `PreferenceSet` created, you will use the `getPreferences` method to retrieve a user's preferences for rendering in your application. If no preferences are set, this method will return the default preference set you created in the step above.
+
+    <MultiLangCodeBlock
+      title="Get preferences for a user"
+      snippet="users.getPreferences"
+    />
+
+  </Step>
+  <Step title="Render your preference center">
+    {/* TODO add once we have pre-built react component for prefs
+    You can use our pre-built React component to render your preference center in your application. Here's an example of how you can use the component:
+
+    ```jsx
+    TODO: We need this component built and documented.
+    ``` */}
+
+    Once you have loaded a user's preference, you'll need to render an interface in your application so they can update their notification preferences. Typically you encapsulate all of the getting and setting of preferences in a single component.
+
+    You can see an example of this below, but our [quickstart guide on building preferences UI](/in-app-ui/react/preferences) provides an in-depth walkthrough of how to build a functional `PreferenceCenter` component.
+
+```jsx title="A basic preference center"
+<PreferenceCenter />
+```
+
+<Image
+  src="/images/concepts/preferences/preference-center.png"
+  alt="A basic preference center"
+  width={1184}
+  height={714}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+  </Step>
+  <Step title="Set a user's preferences">
+    When a user makes changes to their preferences in your application, you will use the `setPreferences` method to save those changes back to Knock.
+
+    <MultiLangCodeBlock
+      title="Set preferences for a user"
+      snippet="users.setPreferences"
+    />
+
+  </Step>
+</Steps>
+    You can learn more about rendering preferences to users in your application in the [Building In-app UI](/in-app-ui/overview) section of our documentation:
+<SdkCardGroup>
+  <SdkCard
+    title="Quickstart: Preference UIs in React"
+    linkUrl="/in-app-ui/react/preferences"
+    icon="react"
+    languages={["React"]}
+    isExternal={false}
+  />
+  <SdkCard
+    title="Javascript SDK preference reference"
+    linkUrl="/sdks/javascript/reference#preferences"
+    icon="javascript"
+    languages={["JavaScript"]}
+    isExternal={false}
+  />
+</SdkCardGroup>
+
+## Merging preferences
+
+When a default `PreferenceSet` exists for an environment or tenant, Knock will merge all applicable preferences for a recipient when evaluating whether or not to send a notification. Any preferences set at the recipient-level will take precedence in the merge.
+
+## Preference evaluation rules
+
+When a workflow is triggered, Knock will evaluate the preferences for each `recipient` of the workflow and send notifications for each channel step in the workflow based on that evaluation. There are some important rules and caveats to consider:
+
+<AccordionGroup>
+  <Accordion title="General preference rules">
+    - If you do not set a preference for a given channel, workflow, or workflow category, Knock defaults them to `true`.
+  </Accordion>
+  <Accordion title="Resolving preference conflicts">
+    Knock only sends a notification if all preference combinations that exist on the recipient evaluate to `true`.
+
+    - A workflow can belong to multiple `categories`. Only one of those category preferences needs to evaluate to `false` for the notification not to send.
+    - If a workflow's `category` is set to `false`, the notification will not send even if a `channel_type` on the workflow is explicitly set to `true`.
+
+  </Accordion>
+  <Accordion title="Debugging preferences">
+    Our [Preferences API](/reference#preferences) provides endpoints for retrieving all of the preferences that have been set on a recipient.
+
+    You can also use the [workflow debugger](/send-notifications/debugging-workflows) in your dashboard to view the preferences that were evaluated for the recipient on a given workflow run.
+
+    <Image
+      src="/images/concepts/preferences/workflow-preferences-evaluation.png"
+      alt="An image of a workflow run's evaluated preferences"
+      width={500}
+      height={381}
+      className="mx-auto rounded-md border border-gray-200"
+    />
+
+  </Accordion>
+</AccordionGroup>
+## Bulk set user preferences
+
+You can update the preferences of up to 1000 users in a single batch by using the `users.bulkSetPreferences` method. This executes an asynchronous job which will overwrite any existing preferences for the users provided. You can track the progress of the `BulkOperation` returned via the [bulk operation API](/reference#bulk-operations).
+
+<MultiLangCodeBlock
+  title="Bulk set preferences for many users"
+  snippet="users.bulkSetPreferences"
+/>
+
+<br />
+
+## Advanced concepts
+
+- [Per-tenant preferences.](/preferences/tenant-preferences) In multi-tenant B2B applications, an advanced use case is customer admins who want to set the tenant-level default `PreferenceSet` for new users within their tenant.
+- [Object preferences](/preferences/object-preferences). In the guide above, we referred to user preferences. You can also set preferences for objects.
+- [Preference conditions](/preferences/preference-conditions). You can build advanced conditions and store them on Knock’s preference model to power use cases such as per-resource muting (example: mute notifications about this task) or threshold alerts (example: only notify me if my account balance is below $5).
+- Workflow overrides. If you need to override a recipient's notification preferences to send notifications like a password reset email, you can override the preferences model. To do this, go to your workflow, click "Manage workflow," and enable "Override recipient preferences." You will need to commit this change for it to take effect. When enabled, the workflow will send to all of its channels, regardless of the recipient's preferences.

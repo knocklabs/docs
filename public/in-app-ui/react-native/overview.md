@@ -1,0 +1,44 @@
+---
+title: "Building in-app UI in React Native"
+description: Learn more about the in-app notification UI you can build in your React Native application with Knock.
+section: Building in-app UI
+---
+
+The Knock React Native SDK provides pre-built UI components that you can use to easily get up and running with a fully functional notification feed experience in your product. You can also use a set of React hooks and API bindings for you to build custom UI on top of to power in-app notification experiences in your React Native applications.
+
+## Features
+
+- API methods for interacting with the [Knock in-app API](/in-app-ui/api-overview).
+- Managed websocket connections to the Knock real-time service.
+- State management for powering in-app feeds, with optimistic client-side updates.
+
+## Getting started
+
+Please reference our [React Native SDK documentation](/sdks/react-native/quick-start) to set up the library.
+
+```bash title="Install the Knock React Native SDK"
+npm install @knocklabs/react-native
+```
+
+When using React Native with Expo, install [our Expo SDK](/sdks/expo/overview) instead:
+
+```bash title="Install the Knock Expo SDK"
+npm install @knocklabs/expo
+```
+
+### In-app notifications
+
+- `NotificationFeed`: A full-page list of notifications.
+- `NotificationIconButton`: A button with a badge count for notifications, often used to open the `NotificationFeed`.
+
+## Guides
+
+- [**Notification feed**](/in-app-ui/react-native/notification-feeds): Learn how to build an in-app feed powered by Knock in your React Native application.
+
+## Links
+
+- [React Native SDK reference](/sdks/react-native/reference)
+- [Expo SDK reference](/sdks/expo/reference)
+- [Javascript SDK reference](/sdks/javascript/reference)
+- [`@knocklabs/react-native` on npm](https://www.npmjs.com/package/@knocklabs/react-native)
+- [`@knocklabs/expo` on npm](https://www.npmjs.com/package/@knocklabs/expo)

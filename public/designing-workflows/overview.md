@@ -1,0 +1,71 @@
+---
+title: Designing workflows
+description: Learn more about how to design and create powerful cross-channel notification workflows in Knock.
+tags: ["steps", "workflows", "functions"]
+section: Designing workflows
+---
+
+The Knock workflow builder enables you to craft notification workflows that combine functions, channels, and conditional logic to determine which of your users to notify across which channels when a given event takes place in your product.
+
+## How the Knock notification engine works
+
+As you start to dig into workflows, it's helpful to understand the basics of what happens in Knock when you [trigger a workflow](/send-notifications/triggering-workflows).
+
+When Knock receives a workflow trigger (like the one below) for one of your workflows, it will produce a **workflow run** for **each recipient** you send in your workflow trigger.
+
+```js title="A workflow trigger for three recipients"
+await knock.workflows.trigger("comment-created", {
+  // The user who performed the action (optional)
+  actor: "user_0",
+  // The list of recipients
+  recipients: ["user_1", "user_2", "user_3"],
+  // Data to be passed to the template
+  data: {
+    page_name: "Marketing brief",
+    comment_body: "Hey team — can we take another look at this?",
+  },
+});
+```
+
+In the example above we've included three recipients, so our workflow trigger will produce three separate workflow runs.
+
+## The workflow canvas
+
+All Knock workflows consist of three basic parts:
+
+- A **trigger step** that starts the workflow
+- **Channel steps** that send notifications to your configured channels
+- **Function steps** that control the flow of the workflow and produce state for use in templates
+
+### The trigger step
+
+Every workflow starts with a trigger step. When you want to run a workflow, you send a trigger call to the Knock API with an `actor`, a list of `recipients`, and a `data` payload with any information you want to use in the notification templates of the workflow. (More on this in [triggering workflows](/send-notifications/triggering-workflows).) When the workflow is triggered, it creates a workflow run for each of the `recipients` passed in the trigger call.
+
+A trigger step can optionally have [conditions](/designing-workflows/step-conditions), which determine if the workflow should execute. When the conditions on the trigger step are not met, the workflow will terminate.
+
+### Channel steps
+
+A channel step sends a notification to a recipient. When the workflow engine reaches a channel step, it looks for relevant channel data on the recipient. As an example, an email channel step will look for the `email` property on the recipient. If no relevant channel data for that recipient is found, the step is skipped. If channel data is found, then the step will send a notification.
+
+Each channel has a notification template (designed by you in the Knock dashboard) which inserts the `data` from your trigger call into a [styled template](/send-notifications/designing-workflows/template-editor) for that step's given channel.
+
+You can add any of the major [channel types supported by Knock](/integrations/overview#supported-channel-providers) into your workflow. By default, we show all of our supported channel types, but you'll need to configure a provider with each channel before you can actually use them in a workflow. For more information on how to configure channels in your Knock account, see our [integration guides](/integrations/overview).
+
+### Function steps
+
+A function is a step in a workflow that does something to the data being passed in your trigger call. You can use functions by entering the workflow builder and adding function steps onto the canvas.
+
+We currently support the following functions:
+
+- [Batch](/send-notifications/designing-workflows/batch-function) (aggregate trigger calls that have the same value for a specified batch key)
+- [Branch](/send-notifications/designing-workflows/branch-function) (evaluate conditions to determine which path a workflow should take)
+- [Delay](/send-notifications/designing-workflows/delay-function) (wait an amount of time before proceeding to the next workflow step)
+- [Fetch](/send-notifications/designing-workflows/fetch-function) (execute an HTTP request to fetch additional data for a workflow)
+- [Throttle](/send-notifications/designing-workflows/throttle-function) (limits the number of executions of the workflow for the recipient over a window of time)
+- [Trigger workflow](/send-notifications/designing-workflows/trigger-workflow-function) (execute a nested workflow with trigger data derived from parent workflow data and environment variables)
+
+## Step conditions
+
+Each workflow step can have one or more conditions that determine, at workflow execution time, if the step should execute. Conditions are one way you can add control flow logic to your notification workflows.
+
+[Read more about step conditions](/send-notifications/designing-workflows/step-conditions).

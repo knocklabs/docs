@@ -1,0 +1,38 @@
+---
+title: "Building in-app UI for Flutter"
+description: Learn more about the in-app notifications experiences you can build for Flutter applications with Knock.
+section: Building in-app UI
+---
+
+<Callout
+  emoji="🌠"
+  text={
+    <>
+      <span className="font-bold">Note</span> in the current version of the
+      Flutter SDK there are no pre-built UI elements.
+    </>
+  }
+/>
+
+The Knock Flutter SDK is a low-level set of methods for interacting with the Knock APIs from Flutter applications. The SDK is designed to help you easily integrate Knock into your application and build in-app notification experiences powered by Knock.
+
+## Features
+
+- API methods for interacting with the [Knock in-app API](/in-app-ui/api-overview).
+- Managed websocket connections to the Knock real-time service.
+- State management for powering in-app feeds, with optimistic client-side updates.
+
+## Getting started
+
+```bash
+flutter pub add knock_flutter
+```
+
+[Read more in the quick start guide ->](/sdks/flutter/quick-start)
+
+## Links
+
+- [`knock_flutter` on pub.dev](https://pub.dev/packages/knock_flutter)
+- [Example application using the Flutter SDK](https://github.com/knocklabs/knock-flutter/tree/main/example)
+- [Full SDK reference](/sdks/flutter/reference)
+- [GitHub repository](https://github.com/knocklabs/knock-flutter)

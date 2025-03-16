@@ -1,0 +1,404 @@
+---
+title: "Building a Slack integration in React"
+description: How to let users authorize and select Slack channels in your app with Knock's SlackKit.
+section: SlackKit
+---
+
+Our `@knocklabs/react` library comes with pre-built components for allowing your users to connect their Slack workspace to Knock and select the channels they want to be notified on. SlackKit manages your OAuth connection and tokens, helps your customers select which channels they want to receive notifications in, and integrates seamlessly with the rest of Knock.
+
+## Getting started
+
+To get started you'll need a [Knock account](https://dashboard.knock.app), a [Slack channel connected to a Slack app](/in-app-ui/react/slack-kit), and a workflow with a Slack channel step.
+
+Depending on your use case, you can follow one of these guides for step-by-step instructions on how to set up your Slack integration:
+
+- [Sending messages to public and private](/integrations/chat/slack/sending-a-message-to-channels) channels in your customer's Slack workspace
+- [Sending direct messages](/integrations/chat/slack/sending-a-direct-message) to users in your customer's Slack workspace
+
+## Using SlackKit components
+
+Once you've provided access to the necessary data, you can drop Knock's pre-built components into your React application to immediately set up Slack authorization and channel selection for your users. [See the reference](/sdks/react/reference#slack-components) for full documentation of these components.
+
+### Add the providers
+
+In order to give your components the data they need, they must be wrapped in the `KnockSlackProvider`. We recommend putting this high in your component tree so that any Slack components that you use will be rendered within it. The Slack provider goes inside of the `KnockProvider`. Your hierarchy will look like this:
+
+```javascript title="Wrap your UI components in data providers"
+<KnockProvider
+    apiKey="Public API key"
+    userId="User ID"
+    userToken="Generated user token with resource grants"
+>
+    <KnockSlackProvider
+        knockSlackChannelId="Knock Slack channel ID"
+        tenant="Tenant ID"
+    >
+        {child components}
+    </KnockSlackProvider>
+</KnockProvider>
+```
+
+The `KnockSlackProvider` gives your components access to the status of the connection to your Slack app, so that they can all be in sync when a user is connecting, disconnecting, or experiencing a connection error.
+
+### Add the components
+
+#### SlackAuthButton & Container
+
+<figure>
+  <Image
+    src="/images/integrations/chat/slack/slackauthbutton.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="The SlackAuthButton component with SlackAuthContainer"
+    width={1310}
+    height={564}
+  />
+  <figcaption>The SlackAuthButton component with SlackAuthContainer</figcaption>
+</figure>
+
+Your users will give your Slack app access to their own Slack workspaces via the `SlackAuthButton`. This button can be used on its own, or nested in the `SlackAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
+
+```javascript title="Initiate OAuth and display auth state with SlackAuthButton"
+// Without container
+<SlackAuthButton
+    slackClientId="Slack app client ID"
+    redirectUrl="The URL of your application to return to once Slack authorization is complete"
+/>
+
+// With container
+<SlackAuthContainer
+    actionButton={
+        <SlackAuthButton
+            slackClientId="Slack app client ID"
+            redirectUrl="The URL of your application to return to once Slack authorization is complete"
+        />
+    }
+/>
+```
+
+The `SlackAuthButton` maps a tenant in your product to a customer's Slack workspace. This means in most cases you'll just need a single instance of the `SlackAuthButton`.
+
+Remember to consider which roles in your application can access the `SlackAuthButton` component. Knock does not control access to the component. In most cases, you'll add this connect button/container in the settings area of your product.
+
+#### SlackChannelCombobox
+
+<figure>
+  <Image
+    src="/images/integrations/chat/slack/slackchannelcombobox.png"
+    className="rounded-md mx-auto border border-gray-200"
+    alt="The SlackChannelCombobox component showing connected channels"
+    width={1880}
+    height={701}
+  />
+  <figcaption>
+    The SlackChannelCombobox component showing connected channels
+  </figcaption>
+</figure>
+
+This combobox contains the list of channels in the connected Slack workspace. Users will use this combobox to search and select a channel (or more than one channel) to be notified when an event in your application occurs, for example a comment on a video. They can also use this combobox to deselect a connected channel.
+
+The combobox automatically shows which channels are already connected, and gives users an easy way to remove them as well.
+
+Add your combobox to your application where you'd like the user to select channels to notify:
+
+```javascript title="The SlackChannelCombobox connects an object to one or more channels"
+<SlackChannelCombobox
+  slackChannelsRecipientObject={{
+    objectId: "object id",
+    collection: "object collection",
+  }}
+/>
+```
+
+<br />
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Limitations</strong>
+      <ul>
+        <li>
+          The combobox will only show channels for Slack workspaces with fewer
+          than 1000 channels (public and private; not including archived). If
+          there are more, the combobox will turn into a text input that accepts
+          a channel ID to connect.
+        </li>
+        <li>
+          The combobox will only show private channels from your users' Slack
+          workspaces if your Slack app has been invited to those channels.
+        </li>
+        <li>
+          The combobox does not show individual users for Slack direct messages.
+        </li>
+      </ul>
+    </>
+  }
+/>
+
+### Complete sample code
+
+Here's an example of these components in a React application.
+
+```javascript title="Store Knock and Slack credentials as .env vars"
+// .env
+
+KNOCK_PUBLIC_API_KEY = "pk_test_12345";
+KNOCK_SLACK_CHANNEL_ID = "2e0e37c3-751b-4be5-a684-8296009e960e";
+
+SLACK_APP_CLIENT_ID = "1354596639525.6166309709204";
+```
+
+<br />
+
+```javascript title="Providers wrap your UI components"
+<KnockProvider
+  apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+  userId={currentUser.id}
+  userToken={localStorage.getItem("knock-user-token")}
+>
+  <KnockSlackProvider
+    knockSlackChannelId={process.env.KNOCK_SLACK_CHANNEL_ID}
+    tenant={currentAccount.id}
+  >
+    <NotificationSettings />
+    <VideoProjectsIndex />
+  </KnockSlackProvider>
+</KnockProvider>
+```
+
+<br />
+
+```javascript title="Render your SlackAuthButton inside of KnockSlackProvider"
+const NotificationSettings = () => {
+  return (
+    <SlackAuthContainer
+      actionButton={
+        <SlackAuthButton
+          slackClientId={process.env.SLACK_APP_CLIENT_ID}
+          redirectUrl={"www.my-example-app.com/notification-settings"}
+        />
+      }
+    />
+  );
+};
+```
+
+<br />
+
+```javascript title="Render a SlackChannelCombobox for each object"
+
+const VideoProjectsPage = ({videos}) => {
+    return (
+        videos.map(video => {
+            return <VideoPage {video} />
+        })
+    )
+}
+
+const VideoPage = ({video}) => {
+  return (
+    <div>
+      <div>{video.name}</div>
+      <div>{video.content}</div>
+      <div>{video.comments}</div>
+      <SlackChannelCombobox
+        slackChannelsRecipientObject={{
+          id: video.id,
+          collection: "videos",
+        }}
+      />
+    </div>
+  )
+}
+
+```
+
+<br />
+
+## Using SlackKit headless
+
+If you need custom designs or want to display additional information around your Slack integration, you don't need to use Knock's pre-built components to take advantage of SlackKit.
+
+SlackKit exposes three levels of support: React hooks, client functions, and API endpoints.
+
+### Hooks
+
+You can use the [Slack React hooks](/sdks/react/reference#slack-hooks) under the hood to access and set Slack integration data with your own components. All of them are available from the `@knocklabs/react-core` package. All of them must still be nested under the `KnockSlackProvider` to work.
+
+To use a hook in your component, all you need to to is import it and pass it the necessary params, and then you can use the data and functions returned in each to pass to your own component UI.
+
+For example, you may want to provide your users a list of the connected channels outside of the `SlackChannelCombobox`. Let's look at how you can combine two hooks to accomplish that.
+
+#### Building a list of connected channels
+
+First, make sure your component that you're using the hooks in is nested somewhere under the `KnockSlackProvider`. Then, import both the `useSlackChannels` and `useConnectedSlackChannels` hooks, as we'll be combining data from each to build our list.
+
+We'll combine our data to create a list of channels that has a name and an `isPrivate` attribute so we can conditionally show a lock icon if the channel is marked private.
+
+Here's some sample code for our final list:
+
+```javascript title="Fetch Slack channels without the SlackChannelCombobox"
+import {
+  useConnectedSlackChannels,
+  useSlackChannels,
+} from "@knocklabs/react-core";
+
+const ConnectedChannelsList = ({ slackChannelsRecipientObject }) => {
+  const { data: slackChannels } = useSlackChannels();
+  const { data: connectedChannels } = useConnectedSlackChannels({
+    slackChannelsRecipientObject,
+  });
+
+  const slackChannelsMap = new Map(
+    slackChannels.map((channel) => [channel.id, channel]),
+  );
+
+  const hydratedConnectedChannels = connectedChannels.map(
+    (connectedChannel) => {
+      const channel_id = connectedChannel.channel_id;
+      return {
+        id: channel_id,
+        name: slackChannelsMap[channel_id].name,
+        isPrivate: slackChannelsMap[channel_id].is_private,
+      };
+    },
+  );
+
+  return (
+    <ul>
+      {hydratedConnectedChannels.map((channel) => {
+        return (
+          <li key={channel.id}>
+            {channel.name} {channel.isPrivate && <LockIcon />}
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
+```
+
+### Client functions
+
+If you want more fine grain control of your data, you can skip the hooks and simply use the functions Knock exposes in the [`@knocklabs/client` library](https://github.com/knocklabs/javascript/tree/main/packages/client) as long as you wrap the component you're calling it in inside of `KnockProvider`. You can accomplish anything we provide with hooks or the components with the following functions:
+
+- `knock.slack.authCheck`: Get the status of Slack authorization
+- `knock.slack.getChannels`: Get a list of Slack channels for the given tenant
+- `knock.slack.revokeAccessToken`: Disables an access token with Slack and removes it from the tenant
+- `knock.objects.getChannelData`: Use this to get the connected channels stored as channel data on the recipient object
+- `knock.objects.setChannelData`: Use this to set the connected channels for a recipient object or an access token for a tenant
+
+### API endpoints
+
+Lastly, you can interact directly with the API endpoints for all of the above functionality. Here are the endpoints used in SlackKit that you would need to support an implementation of the managed UI:
+
+- [Slack auth check](/reference#slack-auth-check): status of Slack authorization
+- [Slack channels](/reference#slack-channels): list of Slack channels for the given workspace
+- [Slack revoke token](/reference#slack-revoke-access): revoke Slack app token access and remove from tenant
+- [Get channel data](/reference#get-object-channel-data): get channel data for your recipient object, which gives you access to the connected slack channels
+- [Set channel data](/reference#set-object-channel-data): set channel data for your recipient object, which allows you to set connected slack channels
+
+## Resources access grants
+
+The only access you'll need to manage when using SlackKit are grants for your users to interact with their [Tenants](/concepts/tenants) and [Objects](/concepts/objects) in Knock. This is necessary because the user in this context is an end user in your application who does not have access to Knock as a [member of the account](/manage-your-account/managing-members). Therefore, these grants provide them elevated privileges to operate on specific resources using the API.
+
+We've made it easy for you to tell Knock which resources your users should have access to by making it a part of their user token. In this section you'll learn how to generate these grants using the Node SDK and, if you're not using the SDK, how to structure them for other languages.
+
+### With the Node SDK
+
+You'll need to generate a token for your user that includes access to the tenant storing the Slack access token as well as any recipient objects storing Slack channel data described in [SlackKit ](/in-app-ui/react/slack-kit#channel-data-requirements). If you need to enable access to multiple recipient objects, you can include multiple grants in the user token.
+
+Example:
+
+- Tenant ID: `jurassic-park`
+- Recipient object collection: `videos`
+- Recipient object ID: `dinosaurs-loose`
+
+Using the above example, you can quickly generate a token with the [Node SDK](https://github.com/knocklabs/knock-node#signing-jwts).
+
+```javascript
+import { Knock } from "@knocklabs/node";
+import { Grants } from "@knocklabs/node/dist/src/common/userTokens";
+
+await Knock.signUserToken("user-1", {
+  grants: [
+    Knock.buildUserTokenGrant({ type: "tenant", id: "jurassic-park" }, [
+      Grants.SlackChannelsRead,
+    ]),
+    Knock.buildUserTokenGrant(
+      { type: "object", id: "dinosaurs-loose", collection: "videos" },
+      [Grants.ChannelDataRead, Grants.ChannelDataWrite],
+    ),
+    Knock.buildUserTokenGrant(
+      { type: "object", id: "raptor-feeding-guide", collection: "videos" },
+      [Grants.ChannelDataRead, Grants.ChannelDataWrite],
+    ),
+  ],
+});
+```
+
+You'll need to pass this token along with the public API key to the `KnockProvider` that wraps `KnockSlackProvider` and the rest of your components. We recommend storing the generated user token in local storage so that your client application has easy access to it.
+
+### Other languages
+
+If you're not using the Node SDK, you can still generate a user token using a JWT signing library in your preferred language. Here's an [example of using Joken for the Elixir library](https://github.com/knocklabs/knock-elixir?tab=readme-ov-file#signing-jwts). You'll include the `grants` key in the root of the payload and put your resource grants in there. We'll go into detail about how they work below, but if you want to skip that and just get started, here's what that will look like in a given JWT payload for the example above:
+
+```json
+{
+  "sub": "user123",
+  "grants": {
+    "https://api.knock.app/v1/objects/$tenants/jurassic-park": {
+      "slack/channels_read": [{}]
+    },
+    "https://api.knock.app/v1/objects/videos/dinosaurs-loose": {
+      "channel_data/read": [{}],
+      "channel_data/write": [{}]
+    }
+  }
+}
+```
+
+Continue reading for a deeper dive on access and how these grants are structured.
+
+### Grants in the user token
+
+You may already be familiar with generating a user token to be used with your public API key when making client side calls if you've used [authentication with enhanced security](/in-app-ui/security-and-authentication#authentication-with-enhanced-security). You'll use the same process to generate the user token as described here, including signing it with an RS256 algorithm using your private signing key, but you'll also be sending a list of grants that the user needs to work with SlackKit.
+
+The two resources you'll be granting access to are:
+
+- **The tenant**: the user needs access to this because this is where Knock stores the access token to Slack that will be used when communicating with the Slack API
+- **The recipient object**: the user needs access to this because this is where Knock is storing the connected Slack channels as channel data on the object
+
+These resources need different permissions. Here are the permissions needed for each:
+
+- **Tenant**: reading slack channels
+- **Recipient Object**: reading channel data; writing channel data
+
+### How the grants are structured
+
+Resource access grants in Knock are structured according to the [UCAN spec](https://github.com/ucan-wg/spec). They consist of an array of maps, with each map representing a resource.
+
+How to read a resource grant:
+
+```json
+{
+  "Knock endpoint of the resource": {
+    "Name of access type being granted/Specific permission being granted": [
+      "List of exceptions"
+    ]
+  }
+}
+```
+
+So to grant access for a user to read the channel data of object `dinosaurs-loose` in the `videos` collection, your grant would look like this:
+
+```json
+{
+  "https://api.knock.app/v1/objects/videos/dinosaurs-loose": {
+    "channel_data/read": [{}]
+  }
+}
+```
+
+### Availability of resource access grants
+
+Currently these grants are only implemented for use by SlackKit as described in this doc, and since exceptions are not used for these they will not be respected.

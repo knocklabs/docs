@@ -1,0 +1,204 @@
+---
+title: Fetch function
+description: Learn more about the fetch workflow function within Knock's notification engine.
+tags: ["steps", "fetch", "request", "http", "functions"]
+section: Designing workflows
+---
+
+A fetch function executes an HTTP request as a step in a workflow. Any data returned to a fetch function is merged into the original trigger `data` provided on workflow trigger and made available to all subsequent steps in the workflow.
+
+With the fetch function, you can acquire additional data for your channel step templates that may not be immediately available when you first trigger a workflow. A common case is combining a fetch function with a [batch function](/send-notifications/designing-workflows/batch-function) to retrieve trigger data for a group of activities after a batch window has closed. You can also use the fetch function to trigger side effects in your systems as Knock processes your workflow.
+
+## Building a request
+
+As with channel steps, you use the Knock template editor to configure the shape of your request. For each fetch step, you can edit the following attributes:
+
+- **Request method** - You can select one of <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center bg-blue-100 dark:bg-transparent dark:border-blue-600">GET</span> (default), <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center bg-green-100 dark:bg-transparent dark:border-green-600">POST</span>, <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center bg-yellow-100 dark:bg-transparent dark:border-yellow-500">PUT</span>, <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center bg-red-100 dark:bg-transparent dark:border-red-500">DELETE</span>, or <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center bg-purple-100 dark:bg-transparent dark:border-purple-500">PATCH</span>.
+- **URL** - A valid HTTP URL.
+- **Headers** - Any headers Knock should include in the request. You manage these via a key-value editor, with the key being the header name and the value being the header value.
+- **Query parameters** - Any query parameters to encode into the URL. You also manage these via a key-value editor.
+- **Request body** - When building a <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center bg-green-100 dark:bg-transparent dark:border-green-600">POST</span> or <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center bg-yellow-100 dark:bg-transparent dark:border-yellow-500">PUT</span> request, you can build a request body to include in the request. Knock will always encode the request body as JSON.
+
+<figure>
+  <Image
+    src="/images/functions/fetch-function-editor.png"
+    width={1015}
+    height={907}
+    alt="Using the request template editor to configure a fetch function."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Using the request template editor to configure a fetch function.
+  </figcaption>
+</figure>
+
+Aside from the request method selector, each of the above fields is a Liquid-compatible input. This means you can use Liquid variables and control flow to inject variable data, access Knock-controlled workflow state attributes (e.g., `recipient`), and dynamically shape the request per workflow run.
+
+See the [Knock template editor reference](/send-notifications/designing-workflows/template-editor) for a detailed guide on working with Liquid templates in Knock.
+
+## Request execution
+
+When executing the request for a fetch function, Knock expects the following from your service:
+
+- The response to the request is one of: `200 OK`, `201 Created`, or `204 No Content`.
+- If the request response contains data, it's encoded as JSON and can be decoded into a map/dictionary/hash.
+- The response to the request takes no longer than 15 seconds for Knock to receive.
+
+### Merging data
+
+When the response sent to Knock for a fetch function request contains JSON data, Knock will merge the decoded result into the `data` you originally passed to [the workflow trigger call](/send-notifications/triggering-workflows). Knock uses a shallow-merge strategy here where:
+
+- Data from the request overwrites the original workflow run data.
+- Top-level attributes are merged, and nested attributes are completely overwritten.
+
+_The merged data result from a fetch function step then becomes the global trigger data for all subsequent steps in the workflow run._
+
+The example below illustrates how this could look in practice.
+
+```json title="Example response data merge for fetch function steps"
+// Original trigger data
+{
+  "foo": "bar",
+  "metadata": {
+    "count": 1
+  }
+}
+
+// Fetch function response data
+{
+  "biz": "baz",
+  "metadata": {
+    "query_count": 1
+  }
+}
+
+// Merge result
+{
+  "foo": "bar",
+  "biz": "baz",
+  "metadata": {
+    "query_count": 1
+  }
+}
+```
+
+### Specifying the Response Path
+
+You can specify where in the trigger data the response from the fetch step should be placed. To do so, click on "Manage Settings" from the fetch step within your workflow template editor. From there, you can specify the response path.
+
+The response path can be any string. To create nested keys within the trigger data, use dot (`.`) notation. For example, specifying `foo.bar` will place the response under the `bar` key within the `foo` object.
+
+### Error handling
+
+Knock will automatically retry request execution for a fetch function following certain types of errors. The first retry will be delayed by 30 seconds, and the second by 60 seconds. These retryable errors are:
+
+- **Server errors** - Any `5xx` level HTTP error code.
+- **Request timeouts** - This is any fetch function request from Knock that does not receive a completed response within the 15 second limit.
+
+All other errors or unexpected responses are immediately fatal. These include:
+
+- Any other HTTP response code.
+- Some issue with the structure of the request, such as an invalid URL.
+- Any issue JSON-encoding a request body.
+- Response data that cannot be JSON-decoded as expected.
+
+After two failed retries for a retryable error or any non-retryable error, Knock will mark the fetch function step as a failure and halt your workflow run.
+
+## Testing fetch functions
+
+As you develop, you can execute test runs of your fetch step from right within the template editor. This should look and feel similar to executing test runs of your workflows, but here Knock will execute just your fetch step, ignoring any other steps that may exist before or after.
+
+To run a fetch step test:
+
+1. Click the button that sits to the right of the URL field in the template editor. This should open the Knock test runner modal.
+2. Specify the appropriate trigger parameters (actor, recipient, trigger data, and tenant) for the test run. **NOTE:** If your fetch step expects data from a preceding batch step or fetch step, you'll need to explicitly include it here in the "Data" field. Since Knock will test this step in isolation, it cannot know what preceding data may be present when the full workflow runs.
+3. Click the "Run test" button in the modal. The modal will close and the test console should display a loading state as Knock executes the test.
+4. When the test run has completed, Knock will load the result into the test console for your review. You can then use use the "Request" and "Response" buttons to toggle between the two views in the test console. The "Response" section will show any data returned by the request that would be made accessible to subsequent steps in your workflow.
+
+<video
+  className="mb-12 rounded-md border border-gray-200"
+  autoPlay
+  loop
+  muted
+  playsInline
+>
+  <source src="/videos/fetch-step-test-runner.mp4" type="video/mp4" />
+</video>
+
+**When running fetch step tests, Knock will not retry a failed request on any error.** For the retryable errors [outlined above](#error-handling), Knock will indicate in the test console result that they would be retried during a full workflow run.
+
+## Debugging fetch functions
+
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug your fetch function steps. For each fetch function, you can expect to see in the logs:
+
+- The request URL (with encoded query parameters), headers, and body as sent by Knock.
+- The duration of the request (in milliseconds).
+- The response headers and body data.
+
+In the workflow run overview, you'll also see any data that Knock successfully received from your fetch function steps and merged into your workflow run state.
+
+<figure>
+  <Image
+    src="/images/functions/fetch-function-success.png"
+    width={1075}
+  height={1235}
+  alt="Viewing log details for a successful fetch function step."
+    className="rounded-md mx-auto border border-gray-200"
+    />
+
+  <figcaption>
+    Viewing log details for a successful fetch function step.
+  </figcaption>
+</figure>
+
+If the request encounters an error, you can also expect to see details about the error in the logs. And finally, if the fetch function retries the request on a retryable error, you can expect to see details enumerated for each request attempt.
+
+<figure>
+  <Image
+    src="/images/functions/fetch-function-error.png"
+    width={1052}
+    height={958}
+    alt="Viewing log details for an unsuccessful fetch function step."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+
+  <figcaption>
+    Viewing log details for an unsuccessful fetch function step.
+  </figcaption>
+</figure>
+
+See the [guide on debugging workflows](/send-notifications/debugging-workflows) for more details about workflow debugging and run logs.
+
+## Securing fetch requests
+
+Adding security to your fetch requests guards your endpoint from the outside world. There are currently two options to do this within Knock: using authentication headers, or adding request signing.
+
+### Adding authentication via headers
+
+One option for adding authentication is to use a **shared secret** between Knock and your service's endpoint that you inject into the headers of the request. You can use our [secret variables](/concepts/variables#setting-secret-variables) to create and store this secret within Knock, ensuring that it can be unique per environment and also obfuscated within the dashboard across all usage.
+
+Variables can be accessed under the `vars` namespace in liquid. To add a secret into a header you use the syntax `{{ vars.your_variable_name }}` in the header value field.
+
+### Adding request signing
+
+Another option is to enable **request signing**, which will sign the request against a signing key that Knock generates and that can be used to guarantee that the request is coming from Knock.
+
+You can enable request signing for the fetch function by going to the "Manage settings" modal in the top right corner when editing the request template. Once you enable request signing, Knock will generate a signing key that will be used to sign the request. This same key can then be used within your application to verify the request came from Knock via a signature added to the request as a `x-knock-signature` header.
+
+**Verifying the signature**
+
+The signature is generated with an HMAC using the SHA256 algorithm and, before being encoded, is comprised of the timestamp and the stringified JSON payload of the request. We encode `"timestamp in numerical form"."stringified payload"` as the signature of the request.
+
+The `x-knock-signature` header is a string comprised of the timestamp used in the encoding and the encoded value above. It will look like this: `t=timestamp,s=encoded-signature`
+
+To test that the payload sent has not been compromised, you can recreate the signature using the shared secret key and compare to the one sent in the header.
+
+1. Split the `x-knock-signature` on the comma (",") and extract the values of timestamp and signature.
+2. Construct the value of the signature by concatenating:
+
+   - The timestamp (as a string)
+   - The character `.`
+   - The stringified JSON payload
+
+3. Generate the signature with an HMAC and SHA256 algorithm using the signing key from the fetch function.
+4. Compare your generated signature with the one extracted in step one; they should match exactly. If the timestamp is more than five minutes old compared to the current time, you may decide you want to reject the payload for additional security.

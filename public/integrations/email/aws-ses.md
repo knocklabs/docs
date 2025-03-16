@@ -1,0 +1,250 @@
+---
+title: How to send email with AWS SES
+description: How to send transactional email notifications to AWS SES with Knock.
+tags: ["simple email service"]
+section: Integrations > Email
+layout: integrations
+---
+
+Knock integrates with <a href="https://aws.amazon.com/ses/" target="_blank">AWS Simple Email Service (SES)</a> to send email notifications to your users.
+
+In this guide you'll learn how to get started sending transactional email notifications with SES through Knock. We also cover provider configuration and additional data you can pass through to SES.
+
+## Features
+
+- Attachments support
+- Knock link and open tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+You can create a new AWS SES channel in the dashboard under the **Integrations** > **Channels** section. From there, you'll need to take some steps in AWS before you can configure your SES channel within Knock.
+
+<Steps titleSize="h3">
+  <Step title='Verify a "From" address within AWS SES'>
+    You'll need to verify the **"From" email address** you plan on using to send emails with AWS if you haven't already. To do so, follow the steps outlined in AWS's guide to <a href="https://docs.aws.amazon.com/ses/latest/dg/creating-identities.html#verify-email-addresses-procedure" target="_blank">creating and verifying an email address identity</a>.
+  </Step>
+  <Step title="Choose an AWS Authentication Scheme">
+    Knock supports two authentication schemes with AWS SES:
+  
+    <AccordionGroup>
+      <Accordion title="Option 1: Create an AWS IAM User with security credentials">
+        To send notifications via AWS SES using an IAM User, Knock requires the **access key ID** and a **secret access key** of an AWS user with SES send permissions. (Specifically, the `ses:SendEmail` and `ses:SendRawEmail` permissions.)
+
+        If you don't already have a user with send permissions, you can create an IAM user in AWS to use with the Knock API. You can learn more about creating IAM users in AWS <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html" target="_blank">here</a>.
+
+        Once you've created your new IAM user, you'll need to provision them with the policy below.
+
+        ```json title="IAM user policy"
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": ["ses:SendEmail", "ses:SendRawEmail"],
+              "Resource": "*"
+            }
+          ]
+        }
+        ```
+
+        Now that you have an AWS user created and provisioned with SES send access, grab the **access key ID** and a **secret access key** of the user—we'll use these later when configuring the SES channel within Knock.
+      </Accordion>
+      <Accordion title="Option 2: Create an AWS IAM Role with a trust policy for Knock">
+        To send notifications via AWS SES by <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_third-party.html" target="_blank">delegating an IAM Role</a> in your AWS account to Knock, <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html" target="_blank">secured with an External ID</a>:
+
+        1. Create a new AWS Role:
+
+          - For "Trusted Entity Type" choose "AWS Account."
+          - Select "Another AWS account" and put "496685847699" in the Account ID.
+          - Check "Require external ID" and enter the ID of the SES channel you created in your Knock dashboard.
+
+          <Image
+            src="/images/integrations/email/ses-arn-configuration.png"
+            width={1898}
+            height={1650}
+            className="rounded-md mx-auto border border-gray-200"
+            alt="How Knock works diagram"
+          />
+
+        2. Attach the following permission policy to that role.
+
+          ```json title="IAM user policy"
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": ["ses:SendEmail", "ses:SendRawEmail"],
+                "Resource": "*"
+              }
+            ]
+          }
+          ```
+
+        3. Use that role's ARN when configuring your AWS SES channel in Knock.
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+  <Step title="Configuring SES in Knock">
+    Now that you have a verified "From" address and either an AWS User's credentials or an AWS IAM Role to delegate to Knock, you're ready to [configure your SES channel](#channel-configuration) in the Knock dashboard under the **Integrations** {">"} **Channels** section.
+
+  </Step>
+</Steps>
+
+Here are a few other things to keep in mind once you have your SES channel configured in Knock:
+
+- **SES sandbox mode.** By default, AWS places all new accounts in the SES sandbox. While your account is in the sandbox, you can only send emails to verified email address—keep this in mind if you're testing in development before you've moved your account out of the SES sandbox. For more information on the SES sandbox and how to move your account out of it, see the [SES sandbox documentation](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html).
+- **Deliverability tracking.** We cannot currently track deliverability through SES channels. This means that all notifications sent through SES will show up as "Sent" in the Knock messages log, but not "Delivered."
+
+## Channel configuration
+
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Integrations** > **Channels** in your dashboard, select your AWS SES [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+
+<AccordionGroup>
+  <Accordion title="Settings">
+    Fields marked with an `*` are required.
+    
+    **Knock settings**
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your SES channel."
+      />
+      <Attribute
+        name="Knock open tracking"
+        nameSlug="/send-notifications/tracking#email-open-tracking"
+        type="boolean"
+        description="Whether to enable Knock email-open tracking."
+      />
+      <Attribute
+        name="Knock link tracking"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        type="boolean"
+        description="Whether to enable Knock link-click tracking."
+      />
+    </Attributes>
+
+    **Provider settings for AWS SES**
+    <Attributes>
+      <Attribute
+        name="AWS region"
+        type="enum*"
+        description="The region your AWS account is in."
+      />
+      <Attribute
+        name="Authentication scheme"
+        type="enum*"
+        description="The authentication scheme (Access Key or External ID) to use for your SES channel."
+      />
+      <Attribute
+        name="Access key ID"
+        type="string*"
+        description="The access key ID from your AWS account. Required when using Access Key authentication."
+      />
+      <Attribute
+        name="Secret access key"
+        type="string*"
+        description="The secret access key from your AWS account. Required when using Access Key authentication."
+      />
+      <Attribute
+        name="AWS IAM Role ARN to assume"
+        type="string*"
+        description="The ARN of the role in your AWS Account that this channel will use. Required when using External ID authentication."
+      />
+      <Attribute
+        name="External ID"
+        type="string*"
+        description="The external ID for your AWS IAM Role. Required when using External ID authentication."
+      />
+      <Attribute
+        name="From email address"
+        type="string | liquid*"
+        description="The default sender email address (can use Liquid tags)."
+      />
+      <Attribute
+        name="From name"
+        type="string | liquid"
+        description="The default sender name (can use Liquid tags)."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Overrides">
+    When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. Learn more about email channel overrides [here](/integrations/email/settings).
+    
+    <Attributes>
+      <Attribute
+        name="To"
+        type="string | liquid"
+        description="The To email address that email notifications will be sent to (can use Liquid tags). This value will override the designated recipient's email address."
+      />
+      <Attribute
+        name="Cc"
+        type="string | liquid"
+        description="The CC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Bcc"
+        type="string | liquid"
+        description="The BCC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Reply-to"
+        type="string | liquid"
+        description="The reply-to email address that will be included on email notifications (can use Liquid tags)."
+      />
+      <Attribute
+        name="Payload overrides"
+        nameSlug="/integrations/email/settings#provider-json-overrides"
+        type="JSON (string) | liquid"
+        description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
+      />
+    </Attributes>
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
+## Additional data sent
+
+Knock sends the following attributes along with your emails (all as `Tags`):
+
+- `Sender`: always set to `knock.app`
+- `knock_message_id`: the ID of the message this email is associated with
+- `knock_workflow`: the key of the workflow this message was generated from
+- `knock_recipient_id`: the Knock ID of the recipient this email is being sent to
+
+You can learn about the role of these SES attributes in the <a href="https://docs.aws.amazon.com/ses/latest/dg/Welcome.html" target="_blank">AWS Simple Email Service (SES) API documentation</a>.
+
+<Callout
+  emoji="🔦"
+  text={
+    <>
+      Keep in mind that AWS SES tags can be up to 256 characters long of only
+      ASCII letters (a-z, A-Z), numbers (0-9), underscores (_), or dashes (-).
+      If your <span className="font-bold">knock_recipient_id</span> does not
+      meet these requirements, Knock will truncate{" "}
+      <span className="font-bold">knock_recipient_id</span> to 256 characters
+      and remove any prohibited characters.
+      <br />
+      Check out the{" "}
+      <a
+        href="https://docs.aws.amazon.com/ses/latest/APIReference/API_MessageTag.html"
+        target="_blank"
+      >
+        AWS Docs
+      </a>{" "}
+      for more information.
+    </>
+  }
+/>
+
+## Recipient data requirements
+
+In order to send an email notification you'll need a valid `email` property set on your recipient.

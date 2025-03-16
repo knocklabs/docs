@@ -1,0 +1,273 @@
+---
+title: Sources in Knock
+description: Learn how to power your Knock notification system with customer data platforms, reverse ETLs, and your data warehouse.
+section: Integrations > Customer data platforms
+layout: integrations
+---
+
+With Knock sources, you can integrate customer data platforms (CDPs) such as Segment and Rudderstack or reverse ETL platforms such as Hightouch and Census with Knock to trigger notification workflows, identify users, and automate other actions.
+
+In general, each platform we support can do the following within Knock:
+
+- Trigger workflows
+- Identify (and update) users
+
+Here are a few reasons why you might want to integrate a source with Knock to power your notification system, rather than making direct calls to the Knock API:
+
+- **Minimize engineering customization.** If you already identify and track users with a customer data platform (CDP), you can import your users and events in minutes. Once your CDP is integrated with Knock, you can easily build notification workflows without needing time from engineering.
+- **Ensure consistency.** CDPs make it easy to keep customer data synchronized between services, including Knock. Email, name, and other user trait updates can flow seamlessly into Knock without any engineering work.
+
+## Concepts
+
+### Sources
+
+A source is any platform that can pass event and/or user data into Knock. These can be CDPs (such as [Segment](https://segment.com) and [Rudderstack](https://rudderstack.com)) or reverse ETLs (such as [Hightouch](https://hightouch.com/) and [Census](https://www.getcensus.com/).) The incoming events from these services can be used to orchestrate actions in Knock such as creating/updating users and triggering workflows.
+
+Knock currently supports the following sources:
+
+- [Segment](/integrations/sources/segment)
+- [Rudderstack](/integrations/sources/rudderstack)
+- [Jitsu](/integrations/sources/jitsu)
+- [Freshpaint](/integrations/sources/freshpaint)
+- [Hightouch](/integrations/sources/hightouch)
+- [Census](/integrations/sources/census)
+- [Polytomic](/integrations/sources/polytomic)
+- [HTTP](/integrations/sources/http) (a generic HTTP endpoint for accepting events)
+
+_Need us to support another platform? [Let us know!](mailto:support@knock.app?subject=Integration%20Source%20Request)_
+
+You can configure sources from the **Integrations** > **Sources** page for your account. Initial creation of a source is managed at the account-level of your Knock account, though you'll configure any specific events and their workflow triggers within your Knock environments.
+
+<Image
+  src="/images/integrations/sources/sources-location.png"
+  alt="A screenshot of where to find the Integrations - Sources page for your account"
+  width={500}
+  height={266}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+### Per-environment source configuration
+
+Each source has a unique configuration for every Knock environment in your account.
+This makes it possible to connect your Segment development environment to your Knock development environment.
+If you click on a source, you will see each environment configuration for that source.
+
+<Image
+  src="/images/integrations/sources/source-env-config.png"
+  alt="A view of the environment configurations for a source in a Knock account"
+  width={2996}
+  height={772}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+### Events
+
+Knock tracks every event sent from a source. Although each source has its own event format,
+Knock will translate the incoming events from each source into a common format that includes the following fields:
+
+- `user_id`. The ID of the user performing a given action (may not be set if a user has not been identified yet).
+- `data`. The primary contents of the event, e.g. for a Segment `track` with some associated `properties`, Knock would use those `properties` to set the `data` field for the event.
+- `event`. The original event, as originally received by Knock.
+
+### Workflow triggers
+
+When Knock receives an event from an integration source, it will check for any workflows that have been configured to be triggered by that event in that environment.
+
+You can have any number of workflows triggered by each event. If there is no workflow configured to be triggered by that event, the event is logged but no action is taken.
+
+After configuring a source in Knock and in the source itself (e.g. adding Knock as a destination in your CDP), events will start to flow into your Knock environment.
+
+You can then select an event and connect it to a workflow as its trigger.
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">
+        For workflow triggers, no more than 1000 recipients can be included in
+        each event.
+      </span>{" "}
+      If you exceed this limit, Knock will not process your workflow trigger and
+      instead generate an error log. <br />
+      <br />
+      If you need to manage a large list of recipients you might want to
+      consider using our{" "}
+      <a href="/concepts/subscriptions">subscriptions feature</a> to have Knock
+      manage the set of recipients who need to be notified instead.
+    </>
+  }
+/>
+
+## Identifying users
+
+For sources that support identifying users (such as Segment or Rudderstack with their `identify` calls), each environment configuration for that source includes a setting to enable or disable identifying users. After creating an integration source, enable identifying users for that environment.
+
+Note that Knock will correctly map `name`, `email`, `avatar`, and `phone` properties from Segment and Rudderstack `identify` calls into Knock's user data model. All other tracked properties of a user will be stored as additional custom properties on the Knock user object, and can be used in templates and other parts of Knock that rely on user properties.
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Remember:</span> if you send Knock a source
+      event that includes a recipient that has not yet been identified in Knock,
+      our system will not generate a workflow run for that user. <br />
+      <br />
+      For use cases such as new signup events, where events will often reach
+      Knock before identify calls, consider{" "}
+      <a href="#inline-identify-users-in-a-source-event">
+        inline identification
+      </a>{" "}
+      of users in your source events.
+    </>
+  }
+/>
+
+### Inline identify users in a source event
+
+<Callout
+  emoji="☝️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> Inline identification is not
+      supported by our{" "}
+      <a href="/send-notifications/testing-workflows#the-workflow-test-runner">
+        workflow test runner
+      </a>
+      , which can only trigger test runs for existing users. To test inline identification
+      with a source event, you should send a test event from your configured source.
+    </>
+  }
+/>
+
+In cases where you send a source event to Knock with recipients that may not yet have been identified into our system, it's good practice to [inline identify](/managing-recipients/identifying-recipients#inline-identifying-recipients) your users. By inline identifying your users within your source events, you ensure that those users are identified in Knock when your event triggers a workflow.
+
+As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified.
+
+```json title="A source event without inline identify"
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "source-event-test-123",
+  "properties": {
+    "recipients": ["sam10"],
+    "account_id": "123"
+  },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
+
+To ensure that the user is notified, we'd change the id reference in `recipients` to a complete user object, as in the example below. This way Knock has all the information it needs to identify the user during workflow runtime.
+
+```json title="A source event with inline identify"
+{
+  "event": "user-signed-up",
+  "email": "sam@example.com",
+  "userId": "sam10",
+  "type": "track",
+  "messageId": "source-event-test-123",
+  "properties": {
+    "recipients": [
+      {
+        "id": "sam10",
+        "name": "Sam Seely",
+        "email": "sam@example.com"
+      }
+    ],
+    "account_id": "123"
+  },
+  "timestamp": "2023-05-23T21:49:54Z"
+}
+```
+
+You can learn more about inline identification in [our guide on identifying recipients](/managing-recipients/identifying-recipients).
+
+## Event idempotency
+
+By default, Knock will process every valid event received from your source. But, you can enable idempotency checks to deduplicate events that have already been received and processed by Knock. This is useful if you know your source may send duplicate events.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>
+        The default idempotency window for Knock Sources is 24 hours.
+      </strong>{" "}
+      If you're interested in configuring a different idempotency window for
+      your account, please contact us at{" "}
+      <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
+
+### Configuring idempotency checks
+
+You can enable source event idempotency checks at any time from the "Settings" tab for your source environment configuration.
+
+<Image
+  src="/images/integrations/sources/source-event-idempotency.png"
+  alt="A screenshot of where to configure idempotency for your Source."
+  width={800}
+  height={400}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+Once enabled, Knock will start parsing idempotency keys from your source events for use in deduplication checks. Knock will use an optional, unique attribute made available by your source provider. These attributes are:
+
+- **Segment:** `messageId`
+- **Rudderstack:** `messageId`
+- **HTTP:** `messageId`
+
+Events without an idempotency key attribute will be processed like normal.
+
+```json title="An example source event from Segment with a valid idempotency key."
+{
+  "type": "track",
+  "event": "user.created",
+  "messageId": "some-id-from-source",
+  "properties": {
+    "id": "user-1",
+    "email": "user-1@example.com"
+  }
+}
+```
+
+Your idempotency keys must be valid strings no more than 255 characters in length. If an invalid key is found, Knock will still ingest your source event, but it will not attempt to execute your event idempotently. In addition, Knock will drop the invalid idempotency key and you will not see it appear in your event logs.
+
+### How Knock handles idempotent events
+
+When Knock executes a source event with an idempotency key, it will first check to see if a preceding execution should be replayed. Knock will find a preceding execution if it is recorded within the idempotency window with the same:
+
+- Idempotency key value
+- Event type
+- Integration source configuration
+- Knock environment in your account
+
+If no preceding execution is found, Knock will execute your event like normal and record _that_ execution for future replay by the same idempotency key. However, if Knock fails to execute your source event, it will not record the execution. Knock will only record successful event executions for idempotent replay.
+
+If Knock replays an event via an idempotency check, you will still see an event log for that execution. However, the log will not have any actions associated and Knock will label it as idempotent.
+
+## Logging
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">
+        Data subject to retention policy enforcement.
+      </span>{" "}
+      See the{" "}
+      <a href="/manage-your-account/data-retention">data retention docs</a> for
+      more details on how Knock enforces this policy.
+    </>
+  }
+/>
+
+### Event logs
+
+Event logs show the contents of each event sent into Knock.
+
+### Action logs
+
+Action logs describe what (if any) action was taken after an event was received. Action logs are a helpful starting point when troubleshooting workflows or auditing what actions Knock has taken for any given event.

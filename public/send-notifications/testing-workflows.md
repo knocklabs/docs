@@ -1,0 +1,40 @@
+---
+title: Testing workflows
+description: Learn more about how to test workflows you build in Knock.
+tags: ["test", "testing", "CI", "continuous integration"]
+section: Send notifications
+---
+
+Once you've built your workflow, you'll want to test it to make sure it works as expected. Knock provides a number of tools to help you test your workflows.
+
+## The workflow test runner
+
+You can use the Knock workflow test runner to test an end-to-end workflow and verify that it works as expected.
+
+To use the workflow test runner, navigate to the workflow you want to test and click "Run a test." You'll have options to select the workflow's recipient, actor, tenant, and input any data that you'd like to pass to the workflow.
+
+Two things to know about workflow test configuration:
+
+- The data field is populated using the workflow's schema as defined in your templates. You can click "Reset" at any time to reset the data field to the latest and greatest schema for your workflow.
+- The recipient and actor fields can contain either a [user](/concepts/users) or an [object](/concepts/objects). Use the toggle above the field to switch between these options.
+
+When you run a test workflow, every step of the workflow will execute as it normally would. You'll see an affordance to "View log" when the workflow runs to see its output and what was sent. You can learn more about Knock logs and our debugger [here](/send-notifications/debugging-workflows).
+
+You can also use the workflow test runner to run a test payload for a [source event trigger](/integrations/sources/overview#workflow-triggers). If your workflow is triggered by an event, you will automatically see a JSON payload of the last received event that you can use to run a test. You can edit this payload or click "Fetch the latest event" to get the most recent from your source.
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Note:</span> The workflow test runner uses the
+      last saved version of the workflow, not the last committed version. This
+      means that you don't need to commit workflow changes before testing them
+      using the test runner. This is different than calling the workflow with
+      the API, which will always use the last committed version of the workflow.
+    </>
+  }
+/>
+
+## Testing workflows using the Knock CLI
+
+You can also generate workflow runs using the `workflow run` command from the Knock CLI. You can learn more in our [CLI reference](/cli#workflow-run).

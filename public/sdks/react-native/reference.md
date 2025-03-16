@@ -1,0 +1,386 @@
+---
+title: "React Native API reference"
+description: Complete API reference for the Knock React Native SDK.
+tags: ["mark as read"]
+section: SDKs
+---
+
+In this section, you'll find the complete documentation for the components exposed in `@knocklabs/react-native`, including the props available.
+
+**Note**: You can see a reference for the methods available for the `Knock` class, as well as a `Feed` instance under the [client JS docs](/sdks/javascript/reference).
+
+## Components
+
+### `KnockProvider`
+
+The top-level provider that connects to Knock with the given API key and authenticates a user.
+
+#### Props
+
+Accepts `KnockProviderProps`
+
+<Attributes>
+  <Attribute
+    name="apiKey*"
+    type="string"
+    description="The public API key for the environment"
+  />
+  <Attribute
+    name="userId*"
+    type="string"
+    description="The ID of the user for which to retrieve a feed"
+  />
+  <Attribute
+    name="userToken"
+    type="string"
+    description={
+      <span>
+        A JWT that identifies the authenticated user, signed with the private
+        key provided in the Knock dashboard. Required to secure your production
+        environment.{" "}
+        <a
+          href="https://docs.knock.app/in-app-ui/security-and-authentication#authentication-with-enhanced-security"
+          target="_blank"
+        >
+          Learn more.
+        </a>
+      </span>
+    }
+  />
+  <Attribute
+    name="host"
+    type="string"
+    description="A custom API host for Knock"
+  />
+  <Attribute
+    name="i18n"
+    type="I18nContent"
+    description="An optional set of translations to override the default `en` translations used in the feed components"
+  />
+</Attributes>
+
+### `KnockFeedProvider`
+
+The feed-specific provider that connects to a feed for that user. Must be a child of the `KnockProvider`.
+
+#### Props
+
+Accepts `KnockFeedProviderProps`:
+
+<Attributes>
+  <Attribute
+    name="feedId*"
+    type="string"
+    description="The channel ID of the in-app feed to be displayed"
+  />
+  <Attribute
+    name="defaultFeedOptions"
+    type="FeedClientOptions"
+    description="Set defaults for `tenant`, `has_tenant`, `source`, `archived` to scope all subsequent feed queries"
+  />
+  <Attribute
+    name="colorMode"
+    type="ColorMode"
+    description="Sets the theme as either light or dark mode (defaults to light)"
+  />
+</Attributes>
+
+### `KnockPushNotificationProvider`
+
+A context provider designed to streamline the integration of push notifications within your React Native application.
+It facilitates the registration of device push tokens with the Knock backend, enabling the delivery of notifications.
+
+It is recommended to use the [`usePushNotifications`](#usepushnotifications) hook to interact with this context provider.
+
+**Note:** Must be a child of the `KnockProvider`.
+
+#### Props
+
+None other than `children`.
+
+## Hooks
+
+### `useKnock`
+
+The `KnockProvider` exposes a `useKnock` hook for all child components.
+
+**Returns**: `Knock`, an instance of the Knock JS client.
+
+**Example**:
+
+```jsx
+import { KnockProvider, useKnock } from "@knocklabs/react";
+
+const App = ({ authenticatedUser }) => (
+  <KnockProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    userId={authenticatedUser.id}
+  >
+    <MyComponent />
+  </KnockProvider>
+);
+
+const MyComponent = () => {
+  const knock = useKnock();
+
+  return null;
+};
+```
+
+### `useKnockFeed`
+
+The `KnockFeedProvider` exposes a `useKnockFeed` hook for all child components.
+
+**Returns**: `KnockFeedProviderState`
+
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="The instance of the Knock client"
+  />
+  <Attribute
+    name="feedClient"
+    type="Feed"
+    description="The instance of the authenticated Feed"
+  />
+  <Attribute
+    name="useFeedStore"
+    type="UseStore<FeedStoreState>"
+    description="A zustand store containing the FeedStoreState"
+  />
+  <Attribute
+    name="status"
+    type="FilterStatus"
+    description="Current value of the filter status for the Feed"
+  />
+  <Attribute
+    name="setStatus"
+    type="function"
+    description="A function to set the current FilterStatus"
+  />
+  <Attribute
+    name="colorMode"
+    type="ColorMode"
+    description="The current theme color"
+  />
+</Attributes>
+
+**Example**:
+
+```jsx
+import {
+  KnockProvider,
+  KnockFeedProvider,
+  useKnockFeed,
+} from "@knocklabs/react-native";
+
+const App = ({ authenticatedUser }) => (
+  <KnockProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    userId={authenticatedUser.id}
+  >
+    <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+      <MyFeedComponent />
+    </KnockFeedProvider>
+  </KnockProvider>
+);
+
+const MyFeedComponent = () => {
+  const { useFeedStore } = useKnockFeed();
+  const items = useFeedStore((state) => state.items);
+
+  return (
+    <View>
+      {items.map((item) => (
+        <NotificationCell key={item.id} item={item} />
+      ))}
+    </View>
+  );
+};
+```
+
+### `useAuthenticatedKnockClient`
+
+Creates an authenticated Knock client.
+
+**Returns**: `Knock` instance, authenticated against the user
+
+**Example**:
+
+```jsx
+import { useAuthenticatedKnockClient } from "@knocklabs/react-native";
+
+const MyComponent = () => {
+  const knock = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+    user.knockToken,
+  );
+
+  return null;
+};
+```
+
+### `useNotifications`
+
+Creates a `Feed` instance for the provided `Knock` client which creates a stateful, real-time connection to Knock to build in-app experiences.
+
+**Returns**: `Feed` instance
+
+**Example**:
+
+```js
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+  useNotificationStore,
+} from "@knocklabs/react-native";
+
+const MyComponent = () => {
+  const knock = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+    user.knockToken,
+  );
+
+  const notificationFeed = useNotifications(
+    knock,
+    process.env.KNOCK_FEED_CHANNEL_ID,
+  );
+
+  const { metadata } = useNotificationStore(notificationFeed);
+
+  useEffect(() => {
+    notificationFeed.fetch();
+  }, [notificationFeed]);
+
+  return (
+    <View>
+      <Text>Total unread: {metadata.unread_count}</Text>
+    </View>
+  );
+};
+```
+
+### `useTranslations`
+
+Exposed under `KnockI18nProvider` child components.
+
+**Returns**:
+
+<Attributes>
+  <Attribute
+    name="locale"
+    type="string"
+    description="The current locale code (defaults to `en`)"
+  />
+  <Attribute
+    name="t"
+    type="(key: string) => string"
+    description="A helper function to get the value of a translation from the current `Translations`."
+  />
+</Attributes>
+
+### `usePushNotifications`
+
+The `KnockPushNotificationProvider` exposes a `usePushNotifications` hook for all child components, enabling them to register and unregister a device's push token from a channel.
+
+**Returns**: `KnockPushNotificationContextType`
+
+<Attributes>
+  <Attribute
+    name="registerPushTokenToChannel"
+    type="(token: string, channelId: string) => Promise<void>"
+    description="Registers the device's push token with a specific channel in the Knock backend."
+  />
+  <Attribute
+    name="unregisterPushTokenFromChannel"
+    type="(token: string, channelId: string) => Promise<void>"
+    description="Removes the device's push token from a specific channel in the Knock backend."
+  />
+</Attributes>
+
+**Example**:
+
+```jsx
+import React, { useEffect } from "react";
+import { View, Text } from "react-native";
+import {
+  KnockPushNotificationProvider,
+  usePushNotifications,
+} from "@knocklabs/react-native";
+
+const App = () => (
+  <KnockPushNotificationProvider>
+    <MyComponent />
+  </KnockPushNotificationProvider>
+);
+
+const MyComponent = () => {
+  // How the push token is retrieved depends upon the push notification service you are using
+  const pushToken = getPushTokenForCurrentDevice();
+  const { registerPushTokenToChannel } = usePushNotifications();
+
+  useEffect(() => {
+    registerPushTokenToChannel(pushToken, process.env.KNOCK_PUSH_CHANNEL_ID)
+      .then(() => console.log("Push token registered"))
+      .catch(console.error);
+  }, [registerPushTokenToChannel, pushToken]);
+
+  return (
+    <View>
+      <Text>Push Token: {pushToken}</Text>
+    </View>
+  );
+};
+```
+
+## Types
+
+### `I18nContent`
+
+Used to set translations available in the child components exposed under `KnockFeedProvider` and `KnockSlackProvider`. Used in the `useTranslations` hook.
+
+**Note:** `locale` must be a valid locale code.
+
+```typescript
+interface Translations {
+  readonly emptyFeedTitle: string;
+  readonly emptyFeedBody: string;
+  readonly notifications: string;
+  readonly poweredBy: string;
+  readonly markAllAsRead: string;
+  readonly archiveNotification: string;
+  readonly all: string;
+  readonly unread: string;
+  readonly read: string;
+  readonly unseen: string;
+
+  readonly slackConnectChannel: string;
+  readonly slackChannelId: string;
+  readonly slackConnecting: string;
+  readonly slackDisconnecting: string;
+  readonly slackConnect: string;
+  readonly slackConnected: string;
+  readonly slackConnectContainerDescription: string;
+  readonly slackSearchbarDisconnected: string;
+  readonly slackSearchbarNoChannelsConnected: string;
+  readonly slackSearchbarNoChannelsFound: string;
+  readonly slackSearchbarChannelsError: string;
+  readonly slackSearchChannels: string;
+  readonly slackConnectionErrorOccurred: string;
+  readonly slackConnectionErrorExists: string;
+  readonly slackChannelAlreadyConnected: string;
+  readonly slackError: string;
+  readonly slackDisconnect: string;
+  readonly slackChannelSetError: string;
+  readonly slackAccessTokenNotSet: string;
+  readonly slackReconnect: string;
+}
+
+interface I18nContent {
+  readonly translations: Partial<Translations>;
+  readonly locale: string;
+}
+```

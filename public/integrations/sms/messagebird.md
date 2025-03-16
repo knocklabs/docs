@@ -1,0 +1,108 @@
+---
+title: How to send SMS messages with MessageBird
+description: Setup guide for SMS notifications with MessageBird and Knock.
+section: Integrations > SMS
+layout: integrations
+---
+
+Knock integrates with <a href="https://developers.messagebird.com/api/sms-messaging/" target="_blank">MessageBird</a> to send SMS notifications to your recipients.
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> On February 1, 2024,{" "}
+      <a
+        href="https://bird.com/en-us/blog/messagebird-is-now-bird"
+        target="_blank"
+      >
+        MessageBird announced a rebrand as Bird
+      </a>
+      , along with the introduction of a Bird CRM product and new APIs for sending
+      messages. <br /> <br /> This integration is with the <a
+        href="https://developers.messagebird.com/api/sms-messaging/"
+        target="_blank"
+      >
+        legacy MessageBird SMS API
+      </a>, which continues to be supported by Bird but is no longer accepting new
+      customers. If integrating with the new Bird API is a blocker to your Knock
+      integration, please reach out to <a href="mailto:support@knock.app?subject=Bird%20API%20integration">
+        support@knock.app
+      </a> to let us know.
+    </>
+  }
+/>
+
+## Features
+
+- Delivery tracking
+- Knock link tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+You can create a new MessageBird channel in the dashboard under the **Integrations** > **Channels** section. From there, you'll need to configure the channel for each environment you have.
+
+## Channel configuration
+
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Integrations** > **Channels** in your dashboard, select your MessageBird [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+
+<AccordionGroup>
+  <Accordion title="Settings">
+    Fields marked with an `*` are required.
+    
+    **Knock settings**
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your MessageBird channel."
+      />
+      <Attribute
+        name="Knock link tracking"
+        type="boolean"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        description="Whether to enable Knock link-click tracking."
+      />
+    </Attributes>
+
+    **Provider settings for MessageBird**
+    <Attributes>
+      <Attribute
+        name="API key"
+        type="string*"
+        description="The API key from MessageBird. You can find this under Developers > API access."
+      />
+      <Attribute
+        name="From"
+        type="enum*"
+        description="The method used to send your SMS messages. One of Phone number, Short code, or Sender ID."
+      />
+      <Attribute
+        name="Phone number"
+        type="string*"
+        description="The phone number to send messages from. Required when From is set to Phone number."
+      />
+      <Attribute
+        name="Short code"
+        type="string*"
+        description="The MessageBird short code to send messages from. Required when From is set to Short code."
+      />
+      <Attribute
+        name="Sender ID"
+        type="string*"
+        description="The MessageBird Sender ID to send messages from. Required when From is set to Sender ID."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
+## Recipient data requirements
+
+In order to send an SMS notification you'll need a valid `phone_number` property set on your recipient.

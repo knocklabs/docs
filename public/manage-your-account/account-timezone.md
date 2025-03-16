@@ -1,0 +1,20 @@
+---
+title: Account timezone
+description: Learn how to set the default timezone for your account.
+tags: ["default timezone", "recipient timezone"]
+section: Manage your account
+---
+
+## Overview
+
+You can set a default timezone for your account by navigating to the General tab under your account settings and selecting a timezone.
+
+<Image
+  src="/images/manage-your-account/account-timezone.png"
+  alt="Account timezone settings in the Knock dashboard"
+  width={1356}
+  height={1452}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+The account timezone will be used as a fallback for [send windows](/designing-workflows/send-windows) and [schedules](/concepts/schedules) if the recipient does not have a timezone set.

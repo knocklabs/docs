@@ -1,0 +1,140 @@
+---
+title: Managing account members
+description: How to invite, manage, and remove members on your account.
+tags:
+  [
+    "team",
+    "team members",
+    "account members",
+    "invites",
+    "inviting",
+    "auto join",
+    "auto-join",
+  ]
+section: Manage your account
+---
+
+Learn how to invite, manage, and remove members on your Knock account.
+
+## Overview
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Note:</span> only account owners and admins
+      can view, manage, and invite new members to your account.
+    </>
+  }
+/>
+
+You can manage the members of your account under **Settings** > **Members** in your Knock dashboard:
+
+<Image
+  src="/images/manage-your-account/account-members.png"
+  alt="Managing account members in the dashboard"
+  width={2626}
+  height={1751}
+  className="rounded-md border border-gray-200"
+/>
+
+## Invite members to your account
+
+You can invite new members to your account by selecting the "New member" button on the members page.
+
+Members are always invited via their email address and must be assigned [a role](/manage-your-account/roles-and-permissions). Optionally a message can be supplied that will appear in the invitation email they are sent.
+
+The member will be sent a reminder email if the invite is not accepted within 3 days. Account invites are valid for 2 weeks, after which they'll expire.
+
+<figure>
+  <Image
+    src="/images/manage-your-account/account-invite-email.png"
+    width={1327}
+    height={949}
+    alt="A Knock invite email"
+  />
+  <figcaption>
+    An example invitation email inviting a user to a Knock account
+  </figcaption>
+</figure>
+
+### Manage pending invites
+
+Once a user has been invited to your Knock account you will see their invitation as a "pending invite" until they accept to join the account. Pending invitations for users can be revoked which will mark the invite as invalid and expire it immediately.
+
+Once you revoke an invitation for a user, you can reinvite them if needed which will generate a new invite for your account.
+
+## Enabling auto-join for your account
+
+You can enable auto-join on your account to let users that belong to your domain automatically join your account when signing up for Knock. This is helpful
+for cases where people from your organization might sign up for Knock on their own without realizing there's already an account they should be working within.
+
+You can enable auto-join under **Settings** > **Security** in your dashboard.
+
+<Image
+  src="/images/manage-your-account/auto-join-settings.png"
+  alt="Auto-join settings"
+  width={2628}
+  height={1737}
+  className="rounded-md border border-gray-200"
+/>
+
+When you enable auto-join for your account, you'll need to select which domains
+can auto-join your account. For security reasons, we only let you select non-public domains that belong to the owners of your account.
+This means that you cannot enable auto-join for public domains (such as gmail.com). Additionally, before you can add a new domain to auto-join, someone with an email address from that domain must have an [owner role](/manage-your-account/roles-and-permissions) on your account.
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Note:</span> All users that join through
+      auto-join will receive the <code>member</code> role by default.
+      <p>
+        If you have a user from your domain you want to invite with a role other
+        than <code>member</code>, just send them an invite as you normally
+        would. We prioritize the role assigned on an invitation over the
+        auto-join default.
+      </p>
+    </>
+  }
+/>
+
+## Managing members on your account
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Note:</span> a user cannot change their own
+      role or remove themself from a Knock account
+    </>
+  }
+/>
+
+### Updating a members role
+
+A members role can be changed from the three dot menu and selecting the "Change role" option. You can pick from one of the [available account roles](/manage-your-account/roles-and-permissions) and the role change will immediately take effect.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Note:</span> the last owner on an account
+      cannot have their role changed
+    </>
+  }
+/>
+
+### Removing members from your account
+
+Members can be removed from an account from the three dot menu. Removing a member will revoke their access to Knock and immediately invalidate any session associated with the user. Additionally, the member will also be sent an email letting them know that they have been removed from the account.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <span className="font-bold">Note:</span> the last owner on an account
+      cannot be removed
+    </>
+  }
+/>

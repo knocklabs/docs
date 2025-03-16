@@ -1,0 +1,159 @@
+---
+title: Tenant preferences
+description: Learn how to enable your customer admins to set default preferences for users in their tenant.
+tags:
+  [
+    "tenant",
+    "tenant preferences",
+    "per-tenant preferences",
+    "per tenant preferences",
+    "preferences",
+  ]
+section: Preferences
+---
+
+<Callout
+  emoji="✨"
+  text={
+    <>
+      <span className="font-bold">Enterprise plan feature.</span> Per-tenant
+      user preferences and tenant preference defaults are only available on our{" "}
+      <a href="https://knock.app/pricing">Enterprise plan</a>.
+    </>
+  }
+/>
+
+You can use tenant preferences to enable your customers' admins to create a tenant-specific default `PreferencesSet` for users in their tenant.
+
+If you're a B2B application or a multi-tenant SaaS product, you can use tenant preferences to allow your customers to set default preferences for their users. For example, in Slack, your notification preferences are set _per Slack workspace_ (that is, per-tenant), not as global preferences that apply across all of your Slack workspaces.
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Terminology callout.</span> This guide assumes
+      you know about tenants in Knock and what they do. If you're new to
+      tenants, we recommend reading our concept guide on{" "}
+      <a href="/concepts/tenants">tenants</a> before continuing.
+    </>
+  }
+/>
+
+## Overview
+
+Here is how tenant preferences work and the steps you'll take to implement them:
+
+1. Enable your tenant admins to create a default `PreferenceSet` for their tenant.
+2. Enable your users to override that tenant default `PreferenceSet` with their own preferences.
+3. Trigger your workflows with a `tenant` parameter to apply tenant-specific preferences.
+
+## Create a per-tenant default `PreferenceSet`
+
+You set the default `PreferenceSet` for a tenant via the API by calling the `tenants.set` method. The preferences should follow the format of a recipient <a href="/reference#preferences"><code>PreferenceSet</code></a>.
+
+```javascript title="Set the default preferences for a tenant"
+import { Knock } from "@knocklabs/node";
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const preferences = {
+  workflows: {
+    "new-comment": {
+      channel_types: {
+        email: false,
+        sms: true,
+        chat: false,
+      },
+    },
+  },
+};
+
+await knock.tenants.set("tenant-id", {
+  settings: {
+    preference_set: preferences,
+  },
+});
+```
+
+## Set a per-tenant user `PreferenceSet`
+
+A `PreferenceSet` has an `id`. When you [set a given user's preferences](/reference#set-preferences-user) in Knock, you'll use the `default` ID to apply the preferences universally for the user. When using one of our [SDKs](/sdks/overview), the `default` preference set is used if you don't provide an `id`.
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Terminology clarification.</span> You'll
+      encounter "default" in a few places in the Knock preferences model:
+      <br />
+      <ol>
+        <li>
+          At the environment-level when you set your default{" "}
+          <code>PreferenceSet</code> for all users.
+        </li>
+        <li>
+          At the tenant-level when you set the default{" "}
+          <code>PreferenceSet</code> for all users in a tenant.
+        </li>
+        <li>
+          At the user-level when you set a user's <code>PreferenceSet</code>{" "}
+          without providing a tenant ID.
+        </li>
+      </ol>
+    </>
+  }
+/>
+
+<br />
+
+```javascript title="Set tenant preferences for a user"
+import { Knock } from "@knocklabs/node";
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+await knock.users.setPreferences(
+  "user-id",
+  {
+    channel_types: {
+      email: true,
+      sms: false,
+      chat: true,
+    },
+  },
+  {
+    preferenceSet: "tenant-id",
+  },
+);
+```
+
+You can also get a user's tenant-specific preferences.
+
+```javascript title="Get tenant preferences for a user"
+import { Knock } from "@knocklabs/node";
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+const preferences = await knock.users.getPreferences("user-id", {
+  preferenceSet: "tenant-id",
+});
+```
+
+## Trigger per-tenant workflows
+
+When you trigger a workflow run, you pass a `tenant` parameter to tell Knock which tenant in your application the workflow is executing for.
+
+```javascript title="Trigger a workflow with a tenant"
+const { Knock } = require("@knocklabs/node");
+const knock = new Knock(process.env.KNOCK_API_KEY);
+
+await knock.workflows.trigger("workflow-name", {
+  tenant: "spotify",
+});
+```
+
+The Knock workflow engine uses that `tenant` parameter to evaluate the user's `PreferenceSet`. If the user has a tenant-specific preference set, Knock uses that to determine whether to send the notification. If the user does not have a `tenant`-specific preference set, Knock uses the tenant's default preference set.
+
+## Tenant preference evaluation rules
+
+Here are a few things to keep in mind when using tenant preferences.
+
+- When executing a workflow trigger, passing in a `tenant` will automatically load that tenant's default `PreferencesSet` (if one exists) for all recipients of the workflow. These tenant-level defaults will override a recipient's own `default` preferences.
+- If the recipient has any per-tenant preferences set for that `tenant.id`, they will override the tenant-level default preferences.
+- If there is no default `PreferenceSet` on the tenant AND the recipient has no per-tenant preferences set, the recipient’s `default` id `PreferenceSet` will be used. As always, the recipient's `default` preferences are [merged](/preferences/overview#preference-evaluation-rules) with the environment-level preference defaults.

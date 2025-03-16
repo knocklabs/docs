@@ -1,0 +1,21 @@
+---
+title: In-app notifications with Knock
+description: "Learn how to build in-app notifications like feeds and inboxes with Knock."
+tags: ["inbox", "feeds", "toasts", "in app", "in-app"]
+section: Integrations > In-app
+layout: integrations
+---
+
+In addition to delivering to out-of-app channels such as email, push, SMS, and chat apps like Slack, you can also use Knock to build great in-app notifications experiences too.
+
+You can use our in-app feed channel to build stateful, in-app notifications experiences like floating feeds, inboxes, toasts and banners, and you can use our preferences API to build powerful user-facing preference controls. You can also use [Knock link tracking](/send-notifications/tracking) to capture link-click events right within your Knock account.
+
+For a complete guide on powering in-app notifications with Knock, see our [building in-app UI docs](/in-app-ui/overview).
+
+[See a live demo ->](https://in-app-demo.knock.app/)
+
+## Supported providers
+
+- [Knock in-app](/integrations/in-app/knock)
+
+If you want us to add a new provider to this list, please let us know through the feedback button at the top of this page.

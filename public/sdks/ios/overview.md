@@ -1,0 +1,33 @@
+---
+title: "Knock Swift SDK (iOS and macOS)"
+description: Learn more about integrating Knock into your iOS and macOS applications through our Swift SDK.
+section: SDKs
+---
+
+The Knock Swift SDK is a client-side SDK for interacting with the Knock API and for building in-app notification experiences across iOS, macOS, and watchOS.
+
+**Quick links**
+
+- [SDK on GitHub](https://github.com/knocklabs/knock-swift)
+- [Full reference guide](/sdks/ios/reference)
+
+## Example app
+
+You can find a complete iOS example application that uses the Swift SDK [here](https://github.com/knocklabs/ios-example-app). The app shows patterns for handling push token registration, building an in-app feed using SwiftUI, and managing user notification preferences.
+
+## Need help?
+
+Our Swift SDK is worked on full-time by the Knock Mobile team.
+
+### Join the community
+
+- [Knock community Slack](https://knock.app/join-slack)
+
+### Provide feedback
+
+- [Open an issue](https://github.com/knocklabs/knock-swift/issues/new)
+- Use the "Help" dropdown at the top of this page to contact support.
+
+### Contributing
+
+All contributors are welcome, from casual to regular. Feel free to open a [pull request](https://github.com/knocklabs/knock-swift/pulls/new).

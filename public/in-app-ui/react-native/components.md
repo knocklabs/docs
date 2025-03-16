@@ -1,0 +1,213 @@
+---
+title: "React Native SDK pre-built components"
+description: "How to use Knock's UI components in your React Native application."
+section: Building in-app UI
+---
+
+<Callout
+  emoji="ℹ️"
+  text={
+    <>
+      <strong>Migration note.</strong> The{" "}
+      <code>NotificationFeedContainer</code> component is deprecated and has
+      been replaced with <code>NotificationFeed</code>. The container component
+      will be removed in a future release.
+    </>
+  }
+/>
+
+## NotificationFeed
+
+### Overview
+
+`NotificationFeed` is a React component that renders a list of notifications using data from Knock. It provides a customizable and interactive user interface for displaying notifications within your React Native application.
+
+### Properties
+
+<Attributes>
+  <Attribute
+    name="initialFilterStatus"
+    type="FilterStatus"
+    description="The initial filter applied to the notification feed. Defaults to 'All'."
+  />
+  <Attribute
+    name="notificationRowStyle"
+    type="NotificationFeedCellStyle"
+    description="Customizes the style of the notification rows in the feed."
+  />
+  <Attribute
+    name="headerConfig"
+    type="NotificationFeedHeaderConfig"
+    description="Configures the header of the notification feed."
+  />
+  <Attribute
+    name="emptyFeedStyle"
+    type="EmptyNotificationFeedStyle"
+    description="Customizes the appearance of the empty state when there are no notifications."
+  />
+  <Attribute
+    name="onCellActionButtonTap"
+    type="(params: { button: ActionButton, item: FeedItem }) => void"
+    description="Callback triggered when an action button in a notification row is tapped."
+  />
+  <Attribute
+    name="onRowTap"
+    type="(item: FeedItem) => void"
+    description="Callback triggered when a notification row is tapped."
+  />
+</Attributes>
+
+### Examples
+
+```tsx
+import {
+  KnockFeedProvider,
+  KnockProvider,
+  NotificationIconButton,
+} from "@knocklabs/react-native";
+import React, { useCallback, useState } from "react";
+import { StyleSheet, View, StatusBar } from "react-native";
+
+// Your custom notification container component; see code example below
+import NotificationContainer from "./NotificationContainer";
+
+const App: React.FC = () => {
+  const [isNotificationFeedOpen, setIsNotificationFeedOpen] = useState(false);
+  const onTopActionButtonTap = useCallback(() => {
+    setIsNotificationFeedOpen(!isNotificationFeedOpen);
+  }, [isNotificationFeedOpen]);
+
+  return (
+    <KnockProvider
+      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+      host={process.env.KNOCK_HOST}
+      userId={process.env.KNOCK_USER_ID}
+      logLevel="debug"
+    >
+      <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+        <View style={styles.container}>
+          <StatusBar />
+          {!isNotificationFeedOpen && (
+            <NotificationIconButton
+              onClick={onTopActionButtonTap}
+              badgeCountType={"unread"}
+            />
+          )}
+          {isNotificationFeedOpen && (
+            <NotificationContainer
+              handleClose={() =>
+                setIsNotificationFeedOpen(!isNotificationFeedOpen)
+              }
+            />
+          )}
+        </View>
+      </KnockFeedProvider>
+    </KnockProvider>
+  );
+};
+
+export default App;
+import { NotificationFeed, FilterStatus } from "@knocklabs/react-native";
+
+const MyNotificationFeed = () => {
+  return (
+    <NotificationFeed
+      initialFilterStatus={FilterStatus.Unread}
+      onCellActionButtonTap={({ button, item }) => {
+        console.log("Action button tapped", button, item);
+      }}
+      onRowTap={(item) => {
+        console.log("Row tapped", item);
+      }}
+    />
+  );
+};
+```
+
+<br />
+
+```tsx
+import { ActionButton, FeedItem } from "@knocklabs/client";
+import { NotificationFeed } from "@knocklabs/react-native";
+import React, { useCallback } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+export interface NotificationContainerProps {
+  handleClose: () => void;
+}
+
+const NotificationContainer: React.FC<NotificationContainerProps> = ({
+  handleClose,
+}) => {
+  const onCellActionButtonTap = useCallback(
+    (params: { button: ActionButton; item: FeedItem }) => {
+      // handle button tap
+    },
+    [],
+  );
+
+  const onRowTap = useCallback((item: FeedItem) => {
+    // handle row tap
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Notifications</Text>
+        <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+          <Text style={styles.closeButtonText}>X</Text>
+        </TouchableOpacity>
+      </View>
+      <NotificationFeed
+        onCellActionButtonTap={onCellActionButtonTap}
+        onRowTap={onRowTap}
+      />
+    </View>
+  );
+};
+
+export default NotificationContainer;
+```
+
+## NotificationIconButton
+
+### Overview
+
+`NotificationIconButton` is a React component that renders a button with a badge showing the count of unread or unseen notifications. This can be used to open the `NotificationFeed` when tapped.
+
+### Properties
+
+<Attributes>
+  <Attribute
+    name="onClick"
+    type="() => void"
+    description="Callback triggered when the button is pressed."
+  />
+  <Attribute
+    name="badgeCountType"
+    type="BadgeCountType"
+    description="Specifies whether to display the count of 'unread', 'unseen', or 'all' notifications."
+  />
+  <Attribute
+    name="styleOverride"
+    type="ViewStyle"
+    description="Customizes the overall style of the button."
+  />
+</Attributes>
+
+### Example
+
+```tsx
+import { NotificationIconButton } from "@knocklabs/react-native";
+
+const MyApp = () => {
+  return (
+    <NotificationIconButton
+      onClick={() => {
+        console.log("Notification icon button clicked");
+      }}
+      badgeCountType="unread"
+    />
+  );
+};
+```
