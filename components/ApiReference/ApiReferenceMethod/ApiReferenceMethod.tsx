@@ -18,7 +18,7 @@ type Props = {
 };
 
 function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
-  const { openApiSpec } = useApiReference();
+  const { openApiSpec, baseUrl } = useApiReference();
   const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];
 
@@ -114,6 +114,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
           examples={augmentSnippetsWithCurlRequest(
             method["x-stainless-snippets"],
             {
+              baseUrl,
               methodType,
               endpoint,
               body: requestBody?.example,

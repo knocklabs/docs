@@ -11,30 +11,31 @@ import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import fs from "fs";
 import { MDXRemote } from "next-mdx-remote";
 import { MDX_COMPONENTS } from "../[...slug]";
-import { RESOURCE_ORDER, PRE_SIDEBAR_CONTENT } from ".";
+import { RESOURCE_ORDER, PRE_SIDEBAR_CONTENT } from "./index";
 
-function ApiReferenceNew({ openApiSpec, stainlessSpec, preContentMdx }) {
+function MAPIReference({ openApiSpec, stainlessSpec, preContentMdx }) {
   return (
     <ApiReference
-      name="API"
+      name="Management API"
       openApiSpec={openApiSpec}
       stainlessSpec={stainlessSpec}
       preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
       resourceOrder={RESOURCE_ORDER}
+      preSidebarContent={PRE_SIDEBAR_CONTENT}
     />
   );
 }
 
 export async function getStaticPaths() {
-  const openApiSpec = await readOpenApiSpec("api");
-  const stainlessSpec = await readStainlessSpec("api");
+  const openApiSpec = await readOpenApiSpec("mapi");
+  const stainlessSpec = await readStainlessSpec("mapi");
 
   const paths: { params: { slug: string[] } }[] = [];
   const pages = getSidebarContent(
     openApiSpec as OpenAPIV3.Document,
     stainlessSpec,
     RESOURCE_ORDER,
-    "/api-reference",
+    "/mapi-reference",
     PRE_SIDEBAR_CONTENT,
   );
 
@@ -68,11 +69,11 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps() {
-  const openApiSpec = await readOpenApiSpec("api");
-  const stainlessSpec = await readStainlessSpec("api");
+  const openApiSpec = await readOpenApiSpec("mapi");
+  const stainlessSpec = await readStainlessSpec("mapi");
 
   const preContent = fs.readFileSync(
-    `${CONTENT_DIR}/__api-reference/content.mdx`,
+    `${CONTENT_DIR}/__mapi-reference/content.mdx`,
   );
 
   const preContentMdx = await serialize(preContent, {
@@ -86,4 +87,4 @@ export async function getStaticProps() {
   return { props: { openApiSpec, stainlessSpec, preContentMdx } };
 }
 
-export default ApiReferenceNew;
+export default MAPIReference;

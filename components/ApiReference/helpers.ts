@@ -3,19 +3,6 @@ import { StainlessConfig, StainlessResource } from "../../lib/openApiSpec";
 import JSONPointer from "jsonpointer";
 import { SidebarSection, SidebarSubsection } from "../../data/types";
 
-const docsOrdering = [
-  "workflows",
-  "messages",
-  "recipients",
-  "users",
-  "objects",
-  "tenants",
-  "schedules",
-  "bulk_operations",
-  "audiences",
-  "providers",
-];
-
 function resolveEndpointFromMethod(
   endpointOrMethodConfig: string | { endpoint: string },
 ) {
@@ -31,73 +18,17 @@ function resolveEndpointFromMethod(
 function getSidebarContent(
   openApiSpec: OpenAPIV3.Document,
   stainlessSpec: StainlessConfig,
+  resourceOrder: string[],
+  basePath: string,
+  preSidebarContent?: SidebarSection[],
 ): SidebarSection[] {
-  return [
-    {
-      title: "API Reference",
-      slug: "/api-reference/overview",
-      pages: [
-        {
-          title: "Overview",
-          slug: `/`,
-        },
-        {
-          title: "Client libraries",
-          slug: `/client-libraries`,
-        },
-        {
-          title: "API keys",
-          slug: `/api-keys`,
-        },
-        {
-          title: "Authentication",
-          slug: `/authentication`,
-        },
-        {
-          title: "Rate limits",
-          slug: `/rate-limits`,
-        },
-        {
-          title: "Batch rate limits",
-          slug: `/batch-rate-limits`,
-        },
-        {
-          title: "Idempotent requests",
-          slug: `/idempotent-requests`,
-        },
-        {
-          title: "Data retention",
-          slug: `/data-retention`,
-        },
-        {
-          title: "Bulk endpoints",
-          slug: `/bulk-endpoints`,
-        },
-        {
-          title: "Trigger data filtering",
-          slug: `/trigger-data-filtering`,
-        },
-        {
-          title: "Pagination",
-          slug: `/pagination`,
-        },
-        {
-          title: "Errors",
-          slug: `/errors`,
-        },
-        {
-          title: "Error codes",
-          slug: `/error-codes`,
-        },
-      ],
-    },
-  ].concat(
-    docsOrdering.map((resourceName) => {
+  return (preSidebarContent || []).concat(
+    resourceOrder.map((resourceName) => {
       const resource = stainlessSpec.resources[resourceName];
 
       return {
         title: resource.name || resourceName,
-        slug: `/api-reference/${resourceName}`,
+        slug: `/${basePath}/${resourceName}`,
         pages: buildSidebarPages(resource, openApiSpec),
       };
     }),
@@ -167,16 +98,22 @@ function buildSidebarPages(
 function augmentSnippetsWithCurlRequest(
   snippets: Record<string, string>,
   {
+    baseUrl,
     methodType,
     endpoint,
     body,
-  }: { methodType: string; endpoint: string; body?: Record<string, unknown> },
+  }: {
+    baseUrl: string;
+    methodType: string;
+    endpoint: string;
+    body?: Record<string, unknown>;
+  },
 ) {
   const maybeBodyString = body ? `-d '${JSON.stringify(body)}'` : "";
 
   return {
     curl: `
-    curl -X ${methodType.toUpperCase()} ${endpoint} \\
+    curl -X ${methodType.toUpperCase()} ${baseUrl}${endpoint} \\
     -H "Content-Type: application/json" \\
     -H "Authorization: Bearer sk_test_12345" \\
     ${maybeBodyString}
@@ -189,6 +126,5 @@ export {
   getSidebarContent,
   resolveEndpointFromMethod,
   buildSidebarPages,
-  docsOrdering,
   augmentSnippetsWithCurlRequest,
 };
