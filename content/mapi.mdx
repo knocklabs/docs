@@ -802,11 +802,13 @@ Contains all properties of the <a href="#workflowstep-definition">`WorkflowStep`
 
 Must set either `settings.delay_for` or `settings.delay_until_field_path`.
 
+Use both to describe a <a href="/designing-workflows/delay-function#wait-until-a-relative-timestamp">relative delay</a>.
+
 <Attributes>
   <Attribute
     name="settings.delay_for"
     type="object"
-    description="A duration object that describes how long to wait before proceeding to the next step."
+    description="A duration object that describes how long to wait before proceeding to the next step. When used in conjunction with `delay_until_field_path`, describes a delay relative to the specified timestamp."
   />
   <Attribute
     name="settings.delay_for.unit"
@@ -816,7 +818,7 @@ Must set either `settings.delay_for` or `settings.delay_until_field_path`.
   <Attribute
     name="settings.delay_for.value"
     type="number"
-    description="A non-negative integer."
+    description="The count of units to delay for. Must be a non-negative integer unless used in conjunction with `delay_until_field_path` (where a negative integer describes a relative delay prior to the specified timestamp)."
   />
   <Attribute
     name="settings.delay_until_field_path"
@@ -829,6 +831,7 @@ Must set either `settings.delay_for` or `settings.delay_until_field_path`.
 <ExampleColumn>
 
 ```json title="Delay step"
+// Delay for 30 seconds
 {
   "ref": "delay_1",
   "settings": {
@@ -836,6 +839,21 @@ Must set either `settings.delay_for` or `settings.delay_until_field_path`.
       "unit": "seconds",
       "value": 30
     }
+  },
+  "type": "delay"
+}
+```
+
+```json title="Delay step with relative delay"
+// Delay until 3 days before the appointment time
+{
+  "ref": "delay_1",
+  "settings": {
+    "delay_for": {
+      "unit": "days",
+      "value": -3
+    },
+    "delay_until_field_path": "data.appointment_time"
   },
   "type": "delay"
 }
