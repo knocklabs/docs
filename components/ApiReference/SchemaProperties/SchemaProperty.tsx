@@ -1,6 +1,7 @@
 import { OpenAPIV3 } from "@scalar/openapi-types";
 import { PropertyRow } from "./PropertyRow";
 import { useState } from "react";
+import Markdown from "react-markdown";
 import {
   getTypesForDisplay,
   innerEnumSchema,
@@ -46,7 +47,9 @@ const SchemaProperty = ({ name, schema }: Props) => {
           <PropertyRow.Required>Required</PropertyRow.Required>
         )}
       </PropertyRow.Header>
-      <PropertyRow.Description>{schema.description}</PropertyRow.Description>
+      <PropertyRow.Description>
+        <Markdown>{schema.description}</Markdown>
+      </PropertyRow.Description>
 
       {maybeEnum && (
         <>

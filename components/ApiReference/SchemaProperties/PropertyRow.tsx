@@ -34,7 +34,9 @@ const Type = ({ children }) => (
 );
 
 const Description = ({ children }) => (
-  <div className="text-sm text-gray-500 dark:text-gray-300">{children}</div>
+  <div className="text-sm text-gray-500 dark:text-gray-300 schema-property-description">
+    {children}
+  </div>
 );
 
 const Required = () => (
