@@ -46,7 +46,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
   return (
     <Section title={method.summary} slug={method.summary}>
       <ContentColumn>
-        <Markdown>{method.description}</Markdown>
+        <Markdown>{method.description ?? ""}</Markdown>
 
         <h3 className="!text-sm font-medium">Endpoint</h3>
 
@@ -86,7 +86,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
                 <PropertyRow.Type>{responseSchema.title}</PropertyRow.Type>
               </PropertyRow.Header>
               <PropertyRow.Description>
-                <Markdown>{responseSchema.description}</Markdown>
+                <Markdown>{responseSchema.description ?? ""}</Markdown>
               </PropertyRow.Description>
 
               {responseSchema.properties && (
@@ -122,9 +122,11 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
             },
           )}
         />
-        <CodeBlock title="Response" language="json" languages={["json"]}>
-          {JSON.stringify(responseSchema?.example, null, 2)}
-        </CodeBlock>
+        {responseSchema?.example && (
+          <CodeBlock title="Response" language="json" languages={["json"]}>
+            {JSON.stringify(responseSchema?.example, null, 2)}
+          </CodeBlock>
+        )}
       </ExampleColumn>
     </Section>
   );
