@@ -28,7 +28,9 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
       <div data-resource-path={basePath}>
         <Section title={resource.name} slug={resourceName}>
           <ContentColumn>
-            <Markdown>{resource.description}</Markdown>
+            {resource.description && (
+              <Markdown>{resource.description}</Markdown>
+            )}
           </ContentColumn>
           <ExampleColumn>
             {Object.entries(methods).length > 0 && (
@@ -91,14 +93,12 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
           >
             <Section title={schema.title} slug={modelName}>
               <ContentColumn>
-                <Markdown>{schema.description}</Markdown>
-
-                {schema.properties && (
-                  <>
-                    <h3 className="!text-base font-medium">Attributes</h3>
-                    <SchemaProperties schema={schema} hideRequired />
-                  </>
+                {schema.description && (
+                  <Markdown>{schema.description}</Markdown>
                 )}
+
+                <h3 className="!text-base font-medium">Attributes</h3>
+                <SchemaProperties schema={schema} hideRequired />
               </ContentColumn>
               <ExampleColumn>
                 <CodeBlock
