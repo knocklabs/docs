@@ -6,7 +6,9 @@ const Header = ({ children }) => (
 );
 
 const Wrapper = ({ children }) => (
-  <div className="attributes border-b dark:border-b-gray-800">{children}</div>
+  <div className="attributes border-b dark:border-b-gray-800 last:border-b-0">
+    {children}
+  </div>
 );
 
 const Container = ({ children }) => {
@@ -56,7 +58,9 @@ const ExpandableButton = ({ children, isOpen, onClick }) => (
 );
 
 const ChildProperties = ({ children }) => (
-  <div className="pl-1 mt-2 -mb-2">{children}</div>
+  <div className="pl-2 mt-2 -mb-2 property-row-child-properties">
+    {children}
+  </div>
 );
 
 const PropertyTag = ({ children }) => (
