@@ -1,5 +1,6 @@
 import type { OpenAPIV3 } from "@scalar/openapi-types";
 import { useState } from "react";
+import Markdown from "react-markdown";
 
 import { Endpoint } from "../../Endpoints";
 import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
@@ -45,7 +46,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
   return (
     <Section title={method.summary} slug={method.summary}>
       <ContentColumn>
-        <p>{method.description}</p>
+        <Markdown>{method.description}</Markdown>
 
         <h3 className="!text-sm font-medium">Endpoint</h3>
 
@@ -85,7 +86,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
                 <PropertyRow.Type>{responseSchema.title}</PropertyRow.Type>
               </PropertyRow.Header>
               <PropertyRow.Description>
-                {responseSchema.description}
+                <Markdown>{responseSchema.description}</Markdown>
               </PropertyRow.Description>
 
               {responseSchema.properties && (
