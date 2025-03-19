@@ -52,7 +52,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
 
         <Endpoint
           method={methodType.toUpperCase()}
-          path={endpoint}
+          path={`${baseUrl}${endpoint}`}
           name={methodName}
         />
 
