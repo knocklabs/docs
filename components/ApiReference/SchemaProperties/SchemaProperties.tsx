@@ -8,6 +8,10 @@ type Props = {
 };
 
 const SchemaProperties = ({ schema, hideRequired = false }: Props) => {
+  const unionSchema = schema.oneOf || schema.anyOf || schema.allOf;
+  const onlyUnion =
+    unionSchema && !schema.properties && !schema.additionalProperties;
+
   return (
     <PropertyRow.Wrapper>
       {Object.entries(schema.properties || {}).map(
@@ -34,6 +38,9 @@ const SchemaProperties = ({ schema, hideRequired = false }: Props) => {
           }}
         />
       )}
+
+      {/* If the schema is a union, we want to show the schema as a whole */}
+      {onlyUnion && <SchemaProperty name={schema.title} schema={schema} />}
     </PropertyRow.Wrapper>
   );
 };
