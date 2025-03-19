@@ -100,7 +100,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
 
                   {isResponseExpanded && (
                     <PropertyRow.ChildProperties>
-                      <SchemaProperties schema={responseSchema} />
+                      <SchemaProperties schema={responseSchema} hideRequired />
                     </PropertyRow.ChildProperties>
                   )}
                 </>
