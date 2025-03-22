@@ -112,7 +112,7 @@ const getParams = (
 
 export const CodeBlock: React.FC<Props> = ({
   children,
-  className = children.props ? children.props.className : "",
+  className = children?.props ? children.props.className : "",
   language,
   languages,
   setLanguage,

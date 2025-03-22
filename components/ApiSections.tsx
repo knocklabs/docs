@@ -8,8 +8,12 @@ export const Section = ({
   headingClassName = "",
   isIdempotent = false,
   isRetentionSubject = false,
+  path = undefined,
 }) => (
-  <section className="api-docs-section border-b border-gray-200 dark:border-gray-800 py-8 lg:py-16">
+  <section
+    className="api-docs-section border-b border-gray-200 dark:border-gray-800 py-8 lg:py-16"
+    data-resource-path={path}
+  >
     {title && (
       <SectionHeading
         tag="h2"

@@ -13,8 +13,8 @@ type Props = {
   snippet: string;
 };
 
-const LOCAL_STORAGE_KEY = "@knocklabs/example-lang";
-const EVENT_NAME = "language.change";
+export const LOCAL_STORAGE_KEY = "@knocklabs/example-lang";
+export const EVENT_NAME = "language.change";
 
 const snippets = {
   "api.idempotency": require("../data/code/api/idempotency").default,
