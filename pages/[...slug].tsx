@@ -117,8 +117,8 @@ export async function getStaticProps({ params: { slug } }) {
   const mdxSource = await serialize<{}, FrontMatter>(source, {
     parseFrontmatter: true,
     mdxOptions: {
-      remarkPlugins: [remarkSlug, remarkGfm],
-      rehypePlugins: [rehypeMdxCodeProps, rehypeAutolinkHeadings] as any,
+      remarkPlugins: [[remarkSlug], [remarkGfm]] as any[],
+      rehypePlugins: [rehypeMdxCodeProps, rehypeAutolinkHeadings] as any[],
     },
   });
 
