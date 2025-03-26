@@ -77,8 +77,9 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
 user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
   ID: "1",
-  Name: "John Hammond",
-  Email: "jhammond@ingen.net"
+  // Optional fields:
+  // Name: "John Hammond",
+  // Email: "jhammond@ingen.net"
 })
 `,
   java: `

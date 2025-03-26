@@ -127,14 +127,16 @@ knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 result, _ := knockClient.Users.BulkIdentify(ctx, &knock.&BulkIdentifyUserRequest{
   Users: []*User{
     {
-      ID:     "1",
-      Name:   "John Hammond",
-      Email:  "jhammond@ingen.net"
+      ID: "1",
+      // Optional fields:
+      // Name: "John Hammond",
+      // Email: "jhammond@ingen.net"
     },
     {
-      ID:     "2",
-      Name:   "Ellie Sattler",
-      Email:  "esattler@ingen.net"
+      ID: "2",
+      // Optional fields:
+      // Name: "Ellie Sattler",
+      // Email: "esattler@ingen.net"
     }
   }
 })
