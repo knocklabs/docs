@@ -49,7 +49,11 @@ export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
   },
 ];
 
-function ApiReferenceNew({ openApiSpec, stainlessSpec, preContentMdx }) {
+function ManagementApiReferenceNew({
+  openApiSpec,
+  stainlessSpec,
+  preContentMdx,
+}) {
   return (
     <ApiReference
       name="Management API"
@@ -81,4 +85,4 @@ export async function getStaticProps() {
   return { props: { openApiSpec, stainlessSpec, preContentMdx } };
 }
 
-export default ApiReferenceNew;
+export default ManagementApiReferenceNew;
