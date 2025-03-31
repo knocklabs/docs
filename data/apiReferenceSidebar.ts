@@ -148,6 +148,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#create-schedules", title: "Create schedules" },
       { slug: "#update-schedules", title: "Update schedules" },
       { slug: "#delete-schedules", title: "Delete schedules" },
+      { slug: "#bulk-create-schedules", title: "Bulk create schedules" },
     ],
   },
 
