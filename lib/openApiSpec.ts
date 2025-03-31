@@ -1,6 +1,7 @@
 import { dereference } from "@scalar/openapi-parser";
 import deepmerge from "deepmerge";
 import { readFile } from "fs/promises";
+import safeStringify from "safe-stringify";
 import { parse } from "yaml";
 
 type StainlessResourceMethod =
@@ -31,6 +32,7 @@ interface StainlessConfig {
   resources: {
     [key: string]: StainlessResource;
   };
+  environments: Record<string, string>;
 }
 
 function yamlToJson(yaml: string) {
@@ -38,24 +40,27 @@ function yamlToJson(yaml: string) {
   return json;
 }
 
-async function readOpenApiSpec() {
-  const spec = await readFile("./data/specs/openapi.yml", "utf8");
+async function readOpenApiSpec(specName: string) {
+  const spec = await readFile(`./data/specs/${specName}/openapi.yml`, "utf8");
   const jsonSpec = yamlToJson(spec);
   const { schema } = await dereference(jsonSpec);
 
-  return schema;
+  return JSON.parse(safeStringify(schema));
 }
 
-async function readStainlessSpec(): Promise<StainlessConfig> {
-  const customizations = await readSpecCustomizations();
-  const spec = await readFile("./data/specs/stainless.yml", "utf8");
+async function readStainlessSpec(specName: string): Promise<StainlessConfig> {
+  const customizations = await readSpecCustomizations(specName);
+  const spec = await readFile(`./data/specs/${specName}/stainless.yml`, "utf8");
   const stainlessSpec = parse(spec);
 
   return deepmerge(stainlessSpec, customizations);
 }
 
-async function readSpecCustomizations() {
-  const spec = await readFile("./data/specs/customizations.yml", "utf8");
+async function readSpecCustomizations(specName: string) {
+  const spec = await readFile(
+    `./data/specs/${specName}/customizations.yml`,
+    "utf8",
+  );
   const customizations = parse(spec);
 
   return customizations;

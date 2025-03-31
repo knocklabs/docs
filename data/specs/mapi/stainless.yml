@@ -1,0 +1,186 @@
+# yaml-language-server: $schema=https://app.stainless.com/config.schema.json
+
+organization:
+  name: knock
+  docs: https://docs.knock.app/mapi
+  contact: support@knock.app
+targets:
+  typescript:
+    package_name: "@knocklabs/mgmt"
+    production_repo: null
+    publish:
+      npm: false
+environments:
+  production: https://control.knock.app
+resources:
+  $shared:
+    models:
+      page_info: "#/components/schemas/PageInfo"
+  templates:
+    models:
+      chat_template: "#/components/schemas/ChatTemplate"
+      email_template: "#/components/schemas/EmailTemplate"
+      push_template: "#/components/schemas/PushTemplate"
+      sms_template: "#/components/schemas/SmsTemplate"
+      in_app_feed_template: "#/components/schemas/InAppFeedTemplate"
+      request_template: "#/components/schemas/RequestTemplate"
+      webhook_template: "#/components/schemas/WebhookTemplate"
+  email_layouts:
+    models:
+      email_layout: "#/components/schemas/EmailLayout"
+    methods:
+      list: get /v1/email_layouts
+      retrieve: get /v1/email_layouts/{email_layout_key}
+      upsert: put /v1/email_layouts/{email_layout_key}
+      validate: put /v1/email_layouts/{email_layout_key}/validate
+  commits:
+    models:
+      commit: "#/components/schemas/Commit"
+    methods:
+      list: get /v1/commits
+      commit_all: put /v1/commits
+      retrieve: get /v1/commits/{id}
+      promote_all: put /v1/commits/promote
+      promote_one: put /v1/commits/{id}/promote
+  partials:
+    models:
+      partial: "#/components/schemas/Partial"
+    methods:
+      list: get /v1/partials
+      retrieve: get /v1/partials/{partial_key}
+      upsert: put /v1/partials/{partial_key}
+      validate: put /v1/partials/{partial_key}/validate
+  translations:
+    models:
+      translation: "#/components/schemas/Translation"
+    methods:
+      list: get /v1/translations
+      retrieve: get /v1/translations/{locale_code}
+      upsert: put /v1/translations/{locale_code}
+      validate: put /v1/translations/{locale_code}/validate
+  workflows:
+    models:
+      condition: "#/components/schemas/Condition"
+      condition_group: "#/components/schemas/ConditionGroup"
+      duration: "#/components/schemas/Duration"
+      send_window: "#/components/schemas/SendWindow"
+      workflow: "#/components/schemas/Workflow"
+      workflow_step: "#/components/schemas/WorkflowStep"
+      workflow_batch_step: "#/components/schemas/WorkflowBatchStep"
+      workflow_branch_step: "#/components/schemas/WorkflowBranchStep"
+      workflow_channel_step: "#/components/schemas/WorkflowChannelStep"
+      workflow_delay_step: "#/components/schemas/WorkflowDelayStep"
+      workflow_fetch_step: "#/components/schemas/WorkflowFetchStep"
+      workflow_throttle_step: "#/components/schemas/WorkflowThrottleStep"
+      workflow_trigger_workflow_step: "#/components/schemas/WorkflowTriggerWorkflowStep"
+    methods:
+      list: get /v1/workflows
+      retrieve: get /v1/workflows/{workflow_key}
+      upsert: put /v1/workflows/{workflow_key}
+      activate: put /v1/workflows/{workflow_key}/activate
+      run: put /v1/workflows/{workflow_key}/run
+      validate: put /v1/workflows/{workflow_key}/validate
+    subresources:
+      steps:
+        methods:
+          preview_template: post /v1/workflows/{workflow_key}/steps/{step_ref}/preview_template
+  message_types:
+    models:
+      message_type: "#/components/schemas/MessageType"
+      message_type_variant: "#/components/schemas/MessageTypeVariant"
+      message_type_text_field: "#/components/schemas/MessageTypeTextField"
+    methods:
+      list: get /v1/message_types
+      retrieve: get /v1/message_types/{message_type_key}
+      upsert: put /v1/message_types/{message_type_key}
+      validate: put /v1/message_types/{message_type_key}/validate
+  auth:
+    methods:
+      verify: get /v1/whoami
+  api_keys:
+    methods:
+      exchange: post /v1/api_keys/exchange
+  channel_groups:
+    models:
+      channel_group: "#/components/schemas/ChannelGroup"
+      channel_group_rule: "#/components/schemas/ChannelGroupRule"
+    methods:
+      list: get /v1/channel_groups
+  channels:
+    models:
+      channel: "#/components/schemas/Channel"
+      chat_channel_settings: "#/components/schemas/ChatChannelSettings"
+      email_channel_settings: "#/components/schemas/EmailChannelSettings"
+      push_channel_settings: "#/components/schemas/PushChannelSettings"
+      sms_channel_settings: "#/components/schemas/SmsChannelSettings"
+      in_app_feed_channel_settings: "#/components/schemas/InAppFeedChannelSettings"
+    methods:
+      list: get /v1/channels
+  environments:
+    models:
+      environment: "#/components/schemas/Environment"
+    methods:
+      list: get /v1/environments
+      retrieve: get /v1/environments/{environment_slug}
+  variables:
+    models:
+      variable: "#/components/schemas/Variable"
+    methods:
+      list: get /v1/variables
+settings:
+  disable_mock_tests: true
+  license: Apache-2.0
+pagination:
+  - name: entries_cursor
+    type: cursor
+    request:
+      after:
+        type: string
+        x-stainless-pagination-property:
+          purpose: next_cursor_param
+      before:
+        type: string
+        x-stainless-pagination-property:
+          purpose: previous_cursor_param
+      limit:
+        type: integer
+    response:
+      entries:
+        type: array
+        items:
+          type: object
+      page_info:
+        type: object
+        properties:
+          after:
+            type: string
+            x-stainless-pagination-property:
+              purpose: next_cursor_field
+client_settings:
+  opts:
+    service_token:
+      type: string
+      nullable: false
+      auth:
+        security_scheme: BearerAuth
+      read_env: KNOCK_SERVICE_TOKEN
+openapi:
+  code_samples:
+    stainless: true
+readme:
+  example_requests:
+    default:
+      type: request
+      endpoint: get /v1/workflows
+      params:
+        environment: development
+    headline:
+      type: request
+      endpoint: get /v1/workflows
+      params:
+        environment: development
+    pagination:
+      type: request
+      endpoint: get /v1/workflows
+      params:
+        environment: development
