@@ -4,6 +4,15 @@ const Attributes = ({ children }) => (
   </div>
 );
 
+type Props = {
+  name: string;
+  type: string;
+  description: string;
+  typeSlug?: string;
+  nameSlug?: string;
+  isRequired?: boolean;
+};
+
 const Attribute = ({
   name,
   type,
@@ -11,7 +20,7 @@ const Attribute = ({
   typeSlug,
   nameSlug,
   isRequired,
-}) => (
+}: Props) => (
   <div className="attribute border-b dark:border-b-gray-800 py-2">
     <span>
       <span className="font-mono text-xs">
