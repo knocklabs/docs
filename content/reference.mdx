@@ -4748,7 +4748,7 @@ Returns a `PreferenceSet`.
 <Section title="Bulk set user preferences" slug="bulk-set-preferences">
 <ContentColumn>
 
-Bulk sets the preferences for up to 1000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
+Bulk sets the preferences for up to 1,000 users at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
 
 The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
 
@@ -5203,6 +5203,12 @@ A schedule allows you to automatically trigger a workflow at a given time for on
     name="delete-schedules"
     method="DELETE"
     path="/schedules"
+    withLink
+  />
+  <Endpoint
+    name="bulk-create-schedules"
+    method="POST"
+    path="/schedules/bulk/create"
     withLink
   />
 </Endpoints>
@@ -5855,6 +5861,113 @@ The list of deleted `Schedule` entities.
     "updated_at": "2023-04-23T22:29:17.216686Z"
   }
 ]
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Bulk create schedules" slug="bulk-create-schedules">
+<ContentColumn>
+
+Bulk creates up to 1,000 schedules at a time. Returns a `BulkOperation` that executes the job asynchronously. Progress can be tracked via the [BulkOperation API](#bulk-operations).
+
+**Each schedule provided in the `schedules` list must have a single recipient.** The recipients do not have to be unique across schedules.
+
+This endpoint also handles [inline identifications](/managing-recipients/identifying-recipients#inline-identifying-recipients) for the `actor`, `recipient`, and `tenant` fields.
+
+### Endpoint
+
+<Endpoint
+  name="bulk-create-schedules"
+  method="POST"
+  path="/schedules/bulk/create"
+/>
+
+### Rate limit
+
+<RateLimit tier={1} />
+
+### Body parameters
+
+<Attributes>
+  <Attribute
+    name="schedules"
+    type="Schedule[]"
+    description="A list of schedules to create. Each schedule must have a single recipient. The recipients do not have to be unique."
+    typeSlug="/reference#schedules"
+  />
+</Attributes>
+
+### Response
+
+Returns a `BulkOperation`.
+
+</ContentColumn>
+<ExampleColumn>
+
+```json title="Request (POST to /schedules/bulk/create)"
+{
+  "schedules": [
+    {
+      "recipient": "dnedry",
+      "workflow": "comment-digest",
+      "data": {
+        "custom_key": "custom_value"
+      },
+      "repeats": [
+        {
+          "frequency": "weekly",
+          "interval": 1,
+          "days": ["mon"],
+          "hours": 8,
+          "minutes": 30
+        }
+      ],
+      "scheduled_at": "2025-04-17T08:30:00Z",
+      "ending_at": "2025-05-24T08:30:00Z",
+      "tenant": "acme_corp"
+    },
+    {
+      "recipient": "esattler",
+      "workflow": "comment-digest",
+      "data": {
+        "custom_key": "custom_value"
+      },
+      "repeats": [
+        {
+          "frequency": "weekly",
+          "interval": 1,
+          "days": ["mon"],
+          "hours": 8,
+          "minutes": 30
+        }
+      ],
+      "scheduled_at": "2025-04-17T08:30:00Z",
+      "ending_at": "2025-05-24T08:30:00Z",
+      "tenant": "acme_corp"
+    }
+  ]
+}
+```
+
+```json title="Response"
+{
+  "__typename": "BulkOperation",
+  "completed_at": "2025-03-05T12:00:27Z",
+  "error_count": 0,
+  "error_items": [],
+  "estimated_total_rows": 872,
+  "failed_at": null,
+  "id": "8f7e6d5c-4b3a-2d1e-9f8e-7d6c5b4a3210",
+  "inserted_at": "2025-03-05T12:00:00Z",
+  "name": "schedules.create_schedules",
+  "processed_rows": 872,
+  "progress_path": "/v1/bulk_operations/8f7e6d5c-4b3a-2d1e-9f8e-7d6c5b4a3210",
+  "started_at": "2025-03-05T12:00:00Z",
+  "status": "completed",
+  "success_count": 872,
+  "updated_at": "2025-03-05T12:00:27Z"
+}
 ```
 
 </ExampleColumn>
