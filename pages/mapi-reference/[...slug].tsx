@@ -13,7 +13,11 @@ import { MDXRemote } from "next-mdx-remote";
 import { MDX_COMPONENTS } from "../[...slug]";
 import { RESOURCE_ORDER, PRE_SIDEBAR_CONTENT } from "./index";
 
-function MAPIReference({ openApiSpec, stainlessSpec, preContentMdx }) {
+function ManagementApiReferencePage({
+  openApiSpec,
+  stainlessSpec,
+  preContentMdx,
+}) {
   return (
     <ApiReference
       name="Management API"
@@ -87,4 +91,4 @@ export async function getStaticProps() {
   return { props: { openApiSpec, stainlessSpec, preContentMdx } };
 }
 
-export default MAPIReference;
+export default ManagementApiReferencePage;
