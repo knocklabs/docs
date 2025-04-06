@@ -9,6 +9,7 @@ import DocsSidebar from "../components/DocsSidebar";
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
 import MinimalHeader from "../components/Header/MinimalHeader";
+import ContentActions from "../components/ContentActions";
 
 const DocsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
@@ -39,12 +40,17 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
         <div className="max-w-prose flex-auto">
           {breadcrumbs && <Breadcrumbs pages={breadcrumbs} />}
 
-          <header className="mb-6 pb-6 border-b dark:border-b-gray-800">
-            <h1 className="font-semibold text-2xl lg:text-4xl mb-2">
-              {frontMatter.title}
-            </h1>
-            <div className="text-[18px] text-gray-600 dark:text-gray-300">
-              {frontMatter.description}
+          <header className="mb-6 pb-6 border-b dark:border-b-gray-800 relative">
+            <div className="absolute right-0 top-0">
+              <ContentActions sourcePath={sourcePath} />
+            </div>
+            <div className="pr-[120px] md:pr-0">
+              <h1 className="font-semibold text-2xl lg:text-4xl mb-2">
+                {frontMatter.title}
+              </h1>
+              <div className="text-[18px] text-gray-600 dark:text-gray-300 max-w-[640px]">
+                {frontMatter.description}
+              </div>
             </div>
           </header>
 
