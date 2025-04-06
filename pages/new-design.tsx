@@ -2,10 +2,12 @@ import { Box, Stack } from "@telegraph/layout";
 import { Heading, Text } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 
-import "../styles/global.css";
 import Link from "next/link";
-import { Menu, MenuItem } from "@telegraph/menu";
+import { MenuItem } from "@telegraph/menu";
 import { Icon, Lucide } from "@telegraph/icon";
+import { Tabs } from "@telegraph/tabs";
+
+import "../styles/global.css";
 
 const NewDesign = () => {
   return (
@@ -14,7 +16,7 @@ const NewDesign = () => {
         direction="column"
         bg="surface-1"
         borderBottomWidth="px"
-        borderBottomColor="gray-4"
+        borderColor="gray-4"
       >
         <Stack w="full" pt="4" pb="2" px="4">
           <Stack direction="row" alignItems="flex-end">
@@ -51,43 +53,17 @@ const NewDesign = () => {
             </Button>
           </Stack>
         </Stack>
-        <Stack gap="2" width="full" px="4">
-          <Box py="2" borderBottomWidth="px" borderColor="accent-9">
-            <Button size="1" variant="ghost" color="accent">
-              Platform
-            </Button>
-          </Box>
-          <Box py="2">
-            <Button size="1" variant="ghost">
-              Integrations
-            </Button>
-          </Box>
-          <Box py="2">
-            <Button size="1" variant="ghost">
-              In-app UI
-            </Button>
-          </Box>
-          <Box py="2">
-            <Button size="1" variant="ghost">
-              SDKs
-            </Button>
-          </Box>
-          <Box py="2">
-            <Button size="1" variant="ghost">
-              API reference
-            </Button>
-          </Box>
-          <Box py="2">
-            <Button size="1" variant="ghost">
-              CLI reference
-            </Button>
-          </Box>
-          <Box py="2">
-            <Button size="1" variant="ghost">
-              Tutorials
-            </Button>
-          </Box>
-        </Stack>
+        <Tabs value="platform">
+          <Tabs.List mb="0" px="4">
+            <Tabs.Tab value="platform">Platform</Tabs.Tab>
+            <Tabs.Tab value="integrations">Integrations</Tabs.Tab>
+            <Tabs.Tab value="in-app-ui">In-app UI</Tabs.Tab>
+            <Tabs.Tab value="sdks">SDKs</Tabs.Tab>
+            <Tabs.Tab value="api-reference">API reference</Tabs.Tab>
+            <Tabs.Tab value="cli-reference">CLI reference</Tabs.Tab>
+            <Tabs.Tab value="tutorials">Tutorials</Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
       </Stack>
       <Stack>
         <Box width="60" py="2" px="4">
