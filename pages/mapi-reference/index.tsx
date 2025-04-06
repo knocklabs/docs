@@ -13,7 +13,6 @@ import { SidebarSection } from "../../data/types";
 export const RESOURCE_ORDER = [
   "environments",
   "channels",
-  "channel_groups",
   "workflows",
   "email_layouts",
   "translations",
