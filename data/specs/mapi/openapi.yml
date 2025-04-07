@@ -5224,10 +5224,10 @@ paths:
       description: Given an authenticated service token and an environment, will exchange the service token for a secret API key that can be used to make requests to the public API.
       operationId: exchangeForApiKey
       parameters:
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -5266,7 +5266,7 @@ paths:
           });
 
           async function main() {
-            const response = await client.apiKeys.exchange();
+            const response = await client.apiKeys.exchange({ environment: 'development' });
 
             console.log(response.api_key);
           }
@@ -5469,10 +5469,10 @@ paths:
       description: Returns a paginated list of commits in a given environment. The commits are ordered from most recent first.
       operationId: listCommits
       parameters:
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -5565,7 +5565,7 @@ paths:
 
           async function main() {
             // Automatically fetches more pages as needed.
-            for await (const commit of client.commits.list()) {
+            for await (const commit of client.commits.list({ environment: 'development' })) {
               console.log(commit.id);
             }
           }
@@ -5579,7 +5579,7 @@ paths:
         - description: A slug of the environment in which to commit all changes.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -5623,7 +5623,7 @@ paths:
           });
 
           async function main() {
-            const response = await client.commits.commitAll();
+            const response = await client.commits.commitAll({ environment: 'development' });
 
             console.log(response.result);
           }
@@ -5791,10 +5791,10 @@ paths:
       description: Returns a paginated list of email layouts available in a given environment.
       operationId: listEmailLayouts
       parameters:
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -5894,7 +5894,7 @@ paths:
 
           async function main() {
             // Automatically fetches more pages as needed.
-            for await (const emailLayout of client.emailLayouts.list()) {
+            for await (const emailLayout of client.emailLayouts.list({ environment: 'development' })) {
               console.log(emailLayout.created_at);
             }
           }
@@ -5914,10 +5914,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -5958,7 +5958,7 @@ paths:
           });
 
           async function main() {
-            const emailLayout = await client.emailLayouts.retrieve('email_layout_key');
+            const emailLayout = await client.emailLayouts.retrieve('email_layout_key', { environment: 'development' });
 
             console.log(emailLayout.created_at);
           }
@@ -5980,10 +5980,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -6086,6 +6086,7 @@ paths:
 
           async function main() {
             const response = await client.emailLayouts.upsert('email_layout_key', {
+              environment: 'development',
               email_layout: {
                 html_layout: '<html><body>Hello, world!</body></html>',
                 name: 'Transactional',
@@ -6114,10 +6115,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -6204,6 +6205,7 @@ paths:
 
           async function main() {
             const response = await client.emailLayouts.validate('email_layout_key', {
+              environment: 'development',
               email_layout: {
                 html_layout: '<html><body>Hello, world!</body></html>',
                 name: 'Transactional',
@@ -6351,10 +6353,10 @@ paths:
       description: Returns a paginated list of message types available in a given environment.
       operationId: listMessageTypes
       parameters:
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -6470,7 +6472,7 @@ paths:
 
           async function main() {
             // Automatically fetches more pages as needed.
-            for await (const messageType of client.messageTypes.list()) {
+            for await (const messageType of client.messageTypes.list({ environment: 'development' })) {
               console.log(messageType.valid);
             }
           }
@@ -6491,10 +6493,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -6535,7 +6537,7 @@ paths:
           });
 
           async function main() {
-            const messageType = await client.messageTypes.retrieve('email');
+            const messageType = await client.messageTypes.retrieve('email', { environment: 'development' });
 
             console.log(messageType.valid);
           }
@@ -6558,10 +6560,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -6689,6 +6691,7 @@ paths:
 
           async function main() {
             const response = await client.messageTypes.upsert('email', {
+              environment: 'development',
               message_type: {
                 description: 'This is a message type',
                 name: 'My Message Type',
@@ -6715,6 +6718,15 @@ paths:
           required: true
           schema:
             example: email
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
             type: string
             x-struct: null
             x-validate: null
@@ -6824,6 +6836,7 @@ paths:
 
           async function main() {
             const response = await client.messageTypes.validate('email', {
+              environment: 'development',
               message_type: {
                 description: 'This is a message type',
                 name: 'My Message Type',
@@ -6841,7 +6854,7 @@ paths:
       description: List all partials for a given environment.
       operationId: listPartials
       parameters:
-        - description: A slug of the environment from which to query partials.
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -6956,7 +6969,7 @@ paths:
       description: Get a partial by its key.
       operationId: getPartial
       parameters:
-        - description: A slug of the environment from which to query the partial.
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -7021,7 +7034,7 @@ paths:
         Note: this endpoint only operates on partials in the “development” environment.
       operationId: upsertPartial
       parameters:
-        - description: A slug of the environment in which to upsert the partial.
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -7149,7 +7162,7 @@ paths:
         Note: this endpoint only operates on partials in the “development” environment.
       operationId: validatePartial
       parameters:
-        - description: A slug of the environment in which to validate the partial.
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -7270,10 +7283,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -7369,7 +7382,7 @@ paths:
 
           async function main() {
             // Automatically fetches more pages as needed.
-            for await (const translation of client.translations.list()) {
+            for await (const translation of client.translations.list({ environment: 'development' })) {
               console.log(translation.content);
             }
           }
@@ -7389,10 +7402,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -7469,7 +7482,7 @@ paths:
           });
 
           async function main() {
-            const translation = await client.translations.retrieve('locale_code');
+            const translation = await client.translations.retrieve('locale_code', { environment: 'development' });
 
             console.log(translation.translation);
           }
@@ -7491,10 +7504,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -7592,6 +7605,7 @@ paths:
 
           async function main() {
             const response = await client.translations.upsert('locale_code', {
+              environment: 'development',
               namespace: 'namespace',
               translation: { content: '{"hello":"Hello, world!"}', format: 'json' },
             });
@@ -7617,10 +7631,10 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
-          required: false
+          required: true
           schema:
             example: development
             type: string
@@ -7699,6 +7713,7 @@ paths:
 
           async function main() {
             const response = await client.translations.validate('locale_code', {
+              environment: 'development',
               translation: { content: '{"hello":"Hello, world!"}', format: 'json' },
             });
 
@@ -7712,7 +7727,7 @@ paths:
       description: Returns a paginated list of variables for a given environment.
       operationId: listVariables
       parameters:
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
           required: true
