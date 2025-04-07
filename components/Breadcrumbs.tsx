@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { SidebarPage, SidebarSection } from "../data/types";
+import ContentActions from "./ContentActions";
 
 interface BreadcrumbItemProps {
   title: string;
@@ -20,10 +21,11 @@ const BreadcrumbItem = ({ title, path }: BreadcrumbItemProps) => (
 
 interface BreadcrumbsProps {
   pages: (SidebarPage | SidebarSection)[];
+  sourcePath: string;
 }
 
-const Breadcrumbs = ({ pages }: BreadcrumbsProps) => (
-  <div className="mb-6">
+const Breadcrumbs = ({ pages, sourcePath }: BreadcrumbsProps) => (
+  <div className="mb-6 flex items-center justify-between">
     <ul className="breadcrumbs">
       <BreadcrumbItem title="Home" path="/" />
       {pages.map((page) => (
@@ -34,6 +36,7 @@ const Breadcrumbs = ({ pages }: BreadcrumbsProps) => (
         />
       ))}
     </ul>
+    <ContentActions sourcePath={sourcePath} />
   </div>
 );
 
