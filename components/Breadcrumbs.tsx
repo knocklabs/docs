@@ -21,10 +21,9 @@ const BreadcrumbItem = ({ title, path }: BreadcrumbItemProps) => (
 
 interface BreadcrumbsProps {
   pages: (SidebarPage | SidebarSection)[];
-  sourcePath: string;
 }
 
-const Breadcrumbs = ({ pages, sourcePath }: BreadcrumbsProps) => (
+const Breadcrumbs = ({ pages }: BreadcrumbsProps) => (
   <div className="mb-6 flex items-center justify-between">
     <ul className="breadcrumbs">
       <BreadcrumbItem title="Home" path="/" />
@@ -36,7 +35,7 @@ const Breadcrumbs = ({ pages, sourcePath }: BreadcrumbsProps) => (
         />
       ))}
     </ul>
-    <ContentActions sourcePath={sourcePath} />
+    <ContentActions pages={pages} />
   </div>
 );
 

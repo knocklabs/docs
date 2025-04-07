@@ -2,16 +2,17 @@ import React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { IoChevronDown, IoOpenOutline, IoDocumentText } from "react-icons/io5";
 import { SiMarkdown } from "react-icons/si";
+import { SidebarPage, SidebarSection } from "../data/types";
 
 interface ContentActionsProps {
-  sourcePath: string;
+  pages: (SidebarPage | SidebarSection)[];
 }
 
-const ContentActions: React.FC<ContentActionsProps> = ({ sourcePath }) => {
-  // Convert the source path to the public markdown URL
-  const markdownUrl = `/${sourcePath
-    .replace(/^content\//, "")
-    .replace(/\.(mdx?)$/, ".md")}`;
+const ContentActions: React.FC<ContentActionsProps> = ({ pages }) => {
+  // Reconstruct the markdown URL from the pages hierarchy
+  const markdownUrl = `/${pages
+    .map((page) => page.slug.replace(/^\//, ""))
+    .join("/")}.md`;
 
   const copyAsMarkdown = async () => {
     try {
