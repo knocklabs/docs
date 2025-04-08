@@ -12,20 +12,10 @@ type Props = {
 const Sidebar: React.FC<Props> = ({ content, children, isVisible = false }) => {
   const router = useRouter();
 
-  useEffect(() => {
-    setTimeout(() => {
-      document.querySelector(".selected-sidebar-content")?.scrollIntoView({
-        behavior: "auto",
-        block: "center",
-        inline: "center",
-      });
-    }, 50);
-  }, []);
-
   return (
     <section
       className={classNames(
-        "w-full h-full md:h-auto md:w-72 border-r dark:border-r-gray-800 bg-white dark:bg-gray-900 z-10 absolute md:relative",
+        "sidebar w-full h-full md:h-auto md:w-72 border-r dark:border-r-gray-800 bg-white dark:bg-gray-900 z-10 absolute md:relative",
         !isVisible && "hidden md:block",
       )}
     >

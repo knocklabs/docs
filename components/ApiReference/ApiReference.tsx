@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ApiReferenceProvider } from "../../components/ApiReference/ApiReferenceContext";
 import { ApiReferenceSection } from "../../components/ApiReference";
@@ -20,6 +22,11 @@ type Props = {
   resourceOrder: string[];
 };
 
+function onElementClick(e: Event) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
 function ApiReference({
   name,
   openApiSpec,
@@ -39,20 +46,50 @@ function ApiReference({
       `[data-resource-path="${resourcePath}"]`,
     );
 
-    if (element) {
-      setTimeout(() => {
-        element.scrollIntoView();
-      }, 200);
-    }
+    element?.scrollIntoView();
   }, [router.asPath, basePath]);
 
   useLayoutEffect(() => {
+    document
+      .querySelector(".sidebar a")
+      ?.addEventListener("click", onElementClick);
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const resourcePath =
               entry.target.getAttribute("data-resource-path");
+
+            const lastActiveElements =
+              document.querySelectorAll(".sidebar .active");
+
+            const newActiveElement = document.querySelector(
+              `.sidebar a[href*='/${basePath}${resourcePath}']`,
+            )?.parentElement;
+
+            if (lastActiveElements.length > 0) {
+              lastActiveElements.forEach((element) => {
+                element.parentElement?.parentElement?.classList.remove(
+                  "sidebar-subsection--active",
+                );
+
+                element.classList.remove("active");
+              });
+            }
+
+            if (newActiveElement) {
+              newActiveElement.parentElement?.parentElement?.classList.add(
+                "sidebar-subsection--active",
+              );
+
+              newActiveElement.classList.add("active");
+              newActiveElement.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }
+
             if (resourcePath) {
               window.history.replaceState(
                 null,
