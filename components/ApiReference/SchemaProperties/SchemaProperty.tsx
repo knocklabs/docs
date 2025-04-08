@@ -9,6 +9,7 @@ import {
   maybeFlattenUnionSchema,
   resolveChildProperties,
 } from "./helpers";
+import { useApiReference } from "../ApiReferenceContext";
 
 type Props = {
   name?: string;
@@ -18,6 +19,7 @@ type Props = {
 const MAX_TYPES_TO_DISPLAY = 2;
 
 const SchemaProperty = ({ name, schema }: Props) => {
+  const { schemaReferences } = useApiReference();
   const [isPossibleTypesOpen, setIsPossibleTypesOpen] = useState(false);
   const [isChildPropertiesOpen, setIsChildPropertiesOpen] = useState(false);
   // If the schema is an array, then we want to show the possible types that the array can contain.
@@ -35,7 +37,9 @@ const SchemaProperty = ({ name, schema }: Props) => {
         {name && <PropertyRow.Name>{name}</PropertyRow.Name>}
         <PropertyRow.Types>
           {typesForDisplay.slice(0, MAX_TYPES_TO_DISPLAY).map((type) => (
-            <PropertyRow.Type key={type}>{type}</PropertyRow.Type>
+            <PropertyRow.Type key={type} href={schemaReferences[type]}>
+              {type}
+            </PropertyRow.Type>
           ))}
           {hasAdditionalTypes && (
             <span className="text-xs text-gray-500 dark:text-gray-300">

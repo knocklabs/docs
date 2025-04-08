@@ -76,6 +76,19 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
         );
       })}
 
+      {Object.entries(resource.subresources ?? {}).map(
+        ([subresourceName, subresource]) => {
+          return (
+            <ApiReferenceSection
+              key={subresourceName}
+              resourceName={subresourceName}
+              resource={subresource}
+              path={`${basePath}/${subresourceName}`}
+            />
+          );
+        },
+      )}
+
       {Object.entries(models).map(([modelName, modelReference]) => {
         const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
           openApiSpec,
@@ -113,19 +126,6 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
           </div>
         );
       })}
-
-      {Object.entries(resource.subresources ?? {}).map(
-        ([subresourceName, subresource]) => {
-          return (
-            <ApiReferenceSection
-              key={subresourceName}
-              resourceName={subresourceName}
-              resource={subresource}
-              path={`${basePath}/${subresourceName}`}
-            />
-          );
-        },
-      )}
     </>
   );
 }

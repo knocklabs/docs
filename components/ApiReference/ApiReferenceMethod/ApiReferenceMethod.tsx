@@ -11,6 +11,7 @@ import OperationParameters from "../OperationParameters/OperationParameters";
 import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import MultiLangExample from "../MultiLangExample";
 import { augmentSnippetsWithCurlRequest } from "../helpers";
+import Link from "next/link";
 
 type Props = {
   methodName: string;
@@ -19,7 +20,7 @@ type Props = {
 };
 
 function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
-  const { openApiSpec, baseUrl } = useApiReference();
+  const { openApiSpec, baseUrl, schemaReferences } = useApiReference();
   const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];
 
@@ -52,7 +53,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
 
         <Endpoint
           method={methodType.toUpperCase()}
-          path={`${baseUrl}${endpoint}`}
+          path={`${endpoint}`}
           name={methodName}
         />
 
@@ -83,7 +84,11 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
           <PropertyRow.Wrapper>
             <PropertyRow.Container>
               <PropertyRow.Header>
-                <PropertyRow.Type>{responseSchema.title}</PropertyRow.Type>
+                <PropertyRow.Type
+                  href={schemaReferences[responseSchema.title ?? ""]}
+                >
+                  {responseSchema.title}
+                </PropertyRow.Type>
               </PropertyRow.Header>
               <PropertyRow.Description>
                 <Markdown>{responseSchema.description ?? ""}</Markdown>

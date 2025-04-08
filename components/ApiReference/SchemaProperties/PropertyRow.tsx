@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import Link from "next/link";
 import { IoChevronDown } from "react-icons/io5";
 
 const Header = ({ children }) => (
@@ -29,11 +30,30 @@ const Types = ({ children }) => (
   </div>
 );
 
-const Type = ({ children }) => (
-  <span className="font-mono text-xs px-1 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-md">
-    {children}
-  </span>
-);
+const Type = ({
+  children,
+  href,
+}: {
+  children: React.ReactNode;
+  href?: string;
+}) => {
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="font-mono text-xs px-1 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-md !no-underline"
+      >
+        {children}
+      </Link>
+    );
+  }
+
+  return (
+    <span className="font-mono text-xs px-1 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-md">
+      {children}
+    </span>
+  );
+};
 
 const Description = ({ children }) => (
   <div className="text-sm text-gray-500 dark:text-gray-300 schema-property-description">
