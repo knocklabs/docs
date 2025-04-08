@@ -27,6 +27,22 @@ const SidebarSubsectionList: React.FC<Props> = ({
 
   const toggleSection = useCallback(() => setIsOpen(!isOpen), [isOpen]);
 
+  useEffect(() => {
+    const element = ref.current;
+    if (element && isSubPageSelected) {
+      const rect = element.getBoundingClientRect();
+      const isInViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
+      // If element is not in the viewport, scroll it into view
+      if (!isInViewport) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, [isSubPageSelected]);
+
   return (
     <li ref={ref} className="-ml-[16px] scroll-mt-2">
       <button
