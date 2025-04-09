@@ -15,7 +15,7 @@ const SchemaProperties = ({ schema, hideRequired = false }: Props) => {
   return (
     <PropertyRow.Wrapper>
       {Object.entries(schema.properties || {}).map(
-        ([propertyName, property]) => (
+        ([propertyName, property]: [string, OpenAPIV3.SchemaObject]) => (
           <SchemaProperty
             key={propertyName}
             name={propertyName}
