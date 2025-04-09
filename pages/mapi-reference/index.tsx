@@ -30,7 +30,7 @@ export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
     pages: [
       {
         title: "Overview",
-        slug: `/overview`,
+        slug: `/`,
       },
       {
         title: "Authentication",
