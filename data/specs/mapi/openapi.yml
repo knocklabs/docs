@@ -2,7 +2,7 @@ components:
   responses: {}
   schemas:
     SmsChannelSettings:
-      description: SMS channel settings.
+      description: SMS channel settings. Only used as configuration as part of a workflow channel step.
       example:
         link_tracking: true
       properties:
@@ -44,7 +44,7 @@ components:
         - $ref: '#/components/schemas/WorkflowThrottleStep'
         - $ref: '#/components/schemas/WorkflowBranchStep'
         - $ref: '#/components/schemas/WorkflowTriggerWorkflowStep'
-      description: A step within a workflow. All workflow steps, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
+      description: A step within a workflow. Each workflow step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
       example:
         channel_group_key: null
         channel_key: postmark
@@ -265,7 +265,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewWorkflowTemplateResponse
       x-validate: null
     WorkflowDelayStep:
-      description: A delay step within a workflow.
+      description: A delay function step. Read more in the [docs](https://docs.knock.app/designing-workflows/delay-function).
       example:
         conditions: {}
         description: Delay for 10 seconds
@@ -348,7 +348,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowDelayStep
       x-validate: null
     RequestTemplate:
-      description: A request template.
+      description: A request template for a fetch function step.
       example:
         body: null
         headers:
@@ -361,7 +361,7 @@ components:
         url: https://example.com
       properties:
         body:
-          description: A body of the request. Only used for POST or PUT requests.
+          description: The body of the request. Only used for POST or PUT requests.
           example: '{"key": "value"}'
           nullable: true
           type: string
@@ -441,6 +441,51 @@ components:
       title: RequestTemplate
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.RequestTemplate
+      x-validate: null
+    WorkflowBranchStepBranch:
+      description: A branch in a branch step.
+      example:
+        conditions:
+          all:
+            - argument: pro
+              operator: equal_to
+              variable: recipient.plan_type
+        name: Pro plan
+        steps: []
+        terminates: false
+      properties:
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A set of conditions to be evaluated for this branch.
+          type: object
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the branch.
+          example: The name of the branch.
+          type: string
+          x-struct: null
+          x-validate: null
+        steps:
+          description: A list of steps that will be executed if the branch is chosen.
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+          type: array
+          x-struct: null
+          x-validate: null
+        terminates:
+          description: If the workflow should halt at the end of the branch.
+          example: true
+          type: boolean
+          x-struct: null
+          x-validate: null
+      title: WorkflowBranchStepBranch
+      type: object
+      x-struct: null
       x-validate: null
     WrappedPartialResponse:
       description: Wraps the Partial response under the `partial` key.
@@ -673,7 +718,7 @@ components:
           x-struct: null
           x-validate: null
         inserted_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the translation was created.
           format: date-time
           type: string
           x-struct: null
@@ -689,7 +734,7 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the translation was last updated.
           format: date-time
           type: string
           x-struct: null
@@ -749,7 +794,7 @@ components:
           x-struct: null
           x-validate: null
         created_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the commit was created.
           format: date-time
           type: string
           x-struct: null
@@ -797,7 +842,7 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the commit was last updated.
           format: date-time
           type: string
           x-struct: null
@@ -1069,12 +1114,12 @@ components:
         markdown_body: Hello, world!
       properties:
         action_buttons:
-          description: The action buttons of the in-app feed.
+          description: The action buttons of the in-app feed message.
           items:
             description: A single-action button to be rendered in an in-app feed cell.
             properties:
               action:
-                description: The action of the action button.
+                description: The URI for this action.
                 example: https://example.com
                 type: string
                 x-struct: null
@@ -1394,7 +1439,7 @@ components:
             type: channel
       properties:
         categories:
-          description: A list of categories that the workflow belongs to.
+          description: A list of [categories](https://docs.knock.app/concepts/workflows#workflow-categories) that the workflow belongs to.
           items:
             type: string
             x-struct: null
@@ -1441,7 +1486,7 @@ components:
           x-struct: null
           x-validate: null
         steps:
-          description: 'A list of workflow step objects in the workflow, which may contain any of: channel step, delay step, batch step, fetch step.'
+          description: A list of workflow step objects in the workflow.
           items:
             $ref: '#/components/schemas/WorkflowStep'
           type: array
@@ -1449,12 +1494,12 @@ components:
           x-validate: null
         trigger_data_json_schema:
           additionalProperties: true
-          description: A JSON schema for the expected structure of the workflow trigger's data payload. Used to validate trigger requests. (optional).
+          description: A JSON schema for the expected structure of the workflow trigger's data payload. Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
           x-struct: null
           x-validate: null
         trigger_frequency:
-          description: 'The frequency at which the workflow should be triggered. One of: `once_per_recipient`, `once_per_recipient_per_tenant`, `every_trigger`. Defaults to `every_trigger`.'
+          description: 'The frequency at which the workflow should be triggered. One of: `once_per_recipient`, `once_per_recipient_per_tenant`, `every_trigger`. Defaults to `every_trigger`. Read more in [docs](https://docs.knock.app/send-notifications/triggering-workflows/overview#controlling-workflow-trigger-frequency).'
           enum:
             - every_trigger
             - once_per_recipient
@@ -1614,8 +1659,6 @@ components:
           type: array
           x-struct: null
           x-validate: null
-      required:
-        - any
       title: ConditionGroupAnyMatch
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ConditionGroup.ConditionGroupAnyMatch
@@ -1712,7 +1755,10 @@ components:
           x-validate: null
         settings:
           anyOf:
-            - properties:
+            - description: The [settings](https://docs.knock.app/integrations/email/settings) for the email template.
+              example:
+                layout_key: default
+              properties:
                 attachment_key:
                   description: The object path in the data payload (of the workflow trigger call) to resolve attachments.
                   example: attachments
@@ -1733,12 +1779,14 @@ components:
                   type: string
                   x-struct: null
                   x-validate: null
+              title: EmailTemplateSettings
+              type: object
               x-struct: null
               x-validate: null
             - nullable: true
               x-struct: null
               x-validate: null
-          description: The settings for the email template. Can be omitted.
+          description: The [settings](https://docs.knock.app/integrations/email/settings) for the email template. Can be omitted.
           type: object
           x-struct: null
           x-validate: null
@@ -1778,7 +1826,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.EmailTemplate
       x-validate: null
     WorkflowChannelStep:
-      description: A channel step within a workflow.
+      description: A channel step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
       example:
         channel_group_key: null
         channel_key: postmark
@@ -1869,7 +1917,7 @@ components:
             - $ref: '#/components/schemas/PushTemplate'
             - $ref: '#/components/schemas/ChatTemplate'
             - $ref: '#/components/schemas/WebhookTemplate'
-          description: 'The message template set up with the channel step. The shape of the template depends on the type of the channel you''ll be sending to. See below for definitions of each channel type template: email, in-app, SMS, push, chat, and webhook.'
+          description: 'The message template for the channel step. The shape of the template depends on the type of the channel you''ll be sending to. See below for definitions of each channel type template: email, in-app, SMS, push, chat, and webhook.'
           type: object
           x-struct: null
           x-validate: null
@@ -1894,9 +1942,9 @@ components:
       description: Wraps the MessageType response under the `message_type` key.
       example:
         message_type:
-          archived_at: "2021-01-01T00:00:00Z"
+          archived_at: null
           created_at: "2021-01-01T00:00:00Z"
-          deleted_at: "2021-01-01T00:00:00Z"
+          deleted_at: null
           description: Email message type
           environment: development
           icon_name: email
@@ -2061,7 +2109,7 @@ components:
       x-struct: null
       x-validate: null
     WorkflowThrottleStep:
-      description: A workflow throttle step.
+      description: A throttle function step. Read more in the [docs](https://docs.knock.app/designing-workflows/throttle-function).
       example:
         name: Throttle step
         ref: throttle_step
@@ -2125,13 +2173,13 @@ components:
                 - nullable: true
                   x-struct: null
                   x-validate: null
-              description: The duration object of the throttle window.
+              description: The duration of the throttle window.
               nullable: true
               type: object
               x-struct: null
               x-validate: null
             throttle_window_field_path:
-              description: The data path to resolve the throttle window. The resolved value must be an ISO-8601 timestamp.
+              description: The data path to resolve a dynamic throttle window. The resolved value must be an ISO-8601 timestamp. See more in the [docs](https://docs.knock.app/designing-workflows/throttle-function#set-a-dynamic-throttle-window).
               example: recipient.throttle_window
               nullable: true
               type: string
@@ -2158,7 +2206,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowThrottleStep
       x-validate: null
     WorkflowBatchStep:
-      description: A workflow batch step.
+      description: A batch function step. Read more in the [docs](https://docs.knock.app/designing-workflows/batch-function).
       example:
         description: Batch step description
         name: Batch step
@@ -2193,7 +2241,7 @@ components:
           description: The settings for the batch step.
           properties:
             batch_execution_mode:
-              description: 'The execution mode of the batch step. One of: `accumulate` or `flush_leading`. When set to `flush_leading`, the first item in the batch will be executed immediately, and the rest will be batched.'
+              description: 'The execution mode of the batch step. One of: `accumulate` or `flush_leading`. When set to `flush_leading`, the first item in the batch will be executed immediately, and the rest will be batched. See [these docs](https://docs.knock.app/designing-workflows/batch-function#immediately-flushing-the-first-item-in-a-batch) for more information.'
               enum:
                 - accumulate
                 - flush_leading
@@ -2246,7 +2294,7 @@ components:
                 - nullable: true
                   x-struct: null
                   x-validate: null
-              description: The window of time to send the batch.
+              description: The window of time to collect events in the batch.
               type: object
               x-struct: null
               x-validate: null
@@ -2256,7 +2304,7 @@ components:
                 - nullable: true
                   x-struct: null
                   x-validate: null
-              description: A duration object that describes the maximum duration a batch window can be extended to from opening when using a sliding batch window.
+              description: A duration object that describes the maximum duration a batch window can be extended to from opening when using a [sliding batch window](https://docs.knock.app/designing-workflows/batch-function#using-a-sliding-batch-window).
               type: object
               x-struct: null
               x-validate: null
@@ -2299,20 +2347,20 @@ components:
         hide_pii_data: false
         label_color: '#000000'
         last_commit_at: "2022-10-31T19:59:03Z"
-        name: Production
+        name: Development
         order: 0
         owner: system
-        slug: production
+        slug: development
         updated_at: "2022-10-31T19:59:03Z"
       properties:
         created_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the environment was created.
           format: date-time
           type: string
           x-struct: null
           x-validate: null
         deleted_at:
-          description: The timestamp of when the resource was deleted.
+          description: The timestamp of when the environment was deleted.
           format: date-time
           nullable: true
           type: string
@@ -2320,7 +2368,7 @@ components:
           x-validate: null
         hide_pii_data:
           default: false
-          description: Whether PII data is hidden from the environment.
+          description: Whether PII data is hidden from the environment. Read more in the [data obfuscation docs](https://docs.knock.app/manage-your-account/data-obfuscation).
           type: boolean
           x-struct: null
           x-validate: null
@@ -2331,19 +2379,19 @@ components:
           x-struct: null
           x-validate: null
         last_commit_at:
-          description: The last time the environment was committed to.
+          description: The timestamp of the most-recent commit in the environment.
           format: date-time
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         name:
-          description: A friendly name for the environment. Cannot exceed 255 characters.
+          description: A human-readable name for the environment. Cannot exceed 255 characters.
           type: string
           x-struct: null
           x-validate: null
         order:
-          description: The order of the environment. 0 is the first environment, 1 is the second, etc.
+          description: The order of the environment. The lowest number is the first environment, the highest number is the last environment. The order will not always be sequential.
           type: integer
           x-struct: null
           x-validate: null
@@ -2362,7 +2410,7 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the environment was last updated.
           format: date-time
           type: string
           x-struct: null
@@ -2442,7 +2490,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.UrlField
       x-validate: null
     PushChannelSettings:
-      description: Push channel settings.
+      description: Push channel settings. Only used as configuration as part of a workflow channel step.
       example:
         token_deregistration: true
       properties:
@@ -2485,6 +2533,7 @@ components:
       example:
         email_layout:
           created_at: "2021-01-01T00:00:00Z"
+          environment: development
           footer_links:
             - text: Example
               url: http://example.com
@@ -2519,7 +2568,7 @@ components:
       x-struct: null
       x-validate: null
     InAppFeedChannelSettings:
-      description: In-app feed channel settings.
+      description: In-app feed channel settings. Only used as configuration as part of a workflow channel step.
       example:
         link_tracking: true
       properties:
@@ -2567,31 +2616,30 @@ components:
     Channel:
       description: A configured channel, which is a way to route messages to a provider.
       example:
-        archived_at: "2021-01-01T00:00:00Z"
+        archived_at: null
         created_at: "2021-01-01T00:00:00Z"
-        custom_icon_url: https://example.com/icon.png
-        key: email_channel
-        name: My Email Channel
+        custom_icon_url: null
+        key: my-sendgrid-channel
+        name: My Sendgrid Channel
         provider: sendgrid
         type: email
         updated_at: "2021-01-01T00:00:00Z"
-        visibility: user
       properties:
         archived_at:
-          description: The timestamp of when the resource was deleted.
+          description: The timestamp of when the channel was deleted.
           format: date-time
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         created_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the channel was created.
           format: date-time
           type: string
           x-struct: null
           x-validate: null
         custom_icon_url:
-          description: Optional URL to a custom icon for the channel.
+          description: Optional URL to a custom icon for the channel. Only used for display purposes in the dashboard.
           nullable: true
           type: string
           x-struct: null
@@ -2613,7 +2661,7 @@ components:
           x-struct: null
           x-validate: null
         provider:
-          description: The ID of the provider that this channel uses to deliver messages.
+          description: The ID of the provider that this channel uses to deliver messages. Learn more about the providers available [in our documentation](https://docs.knock.app/integrations/overview).
           type: string
           x-struct: null
           x-validate: null
@@ -2632,17 +2680,8 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the channel was last updated.
           format: date-time
-          type: string
-          x-struct: null
-          x-validate: null
-        visibility:
-          description: Controls whether the channel is visible as system-level or user-level.
-          enum:
-            - system
-            - user
-          example: user
           type: string
           x-struct: null
           x-validate: null
@@ -2651,7 +2690,6 @@ components:
         - key
         - type
         - provider
-        - visibility
         - created_at
         - updated_at
       title: Channel
@@ -2712,15 +2750,14 @@ components:
         entries:
           - channel_rules:
               - channel:
-                  archived_at: "2021-01-01T00:00:00Z"
+                  archived_at: null
                   created_at: "2021-01-01T00:00:00Z"
-                  custom_icon_url: https://example.com/icon.png
-                  key: email_channel
-                  name: My Email Channel
+                  custom_icon_url: null
+                  key: my-sendgrid-channel
+                  name: My Sendgrid Channel
                   provider: sendgrid
                   type: email
                   updated_at: "2021-01-01T00:00:00Z"
-                  visibility: user
                 created_at: "2021-01-01T00:00:00Z"
                 index: 0
                 rule_type: always
@@ -2754,6 +2791,23 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    PromoteAllResponse:
+      description: The response from promoting all changes.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the promote operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: PromoteAllResponse
+      type: object
+      x-struct: null
+      x-validate: null
     PageInfo:
       description: The information about a paginated result.
       example:
@@ -2784,6 +2838,23 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PageInfo
       x-validate: null
+    CommitAllResponse:
+      description: The response from committing all changes.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the commit operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: CommitAllResponse
+      type: object
+      x-struct: null
+      x-validate: null
     Variable:
       description: An environment variable object.
       example:
@@ -2801,7 +2872,7 @@ components:
           x-struct: null
           x-validate: null
         inserted_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the variable was created.
           format: date-time
           type: string
           x-struct: null
@@ -2821,7 +2892,7 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the variable was last updated.
           format: date-time
           type: string
           x-struct: null
@@ -2951,12 +3022,12 @@ components:
         valid: true
       properties:
         active:
-          description: Whether the workflow is active in the current environment. (read-only).
+          description: Whether the workflow is [active](https://docs.knock.app/concepts/workflows#workflow-status) in the current environment. (read-only).
           type: boolean
           x-struct: null
           x-validate: null
         categories:
-          description: A list of categories that the workflow belongs to.
+          description: A list of [categories](https://docs.knock.app/concepts/workflows#workflow-categories) that the workflow belongs to.
           items:
             type: string
             x-struct: null
@@ -2975,13 +3046,13 @@ components:
           x-struct: null
           x-validate: null
         created_at:
-          description: The timestamp of when the resource was created. (read-only).
+          description: The timestamp of when the workflow was created. (read-only).
           format: date-time
           type: string
           x-struct: null
           x-validate: null
         deleted_at:
-          description: The timestamp of when the resource was deleted. (read-only).
+          description: The timestamp of when the workflow was deleted. (read-only).
           format: date-time
           type: string
           x-struct: null
@@ -3030,7 +3101,7 @@ components:
           x-struct: null
           x-validate: null
         steps:
-          description: 'A list of workflow step objects in the workflow, which may contain any of: channel step, delay step, batch step, fetch step.'
+          description: A list of workflow step objects in the workflow.
           items:
             $ref: '#/components/schemas/WorkflowStep'
           type: array
@@ -3038,12 +3109,12 @@ components:
           x-validate: null
         trigger_data_json_schema:
           additionalProperties: true
-          description: A JSON schema for the expected structure of the workflow trigger's data payload. Used to validate trigger requests. (optional).
+          description: A JSON schema for the expected structure of the workflow trigger's data payload. Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
           x-struct: null
           x-validate: null
         trigger_frequency:
-          description: 'The frequency at which the workflow should be triggered. One of: `once_per_recipient`, `once_per_recipient_per_tenant`, `every_trigger`. Defaults to `every_trigger`.'
+          description: 'The frequency at which the workflow should be triggered. One of: `once_per_recipient`, `once_per_recipient_per_tenant`, `every_trigger`. Defaults to `every_trigger`. Read more in [docs](https://docs.knock.app/send-notifications/triggering-workflows/overview#controlling-workflow-trigger-frequency).'
           enum:
             - every_trigger
             - once_per_recipient
@@ -3053,7 +3124,7 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated. (read-only).
+          description: The timestamp of when the workflow was last updated. (read-only).
           format: date-time
           type: string
           x-struct: null
@@ -3082,15 +3153,14 @@ components:
       example:
         channel_rules:
           - channel:
-              archived_at: "2021-01-01T00:00:00Z"
+              archived_at: null
               created_at: "2021-01-01T00:00:00Z"
-              custom_icon_url: https://example.com/icon.png
-              key: email_channel
-              name: My Email Channel
+              custom_icon_url: null
+              key: my-sendgrid-channel
+              name: My Sendgrid Channel
               provider: sendgrid
               type: email
               updated_at: "2021-01-01T00:00:00Z"
-              visibility: user
             created_at: "2021-01-01T00:00:00Z"
             index: 0
             rule_type: always
@@ -3125,7 +3195,7 @@ components:
           x-struct: null
           x-validate: null
         created_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the channel group was created.
           format: date-time
           type: string
           x-struct: null
@@ -3149,7 +3219,7 @@ components:
           x-struct: null
           x-validate: null
         source:
-          description: Whether this channel group was created by the system or a user.
+          description: Whether this channel group was created by the system or a user. Only user created channel groups can be modified.
           enum:
             - system
             - user
@@ -3157,7 +3227,7 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the channel group was last updated.
           format: date-time
           type: string
           x-struct: null
@@ -3179,22 +3249,21 @@ components:
       description: A rule that determines if a channel should be executed as part of a channel group.
       example:
         channel:
-          archived_at: "2021-01-01T00:00:00Z"
+          archived_at: null
           created_at: "2021-01-01T00:00:00Z"
-          custom_icon_url: https://example.com/icon.png
-          key: email_channel
-          name: My Email Channel
+          custom_icon_url: null
+          key: my-sendgrid-channel
+          name: My Sendgrid Channel
           provider: sendgrid
           type: email
           updated_at: "2021-01-01T00:00:00Z"
-          visibility: user
         created_at: "2021-01-01T00:00:00Z"
         index: 0
         rule_type: always
         updated_at: "2021-01-01T00:00:00Z"
       properties:
         argument:
-          description: For conditional rules, the argument to compare against.
+          description: For conditional rules, the value to compare against.
           nullable: true
           type: string
           x-struct: null
@@ -3202,7 +3271,7 @@ components:
         channel:
           $ref: '#/components/schemas/Channel'
         created_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the rule was created.
           format: date-time
           type: string
           x-struct: null
@@ -3243,7 +3312,7 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the rule was last updated.
           format: date-time
           type: string
           x-struct: null
@@ -3339,6 +3408,7 @@ components:
       description: A versioned email layout used within an environment.
       example:
         created_at: "2021-01-01T00:00:00Z"
+        environment: development
         footer_links:
           - text: Example
             url: http://example.com
@@ -3350,7 +3420,7 @@ components:
         updated_at: "2021-01-01T00:00:00Z"
       properties:
         created_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the email layout was created.
           format: date-time
           type: string
           x-struct: null
@@ -3394,7 +3464,7 @@ components:
           x-struct: null
           x-validate: null
         name:
-          description: The friendly name of this email layout.
+          description: The human-readable name of this email layout.
           type: string
           x-struct: null
           x-validate: null
@@ -3404,12 +3474,12 @@ components:
           x-struct: null
           x-validate: null
         text_layout:
-          description: The complete plain text content of the email layout.
+          description: The complete plaintext content of the email layout.
           type: string
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the email layout was last updated.
           format: date-time
           type: string
           x-struct: null
@@ -3426,7 +3496,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.EmailLayout
       x-validate: null
     ChatChannelSettings:
-      description: Chat channel settings.
+      description: Chat channel settings. Only used as configuration as part of a workflow channel step.
       example:
         email_based_user_id_resolution: true
         link_tracking: true
@@ -3558,7 +3628,7 @@ components:
           x-struct: null
           x-validate: null
         summary:
-          description: The summary of the chat template.
+          description: The summary of the chat template. Used by some chat apps in their push notifications.
           example: Hello, world!
           type: string
           x-struct: null
@@ -3598,7 +3668,7 @@ components:
       x-struct: null
       x-validate: null
     WorkflowBranchStep:
-      description: A branch step within a workflow.
+      description: A branch function step. Read more in the [docs](https://docs.knock.app/designing-workflows/branch-function).
       example:
         branches:
           - conditions:
@@ -3621,6 +3691,16 @@ components:
         branches:
           description: A list of workflow branches to be evaluated.
           items:
+            description: A branch in a branch step.
+            example:
+              conditions:
+                all:
+                  - argument: pro
+                    operator: equal_to
+                    variable: recipient.plan_type
+              name: Pro plan
+              steps: []
+              terminates: false
             properties:
               conditions:
                 anyOf:
@@ -3651,6 +3731,7 @@ components:
                 type: boolean
                 x-struct: null
                 x-validate: null
+            title: WorkflowBranchStepBranch
             type: object
             x-struct: null
             x-validate: null
@@ -3707,7 +3788,7 @@ components:
         url: https://example.com
       properties:
         body:
-          description: A body of the request. Only used for POST or PUT requests.
+          description: The body of the request. Only used for POST or PUT requests.
           example: '{"key": "value"}'
           nullable: true
           type: string
@@ -3792,15 +3873,14 @@ components:
       description: A paginated list of Channel. Contains a list of entries and page information.
       example:
         entries:
-          - archived_at: "2021-01-01T00:00:00Z"
+          - archived_at: null
             created_at: "2021-01-01T00:00:00Z"
-            custom_icon_url: https://example.com/icon.png
-            key: email_channel
-            name: My Email Channel
+            custom_icon_url: null
+            key: my-sendgrid-channel
+            name: My Sendgrid Channel
             provider: sendgrid
             type: email
             updated_at: "2021-01-01T00:00:00Z"
-            visibility: user
         page_info:
           after: null
           before: null
@@ -3922,8 +4002,6 @@ components:
           type: array
           x-struct: null
           x-validate: null
-      required:
-        - all
       title: ConditionGroupAllMatch
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ConditionGroup.ConditionGroupAllMatch
@@ -4119,9 +4197,9 @@ components:
       description: A paginated list of MessageType. Contains a list of entries and page information.
       example:
         entries:
-          - archived_at: "2021-01-01T00:00:00Z"
+          - archived_at: null
             created_at: "2021-01-01T00:00:00Z"
-            deleted_at: "2021-01-01T00:00:00Z"
+            deleted_at: null
             description: Email message type
             environment: development
             icon_name: email
@@ -4177,10 +4255,10 @@ components:
       properties:
         settings:
           anyOf:
-            - description: The settings for the SMS template.
+            - description: The [settings](https://docs.knock.app/integrations/sms/settings-and-overrides) for the SMS template.
               properties:
                 payload_overrides:
-                  description: A JSON object overrides the payload sent to the SMS provider.
+                  description: A JSON object that overrides the payload sent to the SMS provider.
                   example: '{"name": "John"}'
                   nullable: true
                   type: string
@@ -4216,33 +4294,33 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.SmsTemplate
       x-validate: null
     EmailChannelSettings:
-      description: Email channel settings.
+      description: Email channel settings. Only used as configuration as part of a workflow channel step.
       example:
-        bcc_address: bcc@example.com
-        cc_address: cc@example.com
-        from_email: hello@example.com
+        bcc_address: null
+        cc_address: null
+        from_address: hello@example.com
         from_name: John Doe
-        json_overrides: '{"subject": "Hello, world!"}'
+        json_overrides: '{"some_override": true}'
         link_tracking: true
         open_tracking: true
-        reply_to_address: reply@example.com
+        reply_to_address: null
         to_address: hello@example.com
       properties:
         bcc_address:
-          description: The BCC address on email notifications. Supports liquid. Defaults to `from_address`.
+          description: The BCC address on email notifications. Supports liquid.
           example: hello@example.com
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         cc_address:
-          description: The CC address on email notifications. Supports liquid. Defaults to `from_address`.
+          description: The CC address on email notifications. Supports liquid.
           example: hello@example.com
           nullable: true
           type: string
           x-struct: null
           x-validate: null
-        from_email:
+        from_address:
           description: The email address from which this channel will send. Supports liquid.
           example: hello@example.com
           nullable: true
@@ -4258,7 +4336,7 @@ components:
           x-validate: null
         json_overrides:
           description: A JSON template for any custom overrides to merge into the API payload that is sent to the email provider. Supports liquid.
-          example: '{"subject": "Hello, world!"}'
+          example: '{"some_override": true}'
           nullable: true
           type: string
           x-struct: null
@@ -4276,7 +4354,7 @@ components:
           x-struct: null
           x-validate: null
         reply_to_address:
-          description: The Reply-to address on email notifications. Supports liquid. Defaults to `from_address`.
+          description: The Reply-to address on email notifications. Supports liquid.
           example: hello@example.com
           nullable: true
           type: string
@@ -4354,10 +4432,10 @@ components:
             hide_pii_data: false
             label_color: '#000000'
             last_commit_at: "2022-10-31T19:59:03Z"
-            name: Production
+            name: Development
             order: 0
             owner: system
-            slug: production
+            slug: development
             updated_at: "2022-10-31T19:59:03Z"
         page_info:
           after: null
@@ -4420,6 +4498,35 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewWorkflowTemplateRequest
       x-validate: null
+    EmailTemplateSettings:
+      description: The [settings](https://docs.knock.app/integrations/email/settings) for the email template.
+      example:
+        layout_key: default
+      properties:
+        attachment_key:
+          description: The object path in the data payload (of the workflow trigger call) to resolve attachments.
+          example: attachments
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        layout_key:
+          description: The key of the email layout which the step is using.
+          example: default
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        pre_content:
+          description: A liquid template that will be injected into the layout above the message template content.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      title: EmailTemplateSettings
+      type: object
+      x-struct: null
+      x-validate: null
     EmailHtmlBlock:
       description: An HTML block in an email template.
       example:
@@ -4465,6 +4572,7 @@ components:
       example:
         entries:
           - created_at: "2021-01-01T00:00:00Z"
+            environment: development
             footer_links:
               - text: Example
                 url: http://example.com
@@ -4549,7 +4657,7 @@ components:
           x-struct: null
           x-validate: null
         inserted_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the partial was created.
           format: date-time
           type: string
           x-struct: null
@@ -4575,7 +4683,7 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the partial was last updated.
           format: date-time
           type: string
           x-struct: null
@@ -4603,11 +4711,11 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.Partial
       x-validate: null
     MessageType:
-      description: A message type object.
+      description: A message type is a schema for a message that maps to a UI component or element within your application.
       example:
-        archived_at: "2021-01-01T00:00:00Z"
+        archived_at: null
         created_at: "2021-01-01T00:00:00Z"
-        deleted_at: "2021-01-01T00:00:00Z"
+        deleted_at: null
         description: Email message type
         environment: development
         icon_name: email
@@ -4633,19 +4741,20 @@ components:
             name: Default
       properties:
         archived_at:
-          description: The timestamp of when the resource was deleted.
+          description: The timestamp of when the message type was deleted.
           format: date-time
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
         created_at:
-          description: The timestamp of when the resource was created.
+          description: The timestamp of when the message type was created.
           format: date-time
           type: string
           x-struct: null
           x-validate: null
         deleted_at:
-          description: The timestamp of when the resource was deleted.
+          description: The timestamp of when the message type was deleted.
           format: date-time
           nullable: true
           type: string
@@ -4702,7 +4811,7 @@ components:
           x-struct: null
           x-validate: null
         updated_at:
-          description: The timestamp of when the resource was last updated.
+          description: The timestamp of when the message type was last updated.
           format: date-time
           type: string
           x-struct: null
@@ -4736,7 +4845,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.MessageType
       x-validate: null
     WorkflowFetchStep:
-      description: A workflow fetch step.
+      description: A fetch function step. Read more in the [docs](https://docs.knock.app/designing-workflows/fetch-function).
       example:
         name: Fetch step
         ref: fetch_1
@@ -4953,7 +5062,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.SelectField
       x-validate: null
     WorkflowTriggerWorkflowStep:
-      description: A workflow trigger workflow step.
+      description: A workflow trigger function step. Read more in the [docs](https://docs.knock.app/designing-workflows/trigger-workflow-function).
       example:
         name: Trigger workflow step
         ref: trigger_workflow_step
@@ -5121,7 +5230,7 @@ components:
                   x-struct: null
                   x-validate: null
                 payload_overrides:
-                  description: A JSON object overrides the payload sent to the push provider.
+                  description: A JSON object that overrides the payload sent to the push provider.
                   example: '{"name": "John"}'
                   type: string
                   x-struct: null
@@ -5132,7 +5241,7 @@ components:
             - nullable: true
               x-struct: null
               x-validate: null
-          description: The settings for the push template. Can be omitted.
+          description: The [settings](https://docs.knock.app/integrations/sms/settings-and-overrides) for the push template. Can be omitted.
           type: object
           x-struct: null
           x-validate: null
@@ -5312,15 +5421,14 @@ paths:
                   entries:
                     - channel_rules:
                         - channel:
-                            archived_at: "2021-01-01T00:00:00Z"
+                            archived_at: null
                             created_at: "2021-01-01T00:00:00Z"
-                            custom_icon_url: https://example.com/icon.png
-                            key: email_channel
-                            name: My Email Channel
+                            custom_icon_url: null
+                            key: my-sendgrid-channel
+                            name: My Sendgrid Channel
                             provider: sendgrid
                             type: email
                             updated_at: "2021-01-01T00:00:00Z"
-                            visibility: user
                           created_at: "2021-01-01T00:00:00Z"
                           index: 0
                           rule_type: always
@@ -5412,15 +5520,14 @@ paths:
                 description: A paginated list of Channel. Contains a list of entries and page information.
                 example:
                   entries:
-                    - archived_at: "2021-01-01T00:00:00Z"
+                    - archived_at: null
                       created_at: "2021-01-01T00:00:00Z"
-                      custom_icon_url: https://example.com/icon.png
-                      key: email_channel
-                      name: My Email Channel
+                      custom_icon_url: null
+                      key: my-sendgrid-channel
+                      name: My Sendgrid Channel
                       provider: sendgrid
                       type: email
                       updated_at: "2021-01-01T00:00:00Z"
-                      visibility: user
                   page_info:
                     after: null
                     before: null
@@ -5478,7 +5585,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to show only promoted or unpromoted changes between the given environment and the subsequent environment.
+        - description: Whether to show commits in the given environment that have not been promoted to the subsequent environment (false) or commits which have been promoted (true).
           in: query
           name: promoted
           required: false
@@ -5576,7 +5683,7 @@ paths:
       description: Commit all changes across all resources in the development environment.
       operationId: commitAllChanges
       parameters:
-        - description: A slug of the environment in which to commit all changes.
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -5598,15 +5705,19 @@ paths:
           content:
             application/json:
               schema:
-                description: The result of the commit operation.
+                description: The response from committing all changes.
+                example:
+                  result: success
                 properties:
                   result:
+                    description: The result of the commit operation.
                     example: success
                     type: string
                     x-struct: null
                     x-validate: null
                 required:
                   - result
+                title: CommitAllResponse
                 type: object
                 x-struct: null
                 x-validate: null
@@ -5653,15 +5764,19 @@ paths:
           content:
             application/json:
               schema:
-                description: The result of the commit operation.
+                description: The response from promoting all changes.
+                example:
+                  result: success
                 properties:
                   result:
+                    description: The result of the promote operation.
                     example: success
                     type: string
                     x-struct: null
                     x-validate: null
                 required:
                   - result
+                title: PromoteAllResponse
                 type: object
                 x-struct: null
                 x-validate: null
@@ -5800,7 +5915,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -5808,7 +5923,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -5849,6 +5964,7 @@ paths:
                 example:
                   entries:
                     - created_at: "2021-01-01T00:00:00Z"
+                      environment: development
                       footer_links:
                         - text: Example
                           url: http://example.com
@@ -5923,7 +6039,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -5931,7 +6047,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -5989,6 +6105,14 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
         - description: Whether to commit the resource at the same time as modifying it.
           in: query
           name: commit
@@ -6003,22 +6127,6 @@ paths:
           required: false
           schema:
             type: string
-            x-struct: null
-            x-validate: null
-        - description: Whether to annotate the resource.
-          in: query
-          name: annotate
-          required: false
-          schema:
-            type: boolean
-            x-struct: null
-            x-validate: null
-        - description: Whether to hide uncommitted changes.
-          in: query
-          name: hide_uncommitted_changes
-          required: false
-          schema:
-            type: boolean
             x-struct: null
             x-validate: null
       requestBody:
@@ -6054,6 +6162,7 @@ paths:
                 example:
                   email_layout:
                     created_at: "2021-01-01T00:00:00Z"
+                    environment: development
                     footer_links:
                       - text: Example
                         url: http://example.com
@@ -6124,22 +6233,6 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
-          in: query
-          name: annotate
-          required: false
-          schema:
-            type: boolean
-            x-struct: null
-            x-validate: null
-        - description: Whether to hide uncommitted changes.
-          in: query
-          name: hide_uncommitted_changes
-          required: false
-          schema:
-            type: boolean
-            x-struct: null
-            x-validate: null
       requestBody:
         content:
           application/json:
@@ -6173,6 +6266,7 @@ paths:
                 example:
                   email_layout:
                     created_at: "2021-01-01T00:00:00Z"
+                    environment: development
                     footer_links:
                       - text: Example
                         url: http://example.com
@@ -6260,10 +6354,10 @@ paths:
                       hide_pii_data: false
                       label_color: '#000000'
                       last_commit_at: "2022-10-31T19:59:03Z"
-                      name: Production
+                      name: Development
                       order: 0
                       owner: system
-                      slug: production
+                      slug: development
                       updated_at: "2022-10-31T19:59:03Z"
                   page_info:
                     after: null
@@ -6310,7 +6404,7 @@ paths:
   /v1/environments/{environment_slug}:
     get:
       callbacks: {}
-      description: Returns a single environment by its slug.
+      description: Returns a single environment by the `environment_slug`.
       operationId: getEnvironment
       parameters:
         - description: The slug of the environment to retrieve.
@@ -6362,7 +6456,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -6370,7 +6464,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -6410,9 +6504,9 @@ paths:
                 description: A paginated list of MessageType. Contains a list of entries and page information.
                 example:
                   entries:
-                    - archived_at: "2021-01-01T00:00:00Z"
+                    - archived_at: null
                       created_at: "2021-01-01T00:00:00Z"
-                      deleted_at: "2021-01-01T00:00:00Z"
+                      deleted_at: null
                       description: Email message type
                       environment: development
                       icon_name: email
@@ -6502,7 +6596,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -6510,7 +6604,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -6569,17 +6663,9 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
-          required: false
-          schema:
-            type: boolean
-            x-struct: null
-            x-validate: null
-        - description: Whether to hide uncommitted changes.
-          in: query
-          name: hide_uncommitted_changes
           required: false
           schema:
             type: boolean
@@ -6642,9 +6728,9 @@ paths:
                 description: Wraps the MessageType response under the `message_type` key.
                 example:
                   message_type:
-                    archived_at: "2021-01-01T00:00:00Z"
+                    archived_at: null
                     created_at: "2021-01-01T00:00:00Z"
-                    deleted_at: "2021-01-01T00:00:00Z"
+                    deleted_at: null
                     description: Email message type
                     environment: development
                     icon_name: email
@@ -6730,22 +6816,6 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
-          in: query
-          name: annotate
-          required: false
-          schema:
-            type: boolean
-            x-struct: null
-            x-validate: null
-        - description: Whether to hide uncommitted changes.
-          in: query
-          name: hide_uncommitted_changes
-          required: false
-          schema:
-            type: boolean
-            x-struct: null
-            x-validate: null
       requestBody:
         content:
           application/json:
@@ -6787,9 +6857,9 @@ paths:
                 description: Wraps the MessageType response under the `message_type` key.
                 example:
                   message_type:
-                    archived_at: "2021-01-01T00:00:00Z"
+                    archived_at: null
                     created_at: "2021-01-01T00:00:00Z"
-                    deleted_at: "2021-01-01T00:00:00Z"
+                    deleted_at: null
                     description: Email message type
                     environment: development
                     icon_name: email
@@ -6859,10 +6929,11 @@ paths:
           name: environment
           required: true
           schema:
+            example: development
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -6870,7 +6941,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -6957,7 +7028,7 @@ paths:
 
           async function main() {
             // Automatically fetches more pages as needed.
-            for await (const partial of client.partials.list({ environment: 'environment' })) {
+            for await (const partial of client.partials.list({ environment: 'development' })) {
               console.log(partial.valid);
             }
           }
@@ -6974,6 +7045,7 @@ paths:
           name: environment
           required: true
           schema:
+            example: development
             type: string
             x-struct: null
             x-validate: null
@@ -6985,7 +7057,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -6993,7 +7065,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -7020,7 +7092,7 @@ paths:
           });
 
           async function main() {
-            const partial = await client.partials.retrieve('partial_key', { environment: 'environment' });
+            const partial = await client.partials.retrieve('partial_key', { environment: 'development' });
 
             console.log(partial.valid);
           }
@@ -7039,6 +7111,7 @@ paths:
           name: environment
           required: true
           schema:
+            example: development
             type: string
             x-struct: null
             x-validate: null
@@ -7050,17 +7123,9 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
-          required: false
-          schema:
-            type: boolean
-            x-struct: null
-            x-validate: null
-        - description: Whether to hide uncommitted changes.
-          in: query
-          name: hide_uncommitted_changes
           required: false
           schema:
             type: boolean
@@ -7145,7 +7210,7 @@ paths:
 
           async function main() {
             const response = await client.partials.upsert('partial_key', {
-              environment: 'environment',
+              environment: 'development',
               partial: { content: '<p>Hello, world!</p>', name: 'My Partial', type: 'html' },
             });
 
@@ -7167,6 +7232,7 @@ paths:
           name: environment
           required: true
           schema:
+            example: development
             type: string
             x-struct: null
             x-validate: null
@@ -7241,7 +7307,7 @@ paths:
 
           async function main() {
             const response = await client.partials.validate('partial_key', {
-              environment: 'environment',
+              environment: 'development',
               partial: { content: '<p>Hello, world!</p>', name: 'My Partial', type: 'html' },
             });
 
@@ -7253,7 +7319,7 @@ paths:
     get:
       callbacks: {}
       description: |
-        Returns a paginated list of translations available in a given environment. The translations are returned in alpha-sorted order by locale code.
+        Returns a paginated list of translations available in a given environment. The translations are returned in alphabetical order by locale code.
       operationId: listTranslations
       parameters:
         - description: A specific locale code to filter translations for.
@@ -7292,7 +7358,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -7300,7 +7366,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -7430,7 +7496,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -7438,7 +7504,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -7532,7 +7598,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -7540,12 +7606,20 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to commit the resource at the same time as modifying it.
           in: query
-          name: hide_uncommitted_changes
+          name: commit
           required: false
           schema:
             type: boolean
+            x-struct: null
+            x-validate: null
+        - description: The message to commit the resource with, only used if `commit` is `true`.
+          in: query
+          name: commit_message
+          required: false
+          schema:
+            type: string
             x-struct: null
             x-validate: null
       requestBody:
@@ -7623,7 +7697,7 @@ paths:
         Note: this endpoint only operates on translations in the "development" environment.
       operationId: validateTranslation
       parameters:
-        - description: A locale code of the translation.
+        - description: The translation's locale code.
           in: path
           name: locale_code
           required: true
@@ -7638,22 +7712,6 @@ paths:
           schema:
             example: development
             type: string
-            x-struct: null
-            x-validate: null
-        - description: Whether to annotate the resource.
-          in: query
-          name: annotate
-          required: false
-          schema:
-            type: boolean
-            x-struct: null
-            x-validate: null
-        - description: Whether to hide uncommitted changes.
-          in: query
-          name: hide_uncommitted_changes
-          required: false
-          schema:
-            type: boolean
             x-struct: null
             x-validate: null
       requestBody:
@@ -7874,10 +7932,10 @@ paths:
   /v1/workflows:
     get:
       callbacks: {}
-      description: Returns a paginated list of workflows available in a given environment. The workflows are returned in alpha sorted order by its key.
+      description: Returns a paginated list of workflows available in a given environment. The workflows are returned alphabetically by `key`.
       operationId: listWorkflows
       parameters:
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -7910,7 +7968,7 @@ paths:
             type: integer
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -7918,7 +7976,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -8015,7 +8073,7 @@ paths:
   /v1/workflows/{workflow_key}:
     get:
       callbacks: {}
-      description: Retrieve a workflow by its key and namespace, in a given environment.
+      description: Retrieve a workflow by its key in a given environment.
       operationId: getWorkflow
       parameters:
         - description: The key of the workflow to retrieve.
@@ -8026,7 +8084,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -8035,7 +8093,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Whether to annotate the resource.
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
           required: false
@@ -8043,7 +8101,7 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Whether to hide uncommitted changes.
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
           in: query
           name: hide_uncommitted_changes
           required: false
@@ -8092,12 +8150,21 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: A slug of the environment in which to upsert the workflow.
+        - description: The environment slug.
           in: query
           name: environment
           required: true
           schema:
+            example: development
             type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
             x-struct: null
             x-validate: null
         - description: Whether to commit the resource at the same time as modifying it.
@@ -8210,7 +8277,7 @@ paths:
 
           async function main() {
             const response = await client.workflows.upsert('workflow_key', {
-              environment: 'environment',
+              environment: 'development',
               workflow: {
                 name: 'My Workflow',
                 steps: [
@@ -8232,7 +8299,7 @@ paths:
     put:
       callbacks: {}
       description: |
-        Activates (or deactivates) a workflow in a given environment.
+        Activates (or deactivates) a workflow in a given environment. Read more in the [docs](https://docs.knock.app/concepts/workflows#workflow-status).
 
         Note: This immediately enables or disables a workflow in a given environment without needing to go through environment promotion.
       operationId: activateWorkflow
@@ -8245,7 +8312,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -8363,7 +8430,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -8429,7 +8496,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
           required: true
@@ -8491,7 +8558,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The environment slug. (Defaults to `development`.).
+        - description: The environment slug.
           in: query
           name: environment
           required: true
