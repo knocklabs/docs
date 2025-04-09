@@ -5,6 +5,7 @@ import { StainlessConfig } from "../../lib/openApiSpec";
 interface ApiReferenceContextType {
   openApiSpec: OpenAPIV3.Document;
   stainlessConfig: StainlessConfig;
+  baseUrl: string;
 }
 
 const ApiReferenceContext = createContext<ApiReferenceContextType | undefined>(
@@ -22,8 +23,12 @@ export function ApiReferenceProvider({
   openApiSpec,
   stainlessConfig,
 }: ApiReferenceProviderProps) {
+  const baseUrl = stainlessConfig.environments.production;
+
   return (
-    <ApiReferenceContext.Provider value={{ openApiSpec, stainlessConfig }}>
+    <ApiReferenceContext.Provider
+      value={{ openApiSpec, stainlessConfig, baseUrl }}
+    >
       {children}
     </ApiReferenceContext.Provider>
   );

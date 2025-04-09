@@ -11,74 +11,39 @@ import { MDX_COMPONENTS } from "../[...slug]";
 import { SidebarSection } from "../../data/types";
 
 export const RESOURCE_ORDER = [
+  "environments",
+  "channels",
+  "channel_groups",
   "workflows",
-  "messages",
-  "recipients",
-  "users",
-  "objects",
-  "tenants",
-  "schedules",
-  "bulk_operations",
-  "audiences",
-  "providers",
+  "email_layouts",
+  "translations",
+  "partials",
+  "commits",
+  "variables",
+  "templates",
+  "message_types",
 ];
 
 export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
   {
     title: "API Reference",
-    slug: `/api-reference/overview`,
+    slug: `/mapi-reference/overview`,
     pages: [
       {
         title: "Overview",
-        slug: `/`,
-      },
-      {
-        title: "Client libraries",
-        slug: `/client-libraries`,
-      },
-      {
-        title: "API keys",
-        slug: `/api-keys`,
+        slug: `/overview`,
       },
       {
         title: "Authentication",
         slug: `/authentication`,
       },
       {
-        title: "Rate limits",
-        slug: `/rate-limits`,
-      },
-      {
-        title: "Batch rate limits",
-        slug: `/batch-rate-limits`,
-      },
-      {
-        title: "Idempotent requests",
-        slug: `/idempotent-requests`,
-      },
-      {
-        title: "Data retention",
-        slug: `/data-retention`,
-      },
-      {
-        title: "Bulk endpoints",
-        slug: `/bulk-endpoints`,
-      },
-      {
-        title: "Trigger data filtering",
-        slug: `/trigger-data-filtering`,
-      },
-      {
-        title: "Pagination",
-        slug: `/pagination`,
-      },
-      {
         title: "Errors",
         slug: `/errors`,
       },
       {
-        title: "Error codes",
-        slug: `/error-codes`,
+        title: "Postman",
+        slug: `/postman`,
       },
     ],
   },
@@ -87,7 +52,7 @@ export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
 function ApiReferenceNew({ openApiSpec, stainlessSpec, preContentMdx }) {
   return (
     <ApiReference
-      name="API"
+      name="Management API"
       openApiSpec={openApiSpec}
       stainlessSpec={stainlessSpec}
       preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
@@ -98,11 +63,11 @@ function ApiReferenceNew({ openApiSpec, stainlessSpec, preContentMdx }) {
 }
 
 export async function getStaticProps() {
-  const openApiSpec = await readOpenApiSpec("api");
-  const stainlessSpec = await readStainlessSpec("api");
+  const openApiSpec = await readOpenApiSpec("mapi");
+  const stainlessSpec = await readStainlessSpec("mapi");
 
   const preContent = fs.readFileSync(
-    `${CONTENT_DIR}/__api-reference/content.mdx`,
+    `${CONTENT_DIR}/__mapi-reference/content.mdx`,
   );
 
   const preContentMdx = await serialize(preContent, {

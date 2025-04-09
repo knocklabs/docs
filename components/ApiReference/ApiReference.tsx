@@ -8,21 +8,33 @@ import { useEffect, useLayoutEffect } from "react";
 import { useRouter } from "next/router";
 import { StainlessConfig } from "../../lib/openApiSpec";
 import { OpenAPIV3 } from "@scalar/openapi-types";
-import { docsOrdering, getSidebarContent } from "./helpers";
+import { getSidebarContent } from "./helpers";
+import { SidebarSection } from "../../data/types";
 
 type Props = {
+  name: string;
   openApiSpec: OpenAPIV3.Document;
   stainlessSpec: StainlessConfig;
   preContent?: React.ReactNode;
+  preSidebarContent?: SidebarSection[];
+  resourceOrder: string[];
 };
 
-function ApiReference({ openApiSpec, stainlessSpec, preContent }: Props) {
+function ApiReference({
+  name,
+  openApiSpec,
+  stainlessSpec,
+  preContent,
+  preSidebarContent,
+  resourceOrder = [],
+}: Props) {
   const router = useRouter();
+  const basePath = router.pathname.split("/")[1];
 
   useEffect(() => {
     const path = router.asPath;
 
-    const resourcePath = path.replace("/api-reference", "");
+    const resourcePath = path.replace(`/${basePath}`, "");
     const element = document.querySelector(
       `[data-resource-path="${resourcePath}"]`,
     );
@@ -32,7 +44,7 @@ function ApiReference({ openApiSpec, stainlessSpec, preContent }: Props) {
         element.scrollIntoView();
       }, 200);
     }
-  }, [router.asPath]);
+  }, [router.asPath, basePath]);
 
   useLayoutEffect(() => {
     const observer = new IntersectionObserver(
@@ -45,7 +57,7 @@ function ApiReference({ openApiSpec, stainlessSpec, preContent }: Props) {
               window.history.replaceState(
                 null,
                 "",
-                `/api-reference${resourcePath}`,
+                `/${basePath}${resourcePath}`,
               );
             }
           }
@@ -64,7 +76,7 @@ function ApiReference({ openApiSpec, stainlessSpec, preContent }: Props) {
 
     // Cleanup observer on unmount
     return () => observer.disconnect();
-  }, []);
+  }, [basePath]);
 
   return (
     <ApiReferenceProvider
@@ -75,7 +87,15 @@ function ApiReference({ openApiSpec, stainlessSpec, preContent }: Props) {
         <Page
           header={<MinimalHeader pageType="API" />}
           sidebar={
-            <Sidebar content={getSidebarContent(openApiSpec, stainlessSpec)}>
+            <Sidebar
+              content={getSidebarContent(
+                openApiSpec,
+                stainlessSpec,
+                resourceOrder,
+                basePath,
+                preSidebarContent,
+              )}
+            >
               <Link
                 href="/"
                 passHref
@@ -86,15 +106,15 @@ function ApiReference({ openApiSpec, stainlessSpec, preContent }: Props) {
             </Sidebar>
           }
           metaProps={{
-            title: `Knock API Reference | Knock`,
-            description: "Complete reference documentation for the Knock API.",
+            title: `Knock ${name} Reference | Knock`,
+            description: `Complete reference documentation for the Knock ${name}.`,
           }}
         >
           <div className="w-full max-w-5xl lg:flex mx-auto relative">
             <div className="w-full flex-auto">
               <div className="docs-content api-docs-content">
                 {preContent}
-                {docsOrdering.map((resourceName) => (
+                {resourceOrder.map((resourceName) => (
                   <ApiReferenceSection
                     key={resourceName}
                     resourceName={resourceName}
