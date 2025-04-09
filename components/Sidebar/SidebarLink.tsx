@@ -13,6 +13,7 @@ const SidebarLink: React.FC<Props> = ({ title, path, isSelected, isBeta }) => (
   <li
     key={path}
     className={cn("text-gray-500 dark:text-gray-200 text-sm", {
+      active: isSelected,
       "selected-sidebar-content": isSelected,
     })}
   >
@@ -22,7 +23,7 @@ const SidebarLink: React.FC<Props> = ({ title, path, isSelected, isBeta }) => (
       passHref
       className={cn("transition-colors flex items-center", {
         "hover:text-gray-900 dark:hover:text-gray-100": true,
-        "text-brand font-medium hover:!text-brand-dark": isSelected,
+        active: isSelected,
       })}
     >
       <span>{title}</span>

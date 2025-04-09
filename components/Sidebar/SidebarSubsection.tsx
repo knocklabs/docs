@@ -1,12 +1,6 @@
 import cn from "classnames";
 import { NextRouter } from "next/router";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { IoChevronUp } from "react-icons/io5";
 import { SidebarSubsection } from "../../data/types";
 import { isHighlighted, pagePath } from "./helpers";
@@ -28,19 +22,26 @@ const SidebarSubsectionList: React.FC<Props> = ({
   const sectionPath = parentPath + section.slug;
 
   // Determines whether a page under this section is selected
-  const isSubPageSelected = useMemo(
-    () => router.asPath.startsWith(sectionPath),
-    [router.asPath, sectionPath],
-  );
+  const isSubPageSelected = router.asPath.startsWith(sectionPath);
+  useEffect(() => setIsOpen(isSubPageSelected), [isSubPageSelected]);
 
-  useEffect(() => setIsOpen(isSubPageSelected), []);
+  const toggleSection = useCallback(() => setIsOpen(!isOpen), [isOpen]);
 
-  const toggleSection = useCallback(() => {
-    setIsOpen(!isOpen);
-    setTimeout(() => {
-      ref.current?.scrollIntoView();
-    }, 5);
-  }, [isOpen, ref.current]);
+  useEffect(() => {
+    const element = ref.current;
+    if (element && isSubPageSelected) {
+      const rect = element.getBoundingClientRect();
+      const isInViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
+
+      // If element is not in the viewport, scroll it into view
+      if (!isInViewport) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+  }, [isSubPageSelected]);
 
   return (
     <li ref={ref} className="-ml-[16px] scroll-mt-2">
@@ -59,9 +60,10 @@ const SidebarSubsectionList: React.FC<Props> = ({
       </button>
 
       <div
-        className={cn("pl-3 ml-[12px]", {
-          block: isOpen,
+        className={cn("pl-3 ml-[12px] sidebar-subsection", {
+          "sidebar-subsection--active": isSubPageSelected,
           hidden: !isOpen,
+          block: isOpen,
         })}
       >
         <ul className="space-y-2 mt-2">

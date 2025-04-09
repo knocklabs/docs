@@ -15,10 +15,10 @@ const Endpoints = ({ children, title = "Endpoints" }) => (
 );
 
 const EndpointText = ({ method, path }) => (
-  <>
+  <div className="flex items-center">
     <span
       className={cn({
-        "text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center mr-3":
+        "text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded px-1 py-0.5 center mr-3":
           true,
         "bg-blue-100 dark:bg-transparent dark:border-blue-600":
           method === "GET",
@@ -34,10 +34,10 @@ const EndpointText = ({ method, path }) => (
     >
       {method}
     </span>
-    <span className="font-mono mr-4 text-xs text-gray-700 dark:text-gray-200">
+    <span className="font-mono mr-4 text-xs text-gray-700 dark:text-gray-200 break-all">
       {path}
     </span>
-  </>
+  </div>
 );
 
 const Endpoint = ({ method, path, name, withLink = false }) => (

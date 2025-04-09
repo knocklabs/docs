@@ -405,6 +405,11 @@ const nextConfig = {
         destination: "/send-notifications/triggering-workflows/overview",
         permanent: true,
       },
+      {
+        source: "/mapi",
+        destination: "/mapi-reference",
+        permanent: true,
+      },
     ];
   },
 };
