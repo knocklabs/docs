@@ -4,7 +4,6 @@ import { FrontMatter } from "../types";
 import { DocsLayout } from "./DocsLayout";
 import { IntegrationsLayout } from "./IntegrationsLayout";
 import { CliReferenceLayout } from "./CliReferenceLayout";
-import { MapiReferenceLayout } from "./MapiReferenceLayout";
 import { ApiReferenceLayout } from "./ApiReferenceLayout";
 
 const MDXLayout: React.FC<{ frontMatter: FrontMatter; sourcePath: string }> = (
@@ -22,10 +21,6 @@ const MDXLayout: React.FC<{ frontMatter: FrontMatter; sourcePath: string }> = (
     case "cli":
       return (
         <CliReferenceLayout {...props}>{props.children}</CliReferenceLayout>
-      );
-    case "mapi":
-      return (
-        <MapiReferenceLayout {...props}>{props.children}</MapiReferenceLayout>
       );
     default:
       return <DocsLayout {...props}>{props.children}</DocsLayout>;
