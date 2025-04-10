@@ -36,14 +36,18 @@ const SchemaProperty = ({ name, schema }: Props) => {
       <PropertyRow.Header>
         {name && <PropertyRow.Name>{name}</PropertyRow.Name>}
         <PropertyRow.Types>
-          {typesForDisplay.slice(0, MAX_TYPES_TO_DISPLAY).map((type) => (
-            <PropertyRow.Type key={type} href={schemaReferences[type]}>
-              {type}
+          {typesForDisplay.length === 1 && (
+            <PropertyRow.Type
+              key={typesForDisplay[0]}
+              href={schemaReferences[typesForDisplay[0]]}
+            >
+              {typesForDisplay[0]}
             </PropertyRow.Type>
-          ))}
-          {hasAdditionalTypes && (
+          )}
+
+          {typesForDisplay.length > 1 && (
             <span className="text-xs text-gray-500 dark:text-gray-300">
-              +{typesForDisplay.length - MAX_TYPES_TO_DISPLAY} more
+              {typesForDisplay.length} possible types
             </span>
           )}
         </PropertyRow.Types>

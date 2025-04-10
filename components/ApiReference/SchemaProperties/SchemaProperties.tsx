@@ -20,7 +20,7 @@ const SchemaProperties = ({ schema, hideRequired = false }: Props) => {
             key={propertyName}
             name={propertyName}
             schema={{
-              ...(property as OpenAPIV3.SchemaObject),
+              ...property,
               required: !hideRequired
                 ? property.required || schema.required?.includes(propertyName)
                 : false,

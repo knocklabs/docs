@@ -31,7 +31,9 @@ function getTypesForDisplay(schema: OpenAPIV3.SchemaObject): string[] {
   const union = schema.anyOf || schema.oneOf || schema.allOf;
 
   if (union) {
-    return union.map((item) => getTypeForDisplay(item));
+    return union
+      .map((item) => getTypeForDisplay(item))
+      .filter((t) => t !== "null");
   }
 
   return [getTypeForDisplay(schema)];
