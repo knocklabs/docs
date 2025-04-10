@@ -21,6 +21,7 @@ const SchemaProperties = ({ schema, hideRequired = false }: Props) => {
             name={propertyName}
             schema={{
               ...property,
+              // @ts-ignore
               required: !hideRequired
                 ? property.required || schema.required?.includes(propertyName)
                 : false,
