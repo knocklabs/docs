@@ -122,7 +122,7 @@ function ApiReference({
     >
       <div className="wrapper">
         <Page
-          header={<MinimalHeader pageType="API" />}
+          header={<MinimalHeader pageType="mAPI" />}
           sidebar={
             <Sidebar
               content={getSidebarContent(

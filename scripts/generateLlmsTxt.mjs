@@ -17,7 +17,7 @@ const apiContent = [
     pages: [
       { slug: "/reference", title: "API Reference" },
       { slug: "/cli", title: "CLI Reference" },
-      { slug: "/mapi", title: "Management API Reference" },
+      { slug: "/mapi-reference", title: "Management API Reference" },
     ],
   },
 ];

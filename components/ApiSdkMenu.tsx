@@ -8,7 +8,7 @@ const PageLinks = {
   "API reference": "/reference",
   Integrations: "/integrations/overview",
   "CLI reference": "/cli",
-  "Management API": "/mapi",
+  "Management API": "/mapi-reference",
 };
 
 const SdkLinks = {
