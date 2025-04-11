@@ -102,7 +102,7 @@ knock_client = MyApp.Knock.client()
 # Get this value in your Knock dashboard
 apns_channel_id = "some-channel-id-from-knock"
 
-Knock.Workflows.trigger("new-comment", %{
+Knock.Workflows.trigger(knock_client, "new-comment", %{
   data: %{project_name: "My Project"},
   recipients: [
     %{
