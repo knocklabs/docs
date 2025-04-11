@@ -55,7 +55,7 @@ Knock.key = "sk_12345"
 
 Knock::Workflows.trigger(
   key: "new-comment",
-  recipients: ["1", "2"]
+  recipients: ["1", "2"],
 
   # optional
   data: { project_name: "My Project" },
@@ -92,7 +92,7 @@ var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerO
 knock_client = MyApp.Knock.client()
 
 Knock.Workflows.trigger(knock_client, "new-comment", %{
-  recipients: ["1", "2"]
+  recipients: ["1", "2"],
 
   # optional
   data: %{project_name: "My Project"},
