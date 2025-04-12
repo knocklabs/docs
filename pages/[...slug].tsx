@@ -42,12 +42,13 @@ import {
 } from "../components/ApiSections";
 import RateLimit from "../components/RateLimit";
 import { FrontMatter } from "../types";
+import { Heading } from "@telegraph/typography";
 
 export const MDX_COMPONENTS = {
   pre: CodeBlock,
-  h2: (props) => <SectionHeading tag="h2" {...props} />,
-  h3: (props) => <SectionHeading tag="h3" {...props} />,
-  h4: (props) => <SectionHeading tag="h4" {...props} />,
+  h2: (props) => <Heading as="h2" size="5" mb="3" {...props} />,
+  h3: (props) => <Heading as="h3" size="4" mb="2" {...props} />,
+  h4: (props) => <Heading as="h4" size="3" mb="1" {...props} />,
   Callout,
   Image,
   MultiLangCodeBlock,
