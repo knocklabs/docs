@@ -65,7 +65,7 @@ export default function Meta(props) {
       },
       noindex: props.noIndex,
     };
-  }, [props, router.pathname]);
+  }, [props, router.asPath]);
 
   return (
     <>

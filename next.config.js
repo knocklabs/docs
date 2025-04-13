@@ -410,6 +410,26 @@ const nextConfig = {
         destination: "/mapi-reference",
         permanent: true,
       },
+      {
+        source: "/developer-tools",
+        destination: "/developer-tools/overview",
+        permanent: true,
+      },
+      {
+        source: "/tutorials",
+        destination: "/tutorials/overview",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui",
+        destination: "/in-app-ui/overview",
+        permanent: true,
+      },
+      {
+        source: "/guides",
+        destination: "/guides/overview",
+        permanent: true,
+      },
     ];
   },
 };
