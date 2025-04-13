@@ -22,6 +22,7 @@ const Section = ({ section }: { section: SidebarSection }) => {
       </Box>
       {section.pages.map((page) => (
         <NavItem
+          key={page.slug}
           href={`${section.slug}${page.slug}`}
           isActive={router.asPath === `${section.slug}${page.slug}`}
         >

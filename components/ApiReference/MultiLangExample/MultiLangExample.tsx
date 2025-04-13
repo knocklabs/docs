@@ -49,7 +49,7 @@ const MultiLangExample = ({ examples, title }: Props) => {
     // When the language changes, set the new language
     const unsubscribe = eventEmitter.on(EVENT_NAME, setLanguage);
     return () => unsubscribe();
-  }, []);
+  }, [eventEmitter, setLanguage]);
 
   useEffect(() => {
     // When the language changes, notify any other components currently rendered
@@ -67,7 +67,7 @@ const MultiLangExample = ({ examples, title }: Props) => {
     }
 
     return exampleInSelectedLanguage;
-  }, [resolvedLanguage, languages]);
+  }, [examples, resolvedLanguage, languages]);
 
   if (!isMounted) return null;
 
