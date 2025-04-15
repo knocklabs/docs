@@ -153,11 +153,6 @@ const sidebarContent: SidebarSection[] = [
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/feed", title: "Notification feed" },
-          {
-            slug: "/messaging-components",
-            title: "Messaging components",
-            isBeta: true,
-          },
           { slug: "/toasts", title: "Toasts" },
           { slug: "/inbox", title: "Notification inbox" },
           {
