@@ -256,6 +256,22 @@ const sidebarContent: SidebarSection[] = [
         ],
       },
       { slug: "/validating-trigger-data", title: "Validating trigger data" },
+      {
+        slug: "/agent-toolkit",
+        title: "Agent toolkit",
+        isBeta: true,
+        pages: [
+          { slug: "/overview", title: "Overview" },
+        ],
+      },
+      {
+        slug: "/mcp-server",
+        title: "MCP Server",
+      },
+      {
+        slug: "/building-with-llms",
+        title: "Building with LLMs",
+      },
     ],
   },
 
