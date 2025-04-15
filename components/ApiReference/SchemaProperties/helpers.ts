@@ -1,7 +1,5 @@
 import { OpenAPIV3 } from "@scalar/openapi-types";
 
-function isRequired(schema: OpenAPIV3.SchemaObject) {}
-
 function getTypeForDisplay(schema: OpenAPIV3.SchemaObject): string {
   if (schema.type === "array" && schema.items) {
     // Get the inner type of the array
@@ -40,6 +38,8 @@ function getTypesForDisplay(schema: OpenAPIV3.SchemaObject): string[] {
 }
 
 function innerEnumSchema(schema: OpenAPIV3.SchemaObject): string[] | undefined {
+  if (!schema) return undefined;
+
   if (schema.type === "array") {
     return innerEnumSchema(schema.items as OpenAPIV3.SchemaObject);
   }
@@ -54,6 +54,8 @@ function innerEnumSchema(schema: OpenAPIV3.SchemaObject): string[] | undefined {
 function innerUnionSchema(
   schema: OpenAPIV3.SchemaObject,
 ): OpenAPIV3.SchemaObject[] | undefined {
+  if (!schema) return undefined;
+
   if (schema.type === "array") {
     return innerUnionSchema(schema.items as OpenAPIV3.SchemaObject);
   }
@@ -87,6 +89,8 @@ function maybeFlattenUnionSchema(
 function resolveChildProperties(
   schema: OpenAPIV3.SchemaObject,
 ): Record<string, OpenAPIV3.SchemaObject> | undefined {
+  if (!schema) return undefined;
+  
   if (schema.type === "array") {
     return resolveChildProperties(schema.items as OpenAPIV3.SchemaObject);
   }
