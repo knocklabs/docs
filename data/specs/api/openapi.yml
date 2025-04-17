@@ -918,10 +918,9 @@ components:
         - description: An identifier for a user recipient.
           example: user_123
           nullable: false
+          title: UserReference
           type: string
-        - description: >-
-            A reference to a recipient, either a user identifier (string) or an object reference (id,
-            collection).
+        - description: A reference to a recipient object.
           example:
             collection: projects
             id: project_123
@@ -936,7 +935,7 @@ components:
               example: project_123
               nullable: false
               type: string
-          title: RecipientReference
+          title: ObjectReference
           type: object
       title: RecipientReference
     BatchMessagesInteractedRequest:
@@ -963,6 +962,12 @@ components:
         - message_ids
       title: BatchMessagesInteractedRequest
       type: object
+    UserReference:
+      description: An identifier for a user recipient.
+      example: user_123
+      nullable: false
+      title: UserReference
+      type: string
     SetObjectRequest:
       additionalProperties: true
       description: A set of parameters to set an object with. Does not include the object id or collection.
@@ -1570,6 +1575,24 @@ components:
         - entries
         - page_info
       title: ListObjectsResponse
+      type: object
+    ObjectReference:
+      description: A reference to a recipient object.
+      example:
+        collection: projects
+        id: project_123
+      properties:
+        collection:
+          description: The collection the recipient object belongs to.
+          example: projects
+          nullable: false
+          type: string
+        id:
+          description: An identifier for the recipient object.
+          example: project_123
+          nullable: false
+          type: string
+      title: ObjectReference
       type: object
     PreferenceSetRequestWorkflows:
       additionalProperties:
@@ -3334,7 +3357,9 @@ components:
           example: Message
           type: string
         actors:
-          description: A list of messages.
+          description: >-
+            One or more actors that are associated with this message. Note: this is a list that can contain up
+            to 10 actors if the message is produced from a batch.
           items:
             $ref: '#/components/schemas/RecipientReference'
           type: array
@@ -4490,21 +4515,23 @@ paths:
           required: false
           schema:
             type: integer
-        - description: The unique identifier for the tenant.
+        - description: Limits the results to items with the corresponding tenant, or where the tenant is empty.
           example: tenant_123
           in: query
           name: tenant
           required: false
           schema:
             type: string
-        - description: The unique identifier for the channel.
+        - description: Limits the results to items with the corresponding channel id.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: channel_id
           required: false
           schema:
             type: string
-        - description: The delivery status to filter messages by.
+        - description: >-
+            One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `bounced`,
+            `not_sent`. Limits results to messages with the given delivery status(es).
           example:
             - delivered
           in: query
@@ -4522,7 +4549,9 @@ paths:
                 - bounced
               type: string
             type: array
-        - description: The engagement status to filter messages by.
+        - description: >-
+            One or more of `read`, `seen`, `interacted`, `link_clicked`, `archived`. Limits results to
+            messages with the given engagement status(es).
           example:
             - unread
           in: query
@@ -4538,7 +4567,9 @@ paths:
                 - archived
               type: string
             type: array
-        - description: The message IDs to filter messages by.
+        - description: >-
+            Limits the results to only the message ids given (max 50). Note: when using this option, the
+            results will be subject to any other filters applied to the query.
           example:
             - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
           in: query
@@ -4548,7 +4579,7 @@ paths:
             items:
               type: string
             type: array
-        - description: The workflow categories to filter messages by.
+        - description: Limits the results to only items related to any of the provided categories.
           example:
             - workflow_123
           in: query
@@ -4558,14 +4589,14 @@ paths:
             items:
               type: string
             type: array
-        - description: The source of the message (workflow key).
+        - description: Limits the results to only items of the source workflow.
           example: comment-created
           in: query
           name: source
           required: false
           schema:
             type: string
-        - description: The workflow run ID to filter messages by.
+        - description: Limits the results to messages triggered by the top-level workflow run ID.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: workflow_run_id
@@ -4573,7 +4604,7 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: The workflow recipient run ID to filter messages by.
+        - description: Limits the results to messages for a specific recipient's workflow run.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: workflow_recipient_run_id
@@ -4581,7 +4612,7 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: The trigger data to filter messages by. Must be a valid JSON object.
+        - description: Limits the results to only items that were generated with the given data.
           example: '{"comment_id": "123"}'
           in: query
           name: trigger_data
@@ -5562,21 +5593,23 @@ paths:
           required: false
           schema:
             type: integer
-        - description: The unique identifier for the tenant.
+        - description: Limits the results to items with the corresponding tenant, or where the tenant is empty.
           example: tenant_123
           in: query
           name: tenant
           required: false
           schema:
             type: string
-        - description: The unique identifier for the channel.
+        - description: Limits the results to items with the corresponding channel id.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: channel_id
           required: false
           schema:
             type: string
-        - description: The delivery status to filter messages by.
+        - description: >-
+            One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `bounced`,
+            `not_sent`. Limits results to messages with the given delivery status(es).
           example:
             - delivered
           in: query
@@ -5594,7 +5627,9 @@ paths:
                 - bounced
               type: string
             type: array
-        - description: The engagement status to filter messages by.
+        - description: >-
+            One or more of `read`, `seen`, `interacted`, `link_clicked`, `archived`. Limits results to
+            messages with the given engagement status(es).
           example:
             - unread
           in: query
@@ -5610,7 +5645,9 @@ paths:
                 - archived
               type: string
             type: array
-        - description: The message IDs to filter messages by.
+        - description: >-
+            Limits the results to only the message ids given (max 50). Note: when using this option, the
+            results will be subject to any other filters applied to the query.
           example:
             - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
           in: query
@@ -5620,7 +5657,7 @@ paths:
             items:
               type: string
             type: array
-        - description: The workflow categories to filter messages by.
+        - description: Limits the results to only items related to any of the provided categories.
           example:
             - workflow_123
           in: query
@@ -5630,14 +5667,14 @@ paths:
             items:
               type: string
             type: array
-        - description: The source of the message (workflow key).
+        - description: Limits the results to only items of the source workflow.
           example: comment-created
           in: query
           name: source
           required: false
           schema:
             type: string
-        - description: The workflow run ID to filter messages by.
+        - description: Limits the results to messages triggered by the top-level workflow run ID.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: workflow_run_id
@@ -5645,7 +5682,7 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: The workflow recipient run ID to filter messages by.
+        - description: Limits the results to messages for a specific recipient's workflow run.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: workflow_recipient_run_id
@@ -5653,7 +5690,7 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: The trigger data to filter messages by. Must be a valid JSON object.
+        - description: Limits the results to only items that were generated with the given data.
           example: '{"comment_id": "123"}'
           in: query
           name: trigger_data
@@ -12675,21 +12712,23 @@ paths:
           required: false
           schema:
             type: integer
-        - description: The unique identifier for the tenant.
+        - description: Limits the results to items with the corresponding tenant, or where the tenant is empty.
           example: tenant_123
           in: query
           name: tenant
           required: false
           schema:
             type: string
-        - description: The unique identifier for the channel.
+        - description: Limits the results to items with the corresponding channel id.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: channel_id
           required: false
           schema:
             type: string
-        - description: The delivery status to filter messages by.
+        - description: >-
+            One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `bounced`,
+            `not_sent`. Limits results to messages with the given delivery status(es).
           example:
             - delivered
           in: query
@@ -12707,7 +12746,9 @@ paths:
                 - bounced
               type: string
             type: array
-        - description: The engagement status to filter messages by.
+        - description: >-
+            One or more of `read`, `seen`, `interacted`, `link_clicked`, `archived`. Limits results to
+            messages with the given engagement status(es).
           example:
             - unread
           in: query
@@ -12723,7 +12764,9 @@ paths:
                 - archived
               type: string
             type: array
-        - description: The message IDs to filter messages by.
+        - description: >-
+            Limits the results to only the message ids given (max 50). Note: when using this option, the
+            results will be subject to any other filters applied to the query.
           example:
             - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
           in: query
@@ -12733,7 +12776,7 @@ paths:
             items:
               type: string
             type: array
-        - description: The workflow categories to filter messages by.
+        - description: Limits the results to only items related to any of the provided categories.
           example:
             - workflow_123
           in: query
@@ -12743,14 +12786,14 @@ paths:
             items:
               type: string
             type: array
-        - description: The source of the message (workflow key).
+        - description: Limits the results to only items of the source workflow.
           example: comment-created
           in: query
           name: source
           required: false
           schema:
             type: string
-        - description: The workflow run ID to filter messages by.
+        - description: Limits the results to messages triggered by the top-level workflow run ID.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: workflow_run_id
@@ -12758,7 +12801,7 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: The workflow recipient run ID to filter messages by.
+        - description: Limits the results to messages for a specific recipient's workflow run.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: workflow_recipient_run_id
@@ -12766,7 +12809,7 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: The trigger data to filter messages by. Must be a valid JSON object.
+        - description: Limits the results to only items that were generated with the given data.
           example: '{"comment_id": "123"}'
           in: query
           name: trigger_data
