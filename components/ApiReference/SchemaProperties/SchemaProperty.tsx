@@ -18,7 +18,19 @@ type Props = {
 
 const MAX_TYPES_TO_DISPLAY = 2;
 
+const hydrateChildProperties = (childProperties: Record<string, OpenAPIV3.SchemaObject> | undefined, requiredProperties: string[]) => {
+  if (!childProperties) return null;
+  return Object.fromEntries(
+    Object.entries(childProperties).map(([name, property]) => [
+      name,
+      { ...property, required: requiredProperties.includes(name) },
+    ])
+  );
+};
+
 const SchemaProperty = ({ name, schema }: Props) => {
+  console.log("schema", schema);
+  console.log("name", name);
   const { schemaReferences } = useApiReference();
   const [isPossibleTypesOpen, setIsPossibleTypesOpen] = useState(false);
   const [isChildPropertiesOpen, setIsChildPropertiesOpen] = useState(false);
@@ -26,10 +38,17 @@ const SchemaProperty = ({ name, schema }: Props) => {
   // Otherwise, we want to show the possible types that the schema can be
   const maybeUnion = innerUnionSchema(schema);
   const maybeEnum = innerEnumSchema(schema);
+  console.log("maybeEnum", maybeEnum);
+  console.log("maybeUnion", maybeUnion);
   const maybeChildProperties = resolveChildProperties(schema);
-
+  console.log("maybeChildProperties", maybeChildProperties);
   const typesForDisplay = getTypesForDisplay(schema);
   const hasAdditionalTypes = typesForDisplay.length > MAX_TYPES_TO_DISPLAY;
+
+  const isRequired = !Array.isArray(schema.required) && schema.required
+
+  const requiredSubProperties = Array.isArray(schema.required) && schema.required.length > 0 ? schema.required : []
+  const hydratedChildProperties = hydrateChildProperties(maybeChildProperties, requiredSubProperties)
 
   return (
     <PropertyRow.Container>
@@ -51,7 +70,7 @@ const SchemaProperty = ({ name, schema }: Props) => {
             </span>
           )}
         </PropertyRow.Types>
-        {schema.required && (
+        {isRequired && (
           <PropertyRow.Required>Required</PropertyRow.Required>
         )}
       </PropertyRow.Header>
@@ -94,7 +113,7 @@ const SchemaProperty = ({ name, schema }: Props) => {
 
           {isChildPropertiesOpen && (
             <PropertyRow.ChildProperties>
-              {Object.entries(maybeChildProperties).map(([name, property]) => (
+              {Object.entries(hydratedChildProperties).map(([name, property]) => (
                 <SchemaProperty key={name} name={name} schema={property} />
               ))}
             </PropertyRow.ChildProperties>
