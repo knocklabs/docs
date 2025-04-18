@@ -23,7 +23,10 @@ const hydrateChildProperties = (childProperties: Record<string, OpenAPIV3.Schema
   return Object.fromEntries(
     Object.entries(childProperties).map(([name, property]) => [
       name,
-      { ...property, required: requiredProperties.includes(name) },
+      { 
+        ...property, 
+        isPropertyRequired: requiredProperties.includes(name) 
+      },
     ])
   );
 };
@@ -45,7 +48,8 @@ const SchemaProperty = ({ name, schema }: Props) => {
   const typesForDisplay = getTypesForDisplay(schema);
   const hasAdditionalTypes = typesForDisplay.length > MAX_TYPES_TO_DISPLAY;
 
-  const isRequired = !Array.isArray(schema.required) && schema.required
+  const isRequired = (schema as any).isPropertyRequired || 
+    (!Array.isArray(schema.required) && schema.required);
 
   const requiredSubProperties = Array.isArray(schema.required) && schema.required.length > 0 ? schema.required : []
   const hydratedChildProperties = hydrateChildProperties(maybeChildProperties, requiredSubProperties)
@@ -113,8 +117,8 @@ const SchemaProperty = ({ name, schema }: Props) => {
 
           {isChildPropertiesOpen && (
             <PropertyRow.ChildProperties>
-              {Object.entries(hydratedChildProperties).map(([name, property]) => (
-                <SchemaProperty key={name} name={name} schema={property} />
+              {hydratedChildProperties && Object.entries(hydratedChildProperties).map(([name, property]) => (
+                <SchemaProperty key={name} name={name} schema={property as OpenAPIV3.SchemaObject} />
               ))}
             </PropertyRow.ChildProperties>
           )}
