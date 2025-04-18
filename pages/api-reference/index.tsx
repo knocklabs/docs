@@ -47,11 +47,7 @@ export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
   },
 ];
 
-function ApiReferencePage({
-  openApiSpec,
-  stainlessSpec,
-  preContentMdx,
-}) {
+function ApiReferencePage({ openApiSpec, stainlessSpec, preContentMdx }) {
   return (
     <ApiReference
       name="API"

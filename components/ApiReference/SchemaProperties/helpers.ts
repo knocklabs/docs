@@ -90,7 +90,7 @@ function resolveChildProperties(
   schema: OpenAPIV3.SchemaObject,
 ): Record<string, OpenAPIV3.SchemaObject> | undefined {
   if (!schema) return undefined;
-  
+
   if (schema.type === "array") {
     return resolveChildProperties(schema.items as OpenAPIV3.SchemaObject);
   }

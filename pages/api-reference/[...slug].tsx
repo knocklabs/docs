@@ -13,11 +13,7 @@ import { MDXRemote } from "next-mdx-remote";
 import { MDX_COMPONENTS } from "../[...slug]";
 import { RESOURCE_ORDER, PRE_SIDEBAR_CONTENT } from "./index";
 
-function ApiReferencePage({
-  openApiSpec,
-  stainlessSpec,
-  preContentMdx,
-}) {
+function ApiReferencePage({ openApiSpec, stainlessSpec, preContentMdx }) {
   return (
     <ApiReference
       name="API"

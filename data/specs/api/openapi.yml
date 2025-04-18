@@ -89,7 +89,7 @@ components:
       title: AddAudienceMembersRequest
       type: object
     TriggerWorkflowResponse:
-      description: The response from triggering a workflow
+      description: The response from triggering a workflow.
       example:
         workflow_run_id: 123e4567-e89b-12d3-a456-426614174000
       properties:
@@ -471,7 +471,7 @@ components:
       title: MessageEmailContent
       type: object
     Notify Response:
-      description: The response from triggering a workflow
+      description: The response from triggering a workflow.
       example:
         result_id: wf_1234567890abcdef
       properties:
@@ -735,6 +735,24 @@ components:
         - entries
         - page_info
       title: ListSchedulesResponse
+      type: object
+    BatchMessagesStatusRequest:
+      description: Request to update the status of multiple messages in batch
+      example:
+        message_ids:
+          - 11111111-1111-1111-1111-111111111111
+          - 22222222-2222-2222-2222-222222222222
+      properties:
+        message_ids:
+          description: The message IDs to update the status of.
+          items:
+            description: The message ID to update the status of.
+            format: uuid
+            type: string
+          type: array
+      required:
+        - message_ids
+      title: BatchMessagesStatusRequest
       type: object
     MessageChatContent:
       description: The content of a chat message.
@@ -2958,7 +2976,7 @@ components:
       title: EmptyContentResponse
       type: string
     BatchListMessagesResponse:
-      description: The list of messages that were updated
+      description: The list of messages that were updated.
       example:
         - actors:
             - user_123
@@ -6374,22 +6392,20 @@ paths:
       callbacks: {}
       description: Marks the given messages as unarchived.
       operationId: batchMarkMessagesAsUnarchived
-      parameters:
-        - description: The message IDs to update the status of.
-          in: body
-          name: message_ids
-          required: true
-          schema:
-            items:
-              format: uuid
-              type: string
-            type: array
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMessagesStatusRequest'
+        description: Params
+        required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                description: The list of messages that were updated
+                description: The list of messages that were updated.
                 example:
                   - actors:
                       - user_123
@@ -6439,7 +6455,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.unarchive({
-              message_ids: ['182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e'],
+              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
             });
 
             console.log(messages);
@@ -6454,7 +6470,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.unarchive(
-              message_ids=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
+              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
           )
           print(messages)
         go: |
@@ -6473,7 +6489,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.Unarchive(context.TODO(), knock.MessageBatchUnarchiveParams{
-              MessageIDs: knock.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
+              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
             })
             if err != nil {
               panic(err.Error())
@@ -6495,7 +6511,11 @@ paths:
                   // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
-                  List<Message> messages = client.messages().batch().unarchive();
+                  BatchUnarchiveParams params = BatchUnarchiveParams.builder()
+                      .addMessageId("11111111-1111-1111-1111-111111111111")
+                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .build();
+                  List<Message> messages = client.messages().batch().unarchive(params);
               }
           }
         ruby: |-
@@ -6505,7 +6525,9 @@ paths:
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-          messages = knock.messages.batch.unarchive(message_ids: ["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"])
+          messages = knock.messages.batch.unarchive(
+            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+          )
 
           puts(messages)
   /v1/objects/{collection}/{object_id}:
@@ -7953,22 +7975,20 @@ paths:
       callbacks: {}
       description: Marks the given messages as seen.
       operationId: batchMarkMessagesAsSeen
-      parameters:
-        - description: The message IDs to update the status of.
-          in: body
-          name: message_ids
-          required: true
-          schema:
-            items:
-              format: uuid
-              type: string
-            type: array
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMessagesStatusRequest'
+        description: Params
+        required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                description: The list of messages that were updated
+                description: The list of messages that were updated.
                 example:
                   - actors:
                       - user_123
@@ -8018,7 +8038,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.markAsSeen({
-              message_ids: ['182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e'],
+              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
             });
 
             console.log(messages);
@@ -8033,7 +8053,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_seen(
-              message_ids=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
+              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
           )
           print(messages)
         go: |
@@ -8052,7 +8072,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.MarkAsSeen(context.TODO(), knock.MessageBatchMarkAsSeenParams{
-              MessageIDs: knock.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
+              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
             })
             if err != nil {
               panic(err.Error())
@@ -8074,7 +8094,11 @@ paths:
                   // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
-                  List<Message> messages = client.messages().batch().markAsSeen();
+                  BatchMarkAsSeenParams params = BatchMarkAsSeenParams.builder()
+                      .addMessageId("11111111-1111-1111-1111-111111111111")
+                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .build();
+                  List<Message> messages = client.messages().batch().markAsSeen(params);
               }
           }
         ruby: |-
@@ -8084,7 +8108,9 @@ paths:
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-          messages = knock.messages.batch.mark_as_seen(message_ids: ["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"])
+          messages = knock.messages.batch.mark_as_seen(
+            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+          )
 
           puts(messages)
   /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}/channel_types/{type}:
@@ -8110,22 +8136,20 @@ paths:
       callbacks: {}
       description: Marks the given messages as unseen.
       operationId: batchMarkMessagesAsUnseen
-      parameters:
-        - description: The message IDs to update the status of.
-          in: body
-          name: message_ids
-          required: true
-          schema:
-            items:
-              format: uuid
-              type: string
-            type: array
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMessagesStatusRequest'
+        description: Params
+        required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                description: The list of messages that were updated
+                description: The list of messages that were updated.
                 example:
                   - actors:
                       - user_123
@@ -8175,7 +8199,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.markAsUnseen({
-              message_ids: ['182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e'],
+              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
             });
 
             console.log(messages);
@@ -8190,7 +8214,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_unseen(
-              message_ids=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
+              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
           )
           print(messages)
         go: |
@@ -8209,7 +8233,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.MarkAsUnseen(context.TODO(), knock.MessageBatchMarkAsUnseenParams{
-              MessageIDs: knock.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
+              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
             })
             if err != nil {
               panic(err.Error())
@@ -8231,21 +8255,23 @@ paths:
                   // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
-                  List<Message> messages = client.messages().batch().markAsUnseen();
+                  BatchMarkAsUnseenParams params = BatchMarkAsUnseenParams.builder()
+                      .addMessageId("11111111-1111-1111-1111-111111111111")
+                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .build();
+                  List<Message> messages = client.messages().batch().markAsUnseen(params);
               }
           }
-        ruby: >-
+        ruby: |-
           require "knockapi"
-
 
           knock = Knockapi::Client.new(
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-
-          messages = knock.messages.batch.mark_as_unseen(message_ids:
-          ["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"])
-
+          messages = knock.messages.batch.mark_as_unseen(
+            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+          )
 
           puts(messages)
   /v1/users/{user_id}/merge:
@@ -11783,22 +11809,20 @@ paths:
       callbacks: {}
       description: Marks the given messages as unread.
       operationId: batchMarkMessagesAsUnread
-      parameters:
-        - description: The message IDs to update the status of.
-          in: body
-          name: message_ids
-          required: true
-          schema:
-            items:
-              format: uuid
-              type: string
-            type: array
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMessagesStatusRequest'
+        description: Params
+        required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                description: The list of messages that were updated
+                description: The list of messages that were updated.
                 example:
                   - actors:
                       - user_123
@@ -11848,7 +11872,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.markAsUnread({
-              message_ids: ['182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e'],
+              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
             });
 
             console.log(messages);
@@ -11863,7 +11887,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_unread(
-              message_ids=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
+              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
           )
           print(messages)
         go: |
@@ -11882,7 +11906,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.MarkAsUnread(context.TODO(), knock.MessageBatchMarkAsUnreadParams{
-              MessageIDs: knock.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
+              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
             })
             if err != nil {
               panic(err.Error())
@@ -11904,21 +11928,23 @@ paths:
                   // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
-                  List<Message> messages = client.messages().batch().markAsUnread();
+                  BatchMarkAsUnreadParams params = BatchMarkAsUnreadParams.builder()
+                      .addMessageId("11111111-1111-1111-1111-111111111111")
+                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .build();
+                  List<Message> messages = client.messages().batch().markAsUnread(params);
               }
           }
-        ruby: >-
+        ruby: |-
           require "knockapi"
-
 
           knock = Knockapi::Client.new(
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-
-          messages = knock.messages.batch.mark_as_unread(message_ids:
-          ["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"])
-
+          messages = knock.messages.batch.mark_as_unread(
+            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+          )
 
           puts(messages)
   /v1/objects/{collection}:
@@ -12504,22 +12530,20 @@ paths:
       callbacks: {}
       description: Marks the given messages as archived.
       operationId: batchMarkMessagesAsArchived
-      parameters:
-        - description: The message IDs to update the status of.
-          in: body
-          name: message_ids
-          required: true
-          schema:
-            items:
-              format: uuid
-              type: string
-            type: array
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMessagesStatusRequest'
+        description: Params
+        required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                description: The list of messages that were updated
+                description: The list of messages that were updated.
                 example:
                   - actors:
                       - user_123
@@ -12569,7 +12593,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.archive({
-              message_ids: ['182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e'],
+              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
             });
 
             console.log(messages);
@@ -12584,7 +12608,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.archive(
-              message_ids=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
+              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
           )
           print(messages)
         go: |
@@ -12603,7 +12627,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.Archive(context.TODO(), knock.MessageBatchArchiveParams{
-              MessageIDs: knock.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
+              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
             })
             if err != nil {
               panic(err.Error())
@@ -12625,7 +12649,11 @@ paths:
                   // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
-                  List<Message> messages = client.messages().batch().archive();
+                  BatchArchiveParams params = BatchArchiveParams.builder()
+                      .addMessageId("11111111-1111-1111-1111-111111111111")
+                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .build();
+                  List<Message> messages = client.messages().batch().archive(params);
               }
           }
         ruby: |-
@@ -12635,7 +12663,9 @@ paths:
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-          messages = knock.messages.batch.archive(message_ids: ["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"])
+          messages = knock.messages.batch.archive(
+            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+          )
 
           puts(messages)
   /v1/users/{user_id}/feeds/{channel_id}/settings:
@@ -13669,22 +13699,20 @@ paths:
       callbacks: {}
       description: Marks the given messages as read.
       operationId: batchMarkMessagesAsRead
-      parameters:
-        - description: The message IDs to update the status of.
-          in: body
-          name: message_ids
-          required: true
-          schema:
-            items:
-              format: uuid
-              type: string
-            type: array
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMessagesStatusRequest'
+        description: Params
+        required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                description: The list of messages that were updated
+                description: The list of messages that were updated.
                 example:
                   - actors:
                       - user_123
@@ -13734,7 +13762,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.markAsRead({
-              message_ids: ['182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e'],
+              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
             });
 
             console.log(messages);
@@ -13749,7 +13777,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_read(
-              message_ids=["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"],
+              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
           )
           print(messages)
         go: |
@@ -13768,7 +13796,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.MarkAsRead(context.TODO(), knock.MessageBatchMarkAsReadParams{
-              MessageIDs: knock.F([]string{"182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"}),
+              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
             })
             if err != nil {
               panic(err.Error())
@@ -13790,7 +13818,11 @@ paths:
                   // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
-                  List<Message> messages = client.messages().batch().markAsRead();
+                  BatchMarkAsReadParams params = BatchMarkAsReadParams.builder()
+                      .addMessageId("11111111-1111-1111-1111-111111111111")
+                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .build();
+                  List<Message> messages = client.messages().batch().markAsRead(params);
               }
           }
         ruby: |-
@@ -13800,7 +13832,9 @@ paths:
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-          messages = knock.messages.batch.mark_as_read(message_ids: ["182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e"])
+          messages = knock.messages.batch.mark_as_read(
+            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+          )
 
           puts(messages)
   /v1/workflows/{key}/cancel:
@@ -15080,7 +15114,7 @@ paths:
           content:
             application/json:
               schema:
-                description: The list of messages that were updated
+                description: The list of messages that were updated.
                 example:
                   - actors:
                       - user_123
