@@ -306,22 +306,72 @@ components:
       title: BulkIdentifyUsersRequest
       type: object
     InlinePreferenceSetRequest:
-      additionalProperties:
-        $ref: '#/components/schemas/PreferenceSetRequest'
       description: Inline set preferences for a recipient, where the key is the preference set name
       example:
-        default:
-          categories:
+        - categories:
             transactional:
               channel_types:
                 email: false
-          channel_types: null
+          channel_types:
+            email: true
+          id: default
           workflows:
             dinosaurs-loose:
               channel_types:
                 email: true
+      items:
+        description: Inline set preferences for a recipient, where the key is the preference set name
+        properties:
+          categories:
+            anyOf:
+              - additionalProperties:
+                  $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
+                description: >-
+                  An object where the key is the category and the values are the preference settings for that
+                  category.
+                example:
+                  marketing:
+                    channel_types:
+                      email: false
+                  transactional: true
+                title: PreferenceSetRequestCategories
+                type: object
+              - nullable: true
+            description: >-
+              An object where the key is the category and the values are the preference settings for that
+              category.
+          channel_types:
+            anyOf:
+              - $ref: '#/components/schemas/PreferenceSetChannelTypes'
+              - nullable: true
+            description: A map of preference set channel types.
+          id:
+            description: The ID of the preference set
+            type: string
+          workflows:
+            anyOf:
+              - additionalProperties:
+                  $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
+                description: >-
+                  An object where the key is the workflow key and the values are the preference settings for
+                  that workflow.
+                example:
+                  dinosaurs-loose:
+                    channel_types:
+                      email: false
+                      sms: true
+                  welcome-sequence: true
+                title: PreferenceSetRequestWorkflows
+                type: object
+              - nullable: true
+            description: >-
+              An object where the key is the workflow key and the values are the preference settings for that
+              workflow.
+        required:
+          - id
+        type: object
       title: InlinePreferenceSetRequest
-      type: object
+      type: array
     MessageContents:
       description: The content of a message.
       example:
@@ -400,17 +450,43 @@ components:
       title: ListAudienceMembersResponse
       type: object
     InlineChannelDataRequest:
-      additionalProperties:
-        $ref: '#/components/schemas/ChannelDataRequest'
       description: A request to set channel data for a type of channel inline.
       example:
-        97c5837d-c65c-4d54-aa39-080eeb81c69d:
+        - channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
           data:
             __typename: PushChannelData
             tokens:
               - push_token_xxx
+      items:
+        description: A request to set channel data for a type of channel inline.
+        properties:
+          channel_id:
+            description: The ID of the channel to associate data with
+            format: uuid
+            type: string
+          data:
+            description: Channel data for a given channel type.
+            discriminator:
+              mapping:
+                DiscordChannelData: '#/components/schemas/DiscordChannelData'
+                MsTeamsChannelData: '#/components/schemas/MsTeamsChannelData'
+                OneSignalChannelData: '#/components/schemas/OneSignalChannelData'
+                PushChannelData: '#/components/schemas/PushChannelData'
+                SlackChannelData: '#/components/schemas/SlackChannelData'
+              propertyName: __typename
+            oneOf:
+              - $ref: '#/components/schemas/PushChannelData'
+              - $ref: '#/components/schemas/OneSignalChannelData'
+              - $ref: '#/components/schemas/SlackChannelData'
+              - $ref: '#/components/schemas/MsTeamsChannelData'
+              - $ref: '#/components/schemas/DiscordChannelData'
+            type: object
+        required:
+          - channel_id
+          - data
+        type: object
       title: InlineChannelDataRequest
-      type: object
+      type: array
     MessageEmailContent:
       description: The content of an email message.
       example:
@@ -598,13 +674,17 @@ components:
       description: A request to trigger a guide action.
       example:
         channel_id: 123e4567-e89b-12d3-a456-426614174000
-        content: content_12345
-        data: data_12345
+        content:
+          body: Guide content body
+          title: Guide Title
+        data:
+          product_id: product_123
         guide_id: 323e4567-e89b-12d3-a456-426614174000
         guide_key: guide_12345
         guide_step_ref: step_12345
         is_final: true
-        metadata: metadata_12345
+        metadata:
+          source: onboarding
         tenant: tenant_12345
       properties:
         channel_id:
@@ -822,6 +902,7 @@ components:
         marketing:
           channel_types:
             email: false
+        transactional: true
       title: PreferenceSetRequestCategories
       type: object
     BatchGetMessageContentsResponse:
@@ -1666,6 +1747,8 @@ components:
         dinosaurs-loose:
           channel_types:
             email: false
+            sms: true
+        welcome-sequence: true
       title: PreferenceSetRequestWorkflows
       type: object
     PreferenceSetWorkflowCategorySetting:
@@ -2330,25 +2413,39 @@ components:
         A set of parameters to identify a user with. Does not include the user ID, as that's specified
         elsewhere in the request. You can supply any additional properties you'd like to upsert for the user.
       example:
+        channel_data:
+          - channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
+            data:
+              __typename: PushChannelData
+              tokens:
+                - push_token_123
         email: jane@ingen.net
         name: Jane Doe
+        preferences:
+          - channel_types:
+              email: true
+            id: default
+            workflows:
+              dinosaurs-loose:
+                channel_types:
+                  email: true
         timezone: America/New_York
       properties:
         channel_data:
-          description: A set of channel data for the user. This is a map of channel IDs to channel data.
-          oneOf:
-            - nullable: true
+          allOf:
             - $ref: '#/components/schemas/InlineChannelDataRequest'
+          description: A set of channel data for the user. This is a map of channel IDs to channel data.
+          nullable: true
         created_at:
           description: The creation date of the user from your system.
           format: date-time
           nullable: true
           type: string
         preferences:
-          description: A set of preferences for the user.
-          oneOf:
-            - nullable: true
+          allOf:
             - $ref: '#/components/schemas/InlinePreferenceSetRequest'
+          description: A set of preferences for the user.
+          nullable: true
       title: IdentifyUserRequest
       type: object
     ChannelsForMsTeamsProviderResponse:
@@ -3071,16 +3168,30 @@ components:
         user is available before the request is executed in Knock. It will perform an upsert for the user
         you're supplying, replacing any properties specified.
       example:
+        channel_data:
+          - channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
+            data:
+              __typename: PushChannelData
+              tokens:
+                - push_token_123
         email: jane@ingen.net
         id: user_1
         name: Jane Doe
+        preferences:
+          - channel_types:
+              email: true
+            id: default
+            workflows:
+              dinosaurs-loose:
+                channel_types:
+                  email: true
         timezone: America/New_York
       properties:
         channel_data:
-          description: A set of channel data for the user. This is a map of channel IDs to channel data.
-          oneOf:
-            - nullable: true
+          allOf:
             - $ref: '#/components/schemas/InlineChannelDataRequest'
+          description: A set of channel data for the user. This is a map of channel IDs to channel data.
+          nullable: true
         created_at:
           description: The creation date of the user from your system.
           format: date-time
@@ -3091,10 +3202,10 @@ components:
           nullable: false
           type: string
         preferences:
-          description: A set of preferences for the user.
-          oneOf:
-            - nullable: true
+          allOf:
             - $ref: '#/components/schemas/InlinePreferenceSetRequest'
+          description: A set of preferences for the user.
+          nullable: true
       required:
         - id
       title: InlineIdentifyUserRequest
@@ -3910,6 +4021,7 @@ components:
                 marketing:
                   channel_types:
                     email: false
+                transactional: true
               title: PreferenceSetRequestCategories
               type: object
             - nullable: true
@@ -3932,6 +4044,8 @@ components:
                 dinosaurs-loose:
                   channel_types:
                     email: false
+                    sms: true
+                welcome-sequence: true
               title: PreferenceSetRequestWorkflows
               type: object
             - nullable: true
@@ -4271,6 +4385,7 @@ paths:
       tags:
         - Objects
         - Preferences
+      x-ratelimit-tier: 3
   /v1/users/{user_id}/preferences/{preference_set_id}:
     get:
       callbacks: {}
@@ -4308,6 +4423,7 @@ paths:
       tags:
         - Users
         - Preferences
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -4434,6 +4550,7 @@ paths:
       tags:
         - Users
         - Preferences
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -4572,6 +4689,101 @@ paths:
       summary: Process a Census RPC request
       tags:
         - Integrations
+      x-ratelimit-tier: 3
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const response = await client.integrations.census.customDestination({
+              id: 'id',
+              jsonrpc: 'jsonrpc',
+              method: 'method',
+            });
+
+            console.log(response.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          response = client.integrations.census.custom_destination(
+              id="id",
+              jsonrpc="jsonrpc",
+              method="method",
+          )
+          print(response.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            response, err := client.Integrations.Census.CustomDestination(context.TODO(), knock.IntegrationCensusCustomDestinationParams{
+              ID: knock.F("id"),
+              Jsonrpc: knock.F("jsonrpc"),
+              Method: knock.F("method"),
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.integrations.census.CensusCustomDestinationParams;
+          import app.knock.api.models.integrations.census.CensusCustomDestinationResponse;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  CensusCustomDestinationParams params = CensusCustomDestinationParams.builder()
+                      .id("id")
+                      .jsonrpc("jsonrpc")
+                      .method("method")
+                      .build();
+                  CensusCustomDestinationResponse response = client.integrations().census().customDestination(params);
+              }
+          }
+        ruby: >-
+          require "knockapi"
+
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+
+          response = knock.integrations.census.custom_destination(id: "id", jsonrpc: "jsonrpc", method_:
+          "method")
+
+
+          puts(response)
   /v1/objects/{collection}/{object_id}/messages:
     get:
       callbacks: {}
@@ -4723,6 +4935,7 @@ paths:
       tags:
         - Messages
         - Objects
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -4835,6 +5048,7 @@ paths:
       summary: Get bulk operation
       tags:
         - Bulk operations
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -4974,6 +5188,7 @@ paths:
       tags:
         - Subscriptions
         - Users
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -5082,6 +5297,7 @@ paths:
       summary: Delete user
       tags:
         - Users
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -5180,6 +5396,7 @@ paths:
       summary: Get user
       tags:
         - Users
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -5286,6 +5503,7 @@ paths:
       summary: Identify user
       tags:
         - Users
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -5414,6 +5632,7 @@ paths:
       summary: List delivery logs
       tags:
         - Messages
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -5559,6 +5778,7 @@ paths:
       tags:
         - Schedules
         - Objects
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -5782,6 +6002,7 @@ paths:
       summary: List messages
       tags:
         - Messages
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -5882,84 +6103,7 @@ paths:
       summary: Mark message as unseen
       tags:
         - Messages
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const message = await client.messages.markAsUnseen('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
-
-            console.log(message.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          message = client.messages.mark_as_unseen(
-              "message_id",
-          )
-          print(message.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            message, err := client.Messages.MarkAsUnseen(context.TODO(), "1jNaXzB2RZX3LY8wVQnfCKyPnv7")
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", message.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.messages.Message;
-          import app.knock.api.models.messages.MessageMarkAsUnseenParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  MessageMarkAsUnseenParams params = MessageMarkAsUnseenParams.builder()
-                      .messageId("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
-                      .build();
-                  Message message = client.messages().markAsUnseen(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          message = knock.messages.mark_as_unseen("message_id")
-
-          puts(message)
+      x-ratelimit-tier: 2
   /v1/users/{user_id}/guides/messages/{message_id}/seen:
     put:
       callbacks: {}
@@ -5996,6 +6140,117 @@ paths:
       tags:
         - Guides
         - Users
+      x-ratelimit-tier: 2
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const response = await client.users.guides.markMessageAsSeen('user_id', 'message_id', {
+              channel_id: '123e4567-e89b-12d3-a456-426614174000',
+              guide_id: '323e4567-e89b-12d3-a456-426614174000',
+              guide_key: 'guide_12345',
+              guide_step_ref: 'step_12345',
+            });
+
+            console.log(response.status);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          response = client.users.guides.mark_message_as_seen(
+              user_id="user_id",
+              message_id="message_id",
+              channel_id="123e4567-e89b-12d3-a456-426614174000",
+              guide_id="323e4567-e89b-12d3-a456-426614174000",
+              guide_key="guide_12345",
+              guide_step_ref="step_12345",
+          )
+          print(response.status)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            response, err := client.Users.Guides.MarkMessageAsSeen(
+              context.TODO(),
+              "user_id",
+              "message_id",
+              knock.UserGuideMarkMessageAsSeenParams{
+                ChannelID: knock.F("123e4567-e89b-12d3-a456-426614174000"),
+                GuideID: knock.F("323e4567-e89b-12d3-a456-426614174000"),
+                GuideKey: knock.F("guide_12345"),
+                GuideStepRef: knock.F("step_12345"),
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Status)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.users.guides.GuideMarkMessageAsSeenParams;
+          import app.knock.api.models.users.guides.GuideMarkMessageAsSeenResponse;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  GuideMarkMessageAsSeenParams params = GuideMarkMessageAsSeenParams.builder()
+                      .userId("user_id")
+                      .messageId("message_id")
+                      .channelId("123e4567-e89b-12d3-a456-426614174000")
+                      .guideId("323e4567-e89b-12d3-a456-426614174000")
+                      .guideKey("guide_12345")
+                      .guideStepRef("step_12345")
+                      .build();
+                  GuideMarkMessageAsSeenResponse response = client.users().guides().markMessageAsSeen(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          response = knock.users.guides.mark_message_as_seen(
+            "user_id",
+            "message_id",
+            channel_id: "123e4567-e89b-12d3-a456-426614174000",
+            guide_id: "323e4567-e89b-12d3-a456-426614174000",
+            guide_key: "guide_12345",
+            guide_step_ref: "step_12345"
+          )
+
+          puts(response)
   /v1/objects/{collection}/bulk/delete:
     post:
       callbacks: {}
@@ -6027,6 +6282,7 @@ paths:
       tags:
         - Objects
         - Bulk operations
+      x-ratelimit-tier: 1
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -6178,6 +6434,7 @@ paths:
       tags:
         - Providers
         - Slack
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -6300,6 +6557,7 @@ paths:
       summary: Trigger workflow
       tags:
         - Workflows
+      x-ratelimit-tier: 5
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -6445,6 +6703,7 @@ paths:
       summary: Mark messages as unarchived
       tags:
         - Messages
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -6558,6 +6817,7 @@ paths:
       summary: Delete an object
       tags:
         - Objects
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -6670,6 +6930,7 @@ paths:
       summary: Get an object
       tags:
         - Objects
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -6790,6 +7051,7 @@ paths:
       summary: Set (identify) an object
       tags:
         - Objects
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -6900,84 +7162,7 @@ paths:
       summary: Mark message as unread
       tags:
         - Messages
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const message = await client.messages.markAsUnread('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
-
-            console.log(message.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          message = client.messages.mark_as_unread(
-              "message_id",
-          )
-          print(message.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            message, err := client.Messages.MarkAsUnread(context.TODO(), "1jNaXzB2RZX3LY8wVQnfCKyPnv7")
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", message.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.messages.Message;
-          import app.knock.api.models.messages.MessageMarkAsUnreadParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  MessageMarkAsUnreadParams params = MessageMarkAsUnreadParams.builder()
-                      .messageId("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
-                      .build();
-                  Message message = client.messages().markAsUnread(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          message = knock.messages.mark_as_unread("message_id")
-
-          puts(message)
+      x-ratelimit-tier: 2
   /v1/providers/ms-teams/{channel_id}/auth_check:
     get:
       callbacks: {}
@@ -7010,6 +7195,7 @@ paths:
       tags:
         - Providers
         - Microsoft Teams
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -7125,6 +7311,85 @@ paths:
       summary: Mark message as unseen
       tags:
         - Messages
+      x-ratelimit-tier: 2
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const message = await client.messages.markAsUnseen('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
+
+            console.log(message.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          message = client.messages.mark_as_unseen(
+              "message_id",
+          )
+          print(message.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            message, err := client.Messages.MarkAsUnseen(context.TODO(), "1jNaXzB2RZX3LY8wVQnfCKyPnv7")
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", message.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.messages.Message;
+          import app.knock.api.models.messages.MessageMarkAsUnseenParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  MessageMarkAsUnseenParams params = MessageMarkAsUnseenParams.builder()
+                      .messageId("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
+                      .build();
+                  Message message = client.messages().markAsUnseen(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          message = knock.messages.mark_as_unseen("message_id")
+
+          puts(message)
     put:
       callbacks: {}
       description: >-
@@ -7149,6 +7414,7 @@ paths:
       summary: Mark message as seen
       tags:
         - Messages
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -7257,6 +7523,7 @@ paths:
       tags:
         - Channel data
         - Users
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -7369,6 +7636,7 @@ paths:
       tags:
         - Channel data
         - Users
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -7489,6 +7757,7 @@ paths:
       tags:
         - Channel data
         - Users
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -7639,6 +7908,7 @@ paths:
       summary: List events
       tags:
         - Messages
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -7755,6 +8025,7 @@ paths:
       tags:
         - Providers
         - Slack
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -7893,6 +8164,7 @@ paths:
       summary: List tenants
       tags:
         - Tenants
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8028,6 +8300,7 @@ paths:
       summary: Mark messages as seen
       tags:
         - Messages
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8131,6 +8404,7 @@ paths:
       tags:
         - Objects
         - Preferences
+      x-ratelimit-tier: 3
   /v1/messages/batch/unseen:
     post:
       callbacks: {}
@@ -8189,6 +8463,7 @@ paths:
       summary: Mark messages as unseen
       tags:
         - Messages
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8305,6 +8580,7 @@ paths:
       summary: Merge users
       tags:
         - Users
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8441,6 +8717,91 @@ paths:
       tags:
         - Objects
         - Preferences
+      x-ratelimit-tier: 4
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const preferenceSets = await client.objects.listPreferences('collection', 'object_id');
+
+            console.log(preferenceSets);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          preference_sets = client.objects.list_preferences(
+              collection="collection",
+              object_id="object_id",
+          )
+          print(preference_sets)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            preferenceSets, err := client.Objects.ListPreferences(
+              context.TODO(),
+              "collection",
+              "object_id",
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", preferenceSets)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.objects.ObjectListPreferencesParams;
+          import app.knock.api.models.recipients.preferences.PreferenceSet;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  ObjectListPreferencesParams params = ObjectListPreferencesParams.builder()
+                      .collection("collection")
+                      .objectId("object_id")
+                      .build();
+                  List<PreferenceSet> preferenceSets = client.objects().listPreferences(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          preference_sets = knock.objects.list_preferences("collection", "object_id")
+
+          puts(preference_sets)
   /v1/messages/{message_id}/read:
     delete:
       callbacks: {}
@@ -8464,6 +8825,85 @@ paths:
       summary: Mark message as unread
       tags:
         - Messages
+      x-ratelimit-tier: 2
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const message = await client.messages.markAsUnread('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
+
+            console.log(message.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          message = client.messages.mark_as_unread(
+              "message_id",
+          )
+          print(message.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            message, err := client.Messages.MarkAsUnread(context.TODO(), "1jNaXzB2RZX3LY8wVQnfCKyPnv7")
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", message.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.messages.Message;
+          import app.knock.api.models.messages.MessageMarkAsUnreadParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  MessageMarkAsUnreadParams params = MessageMarkAsUnreadParams.builder()
+                      .messageId("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
+                      .build();
+                  Message message = client.messages().markAsUnread(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          message = knock.messages.mark_as_unread("message_id")
+
+          puts(message)
     put:
       callbacks: {}
       description: >-
@@ -8488,6 +8928,7 @@ paths:
       summary: Mark message as read
       tags:
         - Messages
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8592,6 +9033,7 @@ paths:
       tags:
         - Users
         - Bulk operations
+      x-ratelimit-tier: 1
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8730,6 +9172,94 @@ paths:
       tags:
         - Guides
         - Users
+      x-ratelimit-tier: 2
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const response = await client.users.guides.getChannel('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+            console.log(response.guides);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          response = client.users.guides.get_channel(
+              user_id="user_id",
+              channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          print(response.guides)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            response, err := client.Users.Guides.GetChannel(
+              context.TODO(),
+              "user_id",
+              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+              knock.UserGuideGetChannelParams{
+
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Guides)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.users.guides.GuideGetChannelParams;
+          import app.knock.api.models.users.guides.GuideGetChannelResponse;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  GuideGetChannelParams params = GuideGetChannelParams.builder()
+                      .userId("user_id")
+                      .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+                      .build();
+                  GuideGetChannelResponse response = client.users().guides().getChannel(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          response = knock.users.guides.get_channel("user_id", "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+
+          puts(response)
   /v1/schedules:
     delete:
       callbacks: {}
@@ -8755,6 +9285,7 @@ paths:
       summary: Delete schedules
       tags:
         - Schedules
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8891,6 +9422,7 @@ paths:
       summary: List schedules
       tags:
         - Schedules
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8997,6 +9529,7 @@ paths:
       summary: Create schedules
       tags:
         - Schedules
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -9126,6 +9659,7 @@ paths:
       summary: Update schedules
       tags:
         - Schedules
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -9240,6 +9774,7 @@ paths:
         - Objects
         - Subscriptions
         - Bulk operations
+      x-ratelimit-tier: 1
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -9383,6 +9918,7 @@ paths:
       summary: Batch get message contents
       tags:
         - Messages
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -9481,6 +10017,7 @@ paths:
       tags:
         - Users
         - Preferences
+      x-ratelimit-tier: 3
   /v1/users/bulk/identify:
     post:
       callbacks: {}
@@ -9507,6 +10044,7 @@ paths:
       tags:
         - Users
         - Bulk operations
+      x-ratelimit-tier: 1
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -9618,6 +10156,7 @@ paths:
       summary: Get message content
       tags:
         - Messages
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -9714,6 +10253,7 @@ paths:
       tags:
         - Users
         - Preferences
+      x-ratelimit-tier: 3
   /v1/notify/cancel:
     post:
       callbacks: {}
@@ -9735,6 +10275,7 @@ paths:
       summary: Cancel workflow
       tags:
         - Workflow Triggers
+      x-ratelimit-tier: 3
   /v1/tenants/bulk/delete:
     post:
       callbacks: {}
@@ -9760,6 +10301,7 @@ paths:
       tags:
         - Tenants
         - Bulk operations
+      x-ratelimit-tier: 1
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -9858,6 +10400,7 @@ paths:
       tags:
         - Objects
         - Preferences
+      x-ratelimit-tier: 3
   /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}:
     get:
       callbacks: {}
@@ -9895,6 +10438,7 @@ paths:
       tags:
         - Objects
         - Preferences
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10025,6 +10569,7 @@ paths:
       tags:
         - Objects
         - Preferences
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10165,6 +10710,7 @@ paths:
       summary: List activities
       tags:
         - Messages
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10302,6 +10848,7 @@ paths:
       tags:
         - Messages
         - Bulk operations
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10506,6 +11053,7 @@ paths:
       tags:
         - Feeds
         - Users
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10634,6 +11182,117 @@ paths:
       tags:
         - Guides
         - Users
+      x-ratelimit-tier: 2
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const response = await client.users.guides.markMessageAsInteracted('user_id', 'message_id', {
+              channel_id: '123e4567-e89b-12d3-a456-426614174000',
+              guide_id: '323e4567-e89b-12d3-a456-426614174000',
+              guide_key: 'guide_12345',
+              guide_step_ref: 'step_12345',
+            });
+
+            console.log(response.status);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          response = client.users.guides.mark_message_as_interacted(
+              user_id="user_id",
+              message_id="message_id",
+              channel_id="123e4567-e89b-12d3-a456-426614174000",
+              guide_id="323e4567-e89b-12d3-a456-426614174000",
+              guide_key="guide_12345",
+              guide_step_ref="step_12345",
+          )
+          print(response.status)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            response, err := client.Users.Guides.MarkMessageAsInteracted(
+              context.TODO(),
+              "user_id",
+              "message_id",
+              knock.UserGuideMarkMessageAsInteractedParams{
+                ChannelID: knock.F("123e4567-e89b-12d3-a456-426614174000"),
+                GuideID: knock.F("323e4567-e89b-12d3-a456-426614174000"),
+                GuideKey: knock.F("guide_12345"),
+                GuideStepRef: knock.F("step_12345"),
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Status)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.users.guides.GuideMarkMessageAsInteractedParams;
+          import app.knock.api.models.users.guides.GuideMarkMessageAsInteractedResponse;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  GuideMarkMessageAsInteractedParams params = GuideMarkMessageAsInteractedParams.builder()
+                      .userId("user_id")
+                      .messageId("message_id")
+                      .channelId("123e4567-e89b-12d3-a456-426614174000")
+                      .guideId("323e4567-e89b-12d3-a456-426614174000")
+                      .guideKey("guide_12345")
+                      .guideStepRef("step_12345")
+                      .build();
+                  GuideMarkMessageAsInteractedResponse response = client.users().guides().markMessageAsInteracted(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          response = knock.users.guides.mark_message_as_interacted(
+            "user_id",
+            "message_id",
+            channel_id: "123e4567-e89b-12d3-a456-426614174000",
+            guide_id: "323e4567-e89b-12d3-a456-426614174000",
+            guide_key: "guide_12345",
+            guide_step_ref: "step_12345"
+          )
+
+          puts(response)
   /v1/objects/{collection}/{object_id}/channel_data/{channel_id}:
     delete:
       callbacks: {}
@@ -10670,6 +11329,7 @@ paths:
       tags:
         - Channel data
         - Objects
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10799,6 +11459,7 @@ paths:
       tags:
         - Channel data
         - Objects
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10936,6 +11597,7 @@ paths:
       tags:
         - Channel data
         - Objects
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -11082,6 +11744,7 @@ paths:
       summary: Remove members
       tags:
         - Audiences
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -11201,6 +11864,7 @@ paths:
       summary: List members
       tags:
         - Audiences
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -11307,6 +11971,7 @@ paths:
       summary: Add members
       tags:
         - Audiences
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -11461,6 +12126,7 @@ paths:
       tags:
         - Providers
         - Microsoft Teams
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -11583,6 +12249,7 @@ paths:
       tags:
         - Users
         - Bulk operations
+      x-ratelimit-tier: 1
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -11682,6 +12349,7 @@ paths:
       tags:
         - Objects
         - Preferences
+      x-ratelimit-tier: 3
   /v1/providers/slack/{channel_id}/revoke_access:
     put:
       callbacks: {}
@@ -11713,6 +12381,7 @@ paths:
       tags:
         - Providers
         - Slack
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -11862,6 +12531,7 @@ paths:
       summary: Mark messages as unread
       tags:
         - Messages
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -11999,6 +12669,7 @@ paths:
       summary: List objects in a collection
       tags:
         - Objects
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -12103,6 +12774,7 @@ paths:
       tags:
         - Objects
         - Preferences
+      x-ratelimit-tier: 3
   /v1/users/{user_id}/preferences:
     get:
       callbacks: {}
@@ -12147,6 +12819,7 @@ paths:
       tags:
         - Users
         - Preferences
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -12278,6 +12951,7 @@ paths:
       tags:
         - Schedules
         - Users
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -12400,6 +13074,117 @@ paths:
       tags:
         - Guides
         - Users
+      x-ratelimit-tier: 2
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const response = await client.users.guides.markMessageAsArchived('user_id', 'message_id', {
+              channel_id: '123e4567-e89b-12d3-a456-426614174000',
+              guide_id: '323e4567-e89b-12d3-a456-426614174000',
+              guide_key: 'guide_12345',
+              guide_step_ref: 'step_12345',
+            });
+
+            console.log(response.status);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          response = client.users.guides.mark_message_as_archived(
+              user_id="user_id",
+              message_id="message_id",
+              channel_id="123e4567-e89b-12d3-a456-426614174000",
+              guide_id="323e4567-e89b-12d3-a456-426614174000",
+              guide_key="guide_12345",
+              guide_step_ref="step_12345",
+          )
+          print(response.status)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            response, err := client.Users.Guides.MarkMessageAsArchived(
+              context.TODO(),
+              "user_id",
+              "message_id",
+              knock.UserGuideMarkMessageAsArchivedParams{
+                ChannelID: knock.F("123e4567-e89b-12d3-a456-426614174000"),
+                GuideID: knock.F("323e4567-e89b-12d3-a456-426614174000"),
+                GuideKey: knock.F("guide_12345"),
+                GuideStepRef: knock.F("step_12345"),
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Status)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.users.guides.GuideMarkMessageAsArchivedParams;
+          import app.knock.api.models.users.guides.GuideMarkMessageAsArchivedResponse;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  GuideMarkMessageAsArchivedParams params = GuideMarkMessageAsArchivedParams.builder()
+                      .userId("user_id")
+                      .messageId("message_id")
+                      .channelId("123e4567-e89b-12d3-a456-426614174000")
+                      .guideId("323e4567-e89b-12d3-a456-426614174000")
+                      .guideKey("guide_12345")
+                      .guideStepRef("step_12345")
+                      .build();
+                  GuideMarkMessageAsArchivedResponse response = client.users().guides().markMessageAsArchived(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          response = knock.users.guides.mark_message_as_archived(
+            "user_id",
+            "message_id",
+            channel_id: "123e4567-e89b-12d3-a456-426614174000",
+            guide_id: "323e4567-e89b-12d3-a456-426614174000",
+            guide_key: "guide_12345",
+            guide_step_ref: "step_12345"
+          )
+
+          puts(response)
   /v1/messages/{message_id}/archived:
     delete:
       callbacks: {}
@@ -12423,6 +13208,85 @@ paths:
       summary: Unarchive message
       tags:
         - Messages
+      x-ratelimit-tier: 2
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const message = await client.messages.unarchive('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
+
+            console.log(message.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          message = client.messages.unarchive(
+              "message_id",
+          )
+          print(message.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            message, err := client.Messages.Unarchive(context.TODO(), "1jNaXzB2RZX3LY8wVQnfCKyPnv7")
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", message.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.messages.Message;
+          import app.knock.api.models.messages.MessageUnarchiveParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  MessageUnarchiveParams params = MessageUnarchiveParams.builder()
+                      .messageId("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
+                      .build();
+                  Message message = client.messages().unarchive(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          message = knock.messages.unarchive("message_id")
+
+          puts(message)
     put:
       callbacks: {}
       description: >-
@@ -12447,6 +13311,7 @@ paths:
       summary: Archive message
       tags:
         - Messages
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -12583,6 +13448,7 @@ paths:
       summary: Mark messages as archived
       tags:
         - Messages
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -12698,6 +13564,7 @@ paths:
       tags:
         - Feeds
         - Users
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -12926,6 +13793,7 @@ paths:
       tags:
         - Messages
         - Users
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -13059,6 +13927,101 @@ paths:
       summary: Process a Hightouch RPC request
       tags:
         - Integrations
+      x-ratelimit-tier: 3
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const response = await client.integrations.hightouch.embeddedDestination({
+              id: 'id',
+              jsonrpc: 'jsonrpc',
+              method: 'method',
+            });
+
+            console.log(response.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          response = client.integrations.hightouch.embedded_destination(
+              id="id",
+              jsonrpc="jsonrpc",
+              method="method",
+          )
+          print(response.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            response, err := client.Integrations.Hightouch.EmbeddedDestination(context.TODO(), knock.IntegrationHightouchEmbeddedDestinationParams{
+              ID: knock.F("id"),
+              Jsonrpc: knock.F("jsonrpc"),
+              Method: knock.F("method"),
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.integrations.hightouch.HightouchEmbeddedDestinationParams;
+          import app.knock.api.models.integrations.hightouch.HightouchEmbeddedDestinationResponse;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  HightouchEmbeddedDestinationParams params = HightouchEmbeddedDestinationParams.builder()
+                      .id("id")
+                      .jsonrpc("jsonrpc")
+                      .method("method")
+                      .build();
+                  HightouchEmbeddedDestinationResponse response = client.integrations().hightouch().embeddedDestination(params);
+              }
+          }
+        ruby: >-
+          require "knockapi"
+
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+
+          response = knock.integrations.hightouch.embedded_destination(id: "id", jsonrpc: "jsonrpc", method_:
+          "method")
+
+
+          puts(response)
   /v1/messages/{message_id}/interacted:
     put:
       callbacks: {}
@@ -13091,6 +14054,7 @@ paths:
       summary: Mark message as interacted
       tags:
         - Messages
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -13193,6 +14157,7 @@ paths:
       tags:
         - Users
         - Preferences
+      x-ratelimit-tier: 3
   /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}/categories/{key}:
     put:
       callbacks: {}
@@ -13211,6 +14176,7 @@ paths:
       tags:
         - Objects
         - Preferences
+      x-ratelimit-tier: 3
   /v1/messages/{message_id}/unarchived:
     delete:
       callbacks: {}
@@ -13234,84 +14200,7 @@ paths:
       summary: Unarchive message
       tags:
         - Messages
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const message = await client.messages.unarchive('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
-
-            console.log(message.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          message = client.messages.unarchive(
-              "message_id",
-          )
-          print(message.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            message, err := client.Messages.Unarchive(context.TODO(), "1jNaXzB2RZX3LY8wVQnfCKyPnv7")
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", message.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.messages.Message;
-          import app.knock.api.models.messages.MessageUnarchiveParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  MessageUnarchiveParams params = MessageUnarchiveParams.builder()
-                      .messageId("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
-                      .build();
-                  Message message = client.messages().unarchive(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          message = knock.messages.unarchive("message_id")
-
-          puts(message)
+      x-ratelimit-tier: 2
   /v1/users/{user_id}/in-app-messages/{channel_id}/{message_type}:
     get:
       callbacks: {}
@@ -13373,6 +14262,7 @@ paths:
       tags:
         - In-app messages
         - Users
+      x-ratelimit-tier: 2
   /v1/users/{user_id}/preferences/{preference_set_id}/categories:
     put:
       callbacks: {}
@@ -13391,6 +14281,7 @@ paths:
       tags:
         - Users
         - Preferences
+      x-ratelimit-tier: 3
   /v1/users:
     get:
       callbacks: {}
@@ -13435,6 +14326,7 @@ paths:
       summary: List users
       tags:
         - Users
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -13535,6 +14427,7 @@ paths:
       summary: Trigger workflow
       tags:
         - Workflow Triggers
+      x-ratelimit-tier: 3
   /v1/providers/ms-teams/{channel_id}/teams:
     get:
       callbacks: {}
@@ -13602,6 +14495,7 @@ paths:
       tags:
         - Providers
         - Microsoft Teams
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -13752,6 +14646,7 @@ paths:
       summary: Mark messages as read
       tags:
         - Messages
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -13869,6 +14764,7 @@ paths:
       summary: Cancel workflow
       tags:
         - Workflows
+      x-ratelimit-tier: 5
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -13973,6 +14869,80 @@ paths:
       tags:
         - Objects
         - Bulk operations
+      x-ratelimit-tier: 1
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const bulkOperation = await client.schedules.bulk.create();
+
+            console.log(bulkOperation.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          bulk_operation = client.schedules.bulk.create()
+          print(bulk_operation.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            bulkOperation, err := client.Schedules.Bulk.New(context.TODO())
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", bulkOperation.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.bulkoperations.BulkOperation;
+          import app.knock.api.models.schedules.bulk.BulkCreateParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  BulkOperation bulkOperation = client.schedules().bulk().create();
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          bulk_operation = knock.schedules.bulk.create
+
+          puts(bulk_operation)
   /v1/users/{user_id}/preferences/{preference_set_id}/workflows:
     put:
       callbacks: {}
@@ -13991,6 +14961,7 @@ paths:
       tags:
         - Users
         - Preferences
+      x-ratelimit-tier: 3
   /v1/tenants/bulk/set:
     post:
       callbacks: {}
@@ -14017,6 +14988,7 @@ paths:
       tags:
         - Tenants
         - Bulk operations
+      x-ratelimit-tier: 1
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14120,6 +15092,7 @@ paths:
       summary: Delete a tenant
       tags:
         - Tenants
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14218,6 +15191,7 @@ paths:
       summary: Get a tenant
       tags:
         - Tenants
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14326,6 +15300,7 @@ paths:
       summary: Set a tenant
       tags:
         - Tenants
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14441,6 +15416,7 @@ paths:
       tags:
         - Providers
         - Microsoft Teams
+      x-ratelimit-tier: 2
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14555,6 +15531,7 @@ paths:
       summary: Get message
       tags:
         - Messages
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14651,6 +15628,7 @@ paths:
       tags:
         - Users
         - Preferences
+      x-ratelimit-tier: 3
   /v1/objects/{collection}/{object_id}/subscriptions:
     delete:
       callbacks: {}
@@ -14689,6 +15667,7 @@ paths:
       tags:
         - Subscriptions
         - Objects
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14794,8 +15773,8 @@ paths:
     get:
       callbacks: {}
       description: >-
-        List subscriptions for an object. Either list all subscriptions that belong to the object, or all
-        subscriptions that this object has. Determined by the `mode` query parameter.
+        List subscriptions for an object. Eitherlist the recipients that subscribe to the provided object, or
+        list the objects that the provided object is subscribed to. Determined by the `mode` query parameter.
       operationId: listSubscriptionsForObject
       parameters:
         - description: Mode of the request.
@@ -14875,6 +15854,7 @@ paths:
       tags:
         - Subscriptions
         - Objects
+      x-ratelimit-tier: 4
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14999,6 +15979,7 @@ paths:
       tags:
         - Subscriptions
         - Objects
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -15154,6 +16135,7 @@ paths:
       summary: Mark messages as interacted
       tags:
         - Messages
+      x-ratelimit-tier: 3
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -15266,6 +16248,7 @@ paths:
       tags:
         - Objects
         - Bulk operations
+      x-ratelimit-tier: 1
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';

@@ -12,6 +12,7 @@ import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import MultiLangExample from "../MultiLangExample";
 import { augmentSnippetsWithCurlRequest } from "../helpers";
 import Link from "next/link";
+import RateLimit from "../../RateLimit";
 
 type Props = {
   methodName: string;
@@ -20,9 +21,11 @@ type Props = {
 };
 
 function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
+
   const { openApiSpec, baseUrl, schemaReferences } = useApiReference();
   const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];
+  const rateLimit = method?.["x-ratelimit-tier"];
 
   if (!method) {
     return null;
@@ -56,6 +59,13 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
           path={`${endpoint}`}
           name={methodName}
         />
+
+        {rateLimit && (
+          <>
+            <h3 className="!text-sm font-medium">Rate limit</h3>
+            <RateLimit tier={rateLimit} />
+          </>
+        )}
 
         {pathParameters.length > 0 && (
           <>
