@@ -32,11 +32,12 @@ components:
         __typename: ChannelData
         channel_id: 123e4567-e89b-12d3-a456-426614174000
         data:
+          __typename: PushChannelData
           tokens:
             - push_token_1
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: ChannelData
           type: string
         channel_id:
@@ -45,6 +46,14 @@ components:
           type: string
         data:
           description: Channel data for a given channel type.
+          discriminator:
+            mapping:
+              DiscordChannelData: '#/components/schemas/DiscordChannelData'
+              MsTeamsChannelData: '#/components/schemas/MsTeamsChannelData'
+              OneSignalChannelData: '#/components/schemas/OneSignalChannelData'
+              PushChannelData: '#/components/schemas/PushChannelData'
+              SlackChannelData: '#/components/schemas/SlackChannelData'
+            propertyName: __typename
           oneOf:
             - $ref: '#/components/schemas/PushChannelData'
             - $ref: '#/components/schemas/SlackChannelData'
@@ -120,7 +129,7 @@ components:
         updated_at: '2021-01-01T00:00:00Z'
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: Subscription
           type: string
         inserted_at:
@@ -245,7 +254,9 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RecipientRequest'
             - nullable: true
-          description: The actor associated with the workflow trigger.
+          description: >-
+            A map of properties describing a user or an object to identify in Knock and mark as who or what
+            performed the action.
         cancellation_key:
           description: >-
             The cancellation key provided during the initial notify call. If used in a cancel request, will
@@ -323,7 +334,7 @@ components:
         message_id: 2FVHPWxRqNuXQ9krvNP5A6Z4qXe
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: MessageContent
           nullable: false
           type: string
@@ -395,6 +406,7 @@ components:
       example:
         97c5837d-c65c-4d54-aa39-080eeb81c69d:
           data:
+            __typename: PushChannelData
             tokens:
               - push_token_xxx
       title: InlineChannelDataRequest
@@ -413,7 +425,7 @@ components:
         to: user_123@example.com
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: MessageEmailContent
           nullable: false
           type: string
@@ -535,7 +547,7 @@ components:
         type: message.sent
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: MessageEvent
           type: string
         data:
@@ -586,24 +598,50 @@ components:
       description: A request to trigger a guide action.
       example:
         channel_id: 123e4567-e89b-12d3-a456-426614174000
+        content: content_12345
+        data: data_12345
         guide_id: 323e4567-e89b-12d3-a456-426614174000
+        guide_key: guide_12345
+        guide_step_ref: step_12345
+        is_final: true
+        metadata: metadata_12345
         tenant: tenant_12345
       properties:
         channel_id:
           description: The unique identifier for the channel.
           format: uuid
           type: string
+        content:
+          description: The content of the guide.
+          type: object
+        data:
+          description: The data of the guide.
+          type: object
         guide_id:
           description: The unique identifier for the guide.
           format: uuid
           type: string
+        guide_key:
+          description: The key of the guide.
+          type: string
+        guide_step_ref:
+          description: The step reference of the guide.
+          type: string
+        is_final:
+          description: Whether the guide is final.
+          type: boolean
+        metadata:
+          description: The metadata of the guide.
+          type: object
         tenant:
-          description: The unique identifier for the tenant.
+          description: The tenant id of the guide.
           nullable: true
           type: string
       required:
         - channel_id
         - guide_id
+        - guide_key
+        - guide_step_ref
       title: GuideActionRequest
       type: object
     BulkUpsertSubscriptionsRequest:
@@ -716,7 +754,7 @@ components:
           summary: This is a summary
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: MessageChatContent
           nullable: false
           type: string
@@ -761,9 +799,7 @@ components:
     PreferenceSetRequestCategories:
       additionalProperties:
         $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
-      description: >-
-        A setting for a preference set, where the key in the object is the category, and the values are the
-        preference settings for that category.
+      description: An object where the key is the category and the values are the preference settings for that category.
       example:
         marketing:
           channel_types:
@@ -814,7 +850,7 @@ components:
         user_ids:
           description: A list of user IDs.
           items:
-            description: The unique identifier for the user.
+            description: The ID for the user that you set when identifying them in Knock.
             type: string
           type: array
       required:
@@ -915,7 +951,7 @@ components:
       description: A reference to a recipient, either a user identifier (string) or an object reference (id, collection).
       example: user_123
       oneOf:
-        - description: An identifier for a user recipient.
+        - description: The id of the user.
           example: user_123
           nullable: false
           title: UserReference
@@ -963,7 +999,7 @@ components:
       title: BatchMessagesInteractedRequest
       type: object
     UserReference:
-      description: An identifier for a user recipient.
+      description: The id of the user.
       example: user_123
       nullable: false
       title: UserReference
@@ -1041,7 +1077,7 @@ components:
         name: ACME Corp, Inc.
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: Tenant
           type: string
         id:
@@ -1077,7 +1113,7 @@ components:
         user_ids:
           description: A list of user IDs.
           items:
-            description: The unique identifier for the user.
+            description: The ID for the user that you set when identifying them in Knock.
             type: string
           type: array
       required:
@@ -1191,9 +1227,16 @@ components:
     PushChannelData:
       description: The content of a push notification.
       example:
+        __typename: PushChannelData
         tokens:
           - push_token_1
       properties:
+        __typename:
+          description: The typename of the schema.
+          enum:
+            - PushChannelData
+          example: PushChannelData
+          type: string
         tokens:
           description: A list of push channel tokens.
           example:
@@ -1202,13 +1245,11 @@ components:
           items:
             description: The device token to send the push notification to.
             nullable: false
-            required:
-              - token
-              - provider
             type: string
           nullable: false
           type: array
       required:
+        - __typename
         - tokens
       title: PushChannelData
       type: object
@@ -1235,7 +1276,7 @@ components:
         token: xoxo-1234567890
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: MessagePushContent
           nullable: false
           type: string
@@ -1264,7 +1305,10 @@ components:
       title: MessagePushContent
       type: object
     PreferenceSet:
-      description: A preference set object.
+      description: >-
+        A preference set determines whether a recipient should receive a particular type of notification. By
+        default all preferences are opted in unless a preference explicitly opts the recipient out of the
+        notification
       example:
         __typename: PreferenceSet
         categories:
@@ -1284,7 +1328,7 @@ components:
         workflows: null
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: PreferenceSet
           type: string
         categories:
@@ -1292,8 +1336,8 @@ components:
             - additionalProperties:
                 $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
               description: >-
-                A setting for a preference set, where the key in the object is the category, and the values
-                are the preference settings for that category.
+                An object where the key is the category and the values are the preference settings for that
+                category.
               example:
                 marketing:
                   channel_types:
@@ -1302,8 +1346,8 @@ components:
               type: object
             - nullable: true
           description: >-
-            A setting for a preference set, where the key in the object is the category, and the values are
-            the preference settings for that category.
+            An object where the key is the category and the values are the preference settings for that
+            category.
         channel_types:
           anyOf:
             - $ref: '#/components/schemas/PreferenceSetChannelTypes'
@@ -1318,8 +1362,8 @@ components:
             - additionalProperties:
                 $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
               description: >-
-                A setting for a preference set, where the key in the object is the workflow key, and the
-                values are the preference settings for that workflow.
+                An object where the key is the workflow key and the values are the preference settings for
+                that workflow.
               example:
                 dinosaurs-loose:
                   channel_types:
@@ -1328,8 +1372,8 @@ components:
               type: object
             - nullable: true
           description: >-
-            A setting for a preference set, where the key in the object is the workflow key, and the values
-            are the preference settings for that workflow.
+            An object where the key is the workflow key and the values are the preference settings for that
+            workflow.
       required:
         - __typename
         - id
@@ -1354,7 +1398,7 @@ components:
         minutes: null
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: ScheduleRepeat
           type: string
         day_of_month:
@@ -1509,7 +1553,7 @@ components:
         service_name: Postmark
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: MessageDeliveryLog
           nullable: false
           type: string
@@ -1598,8 +1642,8 @@ components:
       additionalProperties:
         $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
       description: >-
-        A setting for a preference set, where the key in the object is the workflow key, and the values are
-        the preference settings for that workflow.
+        An object where the key is the workflow key and the values are the preference settings for that
+        workflow.
       example:
         dinosaurs-loose:
           channel_types:
@@ -1688,7 +1732,7 @@ components:
         updated_at: '2021-01-01T00:00:00Z'
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: FeedItem
           type: string
         activities:
@@ -1753,7 +1797,7 @@ components:
           nullable: false
           properties:
             __typename:
-              description: The type name of the schema.
+              description: The typename of the schema.
               example: Workflow
               type: string
             categories:
@@ -1919,6 +1963,11 @@ components:
         - page_info
       title: ListMessageDeliveryLogsResponse
       type: object
+    UserRecipient:
+      description: The id of the user.
+      example: user_123
+      title: UserRecipient
+      type: string
     ListTenantsResponse:
       description: A response containing a list of tenants.
       example:
@@ -1999,7 +2048,7 @@ components:
       title: SlackChannelDataTokenObject
       type: object
     Recipient:
-      description: A recipient, which is either a user or an object.
+      description: A recipient of a notification, which is either a user or an object.
       discriminator: __typename
       example:
         __typename: User
@@ -2018,7 +2067,7 @@ components:
       type: object
     TenantRequest:
       additionalProperties: true
-      description: A request to get a tenant.
+      description: A tenant to be set in the system. You can supply any additional properties on the tenant object.
       example:
         id: tenant_123
         name: ACME Corp, Inc.
@@ -2084,7 +2133,7 @@ components:
         page_size: 25
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: PageInfo
           type: string
         after:
@@ -2183,7 +2232,7 @@ components:
             unseen_count: 5
           properties:
             __typename:
-              description: The type name of the schema.
+              description: The typename of the schema.
               example: FeedMetadata
               type: string
             total_count:
@@ -2226,7 +2275,9 @@ components:
         id: user_1
       nullable: false
       oneOf:
-        - description: An identifier for a user recipient.
+        - description: The id of the user.
+          example: user_123
+          title: UserRecipient
           type: string
         - $ref: '#/components/schemas/InlineIdentifyUserRequest'
         - $ref: '#/components/schemas/InlineIdentifyObjectRequest'
@@ -2259,8 +2310,7 @@ components:
       additionalProperties: true
       description: >-
         A set of parameters to identify a user with. Does not include the user ID, as that's specified
-        elsewhere in the request. You can supply any additional properties you'd like to upsert against the
-        user.
+        elsewhere in the request. You can supply any additional properties you'd like to upsert for the user.
       example:
         email: jane@ingen.net
         name: Jane Doe
@@ -2372,7 +2422,7 @@ components:
         updated_at: '2024-05-22T12:00:00Z'
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: Object
           type: string
         collection:
@@ -2564,7 +2614,7 @@ components:
       type: object
     User:
       additionalProperties: true
-      description: A user object.
+      description: A user who can receive notifications in Knock. They are always referenced by your internal identifier.
       example:
         __typename: User
         created_at: null
@@ -2574,7 +2624,7 @@ components:
         updated_at: '2024-05-22T12:00:00Z'
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: User
           type: string
         avatar:
@@ -2582,7 +2632,7 @@ components:
           nullable: true
           type: string
         created_at:
-          description: Timestamp when the resource was created.
+          description: The creation date of the user from your system.
           format: date-time
           nullable: true
           type: string
@@ -2591,7 +2641,7 @@ components:
           nullable: true
           type: string
         id:
-          description: The unique identifier for the user.
+          description: The ID for the user that you set when identifying them in Knock.
           type: string
         name:
           description: Display name of the user.
@@ -2643,7 +2693,9 @@ components:
         tenant: acme_corp
       properties:
         actor:
-          description: The actor associated with the workflow trigger.
+          description: >-
+            A map of properties describing a user or an object to identify in Knock and mark as who or what
+            performed the action.
           oneOf:
             - $ref: '#/components/schemas/RecipientRequest'
             - nullable: true
@@ -2702,7 +2754,7 @@ components:
         user_id: user_123
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: AudienceMember
           type: string
         added_at:
@@ -2718,7 +2770,7 @@ components:
         user:
           $ref: '#/components/schemas/User'
         user_id:
-          description: The unique identifier for the user.
+          description: The ID for the user that you set when identifying them in Knock.
           example: user_123
           type: string
       required:
@@ -2736,7 +2788,7 @@ components:
         to: '+15551234567'
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: MessageSmsContent
           nullable: false
           type: string
@@ -2757,9 +2809,7 @@ components:
     PreferenceSetCategories:
       additionalProperties:
         $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
-      description: >-
-        A setting for a preference set, where the key in the object is the category, and the values are the
-        preference settings for that category.
+      description: An object where the key is the category and the values are the preference settings for that category.
       example:
         marketing:
           channel_types:
@@ -2770,8 +2820,8 @@ components:
       additionalProperties:
         $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
       description: >-
-        A setting for a preference set, where the key in the object is the workflow key, and the values are
-        the preference settings for that workflow.
+        An object where the key is the workflow key and the values are the preference settings for that
+        workflow.
       example:
         dinosaurs-loose:
           channel_types:
@@ -2814,8 +2864,6 @@ components:
             - access_token
           title: SlackChannelDataTokenObject
           type: object
-      required:
-        - connections
       title: SlackChannelData
       type: object
     BulkUpdateMessagesForChannelRequest:
@@ -2879,6 +2927,11 @@ components:
           description: The timestamp to filter messages by. Only include messages created before this timestamp.
           format: date-time
           type: string
+        recipient_gids:
+          description: The recipient GIDs to filter messages by.
+          items:
+            type: string
+          type: array
         recipient_ids:
           description: The recipient IDs to filter messages by.
           items:
@@ -2963,7 +3016,7 @@ components:
         updated_at: '2024-01-01T00:00:00Z'
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: Activity
           type: string
         actor:
@@ -2997,7 +3050,7 @@ components:
       additionalProperties: true
       description: >-
         A set of parameters to inline-identify a user with. Inline identifying the user will ensure that the
-        user is available before the request is executed in Knock. It will perform an upsert against the user
+        user is available before the request is executed in Knock. It will perform an upsert for the user
         you're supplying, replacing any properties specified.
       example:
         email: jane@ingen.net
@@ -3016,7 +3069,7 @@ components:
           nullable: true
           type: string
         id:
-          description: The unique identifier for the user.
+          description: The ID for the user that you set when identifying them in Knock.
           nullable: false
           type: string
         preferences:
@@ -3211,7 +3264,7 @@ components:
         updated_at: '2024-05-22T12:00:00Z'
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: BulkOperation
           type: string
         completed_at:
@@ -3269,7 +3322,7 @@ components:
           nullable: true
           type: string
         status:
-          description: 'The status of the bulk operation. One of: queued, processing, completed, failed.'
+          description: The status of the bulk operation.
           enum:
             - queued
             - processing
@@ -3353,7 +3406,7 @@ components:
         workflow: comment-created
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: Message
           type: string
         actors:
@@ -3379,7 +3432,7 @@ components:
           type: string
         data:
           additionalProperties: true
-          description: The data associated with the message.
+          description: Data from the activities linked to the message.
           nullable: true
           type: object
         engagement_statuses:
@@ -3471,9 +3524,7 @@ components:
             - categories
           type: object
         status:
-          description: >-
-            The message delivery status. Can be one of: queued, sent, delivered, delivery_attempted,
-            undelivered, not_sent, bounced.
+          description: The message delivery status.
           enum:
             - queued
             - sent
@@ -3494,7 +3545,7 @@ components:
           type: string
         workflow:
           deprecated: true
-          description: The key of the worklfow that generated the message.
+          description: The key of the workflow that generated the message.
           nullable: true
           type: string
       title: Message
@@ -3622,7 +3673,7 @@ components:
       nullable: false
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: MessageInAppFeedContent
           nullable: false
           type: string
@@ -3671,7 +3722,7 @@ components:
       title: DeleteSubscriptionsRequest
       type: object
     Schedule:
-      description: A schedule that represents a recurring workflow execution.
+      description: A schedule represents a recurring workflow execution.
       example:
         __typename: Schedule
         actor: null
@@ -3710,11 +3761,13 @@ components:
         workflow: workflow_123
       properties:
         __typename:
-          description: The type name of the schema.
+          description: The typename of the schema.
           example: Schedule
           type: string
         actor:
-          description: The actor associated with the workflow trigger.
+          description: >-
+            A map of properties describing a user or an object to identify in Knock and mark as who or what
+            performed the action.
           oneOf:
             - $ref: '#/components/schemas/Recipient'
             - nullable: true
@@ -3833,8 +3886,8 @@ components:
             - additionalProperties:
                 $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
               description: >-
-                A setting for a preference set, where the key in the object is the category, and the values
-                are the preference settings for that category.
+                An object where the key is the category and the values are the preference settings for that
+                category.
               example:
                 marketing:
                   channel_types:
@@ -3843,8 +3896,8 @@ components:
               type: object
             - nullable: true
           description: >-
-            A setting for a preference set, where the key in the object is the category, and the values are
-            the preference settings for that category.
+            An object where the key is the category and the values are the preference settings for that
+            category.
         channel_types:
           anyOf:
             - $ref: '#/components/schemas/PreferenceSetChannelTypes'
@@ -3855,8 +3908,8 @@ components:
             - additionalProperties:
                 $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
               description: >-
-                A setting for a preference set, where the key in the object is the workflow key, and the
-                values are the preference settings for that workflow.
+                An object where the key is the workflow key and the values are the preference settings for
+                that workflow.
               example:
                 dinosaurs-loose:
                   channel_types:
@@ -3865,8 +3918,8 @@ components:
               type: object
             - nullable: true
           description: >-
-            A setting for a preference set, where the key in the object is the workflow key, and the values
-            are the preference settings for that workflow.
+            An object where the key is the workflow key and the values are the preference settings for that
+            workflow.
       title: PreferenceSetRequest
       type: object
     TeamsForMsTeamsProviderResponse:
@@ -4082,7 +4135,7 @@ components:
             A list of recipients to cancel the notification for. If omitted, cancels for all recipients
             associated with the cancellation key.
           items:
-            description: A recipient, which is either a user or an object.
+            description: A recipient of a notification, which is either a user or an object.
             type: string
           nullable: true
           type: array
@@ -4094,11 +4147,20 @@ components:
       description: A request to set channel data for a type of channel.
       example:
         data:
+          __typename: PushChannelData
           tokens:
             - push_token_1
       properties:
         data:
           description: Channel data for a given channel type.
+          discriminator:
+            mapping:
+              DiscordChannelData: '#/components/schemas/DiscordChannelData'
+              MsTeamsChannelData: '#/components/schemas/MsTeamsChannelData'
+              OneSignalChannelData: '#/components/schemas/OneSignalChannelData'
+              PushChannelData: '#/components/schemas/PushChannelData'
+              SlackChannelData: '#/components/schemas/SlackChannelData'
+            propertyName: __typename
           nullable: false
           oneOf:
             - $ref: '#/components/schemas/PushChannelData'
@@ -4197,7 +4259,7 @@ paths:
       description: Retrieves a specific preference set for a user identified by the preference set ID.
       operationId: getUserPreferenceSet
       parameters:
-        - description: The unique identifier for the user.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
@@ -4322,7 +4384,7 @@ paths:
         existing preference set for the user.
       operationId: updateUserPreferenceSet
       parameters:
-        - description: The unique identifier for the user.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
@@ -4459,6 +4521,9 @@ paths:
                 id:
                   description: The unique identifier for the RPC request.
                   type: string
+                jsonrpc:
+                  description: The JSON-RPC version.
+                  type: string
                 method:
                   description: The method name to execute.
                   type: string
@@ -4468,7 +4533,7 @@ paths:
               required:
                 - id
                 - method
-                - params
+                - jsonrpc
               type: object
         description: Params
         required: true
@@ -4529,9 +4594,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: >-
-            One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `bounced`,
-            `not_sent`. Limits results to messages with the given delivery status(es).
+        - description: One or more delivery statuses. Limits results to messages with the given delivery status(es).
           example:
             - delivered
           in: query
@@ -4549,9 +4612,7 @@ paths:
                 - bounced
               type: string
             type: array
-        - description: >-
-            One or more of `read`, `seen`, `interacted`, `link_clicked`, `archived`. Limits results to
-            messages with the given engagement status(es).
+        - description: One or more engagement statuses. Limits results to messages with the given engagement status(es).
           example:
             - unread
           in: query
@@ -4589,7 +4650,7 @@ paths:
             items:
               type: string
             type: array
-        - description: Limits the results to only items of the source workflow.
+        - description: Key of the source that triggered the message to limit results to.
           example: comment-created
           in: query
           name: source
@@ -4619,14 +4680,14 @@ paths:
           required: false
           schema:
             type: string
-        - description: The collection name.
+        - description: The collection this object belongs to.
           example: projects
           in: path
           name: collection
           required: true
           schema:
             type: string
-        - description: The object ID.
+        - description: Unique identifier for the object.
           example: project-123
           in: path
           name: object_id
@@ -4842,13 +4903,13 @@ paths:
         includes optional preference data.
       operationId: listSubscriptionsForUser
       parameters:
-        - description: User ID.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: Includes preferences of the recipient subscribers in the response.
+        - description: Associated resources to include in the response.
           in: query
           name: include[]
           required: false
@@ -4858,7 +4919,7 @@ paths:
                 - preferences
               type: string
             type: array
-        - description: Objects to filter by.
+        - description: Only return subscriptions for the given recipients.
           in: query
           name: objects[]
           required: false
@@ -5439,13 +5500,13 @@ paths:
           required: true
           schema:
             type: string
-        - description: The ID of the tenant to list schedules for.
+        - description: Filter schedules by tenant id.
           in: query
           name: tenant
           required: false
           schema:
             type: string
-        - description: The ID of the workflow to list schedules for.
+        - description: Filter schedules by workflow id.
           in: query
           name: workflow
           required: false
@@ -5607,9 +5668,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: >-
-            One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `bounced`,
-            `not_sent`. Limits results to messages with the given delivery status(es).
+        - description: One or more delivery statuses. Limits results to messages with the given delivery status(es).
           example:
             - delivered
           in: query
@@ -5627,9 +5686,7 @@ paths:
                 - bounced
               type: string
             type: array
-        - description: >-
-            One or more of `read`, `seen`, `interacted`, `link_clicked`, `archived`. Limits results to
-            messages with the given engagement status(es).
+        - description: One or more engagement statuses. Limits results to messages with the given engagement status(es).
           example:
             - unread
           in: query
@@ -5667,7 +5724,7 @@ paths:
             items:
               type: string
             type: array
-        - description: Limits the results to only items of the source workflow.
+        - description: Key of the source that triggered the message to limit results to.
           example: comment-created
           in: query
           name: source
@@ -5891,7 +5948,7 @@ paths:
       description: Records that a guide has been seen by a user, triggering any associated seen events.
       operationId: markUserGuideAsSeen
       parameters:
-        - description: The unique identifier for the user.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
@@ -6318,7 +6375,7 @@ paths:
       description: Marks the given messages as unarchived.
       operationId: batchMarkMessagesAsUnarchived
       parameters:
-        - description: The message IDs to update.
+        - description: The message IDs to update the status of.
           in: body
           name: message_ids
           required: true
@@ -6457,13 +6514,13 @@ paths:
       description: Permanently removes an object from the specified collection. This operation cannot be undone.
       operationId: deleteObject
       parameters:
-        - description: Collection name.
+        - description: The collection this object belongs to.
           in: path
           name: collection
           required: true
           schema:
             type: string
-        - description: Object ID.
+        - description: Unique identifier for the object.
           in: path
           name: object_id
           required: true
@@ -6569,13 +6626,13 @@ paths:
         properties.
       operationId: getObject
       parameters:
-        - description: Collection name.
+        - description: The collection this object belongs to.
           in: path
           name: collection
           required: true
           schema:
             type: string
-        - description: Object ID.
+        - description: Unique identifier for the object.
           in: path
           name: object_id
           required: true
@@ -6682,13 +6739,13 @@ paths:
         identify objects with their properties and channel data.
       operationId: setObject
       parameters:
-        - description: Collection name.
+        - description: The collection this object belongs to.
           in: path
           name: collection
           required: true
           schema:
             type: string
-        - description: Object ID.
+        - description: Unique identifier for the object.
           in: path
           name: object_id
           required: true
@@ -7154,13 +7211,13 @@ paths:
       description: Deletes channel data for a specific user and channel ID.
       operationId: unsetUserChannelData
       parameters:
-        - description: The user ID.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: The channel ID.
+        - description: The unique identifier for the channel.
           in: path
           name: channel_id
           required: true
@@ -7266,13 +7323,13 @@ paths:
       description: Retrieves the channel data for a specific user and channel ID.
       operationId: getUserChannelData
       parameters:
-        - description: The user ID.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: The channel ID.
+        - description: The unique identifier for the channel.
           in: path
           name: channel_id
           required: true
@@ -7379,13 +7436,13 @@ paths:
       description: Updates or creates channel data for a specific user and channel ID.
       operationId: setUserChannelData
       parameters:
-        - description: The user ID.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: The channel ID.
+        - description: The unique identifier for the channel.
           in: path
           name: channel_id
           required: true
@@ -7420,7 +7477,7 @@ paths:
 
           async function main() {
             const channelData = await client.users.setChannelData('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-              data: { tokens: ['push_token_1'] },
+              data: { __typename: 'PushChannelData', tokens: ['push_token_1'] },
             });
 
             console.log(channelData.channel_id);
@@ -7438,7 +7495,8 @@ paths:
               user_id="user_id",
               channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
               data={
-                  "tokens": ["push_token_1"]
+                  "_typename": "PushChannelData",
+                  "tokens": ["push_token_1"],
               },
           )
           print(channel_data.channel_id)
@@ -7464,6 +7522,7 @@ paths:
               knock.UserSetChannelDataParams{
                 ChannelDataRequest: knock.ChannelDataRequestParam{
                   Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.PushChannelDataParam{
+                    Typename: knock.F(knock.PushChannelData_TypenamePushChannelData),
                     Tokens: knock.F([]string{"push_token_1"}),
                   }),
                 },
@@ -7496,6 +7555,7 @@ paths:
                       .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
                       .channelDataRequest(ChannelDataRequest.builder()
                           .data(PushChannelData.builder()
+                              ._typename(PushChannelData._Typename.PUSH_CHANNEL_DATA)
                               .addToken("push_token_1")
                               .build())
                           .build())
@@ -7513,7 +7573,7 @@ paths:
           channel_data = knock.users.set_channel_data(
             "user_id",
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            data: {tokens: ["push_token_1"]}
+            data: {__typename: :PushChannelData, tokens: ["push_token_1"]}
           )
 
           puts(channel_data)
@@ -7894,7 +7954,7 @@ paths:
       description: Marks the given messages as seen.
       operationId: batchMarkMessagesAsSeen
       parameters:
-        - description: The message IDs to update.
+        - description: The message IDs to update the status of.
           in: body
           name: message_ids
           required: true
@@ -8051,7 +8111,7 @@ paths:
       description: Marks the given messages as unseen.
       operationId: batchMarkMessagesAsUnseen
       parameters:
-        - description: The message IDs to update.
+        - description: The message IDs to update the status of.
           in: body
           name: message_ids
           required: true
@@ -8196,7 +8256,7 @@ paths:
         the user specified by `user_id`.
       operationId: mergeUser
       parameters:
-        - description: User ID.
+        - description: The id of the user to merge into.
           in: path
           name: user_id
           required: true
@@ -8602,13 +8662,13 @@ paths:
       description: Returns a list of eligible in-app guides for a specific user and channel.
       operationId: listUserGuides
       parameters:
-        - description: The user ID.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: The channel ID.
+        - description: The unique identifier for the channel.
           in: path
           name: channel_id
           required: true
@@ -8618,6 +8678,18 @@ paths:
         - description: The tenant ID to filter guides by.
           in: query
           name: tenant
+          required: false
+          schema:
+            type: string
+        - description: The data to filter guides by.
+          in: query
+          name: data
+          required: false
+          schema:
+            type: string
+        - description: The type of guides to filter by.
+          in: query
+          name: type
           required: false
           schema:
             type: string
@@ -9112,11 +9184,11 @@ paths:
     post:
       callbacks: {}
       description: >-
-        Add subscriptions for a set of objects in a single collection. If a subscription already exists, it
-        will be updated.
+        Add subscriptions for all objects in a single collection. If a subscription for an object in the
+        collection already exists, it will be updated.
       operationId: bulkAddSubscriptions
       parameters:
-        - description: The collection to add subscriptions for.
+        - description: The collection this object belongs to.
           example: projects
           in: path
           name: collection
@@ -9786,12 +9858,6 @@ paths:
             default: default
             example: default
             type: string
-        - description: The unique identifier for the tenant.
-          in: query
-          name: tenant
-          required: false
-          schema:
-            type: string
       responses:
         '200':
           content:
@@ -9851,9 +9917,6 @@ paths:
               "collection",
               "object_id",
               "default",
-              knock.ObjectGetPreferencesParams{
-
-              },
             )
             if err != nil {
               panic(err.Error())
@@ -10313,20 +10376,20 @@ paths:
       description: Returns a paginated list of feed items for a user, including metadata about the feed.
       operationId: listUserInAppFeedItems
       parameters:
-        - description: The user ID.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: The channel ID.
+        - description: The unique identifier for the channel.
           in: path
           name: channel_id
           required: true
           schema:
             format: uuid
             type: string
-        - description: The status of the feed items to return.
+        - description: The status of the feed items.
           example: unread
           in: query
           name: status
@@ -10339,14 +10402,14 @@ paths:
               - seen
               - all
             type: string
-        - description: The source of the feed items to return.
+        - description: The source of the feed items.
           example: my_source
           in: query
           name: source
           required: false
           schema:
             type: string
-        - description: The tenant of the feed items to return.
+        - description: The tenant associated with the feed items.
           example: my_tenant
           in: query
           name: tenant
@@ -10360,7 +10423,7 @@ paths:
           required: false
           schema:
             type: boolean
-        - description: The workflow categories of the feed items to return.
+        - description: The workflow categories of the feed items.
           example:
             - my_workflow_category
           in: query
@@ -10370,7 +10433,7 @@ paths:
             items:
               type: string
             type: array
-        - description: The archived status of the feed items to return.
+        - description: The archived status of the feed items.
           example: exclude
           in: query
           name: archived
@@ -10381,7 +10444,7 @@ paths:
               - include
               - only
             type: string
-        - description: The trigger data of the feed items to return (as a JSON string).
+        - description: The trigger data of the feed items (as a JSON string).
           example: '{ "key": "value" }'
           in: query
           name: trigger_data
@@ -10515,13 +10578,13 @@ paths:
       description: Records that a user has interacted with a guide, triggering any associated interacted events.
       operationId: markUserGuideAsInteracted
       parameters:
-        - description: The user ID.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: The message ID.
+        - description: The unique identifier for the message.
           in: path
           name: message_id
           required: true
@@ -10860,7 +10923,7 @@ paths:
               'collection',
               'object_id',
               '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-              { data: { tokens: ['push_token_1'] } },
+              { data: { __typename: 'PushChannelData', tokens: ['push_token_1'] } },
             );
 
             console.log(channelData.channel_id);
@@ -10879,7 +10942,8 @@ paths:
               object_id="object_id",
               channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
               data={
-                  "tokens": ["push_token_1"]
+                  "_typename": "PushChannelData",
+                  "tokens": ["push_token_1"],
               },
           )
           print(channel_data.channel_id)
@@ -10906,6 +10970,7 @@ paths:
               knock.ObjectSetChannelDataParams{
                 ChannelDataRequest: knock.ChannelDataRequestParam{
                   Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.PushChannelDataParam{
+                    Typename: knock.F(knock.PushChannelData_TypenamePushChannelData),
                     Tokens: knock.F([]string{"push_token_1"}),
                   }),
                 },
@@ -10939,6 +11004,7 @@ paths:
                       .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
                       .channelDataRequest(ChannelDataRequest.builder()
                           .data(PushChannelData.builder()
+                              ._typename(PushChannelData._Typename.PUSH_CHANNEL_DATA)
                               .addToken("push_token_1")
                               .build())
                           .build())
@@ -10957,7 +11023,7 @@ paths:
             "collection",
             "object_id",
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            data: {tokens: ["push_token_1"]}
+            data: {__typename: :PushChannelData, tokens: ["push_token_1"]}
           )
 
           puts(channel_data)
@@ -10967,7 +11033,7 @@ paths:
       description: Removes one or more members from the specified audience.
       operationId: removeAudienceMembers
       parameters:
-        - description: The key of the audience to remove members from.
+        - description: The key of the audience.
           in: path
           name: key
           required: true
@@ -11093,7 +11159,7 @@ paths:
       description: Returns a paginated list of members for the specified audience.
       operationId: listAudienceMembers
       parameters:
-        - description: The key of the audience to list members for.
+        - description: The key of the audience.
           in: path
           name: key
           required: true
@@ -11192,7 +11258,7 @@ paths:
       description: Adds one or more members to the specified audience.
       operationId: addAudienceMembers
       parameters:
-        - description: The key of the audience to add members to.
+        - description: The key of the audience.
           in: path
           name: key
           required: true
@@ -11718,7 +11784,7 @@ paths:
       description: Marks the given messages as unread.
       operationId: batchMarkMessagesAsUnread
       parameters:
-        - description: The message IDs to update.
+        - description: The message IDs to update the status of.
           in: body
           name: message_ids
           required: true
@@ -11881,7 +11947,7 @@ paths:
           required: false
           schema:
             type: integer
-        - description: Collection name.
+        - description: The collection this object belongs to.
           in: path
           name: collection
           required: true
@@ -12017,7 +12083,7 @@ paths:
       description: Retrieves a list of all preference sets for a specific user.
       operationId: listUserPreferenceSets
       parameters:
-        - description: The unique identifier for the user.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
@@ -12278,13 +12344,13 @@ paths:
       description: Records that a guide has been archived by a user, triggering any associated archived events.
       operationId: markUserGuideAsArchived
       parameters:
-        - description: The user ID.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: The message ID.
+        - description: The unique identifier for the message.
           in: path
           name: message_id
           required: true
@@ -12439,7 +12505,7 @@ paths:
       description: Marks the given messages as archived.
       operationId: batchMarkMessagesAsArchived
       parameters:
-        - description: The message IDs to update.
+        - description: The message IDs to update the status of.
           in: body
           name: message_ids
           required: true
@@ -12578,13 +12644,13 @@ paths:
       description: Returns the feed settings for a user.
       operationId: getUserInAppFeedSettings
       parameters:
-        - description: The user ID.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: The channel ID.
+        - description: The unique identifier for the channel.
           in: path
           name: channel_id
           required: true
@@ -12726,9 +12792,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: >-
-            One or more of `queued`, `sent`, `delivered`, `delivery_attempted`, `undelivered`, `bounced`,
-            `not_sent`. Limits results to messages with the given delivery status(es).
+        - description: One or more delivery statuses. Limits results to messages with the given delivery status(es).
           example:
             - delivered
           in: query
@@ -12746,9 +12810,7 @@ paths:
                 - bounced
               type: string
             type: array
-        - description: >-
-            One or more of `read`, `seen`, `interacted`, `link_clicked`, `archived`. Limits results to
-            messages with the given engagement status(es).
+        - description: One or more engagement statuses. Limits results to messages with the given engagement status(es).
           example:
             - unread
           in: query
@@ -12786,7 +12848,7 @@ paths:
             items:
               type: string
             type: array
-        - description: Limits the results to only items of the source workflow.
+        - description: Key of the source that triggered the message to limit results to.
           example: comment-created
           in: query
           name: source
@@ -12816,7 +12878,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: The user ID.
+        - description: The user ID to list messages for.
           example: user-123
           in: path
           name: user_id
@@ -12934,6 +12996,9 @@ paths:
                 id:
                   description: The unique identifier for the RPC request.
                   type: string
+                jsonrpc:
+                  description: The JSON-RPC version.
+                  type: string
                 method:
                   description: The method name to execute.
                   type: string
@@ -12943,7 +13008,7 @@ paths:
               required:
                 - id
                 - method
-                - params
+                - jsonrpc
               type: object
         description: Params
         required: true
@@ -13260,7 +13325,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: The number of items to include in the page.
+        - description: The number of items per page.
           in: query
           name: page_size
           required: false
@@ -13302,7 +13367,7 @@ paths:
       description: Retrieve a paginated list of users in the environment.
       operationId: listUsers
       parameters:
-        - description: Includes preferences of the users in the response.
+        - description: Associated resources to include in the response.
           in: query
           name: include[]
           required: false
@@ -13312,19 +13377,19 @@ paths:
                 - preferences
               type: string
             type: array
-        - description: The cursor to fetch entries after..
+        - description: The cursor to fetch entries after.
           in: query
           name: after
           required: false
           schema:
             type: string
-        - description: The cursor to fetch entries before..
+        - description: The cursor to fetch entries before.
           in: query
           name: before
           required: false
           schema:
             type: string
-        - description: The number of items per page..
+        - description: The number of items per page.
           in: query
           name: page_size
           required: false
@@ -13605,7 +13670,7 @@ paths:
       description: Marks the given messages as read.
       operationId: batchMarkMessagesAsRead
       parameters:
-        - description: The message IDs to update.
+        - description: The message IDs to update the status of.
           in: body
           name: message_ids
           required: true
@@ -14560,13 +14625,13 @@ paths:
         subscriptions.
       operationId: deleteSubscriptionsForObject
       parameters:
-        - description: Object ID.
+        - description: Unique identifier for the object.
           in: path
           name: object_id
           required: true
           schema:
             type: string
-        - description: Collection name.
+        - description: The collection this object belongs to.
           in: path
           name: collection
           required: true
@@ -14709,7 +14774,7 @@ paths:
               - recipient
               - object
             type: string
-        - description: Includes preferences of the recipient subscribers in the response.
+        - description: Additional fields to include in the response.
           in: query
           name: include[]
           required: false
@@ -14735,13 +14800,13 @@ paths:
             items:
               $ref: '#/components/schemas/RecipientReference'
             type: array
-        - description: Object ID.
+        - description: Unique identifier for the object.
           in: path
           name: object_id
           required: true
           schema:
             type: string
-        - description: Collection name.
+        - description: The collection this object belongs to.
           in: path
           name: collection
           required: true
@@ -14772,7 +14837,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ListSubscriptionsResponse'
           description: OK
-      summary: List subscriptions.
+      summary: List subscriptions
       tags:
         - Subscriptions
         - Objects
@@ -14870,13 +14935,13 @@ paths:
       description: Add subscriptions for an object. If a subscription already exists, it will be updated.
       operationId: addSubscriptionsForObject
       parameters:
-        - description: Object ID.
+        - description: Unique identifier for the object.
           in: path
           name: object_id
           required: true
           schema:
             type: string
-        - description: Collection name.
+        - description: The collection this object belongs to.
           in: path
           name: collection
           required: true
