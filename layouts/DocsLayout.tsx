@@ -9,6 +9,7 @@ import DocsSidebar from "../components/DocsSidebar";
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
 import MinimalHeader from "../components/Header/MinimalHeader";
+import ContentActions from "../components/ContentActions";
 
 const DocsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
@@ -43,7 +44,7 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
             <h1 className="font-semibold text-2xl lg:text-4xl mb-2">
               {frontMatter.title}
             </h1>
-            <div className="text-[18px] text-gray-600 dark:text-gray-300">
+            <div className="text-[18px] text-gray-600 dark:text-gray-300 max-w-[640px]">
               {frontMatter.description}
             </div>
           </header>
