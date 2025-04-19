@@ -126,6 +126,11 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/tenant-preferences", title: "Tenant preferences" },
       { slug: "/object-preferences", title: "Object preferences" },
       { slug: "/preference-conditions", title: "Preferences conditions" },
+      {
+        slug: "/commercial-unsubscribe",
+        title: "Commercial unsubscribe",
+        isBeta: true,
+      },
     ],
   },
   {
