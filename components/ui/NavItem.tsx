@@ -20,6 +20,7 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
       gap="2"
       px="3"
       py="1"
+      weight="normal"
       className="nav-item"
       color="gray"
       style={{ textDecoration: "none", display: "block" }}
