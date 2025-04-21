@@ -250,7 +250,7 @@ components:
       properties:
         actor:
           anyOf:
-            - $ref: '#/components/schemas/RecipientIdentifier'
+            - $ref: '#/components/schemas/RecipientRequest'
             - nullable: true
           description: >-
             A map of properties describing a user or an object to identify in Knock and mark as who or what
@@ -271,9 +271,9 @@ components:
         recipients:
           description: >-
             The recipients to trigger the workflow for. Can inline identify users, objects, or use a list of
-            user IDs. Limited to 1,000 recipients in a single trigger.
+            user IDs. Limited to 1,000 recipients.
           items:
-            $ref: '#/components/schemas/RecipientIdentifier'
+            $ref: '#/components/schemas/RecipientRequest'
           type: array
         tenant:
           anyOf:
@@ -746,7 +746,7 @@ components:
               recipients:
                 description: The recipients of the subscription.
                 items:
-                  $ref: '#/components/schemas/RecipientIdentifier'
+                  $ref: '#/components/schemas/RecipientRequest'
                 type: array
             required:
               - id
@@ -1403,9 +1403,8 @@ components:
       type: object
     PreferenceSet:
       description: >-
-        A preference set determines whether a recipient should receive a particular type of notification. By
-        default all preferences are opted in unless a preference explicitly opts the recipient out of the
-        notification
+        A preference set represents a specific set of notification preferences for a recipient. A recipient
+        can have multiple preference sets.
       example:
         __typename: PreferenceSet
         categories:
@@ -1593,9 +1592,9 @@ components:
         recipients:
           description: >-
             The recipients to trigger the workflow for. Can inline identify users, objects, or use a list of
-            user IDs. Limited to 1,000 recipients in a single trigger.
+            user IDs. Limited to 1,000 recipients.
           items:
-            $ref: '#/components/schemas/RecipientReference'
+            $ref: '#/components/schemas/RecipientRequest'
           type: array
         repeats:
           description: The repeat rule for the schedule.
@@ -2367,6 +2366,22 @@ components:
         - meta
       title: UserInAppFeedResponse
       type: object
+    RecipientRequest:
+      description: >-
+        Specifies a recipient in a request. This can either be a user identifier (string), an inline user
+        request (object), or an inline object request, which is determined by the presence of a `collection`
+        property.
+      example:
+        id: user_1
+      nullable: false
+      oneOf:
+        - description: The ID of the user.
+          example: user_123
+          title: UserRecipient
+          type: string
+        - $ref: '#/components/schemas/InlineIdentifyUserRequest'
+        - $ref: '#/components/schemas/InlineIdentifyObjectRequest'
+      title: RecipientRequest
     SlackTokenConnection:
       description: A Slack connection token.
       example:
@@ -2691,6 +2706,14 @@ components:
         - from_user_id
       title: MergeUserRequest
       type: object
+    RevokeAccessResponse:
+      properties:
+        ok:
+          description: A response indicating the access was revoked.
+          example: ok
+          type: string
+      title: RevokeAccessResponse
+      type: string
     DiscordIncomingWebhookConnection:
       description: Discord incoming webhook connection.
       example:
@@ -2796,7 +2819,7 @@ components:
             A map of properties describing a user or an object to identify in Knock and mark as who or what
             performed the action.
           oneOf:
-            - $ref: '#/components/schemas/RecipientIdentifier'
+            - $ref: '#/components/schemas/RecipientReference'
             - nullable: true
         data:
           additionalProperties: true
@@ -3052,7 +3075,7 @@ components:
       title: BulkUpdateMessagesForChannelRequest
       type: object
     EmptyContentResponse:
-      description: An empty response.
+      description: A `204 No Content` response.
       example: ''
       title: EmptyContentResponse
       type: string
@@ -3292,7 +3315,7 @@ components:
         recipients:
           description: The recipients of the subscription.
           items:
-            $ref: '#/components/schemas/RecipientIdentifier'
+            $ref: '#/components/schemas/RecipientRequest'
           type: array
       required:
         - recipients
@@ -3828,33 +3851,17 @@ components:
       description: A request to delete subscriptions for a set of recipients.
       example:
         recipients:
-          - id: user_1
+          - user_123
       properties:
         recipients:
           description: The recipients of the subscription.
           items:
-            $ref: '#/components/schemas/RecipientIdentifier'
+            $ref: '#/components/schemas/RecipientReference'
           type: array
       required:
         - recipients
       title: DeleteSubscriptionsRequest
       type: object
-    RecipientIdentifier:
-      description: >-
-        Specifies a recipient in a request. This can either be a user identifier (string), an inline user
-        request (object), or an inline object request, which is determined by the presence of a `collection`
-        property.
-      example:
-        id: user_1
-      nullable: false
-      oneOf:
-        - description: The ID of the user.
-          example: user_123
-          title: UserRecipient
-          type: string
-        - $ref: '#/components/schemas/InlineIdentifyUserRequest'
-        - $ref: '#/components/schemas/InlineIdentifyObjectRequest'
-      title: RecipientIdentifier
     Schedule:
       description: A schedule represents a recurring workflow execution.
       example:
@@ -4099,6 +4106,113 @@ components:
         - skip_token
       title: TeamsForMsTeamsProviderResponse
       type: object
+    BulkCreateSchedulesRequest:
+      description: >-
+        MERYL A request to bulk create schedules. Accepts a list of schedules to create. Each schedule must
+        have a single recipient. The recipients do not have to be unique.
+      example:
+        schedules:
+          - data:
+              key: value
+            ending_at: null
+            recipient: dnedry
+            repeats:
+              - __typename: ScheduleRepeat
+                day_of_month: null
+                days:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+                  - sat
+                  - sun
+                frequency: daily
+                hours: null
+                interval: 1
+                minutes: null
+            scheduled_at: null
+            tenant: acme_corp
+            workflow: comment-created
+          - data:
+              key: value
+            ending_at: null
+            recipient: esattler
+            repeats:
+              - __typename: ScheduleRepeat
+                day_of_month: null
+                days:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+                  - sat
+                  - sun
+                frequency: daily
+                hours: null
+                interval: 1
+                minutes: null
+            scheduled_at: null
+            tenant: acme_corp
+            workflow: comment-created
+      properties:
+        schedules:
+          description: A list of schedules.
+          items:
+            description: A schedule represents a recurring workflow execution.
+            properties:
+              actor:
+                description: >-
+                  A map of properties describing a user or an object to identify in Knock and mark as who or
+                  what performed the action.
+                oneOf:
+                  - $ref: '#/components/schemas/RecipientRequest'
+                  - nullable: true
+                type: object
+              data:
+                additionalProperties: true
+                description: An optional map of data to pass into the workflow execution.
+                nullable: true
+                type: object
+              ending_at:
+                description: The ending date and time for the schedule.
+                format: date-time
+                nullable: true
+                type: string
+              recipient:
+                $ref: '#/components/schemas/RecipientRequest'
+              repeats:
+                description: The repeat rule for the schedule.
+                items:
+                  $ref: '#/components/schemas/ScheduleRepeatRule'
+                type: array
+              scheduled_at:
+                description: The starting date and time for the schedule.
+                format: date-time
+                nullable: true
+                type: string
+              tenant:
+                description: >-
+                  The tenant to trigger the workflow for. Triggering with a tenant will use any tenant-level
+                  overrides associated with the tenant object, and all messages produced from workflow runs
+                  will be tagged with the tenant.
+                oneOf:
+                  - $ref: '#/components/schemas/InlineTenantRequest'
+                  - nullable: true
+                type: object
+              workflow:
+                description: The key of the workflow.
+                nullable: false
+                type: string
+            required:
+              - workflow
+            type: object
+          type: array
+      required:
+        - schedules
+      title: BulkCreateSchedulesRequest
+      type: object
     ListMessageEventsResponse:
       description: A paginated list of message events.
       example:
@@ -4277,7 +4391,7 @@ components:
             A list of recipients to cancel the notification for. If omitted, cancels for all recipients
             associated with the cancellation key.
           items:
-            $ref: '#/components/schemas/RecipientIdentifier'
+            $ref: '#/components/schemas/RecipientReference'
           nullable: true
           type: array
       required:
@@ -6543,7 +6657,9 @@ paths:
       description: >-
         Trigger a workflow (specified by the key) to run for the given recipients, using the parameters
         provided. Returns an identifier for the workflow run request. All workflow runs are executed
-        asynchronously.
+        asynchronously. This endpoint also handles [inline
+        identifications](/managing-recipients/identifying-recipients#inline-identifying-recipients) for the
+        `actor`, `recipient`, and `tenant` fields.
       operationId: triggerWorkflow (2)
       parameters:
         - description: Key of the workflow to trigger.
@@ -6618,7 +6734,7 @@ paths:
               context.TODO(),
               "key",
               knock.WorkflowTriggerParams{
-                Recipients: knock.F([]knock.WorkflowTriggerParamsRecipientUnion{shared.UnionString("jhammond")}),
+                Recipients: knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("jhammond")}),
               },
             )
             if err != nil {
@@ -9523,7 +9639,9 @@ paths:
       callbacks: {}
       description: >-
         Creates one or more schedules for a workflow with the specified recipients, timing, and data.
-        Schedules can be one-time or recurring.
+        Schedules can be one-time or recurring. This endpoint also handles [inline
+        identifications](/managing-recipients/identifying-recipients#inline-identifying-recipients) for the
+        `actor`, `recipient`, and `tenant` fields.
       operationId: createSchedules
       parameters: []
       requestBody:
@@ -9596,7 +9714,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             schedules, err := client.Schedules.New(context.TODO(), knock.ScheduleNewParams{
-              Recipients: knock.F([]knock.ScheduleNewParamsRecipientUnion{shared.UnionString("user_123")}),
+              Recipients: knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("user_123")}),
               Repeats: knock.F([]knock.ScheduleRepeatRuleParam{knock.ScheduleRepeatRuleParam{
                 Typename: knock.F("ScheduleRepeat"),
                 Frequency: knock.F(knock.ScheduleRepeatRuleFrequencyDaily),
@@ -9653,7 +9771,9 @@ paths:
       callbacks: {}
       description: >-
         Updates one or more existing schedules with new timing, data, or other properties. All specified
-        schedule IDs will be updated with the same values.
+        schedule IDs will be updated with the same values. This endpoint also handles [inline
+        identifications](/managing-recipients/identifying-recipients#inline-identifying-recipients) for the
+        `actor`, `recipient`, and `tenant` fields.
       operationId: updateSchedules
       parameters: []
       requestBody:
@@ -9759,7 +9879,9 @@ paths:
       callbacks: {}
       description: >-
         Add subscriptions for all objects in a single collection. If a subscription for an object in the
-        collection already exists, it will be updated.
+        collection already exists, it will be updated. This endpoint also handles [inline
+        identifications](/managing-recipients/identifying-recipients#inline-identifying-recipients) for the
+        `recipient` field.
       operationId: bulkAddSubscriptions
       parameters:
         - description: The collection this object belongs to.
@@ -9844,7 +9966,7 @@ paths:
               knock.ObjectBulkAddSubscriptionsParams{
                 Subscriptions: knock.F([]knock.ObjectBulkAddSubscriptionsParamsSubscription{knock.ObjectBulkAddSubscriptionsParamsSubscription{
                   ID: knock.F("project-1"),
-                  Recipients: knock.F([]knock.ObjectBulkAddSubscriptionsParamsSubscriptionsRecipientUnion{knock.InlineIdentifyUserRequestParam{
+                  Recipients: knock.F([]knock.RecipientRequestUnionParam{knock.InlineIdentifyUserRequestParam{
                     ID: knock.F("user_1"),
                   }}),
                 }}),
@@ -12394,7 +12516,12 @@ paths:
           content:
             application/json:
               schema:
-                example: ok
+                properties:
+                  ok:
+                    description: A response indicating the access was revoked.
+                    example: ok
+                    type: string
+                title: RevokeAccessResponse
                 type: string
           description: OK
       summary: Revoke access
@@ -14875,10 +15002,18 @@ paths:
     post:
       callbacks: {}
       description: >-
-        Creates up to 1,000 schedules in a single asynchronous bulk operation. The list of schedules can
-        include inline-identifications for each recipient, tenant, and actor specified on a schedule.
+        Bulk creates up to 1,000 schedules at a time. This endpoint also handles [inline
+        identifications](/managing-recipients/identifying-recipients#inline-identifying-recipients) for the
+        `actor`, `recipient`, and `tenant` fields.
       operationId: bulkCreateSchedules
       parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkCreateSchedulesRequest'
+        description: Schedule bulk creation request
+        required: true
       responses:
         '200':
           content:
@@ -14900,7 +15035,9 @@ paths:
           });
 
           async function main() {
-            const bulkOperation = await client.schedules.bulk.create();
+            const bulkOperation = await client.schedules.bulk.create({
+              schedules: [{ workflow: 'comment-created' }, { workflow: 'comment-created' }],
+            });
 
             console.log(bulkOperation.id);
           }
@@ -14913,7 +15050,13 @@ paths:
           client = Knock(
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
-          bulk_operation = client.schedules.bulk.create()
+          bulk_operation = client.schedules.bulk.create(
+              schedules=[{
+                  "workflow": "comment-created"
+              }, {
+                  "workflow": "comment-created"
+              }],
+          )
           print(bulk_operation.id)
         go: |
           package main
@@ -14930,7 +15073,13 @@ paths:
             client := knock.NewClient(
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
-            bulkOperation, err := client.Schedules.Bulk.New(context.TODO())
+            bulkOperation, err := client.Schedules.Bulk.New(context.TODO(), knock.ScheduleBulkNewParams{
+              Schedules: knock.F([]knock.ScheduleBulkNewParamsSchedule{knock.ScheduleBulkNewParamsSchedule{
+                Workflow: knock.F("comment-created"),
+              }, knock.ScheduleBulkNewParamsSchedule{
+                Workflow: knock.F("comment-created"),
+              }}),
+            })
             if err != nil {
               panic(err.Error())
             }
@@ -14951,17 +15100,29 @@ paths:
                   // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
-                  BulkOperation bulkOperation = client.schedules().bulk().create();
+                  BulkCreateParams params = BulkCreateParams.builder()
+                      .addSchedule(BulkCreateParams.Schedule.builder()
+                          .workflow("comment-created")
+                          .build())
+                      .addSchedule(BulkCreateParams.Schedule.builder()
+                          .workflow("comment-created")
+                          .build())
+                      .build();
+                  BulkOperation bulkOperation = client.schedules().bulk().create(params);
               }
           }
-        ruby: |-
+        ruby: >-
           require "knockapi"
+
 
           knock = Knockapi::Client.new(
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-          bulk_operation = knock.schedules.bulk.create
+
+          bulk_operation = knock.schedules.bulk.create(schedules: [{workflow: "comment-created"}, {workflow:
+          "comment-created"}])
+
 
           puts(bulk_operation)
   /v1/users/{user_id}/preferences/{preference_set_id}/workflows:
@@ -15430,7 +15591,12 @@ paths:
           content:
             application/json:
               schema:
-                example: ok
+                properties:
+                  ok:
+                    description: A response indicating the access was revoked.
+                    example: ok
+                    type: string
+                title: RevokeAccessResponse
                 type: string
           description: OK
       summary: Revoke access
@@ -15700,7 +15866,7 @@ paths:
 
           async function main() {
             const subscriptions = await client.objects.deleteSubscriptions('collection', 'object_id', {
-              recipients: [{ id: 'user_1' }],
+              recipients: ['user_123'],
             });
 
             console.log(subscriptions);
@@ -15717,9 +15883,7 @@ paths:
           subscriptions = client.objects.delete_subscriptions(
               collection="collection",
               object_id="object_id",
-              recipients=[{
-                  "id": "user_1"
-              }],
+              recipients=["user_123"],
           )
           print(subscriptions)
         go: |
@@ -15731,6 +15895,7 @@ paths:
 
             "github.com/stainless-sdks/knock-go"
             "github.com/stainless-sdks/knock-go/option"
+            "github.com/stainless-sdks/knock-go/shared"
           )
 
           func main() {
@@ -15742,9 +15907,7 @@ paths:
               "collection",
               "object_id",
               knock.ObjectDeleteSubscriptionsParams{
-                Recipients: knock.F([]knock.ObjectDeleteSubscriptionsParamsRecipientUnion{knock.InlineIdentifyUserRequestParam{
-                  ID: knock.F("user_1"),
-                }}),
+                Recipients: knock.F([]knock.RecipientReferenceUnionParam{shared.UnionString("user_123")}),
               },
             )
             if err != nil {
@@ -15759,7 +15922,6 @@ paths:
           import app.knock.api.client.okhttp.KnockOkHttpClient;
           import app.knock.api.models.objects.ObjectDeleteSubscriptionsParams;
           import app.knock.api.models.recipients.subscriptions.Subscription;
-          import app.knock.api.models.users.InlineIdentifyUserRequest;
 
           public final class Main {
               private Main() {}
@@ -15771,9 +15933,7 @@ paths:
                   ObjectDeleteSubscriptionsParams params = ObjectDeleteSubscriptionsParams.builder()
                       .collection("collection")
                       .objectId("object_id")
-                      .addRecipient(InlineIdentifyUserRequest.builder()
-                          .id("user_1")
-                          .build())
+                      .addRecipient("user_123")
                       .build();
                   List<Subscription> subscriptions = client.objects().deleteSubscriptions(params);
               }
@@ -15787,15 +15947,15 @@ paths:
           )
 
 
-          subscriptions = knock.objects.delete_subscriptions("collection", "object_id", recipients: [{id:
-          "user_1"}])
+          subscriptions = knock.objects.delete_subscriptions("collection", "object_id", recipients:
+          ["user_123"])
 
 
           puts(subscriptions)
     get:
       callbacks: {}
       description: >-
-        List subscriptions for an object. Eitherlist the recipients that subscribe to the provided object, or
+        List subscriptions for an object. Either list the recipients that subscribe to the provided object, or
         list the objects that the provided object is subscribed to. Determined by the `mode` query parameter.
       operationId: listSubscriptionsForObject
       parameters:
@@ -15968,7 +16128,11 @@ paths:
           puts(page)
     post:
       callbacks: {}
-      description: Add subscriptions for an object. If a subscription already exists, it will be updated.
+      description: >-
+        Add subscriptions for an object. If a subscription already exists, it will be updated. This endpoint
+        also handles [inline
+        identifications](/managing-recipients/identifying-recipients#inline-identifying-recipients) for the
+        `recipient`
       operationId: addSubscriptionsForObject
       parameters:
         - description: Unique identifier for the object.
@@ -16053,7 +16217,7 @@ paths:
               "collection",
               "object_id",
               knock.ObjectAddSubscriptionsParams{
-                Recipients: knock.F([]knock.ObjectAddSubscriptionsParamsRecipientUnion{shared.UnionString("user_1"), shared.UnionString("user_2")}),
+                Recipients: knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("user_1"), shared.UnionString("user_2")}),
               },
             )
             if err != nil {

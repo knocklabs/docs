@@ -22,6 +22,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
   const methods = resource.methods || {};
   const models = resource.models || {};
   const basePath = path ?? `/${resourceName}`;
+  console.log("resource", resource);
 
   return (
     <>

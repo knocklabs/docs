@@ -22,7 +22,7 @@ export const RESOURCE_ORDER = [
   "audiences",
   "bulk_operations",
   "providers",
-  "$shared",
+  "shared",
 ];
 
 export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [

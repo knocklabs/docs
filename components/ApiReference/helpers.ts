@@ -96,7 +96,7 @@ function getSidebarContent(
   return (preSidebarContent || []).concat(
     resourceOrder.map((resourceName) => {
       const resource = stainlessSpec.resources[resourceName];
-      console.log("resource", resource);
+
       return {
         title: resource.name || resourceName,
         slug: `/${basePath}/${resourceName}`,
