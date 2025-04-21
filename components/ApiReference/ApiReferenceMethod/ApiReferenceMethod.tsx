@@ -163,7 +163,12 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
         {responseSchemas.map(
           (responseSchema) =>
             responseSchema?.example && (
-              <CodeBlock title="Response" language="json" languages={["json"]}>
+              <CodeBlock
+                key={responseSchema.title}
+                title="Response"
+                language="json"
+                languages={["json"]}
+              >
                 {JSON.stringify(responseSchema?.example, null, 2)}
               </CodeBlock>
             ),

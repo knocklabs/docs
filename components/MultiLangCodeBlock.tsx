@@ -154,6 +154,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
     // When the language changes, set the new language
     const unsubscribe = eventEmitter.on(EVENT_NAME, setLanguage);
     return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
