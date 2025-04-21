@@ -3,6 +3,7 @@ import { Lucide } from "@telegraph/icon";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuItem } from "@telegraph/menu";
 import { Box } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
 
 interface CollapsibleNavItemProps {
   label: string;
@@ -20,7 +21,7 @@ export const CollapsibleNavItem = ({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className={`w-full ${className}`}>
+    <Box className={`w-full ${className}`}>
       <MenuItem
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
@@ -38,7 +39,9 @@ export const CollapsibleNavItem = ({
           marginLeft: "-4px",
         }}
       >
-        <span className="font-medium">{label}</span>
+        <Text as="span" weight="medium">
+          {label}
+        </Text>
       </MenuItem>
 
       <AnimatePresence initial={false}>
@@ -57,6 +60,6 @@ export const CollapsibleNavItem = ({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </Box>
   );
 };
