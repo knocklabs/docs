@@ -21,7 +21,6 @@ type Props = {
 };
 
 function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
-
   const { openApiSpec, baseUrl, schemaReferences } = useApiReference();
   const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];
