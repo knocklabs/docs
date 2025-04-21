@@ -180,6 +180,39 @@ components:
         $ref: '#/components/schemas/PreferenceSet'
       title: ListUserPreferenceSetsResponse
       type: array
+    MessageUnarchived:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        actors:
+          - user_123
+        archived_at: null
+        channel_id: 123e4567-e89b-12d3-a456-426614174000
+        clicked_at: null
+        data:
+          foo: bar
+        engagement_statuses: []
+        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+        inserted_at: '2021-01-01T00:00:00Z'
+        interacted_at: null
+        link_clicked_at: null
+        metadata:
+          external_id: 123e4567-e89b-12d3-a456-426614174000
+        read_at: null
+        recipient: user_123
+        scheduled_at: null
+        seen_at: null
+        source:
+          __typename: NotificationSource
+          categories:
+            - collaboration
+          key: comment-created
+          version_id: 123e4567-e89b-12d3-a456-426614174000
+        status: sent
+        tenant: tenant_123
+        updated_at: '2021-01-01T00:00:00Z'
+        workflow: comment-created
+      title: MessageUnarchived
     PreferenceSetWorkflowCategorySettingObject:
       description: The settings object for a workflow or category, where you can specify channel types or conditions.
       example:
@@ -421,7 +454,7 @@ components:
       example:
         entries:
           - __typename: AudienceMember
-            added_at: '2021-01-01T00:00:00Z'
+            added_at: '2025-01-01T00:00:00Z'
             tenant: acme_corp
             user:
               __typename: User
@@ -829,8 +862,8 @@ components:
       description: Request to update the status of multiple messages in batch
       example:
         message_ids:
-          - 11111111-1111-1111-1111-111111111111
-          - 22222222-2222-2222-2222-222222222222
+          - 2w3YUpTTOxuDvZFji8OMsKrG176
+          - 2w3YVRbPXMIh8Zq6oBFcVDA5xes
       properties:
         message_ids:
           description: The message IDs to update the status of.
@@ -915,7 +948,7 @@ components:
       title: PreferenceSetRequestCategories
       type: object
     BatchGetMessageContentsResponse:
-      description: A list of message contents
+      description: A list of `MessageContents`
       example:
         - __typename: MessageContent
           data:
@@ -1961,6 +1994,41 @@ components:
         - data
       title: InAppFeedItem
       type: object
+    MessageRead:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        actors:
+          - user_123
+        archived_at: null
+        channel_id: 123e4567-e89b-12d3-a456-426614174000
+        clicked_at: null
+        data:
+          foo: bar
+        engagement_statuses:
+          - seen
+          - read
+        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+        inserted_at: '2021-01-01T00:00:00Z'
+        interacted_at: null
+        link_clicked_at: null
+        metadata:
+          external_id: 123e4567-e89b-12d3-a456-426614174000
+        read_at: '2025-01-01T00:02:00Z'
+        recipient: user_123
+        scheduled_at: null
+        seen_at: '2025-01-01T00:01:00Z'
+        source:
+          __typename: NotificationSource
+          categories:
+            - collaboration
+          key: comment-created
+          version_id: 123e4567-e89b-12d3-a456-426614174000
+        status: sent
+        tenant: tenant_123
+        updated_at: '2021-01-01T00:00:00Z'
+        workflow: comment-created
+      title: MessageRead
     MessageDeliveryLogResponse:
       description: A message delivery log response.
       example:
@@ -2063,7 +2131,9 @@ components:
           page_size: 25
       properties:
         entries:
-          description: A list of message delivery logs.
+          description: >-
+            Returns a paginated list of delivery logs from the downstream provider for the specified message.
+            For Knock in-app channels, the delivery logs will always be an empty list.
           items:
             $ref: '#/components/schemas/MessageDeliveryLog'
           type: array
@@ -2105,7 +2175,10 @@ components:
       title: ListTenantsResponse
       type: object
     ListActivitiesResponse:
-      description: A paginated list of activities.
+      description: >-
+        Returns a paginated list of `activities` associated with a given message. For messages produced after
+        a [batch step](/designing-workflows/batch-function), this will contain one or more activities.
+        Non-batched messages will always return a single activity.
       example:
         entries:
           - __typename: Activity
@@ -2867,7 +2940,7 @@ components:
       description: An audience member.
       example:
         __typename: AudienceMember
-        added_at: '2021-01-01T00:00:00Z'
+        added_at: '2025-01-01T00:00:00Z'
         tenant: acme_corp
         user:
           __typename: User
@@ -2884,7 +2957,7 @@ components:
           type: string
         added_at:
           description: Timestamp when the resource was created.
-          example: '2021-01-01T00:00:00Z'
+          example: '2025-01-01T00:00:00Z'
           format: date-time
           type: string
         tenant:
@@ -2905,6 +2978,42 @@ components:
         - user
       title: AudienceMember
       type: object
+    MessageInteracted:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        actors:
+          - user_123
+        archived_at: null
+        channel_id: 123e4567-e89b-12d3-a456-426614174000
+        clicked_at: null
+        data:
+          foo: bar
+        engagement_statuses:
+          - seen
+          - read
+          - interacted
+        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+        inserted_at: '2021-01-01T00:00:00Z'
+        interacted_at: '2025-01-01T00:03:00Z'
+        link_clicked_at: null
+        metadata:
+          external_id: 123e4567-e89b-12d3-a456-426614174000
+        read_at: '2025-01-01T00:02:00Z'
+        recipient: user_123
+        scheduled_at: null
+        seen_at: '2025-01-01T00:01:00Z'
+        source:
+          __typename: NotificationSource
+          categories:
+            - collaboration
+          key: comment-created
+          version_id: 123e4567-e89b-12d3-a456-426614174000
+        status: sent
+        tenant: tenant_123
+        updated_at: '2021-01-01T00:00:00Z'
+        workflow: comment-created
+      title: MessageInteracted
     MessageSmsContent:
       description: The content of an SMS message.
       example:
@@ -3012,14 +3121,14 @@ components:
           - workflow2
       properties:
         archived:
-          description: The archived status to filter messages by.
+          description: Limits the results to messages with the given archived status.
           enum:
             - exclude
             - include
             - only
           type: string
         delivery_status:
-          description: The delivery status to filter messages by.
+          description: Limits the results to messages with the given delivery status.
           enum:
             - queued
             - sent
@@ -3030,7 +3139,7 @@ components:
             - bounced
           type: string
         engagement_status:
-          description: The engagement status to filter messages by.
+          description: Limits the results to messages with the given engagement status.
           enum:
             - seen
             - unseen
@@ -3042,36 +3151,36 @@ components:
             - interacted
           type: string
         has_tenant:
-          description: Whether to include only messages that have a tenant or not.
+          description: Limits the results to messages that have a tenant or not.
           type: boolean
         newer_than:
-          description: The timestamp to filter messages by. Only include messages created after this timestamp.
           format: date-time
           type: string
         older_than:
-          description: The timestamp to filter messages by. Only include messages created before this timestamp.
           format: date-time
           type: string
         recipient_gids:
-          description: The recipient GIDs to filter messages by.
+          description: Limits the results to messages with the given recipient GIDs.
           items:
             type: string
           type: array
         recipient_ids:
-          description: The recipient IDs to filter messages by.
+          description: Limits the results to messages with the given recipient IDs.
           items:
             type: string
           type: array
         tenants:
-          description: The tenant IDs to filter messages by.
+          description: Limits the results to messages with the given tenant IDs.
           items:
             type: string
           type: array
         trigger_data:
-          description: The trigger data to filter messages by. Must be a valid JSON object.
+          description: >-
+            Limits the results to only messages that were generated with the given data. See [trigger data
+            filtering](/api-reference/overview/trigger-data-filtering) for more information.
           type: string
         workflows:
-          description: The workflow keys to filter messages by.
+          description: Limits the results to messages with the given workflow keys.
           items:
             type: string
           type: array
@@ -3092,9 +3201,7 @@ components:
           clicked_at: null
           data:
             foo: bar
-          engagement_statuses:
-            - read
-            - seen
+          engagement_statuses: []
           id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
           inserted_at: '2021-01-01T00:00:00Z'
           interacted_at: null
@@ -3116,7 +3223,7 @@ components:
           updated_at: '2021-01-01T00:00:00Z'
           workflow: comment-created
       items:
-        $ref: '#/components/schemas/Message'
+        $ref: '#/components/schemas/MessageUnarchived'
       title: BatchListMessagesResponse
       type: array
     Activity:
@@ -3389,6 +3496,40 @@ components:
         - cancellation_key
       title: Cancel Request
       type: object
+    MessageSeen:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        actors:
+          - user_123
+        archived_at: null
+        channel_id: 123e4567-e89b-12d3-a456-426614174000
+        clicked_at: null
+        data:
+          foo: bar
+        engagement_statuses:
+          - seen
+        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+        inserted_at: '2021-01-01T00:00:00Z'
+        interacted_at: null
+        link_clicked_at: null
+        metadata:
+          external_id: 123e4567-e89b-12d3-a456-426614174000
+        read_at: null
+        recipient: user_123
+        scheduled_at: null
+        seen_at: '2025-01-01T00:01:00Z'
+        source:
+          __typename: NotificationSource
+          categories:
+            - collaboration
+          key: comment-created
+          version_id: 123e4567-e89b-12d3-a456-426614174000
+        status: sent
+        tenant: tenant_123
+        updated_at: '2021-01-01T00:00:00Z'
+        workflow: comment-created
+      title: MessageSeen
     BulkOperation:
       description: A bulk operation entity.
       example:
@@ -3576,7 +3717,12 @@ components:
           type: string
         data:
           additionalProperties: true
-          description: Data from the activities linked to the message.
+          description: >-
+            Data associated with the message’s workflow run. Includes the workflow trigger request’s `data`
+            payload merged with any additional data returned by a [fetch
+            function](/designing-workflows/fetch-function). For messages produced after a [batch
+            step](/designing-workflows/batch-function), includes the payload `data` from the most-recent
+            trigger request (the final `activity` in the batch).
           nullable: true
           type: object
         engagement_statuses:
@@ -3638,7 +3784,7 @@ components:
           nullable: true
           type: string
         source:
-          description: The source that triggered the message.
+          description: The workflow that triggered the message.
           example:
             __typename: Guide
             categories:
@@ -3655,10 +3801,10 @@ components:
                 type: string
               type: array
             key:
-              description: The key of the source that triggered the message.
+              description: The key of the workflow that triggered the message.
               type: string
             version_id:
-              description: The ID of the version of the source that triggered the message.
+              description: The ID of the version of the workflow that triggered the message.
               format: uuid
               type: string
           required:
@@ -3850,6 +3996,40 @@ components:
         - channel_id
       title: DiscordChannelConnection
       type: object
+    MessageUnread:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        actors:
+          - user_123
+        archived_at: null
+        channel_id: 123e4567-e89b-12d3-a456-426614174000
+        clicked_at: null
+        data:
+          foo: bar
+        engagement_statuses:
+          - seen
+        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+        inserted_at: '2021-01-01T00:00:00Z'
+        interacted_at: null
+        link_clicked_at: null
+        metadata:
+          external_id: 123e4567-e89b-12d3-a456-426614174000
+        read_at: null
+        recipient: user_123
+        scheduled_at: null
+        seen_at: '2025-01-01T00:01:00Z'
+        source:
+          __typename: NotificationSource
+          categories:
+            - collaboration
+          key: comment-created
+          version_id: 123e4567-e89b-12d3-a456-426614174000
+        status: sent
+        tenant: tenant_123
+        updated_at: '2021-01-01T00:00:00Z'
+        workflow: comment-created
+      title: MessageUnread
     AuthenticationError:
       description: Authentication error response
       example:
@@ -3999,6 +4179,39 @@ components:
         - updated_at
       title: Schedule
       type: object
+    MessageUnseen:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        actors:
+          - user_123
+        archived_at: null
+        channel_id: 123e4567-e89b-12d3-a456-426614174000
+        clicked_at: null
+        data:
+          foo: bar
+        engagement_statuses: []
+        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+        inserted_at: '2021-01-01T00:00:00Z'
+        interacted_at: null
+        link_clicked_at: null
+        metadata:
+          external_id: 123e4567-e89b-12d3-a456-426614174000
+        read_at: null
+        recipient: user_123
+        scheduled_at: null
+        seen_at: null
+        source:
+          __typename: NotificationSource
+          categories:
+            - collaboration
+          key: comment-created
+          version_id: 123e4567-e89b-12d3-a456-426614174000
+        status: sent
+        tenant: tenant_123
+        updated_at: '2021-01-01T00:00:00Z'
+        workflow: comment-created
+      title: MessageUnseen
     SchedulesResponse:
       description: A list of schedules.
       example:
@@ -4142,8 +4355,8 @@ components:
       type: object
     BulkCreateSchedulesRequest:
       description: >-
-        MERYL A request to bulk create schedules. Accepts a list of schedules to create. Each schedule must
-        have a single recipient. The recipients do not have to be unique.
+        A request to bulk create schedules. Accepts a list of schedules to create. Each schedule must have a
+        single recipient. The recipients do not have to be unique.
       example:
         schedules:
           - data:
@@ -4248,8 +4461,43 @@ components:
         - schedules
       title: BulkCreateSchedulesRequest
       type: object
+    MessageArchived:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        actors:
+          - user_123
+        archived_at: '2025-01-01T00:04:00Z'
+        channel_id: 123e4567-e89b-12d3-a456-426614174000
+        clicked_at: null
+        data:
+          foo: bar
+        engagement_statuses: []
+        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+        inserted_at: '2021-01-01T00:00:00Z'
+        interacted_at: null
+        link_clicked_at: null
+        metadata:
+          external_id: 123e4567-e89b-12d3-a456-426614174000
+        read_at: null
+        recipient: user_123
+        scheduled_at: null
+        seen_at: null
+        source:
+          __typename: NotificationSource
+          categories:
+            - collaboration
+          key: comment-created
+          version_id: 123e4567-e89b-12d3-a456-426614174000
+        status: sent
+        tenant: tenant_123
+        updated_at: '2021-01-01T00:00:00Z'
+        workflow: comment-created
+      title: MessageArchived
     ListMessageEventsResponse:
-      description: A paginated list of message events.
+      description: >-
+        Returns a paginated list of [delivery and engagement](/send-notifications/message-statuses) events for
+        the specified message.
       example:
         entries:
           - __typename: MessageEvent
@@ -4968,7 +5216,7 @@ paths:
           required: false
           schema:
             type: integer
-        - description: Limits the results to items with the corresponding tenant, or where the tenant is empty.
+        - description: Limits the results to items with the corresponding tenant.
           example: tenant_123
           in: query
           name: tenant
@@ -4982,7 +5230,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: One or more delivery statuses. Limits results to messages with the given delivery status(es).
+        - description: Limits the results to messages with the given delivery status.
           example:
             - delivered
           in: query
@@ -5000,7 +5248,7 @@ paths:
                 - bounced
               type: string
             type: array
-        - description: One or more engagement statuses. Limits results to messages with the given engagement status(es).
+        - description: Limits the results to messages with the given engagement status.
           example:
             - unread
           in: query
@@ -5028,7 +5276,7 @@ paths:
             items:
               type: string
             type: array
-        - description: Limits the results to only items related to any of the provided categories.
+        - description: Limits the results to messages related to any of the provided categories.
           example:
             - workflow_123
           in: query
@@ -5038,14 +5286,16 @@ paths:
             items:
               type: string
             type: array
-        - description: Key of the source that triggered the message to limit results to.
+        - description: Limits the results to messages triggered by the given workflow key.
           example: comment-created
           in: query
           name: source
           required: false
           schema:
             type: string
-        - description: Limits the results to messages triggered by the top-level workflow run ID.
+        - description: >-
+            Limits the results to messages associated with the top-level workflow run ID returned by the
+            workflow trigger request.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: workflow_run_id
@@ -5061,7 +5311,9 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: Limits the results to only items that were generated with the given data.
+        - description: >-
+            Limits the results to only messages that were generated with the given data. See [trigger data
+            filtering](/api-reference/overview/trigger-data-filtering) for more information.
           example: '{"comment_id": "123"}'
           in: query
           name: trigger_data
@@ -6052,7 +6304,7 @@ paths:
           required: false
           schema:
             type: integer
-        - description: Limits the results to items with the corresponding tenant, or where the tenant is empty.
+        - description: Limits the results to items with the corresponding tenant.
           example: tenant_123
           in: query
           name: tenant
@@ -6066,7 +6318,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: One or more delivery statuses. Limits results to messages with the given delivery status(es).
+        - description: Limits the results to messages with the given delivery status.
           example:
             - delivered
           in: query
@@ -6084,7 +6336,7 @@ paths:
                 - bounced
               type: string
             type: array
-        - description: One or more engagement statuses. Limits results to messages with the given engagement status(es).
+        - description: Limits the results to messages with the given engagement status.
           example:
             - unread
           in: query
@@ -6112,7 +6364,7 @@ paths:
             items:
               type: string
             type: array
-        - description: Limits the results to only items related to any of the provided categories.
+        - description: Limits the results to messages related to any of the provided categories.
           example:
             - workflow_123
           in: query
@@ -6122,14 +6374,16 @@ paths:
             items:
               type: string
             type: array
-        - description: Key of the source that triggered the message to limit results to.
+        - description: Limits the results to messages triggered by the given workflow key.
           example: comment-created
           in: query
           name: source
           required: false
           schema:
             type: string
-        - description: Limits the results to messages triggered by the top-level workflow run ID.
+        - description: >-
+            Limits the results to messages associated with the top-level workflow run ID returned by the
+            workflow trigger request.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: workflow_run_id
@@ -6145,7 +6399,9 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: Limits the results to only items that were generated with the given data.
+        - description: >-
+            Limits the results to only messages that were generated with the given data. See [trigger data
+            filtering](/api-reference/overview/trigger-data-filtering) for more information.
           example: '{"comment_id": "123"}'
           in: query
           name: trigger_data
@@ -6244,7 +6500,9 @@ paths:
   /v1/messages/{message_id}/unseen:
     delete:
       callbacks: {}
-      description: Marks a message as unseen for the current user, reversing the seen state.
+      description: >-
+        Marks a message as `unseen`. This reverses the `seen` state. Read more about message engagement
+        statuses [here](/send-notifications/message-statuses#engagement-status).
       operationId: markMessageUnseen (2)
       parameters:
         - description: The unique identifier for the message.
@@ -6259,7 +6517,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageUnseen'
           description: OK
       summary: Mark message as unseen
       tags:
@@ -6812,7 +7070,9 @@ paths:
   /v1/messages/batch/unarchived:
     post:
       callbacks: {}
-      description: Marks the given messages as unarchived.
+      description: >-
+        Marks the given messages as unarchived. This reverses the `archived` state. Archived messages are
+        hidden from the default message list in the feed but can still be accessed and unarchived later.
       operationId: batchMarkMessagesAsUnarchived
       parameters: []
       requestBody:
@@ -6836,9 +7096,7 @@ paths:
                     clicked_at: null
                     data:
                       foo: bar
-                    engagement_statuses:
-                      - read
-                      - seen
+                    engagement_statuses: []
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
                     interacted_at: null
@@ -6860,7 +7118,7 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/Message'
+                  $ref: '#/components/schemas/MessageUnarchived'
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -6878,7 +7136,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.unarchive({
-              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
+              message_ids: ['2w3YUpTTOxuDvZFji8OMsKrG176', '2w3YVRbPXMIh8Zq6oBFcVDA5xes'],
             });
 
             console.log(messages);
@@ -6893,7 +7151,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.unarchive(
-              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
+              message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
           )
           print(messages)
         go: |
@@ -6912,7 +7170,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.Unarchive(context.TODO(), knock.MessageBatchUnarchiveParams{
-              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
+              MessageIDs: knock.F([]string{"2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"}),
             })
             if err != nil {
               panic(err.Error())
@@ -6935,8 +7193,8 @@ paths:
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
                   BatchUnarchiveParams params = BatchUnarchiveParams.builder()
-                      .addMessageId("11111111-1111-1111-1111-111111111111")
-                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .addMessageId("2w3YUpTTOxuDvZFji8OMsKrG176")
+                      .addMessageId("2w3YVRbPXMIh8Zq6oBFcVDA5xes")
                       .build();
                   List<Message> messages = client.messages().batch().unarchive(params);
               }
@@ -6949,7 +7207,7 @@ paths:
           )
 
           messages = knock.messages.batch.unarchive(
-            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+            message_ids: ["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"]
           )
 
           puts(messages)
@@ -7306,7 +7564,9 @@ paths:
   /v1/messages/{message_id}/unread:
     delete:
       callbacks: {}
-      description: Marks a message as unread for the current user, reversing the read state.
+      description: >-
+        Marks a message as `unread`. This reverses the `read` state. Read more about message engagement
+        statuses [here](/send-notifications/message-statuses#engagement-status).
       operationId: markMessageUnread (2)
       parameters:
         - description: The unique identifier for the message.
@@ -7321,7 +7581,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageUnread'
           description: OK
       summary: Mark message as unread
       tags:
@@ -7455,7 +7715,9 @@ paths:
   /v1/messages/{message_id}/seen:
     delete:
       callbacks: {}
-      description: Marks a message as unseen for the current user, reversing the seen state.
+      description: >-
+        Marks a message as `unseen`. This reverses the `seen` state. Read more about message engagement
+        statuses [here](/send-notifications/message-statuses#engagement-status).
       operationId: markMessageUnseen
       parameters:
         - description: The unique identifier for the message.
@@ -7470,7 +7732,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageUnseen'
           description: OK
       summary: Mark message as unseen
       tags:
@@ -7557,8 +7819,9 @@ paths:
     put:
       callbacks: {}
       description: >-
-        Marks a message as seen for the current user. This indicates that the user has viewed the message in
-        their feed or inbox.
+        Marks a message as `seen`. This indicates that the user has viewed the message in their feed or inbox.
+        Read more about message engagement statuses
+        [here](/send-notifications/message-statuses#engagement-status).
       operationId: markMessageSeen
       parameters:
         - description: The unique identifier for the message.
@@ -7573,7 +7836,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageSeen'
           description: OK
       summary: Mark message as seen
       tags:
@@ -8410,7 +8673,10 @@ paths:
   /v1/messages/batch/seen:
     post:
       callbacks: {}
-      description: Marks the given messages as seen.
+      description: >-
+        Marks the given messages as `seen`. This indicates that the user has viewed the message in their feed
+        or inbox. Read more about message engagement statuses
+        [here](/send-notifications/message-statuses#engagement-status).
       operationId: batchMarkMessagesAsSeen
       parameters: []
       requestBody:
@@ -8435,7 +8701,6 @@ paths:
                     data:
                       foo: bar
                     engagement_statuses:
-                      - read
                       - seen
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
@@ -8446,7 +8711,7 @@ paths:
                     read_at: null
                     recipient: user_123
                     scheduled_at: null
-                    seen_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
                     source:
                       __typename: NotificationSource
                       categories:
@@ -8458,7 +8723,7 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/Message'
+                  $ref: '#/components/schemas/MessageSeen'
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -8476,7 +8741,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.markAsSeen({
-              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
+              message_ids: ['2w3YUpTTOxuDvZFji8OMsKrG176', '2w3YVRbPXMIh8Zq6oBFcVDA5xes'],
             });
 
             console.log(messages);
@@ -8491,7 +8756,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_seen(
-              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
+              message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
           )
           print(messages)
         go: |
@@ -8510,7 +8775,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.MarkAsSeen(context.TODO(), knock.MessageBatchMarkAsSeenParams{
-              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
+              MessageIDs: knock.F([]string{"2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"}),
             })
             if err != nil {
               panic(err.Error())
@@ -8533,8 +8798,8 @@ paths:
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
                   BatchMarkAsSeenParams params = BatchMarkAsSeenParams.builder()
-                      .addMessageId("11111111-1111-1111-1111-111111111111")
-                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .addMessageId("2w3YUpTTOxuDvZFji8OMsKrG176")
+                      .addMessageId("2w3YVRbPXMIh8Zq6oBFcVDA5xes")
                       .build();
                   List<Message> messages = client.messages().batch().markAsSeen(params);
               }
@@ -8547,7 +8812,7 @@ paths:
           )
 
           messages = knock.messages.batch.mark_as_seen(
-            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+            message_ids: ["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"]
           )
 
           puts(messages)
@@ -8573,7 +8838,9 @@ paths:
   /v1/messages/batch/unseen:
     post:
       callbacks: {}
-      description: Marks the given messages as unseen.
+      description: >-
+        Marks the given messages as `unseen`. This reverses the `seen` state. Read more about message
+        engagement statuses [here](/send-notifications/message-statuses#engagement-status).
       operationId: batchMarkMessagesAsUnseen
       parameters: []
       requestBody:
@@ -8597,9 +8864,7 @@ paths:
                     clicked_at: null
                     data:
                       foo: bar
-                    engagement_statuses:
-                      - read
-                      - seen
+                    engagement_statuses: []
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
                     interacted_at: null
@@ -8621,7 +8886,7 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/Message'
+                  $ref: '#/components/schemas/MessageUnseen'
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -8639,7 +8904,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.markAsUnseen({
-              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
+              message_ids: ['2w3YUpTTOxuDvZFji8OMsKrG176', '2w3YVRbPXMIh8Zq6oBFcVDA5xes'],
             });
 
             console.log(messages);
@@ -8654,7 +8919,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_unseen(
-              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
+              message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
           )
           print(messages)
         go: |
@@ -8673,7 +8938,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.MarkAsUnseen(context.TODO(), knock.MessageBatchMarkAsUnseenParams{
-              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
+              MessageIDs: knock.F([]string{"2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"}),
             })
             if err != nil {
               panic(err.Error())
@@ -8696,8 +8961,8 @@ paths:
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
                   BatchMarkAsUnseenParams params = BatchMarkAsUnseenParams.builder()
-                      .addMessageId("11111111-1111-1111-1111-111111111111")
-                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .addMessageId("2w3YUpTTOxuDvZFji8OMsKrG176")
+                      .addMessageId("2w3YVRbPXMIh8Zq6oBFcVDA5xes")
                       .build();
                   List<Message> messages = client.messages().batch().markAsUnseen(params);
               }
@@ -8710,7 +8975,7 @@ paths:
           )
 
           messages = knock.messages.batch.mark_as_unseen(
-            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+            message_ids: ["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"]
           )
 
           puts(messages)
@@ -8970,7 +9235,9 @@ paths:
   /v1/messages/{message_id}/read:
     delete:
       callbacks: {}
-      description: Marks a message as unread for the current user, reversing the read state.
+      description: >-
+        Marks a message as `unread`. This reverses the `read` state. Read more about message engagement
+        statuses [here](/send-notifications/message-statuses#engagement-status).
       operationId: markMessageUnread
       parameters:
         - description: The unique identifier for the message.
@@ -8985,7 +9252,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageUnread'
           description: OK
       summary: Mark message as unread
       tags:
@@ -9072,8 +9339,8 @@ paths:
     put:
       callbacks: {}
       description: >-
-        Marks a message as read for the current user. This indicates that the user has read the message
-        content.
+        Marks a message as `read`. This indicates that the user has read the message content. Read more about
+        message engagement statuses [here](/send-notifications/message-statuses#engagement-status).
       operationId: markMessageRead
       parameters:
         - description: The unique identifier for the message.
@@ -9088,7 +9355,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageRead'
           description: OK
       summary: Mark message as read
       tags:
@@ -9308,13 +9575,13 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: The tenant ID to filter guides by.
+        - description: The tenant ID to use for targeting and rendering guides.
           in: query
           name: tenant
           required: false
           schema:
             type: string
-        - description: The data to filter guides by.
+        - description: The data (JSON encoded object) to use for targeting and rendering guides.
           in: query
           name: data
           required: false
@@ -10072,7 +10339,7 @@ paths:
           content:
             application/json:
               schema:
-                description: A list of message contents
+                description: A list of `MessageContents`
                 example:
                   - __typename: MessageContent
                     data:
@@ -11023,6 +11290,7 @@ paths:
         - Messages
         - Bulk operations
       x-ratelimit-tier: 2
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -12697,7 +12965,9 @@ paths:
   /v1/messages/batch/unread:
     post:
       callbacks: {}
-      description: Marks the given messages as unread.
+      description: >-
+        Marks the given messages as `unread`. This reverses the `read` state. Read more about message
+        engagement statuses [here](/send-notifications/message-statuses#engagement-status).
       operationId: batchMarkMessagesAsUnread
       parameters: []
       requestBody:
@@ -12722,7 +12992,6 @@ paths:
                     data:
                       foo: bar
                     engagement_statuses:
-                      - read
                       - seen
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
@@ -12733,7 +13002,7 @@ paths:
                     read_at: null
                     recipient: user_123
                     scheduled_at: null
-                    seen_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
                     source:
                       __typename: NotificationSource
                       categories:
@@ -12745,7 +13014,7 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/Message'
+                  $ref: '#/components/schemas/MessageUnread'
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -12763,7 +13032,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.markAsUnread({
-              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
+              message_ids: ['2w3YUpTTOxuDvZFji8OMsKrG176', '2w3YVRbPXMIh8Zq6oBFcVDA5xes'],
             });
 
             console.log(messages);
@@ -12778,7 +13047,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_unread(
-              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
+              message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
           )
           print(messages)
         go: |
@@ -12797,7 +13066,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.MarkAsUnread(context.TODO(), knock.MessageBatchMarkAsUnreadParams{
-              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
+              MessageIDs: knock.F([]string{"2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"}),
             })
             if err != nil {
               panic(err.Error())
@@ -12820,8 +13089,8 @@ paths:
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
                   BatchMarkAsUnreadParams params = BatchMarkAsUnreadParams.builder()
-                      .addMessageId("11111111-1111-1111-1111-111111111111")
-                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .addMessageId("2w3YUpTTOxuDvZFji8OMsKrG176")
+                      .addMessageId("2w3YVRbPXMIh8Zq6oBFcVDA5xes")
                       .build();
                   List<Message> messages = client.messages().batch().markAsUnread(params);
               }
@@ -12834,7 +13103,7 @@ paths:
           )
 
           messages = knock.messages.batch.mark_as_unread(
-            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+            message_ids: ["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"]
           )
 
           puts(messages)
@@ -13409,7 +13678,9 @@ paths:
   /v1/messages/{message_id}/archived:
     delete:
       callbacks: {}
-      description: Removes a message from the archived state, making it visible in the default message list again.
+      description: >-
+        Removes a message from the archived state, making it visible in the default message list in the feed
+        again.
       operationId: unarchiveMessage (2)
       parameters:
         - description: The unique identifier for the message.
@@ -13424,7 +13695,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageUnarchived'
           description: OK
       summary: Unarchive message
       tags:
@@ -13511,8 +13782,8 @@ paths:
     put:
       callbacks: {}
       description: >-
-        Archives a message for the current user. Archived messages are hidden from the default message list
-        but can still be accessed and unarchived later.
+        Archives a message for the user. Archived messages are hidden from the default message list in the
+        feed but can still be accessed and unarchived later.
       operationId: archiveMessage
       parameters:
         - description: The unique identifier for the message.
@@ -13527,7 +13798,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageArchived'
           description: OK
       summary: Archive message
       tags:
@@ -13614,7 +13885,9 @@ paths:
   /v1/messages/batch/archived:
     post:
       callbacks: {}
-      description: Marks the given messages as archived.
+      description: >-
+        Marks the given messages as archived. Archived messages are hidden from the default message list in
+        the feed but can still be accessed and unarchived later.
       operationId: batchMarkMessagesAsArchived
       parameters: []
       requestBody:
@@ -13633,14 +13906,12 @@ paths:
                 example:
                   - actors:
                       - user_123
-                    archived_at: null
+                    archived_at: '2025-01-01T00:04:00Z'
                     channel_id: 123e4567-e89b-12d3-a456-426614174000
                     clicked_at: null
                     data:
                       foo: bar
-                    engagement_statuses:
-                      - read
-                      - seen
+                    engagement_statuses: []
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
                     interacted_at: null
@@ -13662,7 +13933,7 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/Message'
+                  $ref: '#/components/schemas/MessageArchived'
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -13680,7 +13951,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.archive({
-              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
+              message_ids: ['2w3YUpTTOxuDvZFji8OMsKrG176', '2w3YVRbPXMIh8Zq6oBFcVDA5xes'],
             });
 
             console.log(messages);
@@ -13695,7 +13966,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.archive(
-              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
+              message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
           )
           print(messages)
         go: |
@@ -13714,7 +13985,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.Archive(context.TODO(), knock.MessageBatchArchiveParams{
-              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
+              MessageIDs: knock.F([]string{"2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"}),
             })
             if err != nil {
               panic(err.Error())
@@ -13737,22 +14008,24 @@ paths:
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
                   BatchArchiveParams params = BatchArchiveParams.builder()
-                      .addMessageId("11111111-1111-1111-1111-111111111111")
-                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .addMessageId("2w3YUpTTOxuDvZFji8OMsKrG176")
+                      .addMessageId("2w3YVRbPXMIh8Zq6oBFcVDA5xes")
                       .build();
                   List<Message> messages = client.messages().batch().archive(params);
               }
           }
-        ruby: |-
+        ruby: >-
           require "knockapi"
+
 
           knock = Knockapi::Client.new(
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-          messages = knock.messages.batch.archive(
-            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
-          )
+
+          messages = knock.messages.batch.archive(message_ids: ["2w3YUpTTOxuDvZFji8OMsKrG176",
+          "2w3YVRbPXMIh8Zq6oBFcVDA5xes"])
+
 
           puts(messages)
   /v1/users/{user_id}/feeds/{channel_id}/settings:
@@ -13896,7 +14169,7 @@ paths:
           required: false
           schema:
             type: integer
-        - description: Limits the results to items with the corresponding tenant, or where the tenant is empty.
+        - description: Limits the results to items with the corresponding tenant.
           example: tenant_123
           in: query
           name: tenant
@@ -13910,7 +14183,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: One or more delivery statuses. Limits results to messages with the given delivery status(es).
+        - description: Limits the results to messages with the given delivery status.
           example:
             - delivered
           in: query
@@ -13928,7 +14201,7 @@ paths:
                 - bounced
               type: string
             type: array
-        - description: One or more engagement statuses. Limits results to messages with the given engagement status(es).
+        - description: Limits the results to messages with the given engagement status.
           example:
             - unread
           in: query
@@ -13956,7 +14229,7 @@ paths:
             items:
               type: string
             type: array
-        - description: Limits the results to only items related to any of the provided categories.
+        - description: Limits the results to messages related to any of the provided categories.
           example:
             - workflow_123
           in: query
@@ -13966,14 +14239,16 @@ paths:
             items:
               type: string
             type: array
-        - description: Key of the source that triggered the message to limit results to.
+        - description: Limits the results to messages triggered by the given workflow key.
           example: comment-created
           in: query
           name: source
           required: false
           schema:
             type: string
-        - description: Limits the results to messages triggered by the top-level workflow run ID.
+        - description: >-
+            Limits the results to messages associated with the top-level workflow run ID returned by the
+            workflow trigger request.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: workflow_run_id
@@ -13989,7 +14264,9 @@ paths:
           schema:
             format: uuid
             type: string
-        - description: Limits the results to only items that were generated with the given data.
+        - description: >-
+            Limits the results to only messages that were generated with the given data. See [trigger data
+            filtering](/api-reference/overview/trigger-data-filtering) for more information.
           example: '{"comment_id": "123"}'
           in: query
           name: trigger_data
@@ -14248,8 +14525,10 @@ paths:
     put:
       callbacks: {}
       description: >-
-        Marks a message as interacted with by the current user. This can include any user action on the
-        message, with optional metadata about the specific interaction.
+        Marks a message as `interacted` with by the user. This can include any user action on the message,
+        with optional metadata about the specific interaction. Cannot include more than 5 key-value pairs,
+        must not contain nested data. Read more about message engagement statuses
+        [here](/send-notifications/message-statuses#engagement-status).
       operationId: markMessageInteracted
       parameters:
         - description: The unique identifier for the message.
@@ -14271,7 +14550,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageInteracted'
           description: OK
       summary: Mark message as interacted
       tags:
@@ -14402,7 +14681,9 @@ paths:
   /v1/messages/{message_id}/unarchived:
     delete:
       callbacks: {}
-      description: Removes a message from the archived state, making it visible in the default message list again.
+      description: >-
+        Removes a message from the archived state, making it visible in the default message list in the feed
+        again.
       operationId: unarchiveMessage
       parameters:
         - description: The unique identifier for the message.
@@ -14417,7 +14698,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageUnarchived'
           description: OK
       summary: Unarchive message
       tags:
@@ -14813,7 +15094,9 @@ paths:
   /v1/messages/batch/read:
     post:
       callbacks: {}
-      description: Marks the given messages as read.
+      description: >-
+        Marks the given messages as `read`. Read more about message engagement statuses
+        [here](/send-notifications/message-statuses#engagement-status).
       operationId: batchMarkMessagesAsRead
       parameters: []
       requestBody:
@@ -14838,18 +15121,18 @@ paths:
                     data:
                       foo: bar
                     engagement_statuses:
-                      - read
                       - seen
+                      - read
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
                     interacted_at: null
                     link_clicked_at: null
                     metadata:
                       external_id: 123e4567-e89b-12d3-a456-426614174000
-                    read_at: null
+                    read_at: '2025-01-01T00:02:00Z'
                     recipient: user_123
                     scheduled_at: null
-                    seen_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
                     source:
                       __typename: NotificationSource
                       categories:
@@ -14861,7 +15144,7 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/Message'
+                  $ref: '#/components/schemas/MessageRead'
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -14879,7 +15162,7 @@ paths:
 
           async function main() {
             const messages = await client.messages.batch.markAsRead({
-              message_ids: ['11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222'],
+              message_ids: ['2w3YUpTTOxuDvZFji8OMsKrG176', '2w3YVRbPXMIh8Zq6oBFcVDA5xes'],
             });
 
             console.log(messages);
@@ -14894,7 +15177,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_read(
-              message_ids=["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"],
+              message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
           )
           print(messages)
         go: |
@@ -14913,7 +15196,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             messages, err := client.Messages.Batch.MarkAsRead(context.TODO(), knock.MessageBatchMarkAsReadParams{
-              MessageIDs: knock.F([]string{"11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"}),
+              MessageIDs: knock.F([]string{"2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"}),
             })
             if err != nil {
               panic(err.Error())
@@ -14936,8 +15219,8 @@ paths:
                   KnockClient client = KnockOkHttpClient.fromEnv();
 
                   BatchMarkAsReadParams params = BatchMarkAsReadParams.builder()
-                      .addMessageId("11111111-1111-1111-1111-111111111111")
-                      .addMessageId("22222222-2222-2222-2222-222222222222")
+                      .addMessageId("2w3YUpTTOxuDvZFji8OMsKrG176")
+                      .addMessageId("2w3YVRbPXMIh8Zq6oBFcVDA5xes")
                       .build();
                   List<Message> messages = client.messages().batch().markAsRead(params);
               }
@@ -14950,7 +15233,7 @@ paths:
           )
 
           messages = knock.messages.batch.mark_as_read(
-            message_ids: ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"]
+            message_ids: ["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"]
           )
 
           puts(messages)
@@ -16379,7 +16662,11 @@ paths:
   /v1/messages/batch/interacted:
     post:
       callbacks: {}
-      description: Marks the given messages as interacted with.
+      description: >-
+        Marks the given messages as interacted with by the user. This can include any user action on the
+        message, with optional metadata about the specific interaction. Cannot include more than 5 key-value
+        pairs, must not contain nested data. Read more about message engagement statuses
+        [here](/send-notifications/message-statuses#engagement-status).
       operationId: batchMarkMessagesAsInteracted
       parameters: []
       requestBody:
@@ -16404,18 +16691,19 @@ paths:
                     data:
                       foo: bar
                     engagement_statuses:
-                      - read
                       - seen
+                      - read
+                      - interacted
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
-                    interacted_at: null
+                    interacted_at: '2025-01-01T00:03:00Z'
                     link_clicked_at: null
                     metadata:
                       external_id: 123e4567-e89b-12d3-a456-426614174000
-                    read_at: null
+                    read_at: '2025-01-01T00:02:00Z'
                     recipient: user_123
                     scheduled_at: null
-                    seen_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
                     source:
                       __typename: NotificationSource
                       categories:
@@ -16427,7 +16715,7 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/Message'
+                  $ref: '#/components/schemas/MessageInteracted'
                 title: BatchListMessagesResponse
                 type: array
           description: OK
