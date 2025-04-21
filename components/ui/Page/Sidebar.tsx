@@ -4,6 +4,7 @@ import { Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { NavItem } from "../NavItem";
 import { useRouter } from "next/router";
+import { CollapsibleNavItem } from "../CollapsibleNavItem";
 
 type SidebarProps = {
   content: SidebarSection[];
@@ -13,31 +14,39 @@ type SidebarProps = {
 const Section = ({ section }: { section: SidebarSection }) => {
   const router = useRouter();
 
+  // Check if any child page is active
+  const hasActiveChild = section.pages.some(
+    (page) => router.asPath === `${section.slug}${page.slug}`,
+  );
+
   return (
     <Stack direction="column" key={section.slug} mb="1">
-      <Box px="3" py="1">
-        <Text as="span" weight="medium" size="2">
-          {section.title}
-        </Text>
-      </Box>
-      {section.pages.map((page) => (
-        <NavItem
-          key={page.slug}
-          href={`${section.slug}${page.slug}`}
-          isActive={router.asPath === `${section.slug}${page.slug}`}
+      <Box>
+        <CollapsibleNavItem
+          label={section.title ?? section.slug}
+          defaultOpen={hasActiveChild}
         >
-          {page.title}
-        </NavItem>
-      ))}
+          {section.pages.map((page) => (
+            <NavItem
+              key={page.slug}
+              href={`${section.slug}${page.slug}`}
+              isActive={router.asPath === `${section.slug}${page.slug}`}
+            >
+              {page.title}
+            </NavItem>
+          ))}
+        </CollapsibleNavItem>
+      </Box>
     </Stack>
   );
 };
+
 const Wrapper = ({ children }: SidebarProps) => {
   return (
     <Box as="aside" width="60" position="fixed" bottom="0" top="24">
       <Stack
         direction="column"
-        gap="2"
+        gap="1"
         h="full"
         pt="2"
         pb="4"
