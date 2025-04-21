@@ -16,7 +16,7 @@ const Section = ({ section }: { section: SidebarSection }) => {
 
   // Check if any child page is active
   const hasActiveChild = section.pages.some(
-    (page) => router.asPath === `${section.slug}${page.slug}`
+    (page) => router.asPath === `${section.slug}${page.slug}`,
   );
 
   return (

@@ -32,7 +32,9 @@ export const CollapsibleNavItem = ({
           "aria-hidden": true,
           size: "3",
           color: "disabled",
-          className: `transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`,
+          className: `transition-transform duration-200 ${
+            isOpen ? "rotate-90" : ""
+          }`,
         }}
         style={{
           // Aligns with the Tab text above
