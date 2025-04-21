@@ -102,26 +102,26 @@ const PageHeader = ({ title }: PageHeaderProps) => {
         </Stack>
         <Tabs value={selectedTab(asPath)} className="main-header-tabs">
           <Tabs.List mb="0" px="4">
-            <Tabs.Tab value="platform">
-              <Link href="/">Platform</Link>
+            <Tabs.Tab value="platform" as={Link} href="/">
+              Platform
             </Tabs.Tab>
-            <Tabs.Tab value="integrations">
-              <Link href="/integrations">Integrations</Link>
+            <Tabs.Tab value="integrations" as={Link} href="/integrations">
+              Integrations
             </Tabs.Tab>
-            <Tabs.Tab value="in-app-ui">
-              <Link href="/in-app-ui">In-app UI</Link>
+            <Tabs.Tab value="in-app-ui" as={Link} href="/in-app-ui">
+              In-app UI
             </Tabs.Tab>
-            <Tabs.Tab value="api-reference">
-              <Link href="/reference">API reference</Link>
+            <Tabs.Tab value="api-reference" as={Link} href="/reference">
+              API reference
             </Tabs.Tab>
-            <Tabs.Tab value="cli-reference">
-              <Link href="/cli">CLI reference</Link>
+            <Tabs.Tab value="cli-reference" as={Link} href="/cli">
+              CLI reference
             </Tabs.Tab>
-            <Tabs.Tab value="developer-tools">
-              <Link href="/developer-tools">Developer tools</Link>
+            <Tabs.Tab value="developer-tools" as={Link} href="/developer-tools">
+              Developer tools
             </Tabs.Tab>
-            <Tabs.Tab value="tutorials">
-              <Link href="/guides">Tutorials</Link>
+            <Tabs.Tab value="tutorials" as={Link} href="/guides">
+              Tutorials
             </Tabs.Tab>
           </Tabs.List>
         </Tabs>
