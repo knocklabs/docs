@@ -63,9 +63,12 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
             emoji="🚧"
             text={
               <>
-                This endpoint is currently in beta. If you'd like early access, or
-                this is blocking your adoption of Knock, please{" "}
-                <a href="mailto:support@knock.app?subject=Beta%20feature%20request">get in touch</a>.
+                This endpoint is currently in beta. If you'd like early access,
+                or this is blocking your adoption of Knock, please{" "}
+                <a href="mailto:support@knock.app?subject=Beta%20feature%20request">
+                  get in touch
+                </a>
+                .
               </>
             }
           />
