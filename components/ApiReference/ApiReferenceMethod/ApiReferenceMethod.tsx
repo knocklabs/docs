@@ -11,8 +11,8 @@ import OperationParameters from "../OperationParameters/OperationParameters";
 import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import MultiLangExample from "../MultiLangExample";
 import { augmentSnippetsWithCurlRequest } from "../helpers";
-import Link from "next/link";
 import RateLimit from "../../RateLimit";
+import Callout from "../../Callout";
 
 type Props = {
   methodName: string;
@@ -24,7 +24,6 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
   const { openApiSpec, baseUrl, schemaReferences } = useApiReference();
   const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];
-  const rateLimit = method?.["x-ratelimit-tier"];
 
   if (!method) {
     return null;
@@ -46,9 +45,31 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
   const requestBody: OpenAPIV3.SchemaObject | undefined =
     method.requestBody?.content?.["application/json"]?.schema;
 
+  const rateLimit = method?.["x-ratelimit-tier"] ?? null;
+  const isIdempotent = method?.["x-idempotent"] ?? false;
+  const isRetentionSubject = method?.["x-retention-policy"] ?? false;
+  const isBeta = method?.["x-beta"] ?? false;
+
   return (
-    <Section title={method.summary} slug={method.summary}>
+    <Section
+      title={method.summary}
+      slug={method.summary}
+      isIdempotent={isIdempotent}
+      isRetentionSubject={isRetentionSubject}
+    >
       <ContentColumn>
+        {isBeta && (
+          <Callout
+            emoji="🚧"
+            text={
+              <>
+                This endpoint is currently in beta. If you'd like early access, or
+                this is blocking your adoption of Knock, please{" "}
+                <a href="mailto:support@knock.app?subject=Beta%20feature%20request">get in touch</a>.
+              </>
+            }
+          />
+        )}
         <Markdown>{method.description ?? ""}</Markdown>
 
         <h3 className="!text-sm font-medium">Endpoint</h3>

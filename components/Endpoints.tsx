@@ -40,16 +40,18 @@ const EndpointText = ({ method, path }) => (
   </div>
 );
 
-const Endpoint = ({ method, path, name, withLink = false }) => (
-  <div className="my-3">
-    {withLink && name ? (
-      <Link href={`#${name}`} passHref>
+const Endpoint = ({ method, path, name, withLink = false }) => {
+  return (
+    <div className="my-3">
+      {withLink && name ? (
+        <Link href={`#${name}`} passHref>
+          <EndpointText method={method} path={path} />
+        </Link>
+      ) : (
         <EndpointText method={method} path={path} />
-      </Link>
-    ) : (
-      <EndpointText method={method} path={path} />
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
+};
 
 export { Endpoints, Endpoint };
