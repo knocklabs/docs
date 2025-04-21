@@ -94,9 +94,7 @@ components:
         workflow_run_id: 123e4567-e89b-12d3-a456-426614174000
       properties:
         workflow_run_id:
-          description: >-
-            The ID of the workflow trigger. This value allows you to track individual workflow runs associated
-            with this trigger request.
+          description: This value allows you to track individual messages associated with this trigger request.
           example: 123e4567-e89b-12d3-a456-426614174000
           format: uuid
           type: string
@@ -252,15 +250,17 @@ components:
       properties:
         actor:
           anyOf:
-            - $ref: '#/components/schemas/RecipientRequest'
+            - $ref: '#/components/schemas/RecipientIdentifier'
             - nullable: true
           description: >-
             A map of properties describing a user or an object to identify in Knock and mark as who or what
             performed the action.
         cancellation_key:
           description: >-
-            The cancellation key provided during the initial notify call. If used in a cancel request, will
-            cancel the notification for the recipients specified in the cancel request.
+            An optional key that is used to reference a specific workflow trigger request when issuing a
+            [workflow cancellation](/send-notifications/canceling-workflows) request. Must be provided while
+            triggering a workflow in order to enable subsequent cancellation. Should be unique across trigger
+            requests to avoid unintentional cancellations.
           nullable: true
           type: string
         data:
@@ -271,9 +271,9 @@ components:
         recipients:
           description: >-
             The recipients to trigger the workflow for. Can inline identify users, objects, or use a list of
-            user ids. Cannot exceed 1000 recipients in a single trigger.
+            user IDs. Limited to 1,000 recipients in a single trigger.
           items:
-            $ref: '#/components/schemas/RecipientRequest'
+            $ref: '#/components/schemas/RecipientIdentifier'
           type: array
         tenant:
           anyOf:
@@ -552,9 +552,7 @@ components:
         result_id: wf_1234567890abcdef
       properties:
         result_id:
-          description: >-
-            The ID of the workflow trigger. This value allows you to track individual workflow runs associated
-            with this trigger request.
+          description: This value allows you to track individual messages associated with this trigger request.
           type: string
       required:
         - result_id
@@ -714,7 +712,7 @@ components:
           description: The metadata of the guide.
           type: object
         tenant:
-          description: The tenant id of the guide.
+          description: The tenant ID of the guide.
           nullable: true
           type: string
       required:
@@ -748,7 +746,7 @@ components:
               recipients:
                 description: The recipients of the subscription.
                 items:
-                  $ref: '#/components/schemas/RecipientRequest'
+                  $ref: '#/components/schemas/RecipientIdentifier'
                 type: array
             required:
               - id
@@ -1047,10 +1045,10 @@ components:
       title: SlackAuthCheckResponse
       type: object
     RecipientReference:
-      description: A reference to a recipient, either a user identifier (string) or an object reference (id, collection).
+      description: A reference to a recipient, either a user identifier (string) or an object reference (ID, collection).
       example: user_123
       oneOf:
-        - description: The id of the user.
+        - description: The ID of the user.
           example: user_123
           nullable: false
           title: UserReference
@@ -1098,7 +1096,7 @@ components:
       title: BatchMessagesInteractedRequest
       type: object
     UserReference:
-      description: The id of the user.
+      description: The ID of the user.
       example: user_123
       nullable: false
       title: UserReference
@@ -1595,7 +1593,7 @@ components:
         recipients:
           description: >-
             The recipients to trigger the workflow for. Can inline identify users, objects, or use a list of
-            user ids. Cannot exceed 1000 recipients in a single trigger.
+            user IDs. Limited to 1,000 recipients in a single trigger.
           items:
             $ref: '#/components/schemas/RecipientReference'
           type: array
@@ -1999,8 +1997,10 @@ components:
           $ref: '#/components/schemas/RecipientReference'
         cancellation_key:
           description: >-
-            The cancellation key provided during the initial notify call. If used in a cancel request, will
-            cancel the notification for the recipients specified in the cancel request.
+            An optional key that is used to reference a specific workflow trigger request when issuing a
+            [workflow cancellation](/send-notifications/canceling-workflows) request. Must be provided while
+            triggering a workflow in order to enable subsequent cancellation. Should be unique across trigger
+            requests to avoid unintentional cancellations.
           nullable: true
           type: string
         data:
@@ -2065,7 +2065,7 @@ components:
       title: ListMessageDeliveryLogsResponse
       type: object
     UserRecipient:
-      description: The id of the user.
+      description: The ID of the user.
       example: user_123
       title: UserRecipient
       type: string
@@ -2367,22 +2367,6 @@ components:
         - meta
       title: UserInAppFeedResponse
       type: object
-    RecipientRequest:
-      description: >-
-        Specifies a recipient in a request. This can either be a user identifier (string), an inline user
-        request (object), or an inline object request, which is determined by the presence of a `collection`
-        property.
-      example:
-        id: user_1
-      nullable: false
-      oneOf:
-        - description: The id of the user.
-          example: user_123
-          title: UserRecipient
-          type: string
-        - $ref: '#/components/schemas/InlineIdentifyUserRequest'
-        - $ref: '#/components/schemas/InlineIdentifyObjectRequest'
-      title: RecipientRequest
     SlackTokenConnection:
       description: A Slack connection token.
       example:
@@ -2812,7 +2796,7 @@ components:
             A map of properties describing a user or an object to identify in Knock and mark as who or what
             performed the action.
           oneOf:
-            - $ref: '#/components/schemas/RecipientRequest'
+            - $ref: '#/components/schemas/RecipientIdentifier'
             - nullable: true
         data:
           additionalProperties: true
@@ -3308,7 +3292,7 @@ components:
         recipients:
           description: The recipients of the subscription.
           items:
-            $ref: '#/components/schemas/RecipientRequest'
+            $ref: '#/components/schemas/RecipientIdentifier'
           type: array
       required:
         - recipients
@@ -3347,7 +3331,10 @@ components:
       title: Block
       type: object
     Cancel Request:
-      description: A request to cancel a previously triggered workflow.
+      description: >-
+        When invoked using a specific workflow key and cancellation key, will cancel any queued workflow runs
+        associated with that key/cancellation key pair. Can optionally provide one or more recipients to scope
+        the request to.
       example:
         cancellation_key: comment_123
         name: new-comment
@@ -3356,8 +3343,10 @@ components:
       properties:
         cancellation_key:
           description: >-
-            The cancellation key provided during the initial notify call. If used in a cancel request, will
-            cancel the notification for the recipients specified in the cancel request.
+            An optional key that is used to reference a specific workflow trigger request when issuing a
+            [workflow cancellation](/send-notifications/canceling-workflows) request. Must be provided while
+            triggering a workflow in order to enable subsequent cancellation. Should be unique across trigger
+            requests to avoid unintentional cancellations.
           type: string
         name:
           description: The key of the workflow to cancel.
@@ -3643,7 +3632,7 @@ components:
               description: The key of the source that triggered the message.
               type: string
             version_id:
-              description: The id of the version of the source that triggered the message.
+              description: The ID of the version of the source that triggered the message.
               format: uuid
               type: string
           required:
@@ -3844,12 +3833,28 @@ components:
         recipients:
           description: The recipients of the subscription.
           items:
-            $ref: '#/components/schemas/RecipientRequest'
+            $ref: '#/components/schemas/RecipientIdentifier'
           type: array
       required:
         - recipients
       title: DeleteSubscriptionsRequest
       type: object
+    RecipientIdentifier:
+      description: >-
+        Specifies a recipient in a request. This can either be a user identifier (string), an inline user
+        request (object), or an inline object request, which is determined by the presence of a `collection`
+        property.
+      example:
+        id: user_1
+      nullable: false
+      oneOf:
+        - description: The ID of the user.
+          example: user_123
+          title: UserRecipient
+          type: string
+        - $ref: '#/components/schemas/InlineIdentifyUserRequest'
+        - $ref: '#/components/schemas/InlineIdentifyObjectRequest'
+      title: RecipientIdentifier
     Schedule:
       description: A schedule represents a recurring workflow execution.
       example:
@@ -4251,7 +4256,10 @@ components:
       title: Condition
       type: object
     CancelWorkflowRequest:
-      description: A request to cancel a previously triggered workflow.
+      description: >-
+        When invoked using a specific workflow key and cancellation key, will cancel any queued workflow runs
+        associated with that key/cancellation key pair. Can optionally provide one or more recipients to scope
+        the request to.
       example:
         cancellation_key: cancel-workflow-123
         recipients:
@@ -4259,16 +4267,17 @@ components:
       properties:
         cancellation_key:
           description: >-
-            The cancellation key provided during the initial notify call. If used in a cancel request, will
-            cancel the notification for the recipients specified in the cancel request.
+            An optional key that is used to reference a specific workflow trigger request when issuing a
+            [workflow cancellation](/send-notifications/canceling-workflows) request. Must be provided while
+            triggering a workflow in order to enable subsequent cancellation. Should be unique across trigger
+            requests to avoid unintentional cancellations.
           type: string
         recipients:
           description: >-
             A list of recipients to cancel the notification for. If omitted, cancels for all recipients
             associated with the cancellation key.
           items:
-            description: A recipient of a notification, which is either a user or an object.
-            type: string
+            $ref: '#/components/schemas/RecipientIdentifier'
           nullable: true
           type: array
       required:
@@ -4817,7 +4826,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: Limits the results to items with the corresponding channel id.
+        - description: Limits the results to items with the corresponding channel ID.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: channel_id
@@ -5899,7 +5908,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: Limits the results to items with the corresponding channel id.
+        - description: Limits the results to items with the corresponding channel ID.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: channel_id
@@ -6529,7 +6538,7 @@ paths:
     post:
       callbacks: {}
       description: >-
-        Trigger a workflow specified by the key to run for the given recipients, using the parameters
+        Trigger a workflow (specified by the key) to run for the given recipients, using the parameters
         provided. Returns an identifier for the workflow run request. All workflow runs are executed
         asynchronously.
       operationId: triggerWorkflow (2)
@@ -6605,7 +6614,7 @@ paths:
               context.TODO(),
               "key",
               knock.WorkflowTriggerParams{
-                Recipients: knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("jhammond")}),
+                Recipients: knock.F([]knock.WorkflowTriggerParamsRecipientUnion{shared.UnionString("jhammond")}),
               },
             )
             if err != nil {
@@ -9830,7 +9839,7 @@ paths:
               knock.ObjectBulkAddSubscriptionsParams{
                 Subscriptions: knock.F([]knock.ObjectBulkAddSubscriptionsParamsSubscription{knock.ObjectBulkAddSubscriptionsParamsSubscription{
                   ID: knock.F("project-1"),
-                  Recipients: knock.F([]knock.RecipientRequestUnionParam{knock.InlineIdentifyUserRequestParam{
+                  Recipients: knock.F([]knock.ObjectBulkAddSubscriptionsParamsSubscriptionsRecipientUnion{knock.InlineIdentifyUserRequestParam{
                     ID: knock.F("user_1"),
                   }}),
                 }}),
@@ -13682,7 +13691,7 @@ paths:
           required: false
           schema:
             type: string
-        - description: Limits the results to items with the corresponding channel id.
+        - description: Limits the results to items with the corresponding channel ID.
           example: 123e4567-e89b-12d3-a456-426614174000
           in: query
           name: channel_id
@@ -14854,7 +14863,7 @@ paths:
     post:
       callbacks: {}
       description: >-
-        Creates up to 1000 schedules in a single asynchronous bulk operation. The list of schedules can
+        Creates up to 1,000 schedules in a single asynchronous bulk operation. The list of schedules can
         include inline-identifications for each recipient, tenant, and actor specified on a schedule.
       operationId: bulkCreateSchedules
       parameters: []
@@ -15720,7 +15729,7 @@ paths:
               "collection",
               "object_id",
               knock.ObjectDeleteSubscriptionsParams{
-                Recipients: knock.F([]knock.RecipientRequestUnionParam{knock.InlineIdentifyUserRequestParam{
+                Recipients: knock.F([]knock.ObjectDeleteSubscriptionsParamsRecipientUnion{knock.InlineIdentifyUserRequestParam{
                   ID: knock.F("user_1"),
                 }}),
               },
@@ -16031,7 +16040,7 @@ paths:
               "collection",
               "object_id",
               knock.ObjectAddSubscriptionsParams{
-                Recipients: knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("user_1"), shared.UnionString("user_2")}),
+                Recipients: knock.F([]knock.ObjectAddSubscriptionsParamsRecipientUnion{shared.UnionString("user_1"), shared.UnionString("user_2")}),
               },
             )
             if err != nil {
