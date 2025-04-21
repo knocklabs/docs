@@ -31,7 +31,6 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
 
   const parameters = method.parameters || [];
   const responses = method.responses || {};
-  const response = responses[Object.keys(responses)[0]];
 
   const pathParameters = parameters.filter(
     (p) => p.in === "path",
@@ -40,8 +39,9 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
     (p) => p.in === "query",
   ) as OpenAPIV3.ParameterObject[];
 
-  const responseSchema: OpenAPIV3.SchemaObject | undefined =
-    response?.content?.["application/json"]?.schema;
+  const responseSchemas: OpenAPIV3.SchemaObject[] = Object.values(
+    responses,
+  ).map((r) => r.content?.["application/json"]?.schema);
   const requestBody: OpenAPIV3.SchemaObject | undefined =
     method.requestBody?.content?.["application/json"]?.schema;
 
@@ -113,8 +113,8 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
 
         <h3 className="!text-base font-medium">Returns</h3>
 
-        {responseSchema && (
-          <PropertyRow.Wrapper>
+        {responseSchemas.map((responseSchema) => (
+          <PropertyRow.Wrapper key={responseSchema.title}>
             <PropertyRow.Container>
               <PropertyRow.Header>
                 <PropertyRow.Type
@@ -145,7 +145,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
               )}
             </PropertyRow.Container>
           </PropertyRow.Wrapper>
-        )}
+        ))}
       </ContentColumn>
       <ExampleColumn>
         <MultiLangExample
@@ -160,10 +160,13 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
             },
           )}
         />
-        {responseSchema?.example && (
-          <CodeBlock title="Response" language="json" languages={["json"]}>
-            {JSON.stringify(responseSchema?.example, null, 2)}
-          </CodeBlock>
+        {responseSchemas.map(
+          (responseSchema) =>
+            responseSchema?.example && (
+              <CodeBlock title="Response" language="json" languages={["json"]}>
+                {JSON.stringify(responseSchema?.example, null, 2)}
+              </CodeBlock>
+            ),
         )}
       </ExampleColumn>
     </Section>

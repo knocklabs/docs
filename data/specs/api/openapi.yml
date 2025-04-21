@@ -668,6 +668,17 @@ components:
         - type
       title: MessageEvent
       type: object
+    SuccessResponse:
+      description: A response indicating the operation was successful.
+      example:
+        ok: ok
+      properties:
+        ok:
+          description: OK response.
+          example: ok
+          type: string
+      title: SuccessResponse
+      type: object
     GuideActionRequest:
       description: A request to trigger a guide action.
       example:
@@ -2706,14 +2717,6 @@ components:
         - from_user_id
       title: MergeUserRequest
       type: object
-    RevokeAccessResponse:
-      properties:
-        ok:
-          description: A response indicating the access was revoked.
-          example: ok
-          type: string
-      title: RevokeAccessResponse
-      type: string
     DiscordIncomingWebhookConnection:
       description: Discord incoming webhook connection.
       example:
@@ -3847,6 +3850,37 @@ components:
         - channel_id
       title: DiscordChannelConnection
       type: object
+    AuthenticationError:
+      description: Authentication error response
+      example:
+        code: authorization
+        message: Access token not set.
+        status: 403
+        type: authentication_error
+      properties:
+        code:
+          description: The error code.
+          example: authorization
+          type: string
+        message:
+          description: The error message.
+          example: Access token not set.
+          type: string
+        status:
+          description: The HTTP status code.
+          example: 403
+          type: integer
+        type:
+          description: The error type.
+          example: authentication_error
+          type: string
+      required:
+        - code
+        - message
+        - status
+        - type
+      title: AuthenticationError
+      type: object
     DeleteSubscriptionsRequest:
       description: A request to delete subscriptions for a set of recipients.
       example:
@@ -4193,14 +4227,15 @@ components:
                 nullable: true
                 type: string
               tenant:
+                anyOf:
+                  - $ref: '#/components/schemas/InlineTenantRequest'
+                  - description: The unique identifier for the tenant.
+                    type: string
+                  - nullable: true
                 description: >-
                   The tenant to trigger the workflow for. Triggering with a tenant will use any tenant-level
                   overrides associated with the tenant object, and all messages produced from workflow runs
                   will be tagged with the tenant.
-                oneOf:
-                  - $ref: '#/components/schemas/InlineTenantRequest'
-                  - nullable: true
-                type: object
               workflow:
                 description: The key of the workflow.
                 nullable: false
@@ -12516,14 +12551,52 @@ paths:
           content:
             application/json:
               schema:
+                description: A response indicating the operation was successful.
+                example:
+                  ok: ok
                 properties:
                   ok:
-                    description: A response indicating the access was revoked.
+                    description: OK response.
                     example: ok
                     type: string
-                title: RevokeAccessResponse
-                type: string
+                title: SuccessResponse
+                type: object
           description: OK
+        '403':
+          content:
+            application/json:
+              schema:
+                description: Authentication error response
+                example:
+                  code: authorization
+                  message: Access token not set.
+                  status: 403
+                  type: authentication_error
+                properties:
+                  code:
+                    description: The error code.
+                    example: authorization
+                    type: string
+                  message:
+                    description: The error message.
+                    example: Access token not set.
+                    type: string
+                  status:
+                    description: The HTTP status code.
+                    example: 403
+                    type: integer
+                  type:
+                    description: The error type.
+                    example: authentication_error
+                    type: string
+                required:
+                  - code
+                  - message
+                  - status
+                  - type
+                title: AuthenticationError
+                type: object
+          description: Forbidden
       summary: Revoke access
       tags:
         - Providers
@@ -12542,7 +12615,7 @@ paths:
               access_token_object: 'access_token_object',
             });
 
-            console.log(response);
+            console.log(response.ok);
           }
 
           main();
@@ -12557,7 +12630,7 @@ paths:
               channel_id="channel_id",
               access_token_object="access_token_object",
           )
-          print(response)
+          print(response.ok)
         go: |
           package main
 
@@ -12583,7 +12656,7 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", response)
+            fmt.Printf("%+v\n", response.Ok)
           }
         java: |-
           package app.knock.api.example;
@@ -12591,6 +12664,7 @@ paths:
           import app.knock.api.client.KnockClient;
           import app.knock.api.client.okhttp.KnockOkHttpClient;
           import app.knock.api.models.providers.slack.SlackRevokeAccessParams;
+          import app.knock.api.models.providers.slack.SlackRevokeAccessResponse;
 
           public final class Main {
               private Main() {}
@@ -12603,7 +12677,7 @@ paths:
                       .channelId("channel_id")
                       .accessTokenObject("access_token_object")
                       .build();
-                  String response = client.providers().slack().revokeAccess(params);
+                  SlackRevokeAccessResponse response = client.providers().slack().revokeAccess(params);
               }
           }
         ruby: >-
@@ -15591,14 +15665,52 @@ paths:
           content:
             application/json:
               schema:
+                description: A response indicating the operation was successful.
+                example:
+                  ok: ok
                 properties:
                   ok:
-                    description: A response indicating the access was revoked.
+                    description: OK response.
                     example: ok
                     type: string
-                title: RevokeAccessResponse
-                type: string
+                title: SuccessResponse
+                type: object
           description: OK
+        '403':
+          content:
+            application/json:
+              schema:
+                description: Authentication error response
+                example:
+                  code: authorization
+                  message: Access token not set.
+                  status: 403
+                  type: authentication_error
+                properties:
+                  code:
+                    description: The error code.
+                    example: authorization
+                    type: string
+                  message:
+                    description: The error message.
+                    example: Access token not set.
+                    type: string
+                  status:
+                    description: The HTTP status code.
+                    example: 403
+                    type: integer
+                  type:
+                    description: The error type.
+                    example: authentication_error
+                    type: string
+                required:
+                  - code
+                  - message
+                  - status
+                  - type
+                title: AuthenticationError
+                type: object
+          description: Forbidden
       summary: Revoke access
       tags:
         - Providers
@@ -15617,7 +15729,7 @@ paths:
               ms_teams_tenant_object: 'ms_teams_tenant_object',
             });
 
-            console.log(response);
+            console.log(response.ok);
           }
 
           main();
@@ -15632,7 +15744,7 @@ paths:
               channel_id="channel_id",
               ms_teams_tenant_object="ms_teams_tenant_object",
           )
-          print(response)
+          print(response.ok)
         go: |
           package main
 
@@ -15658,7 +15770,7 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", response)
+            fmt.Printf("%+v\n", response.Ok)
           }
         java: |-
           package app.knock.api.example;
@@ -15666,6 +15778,7 @@ paths:
           import app.knock.api.client.KnockClient;
           import app.knock.api.client.okhttp.KnockOkHttpClient;
           import app.knock.api.models.providers.msteams.MsTeamRevokeAccessParams;
+          import app.knock.api.models.providers.msteams.MsTeamRevokeAccessResponse;
 
           public final class Main {
               private Main() {}
@@ -15678,7 +15791,7 @@ paths:
                       .channelId("channel_id")
                       .msTeamsTenantObject("ms_teams_tenant_object")
                       .build();
-                  String response = client.providers().msTeams().revokeAccess(params);
+                  MsTeamRevokeAccessResponse response = client.providers().msTeams().revokeAccess(params);
               }
           }
         ruby: >-
@@ -16132,7 +16245,7 @@ paths:
         Add subscriptions for an object. If a subscription already exists, it will be updated. This endpoint
         also handles [inline
         identifications](/managing-recipients/identifying-recipients#inline-identifying-recipients) for the
-        `recipient`
+        `recipient`.
       operationId: addSubscriptionsForObject
       parameters:
         - description: Unique identifier for the object.
