@@ -25,26 +25,127 @@ KNOCK_SERVICE_TOKEN=st_1234567890
 ## Usage with the Vercel AI SDK
 
 ```typescript title="Usage with the Vercel AI SDK"
-import {  } from "@knocklabs/agent-toolkit/ai-sdk"
+import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+const toolkit = await createKnockToolkit({
+  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
+  permissions: {
+    users: { manage: true },
+  },
+});
+
+const result = await generateText({
+  model: openai("gpt-4o"),
+  tools: {
+    ...toolkit.getTools("users"),
+  },
+  maxSteps: 5,
+  prompt:
+    "Update the current user's profile with information about them, knowing that they are Alan Grant from Jurassic Park. Include custom properties about their favorite dinosaur.",
+});
 ```
 
 ## Usage with the OpenAI SDK
 
 ```typescript title="Usage with the OpenAI SDK"
-import {  } from "@knocklabs/agent-toolkit/openai"
+import OpenAI from "openai";
+import { createToolkit } from "@knocklabs/agent-toolkit/openai";
+
+const toolkit = await createToolkit({
+  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
+});
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+
+const messages = [
+  {
+    role: "user",
+    content:
+      "Update the current user's profile with information about them, knowing that they are Alan Grant from Jurassic Park. Include custom properties about their favorite dinosaur.",
+  },
+];
+
+(async (): Promise<void> => {
+  const result = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages,
+  });
+
+  while (true) {
+    // eslint-disable-next-line no-await-in-loop
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
+      tools: toolkit.getTools("users"),
+    });
+
+    const message = completion.choices[0].message;
+
+    messages.push(message);
+
+    if (message.tool_calls) {
+      // eslint-disable-next-line no-await-in-loop
+      const toolMessages = await Promise.all(
+        message.tool_calls.map((tc) => toolkit.handleToolCall(tc)),
+      );
+      messages = [...messages, ...toolMessages];
+    } else {
+      console.log(completion.choices[0].message);
+      break;
+    }
+  }
+})();
 ```
 
 ## Usage with the LangChain framework
 
 ```typescript title="Usage with the LangChain framework"
-import {  } from "@knocklabs/agent-toolkit/langchain"
+import { createToolkit } from "@knocklabs/agent-toolkit/langchain";
+import { ChatOpenAI } from "@langchain/openai";
+import type { ChatPromptTemplate } from "@langchain/core/prompts";
+import { pull } from "langchain/hub";
+import { AgentExecutor, createStructuredChatAgent } from "langchain/agents";
+
+const toolkit = await createToolkit({
+  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
+});
+
+const llm = new ChatOpenAI({
+  model: "gpt-4o",
+});
+
+(async (): Promise<void> => {
+  const prompt = await pull<ChatPromptTemplate>(
+    "hwchase17/structured-chat-agent",
+  );
+
+  const tools = toolkit.getTools("users");
+
+  const agent = await createStructuredChatAgent({
+    llm,
+    tools,
+    prompt,
+  });
+
+  const agentExecutor = new AgentExecutor({
+    agent,
+    tools,
+  });
+
+  const response = await agentExecutor.invoke({
+    input:
+      "Update the user's profile with information about them, knowing that they are Alan Grant from Jurassic Park. Include custom properties about their favorite dinosaur.",
+  });
+
+  console.log(response);
+})();
 ```
 
 ## See also
 
 - [Powering human-in-the-loop interactions](/developer-tools/agent-toolkit/human-in-the-loop-flows)
+- [Providing context](/developer-tools/agent-toolkit/providing-context)
 - [Building with LLMs](/developer-tools/building-with-llms)
 - [Model Context Protocol (MCP) Server](/developer-tools/mcp-server)
-
-
-

@@ -1,0 +1,74 @@
+---
+title: Workflows-as-tools
+description: Learn how the Agent Toolkit exposes your workflows as tools that your AI Agents can invoke without any integration logic to power cross-channel user messaging.
+section: Developer tools
+---
+
+By default the agent toolkit will expose each of your workflows as a tool that your agents can invoke to power cross-channel messaging. Meaning, if you have a workflow (`comment-created`) within your Knock account, the agent toolkit will expose a `trigger_comment_created_workflow` tool that your agents can invoke to send a notification.
+
+You can think of this as exposing a well-scoped API endpoint that describes exactly how the workflow should be triggered to the LLM/AI Agent. That makes it trivial to build agents that can trigger complex cross-channel messaging flows, with no integration logic.
+
+## Configuring which workflows are exposed as tools
+
+When using the agent toolkit, you can optionally configure exactly which workflows are exposed as tools. To do so, you can set the `permissions.workflows.run` property on the agent toolkit configuration.
+
+In the below example, we're ensuring that **only** the `comment-created`, `task-completed`, and `welcome-user` workflows are exposed as tools to the LLM:
+
+```typescript
+const toolkit = createAgentToolkit({
+  permissions: {
+    workflows: {
+      run: ["comment-created", "task-completed", "welcome-user"],
+    },
+  },
+});
+```
+
+If you wish to omit exposing any workflows as tools, you can set the `permissions.workflows.run` property to an empty array:
+
+```typescript
+const toolkit = createAgentToolkit({
+  permissions: { workflows: { run: [] } },
+});
+```
+
+## Describing the trigger data for each workflow
+
+The trigger data tool created for each workflow exposes the [workflow's trigger data JSON schema](/developer-tools/validating-trigger-data) to the LLM to describe the data payload required to trigger the workflow, and what the shape of that expected data should be.
+
+This allows you to define an explicit contract for your workflow and ensure that the LLM is passing in the correct data when invoking the workflow to send notifications, adding a safe guard so that workflows cannot be triggered with incorrect data supplied.
+
+## Tips for exposing workflows to LLMs
+
+<AccordionGroup>
+  <Accordion title="Use the workflow description to add additional calling context for the LLM">
+    The workflow description is a great place to add additional calling context
+    for the LLM as it is injected into the prompt that exposes the tool. That
+    means you can use the description to add additional calling context, like
+    when the workflow should be used, or what the context of the workflow is.
+  </Accordion>
+  <Accordion title="Limit the workflows that are exposed to the LLM">
+    It's best if you limit the workflows exposed to the LLM as tools to only
+    those that you absolutely know that the LLM can trigger. This helps keep the
+    LLM "focussed" on the task, and sticks to best practice about the total
+    number of tools available.
+  </Accordion>
+  <Accordion title="Ensure your trigger data JSON schema has good descriptions">
+    The trigger data JSON schema is a great place to add descriptions to the
+    fields of the data payload. This helps the LLM understand the data payload
+    and fill it in accurately.
+  </Accordion>
+  <Accordion title="Keep your trigger data JSON schema as simple as possible">
+    Although the LLM can fill in the trigger data for the workflow, it's best to
+    keep the trigger data JSON schema as simple as possible to aid with
+    accuracy.
+  </Accordion>
+</AccordionGroup>
+
+## Example prompts for triggering workflows
+
+Here are some example prompts for invoking your workflows as tools in your AI Agent:
+
+- "Trigger the comment-created workflow for the current user."
+- "When the task completes, notify the user using the task-completed workflow."
+- "Send all of the users in the engineering team a welcome message using the welcome-user workflow."

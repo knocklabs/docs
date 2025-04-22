@@ -264,8 +264,20 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/overview", title: "Overview" },
           { slug: "/getting-started", title: "Getting started" },
           {
+            slug: "/workflows-as-tools",
+            title: "Workflows-as-tools",
+          },
+          {
             slug: "/human-in-the-loop-flows",
             title: "Human-in-the-loop flows",
+          },
+          {
+            slug: "/providing-context",
+            title: "Providing context",
+          },
+          {
+            slug: "/working-with-environments",
+            title: "Working with environments",
           },
         ],
       },
