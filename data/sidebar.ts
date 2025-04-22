@@ -262,11 +262,17 @@ const sidebarContent: SidebarSection[] = [
         isBeta: true,
         pages: [
           { slug: "/overview", title: "Overview" },
+          { slug: "/getting-started", title: "Getting started" },
+          {
+            slug: "/human-in-the-loop-flows",
+            title: "Human-in-the-loop flows",
+          },
         ],
       },
       {
         slug: "/mcp-server",
         title: "MCP Server",
+        isBeta: true,
       },
       {
         slug: "/building-with-llms",

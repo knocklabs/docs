@@ -4,6 +4,21 @@ description: Use Knock's Agent Toolkit to give your AI agents the ability to sen
 section: Developer tools
 ---
 
+The Knock Agent Toolkit exposes a set of tools that your AI agent applications can use to interact with Knock via function calling. Using the Knock Agent Toolkit, you can:
+
+- Give your AI agent applications the ability to send cross-channel notifications to your users.
+- Power rich human-in-the-loop flows that allow your agents to solicit structured input from users, or require human approval of actions taken by your agents.
+- Let your agents create and manage resources within your Knock account.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      The Knock Agent Toolkit is currently in beta as a typescript package only. We're considering adding support for Python too. If you're interested in using the Knock Agent Toolkit in another language, please let us know at <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
+
 ## Workflows-as-tools
 
 By default the agent toolkit will expose each of your workflows as a tool that your agents can invoke to power cross-channel messaging. Meaning, if you have a workflow (`comment-created`) within your Knock account, the agent toolkit will expose a `trigger_comment_created_workflow` tool that your agents can invoke to send a notification.
@@ -14,8 +29,53 @@ You can control this behavior by either turning it off entirely by setting `work
 
 ## Human-in-the-loop flows
 
+You can use the agent toolkit to power rich human-in-the-loop interactions. For example, you can use the agent toolkit to create a workflow that allows a person to approve or reject work that the agent has done, powered by Knock's cross-channel messaging workflows.
+
+The toolkit exposes the ability for you to wrap any of the tools exposed to your agents as requiring human input. When wrapped, your tools will first delegate to Knock to trigger a workflow that you define, and then you can asynchronously continue the tool execution once you have received a response.
+
+```typescript title="Wrapping a tool as requiring human input"
+import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+const toolkit = createToolkit({
+  serviceToken: process.env.KNOCK_SERVICE_TOKEN,
+});
+
+const classifyToolRequiringInput = toolkit.requireHumanInput(classifyWork, {
+  workflow: "approve-classification",
+  recipients: ["user_123"],
+});
+```
+
+You can read more about [powering human-in-the-loop flows in the guide](/developer-tools/agent-toolkit/human-in-the-loop-flows).
 
 ## Creating Knock resources
 
+You can create Knock resources using the agent toolkit through function calling. For example, you may want an agent to create or update a user's record in Knock as part of your agent workflow, or subscribe a user to another object so they can receive notifications later.
+
+The agent toolkit exposes most common Knock resources as tools that your agents can invoke. You can see the list of available tools in the [package documentation](https://github.com/knocklabs/agent-toolkit).
+
 ## Security and authorization
+
+To authenticate with the Knock Agent Toolkit, you need to provide a [service token](/developer-tools/service-tokens) for your Knock account. This token should be kept secret and not exposed to the LLM. Your service token grants access to all of your Knock resources, so it's important to keep it secure.
+
+You can also customize the tools exposed to the AI Agent by specifying a set of permissions that define the resources that the agent has access to.
+
+For example, the following permissions will expose only the `users` resource to the agent, which will include the ability to read and manage users.
+
+```typescript title="Setting permissions for the agent"
+{
+  permissions: {
+    users: {
+      read: true,
+      manage: true
+    },
+  },
+};
+```
+
+## See also
+
+- [Getting started with the Knock Agent Toolkit](/developer-tools/agent-toolkit/getting-started)
+- [Building with LLMs](/developer-tools/building-with-llms)
+- [Model Context Protocol (MCP) Server](/developer-tools/mcp-server)
 
