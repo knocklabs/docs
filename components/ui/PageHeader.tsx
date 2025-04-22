@@ -17,7 +17,7 @@ function selectedTab(pathname: string) {
   if (pathname.startsWith("/developer-tools")) {
     return "developer-tools";
   }
-  if (pathname.startsWith("/api-reference")) {
+  if (pathname.startsWith("/reference")) {
     return "api-reference";
   }
   if (pathname.startsWith("/cli-reference")) {

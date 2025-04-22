@@ -19,9 +19,26 @@ const Wrapper = ({ children }) => (
 
 const Masthead = ({ title }) => <PageHeader title={title} />;
 
-const Content = ({ children }) => (
-  <Stack direction="row" py="6" width="full" ml="60" position="relative">
-    <Box style={{ maxWidth: "600px" }} ml="24">
+const Content = ({ children, maxWidth }) => (
+  <Stack
+    direction="row"
+    py="6"
+    ml="60"
+    position="relative"
+    w={maxWidth ? "auto" : "full"}
+    style={{
+      maxWidth: maxWidth
+        ? `calc(${maxWidth} - var(--tgph-spacing-60))`
+        : "inherit",
+    }}
+  >
+    <Box
+      ml="24"
+      pr={maxWidth ? "24" : "0"}
+      style={{
+        width: maxWidth ? `calc(100% - var(--tgph-spacing-24))` : "600px",
+      }}
+    >
       {children}
     </Box>
   </Stack>
