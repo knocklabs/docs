@@ -4675,154 +4675,6 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
-  /v1/channels/{channel_id}/messages/bulk/{status}:
-    post:
-      callbacks: {}
-      description: >-
-        Bulk update the status of messages for a specific channel. The channel is specified by the
-        `channel_id` parameter. The action to perform is specified by the `action` parameter, where the action
-        is a status change action (e.g. `archive`, `unarchive`).
-      operationId: bulkUpdateMessagesForChannel
-      parameters:
-        - description: The ID of the channel to update messages for.
-          in: path
-          name: channel_id
-          required: true
-          schema:
-            format: uuid
-            type: string
-        - description: ''
-          in: path
-          name: status
-          required: true
-          schema:
-            description: The target status to be applied to the messages.
-            enum:
-              - seen
-              - unseen
-              - read
-              - unread
-              - archived
-              - unarchived
-              - interacted
-              - archive
-              - unarchive
-              - delete
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BulkUpdateMessagesForChannelRequest'
-        description: Params
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BulkOperation'
-          description: OK
-      summary: Bulk update message statuses for channel
-      tags:
-        - Messages
-        - Bulk operations
-      x-ratelimit-tier: 2
-      x-retention-policy: true
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const bulkOperation = await client.channels.bulk.updateMessageStatus(
-              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-              'seen',
-            );
-
-            console.log(bulkOperation.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          bulk_operation = client.channels.bulk.update_message_status(
-              channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-              status="seen",
-          )
-          print(bulk_operation.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            bulkOperation, err := client.Channels.Bulk.UpdateMessageStatus(
-              context.TODO(),
-              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-              knock.ChannelBulkUpdateMessageStatusParamsStatusSeen,
-              knock.ChannelBulkUpdateMessageStatusParams{
-
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", bulkOperation.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.bulkoperations.BulkOperation;
-          import app.knock.api.models.channels.bulk.BulkUpdateMessageStatusParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  BulkUpdateMessageStatusParams params = BulkUpdateMessageStatusParams.builder()
-                      .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
-                      .status(BulkUpdateMessageStatusParams.Status.SEEN)
-                      .build();
-                  BulkOperation bulkOperation = client.channels().bulk().updateMessageStatus(params);
-              }
-          }
-        ruby: >-
-          require "knockapi"
-
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-
-          bulk_operation = knock.channels.bulk.update_message_status("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-          :seen)
-
-
-          puts(bulk_operation)
   /v1/users/{user_id}/preferences/{preference_set_id}:
     get:
       callbacks: {}
@@ -11628,6 +11480,153 @@ paths:
           page = knock.messages.list_activities("message_id")
 
           puts(page)
+  /v1/channels/{channel_id}/messages/bulk/{action}:
+    post:
+      callbacks: {}
+      description: >-
+        Bulk update the status of messages for a specific channel. The channel is specified by the
+        `channel_id` parameter. The action to perform is specified by the `action` parameter, where the action
+        is a status change action (e.g. `archive`, `unarchive`).
+      operationId: bulkUpdateMessagesForChannel
+      parameters:
+        - description: The ID of the channel to update messages for.
+          in: path
+          name: channel_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: The target status to be applied to the messages.
+          in: path
+          name: action
+          required: true
+          schema:
+            enum:
+              - seen
+              - unseen
+              - read
+              - unread
+              - archived
+              - unarchived
+              - interacted
+              - archive
+              - unarchive
+              - delete
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkUpdateMessagesForChannelRequest'
+        description: Params
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperation'
+          description: OK
+      summary: Bulk update message statuses for channel
+      tags:
+        - Messages
+        - Bulk operations
+      x-ratelimit-tier: 2
+      x-retention-policy: true
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const bulkOperation = await client.channels.bulk.updateMessageStatus(
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+              'seen',
+            );
+
+            console.log(bulkOperation.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          bulk_operation = client.channels.bulk.update_message_status(
+              channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+              action="seen",
+          )
+          print(bulk_operation.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            bulkOperation, err := client.Channels.Bulk.UpdateMessageStatus(
+              context.TODO(),
+              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+              knock.ChannelBulkUpdateMessageStatusParamsActionSeen,
+              knock.ChannelBulkUpdateMessageStatusParams{
+
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", bulkOperation.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.bulkoperations.BulkOperation;
+          import app.knock.api.models.channels.bulk.BulkUpdateMessageStatusParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  BulkUpdateMessageStatusParams params = BulkUpdateMessageStatusParams.builder()
+                      .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+                      .action(BulkUpdateMessageStatusParams.Action.SEEN)
+                      .build();
+                  BulkOperation bulkOperation = client.channels().bulk().updateMessageStatus(params);
+              }
+          }
+        ruby: >-
+          require "knockapi"
+
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+
+          bulk_operation = knock.channels.bulk.update_message_status("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          :seen)
+
+
+          puts(bulk_operation)
   /v1/users/{user_id}/feeds/{channel_id}:
     get:
       callbacks: {}
