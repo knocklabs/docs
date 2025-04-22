@@ -28,11 +28,55 @@ Here are some examples of how you can use the MCP server in your workflow:
 
 To get started with the MCP server, you'll need to create a [service token](/developer-tools/service-tokens) to use to authenticate against your Knock account. You can do so under the "Settings" > "Service tokens" page in the Knock dashboard.
 
-Once you have your service
+Once you have your service, you can then setup the MCP Server in any MCP Client-compatible AI application. We've added the setup instructions below for both Cursor and Claude Desktop, but the same instructions apply to any other MCP Client-compatible application.
+
+**Note**: To run the local MCP server you must have Node 20 or higher installed and accessible globally on your system. You can test this by running `node --version` in your terminal.
 
 ### Cursor
 
+1. Go to your Cursor settings and find the "MCP" section
+2. Click "Add new global MCP server"
+3. Inside of your `mcp.json` file under the `mcpServers` key, add the following:
+
+```json
+{
+  "knock": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@knocklabs/agent-toolkit",
+      "-p",
+      "local-mcp",
+      "--service-token",
+      "YOUR-SERVICE-TOKEN"
+    ],
+    "name": "Knock MCP Server"
+  }
+}
+```
+
 ### Claude Desktop
+
+1. Open the Claude Desktop settings and find the "Developer" section
+2. Click to "Edit Config"
+3. Open your `claude_desktop_config.json` file in your preferred text editor
+4. Add the following to the `mcpServers` section (or add the key if it doesn't exist):
+
+```json
+{
+  "knock": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@knocklabs/agent-toolkit",
+      "-p",
+      "local-mcp",
+      "--service-token",
+      "YOUR-SERVICE-TOKEN"
+    ]
+  }
+}
+```
 
 ## Configuring the available tools
 
@@ -72,5 +116,13 @@ Please note: at the time of writing, the MCP server **does not** ship with any t
     No, currently we support a local MCP server only. We are, however, working
     on a remote MCP server so that an individual Knock account can be
     authenticated.
+  </Accordion>
+   <Accordion title="Why do I see a warning about having too many tools?">
+    Some MCP clients will warn you about having more than 50 tools. By default, Knock ships with 30 tools, but when using workflows-as-tools, this number can grow quickly.
+
+    To address this, you should opt into only using the tools you need. For
+    example, if you only use the `users.create` tool, you can expose only that
+    tool by passing in the `--tools` flag.
+
   </Accordion>
 </AccordionGroup>
