@@ -45,14 +45,20 @@ resources:
       inline_identify_user_request: '#/components/schemas/InlineIdentifyUserRequest'
     methods:
       get: get /v1/users/{user_id}
-      list: get /v1/users
+      list: 
+        endpoint: get /v1/users
       update: put /v1/users/{user_id}
       merge: post /v1/users/{user_id}/merge
       delete: delete /v1/users/{user_id}
-      list_messages: get /v1/users/{user_id}/messages
-      list_schedules: get /v1/users/{user_id}/schedules
-      list_subscriptions: get /v1/users/{user_id}/subscriptions
-      list_preferences: get /v1/users/{user_id}/preferences
+      list_messages: 
+        endpoint: get /v1/users/{user_id}/messages
+      list_schedules: 
+        endpoint: get /v1/users/{user_id}/schedules
+      list_subscriptions: 
+        endpoint: get /v1/users/{user_id}/subscriptions
+      list_preferences: 
+        endpoint: get /v1/users/{user_id}/preferences
+        paginated: false
       get_preferences: 
         type: http
         endpoint: get /v1/users/{user_id}/preferences/{preference_set_id}
@@ -112,13 +118,13 @@ resources:
       object: '#/components/schemas/Object'
       inline_object_request: '#/components/schemas/InlineIdentifyObjectRequest'
     methods:
-      get: 
-        type: http
-        endpoint: get /v1/objects/{collection}/{object_id}
-        positional_params: [collection, object_id]
       set: 
         type: http
         endpoint: put /v1/objects/{collection}/{object_id}
+        positional_params: [collection, object_id]
+      get: 
+        type: http
+        endpoint: get /v1/objects/{collection}/{object_id}
         positional_params: [collection, object_id]
       list: get /v1/objects/{collection}
       delete: 
@@ -204,10 +210,14 @@ resources:
     methods:
       get: get /v1/messages/{message_id}
       get_content: get /v1/messages/{message_id}/content
-      list: get /v1/messages
-      list_events: get /v1/messages/{message_id}/events
-      list_delivery_logs: get /v1/messages/{message_id}/delivery_logs
-      list_activities: get /v1/messages/{message_id}/activities
+      list: 
+        endpoint: get /v1/messages
+      list_events: 
+        endpoint: get /v1/messages/{message_id}/events
+      list_delivery_logs: 
+        endpoint: get /v1/messages/{message_id}/delivery_logs
+      list_activities: 
+        endpoint: get /v1/messages/{message_id}/activities
       mark_as_seen: put /v1/messages/{message_id}/seen
       mark_as_unseen: delete /v1/messages/{message_id}/seen
       mark_as_read: put /v1/messages/{message_id}/read
@@ -226,11 +236,17 @@ resources:
           mark_as_interacted: post /v1/messages/batch/interacted
           archive: post /v1/messages/batch/archived
           unarchive: post /v1/messages/batch/unarchived
+      activities:
+        methods:
+          list:
+            endpoint: get /v1/messages/{message_id}/activities
   providers:
     subresources:
       slack:
         methods:
-          list_channels: get /v1/providers/slack/{channel_id}/channels
+          list_channels:
+            endpoint: get /v1/providers/slack/{channel_id}/channels
+            paginated: slack_channels_cursor
           check_auth: get /v1/providers/slack/{channel_id}/auth_check
           revoke_access: put /v1/providers/slack/{channel_id}/revoke_access
       ms_teams:
@@ -238,7 +254,9 @@ resources:
           list_channels:
             endpoint: get /v1/providers/ms-teams/{channel_id}/channels
             paginated: false
-          list_teams: get /v1/providers/ms-teams/{channel_id}/teams
+          list_teams:
+            endpoint: get /v1/providers/ms-teams/{channel_id}/teams
+            paginated: ms_teams_pagination
           check_auth: get /v1/providers/ms-teams/{channel_id}/auth_check
           revoke_access: put /v1/providers/ms-teams/{channel_id}/revoke_access
   integrations:
@@ -270,11 +288,10 @@ resources:
     subresources:
       bulk:
         methods:
-          # delete_messages: post /v1/channels/{channel_id}/messages/bulk/delete
           update_message_status: 
             type: http
-            endpoint: post /v1/channels/{channel_id}/messages/bulk/{action}
-            positional_params: [channel_id, action]
+            endpoint: post /v1/channels/{channel_id}/messages/bulk/{status}
+            positional_params: [channel_id, status]
   audiences:
     models:
       audience_member: '#/components/schemas/AudienceMember'
@@ -346,6 +363,7 @@ pagination:
         type: array
         items:
           type: object
+          additionalProperties: true
       page_info:
         type: object
         properties:
@@ -371,6 +389,7 @@ pagination:
         type: array
         items:
           type: object
+          additionalProperties: true
       page_info:
         type: object
         properties:
@@ -396,6 +415,26 @@ pagination:
         type: array
         items:
           type: object
+          additionalProperties: true
+  - name: ms_teams_pagination
+    type: cursor
+    request:
+      "query_options.$skiptoken":
+        type: string
+        x-stainless-pagination-property:
+          purpose: next_cursor_param
+      "query_options.$top":
+        type: integer
+    response:
+      skip_token:
+        type: string
+        x-stainless-pagination-property:
+          purpose: next_cursor_field
+      ms_teams_teams:
+        type: array
+        items:
+          type: object
+          additionalProperties: true
 readme:
   example_requests:
     default:

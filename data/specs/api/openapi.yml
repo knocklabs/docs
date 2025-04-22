@@ -180,39 +180,6 @@ components:
         $ref: '#/components/schemas/PreferenceSet'
       title: ListUserPreferenceSetsResponse
       type: array
-    MessageUnarchived:
-      allOf:
-        - $ref: '#/components/schemas/Message'
-      example:
-        actors:
-          - user_123
-        archived_at: null
-        channel_id: 123e4567-e89b-12d3-a456-426614174000
-        clicked_at: null
-        data:
-          foo: bar
-        engagement_statuses: []
-        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
-        inserted_at: '2021-01-01T00:00:00Z'
-        interacted_at: null
-        link_clicked_at: null
-        metadata:
-          external_id: 123e4567-e89b-12d3-a456-426614174000
-        read_at: null
-        recipient: user_123
-        scheduled_at: null
-        seen_at: null
-        source:
-          __typename: NotificationSource
-          categories:
-            - collaboration
-          key: comment-created
-          version_id: 123e4567-e89b-12d3-a456-426614174000
-        status: sent
-        tenant: tenant_123
-        updated_at: '2021-01-01T00:00:00Z'
-        workflow: comment-created
-      title: MessageUnarchived
     PreferenceSetWorkflowCategorySettingObject:
       description: The settings object for a workflow or category, where you can specify channel types or conditions.
       example:
@@ -644,7 +611,9 @@ components:
       title: PreferenceSetChannelTypes
       type: object
     MessageEvent:
-      description: A message event.
+      description: >-
+        A message event. Occurs when a message [delivery or engagement
+        status](/send-notifications/message-statuses) changes.
       example:
         __typename: MessageEvent
         data: null
@@ -734,9 +703,11 @@ components:
           format: uuid
           type: string
         content:
+          additionalProperties: true
           description: The content of the guide.
           type: object
         data:
+          additionalProperties: true
           description: The data of the guide.
           type: object
         guide_id:
@@ -753,6 +724,7 @@ components:
           description: Whether the guide is final.
           type: boolean
         metadata:
+          additionalProperties: true
           description: The metadata of the guide.
           type: object
         tenant:
@@ -859,7 +831,7 @@ components:
       title: ListSchedulesResponse
       type: object
     BatchMessagesStatusRequest:
-      description: Request to update the status of multiple messages in batch
+      description: Request to update the status of multiple messages in batch.
       example:
         message_ids:
           - 2w3YUpTTOxuDvZFji8OMsKrG176
@@ -869,7 +841,6 @@ components:
           description: The message IDs to update the status of.
           items:
             description: The message ID to update the status of.
-            format: uuid
             type: string
           type: array
       required:
@@ -964,9 +935,16 @@ components:
     DiscordChannelData:
       description: Discord channel data.
       example:
+        __typename: DiscordChannelData
         connections:
           - channel_id: '123456789012345678'
       properties:
+        __typename:
+          description: The typename of the schema.
+          enum:
+            - DiscordChannelData
+          example: DiscordChannelData
+          type: string
         connections:
           description: List of Discord channel connections.
           items:
@@ -978,6 +956,7 @@ components:
           nullable: false
           type: array
       required:
+        - __typename
         - connections
       title: DiscordChannelData
       type: object
@@ -1669,7 +1648,9 @@ components:
       title: CreateSchedulesRequest
       type: object
     MessageDeliveryLog:
-      description: A message delivery log.
+      description: >-
+        A message delivery log contains a `request` from Knock to a downstream provider and the `response`
+        that was returned.
       example:
         __typename: MessageDeliveryLog
         environment_id: 123e4567-e89b-12d3-a456-426614174000
@@ -1994,41 +1975,6 @@ components:
         - data
       title: InAppFeedItem
       type: object
-    MessageRead:
-      allOf:
-        - $ref: '#/components/schemas/Message'
-      example:
-        actors:
-          - user_123
-        archived_at: null
-        channel_id: 123e4567-e89b-12d3-a456-426614174000
-        clicked_at: null
-        data:
-          foo: bar
-        engagement_statuses:
-          - seen
-          - read
-        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
-        inserted_at: '2021-01-01T00:00:00Z'
-        interacted_at: null
-        link_clicked_at: null
-        metadata:
-          external_id: 123e4567-e89b-12d3-a456-426614174000
-        read_at: '2025-01-01T00:02:00Z'
-        recipient: user_123
-        scheduled_at: null
-        seen_at: '2025-01-01T00:01:00Z'
-        source:
-          __typename: NotificationSource
-          categories:
-            - collaboration
-          key: comment-created
-          version_id: 123e4567-e89b-12d3-a456-426614174000
-        status: sent
-        tenant: tenant_123
-        updated_at: '2021-01-01T00:00:00Z'
-        workflow: comment-created
-      title: MessageRead
     MessageDeliveryLogResponse:
       description: A message delivery log response.
       example:
@@ -2180,7 +2126,7 @@ components:
         a [batch step](/designing-workflows/batch-function), this will contain one or more activities.
         Non-batched messages will always return a single activity.
       example:
-        entries:
+        items:
           - __typename: Activity
             actor: null
             data:
@@ -2204,7 +2150,7 @@ components:
           before: null
           page_size: 25
       properties:
-        entries:
+        items:
           description: A list of activities.
           items:
             $ref: '#/components/schemas/Activity'
@@ -2212,7 +2158,7 @@ components:
         page_info:
           $ref: '#/components/schemas/PageInfo'
       required:
-        - entries
+        - items
         - page_info
       title: ListActivitiesResponse
       type: object
@@ -2514,14 +2460,36 @@ components:
                   email: true
         timezone: America/New_York
       properties:
+        avatar:
+          description: URL to the user's avatar image.
+          nullable: true
+          type: string
         channel_data:
           allOf:
             - $ref: '#/components/schemas/InlineChannelDataRequest'
-          description: A set of channel data for the user. This is a map of channel IDs to channel data.
+          description: Channel-specific information that's needed to deliver a notification to an end provider.
           nullable: true
         created_at:
           description: The creation date of the user from your system.
           format: date-time
+          nullable: true
+          type: string
+        email:
+          description: The primary email address for the user.
+          nullable: true
+          type: string
+        locale:
+          description: The locale of the user. Used for [message localization](/concepts/translations).
+          nullable: true
+          type: string
+        name:
+          description: Display name of the user.
+          nullable: true
+          type: string
+        phone_number:
+          description: >-
+            The [E.164](https://www.twilio.com/docs/glossary/what-e164) phone number of the user (required for
+            SMS channels).
           nullable: true
           type: string
         preferences:
@@ -2529,6 +2497,13 @@ components:
             - $ref: '#/components/schemas/InlinePreferenceSetRequest'
           description: A set of preferences for the user.
           nullable: true
+        timezone:
+          description: >-
+            The timezone of the user. Must be a valid [tz database time zone
+            string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring
+            schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+          nullable: true
+          type: string
       title: IdentifyUserRequest
       type: object
     ChannelsForMsTeamsProviderResponse:
@@ -2812,7 +2787,10 @@ components:
       type: object
     User:
       additionalProperties: true
-      description: A user who can receive notifications in Knock. They are always referenced by your internal identifier.
+      description: >-
+        A [User](/concepts/users) represents an individual in your system who can receive notifications
+        through Knock. Users are the most common recipients of notifications and are always referenced by your
+        internal identifier.
       example:
         __typename: User
         created_at: null
@@ -2835,7 +2813,7 @@ components:
           nullable: true
           type: string
         email:
-          description: The email address of the user.
+          description: The primary email address for the user.
           nullable: true
           type: string
         id:
@@ -2846,11 +2824,16 @@ components:
           nullable: true
           type: string
         phone_number:
-          description: Phone number of the user.
+          description: >-
+            The [E.164](https://www.twilio.com/docs/glossary/what-e164) phone number of the user (required for
+            SMS channels).
           nullable: true
           type: string
         timezone:
-          description: Timezone of the user.
+          description: >-
+            The timezone of the user. Must be a valid [tz database time zone
+            string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring
+            schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
           nullable: true
           type: string
         updated_at:
@@ -2978,42 +2961,6 @@ components:
         - user
       title: AudienceMember
       type: object
-    MessageInteracted:
-      allOf:
-        - $ref: '#/components/schemas/Message'
-      example:
-        actors:
-          - user_123
-        archived_at: null
-        channel_id: 123e4567-e89b-12d3-a456-426614174000
-        clicked_at: null
-        data:
-          foo: bar
-        engagement_statuses:
-          - seen
-          - read
-          - interacted
-        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
-        inserted_at: '2021-01-01T00:00:00Z'
-        interacted_at: '2025-01-01T00:03:00Z'
-        link_clicked_at: null
-        metadata:
-          external_id: 123e4567-e89b-12d3-a456-426614174000
-        read_at: '2025-01-01T00:02:00Z'
-        recipient: user_123
-        scheduled_at: null
-        seen_at: '2025-01-01T00:01:00Z'
-        source:
-          __typename: NotificationSource
-          categories:
-            - collaboration
-          key: comment-created
-          version_id: 123e4567-e89b-12d3-a456-426614174000
-        status: sent
-        tenant: tenant_123
-        updated_at: '2021-01-01T00:00:00Z'
-        workflow: comment-created
-      title: MessageInteracted
     MessageSmsContent:
       description: The content of an SMS message.
       example:
@@ -3065,6 +3012,7 @@ components:
     SlackChannelData:
       description: Slack channel data
       example:
+        __typename: SlackChannelData
         connections:
           - access_token: xoxb-1234567890
             channel_id: C01234567890
@@ -3072,6 +3020,12 @@ components:
         token:
           access_token: xoxb-1234567890
       properties:
+        __typename:
+          description: The typename of the schema.
+          enum:
+            - SlackChannelData
+          example: SlackChannelData
+          type: string
         connections:
           description: List of Slack channel connections.
           items:
@@ -3098,10 +3052,18 @@ components:
             - access_token
           title: SlackChannelDataTokenObject
           type: object
+      required:
+        - __typename
+        - connections
       title: SlackChannelData
       type: object
     BulkUpdateMessagesForChannelRequest:
-      description: A request to bulk update messages for a specific channel.
+      description: >-
+        Updates message statuses in a specified channel. Use the `channel_id` parameter to target the channel
+        and the `status` parameter to define what the status should be changed to (e.g. `archive`,
+        `unarchive`). Apply to all messages or use filters to target a subset. For in-app channels, messages
+        can be updated indefinitely via this operation. For all other channel types, messages outside the
+        account's retention window will not be updated as part of this operation.
       example:
         archived: include
         delivery_status: delivered
@@ -3154,16 +3116,13 @@ components:
           description: Limits the results to messages that have a tenant or not.
           type: boolean
         newer_than:
+          description: Limits the results to messages inserted after the given date.
           format: date-time
           type: string
         older_than:
+          description: Limits the results to messages inserted before the given date.
           format: date-time
           type: string
-        recipient_gids:
-          description: Limits the results to messages with the given recipient GIDs.
-          items:
-            type: string
-          type: array
         recipient_ids:
           description: Limits the results to messages with the given recipient IDs.
           items:
@@ -3201,7 +3160,8 @@ components:
           clicked_at: null
           data:
             foo: bar
-          engagement_statuses: []
+          engagement_statuses:
+            - seen
           id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
           inserted_at: '2021-01-01T00:00:00Z'
           interacted_at: null
@@ -3211,7 +3171,7 @@ components:
           read_at: null
           recipient: user_123
           scheduled_at: null
-          seen_at: null
+          seen_at: '2025-01-01T00:01:00Z'
           source:
             __typename: NotificationSource
             categories:
@@ -3223,11 +3183,45 @@ components:
           updated_at: '2021-01-01T00:00:00Z'
           workflow: comment-created
       items:
-        $ref: '#/components/schemas/MessageUnarchived'
+        allOf:
+          - $ref: '#/components/schemas/Message'
+        example:
+          actors:
+            - user_123
+          archived_at: null
+          channel_id: 123e4567-e89b-12d3-a456-426614174000
+          clicked_at: null
+          data:
+            foo: bar
+          engagement_statuses:
+            - seen
+          id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+          inserted_at: '2021-01-01T00:00:00Z'
+          interacted_at: null
+          link_clicked_at: null
+          metadata:
+            external_id: 123e4567-e89b-12d3-a456-426614174000
+          read_at: null
+          recipient: user_123
+          scheduled_at: null
+          seen_at: '2025-01-01T00:01:00Z'
+          source:
+            __typename: NotificationSource
+            categories:
+              - collaboration
+            key: comment-created
+            version_id: 123e4567-e89b-12d3-a456-426614174000
+          status: sent
+          tenant: tenant_123
+          updated_at: '2021-01-01T00:00:00Z'
+          workflow: comment-created
       title: BatchListMessagesResponse
       type: array
     Activity:
-      description: An activity associated with a workflow run.
+      description: >-
+        An activity associated with a workflow trigger request. Messages produced after a [batch
+        step](/designing-workflows/batch-function) can be associated with one or more activities. Non-batched
+        messages will always be associated with a single activity.
       example:
         __typename: Activity
         actor: null
@@ -3259,7 +3253,7 @@ components:
           type: object
         data:
           additionalProperties: true
-          description: The data associated with the activity.
+          description: The workflow trigger `data` payload associated with the activity.
           nullable: true
           type: object
         id:
@@ -3267,13 +3261,13 @@ components:
           example: 2FVHPWxRqNuXQ9krvNP5A6Z4qXe
           type: string
         inserted_at:
-          description: Timestamp when the resource was created.
+          description: Timestamp when the activity was created.
           format: date-time
           type: string
         recipient:
           $ref: '#/components/schemas/Recipient'
         updated_at:
-          description: The timestamp when the resource was last updated.
+          description: Timestamp when the activity was last updated.
           format: date-time
           type: string
       title: Activity
@@ -3307,7 +3301,7 @@ components:
         channel_data:
           allOf:
             - $ref: '#/components/schemas/InlineChannelDataRequest'
-          description: A set of channel data for the user. This is a map of channel IDs to channel data.
+          description: Channel-specific information that's needed to deliver a notification to an end provider.
           nullable: true
         created_at:
           description: The creation date of the user from your system.
@@ -3330,6 +3324,7 @@ components:
     MsTeamsChannelData:
       description: Microsoft Teams channel connection.
       example:
+        __typename: MsTeamsChannelData
         connections:
           - ms_teams_channel_id: 123e4567-e89b-12d3-a456-426614174000
             ms_teams_team_id: 123e4567-e89b-12d3-a456-426614174000
@@ -3337,6 +3332,12 @@ components:
             ms_teams_user_id: null
         ms_teams_tenant_id: null
       properties:
+        __typename:
+          description: The typename of the schema.
+          enum:
+            - MsTeamsChannelData
+          example: MsTeamsChannelData
+          type: string
         connections:
           description: List of Microsoft Teams connections.
           items:
@@ -3353,15 +3354,23 @@ components:
           nullable: true
           type: string
       required:
+        - __typename
         - connections
       title: MsTeamsChannelData
       type: object
     OneSignalChannelData:
       description: OneSignal channel data.
       example:
+        __typename: OneSignalChannelData
         player_ids:
           - 123e4567-e89b-12d3-a456-426614174000
       properties:
+        __typename:
+          description: The typename of the schema.
+          enum:
+            - OneSignalChannelData
+          example: OneSignalChannelData
+          type: string
         player_ids:
           description: A list of OneSignal player IDs.
           example:
@@ -3374,6 +3383,7 @@ components:
           nullable: false
           type: array
       required:
+        - __typename
         - player_ids
       title: OneSignalChannelData
       type: object
@@ -3496,40 +3506,6 @@ components:
         - cancellation_key
       title: Cancel Request
       type: object
-    MessageSeen:
-      allOf:
-        - $ref: '#/components/schemas/Message'
-      example:
-        actors:
-          - user_123
-        archived_at: null
-        channel_id: 123e4567-e89b-12d3-a456-426614174000
-        clicked_at: null
-        data:
-          foo: bar
-        engagement_statuses:
-          - seen
-        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
-        inserted_at: '2021-01-01T00:00:00Z'
-        interacted_at: null
-        link_clicked_at: null
-        metadata:
-          external_id: 123e4567-e89b-12d3-a456-426614174000
-        read_at: null
-        recipient: user_123
-        scheduled_at: null
-        seen_at: '2025-01-01T00:01:00Z'
-        source:
-          __typename: NotificationSource
-          categories:
-            - collaboration
-          key: comment-created
-          version_id: 123e4567-e89b-12d3-a456-426614174000
-        status: sent
-        tenant: tenant_123
-        updated_at: '2021-01-01T00:00:00Z'
-        workflow: comment-created
-      title: MessageSeen
     BulkOperation:
       description: A bulk operation entity.
       example:
@@ -3543,6 +3519,7 @@ components:
         inserted_at: '2024-05-22T12:00:00Z'
         name: Bulk operation name
         processed_rows: 0
+        progress_path: https://api.switchboard.com/v1/bulk_operations/123e4567-e89b-12d3-a456-426614174000
         started_at: null
         status: processing
         success_count: 0
@@ -3601,6 +3578,10 @@ components:
           description: The number of rows processed so far.
           example: 0
           type: integer
+        progress_path:
+          description: The URI to the bulk operation's progress.
+          format: uri
+          type: string
         started_at:
           description: Timestamp when the bulk operation was started.
           format: date-time
@@ -3998,40 +3979,6 @@ components:
         - channel_id
       title: DiscordChannelConnection
       type: object
-    MessageUnread:
-      allOf:
-        - $ref: '#/components/schemas/Message'
-      example:
-        actors:
-          - user_123
-        archived_at: null
-        channel_id: 123e4567-e89b-12d3-a456-426614174000
-        clicked_at: null
-        data:
-          foo: bar
-        engagement_statuses:
-          - seen
-        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
-        inserted_at: '2021-01-01T00:00:00Z'
-        interacted_at: null
-        link_clicked_at: null
-        metadata:
-          external_id: 123e4567-e89b-12d3-a456-426614174000
-        read_at: null
-        recipient: user_123
-        scheduled_at: null
-        seen_at: '2025-01-01T00:01:00Z'
-        source:
-          __typename: NotificationSource
-          categories:
-            - collaboration
-          key: comment-created
-          version_id: 123e4567-e89b-12d3-a456-426614174000
-        status: sent
-        tenant: tenant_123
-        updated_at: '2021-01-01T00:00:00Z'
-        workflow: comment-created
-      title: MessageUnread
     AuthenticationError:
       description: Authentication error response
       example:
@@ -4181,39 +4128,6 @@ components:
         - updated_at
       title: Schedule
       type: object
-    MessageUnseen:
-      allOf:
-        - $ref: '#/components/schemas/Message'
-      example:
-        actors:
-          - user_123
-        archived_at: null
-        channel_id: 123e4567-e89b-12d3-a456-426614174000
-        clicked_at: null
-        data:
-          foo: bar
-        engagement_statuses: []
-        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
-        inserted_at: '2021-01-01T00:00:00Z'
-        interacted_at: null
-        link_clicked_at: null
-        metadata:
-          external_id: 123e4567-e89b-12d3-a456-426614174000
-        read_at: null
-        recipient: user_123
-        scheduled_at: null
-        seen_at: null
-        source:
-          __typename: NotificationSource
-          categories:
-            - collaboration
-          key: comment-created
-          version_id: 123e4567-e89b-12d3-a456-426614174000
-        status: sent
-        tenant: tenant_123
-        updated_at: '2021-01-01T00:00:00Z'
-        workflow: comment-created
-      title: MessageUnseen
     SchedulesResponse:
       description: A list of schedules.
       example:
@@ -4463,39 +4377,6 @@ components:
         - schedules
       title: BulkCreateSchedulesRequest
       type: object
-    MessageArchived:
-      allOf:
-        - $ref: '#/components/schemas/Message'
-      example:
-        actors:
-          - user_123
-        archived_at: '2025-01-01T00:04:00Z'
-        channel_id: 123e4567-e89b-12d3-a456-426614174000
-        clicked_at: null
-        data:
-          foo: bar
-        engagement_statuses: []
-        id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
-        inserted_at: '2021-01-01T00:00:00Z'
-        interacted_at: null
-        link_clicked_at: null
-        metadata:
-          external_id: 123e4567-e89b-12d3-a456-426614174000
-        read_at: null
-        recipient: user_123
-        scheduled_at: null
-        seen_at: null
-        source:
-          __typename: NotificationSource
-          categories:
-            - collaboration
-          key: comment-created
-          version_id: 123e4567-e89b-12d3-a456-426614174000
-        status: sent
-        tenant: tenant_123
-        updated_at: '2021-01-01T00:00:00Z'
-        workflow: comment-created
-      title: MessageArchived
     ListMessageEventsResponse:
       description: >-
         Returns a paginated list of [delivery and engagement](/send-notifications/message-statuses) events for
@@ -4794,6 +4675,154 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
+  /v1/channels/{channel_id}/messages/bulk/{status}:
+    post:
+      callbacks: {}
+      description: >-
+        Bulk update the status of messages for a specific channel. The channel is specified by the
+        `channel_id` parameter. The action to perform is specified by the `action` parameter, where the action
+        is a status change action (e.g. `archive`, `unarchive`).
+      operationId: bulkUpdateMessagesForChannel
+      parameters:
+        - description: The ID of the channel to update messages for.
+          in: path
+          name: channel_id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: ''
+          in: path
+          name: status
+          required: true
+          schema:
+            description: The target status to be applied to the messages.
+            enum:
+              - seen
+              - unseen
+              - read
+              - unread
+              - archived
+              - unarchived
+              - interacted
+              - archive
+              - unarchive
+              - delete
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkUpdateMessagesForChannelRequest'
+        description: Params
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperation'
+          description: OK
+      summary: Bulk update message statuses for channel
+      tags:
+        - Messages
+        - Bulk operations
+      x-ratelimit-tier: 2
+      x-retention-policy: true
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const bulkOperation = await client.channels.bulk.updateMessageStatus(
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+              'seen',
+            );
+
+            console.log(bulkOperation.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          bulk_operation = client.channels.bulk.update_message_status(
+              channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+              status="seen",
+          )
+          print(bulk_operation.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            bulkOperation, err := client.Channels.Bulk.UpdateMessageStatus(
+              context.TODO(),
+              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+              knock.ChannelBulkUpdateMessageStatusParamsStatusSeen,
+              knock.ChannelBulkUpdateMessageStatusParams{
+
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", bulkOperation.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.bulkoperations.BulkOperation;
+          import app.knock.api.models.channels.bulk.BulkUpdateMessageStatusParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  BulkUpdateMessageStatusParams params = BulkUpdateMessageStatusParams.builder()
+                      .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+                      .status(BulkUpdateMessageStatusParams.Status.SEEN)
+                      .build();
+                  BulkOperation bulkOperation = client.channels().bulk().updateMessageStatus(params);
+              }
+          }
+        ruby: >-
+          require "knockapi"
+
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+
+          bulk_operation = knock.channels.bulk.update_message_status("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          :seen)
+
+
+          puts(bulk_operation)
   /v1/users/{user_id}/preferences/{preference_set_id}:
     get:
       callbacks: {}
@@ -4827,7 +4856,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Get preference set
+      summary: Get user preference set
       tags:
         - Users
         - Preferences
@@ -4954,7 +4983,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Update preference set
+      summary: Update user preference set
       tags:
         - Users
         - Preferences
@@ -5071,6 +5100,7 @@ paths:
                   description: The method name to execute.
                   type: string
                 params:
+                  additionalProperties: true
                   description: The parameters for the method.
                   type: object
               required:
@@ -5090,6 +5120,7 @@ paths:
                     description: The request ID.
                     type: string
                   result:
+                    additionalProperties: true
                     description: The result of the RPC call.
                     type: object
                 type: object
@@ -5267,7 +5298,7 @@ paths:
               type: string
             type: array
         - description: >-
-            Limits the results to only the message ids given (max 50). Note: when using this option, the
+            Limits the results to only the message IDs given (max 50). Note: when using this option, the
             results will be subject to any other filters applied to the query.
           example:
             - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
@@ -5319,6 +5350,34 @@ paths:
           example: '{"comment_id": "123"}'
           in: query
           name: trigger_data
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted after or on the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.gte
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted before or on the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.lte
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted after the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.gt
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted before the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.lt
           required: false
           schema:
             type: string
@@ -5543,12 +5602,10 @@ paths:
   /v1/users/{user_id}/subscriptions:
     get:
       callbacks: {}
-      description: >-
-        Retrieves a paginated list of subscriptions for a specific user. Allows filtering by objects and
-        includes optional preference data.
+      description: Retrieves a paginated list of subscriptions for a specific user, in descending order.
       operationId: listSubscriptionsForUser
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The user ID to list subscriptions for.
           in: path
           name: user_id
           required: true
@@ -5564,13 +5621,14 @@ paths:
                 - preferences
               type: string
             type: array
-        - description: Only return subscriptions for the given recipients.
+        - description: Only returns subscriptions for the specified object GIDs.
           in: query
           name: objects[]
           required: false
           schema:
             items:
-              $ref: '#/components/schemas/RecipientReference'
+              description: Object GID in the format `gid://Object/collection/id`.
+              type: string
             type: array
         - description: The cursor to fetch entries after.
           in: query
@@ -5597,7 +5655,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ListSubscriptionsResponse'
           description: OK
-      summary: List subscriptions
+      summary: List user subscriptions
       tags:
         - Subscriptions
         - Users
@@ -5890,10 +5948,13 @@ paths:
           puts(user)
     put:
       callbacks: {}
-      description: Create or update a user with the provided identification data.
+      description: >-
+        Create or update a user with the provided identification data. When you identify an existing user, the
+        system merges the properties you specific with what is currently set on the user, updating only the
+        fields included in your requests.
       operationId: identifyUser
       parameters:
-        - description: The ID of the user to identify.
+        - description: The ID for the user that you set when identifying them in Knock.
           in: path
           name: user_id
           required: true
@@ -5911,7 +5972,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                allOf:
+                  - $ref: '#/components/schemas/User'
+                example:
+                  __typename: User
+                  channel_data:
+                    - __typename: ChannelData
+                      channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
+                      data:
+                        __typename: PushChannelData
+                        tokens:
+                          - push_token_123
+                  created_at: '2023-01-01T12:00:00Z'
+                  email: jane@ingen.net
+                  id: user-123
+                  name: Jane Doe
+                  preferences:
+                    - channel_types:
+                        email: true
+                      id: default
+                      workflows:
+                        dinosaurs-loose:
+                          channel_types:
+                            email: true
+                  timezone: America/New_York
+                  updated_at: '2023-01-01T12:00:00Z'
           description: OK
       summary: Identify user
       tags:
@@ -6188,7 +6273,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ListSchedulesResponse'
           description: OK
-      summary: List schedules
+      summary: List object schedules
       tags:
         - Schedules
         - Objects
@@ -6355,7 +6440,7 @@ paths:
               type: string
             type: array
         - description: >-
-            Limits the results to only the message ids given (max 50). Note: when using this option, the
+            Limits the results to only the message IDs given (max 50). Note: when using this option, the
             results will be subject to any other filters applied to the query.
           example:
             - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
@@ -6407,6 +6492,34 @@ paths:
           example: '{"comment_id": "123"}'
           in: query
           name: trigger_data
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted after or on the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.gte
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted before or on the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.lte
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted after the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.gt
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted before the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.lt
           required: false
           schema:
             type: string
@@ -6519,7 +6632,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageUnseen'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: null
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses: []
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: null
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: null
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: null
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Mark message as unseen
       tags:
@@ -7098,7 +7241,8 @@ paths:
                     clicked_at: null
                     data:
                       foo: bar
-                    engagement_statuses: []
+                    engagement_statuses:
+                      - seen
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
                     interacted_at: null
@@ -7108,7 +7252,7 @@ paths:
                     read_at: null
                     recipient: user_123
                     scheduled_at: null
-                    seen_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
                     source:
                       __typename: NotificationSource
                       categories:
@@ -7120,7 +7264,38 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/MessageUnarchived'
+                  allOf:
+                    - $ref: '#/components/schemas/Message'
+                  example:
+                    actors:
+                      - user_123
+                    archived_at: null
+                    channel_id: 123e4567-e89b-12d3-a456-426614174000
+                    clicked_at: null
+                    data:
+                      foo: bar
+                    engagement_statuses:
+                      - seen
+                    id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                    inserted_at: '2021-01-01T00:00:00Z'
+                    interacted_at: null
+                    link_clicked_at: null
+                    metadata:
+                      external_id: 123e4567-e89b-12d3-a456-426614174000
+                    read_at: null
+                    recipient: user_123
+                    scheduled_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
+                    source:
+                      __typename: NotificationSource
+                      categories:
+                        - collaboration
+                      key: comment-created
+                      version_id: 123e4567-e89b-12d3-a456-426614174000
+                    status: sent
+                    tenant: tenant_123
+                    updated_at: '2021-01-01T00:00:00Z'
+                    workflow: comment-created
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -7443,7 +7618,7 @@ paths:
       callbacks: {}
       description: >-
         Creates a new object or updates an existing one in the specified collection. This operation is used to
-        identify objects with their properties and channel data.
+        identify objects with their properties, as well as optional preferences and channel data.
       operationId: setObject
       parameters:
         - description: The collection this object belongs to.
@@ -7583,7 +7758,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageUnread'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: null
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses:
+                    - seen
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: null
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: null
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: '2025-01-01T00:01:00Z'
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Mark message as unread
       tags:
@@ -7734,7 +7940,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageUnseen'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: null
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses: []
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: null
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: null
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: null
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Mark message as unseen
       tags:
@@ -7838,7 +8074,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageSeen'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: null
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses:
+                    - seen
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: null
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: null
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: '2025-01-01T00:01:00Z'
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Mark message as seen
       tags:
@@ -8260,8 +8527,8 @@ paths:
           import app.knock.api.client.okhttp.KnockOkHttpClient;
           import app.knock.api.models.recipients.channeldata.ChannelData;
           import app.knock.api.models.recipients.channeldata.ChannelDataRequest;
-          import app.knock.api.models.recipients.channeldata.PushChannelData;
           import app.knock.api.models.users.UserSetChannelDataParams;
+          import java.util.List;
 
           public final class Main {
               private Main() {}
@@ -8274,10 +8541,7 @@ paths:
                       .userId("user_id")
                       .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
                       .channelDataRequest(ChannelDataRequest.builder()
-                          .data(PushChannelData.builder()
-                              ._typename(PushChannelData._Typename.PUSH_CHANNEL_DATA)
-                              .addToken("push_token_1")
-                              .build())
+                          .pushChannelData(List.of("push_token_1"))
                           .build())
                       .build();
                   ChannelData channelData = client.users().setChannelData(params);
@@ -8725,7 +8989,38 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/MessageSeen'
+                  allOf:
+                    - $ref: '#/components/schemas/Message'
+                  example:
+                    actors:
+                      - user_123
+                    archived_at: null
+                    channel_id: 123e4567-e89b-12d3-a456-426614174000
+                    clicked_at: null
+                    data:
+                      foo: bar
+                    engagement_statuses:
+                      - seen
+                    id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                    inserted_at: '2021-01-01T00:00:00Z'
+                    interacted_at: null
+                    link_clicked_at: null
+                    metadata:
+                      external_id: 123e4567-e89b-12d3-a456-426614174000
+                    read_at: null
+                    recipient: user_123
+                    scheduled_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
+                    source:
+                      __typename: NotificationSource
+                      categories:
+                        - collaboration
+                      key: comment-created
+                      version_id: 123e4567-e89b-12d3-a456-426614174000
+                    status: sent
+                    tenant: tenant_123
+                    updated_at: '2021-01-01T00:00:00Z'
+                    workflow: comment-created
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -8888,7 +9183,37 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/MessageUnseen'
+                  allOf:
+                    - $ref: '#/components/schemas/Message'
+                  example:
+                    actors:
+                      - user_123
+                    archived_at: null
+                    channel_id: 123e4567-e89b-12d3-a456-426614174000
+                    clicked_at: null
+                    data:
+                      foo: bar
+                    engagement_statuses: []
+                    id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                    inserted_at: '2021-01-01T00:00:00Z'
+                    interacted_at: null
+                    link_clicked_at: null
+                    metadata:
+                      external_id: 123e4567-e89b-12d3-a456-426614174000
+                    read_at: null
+                    recipient: user_123
+                    scheduled_at: null
+                    seen_at: null
+                    source:
+                      __typename: NotificationSource
+                      categories:
+                        - collaboration
+                      key: comment-created
+                      version_id: 123e4567-e89b-12d3-a456-426614174000
+                    status: sent
+                    tenant: tenant_123
+                    updated_at: '2021-01-01T00:00:00Z'
+                    workflow: comment-created
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -9254,7 +9579,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageUnread'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: null
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses:
+                    - seen
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: null
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: null
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: '2025-01-01T00:01:00Z'
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Mark message as unread
       tags:
@@ -9357,7 +9713,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageRead'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: null
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses:
+                    - seen
+                    - read
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: null
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: '2025-01-01T00:02:00Z'
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: '2025-01-01T00:01:00Z'
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Mark message as read
       tags:
@@ -10454,7 +10842,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Update workflow in preference set
+      summary: Update workflow in user preference set
       tags:
         - Users
         - Preferences
@@ -10691,7 +11079,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Update category in preference set
+      summary: Update category in user preference set
       tags:
         - Users
         - Preferences
@@ -11180,7 +11568,7 @@ paths:
           page = client.messages.list_activities(
               message_id="message_id",
           )
-          page = page.entries[0]
+          page = page.items[0]
           print(page.id)
         go: |
           package main
@@ -11240,153 +11628,6 @@ paths:
           page = knock.messages.list_activities("message_id")
 
           puts(page)
-  /v1/channels/{channel_id}/messages/bulk/{action}:
-    post:
-      callbacks: {}
-      description: >-
-        Bulk update the status of messages for a specific channel. The channel is specified by the
-        `channel_id` parameter. The action to perform is specified by the `action` parameter, where the action
-        is a status change action (e.g. `archive`, `unarchive`).
-      operationId: bulkUpdateMessagesForChannel
-      parameters:
-        - description: The ID of the channel to update messages for.
-          in: path
-          name: channel_id
-          required: true
-          schema:
-            format: uuid
-            type: string
-        - description: The action to perform on the messages.
-          in: path
-          name: action
-          required: true
-          schema:
-            enum:
-              - seen
-              - unseen
-              - read
-              - unread
-              - archived
-              - unarchived
-              - interacted
-              - archive
-              - unarchive
-              - delete
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BulkUpdateMessagesForChannelRequest'
-        description: Params
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BulkOperation'
-          description: OK
-      summary: Bulk update messages
-      tags:
-        - Messages
-        - Bulk operations
-      x-ratelimit-tier: 2
-      x-retention-policy: true
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const bulkOperation = await client.channels.bulk.updateMessageStatus(
-              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-              'seen',
-            );
-
-            console.log(bulkOperation.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          bulk_operation = client.channels.bulk.update_message_status(
-              channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-              action="seen",
-          )
-          print(bulk_operation.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            bulkOperation, err := client.Channels.Bulk.UpdateMessageStatus(
-              context.TODO(),
-              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-              knock.ChannelBulkUpdateMessageStatusParamsActionSeen,
-              knock.ChannelBulkUpdateMessageStatusParams{
-
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", bulkOperation.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.bulkoperations.BulkOperation;
-          import app.knock.api.models.channels.bulk.BulkUpdateMessageStatusParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  BulkUpdateMessageStatusParams params = BulkUpdateMessageStatusParams.builder()
-                      .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
-                      .action(BulkUpdateMessageStatusParams.Action.SEEN)
-                      .build();
-                  BulkOperation bulkOperation = client.channels().bulk().updateMessageStatus(params);
-              }
-          }
-        ruby: >-
-          require "knockapi"
-
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-
-          bulk_operation = knock.channels.bulk.update_message_status("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-          :seen)
-
-
-          puts(bulk_operation)
   /v1/users/{user_id}/feeds/{channel_id}:
     get:
       callbacks: {}
@@ -12121,7 +12362,7 @@ paths:
           import app.knock.api.models.objects.ObjectSetChannelDataParams;
           import app.knock.api.models.recipients.channeldata.ChannelData;
           import app.knock.api.models.recipients.channeldata.ChannelDataRequest;
-          import app.knock.api.models.recipients.channeldata.PushChannelData;
+          import java.util.List;
 
           public final class Main {
               private Main() {}
@@ -12135,10 +12376,7 @@ paths:
                       .objectId("object_id")
                       .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
                       .channelDataRequest(ChannelDataRequest.builder()
-                          .data(PushChannelData.builder()
-                              ._typename(PushChannelData._Typename.PUSH_CHANNEL_DATA)
-                              .addToken("push_token_1")
-                              .build())
+                          .pushChannelData(List.of("push_token_1"))
                           .build())
                       .build();
                   ChannelData channelData = client.objects().setChannelData(params);
@@ -13016,7 +13254,38 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/MessageUnread'
+                  allOf:
+                    - $ref: '#/components/schemas/Message'
+                  example:
+                    actors:
+                      - user_123
+                    archived_at: null
+                    channel_id: 123e4567-e89b-12d3-a456-426614174000
+                    clicked_at: null
+                    data:
+                      foo: bar
+                    engagement_statuses:
+                      - seen
+                    id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                    inserted_at: '2021-01-01T00:00:00Z'
+                    interacted_at: null
+                    link_clicked_at: null
+                    metadata:
+                      external_id: 123e4567-e89b-12d3-a456-426614174000
+                    read_at: null
+                    recipient: user_123
+                    scheduled_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
+                    source:
+                      __typename: NotificationSource
+                      categories:
+                        - collaboration
+                      key: comment-created
+                      version_id: 123e4567-e89b-12d3-a456-426614174000
+                    status: sent
+                    tenant: tenant_123
+                    updated_at: '2021-01-01T00:00:00Z'
+                    workflow: comment-created
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -13307,7 +13576,7 @@ paths:
                 title: ListUserPreferenceSetsResponse
                 type: array
           description: OK
-      summary: List preference sets
+      summary: List user preference sets
       tags:
         - Users
         - Preferences
@@ -13393,22 +13662,22 @@ paths:
   /v1/users/{user_id}/schedules:
     get:
       callbacks: {}
-      description: Returns a paginated list of schedules for a specific user. Can be filtered by workflow and tenant.
+      description: Returns a paginated list of schedules for a specific user, in descending order.
       operationId: listUserSchedules
       parameters:
-        - description: The ID of the user to list schedules for.
+        - description: The user ID to list schedules for.
           in: path
           name: user_id
           required: true
           schema:
             type: string
-        - description: The ID of the workflow to list schedules for.
+        - description: The workflow key to filter schedules for.
           in: query
           name: workflow
           required: false
           schema:
             type: string
-        - description: The ID of the tenant to list schedules for.
+        - description: The tenant ID to filter schedules for.
           in: query
           name: tenant
           required: false
@@ -13439,7 +13708,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ListSchedulesResponse'
           description: OK
-      summary: List schedules
+      summary: List user schedules
       tags:
         - Schedules
         - Users
@@ -13697,7 +13966,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageUnarchived'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: null
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses:
+                    - seen
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: null
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: null
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: '2025-01-01T00:01:00Z'
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Unarchive message
       tags:
@@ -13800,7 +14100,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageArchived'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: '2025-01-01T00:04:00Z'
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses:
+                    - seen
+                    - archived
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: null
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: null
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: '2025-01-01T00:01:00Z'
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Archive message
       tags:
@@ -13913,7 +14245,9 @@ paths:
                     clicked_at: null
                     data:
                       foo: bar
-                    engagement_statuses: []
+                    engagement_statuses:
+                      - seen
+                      - archived
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
                     interacted_at: null
@@ -13923,7 +14257,7 @@ paths:
                     read_at: null
                     recipient: user_123
                     scheduled_at: null
-                    seen_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
                     source:
                       __typename: NotificationSource
                       categories:
@@ -13935,7 +14269,39 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/MessageArchived'
+                  allOf:
+                    - $ref: '#/components/schemas/Message'
+                  example:
+                    actors:
+                      - user_123
+                    archived_at: '2025-01-01T00:04:00Z'
+                    channel_id: 123e4567-e89b-12d3-a456-426614174000
+                    clicked_at: null
+                    data:
+                      foo: bar
+                    engagement_statuses:
+                      - seen
+                      - archived
+                    id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                    inserted_at: '2021-01-01T00:00:00Z'
+                    interacted_at: null
+                    link_clicked_at: null
+                    metadata:
+                      external_id: 123e4567-e89b-12d3-a456-426614174000
+                    read_at: null
+                    recipient: user_123
+                    scheduled_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
+                    source:
+                      __typename: NotificationSource
+                      categories:
+                        - collaboration
+                      key: comment-created
+                      version_id: 123e4567-e89b-12d3-a456-426614174000
+                    status: sent
+                    tenant: tenant_123
+                    updated_at: '2021-01-01T00:00:00Z'
+                    workflow: comment-created
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -14150,7 +14516,8 @@ paths:
       callbacks: {}
       description: >-
         Returns a paginated list of messages for a specific user. Allows filtering by message status and
-        provides various sorting options.
+        provides various sorting options. Messages outside the account's retention window will not be included
+        in the results.
       operationId: listMessagesForUser
       parameters:
         - description: The cursor to fetch entries after.
@@ -14220,7 +14587,7 @@ paths:
               type: string
             type: array
         - description: >-
-            Limits the results to only the message ids given (max 50). Note: when using this option, the
+            Limits the results to only the message IDs given (max 50). Note: when using this option, the
             results will be subject to any other filters applied to the query.
           example:
             - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
@@ -14275,6 +14642,34 @@ paths:
           required: false
           schema:
             type: string
+        - description: Limits the results to messages inserted after or on the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.gte
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted before or on the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.lte
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted after the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.gt
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted before the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.lt
+          required: false
+          schema:
+            type: string
         - description: The user ID to list messages for.
           example: user-123
           in: path
@@ -14289,7 +14684,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ListMessagesResponse'
           description: OK
-      summary: List messages
+      summary: List user messages
       tags:
         - Messages
         - Users
@@ -14402,6 +14797,7 @@ paths:
                   description: The method name to execute.
                   type: string
                 params:
+                  additionalProperties: true
                   description: The parameters for the method.
                   type: object
               required:
@@ -14421,6 +14817,7 @@ paths:
                     description: The request ID.
                     type: string
                   result:
+                    additionalProperties: true
                     description: The result of the RPC call.
                     type: object
                 type: object
@@ -14552,7 +14949,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageInteracted'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: null
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses:
+                    - seen
+                    - interacted
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: '2025-01-01T00:03:00Z'
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: null
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: '2025-01-01T00:01:00Z'
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Mark message as interacted
       tags:
@@ -14700,7 +15129,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageUnarchived'
+                allOf:
+                  - $ref: '#/components/schemas/Message'
+                example:
+                  actors:
+                    - user_123
+                  archived_at: null
+                  channel_id: 123e4567-e89b-12d3-a456-426614174000
+                  clicked_at: null
+                  data:
+                    foo: bar
+                  engagement_statuses:
+                    - seen
+                  id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                  inserted_at: '2021-01-01T00:00:00Z'
+                  interacted_at: null
+                  link_clicked_at: null
+                  metadata:
+                    external_id: 123e4567-e89b-12d3-a456-426614174000
+                  read_at: null
+                  recipient: user_123
+                  scheduled_at: null
+                  seen_at: '2025-01-01T00:01:00Z'
+                  source:
+                    __typename: NotificationSource
+                    categories:
+                      - collaboration
+                    key: comment-created
+                    version_id: 123e4567-e89b-12d3-a456-426614174000
+                  status: sent
+                  tenant: tenant_123
+                  updated_at: '2021-01-01T00:00:00Z'
+                  workflow: comment-created
           description: OK
       summary: Unarchive message
       tags:
@@ -14782,7 +15242,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Update categories in preference set
+      summary: Update categories in user preference set
       tags:
         - Users
         - Preferences
@@ -14790,7 +15250,7 @@ paths:
   /v1/users:
     get:
       callbacks: {}
-      description: Retrieve a paginated list of users in the environment.
+      description: Retrieve a paginated list of users in the environment. Defaults to 50 users per page.
       operationId: listUsers
       parameters:
         - description: Associated resources to include in the response.
@@ -15010,11 +15470,12 @@ paths:
           });
 
           async function main() {
-            const response = await client.providers.msTeams.listTeams('channel_id', {
+            // Automatically fetches more pages as needed.
+            for await (const msTeamListTeamsResponse of client.providers.msTeams.listTeams('channel_id', {
               ms_teams_tenant_object: 'ms_teams_tenant_object',
-            });
-
-            console.log(response.ms_teams_teams);
+            })) {
+              console.log(msTeamListTeamsResponse.id);
+            }
           }
 
           main();
@@ -15025,11 +15486,12 @@ paths:
           client = Knock(
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
-          response = client.providers.ms_teams.list_teams(
+          page = client.providers.ms_teams.list_teams(
               channel_id="channel_id",
               ms_teams_tenant_object="ms_teams_tenant_object",
           )
-          print(response.ms_teams_teams)
+          page = page.ms_teams_teams[0]
+          print(page.id)
         go: |
           package main
 
@@ -15045,7 +15507,7 @@ paths:
             client := knock.NewClient(
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
-            response, err := client.Providers.MsTeams.ListTeams(
+            page, err := client.Providers.MsTeams.ListTeams(
               context.TODO(),
               "channel_id",
               knock.ProviderMsTeamListTeamsParams{
@@ -15055,15 +15517,15 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", response.MsTeamsTeams)
+            fmt.Printf("%+v\n", page)
           }
         java: |-
           package app.knock.api.example;
 
           import app.knock.api.client.KnockClient;
           import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.providers.msteams.MsTeamListTeamsPage;
           import app.knock.api.models.providers.msteams.MsTeamListTeamsParams;
-          import app.knock.api.models.providers.msteams.MsTeamListTeamsResponse;
 
           public final class Main {
               private Main() {}
@@ -15076,7 +15538,7 @@ paths:
                       .channelId("channel_id")
                       .msTeamsTenantObject("ms_teams_tenant_object")
                       .build();
-                  MsTeamListTeamsResponse response = client.providers().msTeams().listTeams(params);
+                  MsTeamListTeamsPage page = client.providers().msTeams().listTeams(params);
               }
           }
         ruby: >-
@@ -15088,11 +15550,11 @@ paths:
           )
 
 
-          response = knock.providers.ms_teams.list_teams("channel_id", ms_teams_tenant_object:
+          page = knock.providers.ms_teams.list_teams("channel_id", ms_teams_tenant_object:
           "ms_teams_tenant_object")
 
 
-          puts(response)
+          puts(page)
   /v1/messages/batch/read:
     post:
       callbacks: {}
@@ -15146,7 +15608,39 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/MessageRead'
+                  allOf:
+                    - $ref: '#/components/schemas/Message'
+                  example:
+                    actors:
+                      - user_123
+                    archived_at: null
+                    channel_id: 123e4567-e89b-12d3-a456-426614174000
+                    clicked_at: null
+                    data:
+                      foo: bar
+                    engagement_statuses:
+                      - seen
+                      - read
+                    id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                    inserted_at: '2021-01-01T00:00:00Z'
+                    interacted_at: null
+                    link_clicked_at: null
+                    metadata:
+                      external_id: 123e4567-e89b-12d3-a456-426614174000
+                    read_at: '2025-01-01T00:02:00Z'
+                    recipient: user_123
+                    scheduled_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
+                    source:
+                      __typename: NotificationSource
+                      categories:
+                        - collaboration
+                      key: comment-created
+                      version_id: 123e4567-e89b-12d3-a456-426614174000
+                    status: sent
+                    tenant: tenant_123
+                    updated_at: '2021-01-01T00:00:00Z'
+                    workflow: comment-created
                 title: BatchListMessagesResponse
                 type: array
           description: OK
@@ -16694,7 +17188,6 @@ paths:
                       foo: bar
                     engagement_statuses:
                       - seen
-                      - read
                       - interacted
                     id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
                     inserted_at: '2021-01-01T00:00:00Z'
@@ -16702,7 +17195,7 @@ paths:
                     link_clicked_at: null
                     metadata:
                       external_id: 123e4567-e89b-12d3-a456-426614174000
-                    read_at: '2025-01-01T00:02:00Z'
+                    read_at: null
                     recipient: user_123
                     scheduled_at: null
                     seen_at: '2025-01-01T00:01:00Z'
@@ -16717,7 +17210,39 @@ paths:
                     updated_at: '2021-01-01T00:00:00Z'
                     workflow: comment-created
                 items:
-                  $ref: '#/components/schemas/MessageInteracted'
+                  allOf:
+                    - $ref: '#/components/schemas/Message'
+                  example:
+                    actors:
+                      - user_123
+                    archived_at: null
+                    channel_id: 123e4567-e89b-12d3-a456-426614174000
+                    clicked_at: null
+                    data:
+                      foo: bar
+                    engagement_statuses:
+                      - seen
+                      - interacted
+                    id: 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+                    inserted_at: '2021-01-01T00:00:00Z'
+                    interacted_at: '2025-01-01T00:03:00Z'
+                    link_clicked_at: null
+                    metadata:
+                      external_id: 123e4567-e89b-12d3-a456-426614174000
+                    read_at: null
+                    recipient: user_123
+                    scheduled_at: null
+                    seen_at: '2025-01-01T00:01:00Z'
+                    source:
+                      __typename: NotificationSource
+                      categories:
+                        - collaboration
+                      key: comment-created
+                      version_id: 123e4567-e89b-12d3-a456-426614174000
+                    status: sent
+                    tenant: tenant_123
+                    updated_at: '2021-01-01T00:00:00Z'
+                    workflow: comment-created
                 title: BatchListMessagesResponse
                 type: array
           description: OK
