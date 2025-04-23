@@ -52,7 +52,14 @@ export const Section = ({
         {title}
       </SectionHeading>
     )}
-    <Stack w="full" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", justifyItems: "flex-start" }}>
+    <Stack
+      w="full"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        justifyItems: "flex-start",
+      }}
+    >
       {children}
     </Stack>
   </Box>
