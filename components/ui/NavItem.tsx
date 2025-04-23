@@ -29,14 +29,16 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
       as={Link}
       href={stripTrailingSlash(href)}
       onClick={onClick}
+      display="inline-flex"
+      w="full"
       direction="row"
       align="center"
       gap="2"
-      px="3"
+      px="1"
       py="1"
       className="nav-item"
       color={isActive ? "default" : "gray"}
-      style={{ textDecoration: "none", display: "block" }}
+      style={{ textDecoration: "none", display: "block", textOverflow: "ellipsis", overflow: "hidden" }}
       borderRadius="2"
       data-active={isActive}
       data-resource-path={stripTrailingSlash(href)}
@@ -44,9 +46,15 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
     >
       <Text
         as="span"
-        size="2"
         weight="medium"
         color={isActive ? "default" : "gray"}
+        style={{
+          fontSize: "13px",
+          // @ts-expect-error textWrap is fine
+          textWrap: "nowrap",
+          // Easy way to vertically align the text
+          verticalAlign: "text-bottom"
+        }}
       >
         {children}
       </Text>

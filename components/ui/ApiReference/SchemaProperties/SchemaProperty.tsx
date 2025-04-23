@@ -11,6 +11,7 @@ import {
 } from "./helpers";
 import { useApiReference } from "../ApiReferenceContext";
 import { Stack } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
 
 type Props = {
   name?: string;
@@ -47,9 +48,9 @@ const SchemaProperty = ({ name, schema }: Props) => {
           )}
 
           {typesForDisplay.length > 1 && (
-            <span className="text-xs text-gray-500 dark:text-gray-300">
+            <Text as="span" size="0">
               {typesForDisplay.length} possible types
-            </span>
+            </Text>
           )}
         </PropertyRow.Types>
         {schema.required && (

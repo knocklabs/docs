@@ -1,6 +1,6 @@
 import { readOpenApiSpec, readStainlessSpec } from "../../lib/openApiSpec";
-import ApiReference from "../../components/ApiReference/ApiReference";
-import { getSidebarContent } from "../../components/ApiReference/helpers";
+import ApiReference from "../../components/ui/ApiReference/ApiReference";
+import { getSidebarContent } from "../../components/ui/ApiReference/helpers";
 import { OpenAPIV3 } from "@scalar/openapi-types";
 import { SidebarSubsection } from "../../data/types";
 import { CONTENT_DIR } from "../../lib/content.server";

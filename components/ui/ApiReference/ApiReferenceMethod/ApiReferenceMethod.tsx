@@ -2,9 +2,9 @@ import type { OpenAPIV3 } from "@scalar/openapi-types";
 import { useState } from "react";
 import Markdown from "react-markdown";
 
-import { Endpoint } from "../../ui/Endpoints";
-import { ContentColumn, ExampleColumn, Section } from "../../ui/ApiSections";
-import { CodeBlock } from "../../CodeBlock";
+import { Endpoint } from "../../Endpoints";
+import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
+import { CodeBlock } from "../../../CodeBlock";
 import { useApiReference } from "../ApiReferenceContext";
 import { SchemaProperties } from "../SchemaProperties";
 import OperationParameters from "../OperationParameters/OperationParameters";

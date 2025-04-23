@@ -1,6 +1,4 @@
-import classNames from "classnames";
 import Link from "next/link";
-import { IoChevronDown } from "react-icons/io5";
 import { Box, Stack } from "@telegraph/layout";
 import { Code, Text } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
@@ -8,11 +6,11 @@ import { Lucide } from "@telegraph/icon";
 import { highlightResource } from "@/components/ui/Page/helpers";
 
 const Header = ({ children }) => (
-  <Stack alignItems="center" mb="1">{children}</Stack>
+  <Stack data-property-row-header alignItems="baseline" gap="1" mb="1">{children}</Stack>
 );
 
 const Wrapper = ({ children }) => (
-  <Box data-property-row-wrapper className="attributes border-b dark:border-b-gray-800 last:border-b-0">
+  <Box data-property-row-wrapper>
     {children}
   </Box>
 );
@@ -32,7 +30,7 @@ const Name = ({ children }) => (
 );
 
 const Types = ({ children }) => (
-  <Stack data-property-row-types direction="row" align="center" gap="1" style={{ overflowX: "hidden" }}>
+  <Stack data-property-row-types direction="row" alignItems="center" gap="1" style={{ overflowX: "hidden" }}>
     {children}
   </Stack>
 );
@@ -74,7 +72,6 @@ const Required = () => (
 
 const ExpandableButton = ({ children, isOpen, onClick }) => (
   <Button
-    className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-300 mt-2 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
     onClick={onClick}
     variant="ghost"
     size="0"

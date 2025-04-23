@@ -42,7 +42,7 @@ export const CollapsibleNavItem = ({
         }}
         {...props}
       >
-        <Text as="span" weight="medium" color={color}>
+        <Text as="span" weight="medium" color={color} style={{ fontSize: "13px" }}>
           {label}
         </Text>
       </MenuItem>
@@ -59,7 +59,9 @@ export const CollapsibleNavItem = ({
           transition={{ duration: 0.2 }}
           className={`overflow-hidden ${!isOpen ? "pointer-events-none" : ""}`}
         >
-          {children}
+          <Box borderLeft="px" ml="3" pl="2" my="2" borderColor="gray-3">
+            {children}
+          </Box>
         </motion.div>
       </AnimatePresence>
     </Box>

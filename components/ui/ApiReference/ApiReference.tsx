@@ -1,16 +1,16 @@
 "use client";
 
-import { ApiReferenceProvider } from "../../components/ApiReference/ApiReferenceContext";
-import { ApiReferenceSection } from "../../components/ApiReference";
-import { Page as TelegraphPage } from "../../components/ui/Page";
+import { ApiReferenceProvider } from "./ApiReferenceContext";
+import { ApiReferenceSection } from ".";
+import { Page as TelegraphPage } from "../Page";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { StainlessConfig } from "../../lib/openApiSpec";
+import { StainlessConfig } from "../../../lib/openApiSpec";
 import { OpenAPIV3 } from "@scalar/openapi-types";
 import { getSidebarContent } from "./helpers";
-import { SidebarSection } from "../../data/types";
-import Meta from "../Meta";
-import { useInitialScrollState } from "../ui/Page/helpers";
+import { SidebarSection } from "../../../data/types";
+import Meta from "../../Meta";
+import { useInitialScrollState } from "../Page/helpers";
 
 type Props = {
   name: string;

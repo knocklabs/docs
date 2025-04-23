@@ -154,7 +154,7 @@ const Section = ({ section }: { section: SidebarSection }) => {
 
 const Wrapper = ({ children }: SidebarProps) => {
   return (
-    <Box data-sidebar-wrapper as="aside" width="60" position="fixed" bottom="0" top="24">
+    <Box data-sidebar-wrapper as="aside" width="64" position="fixed" bottom="0" top="24">
       <Stack
         direction="column"
         gap="1"

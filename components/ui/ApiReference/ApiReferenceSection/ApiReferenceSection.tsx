@@ -1,12 +1,12 @@
 import React from "react";
 import type { OpenAPIV3 } from "@scalar/openapi-types";
 import ApiReferenceMethod from "../ApiReferenceMethod";
-import { ContentColumn, ExampleColumn, Section } from "../../ui/ApiSections";
+import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
 import Markdown from "react-markdown";
-import { Endpoint, Endpoints } from "../../ui/Endpoints";
+import { Endpoint, Endpoints } from "../../Endpoints";
 import JSONPointer from "jsonpointer";
-import { CodeBlock } from "../../CodeBlock";
-import { StainlessResource } from "../../../lib/openApiSpec";
+import { CodeBlock } from "../../../CodeBlock";
+import { StainlessResource } from "../../../../lib/openApiSpec";
 import { useApiReference } from "../ApiReferenceContext";
 import { resolveEndpointFromMethod } from "../helpers";
 import { SchemaProperties } from "../SchemaProperties";
