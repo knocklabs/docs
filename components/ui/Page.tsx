@@ -14,18 +14,28 @@ export const MAX_WIDTH = "1400px";
 
 const Container = ({ children }) => <Box>{children}</Box>;
 
-const Wrapper = ({ children }) => (
-  <Stack style={{ maxWidth: MAX_WIDTH, margin: "0 auto" }}>{children}</Stack>
+const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
+  <Stack
+    data-wrapper
+    style={{
+      display: "grid",
+      gridTemplateColumns: "256px 1fr",
+      maxWidth,
+      margin: "0 auto"
+    }}
+  >
+    {children}
+  </Stack>
 );
 
 const Masthead = ({ title }) => <PageHeader title={title} />;
 
-const Content = ({ children, maxWidth }) => (
-  <Stack direction="row" py="6" width="full" ml="60" position="relative">
-    <Box style={{ maxWidth: maxWidth || "600px" }} ml="24">
+const Content = ({ children }) => (
+  <Box py="24" width="full" pl="24" pr="4" minWidth="0">
+    <Box>
       {children}
     </Box>
-  </Stack>
+  </Box>
 );
 
 const ContentBody = ({ children }) => (
@@ -61,15 +71,17 @@ export const useSidebar = () => {
 
 const DefaultSidebar = ({ content, samePageRouting = false }) => (
   <SidebarContext.Provider value={{ samePageRouting }}>
-    <Sidebar.Wrapper>
-      {content.map((section) => (
-        <Sidebar.Section
-          key={section.slug}
-          section={section}
-          samePageRouting={samePageRouting}
-        />
-      ))}
-    </Sidebar.Wrapper>
+    <Box>
+      <Sidebar.Wrapper>
+        {content.map((section) => (
+          <Sidebar.Section
+            key={section.slug}
+            section={section}
+            samePageRouting={samePageRouting}
+          />
+        ))}
+      </Sidebar.Wrapper>
+    </Box>
   </SidebarContext.Provider>
 );
 

@@ -52,7 +52,9 @@ export const Section = ({
         {title}
       </SectionHeading>
     )}
-    <Stack w="full">{children}</Stack>
+    <Stack w="full" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", justifyItems: "flex-start" }}>
+      {children}
+    </Stack>
   </Box>
 );
 
@@ -70,7 +72,7 @@ export const ExampleColumn = ({ children }) => (
     flexWrap="wrap"
     w="full"
     gap="5"
-    style={{ maxWidth: "50%" }}
+    minW="0"
   >
     {children}
   </Stack>
