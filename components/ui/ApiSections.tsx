@@ -17,7 +17,13 @@ export const Section = ({
   isRetentionSubject?: boolean;
   path?: string;
 }) => (
-  <Box as="section" borderBottom="px" borderColor="gray-3" py="16" data-resource-path={path}>
+  <Box
+    as="section"
+    borderBottom="px"
+    borderColor="gray-3"
+    py="16"
+    data-resource-path={path}
+  >
     {title && (
       <SectionHeading
         tag="h2"
@@ -46,9 +52,7 @@ export const Section = ({
         {title}
       </SectionHeading>
     )}
-    <Stack w="full">
-      {children}
-    </Stack>
+    <Stack w="full">{children}</Stack>
   </Box>
 );
 
@@ -74,7 +78,10 @@ export const ExampleColumn = ({ children }) => (
 
 // Unused?
 export const ErrorExample = ({ title, description }) => (
-  <div data-error-example className="flex-col pt-6 mt-6 border-gray-200 border-t dark:border-gray-700">
+  <div
+    data-error-example
+    className="flex-col pt-6 mt-6 border-gray-200 border-t dark:border-gray-700"
+  >
     <span className="bg-code-background dark:bg-gray-800 text-code rounded text-sm font-normal py-0.75 px-1.5 font-mono inline-block">
       {title}
     </span>

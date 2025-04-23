@@ -1,7 +1,11 @@
 import { LucideIcon } from "@telegraph/icon";
 import { Text } from "@telegraph/typography";
 import Link from "next/link";
-import { highlightResource, stripTrailingSlash, updateNavStyles } from "./Page/helpers";
+import {
+  highlightResource,
+  stripTrailingSlash,
+  updateNavStyles,
+} from "./Page/helpers";
 import { Stack } from "@telegraph/layout";
 import { useSidebar } from "./Page";
 
@@ -38,7 +42,12 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
       py="1"
       className="nav-item"
       color={isActive ? "default" : "gray"}
-      style={{ textDecoration: "none", display: "block", textOverflow: "ellipsis", overflow: "hidden" }}
+      style={{
+        textDecoration: "none",
+        display: "block",
+        textOverflow: "ellipsis",
+        overflow: "hidden",
+      }}
       borderRadius="2"
       data-active={isActive}
       data-resource-path={stripTrailingSlash(href)}
@@ -53,7 +62,7 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
           // @ts-expect-error textWrap is fine
           textWrap: "nowrap",
           // Easy way to vertically align the text
-          verticalAlign: "text-bottom"
+          verticalAlign: "text-bottom",
         }}
       >
         {children}

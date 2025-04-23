@@ -67,10 +67,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
         const path = `${basePath}/${methodName}`;
 
         return (
-          <Box
-            key={`${methodName}-${endpoint}`}
-            data-resource-path={path}
-          >
+          <Box key={`${methodName}-${endpoint}`} data-resource-path={path}>
             <ApiReferenceMethod
               methodName={methodName}
               methodType={methodType as "get" | "post" | "put" | "delete"}
@@ -107,17 +104,21 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
         const path = `${basePath}/schemas/${modelName}`;
 
         return (
-          <Box
-            key={modelName}
-            data-resource-path={path}
-          >
+          <Box key={modelName} data-resource-path={path}>
             <Section title={schema.title} path={path}>
               <ContentColumn>
                 {schema.description && (
                   <Markdown>{schema.description}</Markdown>
                 )}
 
-                <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+                <Heading
+                  as="h3"
+                  size="3"
+                  weight="medium"
+                  borderBottom="px"
+                  borderColor="gray-3"
+                  pb="2"
+                >
                   Attributes
                 </Heading>
                 <SchemaProperties schema={schema} hideRequired />

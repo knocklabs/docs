@@ -2,20 +2,25 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export const stripPrefix = (path: string) => {
-  return path.replace(/^\/[^/]+/, '');
+  return path.replace(/^\/[^/]+/, "");
 };
 
 export const stripTrailingSlash = (path: string) => {
-  return path.replace(/\/$/, '');
+  return path.replace(/\/$/, "");
 };
 
 export const isPathTheSame = (path1: string, path2: string) => {
-  return path1.replace(/\/$/, '') === path2.replace(/\/$/, '');
+  return path1.replace(/\/$/, "") === path2.replace(/\/$/, "");
 };
 
 // This is the main function that coordinates the synchronization between the sidebar and the content
-export const highlightResource = (resourceUrl: string, { moveToItem = false, replaceUrl }: { moveToItem?: boolean, replaceUrl?: string } = {}) => {
-
+export const highlightResource = (
+  resourceUrl: string,
+  {
+    moveToItem = false,
+    replaceUrl,
+  }: { moveToItem?: boolean; replaceUrl?: string } = {},
+) => {
   const resourceUrlNoTrailingSlash = stripTrailingSlash(resourceUrl);
 
   // Update the nav styles
@@ -41,16 +46,11 @@ export const highlightResource = (resourceUrl: string, { moveToItem = false, rep
 
   // Update URL state
   if (resourceUrl) {
-    window.history.replaceState(
-      null,
-      "",
-      replaceUrl || resourceUrl,
-    );
+    window.history.replaceState(null, "", replaceUrl || resourceUrl);
   }
 };
 
 export const updateNavStyles = (resourceUrl: string) => {
-
   // Scroll the nav item into view
   const newActiveNavElement: HTMLAnchorElement | null = document.querySelector(
     `[data-sidebar-wrapper] [data-resource-path='${resourceUrl}']`,
@@ -69,15 +69,14 @@ export const updateNavStyles = (resourceUrl: string) => {
 
     // Annoying we have to do this by hand, but have to do it
     if (newActiveNavElement.firstChild) {
-      (newActiveNavElement.firstChild as HTMLElement).style.color = "var(--tgph-gray-12)";
+      (newActiveNavElement.firstChild as HTMLElement).style.color =
+        "var(--tgph-gray-12)";
     }
   }
 
   // Remove the styling from any previous active nav items
   const activeElements: HTMLAnchorElement[] = Array.from(
-    document.querySelectorAll(
-      `[data-sidebar-wrapper] [data-active='true']`,
-    ),
+    document.querySelectorAll(`[data-sidebar-wrapper] [data-active='true']`),
   );
 
   // Remove the styling from any previous active nav items

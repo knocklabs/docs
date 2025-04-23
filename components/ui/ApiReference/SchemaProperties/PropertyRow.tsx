@@ -6,18 +6,23 @@ import { Lucide } from "@telegraph/icon";
 import { highlightResource } from "@/components/ui/Page/helpers";
 
 const Header = ({ children }) => (
-  <Stack data-property-row-header alignItems="baseline" gap="1" mb="1">{children}</Stack>
+  <Stack data-property-row-header alignItems="baseline" gap="1" mb="1">
+    {children}
+  </Stack>
 );
 
 const Wrapper = ({ children }) => (
-  <Box data-property-row-wrapper>
-    {children}
-  </Box>
+  <Box data-property-row-wrapper>{children}</Box>
 );
 
 const Container = ({ children }) => {
   return (
-    <Box py="3" borderBottom="px" borderColor="gray-3" data-property-row-container>
+    <Box
+      py="3"
+      borderBottom="px"
+      borderColor="gray-3"
+      data-property-row-container
+    >
       {children}
     </Box>
   );
@@ -30,7 +35,13 @@ const Name = ({ children }) => (
 );
 
 const Types = ({ children }) => (
-  <Stack data-property-row-types direction="row" alignItems="center" gap="1" style={{ overflowX: "hidden" }}>
+  <Stack
+    data-property-row-types
+    direction="row"
+    alignItems="center"
+    gap="1"
+    style={{ overflowX: "hidden" }}
+  >
     {children}
   </Stack>
 );
@@ -42,7 +53,6 @@ const Type = ({
   children: React.ReactNode;
   href?: string;
 }) => {
-
   if (href) {
     const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
@@ -50,24 +60,65 @@ const Type = ({
     };
     return (
       <Text as={Link} href={href} onClick={onClick}>
-        <Code as="span" size="0" bg="gray-2" px="1" borderRadius="2" color="accent" weight="regular" border="px" borderColor="gray-5">{children}</Code>
+        <Code
+          as="span"
+          size="0"
+          bg="gray-2"
+          px="1"
+          borderRadius="2"
+          color="accent"
+          weight="regular"
+          border="px"
+          borderColor="gray-5"
+        >
+          {children}
+        </Code>
       </Text>
     );
   }
 
   return (
-    <Code as="span" size="0" bg="gray-2" px="1" borderRadius="2" color="black" weight="regular" border="px" borderColor="gray-5">{children}</Code>
+    <Code
+      as="span"
+      size="0"
+      bg="gray-2"
+      px="1"
+      borderRadius="2"
+      color="black"
+      weight="regular"
+      border="px"
+      borderColor="gray-5"
+    >
+      {children}
+    </Code>
   );
 };
 
 const Description = ({ children }) => (
-  <Text data-property-row-description as="span" size="1" color="gray" weight="regular">
+  <Text
+    data-property-row-description
+    as="span"
+    size="1"
+    color="gray"
+    weight="regular"
+  >
     {children}
   </Text>
 );
 
 const Required = () => (
-  <Code as="span" ml="1" size="0" color="red" px="1" borderRadius="2" weight="regular" bg="transparent">Required</Code>
+  <Code
+    as="span"
+    ml="1"
+    size="0"
+    color="red"
+    px="1"
+    borderRadius="2"
+    weight="regular"
+    bg="transparent"
+  >
+    Required
+  </Code>
 );
 
 const ExpandableButton = ({ children, isOpen, onClick }) => (
@@ -82,7 +133,10 @@ const ExpandableButton = ({ children, isOpen, onClick }) => (
     style={{
       marginLeft: "calc(var(--tgph-spacing-1) * -1)",
     }}
-    icon={{ icon: isOpen ? Lucide.ArrowDown : Lucide.ArrowRight, "aria-hidden": true }}
+    icon={{
+      icon: isOpen ? Lucide.ArrowDown : Lucide.ArrowRight,
+      "aria-hidden": true,
+    }}
   >
     {children}
   </Button>
@@ -95,7 +149,18 @@ const ChildProperties = ({ children }) => (
 );
 
 const PropertyTag = ({ children }) => (
-  <Code as="span" size="0" bg="gray-1" px="1" borderRadius="2" weight="regular" border="px" borderColor="gray-3">{children}</Code>
+  <Code
+    as="span"
+    size="0"
+    bg="gray-1"
+    px="1"
+    borderRadius="2"
+    weight="regular"
+    border="px"
+    borderColor="gray-3"
+  >
+    {children}
+  </Code>
 );
 
 const PropertyRow = Object.assign({

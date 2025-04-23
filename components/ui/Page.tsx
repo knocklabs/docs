@@ -51,7 +51,9 @@ interface SidebarContextType {
   samePageRouting: boolean;
 }
 
-const SidebarContext = createContext<SidebarContextType>({ samePageRouting: false });
+const SidebarContext = createContext<SidebarContextType>({
+  samePageRouting: false,
+});
 
 export const useSidebar = () => {
   return useContext(SidebarContext);
@@ -61,7 +63,11 @@ const DefaultSidebar = ({ content, samePageRouting = false }) => (
   <SidebarContext.Provider value={{ samePageRouting }}>
     <Sidebar.Wrapper>
       {content.map((section) => (
-        <Sidebar.Section key={section.slug} section={section} samePageRouting={samePageRouting} />
+        <Sidebar.Section
+          key={section.slug}
+          section={section}
+          samePageRouting={samePageRouting}
+        />
       ))}
     </Sidebar.Wrapper>
   </SidebarContext.Provider>

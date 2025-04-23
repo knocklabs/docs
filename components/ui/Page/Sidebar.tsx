@@ -3,7 +3,10 @@ import { Box } from "@telegraph/layout";
 import { Stack } from "@telegraph/layout";
 import { NavItem } from "../NavItem";
 import { useRouter } from "next/router";
-import { CollapsibleNavItem, type CollapsibleNavItemProps } from "../CollapsibleNavItem";
+import {
+  CollapsibleNavItem,
+  type CollapsibleNavItemProps,
+} from "../CollapsibleNavItem";
 import { useLayoutEffect, useState } from "react";
 import { isPathTheSame, highlightResource, stripPrefix } from "./helpers";
 
@@ -12,7 +15,15 @@ type SidebarProps = {
   children?: React.ReactNode;
 };
 
-const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, preSlug?: string, depth?: number }) => {
+const Item = ({
+  section,
+  preSlug = "",
+  depth = 0,
+}: {
+  section: SidebarSection;
+  preSlug?: string;
+  depth?: number;
+}) => {
   const router = useRouter();
   const basePath = router.pathname.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
@@ -20,21 +31,19 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
 
   const [isOpen, setIsOpen] = useState(
     // Determines which menus should be open on initial load
-    section.pages.some(
-      (page) => {
-        if (isPathTheSame(`${slug}${page.slug}`, router.asPath)) {
-          return true;
-        }
-        if ("pages" in page) {
-          if (page.pages) {
-            return page?.pages.some(
-              (subPage) => isPathTheSame(`${slug}${page.slug}${subPage.slug}`, router.asPath)
-            );
-          }
-        }
-        return false;
+    section.pages.some((page) => {
+      if (isPathTheSame(`${slug}${page.slug}`, router.asPath)) {
+        return true;
       }
-    )
+      if ("pages" in page) {
+        if (page.pages) {
+          return page?.pages.some((subPage) =>
+            isPathTheSame(`${slug}${page.slug}${subPage.slug}`, router.asPath),
+          );
+        }
+      }
+      return false;
+    }),
   );
 
   useLayoutEffect(() => {
@@ -44,7 +53,8 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
       return new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            const resourcePath = entry.target.getAttribute("data-resource-path")!;
+            const resourcePath =
+              entry.target.getAttribute("data-resource-path")!;
             if (entry.isIntersecting) {
               setIsOpen(true);
               highlightResource(`/${basePath}${resourcePath}`);
@@ -52,7 +62,7 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
           });
         },
         {
-          threshold: 0.30,
+          threshold: 0.3,
           rootMargin: "0px 0px 0px 0px",
         },
       );
@@ -60,7 +70,6 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
 
     // Begin observing after a short delay to allow the page to arrive at its initial state
     const readyTimeout = setTimeout(() => {
-
       observer = getObserver();
 
       // Wait for initial scroll before observing
@@ -77,12 +86,14 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
 
         observer = getObserver();
 
-        document.querySelectorAll(`[data-resource-path^="${resourceSection}"]`).forEach((element) => {
-          observer?.observe(element);
-        });
-        window.removeEventListener('scroll', scrollBuffer);
+        document
+          .querySelectorAll(`[data-resource-path^="${resourceSection}"]`)
+          .forEach((element) => {
+            observer?.observe(element);
+          });
+        window.removeEventListener("scroll", scrollBuffer);
       };
-      window.addEventListener('scroll', scrollBuffer);
+      window.addEventListener("scroll", scrollBuffer);
     }, 2500);
 
     // Cleanup observer on unmount
@@ -92,14 +103,17 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
     };
   }, [basePath, resourceSection]);
 
-  const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> = depth === 0 ? {
-    // Moves it over to align with the Tab text above
-    style: {
-      marginLeft: "-4px",
-    }
-  } : {
-    color: "gray",
-  };
+  const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> =
+    depth === 0
+      ? {
+          // Moves it over to align with the Tab text above
+          style: {
+            marginLeft: "-4px",
+          },
+        }
+      : {
+          color: "gray",
+        };
 
   return (
     <CollapsibleNavItem
@@ -129,10 +143,7 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
             ml={depth > 0 ? "2" : "0"}
             key={index + page.slug}
           >
-            <NavItem
-              href={href}
-              isActive={isActive}
-            >
+            <NavItem href={href} isActive={isActive}>
               {page.title}
             </NavItem>
           </Box>
@@ -154,7 +165,14 @@ const Section = ({ section }: { section: SidebarSection }) => {
 
 const Wrapper = ({ children }: SidebarProps) => {
   return (
-    <Box data-sidebar-wrapper as="aside" width="64" position="fixed" bottom="0" top="24">
+    <Box
+      data-sidebar-wrapper
+      as="aside"
+      width="64"
+      position="fixed"
+      bottom="0"
+      top="24"
+    >
       <Stack
         direction="column"
         gap="1"

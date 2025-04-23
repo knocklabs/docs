@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MenuItem } from "@telegraph/menu";
 import { Box } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
-import { type TgphComponentProps } from "@telegraph/helpers"
+import { type TgphComponentProps } from "@telegraph/helpers";
 
 export type CollapsibleNavItemProps = TgphComponentProps<typeof MenuItem> & {
   label: string;
@@ -12,13 +12,13 @@ export type CollapsibleNavItemProps = TgphComponentProps<typeof MenuItem> & {
   setIsOpen?: (isOpen: boolean) => void;
   className?: string;
   color?: "default" | "gray";
-}
+};
 
 export const CollapsibleNavItem = ({
   label,
   children,
   isOpen = false,
-  setIsOpen = () => { },
+  setIsOpen = () => {},
   color = "default",
   className = "",
   ...props
@@ -42,7 +42,12 @@ export const CollapsibleNavItem = ({
         }}
         {...props}
       >
-        <Text as="span" weight="medium" color={color} style={{ fontSize: "13px" }}>
+        <Text
+          as="span"
+          weight="medium"
+          color={color}
+          style={{ fontSize: "13px" }}
+        >
           {label}
         </Text>
       </MenuItem>
@@ -54,7 +59,7 @@ export const CollapsibleNavItem = ({
           animate={{
             height: isOpen ? "auto" : 0,
             opacity: isOpen ? 1 : 0,
-            visibility: isOpen ? "visible" : "hidden"
+            visibility: isOpen ? "visible" : "hidden",
           }}
           transition={{ duration: 0.2 }}
           className={`overflow-hidden ${!isOpen ? "pointer-events-none" : ""}`}

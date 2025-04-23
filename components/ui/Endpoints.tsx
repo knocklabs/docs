@@ -19,7 +19,17 @@ const Endpoints = ({ children, title = "Endpoints" }) => (
 const EndpointText = ({ method, path }) => (
   <Stack direction="row" align="center">
     <Tag
-      color={method === "GET" ? "blue" : method === "POST" ? "green" : method === "PUT" ? "yellow" : method === "DELETE" ? "red" : "purple"}
+      color={
+        method === "GET"
+          ? "blue"
+          : method === "POST"
+          ? "green"
+          : method === "PUT"
+          ? "yellow"
+          : method === "DELETE"
+          ? "red"
+          : "purple"
+      }
       mr="1"
     >
       {method}

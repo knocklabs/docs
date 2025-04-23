@@ -50,7 +50,14 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
       <ContentColumn>
         <Markdown>{method.description ?? ""}</Markdown>
 
-        <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+        <Heading
+          as="h3"
+          size="3"
+          weight="medium"
+          borderBottom="px"
+          borderColor="gray-3"
+          pb="2"
+        >
           Endpoint
         </Heading>
 
@@ -62,7 +69,14 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
 
         {pathParameters.length > 0 && (
           <>
-            <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+            <Heading
+              as="h3"
+              size="3"
+              weight="medium"
+              borderBottom="px"
+              borderColor="gray-3"
+              pb="2"
+            >
               Path parameters
             </Heading>
             <OperationParameters parameters={pathParameters} />
@@ -71,7 +85,14 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
 
         {queryParameters.length > 0 && (
           <>
-            <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+            <Heading
+              as="h3"
+              size="3"
+              weight="medium"
+              borderBottom="px"
+              borderColor="gray-3"
+              pb="2"
+            >
               Query parameters
             </Heading>
             <OperationParameters parameters={queryParameters} />
@@ -80,14 +101,28 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
 
         {requestBody && (
           <>
-            <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+            <Heading
+              as="h3"
+              size="3"
+              weight="medium"
+              borderBottom="px"
+              borderColor="gray-3"
+              pb="2"
+            >
               Request body
             </Heading>
             <SchemaProperties schema={requestBody} />
           </>
         )}
 
-        <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+        <Heading
+          as="h3"
+          size="3"
+          weight="medium"
+          borderBottom="px"
+          borderColor="gray-3"
+          pb="2"
+        >
           Returns
         </Heading>
 

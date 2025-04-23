@@ -25,7 +25,11 @@ const SectionHeading: React.FC<Props> = ({
   // Wait for client to load before setting the target URL
   useEffect(() => {
     if (path) {
-      const url = window.location.origin + "/" + window.location.pathname.split('/')[1] + path;
+      const url =
+        window.location.origin +
+        "/" +
+        window.location.pathname.split("/")[1] +
+        path;
       setTargetUrl(url);
     }
   }, [path]);
@@ -38,7 +42,18 @@ const SectionHeading: React.FC<Props> = ({
     onCopy();
   };
 
-  const size = tag === "h1" ? "6" : tag === "h2" ? "6" : tag === "h3" ? "5" : tag === "h4" ? "4" : tag === "h5" ? "4" : "4";
+  const size =
+    tag === "h1"
+      ? "6"
+      : tag === "h2"
+      ? "6"
+      : tag === "h3"
+      ? "5"
+      : tag === "h4"
+      ? "4"
+      : tag === "h5"
+      ? "4"
+      : "4";
 
   return (
     // @ts-expect-error shut it
