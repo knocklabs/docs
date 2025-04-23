@@ -1,27 +1,31 @@
-import { useState } from "react";
 import { Lucide } from "@telegraph/icon";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuItem } from "@telegraph/menu";
 import { Box } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
+import { type TgphComponentProps } from "@telegraph/helpers"
 
-interface CollapsibleNavItemProps {
+export type CollapsibleNavItemProps = TgphComponentProps<typeof MenuItem> & {
   label: string;
   children: React.ReactNode;
-  defaultOpen?: boolean;
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
   className?: string;
+  color?: "default" | "gray";
 }
 
 export const CollapsibleNavItem = ({
   label,
   children,
-  defaultOpen = false,
+  isOpen = false,
+  setIsOpen = () => { },
+  color = "default",
   className = "",
+  ...props
 }: CollapsibleNavItemProps) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
   return (
     <Box className={`w-full ${className}`}>
+      {/* @ts-expect-error shut it */}
       <MenuItem
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
@@ -36,31 +40,27 @@ export const CollapsibleNavItem = ({
             isOpen ? "rotate-90" : ""
           }`,
         }}
-        style={{
-          // Aligns with the Tab text above
-          marginLeft: "-4px",
-        }}
+        {...props}
       >
-        <Text as="span" weight="medium">
+        <Text as="span" weight="medium" color={color}>
           {label}
         </Text>
       </MenuItem>
 
       <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            id={`content-${label}`}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <Box pt="1" pl="1">
-              {children}
-            </Box>
-          </motion.div>
-        )}
+        <motion.div
+          id={`content-${label}`}
+          initial={false}
+          animate={{
+            height: isOpen ? "auto" : 0,
+            opacity: isOpen ? 1 : 0,
+            visibility: isOpen ? "visible" : "hidden"
+          }}
+          transition={{ duration: 0.2 }}
+          className={`overflow-hidden ${!isOpen ? "pointer-events-none" : ""}`}
+        >
+          {children}
+        </motion.div>
       </AnimatePresence>
     </Box>
   );

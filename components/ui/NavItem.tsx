@@ -1,32 +1,40 @@
-import { Icon, LucideIcon } from "@telegraph/icon";
-import { Stack } from "@telegraph/layout";
+import { LucideIcon } from "@telegraph/icon";
 import { Text } from "@telegraph/typography";
 import Link from "next/link";
+import { highlightResource, stripTrailingSlash } from "./Page/helpers";
+import { Stack } from "@telegraph/layout";
 
 type NavItemProps = {
   href: string;
   isActive: boolean;
   icon?: LucideIcon;
   children: React.ReactNode;
+  samePageRouting?: boolean;
 };
 
-const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
+const NavItem = ({ href, isActive, icon, children, samePageRouting = true }: NavItemProps) => {
+  const onClick = samePageRouting ? (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    highlightResource(href, { moveToItem: true });
+  } : undefined;
   return (
     <Stack
       as={Link}
-      href={href}
+      href={stripTrailingSlash(href)}
+      onClick={onClick}
       direction="row"
       align="center"
       gap="2"
       px="3"
       py="1"
       className="nav-item"
-      color="gray"
+      color={isActive ? "default" : "gray"}
       style={{ textDecoration: "none", display: "block" }}
       borderRadius="2"
       data-active={isActive}
+      data-resource-path={stripTrailingSlash(href)}
+      icon={icon ? { icon: icon, "aria-hidden": true } : undefined}
     >
-      {icon && <Icon icon={icon} aria-hidden />}
       <Text
         as="span"
         size="2"

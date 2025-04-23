@@ -1,41 +1,154 @@
 import { SidebarSection } from "@/data/types";
 import { Box } from "@telegraph/layout";
 import { Stack } from "@telegraph/layout";
-import { Text } from "@telegraph/typography";
 import { NavItem } from "../NavItem";
 import { useRouter } from "next/router";
-import { CollapsibleNavItem } from "../CollapsibleNavItem";
+import { CollapsibleNavItem, type CollapsibleNavItemProps } from "../CollapsibleNavItem";
+import { useLayoutEffect, useState } from "react";
+import { isPathTheSame, highlightResource, stripPrefix } from "./helpers";
 
 type SidebarProps = {
   content: SidebarSection[];
   children?: React.ReactNode;
 };
 
-const Section = ({ section }: { section: SidebarSection }) => {
+const Item = ({ section, preSlug = "", depth = 0, samePageRouting = true }: { section: SidebarSection, preSlug?: string, depth?: number, samePageRouting?: boolean }) => {
   const router = useRouter();
-
-  // Check if any child page is active
-  const hasActiveChild = section.pages.some(
-    (page) => router.asPath === `${section.slug}${page.slug}`,
+  const basePath = router.pathname.split("/")[1];
+  const slug = `${preSlug}${section.slug}`;
+  const [isOpen, setIsOpen] = useState(
+    // Determines which menus should be open on initial load
+    section.pages.some(
+      (page) => {
+        if (isPathTheSame(`${slug}${page.slug}`, router.asPath)) {
+          return true;
+        }
+        if ("pages" in page) {
+          if (page.pages) {
+            return page?.pages.some(
+              (subPage) => isPathTheSame(`${slug}${page.slug}${subPage.slug}`, router.asPath)
+            );
+          }
+        }
+        return false;
+      }
+    )
   );
 
+  useLayoutEffect(() => {
+    let observer: IntersectionObserver | null = null;
+
+    function getObserver() {
+      return new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const resourcePath = entry.target.getAttribute("data-resource-path")!;
+            if (entry.isIntersecting) {
+              setIsOpen(true);
+              highlightResource(`/${basePath}${resourcePath}`);
+            }
+          });
+        },
+        {
+          threshold: 0.30,
+          rootMargin: "0px 0px 0px 0px",
+        },
+      );
+    }
+
+    // Begin observing after a short delay to allow the page to arrive at its initial state
+    const readyTimeout = setTimeout(() => {
+
+      observer = getObserver();
+
+      // Wait for initial scroll before observing
+      let initialScrollY: number | null = null;
+
+      // Add a scroll buffer to only start observing after the user scrolls through the page a bit
+      const scrollBuffer = () => {
+        if (initialScrollY === null) {
+          initialScrollY = window.scrollY;
+        }
+        const scrollDelta = Math.abs(window.scrollY - initialScrollY);
+        // Only start observing after a certain scroll delta
+        if (scrollDelta < 500) return;
+
+        observer = getObserver();
+
+        // Observe all elements within this section
+        const resourceSection = stripPrefix(slug);
+        document.querySelectorAll(`[data-resource-path^="${resourceSection}"]`).forEach((element) => {
+          observer?.observe(element);
+        });
+        window.removeEventListener('scroll', scrollBuffer);
+      };
+      window.addEventListener('scroll', scrollBuffer);
+    }, 2500);
+
+    // Cleanup observer on unmount
+    return () => {
+      observer?.disconnect();
+      clearTimeout(readyTimeout);
+    };
+  }, [basePath, section.slug]);
+
+  const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> = depth === 0 ? {
+    // Moves it over to align with the Tab text above
+    style: {
+      marginLeft: "-4px",
+    }
+  } : {
+    color: "gray",
+  };
+
   return (
-    <Stack direction="column" key={section.slug} mb="1">
-      <Box>
-        <CollapsibleNavItem
-          label={section.title ?? section.slug}
-          defaultOpen={hasActiveChild}
-        >
-          {section.pages.map((page) => (
+    <CollapsibleNavItem
+      {...depthAdjustedCollapsibleNavItemProps}
+      label={section.title ?? section.slug}
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+    >
+      {section.pages.map((page, index) => {
+        if (page?.pages?.length > 0) {
+          return (
+            <Item
+              key={index + page.slug}
+              section={page}
+              preSlug={slug}
+              depth={depth + 1}
+              samePageRouting={samePageRouting}
+            />
+          );
+        }
+
+        const href = `${slug}${page.slug}`;
+        const isActive = isPathTheSame(href, router.asPath);
+
+        return (
+          <Box
+            // Tuck in the nested menus a little more
+            ml={depth > 0 ? "2" : "0"}
+            key={index + page.slug}
+          >
             <NavItem
-              key={page.slug}
-              href={`${section.slug}${page.slug}`}
-              isActive={router.asPath === `${section.slug}${page.slug}`}
+              href={href}
+              isActive={isActive}
+              samePageRouting={samePageRouting}
             >
               {page.title}
             </NavItem>
-          ))}
-        </CollapsibleNavItem>
+          </Box>
+        );
+      })}
+    </CollapsibleNavItem>
+  );
+};
+
+const Section = ({ section, samePageRouting = true }: { section: SidebarSection, samePageRouting?: boolean }) => {
+  return (
+    <Stack direction="column" key={section.slug} mb="1" data-sidebar-section>
+      <Box>
+        <Item section={section} samePageRouting={samePageRouting} />
       </Box>
     </Stack>
   );
@@ -43,7 +156,7 @@ const Section = ({ section }: { section: SidebarSection }) => {
 
 const Wrapper = ({ children }: SidebarProps) => {
   return (
-    <Box as="aside" width="60" position="fixed" bottom="0" top="24">
+    <Box data-sidebar-wrapper as="aside" width="60" position="fixed" bottom="0" top="24">
       <Stack
         direction="column"
         gap="1"

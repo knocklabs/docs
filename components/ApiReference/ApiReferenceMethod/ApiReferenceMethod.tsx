@@ -17,9 +17,10 @@ type Props = {
   methodName: string;
   methodType: "get" | "post" | "put" | "delete";
   endpoint: string;
+  path?: string;
 };
 
-function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
+function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
   const { openApiSpec, baseUrl, schemaReferences } = useApiReference();
   const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];
@@ -45,7 +46,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
     method.requestBody?.content?.["application/json"]?.schema;
 
   return (
-    <Section title={method.summary} slug={method.summary}>
+    <Section title={method.summary} slug={method.summary} path={path}>
       <ContentColumn>
         <Markdown>{method.description ?? ""}</Markdown>
 
@@ -53,7 +54,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
 
         <Endpoint
           method={methodType.toUpperCase()}
-          path={`${endpoint}`}
+          path={endpoint}
           name={methodName}
         />
 

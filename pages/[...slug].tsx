@@ -19,7 +19,6 @@ import {
 } from "../lib/content.server";
 import Callout from "../components/Callout";
 import MultiLangCodeBlock from "../components/MultiLangCodeBlock";
-import SectionHeading from "../components/SectionHeading";
 import eventPayload from "../data/code/sources/eventPayload";
 import LocaleTable from "../components/LocaleTable";
 import { Attributes, Attribute } from "../components/Attributes";

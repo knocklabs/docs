@@ -3,22 +3,25 @@ import SectionHeading from "./SectionHeading";
 
 export const Section = ({
   title,
-  slug,
   children,
   headingClassName = "",
   isIdempotent = false,
   isRetentionSubject = false,
   path = undefined,
+}: {
+  title?: string;
+  children: React.ReactNode;
+  headingClassName?: string;
+  isIdempotent?: boolean;
+  isRetentionSubject?: boolean;
+  path?: string;
 }) => (
-  <section
-    className="api-docs-section border-b border-gray-200 dark:border-gray-800 py-8 lg:py-16"
-    data-resource-path={path}
-  >
+  <section className="api-docs-section border-b border-gray-200 dark:border-gray-800 py-8 lg:py-16" data-resource-path={path}>
     {title && (
       <SectionHeading
         tag="h2"
-        id={slug || title.toLowerCase()}
         className={cn([headingClassName, "mb-6"])}
+        path={path}
       >
         {isIdempotent && (
           <div className="mb-2">

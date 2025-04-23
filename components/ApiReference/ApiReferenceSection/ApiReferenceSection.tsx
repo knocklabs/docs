@@ -26,7 +26,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
   return (
     <>
       <div data-resource-path={basePath}>
-        <Section title={resource.name} slug={resourceName}>
+        <Section title={resource.name} path={basePath}>
           <ContentColumn>
             {resource.description && (
               <Markdown>{resource.description}</Markdown>
@@ -62,15 +62,18 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
           endpointOrMethodConfig,
         );
 
+        const path = `${basePath}/${methodName}`;
+
         return (
           <div
             key={`${methodName}-${endpoint}`}
-            data-resource-path={`${basePath}/${methodName}`}
+            data-resource-path={path}
           >
             <ApiReferenceMethod
               methodName={methodName}
               methodType={methodType as "get" | "post" | "put" | "delete"}
               endpoint={endpoint}
+              path={path}
             />
           </div>
         );
@@ -99,12 +102,14 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
           return null;
         }
 
+        const path = `${basePath}/schemas/${modelName}`;
+
         return (
           <div
             key={modelName}
-            data-resource-path={`${basePath}/schemas/${modelName}`}
+            data-resource-path={path}
           >
-            <Section title={schema.title} slug={modelName}>
+            <Section title={schema.title} path={path}>
               <ContentColumn>
                 {schema.description && (
                   <Markdown>{schema.description}</Markdown>
