@@ -1,8 +1,9 @@
 import { LucideIcon } from "@telegraph/icon";
 import { Text } from "@telegraph/typography";
 import Link from "next/link";
-import { highlightResource, stripTrailingSlash } from "./Page/helpers";
+import { highlightResource, stripTrailingSlash, updateNavStyles } from "./Page/helpers";
 import { Stack } from "@telegraph/layout";
+import { useSidebar } from "./Page";
 
 type NavItemProps = {
   href: string;
@@ -12,11 +13,17 @@ type NavItemProps = {
   samePageRouting?: boolean;
 };
 
-const NavItem = ({ href, isActive, icon, children, samePageRouting = true }: NavItemProps) => {
-  const onClick = samePageRouting ? (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    highlightResource(href, { moveToItem: true });
-  } : undefined;
+const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
+  const { samePageRouting } = useSidebar();
+  const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (samePageRouting) {
+      e.preventDefault();
+      highlightResource(href, { moveToItem: true });
+    } else {
+      updateNavStyles(href);
+    }
+  };
+
   return (
     <Stack
       as={Link}

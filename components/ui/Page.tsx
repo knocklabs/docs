@@ -1,3 +1,4 @@
+import { createContext, useContext } from "react";
 import { Box, Stack } from "@telegraph/layout";
 import { Text, Heading } from "@telegraph/typography";
 
@@ -19,9 +20,9 @@ const Wrapper = ({ children }) => (
 
 const Masthead = ({ title }) => <PageHeader title={title} />;
 
-const Content = ({ children }) => (
+const Content = ({ children, maxWidth }) => (
   <Stack direction="row" py="6" width="full" ml="60" position="relative">
-    <Box style={{ maxWidth: "600px" }} ml="24">
+    <Box style={{ maxWidth: maxWidth || "600px" }} ml="24">
       {children}
     </Box>
   </Stack>
@@ -46,12 +47,24 @@ const ContentHeader = ({ title, description }) => (
   </Box>
 );
 
-const DefaultSidebar = ({ content }) => (
-  <Sidebar.Wrapper>
-    {content.map((section) => (
-      <Sidebar.Section key={section.slug} section={section} />
-    ))}
-  </Sidebar.Wrapper>
+interface SidebarContextType {
+  samePageRouting: boolean;
+}
+
+const SidebarContext = createContext<SidebarContextType>({ samePageRouting: false });
+
+export const useSidebar = () => {
+  return useContext(SidebarContext);
+};
+
+const DefaultSidebar = ({ content, samePageRouting = false }) => (
+  <SidebarContext.Provider value={{ samePageRouting }}>
+    <Sidebar.Wrapper>
+      {content.map((section) => (
+        <Sidebar.Section key={section.slug} section={section} samePageRouting={samePageRouting} />
+      ))}
+    </Sidebar.Wrapper>
+  </SidebarContext.Provider>
 );
 
 const Page = Object.assign({

@@ -12,7 +12,7 @@ type SidebarProps = {
   children?: React.ReactNode;
 };
 
-const Item = ({ section, preSlug = "", depth = 0, samePageRouting = true }: { section: SidebarSection, preSlug?: string, depth?: number, samePageRouting?: boolean }) => {
+const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, preSlug?: string, depth?: number }) => {
   const router = useRouter();
   const basePath = router.pathname.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
@@ -116,7 +116,6 @@ const Item = ({ section, preSlug = "", depth = 0, samePageRouting = true }: { se
               section={page}
               preSlug={slug}
               depth={depth + 1}
-              samePageRouting={samePageRouting}
             />
           );
         }
@@ -133,7 +132,6 @@ const Item = ({ section, preSlug = "", depth = 0, samePageRouting = true }: { se
             <NavItem
               href={href}
               isActive={isActive}
-              samePageRouting={samePageRouting}
             >
               {page.title}
             </NavItem>
@@ -144,11 +142,11 @@ const Item = ({ section, preSlug = "", depth = 0, samePageRouting = true }: { se
   );
 };
 
-const Section = ({ section, samePageRouting = true }: { section: SidebarSection, samePageRouting?: boolean }) => {
+const Section = ({ section }: { section: SidebarSection }) => {
   return (
     <Stack direction="column" key={section.slug} mb="1" data-sidebar-section>
       <Box>
-        <Item section={section} samePageRouting={samePageRouting} />
+        <Item section={section} />
       </Box>
     </Stack>
   );

@@ -20,6 +20,9 @@ function selectedTab(pathname: string) {
   if (pathname.startsWith("/api-reference")) {
     return "api-reference";
   }
+  if (pathname.startsWith("/mapi-reference")) {
+    return "mapi-reference";
+  }
   if (pathname.startsWith("/cli-reference")) {
     return "cli-reference";
   }
@@ -116,6 +119,9 @@ const PageHeader = ({ title }: PageHeaderProps) => {
             </Tabs.Tab>
             <Tabs.Tab value="cli-reference" as={Link} href="/cli">
               CLI reference
+            </Tabs.Tab>
+            <Tabs.Tab value="mapi-reference" as={Link} href="/mapi-reference">
+              Management API
             </Tabs.Tab>
             <Tabs.Tab value="developer-tools" as={Link} href="/developer-tools">
               Developer tools

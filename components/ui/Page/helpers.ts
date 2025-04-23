@@ -18,27 +18,8 @@ export const highlightResource = (resourceUrl: string, { moveToItem = false, rep
 
   const resourceUrlNoTrailingSlash = stripTrailingSlash(resourceUrl);
 
-  // Scroll the nav item into view
-  const newActiveNavElement: HTMLAnchorElement | null = document.querySelector(
-    `[data-sidebar-wrapper] [data-resource-path='${resourceUrlNoTrailingSlash}']`,
-  );
-
-  if (newActiveNavElement) {
-    newActiveNavElement.dataset.active = "true";
-    newActiveNavElement.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-
-    if (document.activeElement != newActiveNavElement) {
-      (document.activeElement as HTMLElement)?.blur();
-    }
-
-    // Annoying we have to do this by hand, but have to do it
-    if (newActiveNavElement.firstChild) {
-      (newActiveNavElement.firstChild as HTMLElement).style.color = "var(--tgph-gray-12)";
-    }
-  }
+  // Update the nav styles
+  updateNavStyles(resourceUrlNoTrailingSlash);
 
   if (moveToItem) {
     const pathNoPrefix = stripPrefix(resourceUrl);
@@ -56,10 +37,39 @@ export const highlightResource = (resourceUrl: string, { moveToItem = false, rep
 
       newActiveItem.focus();
     }
+  }
 
-    // For some reason, the color persists and we have to set it to active color by hand
-    if (newActiveItem?.firstChild) {
-      (newActiveItem.firstChild as HTMLElement).style.color = "var(--tgph-gray-12)";
+  // Update URL state
+  if (resourceUrl) {
+    window.history.replaceState(
+      null,
+      "",
+      replaceUrl || resourceUrl,
+    );
+  }
+};
+
+export const updateNavStyles = (resourceUrl: string) => {
+
+  // Scroll the nav item into view
+  const newActiveNavElement: HTMLAnchorElement | null = document.querySelector(
+    `[data-sidebar-wrapper] [data-resource-path='${resourceUrl}']`,
+  );
+
+  if (newActiveNavElement) {
+    newActiveNavElement.dataset.active = "true";
+    newActiveNavElement.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    if (document.activeElement != newActiveNavElement) {
+      (document.activeElement as HTMLElement)?.blur();
+    }
+
+    // Annoying we have to do this by hand, but have to do it
+    if (newActiveNavElement.firstChild) {
+      (newActiveNavElement.firstChild as HTMLElement).style.color = "var(--tgph-gray-12)";
     }
   }
 
@@ -80,15 +90,6 @@ export const highlightResource = (resourceUrl: string, { moveToItem = false, rep
       }
     }
   });
-
-  // Update URL state
-  if (resourceUrl) {
-    window.history.replaceState(
-      null,
-      "",
-      replaceUrl || resourceUrl,
-    );
-  }
 };
 
 export const useInitialScrollState = () => {
