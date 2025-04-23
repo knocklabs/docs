@@ -4737,6 +4737,83 @@ paths:
       tags:
         - Tenants
       x-ratelimit-tier: 2
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const tenant = await client.tenants.delete('id');
+
+            console.log(tenant);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          tenant = client.tenants.delete(
+              "id",
+          )
+          print(tenant)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            tenant, err := client.Tenants.Delete(context.TODO(), "id")
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", tenant)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.tenants.TenantDeleteParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  TenantDeleteParams params = TenantDeleteParams.builder()
+                      .id("id")
+                      .build();
+                  String tenant = client.tenants().delete(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          tenant = knock.tenants.delete("id")
+
+          puts(tenant)
     get:
       callbacks: {}
       description: Get a tenant by ID.
@@ -4759,6 +4836,84 @@ paths:
       tags:
         - Tenants
       x-ratelimit-tier: 4
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const tenant = await client.tenants.get('id');
+
+            console.log(tenant.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          tenant = client.tenants.get(
+              "id",
+          )
+          print(tenant.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            tenant, err := client.Tenants.Get(context.TODO(), "id")
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", tenant.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.tenants.Tenant;
+          import app.knock.api.models.tenants.TenantGetParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  TenantGetParams params = TenantGetParams.builder()
+                      .id("id")
+                      .build();
+                  Tenant tenant = client.tenants().get(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          tenant = knock.tenants.get("id")
+
+          puts(tenant)
     put:
       callbacks: {}
       description: >-
@@ -4798,6 +4953,114 @@ paths:
       tags:
         - Tenants
       x-ratelimit-tier: 3
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const tenant = await client.tenants.set('id', {
+              settings: {
+                branding: {
+                  icon_url: 'https://example.com/icon.png',
+                  logo_url: 'https://example.com/logo.png',
+                  primary_color: '#000000',
+                  primary_color_contrast: '#FFFFFF',
+                },
+              },
+            });
+
+            console.log(tenant.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          tenant = client.tenants.set(
+              id="id",
+              settings={
+                  "branding": {
+                      "icon_url": "https://example.com/icon.png",
+                      "logo_url": "https://example.com/logo.png",
+                      "primary_color": "#000000",
+                      "primary_color_contrast": "#FFFFFF",
+                  }
+              },
+          )
+          print(tenant.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            tenant, err := client.Tenants.Set(
+              context.TODO(),
+              "id",
+              knock.TenantSetParams{
+                Settings: knock.F(knock.TenantSetParamsSettings{
+                  Branding: knock.F(knock.TenantSetParamsSettingsBranding{
+                    IconURL: knock.F("https://example.com/icon.png"),
+                    LogoURL: knock.F("https://example.com/logo.png"),
+                    PrimaryColor: knock.F("#000000"),
+                    PrimaryColorContrast: knock.F("#FFFFFF"),
+                  }),
+                }),
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", tenant.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.tenants.Tenant;
+          import app.knock.api.models.tenants.TenantSetParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  TenantSetParams params = TenantSetParams.builder()
+                      .id("id")
+                      .build();
+                  Tenant tenant = client.tenants().set(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          tenant = knock.tenants.set("id")
+
+          puts(tenant)
   /v1/users/{user_id}/feeds/{id}:
     get:
       callbacks: {}
@@ -4909,6 +5172,98 @@ paths:
         - Feeds
         - Users
       x-ratelimit-tier: 2
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            // Automatically fetches more pages as needed.
+            for await (const feedListItemsResponse of client.users.feeds.listItems(
+              'user_id',
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            )) {
+              console.log(feedListItemsResponse.id);
+            }
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          page = client.users.feeds.list_items(
+              user_id="user_id",
+              id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            page, err := client.Users.Feeds.ListItems(
+              context.TODO(),
+              "user_id",
+              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+              knock.UserFeedListItemsParams{
+
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.users.feeds.FeedListItemsPage;
+          import app.knock.api.models.users.feeds.FeedListItemsParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  FeedListItemsParams params = FeedListItemsParams.builder()
+                      .userId("user_id")
+                      .id("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+                      .build();
+                  FeedListItemsPage page = client.users().feeds().listItems(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          page = knock.users.feeds.list_items("user_id", "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+
+          puts(page)
   /v1/users/{user_id}/feeds/{id}/settings:
     get:
       callbacks: {}
@@ -4940,6 +5295,90 @@ paths:
         - Feeds
         - Users
       x-ratelimit-tier: 4
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const response = await client.users.feeds.getSettings('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+            console.log(response.features);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          response = client.users.feeds.get_settings(
+              user_id="user_id",
+              id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          print(response.features)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            response, err := client.Users.Feeds.GetSettings(
+              context.TODO(),
+              "user_id",
+              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Features)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.users.feeds.FeedGetSettingsParams;
+          import app.knock.api.models.users.feeds.FeedGetSettingsResponse;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  FeedGetSettingsParams params = FeedGetSettingsParams.builder()
+                      .userId("user_id")
+                      .id("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+                      .build();
+                  FeedGetSettingsResponse response = client.users().feeds().getSettings(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          response = knock.users.feeds.get_settings("user_id", "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+
+          puts(response)
   /v1/objects/{collection}/{object_id}/preferences/{id}/channel_types/{type}:
     put:
       callbacks: {}
@@ -6707,6 +7146,95 @@ paths:
         - Schedules
         - Objects
       x-ratelimit-tier: 4
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            // Automatically fetches more pages as needed.
+            for await (const schedule of client.objects.listSchedules('collection', 'id')) {
+              console.log(schedule.id);
+            }
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          page = client.objects.list_schedules(
+              collection="collection",
+              id="id",
+          )
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            page, err := client.Objects.ListSchedules(
+              context.TODO(),
+              "collection",
+              "id",
+              knock.ObjectListSchedulesParams{
+
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.objects.ObjectListSchedulesPage;
+          import app.knock.api.models.objects.ObjectListSchedulesParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  ObjectListSchedulesParams params = ObjectListSchedulesParams.builder()
+                      .collection("collection")
+                      .id("id")
+                      .build();
+                  ObjectListSchedulesPage page = client.objects().listSchedules(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          page = knock.objects.list_schedules("collection", "id")
+
+          puts(page)
   /v1/workflows/{key}/trigger:
     post:
       callbacks: {}
@@ -8923,6 +9451,95 @@ paths:
         - Objects
       x-ratelimit-tier: 4
       x-retention-policy: true
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            // Automatically fetches more pages as needed.
+            for await (const message of client.objects.listMessages('projects', 'project-123')) {
+              console.log(message.id);
+            }
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          page = client.objects.list_messages(
+              collection="projects",
+              id="project-123",
+          )
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            page, err := client.Objects.ListMessages(
+              context.TODO(),
+              "projects",
+              "project-123",
+              knock.ObjectListMessagesParams{
+
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.objects.ObjectListMessagesPage;
+          import app.knock.api.models.objects.ObjectListMessagesParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  ObjectListMessagesParams params = ObjectListMessagesParams.builder()
+                      .collection("projects")
+                      .id("project-123")
+                      .build();
+                  ObjectListMessagesPage page = client.objects().listMessages(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          page = knock.objects.list_messages("collection", "id")
+
+          puts(page)
   /v1/objects/{collection}/{object_id}/preferences/{id}/categories/{key}:
     put:
       callbacks: {}
@@ -10948,6 +11565,89 @@ paths:
       tags:
         - Objects
       x-ratelimit-tier: 3
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const object = await client.objects.delete('collection', 'id');
+
+            console.log(object);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          object = client.objects.delete(
+              collection="collection",
+              id="id",
+          )
+          print(object)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            object, err := client.Objects.Delete(
+              context.TODO(),
+              "collection",
+              "id",
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", object)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.objects.ObjectDeleteParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  ObjectDeleteParams params = ObjectDeleteParams.builder()
+                      .collection("collection")
+                      .id("id")
+                      .build();
+                  String object_ = client.objects().delete(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          object = knock.objects.delete("collection", "id")
+
+          puts(object)
     get:
       callbacks: {}
       description: >-
@@ -10978,6 +11678,90 @@ paths:
       tags:
         - Objects
       x-ratelimit-tier: 4
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const object = await client.objects.get('collection', 'id');
+
+            console.log(object.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          object = client.objects.get(
+              collection="collection",
+              id="id",
+          )
+          print(object.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            object, err := client.Objects.Get(
+              context.TODO(),
+              "collection",
+              "id",
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", object.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.objects.Object;
+          import app.knock.api.models.objects.ObjectGetParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  ObjectGetParams params = ObjectGetParams.builder()
+                      .collection("collection")
+                      .id("id")
+                      .build();
+                  Object object_ = client.objects().get(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          object = knock.objects.get("collection", "id")
+
+          puts(object)
     put:
       callbacks: {}
       description: >-
@@ -11037,6 +11821,157 @@ paths:
       tags:
         - Objects
       x-ratelimit-tier: 3
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const object = await client.objects.set('collection', 'id', {
+              channel_data: [
+                {
+                  channel_id: '97c5837d-c65c-4d54-aa39-080eeb81c69d',
+                  data: { __typename: 'PushChannelData', tokens: ['push_token_123'], type: 'push_fcm' },
+                  provider: 'push_fcm',
+                },
+              ],
+              locale: 'en-US',
+              preferences: [
+                {
+                  channel_types: { email: true },
+                  id: 'default',
+                  workflows: { 'dinosaurs-loose': { channel_types: { email: true } } },
+                },
+              ],
+              timezone: 'America/New_York',
+            });
+
+            console.log(object.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          object = client.objects.set(
+              collection="collection",
+              id="id",
+              channel_data=[{
+                  "channel_id": "97c5837d-c65c-4d54-aa39-080eeb81c69d",
+                  "data": {
+                      "_typename": "PushChannelData",
+                      "tokens": ["push_token_123"],
+                      "type": "push_fcm",
+                  },
+                  "provider": "push_fcm",
+              }],
+              locale="en-US",
+              preferences=[{
+                  "channel_types": {
+                      "email": True
+                  },
+                  "id": "default",
+                  "workflows": {
+                      "dinosaurs-loose": {
+                          "channel_types": {
+                              "email": True
+                          }
+                      }
+                  },
+              }],
+              timezone="America/New_York",
+          )
+          print(object.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+            "github.com/stainless-sdks/knock-go/shared"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            object, err := client.Objects.Set(
+              context.TODO(),
+              "collection",
+              "id",
+              knock.ObjectSetParams{
+                ChannelData: knock.F(knock.InlineChannelDataRequestParam{knock.InlineChannelDataRequestItemParam{
+                  ChannelID: knock.F("97c5837d-c65c-4d54-aa39-080eeb81c69d"),
+                  Data: knock.F[knock.InlineChannelDataRequestItemDataUnionParam](knock.PushChannelDataParam{
+                    Typename: knock.F(knock.PushChannelData_TypenamePushChannelData),
+                    Tokens: knock.F([]string{"push_token_123"}),
+                  }),
+                  Provider: knock.F("push_fcm"),
+                }}),
+                Locale: knock.F("en-US"),
+                Preferences: knock.F(knock.InlinePreferenceSetRequestParam{knock.InlinePreferenceSetRequestItemParam{
+                  ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
+                    Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(true)),
+                  }),
+                  ID: knock.F("default"),
+                  Workflows: knock.F(map[string]knock.InlinePreferenceSetRequestItemWorkflowsUnionParam{
+                  "dinosaurs-loose": knock.InlinePreferenceSetRequestItemWorkflowsPreferenceSetWorkflowCategorySettingObjectParam{
+                    ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
+                      Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(true)),
+                    }),
+                  },
+                  }),
+                }}),
+                Timezone: knock.F("America/New_York"),
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", object.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.objects.Object;
+          import app.knock.api.models.objects.ObjectSetParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  ObjectSetParams params = ObjectSetParams.builder()
+                      .collection("collection")
+                      .id("id")
+                      .build();
+                  Object object_ = client.objects().set(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          object = knock.objects.set("collection", "id")
+
+          puts(object)
   /v1/tenants/bulk/delete:
     post:
       callbacks: {}
@@ -15908,6 +16843,93 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 4
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const preferenceSet = await client.objects.getPreferences('collection', 'object_id', 'default');
+
+            console.log(preferenceSet.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          preference_set = client.objects.get_preferences(
+              collection="collection",
+              object_id="object_id",
+              id="default",
+          )
+          print(preference_set.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            preferenceSet, err := client.Objects.GetPreferences(
+              context.TODO(),
+              "collection",
+              "object_id",
+              "default",
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", preferenceSet.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.objects.ObjectGetPreferencesParams;
+          import app.knock.api.models.recipients.preferences.PreferenceSet;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  ObjectGetPreferencesParams params = ObjectGetPreferencesParams.builder()
+                      .collection("collection")
+                      .objectId("object_id")
+                      .id("default")
+                      .build();
+                  PreferenceSet preferenceSet = client.objects().getPreferences(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          preference_set = knock.objects.get_preferences("collection", "object_id", "default")
+
+          puts(preference_set)
     put:
       callbacks: {}
       description: Updates the preference set for the specified object.
@@ -15964,6 +16986,122 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const preferenceSet = await client.objects.setPreferences('collection', 'object_id', 'default', {
+              categories: { marketing: false, transactional: { channel_types: { email: false } } },
+              channel_types: { email: true },
+              workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
+            });
+
+            console.log(preferenceSet.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          preference_set = client.objects.set_preferences(
+              collection="collection",
+              object_id="object_id",
+              id="default",
+              categories={
+                  "marketing": False,
+                  "transactional": {
+                      "channel_types": {
+                          "email": False
+                      }
+                  },
+              },
+              channel_types={
+                  "email": True
+              },
+              workflows={
+                  "dinosaurs-loose": {
+                      "channel_types": {
+                          "email": False
+                      }
+                  }
+              },
+          )
+          print(preference_set.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            preferenceSet, err := client.Objects.SetPreferences(
+              context.TODO(),
+              "collection",
+              "object_id",
+              "default",
+              knock.ObjectSetPreferencesParams{
+                PreferenceSetRequest: knock.PreferenceSetRequestParam{
+
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", preferenceSet.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.objects.ObjectSetPreferencesParams;
+          import app.knock.api.models.recipients.preferences.PreferenceSet;
+          import app.knock.api.models.recipients.preferences.PreferenceSetRequest;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  ObjectSetPreferencesParams params = ObjectSetPreferencesParams.builder()
+                      .collection("collection")
+                      .objectId("object_id")
+                      .id("default")
+                      .preferenceSetRequest(PreferenceSetRequest.builder().build())
+                      .build();
+                  PreferenceSet preferenceSet = client.objects().setPreferences(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          preference_set = knock.objects.set_preferences("collection", "object_id", "default")
+
+          puts(preference_set)
   /v1/providers/ms-teams/{channel_id}/revoke_access:
     put:
       callbacks: {}
@@ -16272,6 +17410,93 @@ paths:
         - Users
         - Preferences
       x-ratelimit-tier: 4
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const preferenceSet = await client.users.getPreferences('user_id', 'default');
+
+            console.log(preferenceSet.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          preference_set = client.users.get_preferences(
+              user_id="user_id",
+              id="default",
+          )
+          print(preference_set.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            preferenceSet, err := client.Users.GetPreferences(
+              context.TODO(),
+              "user_id",
+              "default",
+              knock.UserGetPreferencesParams{
+
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", preferenceSet.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.recipients.preferences.PreferenceSet;
+          import app.knock.api.models.users.UserGetPreferencesParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  UserGetPreferencesParams params = UserGetPreferencesParams.builder()
+                      .userId("user_id")
+                      .id("default")
+                      .build();
+                  PreferenceSet preferenceSet = client.users().getPreferences(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          preference_set = knock.users.get_preferences("user_id", "default")
+
+          puts(preference_set)
     put:
       callbacks: {}
       description: >-
@@ -16324,6 +17549,119 @@ paths:
         - Users
         - Preferences
       x-ratelimit-tier: 3
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          async function main() {
+            const preferenceSet = await client.users.setPreferences('user_id', 'default', {
+              categories: { marketing: false, transactional: { channel_types: { email: false } } },
+              channel_types: { email: true },
+              workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
+            });
+
+            console.log(preferenceSet.id);
+          }
+
+          main();
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          preference_set = client.users.set_preferences(
+              user_id="user_id",
+              id="default",
+              categories={
+                  "marketing": False,
+                  "transactional": {
+                      "channel_types": {
+                          "email": False
+                      }
+                  },
+              },
+              channel_types={
+                  "email": True
+              },
+              workflows={
+                  "dinosaurs-loose": {
+                      "channel_types": {
+                          "email": False
+                      }
+                  }
+              },
+          )
+          print(preference_set.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/stainless-sdks/knock-go"
+            "github.com/stainless-sdks/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
+            )
+            preferenceSet, err := client.Users.SetPreferences(
+              context.TODO(),
+              "user_id",
+              "default",
+              knock.UserSetPreferencesParams{
+                PreferenceSetRequest: knock.PreferenceSetRequestParam{
+
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", preferenceSet.ID)
+          }
+        java: |-
+          package app.knock.api.example;
+
+          import app.knock.api.client.KnockClient;
+          import app.knock.api.client.okhttp.KnockOkHttpClient;
+          import app.knock.api.models.recipients.preferences.PreferenceSet;
+          import app.knock.api.models.recipients.preferences.PreferenceSetRequest;
+          import app.knock.api.models.users.UserSetPreferencesParams;
+
+          public final class Main {
+              private Main() {}
+
+              public static void main(String[] args) {
+                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
+                  KnockClient client = KnockOkHttpClient.fromEnv();
+
+                  UserSetPreferencesParams params = UserSetPreferencesParams.builder()
+                      .userId("user_id")
+                      .id("default")
+                      .preferenceSetRequest(PreferenceSetRequest.builder().build())
+                      .build();
+                  PreferenceSet preferenceSet = client.users().setPreferences(params);
+              }
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(
+            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
+          )
+
+          preference_set = knock.users.set_preferences("user_id", "default")
+
+          puts(preference_set)
   /v1/objects/{collection}/{object_id}/subscriptions:
     delete:
       callbacks: {}
