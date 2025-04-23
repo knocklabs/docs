@@ -10,6 +10,7 @@ import {
   resolveChildProperties,
 } from "./helpers";
 import { useApiReference } from "../ApiReferenceContext";
+import { Stack } from "@telegraph/layout";
 
 type Props = {
   name?: string;
@@ -72,13 +73,13 @@ const SchemaProperty = ({ name, schema }: Props) => {
           </PropertyRow.ExpandableButton>
 
           {isChildPropertiesOpen && (
-            <div className="flex flex-wrap gap-1 mt-2">
+            <Stack flexWrap="wrap" gap="1" mt="2">
               {maybeEnum.map((item) => (
                 <PropertyRow.PropertyTag key={item}>
                   {item}
                 </PropertyRow.PropertyTag>
               ))}
-            </div>
+            </Stack>
           )}
         </>
       )}

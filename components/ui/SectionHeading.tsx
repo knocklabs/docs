@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import useClipboard from "react-use-clipboard";
-import cn from "classnames";
-import { highlightResource } from "./ui/Page/helpers";
-
-const CLASS_SELECTOR = "section-heading";
+import { highlightResource } from "./Page/helpers";
+import { Heading } from "@telegraph/typography";
+import { TgphComponentProps } from "@telegraph/helpers";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -39,10 +38,11 @@ const SectionHeading: React.FC<Props> = ({
     onCopy();
   };
 
-  const Tag = `${tag}` as keyof Pick<JSX.IntrinsicElements, HeadingTag>;
+  const size = tag === "h1" ? "6" : tag === "h2" ? "6" : tag === "h3" ? "5" : tag === "h4" ? "4" : tag === "h5" ? "4" : "4";
 
   return (
-    <Tag {...rest} id={id} className={cn(CLASS_SELECTOR, className)}>
+    // @ts-expect-error shut it
+    <Heading as={tag} size={size} mb="4" {...rest} id={id}>
       {children}
 
       {targetUrl && (
@@ -58,7 +58,7 @@ const SectionHeading: React.FC<Props> = ({
           />
         </a>
       )}
-    </Tag>
+    </Heading>
   );
 };
 

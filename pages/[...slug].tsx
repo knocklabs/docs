@@ -26,7 +26,7 @@ import Table from "../components/Table";
 import CopyableText from "../components/CopyableText";
 import { Card, CardGroup } from "../components/Card";
 import { SdkCard, SdkCardGroup } from "../components/SdkCard";
-import { Endpoints, Endpoint } from "../components/Endpoints";
+import { Endpoints, Endpoint } from "../components/ui/Endpoints";
 import { AccordionGroup, Accordion } from "../components/Accordion";
 import { Steps, Step } from "../components/Step";
 import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
@@ -38,7 +38,7 @@ import {
   ContentColumn,
   ErrorExample,
   ExampleColumn,
-} from "../components/ApiSections";
+} from "../components/ui/ApiSections";
 import RateLimit from "../components/RateLimit";
 import { FrontMatter } from "../types";
 import { Heading } from "@telegraph/typography";

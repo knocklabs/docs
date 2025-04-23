@@ -2,8 +2,8 @@ import type { OpenAPIV3 } from "@scalar/openapi-types";
 import { useState } from "react";
 import Markdown from "react-markdown";
 
-import { Endpoint } from "../../Endpoints";
-import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
+import { Endpoint } from "../../ui/Endpoints";
+import { ContentColumn, ExampleColumn, Section } from "../../ui/ApiSections";
 import { CodeBlock } from "../../CodeBlock";
 import { useApiReference } from "../ApiReferenceContext";
 import { SchemaProperties } from "../SchemaProperties";
@@ -11,7 +11,7 @@ import OperationParameters from "../OperationParameters/OperationParameters";
 import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import MultiLangExample from "../MultiLangExample";
 import { augmentSnippetsWithCurlRequest } from "../helpers";
-import Link from "next/link";
+import { Heading } from "@telegraph/typography";
 
 type Props = {
   methodName: string;
@@ -46,11 +46,13 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
     method.requestBody?.content?.["application/json"]?.schema;
 
   return (
-    <Section title={method.summary} slug={method.summary} path={path}>
+    <Section title={method.summary} path={path}>
       <ContentColumn>
         <Markdown>{method.description ?? ""}</Markdown>
 
-        <h3 className="!text-sm font-medium">Endpoint</h3>
+        <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+          Endpoint
+        </Heading>
 
         <Endpoint
           method={methodType.toUpperCase()}
@@ -60,26 +62,34 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
 
         {pathParameters.length > 0 && (
           <>
-            <h3 className="!text-base font-medium">Path parameters</h3>
+            <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+              Path parameters
+            </Heading>
             <OperationParameters parameters={pathParameters} />
           </>
         )}
 
         {queryParameters.length > 0 && (
           <>
-            <h3 className="!text-base font-medium">Query parameters</h3>
+            <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+              Query parameters
+            </Heading>
             <OperationParameters parameters={queryParameters} />
           </>
         )}
 
         {requestBody && (
           <>
-            <h3 className="!text-base font-medium">Request body</h3>
+            <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+              Request body
+            </Heading>
             <SchemaProperties schema={requestBody} />
           </>
         )}
 
-        <h3 className="!text-base font-medium">Returns</h3>
+        <Heading as="h3" size="3" weight="medium" borderBottom="px" borderColor="gray-3" pb="2">
+          Returns
+        </Heading>
 
         {responseSchema && (
           <PropertyRow.Wrapper>

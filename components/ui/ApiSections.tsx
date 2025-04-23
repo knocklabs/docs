@@ -1,5 +1,6 @@
 import cn from "classnames";
 import SectionHeading from "./SectionHeading";
+import { Box, Stack } from "@telegraph/layout";
 
 export const Section = ({
   title,
@@ -16,7 +17,7 @@ export const Section = ({
   isRetentionSubject?: boolean;
   path?: string;
 }) => (
-  <section className="api-docs-section border-b border-gray-200 dark:border-gray-800 py-8 lg:py-16" data-resource-path={path}>
+  <Box as="section" borderBottom="px" borderColor="gray-3" py="16" data-resource-path={path}>
     {title && (
       <SectionHeading
         tag="h2"
@@ -45,24 +46,35 @@ export const Section = ({
         {title}
       </SectionHeading>
     )}
-    <div className="flex flex-col md:flex-row">{children}</div>
-  </section>
+    <Stack w="full">
+      {children}
+    </Stack>
+  </Box>
 );
 
 export const ContentColumn = ({ children }) => (
-  <div className="api-docs-section__col md:pr-5 flex-grow-0 flex-shrink-0 w-full md:w-1/2">
-    <div className="prose-sm lg:prose dark:prose-invert">{children}</div>
-  </div>
+  <Stack pr="3" w="full">
+    <Box w="full">{children}</Box>
+  </Stack>
 );
 
 export const ExampleColumn = ({ children }) => (
-  <div className="api-docs-section__col api-docs-example mt-5 md:pl-5 md:mt-0 flex-grow-0 flex-shrink-0 w-full md:w-1/2">
+  <Stack
+    mt="5"
+    pl="5"
+    flexDirection="column"
+    flexWrap="wrap"
+    w="full"
+    gap="5"
+    style={{ maxWidth: "50%" }}
+  >
     {children}
-  </div>
+  </Stack>
 );
 
+// Unused?
 export const ErrorExample = ({ title, description }) => (
-  <div className="flex-col pt-6 mt-6 border-gray-200 border-t dark:border-gray-700">
+  <div data-error-example className="flex-col pt-6 mt-6 border-gray-200 border-t dark:border-gray-700">
     <span className="bg-code-background dark:bg-gray-800 text-code rounded text-sm font-normal py-0.75 px-1.5 font-mono inline-block">
       {title}
     </span>

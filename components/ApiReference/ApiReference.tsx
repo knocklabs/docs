@@ -61,20 +61,14 @@ function ApiReference({
               description={`Complete reference documentation for the Knock ${name}.`}
             />
             <TelegraphPage.ContentBody>
-              <div className="w-full max-w-5xl lg:flex mx-auto relative">
-                <div className="w-full flex-auto">
-                  <div className="docs-content api-docs-content">
-                    {preContent}
-                    {resourceOrder.map((resourceName) => (
-                      <ApiReferenceSection
-                        key={resourceName}
-                        resourceName={resourceName}
-                        resource={stainlessSpec.resources[resourceName]}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
+              {preContent}
+              {resourceOrder.map((resourceName) => (
+                <ApiReferenceSection
+                  key={resourceName}
+                  resourceName={resourceName}
+                  resource={stainlessSpec.resources[resourceName]}
+                />
+              ))}
             </TelegraphPage.ContentBody>
           </TelegraphPage.Content>
         </TelegraphPage.Wrapper>

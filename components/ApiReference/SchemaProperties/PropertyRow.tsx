@@ -1,33 +1,40 @@
 import classNames from "classnames";
 import Link from "next/link";
 import { IoChevronDown } from "react-icons/io5";
+import { Box, Stack } from "@telegraph/layout";
+import { Code, Text } from "@telegraph/typography";
+import { Button } from "@telegraph/button";
+import { Lucide } from "@telegraph/icon";
+import { highlightResource } from "@/components/ui/Page/helpers";
 
 const Header = ({ children }) => (
-  <div className="flex flex-row items-center">{children}</div>
+  <Stack alignItems="center" mb="1">{children}</Stack>
 );
 
 const Wrapper = ({ children }) => (
-  <div className="attributes border-b dark:border-b-gray-800 last:border-b-0">
+  <Box data-property-row-wrapper className="attributes border-b dark:border-b-gray-800 last:border-b-0">
     {children}
-  </div>
+  </Box>
 );
 
 const Container = ({ children }) => {
   return (
-    <div className="attribute border-t dark:border-t-gray-800 pt-2 pb-2">
+    <Box py="3" borderBottom="px" borderColor="gray-3" data-property-row-container>
       {children}
-    </div>
+    </Box>
   );
 };
 
 const Name = ({ children }) => (
-  <span className="font-mono font-bold text-xs mr-1">{children}</span>
+  <Code as="span" size="1" pl="0" weight="semi-bold">
+    {children}
+  </Code>
 );
 
 const Types = ({ children }) => (
-  <div className="flex flex-row items-center gap-1 overflow-x-hidden">
+  <Stack data-property-row-types direction="row" align="center" gap="1" style={{ overflowX: "hidden" }}>
     {children}
-  </div>
+  </Stack>
 );
 
 const Type = ({
@@ -37,56 +44,61 @@ const Type = ({
   children: React.ReactNode;
   href?: string;
 }) => {
+
   if (href) {
+    const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      highlightResource(href, { moveToItem: true });
+    };
     return (
-      <Link
-        href={href}
-        className="font-mono text-xs px-1 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-md !no-underline"
-      >
-        {children}
-      </Link>
+      <Text as={Link} href={href} onClick={onClick}>
+        <Code as="span" size="0" bg="gray-2" px="1" borderRadius="2" color="accent" weight="regular" border="px" borderColor="gray-5">{children}</Code>
+      </Text>
     );
   }
 
   return (
-    <span className="font-mono text-xs px-1 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-md">
-      {children}
-    </span>
+    <Code as="span" size="0" bg="gray-2" px="1" borderRadius="2" color="black" weight="regular" border="px" borderColor="gray-5">{children}</Code>
   );
 };
 
 const Description = ({ children }) => (
-  <div className="text-sm text-gray-500 dark:text-gray-300 schema-property-description">
+  <Text data-property-row-description as="span" size="1" color="gray" weight="regular">
     {children}
-  </div>
+  </Text>
 );
 
 const Required = () => (
-  <span className="font-mono text-xs text-red-500 px-2">Required</span>
+  <Code as="span" ml="1" size="0" color="red" px="1" borderRadius="2" weight="regular" bg="transparent">Required</Code>
 );
 
 const ExpandableButton = ({ children, isOpen, onClick }) => (
-  <button
+  <Button
     className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-300 mt-2 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
     onClick={onClick}
+    variant="ghost"
+    size="0"
+    color="gray"
+    weight="light"
+    px="1"
+    mt="2"
+    style={{
+      marginLeft: "calc(var(--tgph-spacing-1) * -1)",
+    }}
+    icon={{ icon: isOpen ? Lucide.ArrowDown : Lucide.ArrowRight, "aria-hidden": true }}
   >
-    <IoChevronDown
-      className={classNames("w-3 h-3", { "rotate-180": isOpen })}
-    />
     {children}
-  </button>
+  </Button>
 );
 
 const ChildProperties = ({ children }) => (
-  <div className="pl-2 mt-2 -mb-2 property-row-child-properties">
+  <Box pl="2" mt="2">
     {children}
-  </div>
+  </Box>
 );
 
 const PropertyTag = ({ children }) => (
-  <span className="font-mono text-xs px-1 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-md">
-    {children}
-  </span>
+  <Code as="span" size="0" bg="gray-1" px="1" borderRadius="2" weight="regular" border="px" borderColor="gray-3">{children}</Code>
 );
 
 const PropertyRow = Object.assign({
