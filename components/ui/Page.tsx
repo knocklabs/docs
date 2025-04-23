@@ -19,7 +19,7 @@ const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
     data-wrapper
     style={{
       display: "grid",
-      gridTemplateColumns: "256px 1fr",
+      gridTemplateColumns: children.length === 2 ? "256px 1fr" : "256px 1fr 200px",
       maxWidth,
       margin: "0 auto"
     }}
@@ -30,8 +30,8 @@ const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
 
 const Masthead = ({ title }) => <PageHeader title={title} />;
 
-const Content = ({ children }) => (
-  <Box py="24" width="full" pl="24" pr="4" minWidth="0">
+const Content = ({ children, fullWidth = false }) => (
+  <Box py="8" width="full" pl="24" pr="4" minWidth="0" style={{ maxWidth: fullWidth ? "initial" : "740px" }}>
     <Box>
       {children}
     </Box>

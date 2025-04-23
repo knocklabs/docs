@@ -116,7 +116,6 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
       top="28"
       right="4"
       width="60"
-      py="6"
       style={{ height: "calc(100vh - 15rem)" }}
     >
       <Stack direction="row" align="center" gap="1" mb="2">

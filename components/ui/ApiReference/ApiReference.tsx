@@ -55,7 +55,7 @@ function ApiReference({
             )}
             samePageRouting
           />
-          <TelegraphPage.Content>
+          <TelegraphPage.Content fullWidth>
             <TelegraphPage.ContentHeader
               title={name}
               description={`Complete reference documentation for the Knock ${name}.`}
