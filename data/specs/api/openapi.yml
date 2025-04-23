@@ -454,6 +454,7 @@ components:
       example:
         - channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
           data:
+            __typename: PushChannelData
             tokens:
               - push_token_xxx
             type: push_fcm
@@ -1136,22 +1137,43 @@ components:
       additionalProperties: true
       description: A set of parameters to set an object with. Does not include the object id or collection.
       example:
+        channel_data:
+          - channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
+            data:
+              __typename: PushChannelData
+              tokens:
+                - push_token_123
+              type: push_fcm
+            provider: push_fcm
         description: My product description
+        locale: en-US
         name: My product
+        preferences:
+          - channel_types:
+              email: true
+            id: default
+            workflows:
+              dinosaurs-loose:
+                channel_types:
+                  email: true
         price: 100
+        timezone: America/New_York
       properties:
         channel_data:
-          description: A set of channel data for the object. This is a map of channel IDs to channel data.
-          oneOf:
-            - $ref: '#/components/schemas/InlineChannelDataRequest'
-            - nullable: true
+          $ref: '#/components/schemas/InlineChannelDataRequest'
+        locale:
+          description: The locale of the object. Used for [message localization](/concepts/translations).
+          nullable: true
+          type: string
         preferences:
+          $ref: '#/components/schemas/InlinePreferenceSetRequest'
+        timezone:
           description: >-
-            A set of preferences for the object. This is a map of preference set names to preference set
-            values.
-          oneOf:
-            - $ref: '#/components/schemas/InlinePreferenceSetRequest'
-            - nullable: true
+            The timezone of the object. Must be a valid [tz database time zone
+            string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring
+            schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+          nullable: true
+          type: string
       title: SetObjectRequest
       type: object
     UserInAppFeedSettingsResponse:
@@ -1272,7 +1294,9 @@ components:
         name: My project
       properties:
         channel_data:
-          description: A set of channel data for the object. This is a map of channel IDs to channel data.
+          description: >-
+            An optional set of [channel data](/managing-recipients/setting-channel-data) for the object. This
+            is a list of `ChannelData` objects.
           oneOf:
             - $ref: '#/components/schemas/InlineChannelDataRequest'
             - nullable: true
@@ -2453,6 +2477,7 @@ components:
         channel_data:
           - channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
             data:
+              __typename: PushChannelData
               tokens:
                 - push_token_123
               type: push_fcm
@@ -3294,6 +3319,8 @@ components:
               __typename: PushChannelData
               tokens:
                 - push_token_123
+              type: push_fcm
+            provider: push_fcm
         email: jane@ingen.net
         id: user_1
         name: Jane Doe
@@ -4577,6 +4604,7 @@ components:
       description: A request to set channel data for a type of channel.
       example:
         data:
+          __typename: PushChannelData
           tokens:
             - push_token_1
           type: push_fcm
@@ -4667,12 +4695,12 @@ info:
   version: '1.0'
 openapi: 3.0.0
 paths:
-  /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}/categories:
+  /v1/objects/{collection}/{object_id}/preferences/{id}/workflows:
     put:
       callbacks: {}
       deprecated: true
-      description: Updates the category preferences for an object's preference set.
-      operationId: updateObjectPreferenceCategories
+      description: Updates the workflow preferences for an object's preference set.
+      operationId: updateObjectPreferenceWorkflows
       parameters: []
       responses:
         '200':
@@ -4681,35 +4709,43 @@ paths:
               schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Update categories in preference set
+      summary: Update workflows in preference set
       tags:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
-  /v1/users/{user_id}/preferences/{preference_set_id}:
+  /v1/tenants/{id}:
+    delete:
+      callbacks: {}
+      description: Delete a tenant and all associated data. This operation cannot be undone.
+      operationId: deleteTenant
+      parameters:
+        - description: The unique identifier for the tenant.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyContentResponse'
+          description: No Content
+      summary: Delete a tenant
+      tags:
+        - Tenants
+      x-ratelimit-tier: 2
     get:
       callbacks: {}
-      description: Retrieves a specific preference set for a user identified by the preference set ID.
-      operationId: getUserPreferenceSet
+      description: Get a tenant by ID.
+      operationId: getTenant
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
-          in: path
-          name: user_id
-          required: true
-          schema:
-            type: string
-        - description: Unique identifier for the preference set.
-          in: path
-          name: preference_set_id
-          required: true
-          schema:
-            default: default
-            example: default
-            type: string
         - description: The unique identifier for the tenant.
-          in: query
-          name: tenant
-          required: false
+          in: path
+          name: id
+          required: true
           schema:
             type: string
       responses:
@@ -4717,231 +4753,212 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PreferenceSet'
+                $ref: '#/components/schemas/Tenant'
           description: OK
-      summary: Get user preference set
+      summary: Get a tenant
       tags:
-        - Users
-        - Preferences
+        - Tenants
       x-ratelimit-tier: 4
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const preferenceSet = await client.users.getPreferences('user_id', 'default');
-
-            console.log(preferenceSet.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          preference_set = client.users.get_preferences(
-              user_id="user_id",
-              preference_set_id="default",
-          )
-          print(preference_set.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            preferenceSet, err := client.Users.GetPreferences(
-              context.TODO(),
-              "user_id",
-              "default",
-              knock.UserGetPreferencesParams{
-
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", preferenceSet.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.recipients.preferences.PreferenceSet;
-          import app.knock.api.models.users.UserGetPreferencesParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  UserGetPreferencesParams params = UserGetPreferencesParams.builder()
-                      .userId("user_id")
-                      .preferenceSetId("default")
-                      .build();
-                  PreferenceSet preferenceSet = client.users().getPreferences(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          preference_set = knock.users.get_preferences("user_id", "default")
-
-          puts(preference_set)
     put:
       callbacks: {}
       description: >-
-        Updates a complete preference set for a user. This is a destructive operation that will replace the
-        existing preference set for the user.
-      operationId: updateUserPreferenceSet
+        Set or update a tenant's properties and settings. This operation allows you to update tenant
+        preferences, channel data, and branding settings.
+      operationId: setTenant
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier for the tenant.
           in: path
-          name: user_id
+          name: id
           required: true
           schema:
-            type: string
-        - description: Unique identifier for the preference set.
-          in: path
-          name: preference_set_id
-          required: true
-          schema:
-            default: default
-            example: default
             type: string
       requestBody:
         content:
           application/json:
+            example:
+              name: ACME Corp, Inc.
+              settings:
+                branding:
+                  icon_url: https://example.com/icon.png
+                  logo_url: https://example.com/logo.png
+                  primary_color: '#000000'
+                  primary_color_contrast: '#FFFFFF'
             schema:
-              $ref: '#/components/schemas/PreferenceSetRequest'
-        description: Params
+              $ref: '#/components/schemas/SetTenantRequest'
+        description: Tenant
         required: true
       responses:
         '200':
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/Tenant'
+          description: OK
+      summary: Set a tenant
+      tags:
+        - Tenants
+      x-ratelimit-tier: 3
+  /v1/users/{user_id}/feeds/{id}:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of feed items for a user, including metadata about the feed.
+      operationId: listUserInAppFeedItems
+      parameters:
+        - description: The ID for the user that you set when identifying them in Knock.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+        - description: The unique identifier for the channel.
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+        - description: The status of the feed items.
+          example: unread
+          in: query
+          name: status
+          required: false
+          schema:
+            enum:
+              - unread
+              - read
+              - unseen
+              - seen
+              - all
+            type: string
+        - description: The source of the feed items.
+          example: my_source
+          in: query
+          name: source
+          required: false
+          schema:
+            type: string
+        - description: The tenant associated with the feed items.
+          example: my_tenant
+          in: query
+          name: tenant
+          required: false
+          schema:
+            type: string
+        - description: Whether the feed items have a tenant.
+          example: true
+          in: query
+          name: has_tenant
+          required: false
+          schema:
+            type: boolean
+        - description: The workflow categories of the feed items.
+          example:
+            - my_workflow_category
+          in: query
+          name: workflow_categories[]
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+        - description: The archived status of the feed items.
+          example: exclude
+          in: query
+          name: archived
+          required: false
+          schema:
+            enum:
+              - exclude
+              - include
+              - only
+            type: string
+        - description: The trigger data of the feed items (as a JSON string).
+          example: '{ "key": "value" }'
+          in: query
+          name: trigger_data
+          required: false
+          schema:
+            type: string
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+        - description: The number of items per page.
+          in: query
+          name: page_size
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInAppFeedResponse'
+          description: OK
+      summary: List feed items
+      tags:
+        - Feeds
+        - Users
+      x-ratelimit-tier: 2
+  /v1/users/{user_id}/feeds/{id}/settings:
+    get:
+      callbacks: {}
+      description: Returns the feed settings for a user.
+      operationId: getUserInAppFeedSettings
+      parameters:
+        - description: The ID for the user that you set when identifying them in Knock.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+        - description: The unique identifier for the channel.
+          in: path
+          name: id
+          required: true
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInAppFeedSettingsResponse'
+          description: OK
+      summary: Get feed settings
+      tags:
+        - Feeds
+        - Users
+      x-ratelimit-tier: 4
+  /v1/objects/{collection}/{object_id}/preferences/{id}/channel_types/{type}:
+    put:
+      callbacks: {}
+      deprecated: true
+      description: Updates a specific channel type preference for an object's preference set.
+      operationId: updateObjectPreferenceChannelType
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Update user preference set
+      summary: Update a channel type preference
       tags:
-        - Users
+        - Objects
         - Preferences
       x-ratelimit-tier: 3
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const preferenceSet = await client.users.setPreferences('user_id', 'default');
-
-            console.log(preferenceSet.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          preference_set = client.users.set_preferences(
-              user_id="user_id",
-              preference_set_id="default",
-          )
-          print(preference_set.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            preferenceSet, err := client.Users.SetPreferences(
-              context.TODO(),
-              "user_id",
-              "default",
-              knock.UserSetPreferencesParams{
-                PreferenceSetRequest: knock.PreferenceSetRequestParam{
-
-                },
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", preferenceSet.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.recipients.preferences.PreferenceSet;
-          import app.knock.api.models.recipients.preferences.PreferenceSetRequest;
-          import app.knock.api.models.users.UserSetPreferencesParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  UserSetPreferencesParams params = UserSetPreferencesParams.builder()
-                      .userId("user_id")
-                      .preferenceSetId("default")
-                      .preferenceSetRequest(PreferenceSetRequest.builder().build())
-                      .build();
-                  PreferenceSet preferenceSet = client.users().setPreferences(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          preference_set = knock.users.set_preferences("user_id", "default")
-
-          puts(preference_set)
   /v1/integrations/census/custom-destination:
     post:
       callbacks: {}
@@ -5086,280 +5103,6 @@ paths:
 
 
           puts(response)
-  /v1/objects/{collection}/{object_id}/messages:
-    get:
-      callbacks: {}
-      description: >-
-        Returns a paginated list of messages for a specific object in the given collection. Allows filtering
-        by message status and provides various sorting options.
-      operationId: listMessagesForObject
-      parameters:
-        - description: The cursor to fetch entries after.
-          in: query
-          name: after
-          required: false
-          schema:
-            type: string
-        - description: The cursor to fetch entries before.
-          in: query
-          name: before
-          required: false
-          schema:
-            type: string
-        - description: The number of items per page.
-          in: query
-          name: page_size
-          required: false
-          schema:
-            type: integer
-        - description: Limits the results to items with the corresponding tenant.
-          example: tenant_123
-          in: query
-          name: tenant
-          required: false
-          schema:
-            type: string
-        - description: Limits the results to items with the corresponding channel ID.
-          example: 123e4567-e89b-12d3-a456-426614174000
-          in: query
-          name: channel_id
-          required: false
-          schema:
-            type: string
-        - description: Limits the results to messages with the given delivery status.
-          example:
-            - delivered
-          in: query
-          name: status[]
-          required: false
-          schema:
-            items:
-              enum:
-                - queued
-                - sent
-                - delivered
-                - delivery_attempted
-                - undelivered
-                - not_sent
-                - bounced
-              type: string
-            type: array
-        - description: Limits the results to messages with the given engagement status.
-          example:
-            - unread
-          in: query
-          name: engagement_status[]
-          required: false
-          schema:
-            items:
-              enum:
-                - seen
-                - read
-                - interacted
-                - link_clicked
-                - archived
-              type: string
-            type: array
-        - description: >-
-            Limits the results to only the message IDs given (max 50). Note: when using this option, the
-            results will be subject to any other filters applied to the query.
-          example:
-            - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
-          in: query
-          name: message_ids[]
-          required: false
-          schema:
-            items:
-              type: string
-            type: array
-        - description: Limits the results to messages related to any of the provided categories.
-          example:
-            - workflow_123
-          in: query
-          name: workflow_categories[]
-          required: false
-          schema:
-            items:
-              type: string
-            type: array
-        - description: Limits the results to messages triggered by the given workflow key.
-          example: comment-created
-          in: query
-          name: source
-          required: false
-          schema:
-            type: string
-        - description: >-
-            Limits the results to messages associated with the top-level workflow run ID returned by the
-            workflow trigger request.
-          example: 123e4567-e89b-12d3-a456-426614174000
-          in: query
-          name: workflow_run_id
-          required: false
-          schema:
-            format: uuid
-            type: string
-        - description: Limits the results to messages for a specific recipient's workflow run.
-          example: 123e4567-e89b-12d3-a456-426614174000
-          in: query
-          name: workflow_recipient_run_id
-          required: false
-          schema:
-            format: uuid
-            type: string
-        - description: >-
-            Limits the results to only messages that were generated with the given data. See [trigger data
-            filtering](/api-reference/overview/trigger-data-filtering) for more information.
-          example: '{"comment_id": "123"}'
-          in: query
-          name: trigger_data
-          required: false
-          schema:
-            type: string
-        - description: Limits the results to messages inserted after or on the given date.
-          example: '2025-01-01T00:00:00Z'
-          in: query
-          name: inserted_at.gte
-          required: false
-          schema:
-            type: string
-        - description: Limits the results to messages inserted before or on the given date.
-          example: '2025-01-01T00:00:00Z'
-          in: query
-          name: inserted_at.lte
-          required: false
-          schema:
-            type: string
-        - description: Limits the results to messages inserted after the given date.
-          example: '2025-01-01T00:00:00Z'
-          in: query
-          name: inserted_at.gt
-          required: false
-          schema:
-            type: string
-        - description: Limits the results to messages inserted before the given date.
-          example: '2025-01-01T00:00:00Z'
-          in: query
-          name: inserted_at.lt
-          required: false
-          schema:
-            type: string
-        - description: The collection this object belongs to.
-          example: projects
-          in: path
-          name: collection
-          required: true
-          schema:
-            type: string
-        - description: Unique identifier for the object.
-          example: project-123
-          in: path
-          name: object_id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListMessagesResponse'
-          description: OK
-      summary: List messages
-      tags:
-        - Messages
-        - Objects
-      x-ratelimit-tier: 4
-      x-retention-policy: true
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            // Automatically fetches more pages as needed.
-            for await (const message of client.objects.listMessages('projects', 'project-123')) {
-              console.log(message.id);
-            }
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          page = client.objects.list_messages(
-              collection="projects",
-              object_id="project-123",
-          )
-          page = page.entries[0]
-          print(page.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            page, err := client.Objects.ListMessages(
-              context.TODO(),
-              "projects",
-              "project-123",
-              knock.ObjectListMessagesParams{
-
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", page)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.objects.ObjectListMessagesPage;
-          import app.knock.api.models.objects.ObjectListMessagesParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  ObjectListMessagesParams params = ObjectListMessagesParams.builder()
-                      .collection("projects")
-                      .objectId("project-123")
-                      .build();
-                  ObjectListMessagesPage page = client.objects().listMessages(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          page = knock.objects.list_messages("collection", "object_id")
-
-          puts(page)
   /v1/bulk_operations/{id}:
     get:
       callbacks: {}
@@ -5830,6 +5573,7 @@ paths:
               channel_data:
                 - channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
                   data:
+                    __typename: PushChannelData
                     tokens:
                       - push_token_123
                     type: push_fcm
@@ -5854,32 +5598,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/User'
-                example:
-                  __typename: User
-                  channel_data:
-                    - __typename: ChannelData
-                      channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
-                      data:
-                        tokens:
-                          - push_token_123
-                        type: push_fcm
-                      provider: push_fcm
-                  created_at: '2023-01-01T12:00:00Z'
-                  email: jane@ingen.net
-                  id: user-123
-                  name: Jane Doe
-                  preferences:
-                    - channel_types:
-                        email: true
-                      id: default
-                      workflows:
-                        dinosaurs-loose:
-                          channel_types:
-                            email: true
-                  timezone: America/New_York
-                  updated_at: '2023-01-01T12:00:00Z'
+                $ref: '#/components/schemas/User'
           description: OK
       summary: Identify user
       tags:
@@ -5898,7 +5617,7 @@ paths:
               channel_data: [
                 {
                   channel_id: '97c5837d-c65c-4d54-aa39-080eeb81c69d',
-                  data: { tokens: ['push_token_123'], type: 'push_fcm' },
+                  data: { __typename: 'PushChannelData', tokens: ['push_token_123'], type: 'push_fcm' },
                   provider: 'push_fcm',
                 },
               ],
@@ -5930,6 +5649,7 @@ paths:
               channel_data=[{
                   "channel_id": "97c5837d-c65c-4d54-aa39-080eeb81c69d",
                   "data": {
+                      "_typename": "PushChannelData",
                       "tokens": ["push_token_123"],
                       "type": "push_fcm",
                   },
@@ -6141,155 +5861,6 @@ paths:
           )
 
           page = knock.messages.list_delivery_logs("message_id")
-
-          puts(page)
-  /v1/objects/{collection}/{object_id}/schedules:
-    get:
-      callbacks: {}
-      description: Returns a paginated list of schedules for an object.
-      operationId: listObjectSchedules
-      parameters:
-        - description: The ID of the object to list schedules for.
-          in: path
-          name: object_id
-          required: true
-          schema:
-            type: string
-        - description: The collection of the object to list schedules for.
-          in: path
-          name: collection
-          required: true
-          schema:
-            type: string
-        - description: Filter schedules by tenant id.
-          in: query
-          name: tenant
-          required: false
-          schema:
-            type: string
-        - description: Filter schedules by workflow id.
-          in: query
-          name: workflow
-          required: false
-          schema:
-            type: string
-        - description: The cursor to fetch entries after.
-          in: query
-          name: after
-          required: false
-          schema:
-            type: string
-        - description: The cursor to fetch entries before.
-          in: query
-          name: before
-          required: false
-          schema:
-            type: string
-        - description: The number of items per page.
-          in: query
-          name: page_size
-          required: false
-          schema:
-            type: integer
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListSchedulesResponse'
-          description: OK
-      summary: List object schedules
-      tags:
-        - Schedules
-        - Objects
-      x-ratelimit-tier: 4
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            // Automatically fetches more pages as needed.
-            for await (const schedule of client.objects.listSchedules('collection', 'object_id')) {
-              console.log(schedule.id);
-            }
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          page = client.objects.list_schedules(
-              collection="collection",
-              object_id="object_id",
-          )
-          page = page.entries[0]
-          print(page.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            page, err := client.Objects.ListSchedules(
-              context.TODO(),
-              "collection",
-              "object_id",
-              knock.ObjectListSchedulesParams{
-
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", page)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.objects.ObjectListSchedulesPage;
-          import app.knock.api.models.objects.ObjectListSchedulesParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  ObjectListSchedulesParams params = ObjectListSchedulesParams.builder()
-                      .collection("collection")
-                      .objectId("object_id")
-                      .build();
-                  ObjectListSchedulesPage page = client.objects().listSchedules(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          page = knock.objects.list_schedules("collection", "object_id")
 
           puts(page)
   /v1/messages:
@@ -6593,6 +6164,25 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+  /v1/users/{user_id}/preferences/{id}/categories/{key}:
+    put:
+      callbacks: {}
+      deprecated: true
+      description: Updates a single category in a specific user preference set. This operation is deprecated.
+      operationId: updateUserPreferenceCategory
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update category in user preference set
+      tags:
+        - Users
+        - Preferences
+      x-ratelimit-tier: 3
   /v1/users/{user_id}/guides/messages/{message_id}/seen:
     put:
       callbacks: {}
@@ -6614,6 +6204,20 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              channel_id: 123e4567-e89b-12d3-a456-426614174000
+              content:
+                body: Guide content body
+                title: Guide Title
+              data:
+                product_id: product_123
+              guide_id: 323e4567-e89b-12d3-a456-426614174000
+              guide_key: guide_12345
+              guide_step_ref: step_12345
+              is_final: true
+              metadata:
+                source: onboarding
+              tenant: tenant_12345
             schema:
               $ref: '#/components/schemas/GuideActionRequest'
         description: Params
@@ -6644,6 +6248,11 @@ paths:
               guide_id: '323e4567-e89b-12d3-a456-426614174000',
               guide_key: 'guide_12345',
               guide_step_ref: 'step_12345',
+              content: { body: 'Guide content body', title: 'Guide Title' },
+              data: { product_id: 'product_123' },
+              is_final: true,
+              metadata: { source: 'onboarding' },
+              tenant: 'tenant_12345',
             });
 
             console.log(response.status);
@@ -6664,6 +6273,18 @@ paths:
               guide_id="323e4567-e89b-12d3-a456-426614174000",
               guide_key="guide_12345",
               guide_step_ref="step_12345",
+              content={
+                  "body": "Guide content body",
+                  "title": "Guide Title",
+              },
+              data={
+                  "product_id": "product_123"
+              },
+              is_final=True,
+              metadata={
+                  "source": "onboarding"
+              },
+              tenant="tenant_12345",
           )
           print(response.status)
         go: |
@@ -6690,6 +6311,18 @@ paths:
                 GuideID: knock.F("323e4567-e89b-12d3-a456-426614174000"),
                 GuideKey: knock.F("guide_12345"),
                 GuideStepRef: knock.F("step_12345"),
+                Content: knock.F(map[string]interface{}{
+                "body": "Guide content body",
+                "title": "Guide Title",
+                }),
+                Data: knock.F(map[string]interface{}{
+                "product_id": "product_123",
+                }),
+                IsFinal: knock.F(true),
+                Metadata: knock.F(map[string]interface{}{
+                "source": "onboarding",
+                }),
+                Tenant: knock.F("tenant_12345"),
               },
             )
             if err != nil {
@@ -7014,6 +6647,66 @@ paths:
           page = knock.providers.slack.list_channels("channel_id", access_token_object: "access_token_object")
 
           puts(page)
+  /v1/objects/{collection}/{id}/schedules:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of schedules for an object.
+      operationId: listObjectSchedules
+      parameters:
+        - description: The ID of the object to list schedules for.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - description: The collection of the object to list schedules for.
+          in: path
+          name: collection
+          required: true
+          schema:
+            type: string
+        - description: Filter schedules by tenant id.
+          in: query
+          name: tenant
+          required: false
+          schema:
+            type: string
+        - description: Filter schedules by workflow id.
+          in: query
+          name: workflow
+          required: false
+          schema:
+            type: string
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+        - description: The number of items per page.
+          in: query
+          name: page_size
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSchedulesResponse'
+          description: OK
+      summary: List object schedules
+      tags:
+        - Schedules
+        - Objects
+      x-ratelimit-tier: 4
   /v1/workflows/{key}/trigger:
     post:
       callbacks: {}
@@ -7034,6 +6727,21 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              actor: null
+              cancellation_key: null
+              data:
+                dinosaur_names:
+                  - Tyrannosaurus
+                  - Velociraptor
+                  - Stegosaurus
+                is_alert: true
+                park_id: prk_1
+                severity: 1
+                welcome_message: Welcome, to Jurassic Park!
+              recipients:
+                - jhammond
+              tenant: acme_corp
             schema:
               $ref: '#/components/schemas/TriggerWorkflowRequest'
         description: Params
@@ -7059,7 +6767,17 @@ paths:
           });
 
           async function main() {
-            const response = await client.workflows.trigger('key', { recipients: ['jhammond'] });
+            const response = await client.workflows.trigger('key', {
+              recipients: ['jhammond'],
+              data: {
+                dinosaur_names: ['Tyrannosaurus', 'Velociraptor', 'Stegosaurus'],
+                is_alert: true,
+                park_id: 'prk_1',
+                severity: 1,
+                welcome_message: 'Welcome, to Jurassic Park!',
+              },
+              tenant: 'acme_corp',
+            });
 
             console.log(response.workflow_run_id);
           }
@@ -7075,6 +6793,14 @@ paths:
           response = client.workflows.trigger(
               key="key",
               recipients=["jhammond"],
+              data={
+                  "dinosaur_names": ["Tyrannosaurus", "Velociraptor", "Stegosaurus"],
+                  "is_alert": True,
+                  "park_id": "prk_1",
+                  "severity": 1,
+                  "welcome_message": "Welcome, to Jurassic Park!",
+              },
+              tenant="acme_corp",
           )
           print(response.workflow_run_id)
         go: |
@@ -7098,6 +6824,18 @@ paths:
               "key",
               knock.WorkflowTriggerParams{
                 Recipients: knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("jhammond")}),
+                Data: knock.F(map[string]interface{}{
+                "dinosaur_names": map[string]interface{}{
+                "0": "Tyrannosaurus",
+                "1": "Velociraptor",
+                "2": "Stegosaurus",
+                },
+                "is_alert": true,
+                "park_id": "prk_1",
+                "severity": 1,
+                "welcome_message": "Welcome, to Jurassic Park!",
+                }),
+                Tenant: knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("acme_corp")),
               },
             )
             if err != nil {
@@ -7148,6 +6886,10 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              message_ids:
+                - 2w3YUpTTOxuDvZFji8OMsKrG176
+                - 2w3YVRbPXMIh8Zq6oBFcVDA5xes
             schema:
               $ref: '#/components/schemas/BatchMessagesStatusRequest'
         description: Params
@@ -7313,356 +7055,6 @@ paths:
           )
 
           puts(messages)
-  /v1/objects/{collection}/{object_id}:
-    delete:
-      callbacks: {}
-      description: Permanently removes an object from the specified collection. This operation cannot be undone.
-      operationId: deleteObject
-      parameters:
-        - description: The collection this object belongs to.
-          in: path
-          name: collection
-          required: true
-          schema:
-            type: string
-        - description: Unique identifier for the object.
-          in: path
-          name: object_id
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
-          description: No Content
-      summary: Delete an object
-      tags:
-        - Objects
-      x-ratelimit-tier: 3
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const object = await client.objects.delete('collection', 'object_id');
-
-            console.log(object);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          object = client.objects.delete(
-              collection="collection",
-              object_id="object_id",
-          )
-          print(object)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            object, err := client.Objects.Delete(
-              context.TODO(),
-              "collection",
-              "object_id",
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", object)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.objects.ObjectDeleteParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  ObjectDeleteParams params = ObjectDeleteParams.builder()
-                      .collection("collection")
-                      .objectId("object_id")
-                      .build();
-                  String object_ = client.objects().delete(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          object = knock.objects.delete("collection", "object_id")
-
-          puts(object)
-    get:
-      callbacks: {}
-      description: >-
-        Retrieves a specific object by its ID from the specified collection. Returns the object with all its
-        properties.
-      operationId: getObject
-      parameters:
-        - description: The collection this object belongs to.
-          in: path
-          name: collection
-          required: true
-          schema:
-            type: string
-        - description: Unique identifier for the object.
-          in: path
-          name: object_id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Object'
-          description: OK
-      summary: Get an object
-      tags:
-        - Objects
-      x-ratelimit-tier: 4
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const object = await client.objects.get('collection', 'object_id');
-
-            console.log(object.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          object = client.objects.get(
-              collection="collection",
-              object_id="object_id",
-          )
-          print(object.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            object, err := client.Objects.Get(
-              context.TODO(),
-              "collection",
-              "object_id",
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", object.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.objects.Object;
-          import app.knock.api.models.objects.ObjectGetParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  ObjectGetParams params = ObjectGetParams.builder()
-                      .collection("collection")
-                      .objectId("object_id")
-                      .build();
-                  Object object_ = client.objects().get(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          object = knock.objects.get("collection", "object_id")
-
-          puts(object)
-    put:
-      callbacks: {}
-      description: >-
-        Creates a new object or updates an existing one in the specified collection. This operation is used to
-        identify objects with their properties, as well as optional preferences and channel data.
-      operationId: setObject
-      parameters:
-        - description: The collection this object belongs to.
-          in: path
-          name: collection
-          required: true
-          schema:
-            type: string
-        - description: Unique identifier for the object.
-          in: path
-          name: object_id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SetObjectRequest'
-        description: Params
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Object'
-          description: OK
-      summary: Set (identify) an object
-      tags:
-        - Objects
-      x-ratelimit-tier: 3
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const object = await client.objects.set('collection', 'object_id');
-
-            console.log(object.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          object = client.objects.set(
-              collection="collection",
-              object_id="object_id",
-          )
-          print(object.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            object, err := client.Objects.Set(
-              context.TODO(),
-              "collection",
-              "object_id",
-              knock.ObjectSetParams{
-
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", object.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.objects.Object;
-          import app.knock.api.models.objects.ObjectSetParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  ObjectSetParams params = ObjectSetParams.builder()
-                      .collection("collection")
-                      .objectId("object_id")
-                      .build();
-                  Object object_ = client.objects().set(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          object = knock.objects.set("collection", "object_id")
-
-          puts(object)
   /v1/messages/{message_id}/unread:
     delete:
       callbacks: {}
@@ -8363,6 +7755,12 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              data:
+                __typename: PushChannelData
+                tokens:
+                  - push_token_1
+                type: push_fcm
             schema:
               $ref: '#/components/schemas/ChannelDataRequest'
         description: Params
@@ -8389,7 +7787,7 @@ paths:
 
           async function main() {
             const channelData = await client.users.setChannelData('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
-              data: { __typename: 'PushChannelData', tokens: ['push_token_1'] },
+              data: { __typename: 'PushChannelData', tokens: ['push_token_1'], type: 'push_fcm' },
             });
 
             console.log(channelData.channel_id);
@@ -8409,6 +7807,7 @@ paths:
               data={
                   "_typename": "PushChannelData",
                   "tokens": ["push_token_1"],
+                  "type": "push_fcm",
               },
           )
           print(channel_data.channel_id)
@@ -8876,6 +8275,10 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              message_ids:
+                - 2w3YUpTTOxuDvZFji8OMsKrG176
+                - 2w3YVRbPXMIh8Zq6oBFcVDA5xes
             schema:
               $ref: '#/components/schemas/BatchMessagesStatusRequest'
         description: Params
@@ -9041,25 +8444,6 @@ paths:
           )
 
           puts(messages)
-  /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}/channel_types/{type}:
-    put:
-      callbacks: {}
-      deprecated: true
-      description: Updates a specific channel type preference for an object's preference set.
-      operationId: updateObjectPreferenceChannelType
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update a channel type preference
-      tags:
-        - Objects
-        - Preferences
-      x-ratelimit-tier: 3
   /v1/messages/batch/unseen:
     post:
       callbacks: {}
@@ -9251,6 +8635,8 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              from_user_id: user_1
             schema:
               $ref: '#/components/schemas/MergeUserRequest'
         description: Params
@@ -9352,6 +8738,210 @@ paths:
           user = knock.users.merge("user_id", from_user_id: "user_1")
 
           puts(user)
+  /v1/objects/{collection}/{id}/messages:
+    get:
+      callbacks: {}
+      description: >-
+        Returns a paginated list of messages for a specific object in the given collection. Allows filtering
+        by message status and provides various sorting options.
+      operationId: listMessagesForObject
+      parameters:
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+        - description: The number of items per page.
+          in: query
+          name: page_size
+          required: false
+          schema:
+            type: integer
+        - description: Limits the results to items with the corresponding tenant.
+          example: tenant_123
+          in: query
+          name: tenant
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to items with the corresponding channel ID.
+          example: 123e4567-e89b-12d3-a456-426614174000
+          in: query
+          name: channel_id
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages with the given delivery status.
+          example:
+            - delivered
+          in: query
+          name: status[]
+          required: false
+          schema:
+            items:
+              enum:
+                - queued
+                - sent
+                - delivered
+                - delivery_attempted
+                - undelivered
+                - not_sent
+                - bounced
+              type: string
+            type: array
+        - description: Limits the results to messages with the given engagement status.
+          example:
+            - unread
+          in: query
+          name: engagement_status[]
+          required: false
+          schema:
+            items:
+              enum:
+                - seen
+                - read
+                - interacted
+                - link_clicked
+                - archived
+              type: string
+            type: array
+        - description: >-
+            Limits the results to only the message IDs given (max 50). Note: when using this option, the
+            results will be subject to any other filters applied to the query.
+          example:
+            - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+          in: query
+          name: message_ids[]
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+        - description: Limits the results to messages related to any of the provided categories.
+          example:
+            - workflow_123
+          in: query
+          name: workflow_categories[]
+          required: false
+          schema:
+            items:
+              type: string
+            type: array
+        - description: Limits the results to messages triggered by the given workflow key.
+          example: comment-created
+          in: query
+          name: source
+          required: false
+          schema:
+            type: string
+        - description: >-
+            Limits the results to messages associated with the top-level workflow run ID returned by the
+            workflow trigger request.
+          example: 123e4567-e89b-12d3-a456-426614174000
+          in: query
+          name: workflow_run_id
+          required: false
+          schema:
+            format: uuid
+            type: string
+        - description: Limits the results to messages for a specific recipient's workflow run.
+          example: 123e4567-e89b-12d3-a456-426614174000
+          in: query
+          name: workflow_recipient_run_id
+          required: false
+          schema:
+            format: uuid
+            type: string
+        - description: >-
+            Limits the results to only messages that were generated with the given data. See [trigger data
+            filtering](/api-reference/overview/trigger-data-filtering) for more information.
+          example: '{"comment_id": "123"}'
+          in: query
+          name: trigger_data
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted after or on the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.gte
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted before or on the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.lte
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted after the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.gt
+          required: false
+          schema:
+            type: string
+        - description: Limits the results to messages inserted before the given date.
+          example: '2025-01-01T00:00:00Z'
+          in: query
+          name: inserted_at.lt
+          required: false
+          schema:
+            type: string
+        - description: The collection this object belongs to.
+          example: projects
+          in: path
+          name: collection
+          required: true
+          schema:
+            type: string
+        - description: Unique identifier for the object.
+          example: project-123
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMessagesResponse'
+          description: OK
+      summary: List messages
+      tags:
+        - Messages
+        - Objects
+      x-ratelimit-tier: 4
+      x-retention-policy: true
+  /v1/objects/{collection}/{object_id}/preferences/{id}/categories/{key}:
+    put:
+      callbacks: {}
+      deprecated: true
+      description: Updates a specific category preference for an object's preference set. Deprecated.
+      operationId: updateObjectPreferenceCategory
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update a category preference
+      tags:
+        - Objects
+        - Preferences
+      x-ratelimit-tier: 3
   /v1/objects/{collection}/{object_id}/preferences:
     get:
       callbacks: {}
@@ -9768,6 +9358,22 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              preferences:
+                categories:
+                  marketing: false
+                  transactional:
+                    channel_types:
+                      email: false
+                channel_types:
+                  email: true
+                workflows:
+                  dinosaurs-loose:
+                    channel_types:
+                      email: false
+              user_ids:
+                - user_1
+                - user_2
             schema:
               $ref: '#/components/schemas/BulkSetUserPreferencesRequest'
         description: Params
@@ -9794,7 +9400,11 @@ paths:
 
           async function main() {
             const bulkOperation = await client.users.bulk.setPreferences({
-              preferences: {},
+              preferences: {
+                categories: { marketing: false, transactional: { channel_types: { email: false } } },
+                channel_types: { email: true },
+                workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
+              },
               user_ids: ['user_1', 'user_2'],
             });
 
@@ -9810,7 +9420,26 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.users.bulk.set_preferences(
-              preferences={},
+              preferences={
+                  "categories": {
+                      "marketing": False,
+                      "transactional": {
+                          "channel_types": {
+                              "email": False
+                          }
+                      },
+                  },
+                  "channel_types": {
+                      "email": True
+                  },
+                  "workflows": {
+                      "dinosaurs-loose": {
+                          "channel_types": {
+                              "email": False
+                          }
+                      }
+                  },
+              },
               user_ids=["user_1", "user_2"],
           )
           print(bulk_operation.id)
@@ -9823,6 +9452,7 @@ paths:
 
             "github.com/stainless-sdks/knock-go"
             "github.com/stainless-sdks/knock-go/option"
+            "github.com/stainless-sdks/knock-go/shared"
           )
 
           func main() {
@@ -9831,7 +9461,24 @@ paths:
             )
             bulkOperation, err := client.Users.Bulk.SetPreferences(context.TODO(), knock.UserBulkSetPreferencesParams{
               Preferences: knock.F(knock.PreferenceSetRequestParam{
-
+                Categories: knock.F(map[string]knock.PreferenceSetRequestCategoriesUnionParam{
+                "marketing": shared.UnionBool(false),
+                "transactional": knock.PreferenceSetRequestCategoriesPreferenceSetWorkflowCategorySettingObjectParam{
+                  ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
+                    Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(false)),
+                  }),
+                },
+                }),
+                ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
+                  Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(true)),
+                }),
+                Workflows: knock.F(map[string]knock.PreferenceSetRequestWorkflowsUnionParam{
+                "dinosaurs-loose": knock.PreferenceSetRequestWorkflowsPreferenceSetWorkflowCategorySettingObjectParam{
+                  ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
+                    Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(false)),
+                  }),
+                },
+                }),
               }),
               UserIDs: knock.F([]string{"user_1", "user_2"}),
             })
@@ -9874,6 +9521,25 @@ paths:
           bulk_operation = knock.users.bulk.set_preferences(preferences: {}, user_ids: ["user_1", "user_2"])
 
           puts(bulk_operation)
+  /v1/objects/{collection}/{object_id}/preferences/{id}/workflows/{key}:
+    put:
+      callbacks: {}
+      deprecated: true
+      description: Updates a specific workflow preference for an object's preference set.
+      operationId: updateObjectPreferenceWorkflow
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update a workflow preference
+      tags:
+        - Objects
+        - Preferences
+      x-ratelimit-tier: 3
   /v1/users/{user_id}/guides/{channel_id}:
     get:
       callbacks: {}
@@ -10267,6 +9933,30 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              data:
+                key: value
+              ending_at: null
+              recipients:
+                - user_123
+              repeats:
+                - __typename: ScheduleRepeat
+                  day_of_month: null
+                  days:
+                    - mon
+                    - tue
+                    - wed
+                    - thu
+                    - fri
+                    - sat
+                    - sun
+                  frequency: daily
+                  hours: null
+                  interval: 1
+                  minutes: null
+              scheduled_at: null
+              tenant: acme_corp
+              workflow: comment-created
             schema:
               $ref: '#/components/schemas/CreateSchedulesRequest'
         description: Params
@@ -10293,8 +9983,20 @@ paths:
           async function main() {
             const schedules = await client.schedules.create({
               recipients: ['user_123'],
-              repeats: [{ __typename: 'ScheduleRepeat', frequency: 'daily' }],
+              repeats: [
+                {
+                  __typename: 'ScheduleRepeat',
+                  day_of_month: null,
+                  days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+                  frequency: 'daily',
+                  hours: null,
+                  interval: 1,
+                  minutes: null,
+                },
+              ],
               workflow: 'comment-created',
+              data: { key: 'value' },
+              tenant: 'acme_corp',
             });
 
             console.log(schedules);
@@ -10312,9 +10014,18 @@ paths:
               recipients=["user_123"],
               repeats=[{
                   "_typename": "ScheduleRepeat",
+                  "day_of_month": None,
+                  "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
                   "frequency": "daily",
+                  "hours": None,
+                  "interval": 1,
+                  "minutes": None,
               }],
               workflow="comment-created",
+              data={
+                  "key": "value"
+              },
+              tenant="acme_corp",
           )
           print(schedules)
         go: |
@@ -10337,9 +10048,18 @@ paths:
               Recipients: knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("user_123")}),
               Repeats: knock.F([]knock.ScheduleRepeatRuleParam{knock.ScheduleRepeatRuleParam{
                 Typename: knock.F("ScheduleRepeat"),
+                DayOfMonth: knock.Null[int64](),
+                Days: knock.F([]knock.ScheduleRepeatRuleDay{knock.ScheduleRepeatRuleDayMon, knock.ScheduleRepeatRuleDayTue, knock.ScheduleRepeatRuleDayWed, knock.ScheduleRepeatRuleDayThu, knock.ScheduleRepeatRuleDayFri, knock.ScheduleRepeatRuleDaySat, knock.ScheduleRepeatRuleDaySun}),
                 Frequency: knock.F(knock.ScheduleRepeatRuleFrequencyDaily),
+                Hours: knock.Null[int64](),
+                Interval: knock.F(int64(1)),
+                Minutes: knock.Null[int64](),
               }}),
               Workflow: knock.F("comment-created"),
+              Data: knock.F(map[string]interface{}{
+              "key": "value",
+              }),
+              Tenant: knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("acme_corp")),
             })
             if err != nil {
               panic(err.Error())
@@ -10399,6 +10119,30 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              actor: null
+              data:
+                key: value
+              ending_at: null
+              repeats:
+                - __typename: ScheduleRepeat
+                  day_of_month: null
+                  days:
+                    - mon
+                    - tue
+                    - wed
+                    - thu
+                    - fri
+                    - sat
+                    - sun
+                  frequency: daily
+                  hours: null
+                  interval: 1
+                  minutes: null
+              schedule_ids:
+                - 123e4567-e89b-12d3-a456-426614174000
+              scheduled_at: null
+              tenant: acme_corp
             schema:
               $ref: '#/components/schemas/UpdateSchedulesRequest'
         description: Params
@@ -10423,7 +10167,22 @@ paths:
           });
 
           async function main() {
-            const schedules = await client.schedules.update({ schedule_ids: ['123e4567-e89b-12d3-a456-426614174000'] });
+            const schedules = await client.schedules.update({
+              schedule_ids: ['123e4567-e89b-12d3-a456-426614174000'],
+              data: { key: 'value' },
+              repeats: [
+                {
+                  __typename: 'ScheduleRepeat',
+                  day_of_month: null,
+                  days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+                  frequency: 'daily',
+                  hours: null,
+                  interval: 1,
+                  minutes: null,
+                },
+              ],
+              tenant: 'acme_corp',
+            });
 
             console.log(schedules);
           }
@@ -10438,6 +10197,19 @@ paths:
           )
           schedules = client.schedules.update(
               schedule_ids=["123e4567-e89b-12d3-a456-426614174000"],
+              data={
+                  "key": "value"
+              },
+              repeats=[{
+                  "_typename": "ScheduleRepeat",
+                  "day_of_month": None,
+                  "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+                  "frequency": "daily",
+                  "hours": None,
+                  "interval": 1,
+                  "minutes": None,
+              }],
+              tenant="acme_corp",
           )
           print(schedules)
         go: |
@@ -10449,6 +10221,7 @@ paths:
 
             "github.com/stainless-sdks/knock-go"
             "github.com/stainless-sdks/knock-go/option"
+            "github.com/stainless-sdks/knock-go/shared"
           )
 
           func main() {
@@ -10457,6 +10230,19 @@ paths:
             )
             schedules, err := client.Schedules.Update(context.TODO(), knock.ScheduleUpdateParams{
               ScheduleIDs: knock.F([]string{"123e4567-e89b-12d3-a456-426614174000"}),
+              Data: knock.F(map[string]interface{}{
+              "key": "value",
+              }),
+              Repeats: knock.F([]knock.ScheduleRepeatRuleParam{knock.ScheduleRepeatRuleParam{
+                Typename: knock.F("ScheduleRepeat"),
+                DayOfMonth: knock.Null[int64](),
+                Days: knock.F([]knock.ScheduleRepeatRuleDay{knock.ScheduleRepeatRuleDayMon, knock.ScheduleRepeatRuleDayTue, knock.ScheduleRepeatRuleDayWed, knock.ScheduleRepeatRuleDayThu, knock.ScheduleRepeatRuleDayFri, knock.ScheduleRepeatRuleDaySat, knock.ScheduleRepeatRuleDaySun}),
+                Frequency: knock.F(knock.ScheduleRepeatRuleFrequencyDaily),
+                Hours: knock.Null[int64](),
+                Interval: knock.F(int64(1)),
+                Minutes: knock.Null[int64](),
+              }}),
+              Tenant: knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("acme_corp")),
             })
             if err != nil {
               panic(err.Error())
@@ -10514,6 +10300,12 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              subscriptions:
+                - id: project-1
+                  properties: null
+                  recipients:
+                    - id: user_1
             schema:
               $ref: '#/components/schemas/BulkUpsertSubscriptionsRequest'
         description: Params
@@ -10541,7 +10333,7 @@ paths:
 
           async function main() {
             const bulkOperation = await client.objects.bulk.addSubscriptions('projects', {
-              subscriptions: [{ id: 'project-1', recipients: [{ id: 'user_1' }] }],
+              subscriptions: [{ id: 'project-1', properties: null, recipients: [{ id: 'user_1' }] }],
             });
 
             console.log(bulkOperation.id);
@@ -10559,6 +10351,7 @@ paths:
               collection="projects",
               subscriptions=[{
                   "id": "project-1",
+                  "properties": None,
                   "recipients": [{
                       "id": "user_1"
                   }],
@@ -10586,6 +10379,7 @@ paths:
               knock.ObjectBulkAddSubscriptionsParams{
                 Subscriptions: knock.F([]knock.ObjectBulkAddSubscriptionsParamsSubscription{knock.ObjectBulkAddSubscriptionsParamsSubscription{
                   ID: knock.F("project-1"),
+                  Properties: knock.Null[map[string]interface{}](),
                   Recipients: knock.F([]knock.RecipientRequestUnionParam{knock.InlineIdentifyUserRequestParam{
                     ID: knock.F("user_1"),
                   }}),
@@ -10756,25 +10550,6 @@ paths:
           response = knock.messages.batch.get_content(message_ids: ["string"])
 
           puts(response)
-  /v1/users/{user_id}/preferences/{preference_set_id}/workflows/{key}:
-    put:
-      callbacks: {}
-      deprecated: true
-      description: Updates a single workflow in a specific user preference set. This operation is deprecated.
-      operationId: updateUserPreferenceWorkflow
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update workflow in user preference set
-      tags:
-        - Users
-        - Preferences
-      x-ratelimit-tier: 3
   /v1/users/bulk/identify:
     post:
       callbacks: {}
@@ -10786,6 +10561,12 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              users:
+                - email: jane@ingen.net
+                  id: user_1
+                  name: Jane Doe
+                  timezone: America/New_York
             schema:
               $ref: '#/components/schemas/BulkIdentifyUsersRequest'
         description: Params
@@ -10811,7 +10592,48 @@ paths:
           });
 
           async function main() {
-            const bulkOperation = await client.users.bulk.identify({ users: [{ id: 'user_1' }] });
+            const bulkOperation = await client.users.bulk.identify({
+              users: [
+                {
+                  email: {
+                    '0': 'j',
+                    '1': 'a',
+                    '2': 'n',
+                    '3': 'e',
+                    '4': '@',
+                    '5': 'i',
+                    '6': 'n',
+                    '7': 'g',
+                    '8': 'e',
+                    '9': 'n',
+                    '10': '.',
+                    '11': 'n',
+                    '12': 'e',
+                    '13': 't',
+                  },
+                  id: 'user_1',
+                  name: { '0': 'J', '1': 'a', '2': 'n', '3': 'e', '4': ' ', '5': 'D', '6': 'o', '7': 'e' },
+                  timezone: {
+                    '0': 'A',
+                    '1': 'm',
+                    '2': 'e',
+                    '3': 'r',
+                    '4': 'i',
+                    '5': 'c',
+                    '6': 'a',
+                    '7': '/',
+                    '8': 'N',
+                    '9': 'e',
+                    '10': 'w',
+                    '11': '_',
+                    '12': 'Y',
+                    '13': 'o',
+                    '14': 'r',
+                    '15': 'k',
+                  },
+                },
+              ],
+            });
 
             console.log(bulkOperation.id);
           }
@@ -10826,7 +10648,51 @@ paths:
           )
           bulk_operation = client.users.bulk.identify(
               users=[{
-                  "id": "user_1"
+                  "email": {
+                      "0": "j",
+                      "1": "a",
+                      "2": "n",
+                      "3": "e",
+                      "4": "@",
+                      "5": "i",
+                      "6": "n",
+                      "7": "g",
+                      "8": "e",
+                      "9": "n",
+                      "10": ".",
+                      "11": "n",
+                      "12": "e",
+                      "13": "t",
+                  },
+                  "id": "user_1",
+                  "name": {
+                      "0": "J",
+                      "1": "a",
+                      "2": "n",
+                      "3": "e",
+                      "4": " ",
+                      "5": "D",
+                      "6": "o",
+                      "7": "e",
+                  },
+                  "timezone": {
+                      "0": "A",
+                      "1": "m",
+                      "2": "e",
+                      "3": "r",
+                      "4": "i",
+                      "5": "c",
+                      "6": "a",
+                      "7": "/",
+                      "8": "N",
+                      "9": "e",
+                      "10": "w",
+                      "11": "_",
+                      "12": "Y",
+                      "13": "o",
+                      "14": "r",
+                      "15": "k",
+                  },
               }],
           )
           print(bulk_operation.id)
@@ -10993,12 +10859,12 @@ paths:
           response = knock.messages.get_content("message_id")
 
           puts(response)
-  /v1/users/{user_id}/preferences/{preference_set_id}/categories/{key}:
+  /v1/users/{user_id}/preferences/{id}/workflows:
     put:
       callbacks: {}
       deprecated: true
-      description: Updates a single category in a specific user preference set. This operation is deprecated.
-      operationId: updateUserPreferenceCategory
+      description: Updates the workflows in a specific user preference set. This operation is deprecated.
+      operationId: updateUserPreferenceWorkflows
       parameters: []
       responses:
         '200':
@@ -11007,9 +10873,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Update category in user preference set
+      summary: Update workflows in preference set
       tags:
         - Users
+        - Preferences
+      x-ratelimit-tier: 3
+  /v1/objects/{collection}/{object_id}/preferences/{id}/categories:
+    put:
+      callbacks: {}
+      deprecated: true
+      description: Updates the category preferences for an object's preference set.
+      operationId: updateObjectPreferenceCategories
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update categories in preference set
+      tags:
+        - Objects
         - Preferences
       x-ratelimit-tier: 3
   /v1/notify/cancel:
@@ -11033,6 +10918,124 @@ paths:
       summary: Cancel workflow
       tags:
         - Workflow Triggers
+      x-ratelimit-tier: 3
+  /v1/objects/{collection}/{id}:
+    delete:
+      callbacks: {}
+      description: Permanently removes an object from the specified collection. This operation cannot be undone.
+      operationId: deleteObject
+      parameters:
+        - description: The collection this object belongs to.
+          in: path
+          name: collection
+          required: true
+          schema:
+            type: string
+        - description: Unique identifier for the object.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyContentResponse'
+          description: No Content
+      summary: Delete an object
+      tags:
+        - Objects
+      x-ratelimit-tier: 3
+    get:
+      callbacks: {}
+      description: >-
+        Retrieves a specific object by its ID from the specified collection. Returns the object with all its
+        properties.
+      operationId: getObject
+      parameters:
+        - description: The collection this object belongs to.
+          in: path
+          name: collection
+          required: true
+          schema:
+            type: string
+        - description: Unique identifier for the object.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Object'
+          description: OK
+      summary: Get an object
+      tags:
+        - Objects
+      x-ratelimit-tier: 4
+    put:
+      callbacks: {}
+      description: >-
+        Creates a new object or updates an existing one in the specified collection. This operation is used to
+        identify objects with their properties, as well as optional preferences and channel data.
+      operationId: setObject
+      parameters:
+        - description: The collection this object belongs to.
+          in: path
+          name: collection
+          required: true
+          schema:
+            type: string
+        - description: Unique identifier for the object.
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              channel_data:
+                - channel_id: 97c5837d-c65c-4d54-aa39-080eeb81c69d
+                  data:
+                    __typename: PushChannelData
+                    tokens:
+                      - push_token_123
+                    type: push_fcm
+                  provider: push_fcm
+              description: My product description
+              locale: en-US
+              name: My product
+              preferences:
+                - channel_types:
+                    email: true
+                  id: default
+                  workflows:
+                    dinosaurs-loose:
+                      channel_types:
+                        email: true
+              price: 100
+              timezone: America/New_York
+            schema:
+              $ref: '#/components/schemas/SetObjectRequest'
+        description: Params
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Object'
+          description: OK
+      summary: Set an object
+      tags:
+        - Objects
       x-ratelimit-tier: 3
   /v1/tenants/bulk/delete:
     post:
@@ -11140,288 +11143,6 @@ paths:
           bulk_operation = knock.tenants.bulk.delete(tenant_ids: ["string"])
 
           puts(bulk_operation)
-  /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}/channel_types:
-    put:
-      callbacks: {}
-      deprecated: true
-      description: Updates the channel type preferences for an object's preference set.
-      operationId: updateObjectPreferenceChannelTypes
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update channel types in preference set
-      tags:
-        - Objects
-        - Preferences
-      x-ratelimit-tier: 3
-  /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}:
-    get:
-      callbacks: {}
-      description: Returns the preference set for the specified object.
-      operationId: getObjectPreferenceSet
-      parameters:
-        - description: Unique identifier for the object.
-          in: path
-          name: object_id
-          required: true
-          schema:
-            type: string
-        - description: The collection this object belongs to.
-          in: path
-          name: collection
-          required: true
-          schema:
-            type: string
-        - description: Unique identifier for the preference set.
-          in: path
-          name: preference_set_id
-          required: true
-          schema:
-            default: default
-            example: default
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Get a preference set
-      tags:
-        - Objects
-        - Preferences
-      x-ratelimit-tier: 4
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const preferenceSet = await client.objects.getPreferences('collection', 'object_id', 'default');
-
-            console.log(preferenceSet.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          preference_set = client.objects.get_preferences(
-              collection="collection",
-              object_id="object_id",
-              preference_set_id="default",
-          )
-          print(preference_set.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            preferenceSet, err := client.Objects.GetPreferences(
-              context.TODO(),
-              "collection",
-              "object_id",
-              "default",
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", preferenceSet.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.objects.ObjectGetPreferencesParams;
-          import app.knock.api.models.recipients.preferences.PreferenceSet;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  ObjectGetPreferencesParams params = ObjectGetPreferencesParams.builder()
-                      .collection("collection")
-                      .objectId("object_id")
-                      .preferenceSetId("default")
-                      .build();
-                  PreferenceSet preferenceSet = client.objects().getPreferences(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          preference_set = knock.objects.get_preferences("collection", "object_id", "default")
-
-          puts(preference_set)
-    put:
-      callbacks: {}
-      description: Updates the preference set for the specified object.
-      operationId: updateObjectPreferenceSet
-      parameters:
-        - description: Unique identifier for the object.
-          in: path
-          name: object_id
-          required: true
-          schema:
-            type: string
-        - description: The collection this object belongs to.
-          in: path
-          name: collection
-          required: true
-          schema:
-            type: string
-        - description: Unique identifier for the preference set.
-          in: path
-          name: preference_set_id
-          required: true
-          schema:
-            default: default
-            example: default
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PreferenceSetRequest'
-        description: Params
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update a preference set
-      tags:
-        - Objects
-        - Preferences
-      x-ratelimit-tier: 3
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const preferenceSet = await client.objects.setPreferences('collection', 'object_id', 'default');
-
-            console.log(preferenceSet.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          preference_set = client.objects.set_preferences(
-              collection="collection",
-              object_id="object_id",
-              preference_set_id="default",
-          )
-          print(preference_set.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            preferenceSet, err := client.Objects.SetPreferences(
-              context.TODO(),
-              "collection",
-              "object_id",
-              "default",
-              knock.ObjectSetPreferencesParams{
-                PreferenceSetRequest: knock.PreferenceSetRequestParam{
-
-                },
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", preferenceSet.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.objects.ObjectSetPreferencesParams;
-          import app.knock.api.models.recipients.preferences.PreferenceSet;
-          import app.knock.api.models.recipients.preferences.PreferenceSetRequest;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  ObjectSetPreferencesParams params = ObjectSetPreferencesParams.builder()
-                      .collection("collection")
-                      .objectId("object_id")
-                      .preferenceSetId("default")
-                      .preferenceSetRequest(PreferenceSetRequest.builder().build())
-                      .build();
-                  PreferenceSet preferenceSet = client.objects().setPreferences(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          preference_set = knock.objects.set_preferences("collection", "object_id", "default")
-
-          puts(preference_set)
   /v1/messages/{message_id}/activities:
     get:
       callbacks: {}
@@ -11592,6 +11313,23 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              archived: include
+              delivery_status: delivered
+              engagement_status: seen
+              has_tenant: true
+              newer_than: '2024-01-01T00:00:00Z'
+              older_than: '2024-01-01T00:00:00Z'
+              recipient_ids:
+                - recipient1
+                - recipient2
+              tenants:
+                - tenant1
+                - tenant2
+              trigger_data: '{"key":"value"}'
+              workflows:
+                - workflow1
+                - workflow2
             schema:
               $ref: '#/components/schemas/BulkUpdateMessagesForChannelRequest'
         description: Params
@@ -11621,6 +11359,18 @@ paths:
             const bulkOperation = await client.channels.bulk.updateMessageStatus(
               '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
               'seen',
+              {
+                archived: 'include',
+                delivery_status: 'delivered',
+                engagement_status: 'seen',
+                has_tenant: true,
+                newer_than: '2024-01-01T00:00:00Z',
+                older_than: '2024-01-01T00:00:00Z',
+                recipient_ids: ['recipient1', 'recipient2'],
+                tenants: ['tenant1', 'tenant2'],
+                trigger_data: '{"key":"value"}',
+                workflows: ['workflow1', 'workflow2'],
+              },
             );
 
             console.log(bulkOperation.id);
@@ -11629,6 +11379,7 @@ paths:
           main();
         python: |-
           import os
+          from datetime import datetime
           from knockapi import Knock
 
           client = Knock(
@@ -11637,6 +11388,16 @@ paths:
           bulk_operation = client.channels.bulk.update_message_status(
               channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
               action="seen",
+              archived="include",
+              delivery_status="delivered",
+              engagement_status="seen",
+              has_tenant=True,
+              newer_than=datetime.fromisoformat("2024-01-01T00:00:00"),
+              older_than=datetime.fromisoformat("2024-01-01T00:00:00"),
+              recipient_ids=["recipient1", "recipient2"],
+              tenants=["tenant1", "tenant2"],
+              trigger_data="{\"key\":\"value\"}",
+              workflows=["workflow1", "workflow2"],
           )
           print(bulk_operation.id)
         go: |
@@ -11645,6 +11406,7 @@ paths:
           import (
             "context"
             "fmt"
+            "time"
 
             "github.com/stainless-sdks/knock-go"
             "github.com/stainless-sdks/knock-go/option"
@@ -11659,7 +11421,16 @@ paths:
               "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
               knock.ChannelBulkUpdateMessageStatusParamsActionSeen,
               knock.ChannelBulkUpdateMessageStatusParams{
-
+                Archived: knock.F(knock.ChannelBulkUpdateMessageStatusParamsArchivedInclude),
+                DeliveryStatus: knock.F(knock.ChannelBulkUpdateMessageStatusParamsDeliveryStatusDelivered),
+                EngagementStatus: knock.F(knock.ChannelBulkUpdateMessageStatusParamsEngagementStatusSeen),
+                HasTenant: knock.F(true),
+                NewerThan: knock.F(time.Now()),
+                OlderThan: knock.F(time.Now()),
+                RecipientIDs: knock.F([]string{"recipient1", "recipient2"}),
+                Tenants: knock.F([]string{"tenant1", "tenant2"}),
+                TriggerData: knock.F(`{"key":"value"}`),
+                Workflows: knock.F([]string{"workflow1", "workflow2"}),
               },
             )
             if err != nil {
@@ -11703,209 +11474,25 @@ paths:
 
 
           puts(bulk_operation)
-  /v1/users/{user_id}/feeds/{channel_id}:
-    get:
+  /v1/users/{user_id}/preferences/{id}/categories:
+    put:
       callbacks: {}
-      description: Returns a paginated list of feed items for a user, including metadata about the feed.
-      operationId: listUserInAppFeedItems
-      parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
-          in: path
-          name: user_id
-          required: true
-          schema:
-            type: string
-        - description: The unique identifier for the channel.
-          in: path
-          name: channel_id
-          required: true
-          schema:
-            format: uuid
-            type: string
-        - description: The status of the feed items.
-          example: unread
-          in: query
-          name: status
-          required: false
-          schema:
-            enum:
-              - unread
-              - read
-              - unseen
-              - seen
-              - all
-            type: string
-        - description: The source of the feed items.
-          example: my_source
-          in: query
-          name: source
-          required: false
-          schema:
-            type: string
-        - description: The tenant associated with the feed items.
-          example: my_tenant
-          in: query
-          name: tenant
-          required: false
-          schema:
-            type: string
-        - description: Whether the feed items have a tenant.
-          example: true
-          in: query
-          name: has_tenant
-          required: false
-          schema:
-            type: boolean
-        - description: The workflow categories of the feed items.
-          example:
-            - my_workflow_category
-          in: query
-          name: workflow_categories[]
-          required: false
-          schema:
-            items:
-              type: string
-            type: array
-        - description: The archived status of the feed items.
-          example: exclude
-          in: query
-          name: archived
-          required: false
-          schema:
-            enum:
-              - exclude
-              - include
-              - only
-            type: string
-        - description: The trigger data of the feed items (as a JSON string).
-          example: '{ "key": "value" }'
-          in: query
-          name: trigger_data
-          required: false
-          schema:
-            type: string
-        - description: The cursor to fetch entries after.
-          in: query
-          name: after
-          required: false
-          schema:
-            type: string
-        - description: The cursor to fetch entries before.
-          in: query
-          name: before
-          required: false
-          schema:
-            type: string
-        - description: The number of items per page.
-          in: query
-          name: page_size
-          required: false
-          schema:
-            type: integer
+      deprecated: true
+      description: Updates the categories in a specific user preference set. This operation is deprecated.
+      operationId: updateUserPreferenceCategories
+      parameters: []
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserInAppFeedResponse'
+                $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: List feed items
+      summary: Update categories in user preference set
       tags:
-        - Feeds
         - Users
-      x-ratelimit-tier: 2
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            // Automatically fetches more pages as needed.
-            for await (const feedListItemsResponse of client.users.feeds.listItems(
-              'user_id',
-              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-            )) {
-              console.log(feedListItemsResponse.id);
-            }
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          page = client.users.feeds.list_items(
-              user_id="user_id",
-              channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-          )
-          page = page.entries[0]
-          print(page.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            page, err := client.Users.Feeds.ListItems(
-              context.TODO(),
-              "user_id",
-              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-              knock.UserFeedListItemsParams{
-
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", page)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.users.feeds.FeedListItemsPage;
-          import app.knock.api.models.users.feeds.FeedListItemsParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  FeedListItemsParams params = FeedListItemsParams.builder()
-                      .userId("user_id")
-                      .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
-                      .build();
-                  FeedListItemsPage page = client.users().feeds().listItems(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          page = knock.users.feeds.list_items("user_id", "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
-
-          puts(page)
+        - Preferences
+      x-ratelimit-tier: 3
   /v1/users/{user_id}/guides/messages/{message_id}/interacted:
     put:
       callbacks: {}
@@ -12342,6 +11929,12 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              data:
+                __typename: PushChannelData
+                tokens:
+                  - push_token_1
+                type: push_fcm
             schema:
               $ref: '#/components/schemas/ChannelDataRequest'
         description: Params
@@ -12371,7 +11964,7 @@ paths:
               'collection',
               'object_id',
               '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-              { data: { __typename: 'PushChannelData', tokens: ['push_token_1'] } },
+              { data: { __typename: 'PushChannelData', tokens: ['push_token_1'], type: 'push_fcm' } },
             );
 
             console.log(channelData.channel_id);
@@ -12392,6 +11985,7 @@ paths:
               data={
                   "_typename": "PushChannelData",
                   "tokens": ["push_token_1"],
+                  "type": "push_fcm",
               },
           )
           print(channel_data.channel_id)
@@ -12719,6 +12313,14 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              members:
+                - tenant: null
+                  user:
+                    email: jane@ingen.net
+                    id: user_1
+                    name: Jane Doe
+                    timezone: America/New_York
             schema:
               $ref: '#/components/schemas/AddAudienceMembersRequest'
         description: Params
@@ -12744,7 +12346,51 @@ paths:
           });
 
           async function main() {
-            const response = await client.audiences.addMembers('key', { members: [{ user: { id: 'user_1' } }] });
+            const response = await client.audiences.addMembers('key', {
+              members: [
+                {
+                  tenant: null,
+                  user: {
+                    email: {
+                      '0': 'j',
+                      '1': 'a',
+                      '2': 'n',
+                      '3': 'e',
+                      '4': '@',
+                      '5': 'i',
+                      '6': 'n',
+                      '7': 'g',
+                      '8': 'e',
+                      '9': 'n',
+                      '10': '.',
+                      '11': 'n',
+                      '12': 'e',
+                      '13': 't',
+                    },
+                    id: 'user_1',
+                    name: { '0': 'J', '1': 'a', '2': 'n', '3': 'e', '4': ' ', '5': 'D', '6': 'o', '7': 'e' },
+                    timezone: {
+                      '0': 'A',
+                      '1': 'm',
+                      '2': 'e',
+                      '3': 'r',
+                      '4': 'i',
+                      '5': 'c',
+                      '6': 'a',
+                      '7': '/',
+                      '8': 'N',
+                      '9': 'e',
+                      '10': 'w',
+                      '11': '_',
+                      '12': 'Y',
+                      '13': 'o',
+                      '14': 'r',
+                      '15': 'k',
+                    },
+                  },
+                },
+              ],
+            });
 
             console.log(response);
           }
@@ -12760,9 +12406,54 @@ paths:
           response = client.audiences.add_members(
               key="key",
               members=[{
+                  "tenant": None,
                   "user": {
-                      "id": "user_1"
-                  }
+                      "email": {
+                          "0": "j",
+                          "1": "a",
+                          "2": "n",
+                          "3": "e",
+                          "4": "@",
+                          "5": "i",
+                          "6": "n",
+                          "7": "g",
+                          "8": "e",
+                          "9": "n",
+                          "10": ".",
+                          "11": "n",
+                          "12": "e",
+                          "13": "t",
+                      },
+                      "id": "user_1",
+                      "name": {
+                          "0": "J",
+                          "1": "a",
+                          "2": "n",
+                          "3": "e",
+                          "4": " ",
+                          "5": "D",
+                          "6": "o",
+                          "7": "e",
+                      },
+                      "timezone": {
+                          "0": "A",
+                          "1": "m",
+                          "2": "e",
+                          "3": "r",
+                          "4": "i",
+                          "5": "c",
+                          "6": "a",
+                          "7": "/",
+                          "8": "N",
+                          "9": "e",
+                          "10": "w",
+                          "11": "_",
+                          "12": "Y",
+                          "13": "o",
+                          "14": "r",
+                          "15": "k",
+                      },
+                  },
               }],
           )
           print(response)
@@ -12786,6 +12477,7 @@ paths:
               "key",
               knock.AudienceAddMembersParams{
                 Members: knock.F([]knock.AudienceAddMembersParamsMember{knock.AudienceAddMembersParamsMember{
+                  Tenant: knock.Null[string](),
                   User: knock.F(knock.InlineIdentifyUserRequestParam{
                     ID: knock.F("user_1"),
                   }),
@@ -13094,25 +12786,6 @@ paths:
           bulk_operation = knock.users.bulk.delete(user_ids: ["user_1", "user_2"])
 
           puts(bulk_operation)
-  /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}/workflows/{key}:
-    put:
-      callbacks: {}
-      deprecated: true
-      description: Updates a specific workflow preference for an object's preference set.
-      operationId: updateObjectPreferenceWorkflow
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update a workflow preference
-      tags:
-        - Objects
-        - Preferences
-      x-ratelimit-tier: 3
   /v1/providers/slack/{channel_id}/revoke_access:
     put:
       callbacks: {}
@@ -13291,6 +12964,10 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              message_ids:
+                - 2w3YUpTTOxuDvZFji8OMsKrG176
+                - 2w3YVRbPXMIh8Zq6oBFcVDA5xes
             schema:
               $ref: '#/components/schemas/BatchMessagesStatusRequest'
         description: Params
@@ -13456,6 +13133,25 @@ paths:
           )
 
           puts(messages)
+  /v1/users/{user_id}/preferences/{id}/channel_types/{type}:
+    put:
+      callbacks: {}
+      deprecated: true
+      description: Updates a single channel type in a specific user preference set. This operation is deprecated.
+      operationId: updateUserPreferenceChannelType
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update channel type in preference set
+      tags:
+        - Users
+        - Preferences
+      x-ratelimit-tier: 3
   /v1/objects/{collection}:
     get:
       callbacks: {}
@@ -13595,25 +13291,6 @@ paths:
           page = knock.objects.list("collection")
 
           puts(page)
-  /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}/workflows:
-    put:
-      callbacks: {}
-      deprecated: true
-      description: Updates the workflow preferences for an object's preference set.
-      operationId: updateObjectPreferenceWorkflows
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update workflows in preference set
-      tags:
-        - Objects
-        - Preferences
-      x-ratelimit-tier: 3
   /v1/users/{user_id}/preferences:
     get:
       callbacks: {}
@@ -14305,6 +13982,10 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              message_ids:
+                - 2w3YUpTTOxuDvZFji8OMsKrG176
+                - 2w3YVRbPXMIh8Zq6oBFcVDA5xes
             schema:
               $ref: '#/components/schemas/BatchMessagesStatusRequest'
         description: Params
@@ -14474,121 +14155,6 @@ paths:
 
 
           puts(messages)
-  /v1/users/{user_id}/feeds/{channel_id}/settings:
-    get:
-      callbacks: {}
-      description: Returns the feed settings for a user.
-      operationId: getUserInAppFeedSettings
-      parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
-          in: path
-          name: user_id
-          required: true
-          schema:
-            type: string
-        - description: The unique identifier for the channel.
-          in: path
-          name: channel_id
-          required: true
-          schema:
-            format: uuid
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserInAppFeedSettingsResponse'
-          description: OK
-      summary: Get feed settings
-      tags:
-        - Feeds
-        - Users
-      x-ratelimit-tier: 4
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const response = await client.users.feeds.getSettings('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
-
-            console.log(response.features);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          response = client.users.feeds.get_settings(
-              user_id="user_id",
-              channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-          )
-          print(response.features)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            response, err := client.Users.Feeds.GetSettings(
-              context.TODO(),
-              "user_id",
-              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", response.Features)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.users.feeds.FeedGetSettingsParams;
-          import app.knock.api.models.users.feeds.FeedGetSettingsResponse;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  FeedGetSettingsParams params = FeedGetSettingsParams.builder()
-                      .userId("user_id")
-                      .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
-                      .build();
-                  FeedGetSettingsResponse response = client.users().feeds().getSettings(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          response = knock.users.feeds.get_settings("user_id", "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
-
-          puts(response)
   /v1/users/{user_id}/messages:
     get:
       callbacks: {}
@@ -14998,6 +14564,25 @@ paths:
 
 
           puts(response)
+  /v1/objects/{collection}/{object_id}/preferences/{id}/channel_types:
+    put:
+      callbacks: {}
+      deprecated: true
+      description: Updates the channel type preferences for an object's preference set.
+      operationId: updateObjectPreferenceChannelTypes
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update channel types in preference set
+      tags:
+        - Objects
+        - Preferences
+      x-ratelimit-tier: 3
   /v1/messages/{message_id}/interacted:
     put:
       callbacks: {}
@@ -15149,44 +14734,6 @@ paths:
           message = knock.messages.mark_as_interacted("message_id")
 
           puts(message)
-  /v1/users/{user_id}/preferences/{preference_set_id}/channel_types:
-    put:
-      callbacks: {}
-      deprecated: true
-      description: Updates the channel types in a specific user preference set. This operation is deprecated.
-      operationId: updateUserPreferenceChannelTypes
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update channel types in preference set
-      tags:
-        - Users
-        - Preferences
-      x-ratelimit-tier: 3
-  /v1/objects/{collection}/{object_id}/preferences/{preference_set_id}/categories/{key}:
-    put:
-      callbacks: {}
-      deprecated: true
-      description: Updates a specific category preference for an object's preference set. Deprecated.
-      operationId: updateObjectPreferenceCategory
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update a category preference
-      tags:
-        - Objects
-        - Preferences
-      x-ratelimit-tier: 3
   /v1/messages/{message_id}/unarchived:
     delete:
       callbacks: {}
@@ -15306,25 +14853,6 @@ paths:
         - In-app messages
         - Users
       x-ratelimit-tier: 2
-  /v1/users/{user_id}/preferences/{preference_set_id}/categories:
-    put:
-      callbacks: {}
-      deprecated: true
-      description: Updates the categories in a specific user preference set. This operation is deprecated.
-      operationId: updateUserPreferenceCategories
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update categories in user preference set
-      tags:
-        - Users
-        - Preferences
-      x-ratelimit-tier: 3
   /v1/users:
     get:
       callbacks: {}
@@ -15644,6 +15172,10 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              message_ids:
+                - 2w3YUpTTOxuDvZFji8OMsKrG176
+                - 2w3YVRbPXMIh8Zq6oBFcVDA5xes
             schema:
               $ref: '#/components/schemas/BatchMessagesStatusRequest'
         description: Params
@@ -15929,6 +15461,25 @@ paths:
           response = knock.workflows.cancel("key", cancellation_key: "cancel-workflow-123")
 
           puts(response)
+  /v1/users/{user_id}/preferences/{id}/workflows/{key}:
+    put:
+      callbacks: {}
+      deprecated: true
+      description: Updates a single workflow in a specific user preference set. This operation is deprecated.
+      operationId: updateUserPreferenceWorkflow
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update workflow in user preference set
+      tags:
+        - Users
+        - Preferences
+      x-ratelimit-tier: 3
   /v1/schedules/bulk/create:
     post:
       callbacks: {}
@@ -15941,6 +15492,52 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              schedules:
+                - data:
+                    key: value
+                  ending_at: null
+                  recipient: dnedry
+                  repeats:
+                    - __typename: ScheduleRepeat
+                      day_of_month: null
+                      days:
+                        - mon
+                        - tue
+                        - wed
+                        - thu
+                        - fri
+                        - sat
+                        - sun
+                      frequency: daily
+                      hours: null
+                      interval: 1
+                      minutes: null
+                  scheduled_at: null
+                  tenant: acme_corp
+                  workflow: comment-created
+                - data:
+                    key: value
+                  ending_at: null
+                  recipient: esattler
+                  repeats:
+                    - __typename: ScheduleRepeat
+                      day_of_month: null
+                      days:
+                        - mon
+                        - tue
+                        - wed
+                        - thu
+                        - fri
+                        - sat
+                        - sun
+                      frequency: daily
+                      hours: null
+                      interval: 1
+                      minutes: null
+                  scheduled_at: null
+                  tenant: acme_corp
+                  workflow: comment-created
             schema:
               $ref: '#/components/schemas/BulkCreateSchedulesRequest'
         description: Schedule bulk creation request
@@ -15967,7 +15564,46 @@ paths:
 
           async function main() {
             const bulkOperation = await client.schedules.bulk.create({
-              schedules: [{ workflow: 'comment-created' }, { workflow: 'comment-created' }],
+              schedules: [
+                {
+                  data: { key: 'value' },
+                  ending_at: null,
+                  recipient: 'dnedry',
+                  repeats: [
+                    {
+                      __typename: 'ScheduleRepeat',
+                      day_of_month: null,
+                      days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+                      frequency: 'daily',
+                      hours: null,
+                      interval: 1,
+                      minutes: null,
+                    },
+                  ],
+                  scheduled_at: null,
+                  tenant: 'acme_corp',
+                  workflow: 'comment-created',
+                },
+                {
+                  data: { key: 'value' },
+                  ending_at: null,
+                  recipient: 'esattler',
+                  repeats: [
+                    {
+                      __typename: 'ScheduleRepeat',
+                      day_of_month: null,
+                      days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+                      frequency: 'daily',
+                      hours: null,
+                      interval: 1,
+                      minutes: null,
+                    },
+                  ],
+                  scheduled_at: null,
+                  tenant: 'acme_corp',
+                  workflow: 'comment-created',
+                },
+              ],
             });
 
             console.log(bulkOperation.id);
@@ -15983,9 +15619,41 @@ paths:
           )
           bulk_operation = client.schedules.bulk.create(
               schedules=[{
-                  "workflow": "comment-created"
+                  "data": {
+                      "key": "value"
+                  },
+                  "ending_at": None,
+                  "recipient": "dnedry",
+                  "repeats": [{
+                      "_typename": "ScheduleRepeat",
+                      "day_of_month": None,
+                      "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+                      "frequency": "daily",
+                      "hours": None,
+                      "interval": 1,
+                      "minutes": None,
+                  }],
+                  "scheduled_at": None,
+                  "tenant": "acme_corp",
+                  "workflow": "comment-created",
               }, {
-                  "workflow": "comment-created"
+                  "data": {
+                      "key": "value"
+                  },
+                  "ending_at": None,
+                  "recipient": "esattler",
+                  "repeats": [{
+                      "_typename": "ScheduleRepeat",
+                      "day_of_month": None,
+                      "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+                      "frequency": "daily",
+                      "hours": None,
+                      "interval": 1,
+                      "minutes": None,
+                  }],
+                  "scheduled_at": None,
+                  "tenant": "acme_corp",
+                  "workflow": "comment-created",
               }],
           )
           print(bulk_operation.id)
@@ -15995,9 +15663,11 @@ paths:
           import (
             "context"
             "fmt"
+            "time"
 
             "github.com/stainless-sdks/knock-go"
             "github.com/stainless-sdks/knock-go/option"
+            "github.com/stainless-sdks/knock-go/shared"
           )
 
           func main() {
@@ -16006,8 +15676,40 @@ paths:
             )
             bulkOperation, err := client.Schedules.Bulk.New(context.TODO(), knock.ScheduleBulkNewParams{
               Schedules: knock.F([]knock.ScheduleBulkNewParamsSchedule{knock.ScheduleBulkNewParamsSchedule{
+                Data: knock.F(map[string]interface{}{
+                "key": "value",
+                }),
+                EndingAt: knock.Null[time.Time](),
+                Recipient: knock.F[knock.RecipientRequestUnionParam](shared.UnionString("dnedry")),
+                Repeats: knock.F([]knock.ScheduleRepeatRuleParam{knock.ScheduleRepeatRuleParam{
+                  Typename: knock.F("ScheduleRepeat"),
+                  DayOfMonth: knock.Null[int64](),
+                  Days: knock.F([]knock.ScheduleRepeatRuleDay{knock.ScheduleRepeatRuleDayMon, knock.ScheduleRepeatRuleDayTue, knock.ScheduleRepeatRuleDayWed, knock.ScheduleRepeatRuleDayThu, knock.ScheduleRepeatRuleDayFri, knock.ScheduleRepeatRuleDaySat, knock.ScheduleRepeatRuleDaySun}),
+                  Frequency: knock.F(knock.ScheduleRepeatRuleFrequencyDaily),
+                  Hours: knock.Null[int64](),
+                  Interval: knock.F(int64(1)),
+                  Minutes: knock.Null[int64](),
+                }}),
+                ScheduledAt: knock.Null[time.Time](),
+                Tenant: knock.F[knock.ScheduleBulkNewParamsSchedulesTenantUnion](shared.UnionString("acme_corp")),
                 Workflow: knock.F("comment-created"),
               }, knock.ScheduleBulkNewParamsSchedule{
+                Data: knock.F(map[string]interface{}{
+                "key": "value",
+                }),
+                EndingAt: knock.Null[time.Time](),
+                Recipient: knock.F[knock.RecipientRequestUnionParam](shared.UnionString("esattler")),
+                Repeats: knock.F([]knock.ScheduleRepeatRuleParam{knock.ScheduleRepeatRuleParam{
+                  Typename: knock.F("ScheduleRepeat"),
+                  DayOfMonth: knock.Null[int64](),
+                  Days: knock.F([]knock.ScheduleRepeatRuleDay{knock.ScheduleRepeatRuleDayMon, knock.ScheduleRepeatRuleDayTue, knock.ScheduleRepeatRuleDayWed, knock.ScheduleRepeatRuleDayThu, knock.ScheduleRepeatRuleDayFri, knock.ScheduleRepeatRuleDaySat, knock.ScheduleRepeatRuleDaySun}),
+                  Frequency: knock.F(knock.ScheduleRepeatRuleFrequencyDaily),
+                  Hours: knock.Null[int64](),
+                  Interval: knock.F(int64(1)),
+                  Minutes: knock.Null[int64](),
+                }}),
+                ScheduledAt: knock.Null[time.Time](),
+                Tenant: knock.F[knock.ScheduleBulkNewParamsSchedulesTenantUnion](shared.UnionString("acme_corp")),
                 Workflow: knock.F("comment-created"),
               }}),
             })
@@ -16056,25 +15758,6 @@ paths:
 
 
           puts(bulk_operation)
-  /v1/users/{user_id}/preferences/{preference_set_id}/workflows:
-    put:
-      callbacks: {}
-      deprecated: true
-      description: Updates the workflows in a specific user preference set. This operation is deprecated.
-      operationId: updateUserPreferenceWorkflows
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PreferenceSet'
-          description: OK
-      summary: Update workflows in preference set
-      tags:
-        - Users
-        - Preferences
-      x-ratelimit-tier: 3
   /v1/tenants/bulk/set:
     post:
       callbacks: {}
@@ -16086,6 +15769,10 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              tenants:
+                - id: tenant_1
+                  name: Acme Corp, Inc.
             schema:
               $ref: '#/components/schemas/BulkSetTenantsRequest'
         description: Params
@@ -16111,7 +15798,7 @@ paths:
           });
 
           async function main() {
-            const bulkOperation = await client.tenants.bulk.set({ tenants: ['string'] });
+            const bulkOperation = await client.tenants.bulk.set({ tenants: ['[object Object]'] });
 
             console.log(bulkOperation.id);
           }
@@ -16125,7 +15812,7 @@ paths:
               bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.tenants.bulk.set(
-              tenants=["string"],
+              tenants=["[object Object]"],
           )
           print(bulk_operation.id)
         go: |
@@ -16145,7 +15832,7 @@ paths:
               option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
             )
             bulkOperation, err := client.Tenants.Bulk.Set(context.TODO(), knock.TenantBulkSetParams{
-              Tenants: knock.F([]knock.InlineTenantRequestUnionParam{shared.UnionString("string")}),
+              Tenants: knock.F([]knock.InlineTenantRequestUnionParam{shared.UnionString("[object Object]")}),
             })
             if err != nil {
               panic(err.Error())
@@ -16183,321 +15870,100 @@ paths:
           bulk_operation = knock.tenants.bulk.set(tenants: ["string"])
 
           puts(bulk_operation)
-  /v1/tenants/{tenant_id}:
-    delete:
+  /v1/objects/{collection}/{object_id}/preferences/{id}:
+    get:
       callbacks: {}
-      description: Delete a tenant and all associated data. This operation cannot be undone.
-      operationId: deleteTenant
+      description: Returns the preference set for the specified object.
+      operationId: getObjectPreferenceSet
       parameters:
-        - description: The unique identifier for the tenant.
+        - description: Unique identifier for the object.
           in: path
-          name: tenant_id
+          name: object_id
           required: true
           schema:
             type: string
-      responses:
-        '204':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
-          description: No Content
-      summary: Delete a tenant
-      tags:
-        - Tenants
-      x-ratelimit-tier: 2
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const tenant = await client.tenants.delete('tenant_id');
-
-            console.log(tenant);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          tenant = client.tenants.delete(
-              "tenant_id",
-          )
-          print(tenant)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            tenant, err := client.Tenants.Delete(context.TODO(), "tenant_id")
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", tenant)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.tenants.TenantDeleteParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  TenantDeleteParams params = TenantDeleteParams.builder()
-                      .tenantId("tenant_id")
-                      .build();
-                  String tenant = client.tenants().delete(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          tenant = knock.tenants.delete("tenant_id")
-
-          puts(tenant)
-    get:
-      callbacks: {}
-      description: Get a tenant by ID.
-      operationId: getTenant
-      parameters:
-        - description: The unique identifier for the tenant.
+        - description: The collection this object belongs to.
           in: path
-          name: tenant_id
+          name: collection
           required: true
           schema:
+            type: string
+        - description: Unique identifier for the preference set.
+          in: path
+          name: id
+          required: true
+          schema:
+            default: default
+            example: default
             type: string
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Tenant'
+                $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Get a tenant
+      summary: Get a preference set
       tags:
-        - Tenants
+        - Objects
+        - Preferences
       x-ratelimit-tier: 4
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const tenant = await client.tenants.get('tenant_id');
-
-            console.log(tenant.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          tenant = client.tenants.get(
-              "tenant_id",
-          )
-          print(tenant.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            tenant, err := client.Tenants.Get(context.TODO(), "tenant_id")
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", tenant.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.tenants.Tenant;
-          import app.knock.api.models.tenants.TenantGetParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  TenantGetParams params = TenantGetParams.builder()
-                      .tenantId("tenant_id")
-                      .build();
-                  Tenant tenant = client.tenants().get(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          tenant = knock.tenants.get("tenant_id")
-
-          puts(tenant)
     put:
       callbacks: {}
-      description: >-
-        Set or update a tenant's properties and settings. This operation allows you to update tenant
-        preferences, channel data, and branding settings.
-      operationId: setTenant
+      description: Updates the preference set for the specified object.
+      operationId: updateObjectPreferenceSet
       parameters:
-        - description: The unique identifier for the tenant.
+        - description: Unique identifier for the object.
           in: path
-          name: tenant_id
+          name: object_id
           required: true
           schema:
+            type: string
+        - description: The collection this object belongs to.
+          in: path
+          name: collection
+          required: true
+          schema:
+            type: string
+        - description: Unique identifier for the preference set.
+          in: path
+          name: id
+          required: true
+          schema:
+            default: default
+            example: default
             type: string
       requestBody:
         content:
           application/json:
+            example:
+              categories:
+                marketing: false
+                transactional:
+                  channel_types:
+                    email: false
+              channel_types:
+                email: true
+              workflows:
+                dinosaurs-loose:
+                  channel_types:
+                    email: false
             schema:
-              $ref: '#/components/schemas/SetTenantRequest'
-        description: Tenant
+              $ref: '#/components/schemas/PreferenceSetRequest'
+        description: Params
         required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Tenant'
+                $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Set a tenant
+      summary: Update a preference set
       tags:
-        - Tenants
+        - Objects
+        - Preferences
       x-ratelimit-tier: 3
-      x-stainless-snippets:
-        typescript: |-
-          import Knock from '@knocklabs/node';
-
-          const client = new Knock({
-            bearerToken: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
-          });
-
-          async function main() {
-            const tenant = await client.tenants.set('tenant_id');
-
-            console.log(tenant.id);
-          }
-
-          main();
-        python: |-
-          import os
-          from knockapi import Knock
-
-          client = Knock(
-              bearer_token=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
-          )
-          tenant = client.tenants.set(
-              tenant_id="tenant_id",
-          )
-          print(tenant.id)
-        go: |
-          package main
-
-          import (
-            "context"
-            "fmt"
-
-            "github.com/stainless-sdks/knock-go"
-            "github.com/stainless-sdks/knock-go/option"
-          )
-
-          func main() {
-            client := knock.NewClient(
-              option.WithBearerToken("My Bearer Token"), // defaults to os.LookupEnv("KNOCK_API_KEY")
-            )
-            tenant, err := client.Tenants.Set(
-              context.TODO(),
-              "tenant_id",
-              knock.TenantSetParams{
-
-              },
-            )
-            if err != nil {
-              panic(err.Error())
-            }
-            fmt.Printf("%+v\n", tenant.ID)
-          }
-        java: |-
-          package app.knock.api.example;
-
-          import app.knock.api.client.KnockClient;
-          import app.knock.api.client.okhttp.KnockOkHttpClient;
-          import app.knock.api.models.tenants.Tenant;
-          import app.knock.api.models.tenants.TenantSetParams;
-
-          public final class Main {
-              private Main() {}
-
-              public static void main(String[] args) {
-                  // Configures using the `KNOCK_API_KEY` and `KNOCK_BASE_URL` environment variables
-                  KnockClient client = KnockOkHttpClient.fromEnv();
-
-                  TenantSetParams params = TenantSetParams.builder()
-                      .tenantId("tenant_id")
-                      .build();
-                  Tenant tenant = client.tenants().set(params);
-              }
-          }
-        ruby: |-
-          require "knockapi"
-
-          knock = Knockapi::Client.new(
-            bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
-          )
-
-          tenant = knock.tenants.set("tenant_id")
-
-          puts(tenant)
   /v1/providers/ms-teams/{channel_id}/revoke_access:
     put:
       callbacks: {}
@@ -16768,13 +16234,32 @@ paths:
           message = knock.messages.get("message_id")
 
           puts(message)
-  /v1/users/{user_id}/preferences/{preference_set_id}/channel_types/{type}:
-    put:
+  /v1/users/{user_id}/preferences/{id}:
+    get:
       callbacks: {}
-      deprecated: true
-      description: Updates a single channel type in a specific user preference set. This operation is deprecated.
-      operationId: updateUserPreferenceChannelType
-      parameters: []
+      description: Retrieves a specific preference set for a user identified by the preference set ID.
+      operationId: getUserPreferenceSet
+      parameters:
+        - description: The ID for the user that you set when identifying them in Knock.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+        - description: Unique identifier for the preference set.
+          in: path
+          name: id
+          required: true
+          schema:
+            default: default
+            example: default
+            type: string
+        - description: The unique identifier for the tenant.
+          in: query
+          name: tenant
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -16782,7 +16267,59 @@ paths:
               schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Update channel type in preference set
+      summary: Get user preference set
+      tags:
+        - Users
+        - Preferences
+      x-ratelimit-tier: 4
+    put:
+      callbacks: {}
+      description: >-
+        Updates a complete preference set for a user. This is a destructive operation that will replace the
+        existing preference set for the user.
+      operationId: updateUserPreferenceSet
+      parameters:
+        - description: The ID for the user that you set when identifying them in Knock.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+        - description: Unique identifier for the preference set.
+          in: path
+          name: id
+          required: true
+          schema:
+            default: default
+            example: default
+            type: string
+      requestBody:
+        content:
+          application/json:
+            example:
+              categories:
+                marketing: false
+                transactional:
+                  channel_types:
+                    email: false
+              channel_types:
+                email: true
+              workflows:
+                dinosaurs-loose:
+                  channel_types:
+                    email: false
+            schema:
+              $ref: '#/components/schemas/PreferenceSetRequest'
+        description: Params
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update user preference set
       tags:
         - Users
         - Preferences
@@ -17120,6 +16657,12 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              properties:
+                key: value
+              recipients:
+                - user_1
+                - user_2
             schema:
               $ref: '#/components/schemas/UpsertSubscriptionsRequest'
         description: Params
@@ -17147,6 +16690,7 @@ paths:
           async function main() {
             const subscriptions = await client.objects.addSubscriptions('collection', 'object_id', {
               recipients: ['user_1', 'user_2'],
+              properties: { key: 'value' },
             });
 
             console.log(subscriptions);
@@ -17164,6 +16708,9 @@ paths:
               collection="collection",
               object_id="object_id",
               recipients=["user_1", "user_2"],
+              properties={
+                  "key": "value"
+              },
           )
           print(subscriptions)
         go: |
@@ -17188,6 +16735,9 @@ paths:
               "object_id",
               knock.ObjectAddSubscriptionsParams{
                 Recipients: knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("user_1"), shared.UnionString("user_2")}),
+                Properties: knock.F(map[string]interface{}{
+                "key": "value",
+                }),
               },
             )
             if err != nil {
@@ -17246,6 +16796,11 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              message_ids:
+                - 1jNaXzB2RZX3LY8wVQnfCKyPnv7
+              metadata:
+                key: value
             schema:
               $ref: '#/components/schemas/BatchMessagesInteractedRequest'
         description: Params
@@ -17339,6 +16894,7 @@ paths:
           async function main() {
             const messages = await client.messages.batch.markAsInteracted({
               message_ids: ['1jNaXzB2RZX3LY8wVQnfCKyPnv7'],
+              metadata: { key: 'value' },
             });
 
             console.log(messages);
@@ -17354,6 +16910,9 @@ paths:
           )
           messages = client.messages.batch.mark_as_interacted(
               message_ids=["1jNaXzB2RZX3LY8wVQnfCKyPnv7"],
+              metadata={
+                  "key": "value"
+              },
           )
           print(messages)
         go: |
@@ -17373,6 +16932,9 @@ paths:
             )
             messages, err := client.Messages.Batch.MarkAsInteracted(context.TODO(), knock.MessageBatchMarkAsInteractedParams{
               MessageIDs: knock.F([]string{"1jNaXzB2RZX3LY8wVQnfCKyPnv7"}),
+              Metadata: knock.F(map[string]interface{}{
+              "key": "value",
+              }),
             })
             if err != nil {
               panic(err.Error())
@@ -17410,6 +16972,25 @@ paths:
           messages = knock.messages.batch.mark_as_interacted(message_ids: ["1jNaXzB2RZX3LY8wVQnfCKyPnv7"])
 
           puts(messages)
+  /v1/users/{user_id}/preferences/{id}/channel_types:
+    put:
+      callbacks: {}
+      deprecated: true
+      description: Updates the channel types in a specific user preference set. This operation is deprecated.
+      operationId: updateUserPreferenceChannelTypes
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update channel types in preference set
+      tags:
+        - Users
+        - Preferences
+      x-ratelimit-tier: 3
   /v1/objects/{collection}/bulk/set:
     post:
       callbacks: {}
@@ -17425,6 +17006,11 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              objects:
+                - collection: projects
+                  id: project_1
+                  name: My project
             schema:
               $ref: '#/components/schemas/BulkSetObjectsRequest'
         description: Params
@@ -17451,7 +17037,24 @@ paths:
 
           async function main() {
             const bulkOperation = await client.objects.bulk.set('collection', {
-              objects: [{ id: 'project_1', collection: 'projects' }],
+              objects: [
+                {
+                  collection: 'projects',
+                  id: 'project_1',
+                  name: {
+                    '0': 'M',
+                    '1': 'y',
+                    '2': ' ',
+                    '3': 'p',
+                    '4': 'r',
+                    '5': 'o',
+                    '6': 'j',
+                    '7': 'e',
+                    '8': 'c',
+                    '9': 't',
+                  },
+                },
+              ],
             });
 
             console.log(bulkOperation.id);
@@ -17468,8 +17071,20 @@ paths:
           bulk_operation = client.objects.bulk.set(
               collection="collection",
               objects=[{
-                  "id": "project_1",
                   "collection": "projects",
+                  "id": "project_1",
+                  "name": {
+                      "0": "M",
+                      "1": "y",
+                      "2": " ",
+                      "3": "p",
+                      "4": "r",
+                      "5": "o",
+                      "6": "j",
+                      "7": "e",
+                      "8": "c",
+                      "9": "t",
+                  },
               }],
           )
           print(bulk_operation.id)
@@ -17493,8 +17108,8 @@ paths:
               "collection",
               knock.ObjectBulkSetParams{
                 Objects: knock.F([]knock.InlineObjectRequestParam{knock.InlineObjectRequestParam{
-                  ID: knock.F("project_1"),
                   Collection: knock.F("projects"),
+                  ID: knock.F("project_1"),
                 }}),
               },
             )
