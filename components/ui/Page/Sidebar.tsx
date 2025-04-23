@@ -16,6 +16,8 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
   const router = useRouter();
   const basePath = router.pathname.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
+  const resourceSection = stripPrefix(slug);
+
   const [isOpen, setIsOpen] = useState(
     // Determines which menus should be open on initial load
     section.pages.some(
@@ -75,8 +77,6 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
 
         observer = getObserver();
 
-        // Observe all elements within this section
-        const resourceSection = stripPrefix(slug);
         document.querySelectorAll(`[data-resource-path^="${resourceSection}"]`).forEach((element) => {
           observer?.observe(element);
         });
@@ -90,7 +90,7 @@ const Item = ({ section, preSlug = "", depth = 0 }: { section: SidebarSection, p
       observer?.disconnect();
       clearTimeout(readyTimeout);
     };
-  }, [basePath, section.slug]);
+  }, [basePath, resourceSection]);
 
   const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> = depth === 0 ? {
     // Moves it over to align with the Tab text above
