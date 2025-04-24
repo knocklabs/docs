@@ -2,28 +2,10 @@ import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { Page } from "../components/ui/Page";
-import sidebarContent from "../data/sidebar";
-import {
-  guidesContent,
-  developerToolsContent,
-  inAppUiContent,
-} from "../data/sidebar";
+import { useSidebarContent } from "../hooks/useSidebarContent";
+
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
-
-function useSidebarContent() {
-  const { asPath } = useRouter();
-  if (asPath.startsWith("/guides")) {
-    return guidesContent;
-  }
-  if (asPath.startsWith("/developer-tools")) {
-    return developerToolsContent;
-  }
-  if (asPath.startsWith("/in-app-ui")) {
-    return inAppUiContent;
-  }
-  return sidebarContent;
-}
 
 const DocsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();

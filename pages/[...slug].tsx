@@ -8,7 +8,7 @@ import remarkGfm from "remark-gfm";
 import remarkSlug from "remark-slug";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 
-import { CodeBlock } from "../components/CodeBlock";
+import { CodeBlock } from "../components/ui/CodeBlock";
 import MDXLayout from "../layouts/MDXLayout";
 import {
   getAllFilesInDir,
@@ -19,7 +19,6 @@ import {
 } from "../lib/content.server";
 import Callout from "../components/Callout";
 import MultiLangCodeBlock from "../components/MultiLangCodeBlock";
-import SectionHeading from "../components/SectionHeading";
 import eventPayload from "../data/code/sources/eventPayload";
 import LocaleTable from "../components/LocaleTable";
 import { Attributes, Attribute } from "../components/Attributes";
@@ -27,7 +26,7 @@ import Table from "../components/Table";
 import CopyableText from "../components/CopyableText";
 import { Card, CardGroup } from "../components/Card";
 import { SdkCard, SdkCardGroup } from "../components/SdkCard";
-import { Endpoints, Endpoint } from "../components/Endpoints";
+import { Endpoints, Endpoint } from "../components/ui/Endpoints";
 import { AccordionGroup, Accordion } from "../components/Accordion";
 import { Steps, Step } from "../components/Step";
 import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
@@ -39,7 +38,7 @@ import {
   ContentColumn,
   ErrorExample,
   ExampleColumn,
-} from "../components/ApiSections";
+} from "../components/ui/ApiSections";
 import RateLimit from "../components/RateLimit";
 import { FrontMatter } from "../types";
 import { Heading } from "@telegraph/typography";

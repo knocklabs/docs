@@ -1,10 +1,10 @@
 import { useEventEmitter } from "@byteclaw/use-event-emitter";
 import { useEffect, useMemo } from "react";
 
-import { useIsMounted } from "../../../hooks/useIsMounted";
-import useLocalStorage from "../../../hooks/useLocalStorage";
+import { useIsMounted } from "../../../../hooks/useIsMounted";
+import useLocalStorage from "../../../../hooks/useLocalStorage";
 import { CodeBlock, SupportedLanguage } from "../../CodeBlock";
-import { EVENT_NAME, LOCAL_STORAGE_KEY } from "../../MultiLangCodeBlock";
+import { EVENT_NAME, LOCAL_STORAGE_KEY } from "../../../MultiLangCodeBlock";
 
 type Props = {
   examples: Record<string, string>;

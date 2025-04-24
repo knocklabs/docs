@@ -1,6 +1,6 @@
 import { createContext, useContext, ReactNode } from "react";
 import { OpenAPIV3 } from "@scalar/openapi-types";
-import { StainlessConfig } from "../../lib/openApiSpec";
+import { StainlessConfig } from "../../../lib/openApiSpec";
 import { buildSchemaReferences } from "./helpers";
 import { useRouter } from "next/router";
 
