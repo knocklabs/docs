@@ -29,12 +29,12 @@ components:
     ChannelData:
       description: Channel data for a given channel type.
       example:
-        __typename: ChannelData
         channel_id: 123e4567-e89b-12d3-a456-426614174000
         data:
-          __typename: PushChannelData
           tokens:
             - push_token_1
+          type: push_fcm
+        provider: push_fcm
       properties:
         __typename:
           description: The typename of the schema.
@@ -48,12 +48,15 @@ components:
           description: Channel data for a given channel type.
           discriminator:
             mapping:
-              DiscordChannelData: '#/components/schemas/DiscordChannelData'
-              MsTeamsChannelData: '#/components/schemas/MsTeamsChannelData'
-              OneSignalChannelData: '#/components/schemas/OneSignalChannelData'
-              PushChannelData: '#/components/schemas/PushChannelData'
-              SlackChannelData: '#/components/schemas/SlackChannelData'
-            propertyName: __typename
+              chat_discord: '#/components/schemas/DiscordChannelData'
+              chat_ms_teams: '#/components/schemas/MsTeamsChannelData'
+              chat_slack: '#/components/schemas/SlackChannelData'
+              http_knock_webhook: '#/components/schemas/HttpWebhookChannelData'
+              push_apns: '#/components/schemas/PushChannelData'
+              push_expo: '#/components/schemas/PushChannelData'
+              push_fcm: '#/components/schemas/PushChannelData'
+              push_one_signal: '#/components/schemas/OneSignalChannelData'
+            propertyName: type
           oneOf:
             - $ref: '#/components/schemas/PushChannelData'
             - $ref: '#/components/schemas/SlackChannelData'
@@ -61,10 +64,23 @@ components:
             - $ref: '#/components/schemas/DiscordChannelData'
             - $ref: '#/components/schemas/OneSignalChannelData'
           type: object
+        provider:
+          description: The type of provider.
+          enum:
+            - push_fcm
+            - push_apns
+            - push_expo
+            - push_one_signal
+            - chat_slack
+            - chat_ms_teams
+            - chat_discord
+            - http_knock_webhook
+          example: push_fcm
+          type: string
       required:
-        - __typename
         - channel_id
         - data
+        - provider
       title: ChannelData
       type: object
     AddAudienceMembersRequest:
@@ -139,7 +155,7 @@ components:
           $ref: '#/components/schemas/Object'
         properties:
           additionalProperties: true
-          description: The custom properties associated with the recipients of the subscription.
+          description: The custom properties associated with the subscription relationship.
           nullable: true
           type: object
         recipient:
@@ -567,6 +583,23 @@ components:
         - result_id
       title: Notify Response
       type: object
+    Bulk Delete Objects Request:
+      description: Request body for bulk deleting objects.
+      example:
+        object_ids:
+          - obj_123
+          - obj_456
+          - obj_789
+      properties:
+        object_ids:
+          description: List of object IDs to delete.
+          items:
+            type: string
+          type: array
+      required:
+        - object_ids
+      title: Bulk Delete Objects Request
+      type: object
     InlineTenantRequest:
       description: An request to set a tenant inline.
       example:
@@ -760,21 +793,19 @@ components:
           description: A list of subscriptions.
           items:
             properties:
-              id:
-                description: Unique identifier for the subscription.
-                type: string
               properties:
                 additionalProperties: true
-                description: The custom properties associated with the recipients of the subscription.
+                description: The custom properties associated with the subscription relationship.
                 nullable: true
                 type: object
               recipients:
-                description: The recipients of the subscription.
+                description: >-
+                  The recipients of the subscription. You can subscribe up to 100 recipients to an object at a
+                  time.
                 items:
                   $ref: '#/components/schemas/RecipientRequest'
                 type: array
             required:
-              - id
               - recipients
             type: object
           type: array
@@ -944,9 +975,9 @@ components:
     DiscordChannelData:
       description: Discord channel data.
       example:
-        __typename: DiscordChannelData
         connections:
           - channel_id: '123456789012345678'
+        type: chat_discord
       properties:
         __typename:
           description: The typename of the schema.
@@ -964,9 +995,15 @@ components:
             type: object
           nullable: false
           type: array
+        type:
+          description: The type of provider.
+          enum:
+            - chat_discord
+          example: chat_discord
+          type: string
       required:
-        - __typename
         - connections
+        - type
       title: DiscordChannelData
       type: object
     BulkDeleteUsersRequest:
@@ -1080,7 +1117,7 @@ components:
       description: A reference to a recipient, either a user identifier (string) or an object reference (ID, collection).
       example: user_123
       oneOf:
-        - description: The ID of the user.
+        - description: The ID of the user which is used as the reference for the recipient.
           example: user_123
           nullable: false
           title: UserReference
@@ -1128,7 +1165,7 @@ components:
       title: BatchMessagesInteractedRequest
       type: object
     UserReference:
-      description: The ID of the user.
+      description: The ID of the user which is used as the reference for the recipient.
       example: user_123
       nullable: false
       title: UserReference
@@ -1234,6 +1271,14 @@ components:
           description: The unique identifier for the tenant.
           nullable: false
           type: string
+        name:
+          description: An optional name for the tenant.
+          nullable: true
+          type: string
+        settings:
+          description: The settings for the tenant. Includes branding and preference set.
+          nullable: true
+          type: object
       required:
         - __typename
         - id
@@ -1287,7 +1332,7 @@ components:
       type: object
     InlineIdentifyObjectRequest:
       additionalProperties: true
-      description: A custom object entity which belongs to a collection.
+      description: A custom [Object](/concepts/objects) entity which belongs to a collection.
       example:
         collection: projects
         id: project_1
@@ -1314,9 +1359,7 @@ components:
           nullable: false
           type: string
         preferences:
-          description: >-
-            A set of preferences for the object. This is a map of preference set names to preference set
-            values.
+          description: An optional set of [preferences](/concepts/preferences) for the object.
           oneOf:
             - $ref: '#/components/schemas/InlinePreferenceSetRequest'
             - nullable: true
@@ -1379,9 +1422,9 @@ components:
     PushChannelData:
       description: The content of a push notification.
       example:
-        __typename: PushChannelData
         tokens:
           - push_token_1
+        type: push_fcm
       properties:
         __typename:
           description: The typename of the schema.
@@ -1400,9 +1443,17 @@ components:
             type: string
           nullable: false
           type: array
+        type:
+          description: The type of provider.
+          enum:
+            - push_fcm
+            - push_apns
+            - push_expo
+          example: push_fcm
+          type: string
       required:
-        - __typename
         - tokens
+        - type
       title: PushChannelData
       type: object
     GuideActionResponse:
@@ -2123,7 +2174,7 @@ components:
       title: ListMessageDeliveryLogsResponse
       type: object
     UserRecipient:
-      description: The ID of the user.
+      description: The ID of the user which is used as the reference for the recipient.
       example: user_123
       title: UserRecipient
       type: string
@@ -2260,19 +2311,19 @@ components:
               description: The branding for the tenant.
               properties:
                 icon_url:
-                  description: The icon URL for the tenant.
+                  description: The icon URL for the tenant. Must point to a valid image with an image MIME type.
                   nullable: true
                   type: string
                 logo_url:
-                  description: The logo URL for the tenant.
+                  description: The logo URL for the tenant. Must point to a valid image with an image MIME type.
                   nullable: true
                   type: string
                 primary_color:
-                  description: The primary color for the tenant.
+                  description: The primary color for the tenant, provided as a hex value.
                   nullable: true
                   type: string
                 primary_color_contrast:
-                  description: The primary color contrast for the tenant.
+                  description: The primary color contrast for the tenant, provided as a hex value.
                   nullable: true
                   type: string
               type: object
@@ -2437,7 +2488,7 @@ components:
         id: user_1
       nullable: false
       oneOf:
-        - description: The ID of the user.
+        - description: The ID of the user which is used as the reference for the recipient.
           example: user_123
           title: UserRecipient
           type: string
@@ -2619,7 +2670,7 @@ components:
       type: object
     Object:
       additionalProperties: true
-      description: A custom object entity which belongs to a collection.
+      description: A custom [Object](/concepts/objects) entity which belongs to a collection.
       example:
         __typename: Object
         collection: projects
@@ -3046,13 +3097,13 @@ components:
     SlackChannelData:
       description: Slack channel data
       example:
-        __typename: SlackChannelData
         connections:
           - access_token: xoxb-1234567890
             channel_id: C01234567890
             user_id: U01234567890
         token:
           access_token: xoxb-1234567890
+        type: chat_slack
       properties:
         __typename:
           description: The typename of the schema.
@@ -3086,9 +3137,15 @@ components:
             - access_token
           title: SlackChannelDataTokenObject
           type: object
+        type:
+          description: The type of provider.
+          enum:
+            - chat_slack
+          example: chat_slack
+          type: string
       required:
-        - __typename
         - connections
+        - type
       title: SlackChannelData
       type: object
     BulkUpdateMessagesForChannelRequest:
@@ -3360,13 +3417,13 @@ components:
     MsTeamsChannelData:
       description: Microsoft Teams channel connection.
       example:
-        __typename: MsTeamsChannelData
         connections:
           - ms_teams_channel_id: 123e4567-e89b-12d3-a456-426614174000
             ms_teams_team_id: 123e4567-e89b-12d3-a456-426614174000
             ms_teams_tenant_id: null
             ms_teams_user_id: null
         ms_teams_tenant_id: null
+        type: chat_ms_teams
       properties:
         __typename:
           description: The typename of the schema.
@@ -3389,17 +3446,23 @@ components:
           format: uuid
           nullable: true
           type: string
+        type:
+          description: The type of provider.
+          enum:
+            - chat_ms_teams
+          example: chat_ms_teams
+          type: string
       required:
-        - __typename
         - connections
+        - type
       title: MsTeamsChannelData
       type: object
     OneSignalChannelData:
       description: OneSignal channel data.
       example:
-        __typename: OneSignalChannelData
         player_ids:
           - 123e4567-e89b-12d3-a456-426614174000
+        type: push_one_signal
       properties:
         __typename:
           description: The typename of the schema.
@@ -3418,9 +3481,15 @@ components:
             type: string
           nullable: false
           type: array
+        type:
+          description: The type of provider.
+          enum:
+            - push_one_signal
+          example: push_one_signal
+          type: string
       required:
-        - __typename
         - player_ids
+        - type
       title: OneSignalChannelData
       type: object
     SlackIncomingWebhookConnection:
@@ -3465,11 +3534,11 @@ components:
       properties:
         properties:
           additionalProperties: true
-          description: The custom properties associated with the recipients of the subscription.
+          description: The custom properties associated with the subscription relationship.
           nullable: true
           type: object
         recipients:
-          description: The recipients of the subscription.
+          description: The recipients of the subscription. You can subscribe up to 100 recipients to an object at a time.
           items:
             $ref: '#/components/schemas/RecipientRequest'
           type: array
@@ -3946,19 +4015,19 @@ components:
               description: The branding for the tenant.
               properties:
                 icon_url:
-                  description: The icon URL for the tenant.
+                  description: The icon URL for the tenant. Must point to a valid image with an image MIME type.
                   nullable: true
                   type: string
                 logo_url:
-                  description: The logo URL for the tenant.
+                  description: The logo URL for the tenant. Must point to a valid image with an image MIME type.
                   nullable: true
                   type: string
                 primary_color:
-                  description: The primary color for the tenant.
+                  description: The primary color for the tenant, provided as a hex value.
                   nullable: true
                   type: string
                 primary_color_contrast:
-                  description: The primary color contrast for the tenant.
+                  description: The primary color contrast for the tenant, provided as a hex value.
                   nullable: true
                   type: string
               type: object
@@ -4053,7 +4122,7 @@ components:
           - user_123
       properties:
         recipients:
-          description: The recipients of the subscription.
+          description: The recipients of the subscription. You can subscribe up to 100 recipients to an object at a time.
           items:
             $ref: '#/components/schemas/RecipientReference'
           type: array
@@ -4394,8 +4463,6 @@ components:
               tenant:
                 anyOf:
                   - $ref: '#/components/schemas/InlineTenantRequest'
-                  - description: The unique identifier for the tenant.
-                    type: string
                   - nullable: true
                 description: >-
                   The tenant to trigger the workflow for. Triggering with a tenant will use any tenant-level
@@ -4917,8 +4984,8 @@ paths:
     put:
       callbacks: {}
       description: >-
-        Set or update a tenant's properties and settings. This operation allows you to update tenant
-        preferences, channel data, and branding settings.
+        Sets a tenant within an environment, performing an upsert operation. Any existing properties will be
+        merged with the incoming properties.
       operationId: setTenant
       parameters:
         - description: The unique identifier for the tenant.
@@ -6824,14 +6891,18 @@ paths:
           required: true
           schema:
             type: string
-        - description: A list of object IDs.
-          in: query
-          name: object_ids[]
-          required: true
-          schema:
-            items:
-              type: string
-            type: array
+      requestBody:
+        content:
+          application/json:
+            example:
+              object_ids:
+                - obj_123
+                - obj_456
+                - obj_789
+            schema:
+              $ref: '#/components/schemas/Bulk Delete Objects Request'
+        description: Params
+        required: true
       responses:
         '200':
           content:
@@ -6853,7 +6924,9 @@ paths:
           });
 
           async function main() {
-            const bulkOperation = await client.objects.bulk.delete('collection', { object_ids: ['string'] });
+            const bulkOperation = await client.objects.bulk.delete('collection', {
+              object_ids: ['obj_123', 'obj_456', 'obj_789'],
+            });
 
             console.log(bulkOperation.id);
           }
@@ -6868,7 +6941,7 @@ paths:
           )
           bulk_operation = client.objects.bulk.delete(
               collection="collection",
-              object_ids=["string"],
+              object_ids=["obj_123", "obj_456", "obj_789"],
           )
           print(bulk_operation.id)
         go: |
@@ -6890,7 +6963,7 @@ paths:
               context.TODO(),
               "collection",
               knock.ObjectBulkDeleteParams{
-                ObjectIDs: knock.F([]string{"string"}),
+                ObjectIDs: knock.F([]string{"obj_123", "obj_456", "obj_789"}),
               },
             )
             if err != nil {
@@ -6905,6 +6978,7 @@ paths:
           import app.knock.api.client.okhttp.KnockOkHttpClient;
           import app.knock.api.models.bulkoperations.BulkOperation;
           import app.knock.api.models.objects.bulk.BulkDeleteParams;
+          import java.util.List;
 
           public final class Main {
               private Main() {}
@@ -6915,19 +6989,27 @@ paths:
 
                   BulkDeleteParams params = BulkDeleteParams.builder()
                       .collection("collection")
-                      .addObjectId("string")
+                      .objectIds(List.of(
+                        "obj_123",
+                        "obj_456",
+                        "obj_789"
+                      ))
                       .build();
                   BulkOperation bulkOperation = client.objects().bulk().delete(params);
               }
           }
-        ruby: |-
+        ruby: >-
           require "knockapi"
+
 
           knock = Knockapi::Client.new(
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-          bulk_operation = knock.objects.bulk.delete("collection", object_ids: ["string"])
+
+          bulk_operation = knock.objects.bulk.delete("collection", object_ids: ["obj_123", "obj_456",
+          "obj_789"])
+
 
           puts(bulk_operation)
   /v1/providers/slack/{channel_id}/channels:
@@ -8361,8 +8443,8 @@ paths:
               knock.UserSetChannelDataParams{
                 ChannelDataRequest: knock.ChannelDataRequestParam{
                   Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.PushChannelDataParam{
-                    Typename: knock.F(knock.PushChannelData_TypenamePushChannelData),
                     Tokens: knock.F([]string{"push_token_1"}),
+                    Type: knock.F(knock.PushChannelDataTypePushFcm),
                   }),
                 },
               },
@@ -8394,8 +8476,8 @@ paths:
                       .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
                       .channelDataRequest(ChannelDataRequest.builder()
                           .data(PushChannelData.builder()
-                              ._typename(PushChannelData._Typename.PUSH_CHANNEL_DATA)
                               .addToken("push_token_1")
+                              .type(PushChannelData.Type.PUSH_FCM)
                               .build())
                           .build())
                       .build();
@@ -8412,7 +8494,7 @@ paths:
           channel_data = knock.users.set_channel_data(
             "user_id",
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            data: {__typename: :PushChannelData, tokens: ["push_token_1"]}
+            data: {tokens: ["push_token_1"], type: :push_fcm}
           )
 
           puts(channel_data)
@@ -10995,7 +11077,6 @@ paths:
               "projects",
               knock.ObjectBulkAddSubscriptionsParams{
                 Subscriptions: knock.F([]knock.ObjectBulkAddSubscriptionsParamsSubscription{knock.ObjectBulkAddSubscriptionsParamsSubscription{
-                  ID: knock.F("project-1"),
                   Properties: knock.Null[map[string]interface{}](),
                   Recipients: knock.F([]knock.RecipientRequestUnionParam{knock.InlineIdentifyUserRequestParam{
                     ID: knock.F("user_1"),
@@ -11027,7 +11108,6 @@ paths:
                   BulkAddSubscriptionsParams params = BulkAddSubscriptionsParams.builder()
                       .collection("projects")
                       .addSubscription(BulkAddSubscriptionsParams.Subscription.builder()
-                          .id("project-1")
                           .addRecipient(InlineIdentifyUserRequest.builder()
                               .id("user_1")
                               .build())
@@ -11036,17 +11116,18 @@ paths:
                   BulkOperation bulkOperation = client.objects().bulk().addSubscriptions(params);
               }
           }
-        ruby: |-
+        ruby: >-
           require "knockapi"
+
 
           knock = Knockapi::Client.new(
             bearer_token: "My Bearer Token" # defaults to ENV["KNOCK_API_KEY"]
           )
 
-          bulk_operation = knock.objects.bulk.add_subscriptions(
-            "collection",
-            subscriptions: [{id: "project-1", recipients: [{id: "user_1"}]}]
-          )
+
+          bulk_operation = knock.objects.bulk.add_subscriptions("collection", subscriptions: [{recipients:
+          [{id: "user_1"}]}])
+
 
           puts(bulk_operation)
   /v1/messages/batch/content:
@@ -11915,6 +11996,7 @@ paths:
                   Data: knock.F[knock.InlineChannelDataRequestItemDataUnionParam](knock.PushChannelDataParam{
                     Typename: knock.F(knock.PushChannelData_TypenamePushChannelData),
                     Tokens: knock.F([]string{"push_token_123"}),
+                    Type: knock.F(knock.PushChannelDataTypePushFcm),
                   }),
                   Provider: knock.F("push_fcm"),
                 }}),
@@ -12839,7 +12921,10 @@ paths:
           puts(channel_data)
     put:
       callbacks: {}
-      description: Sets the channel data for the specified object and channel.
+      description: >-
+        Sets the channel data for the specified object and channel. If no object exists in the current
+        environment for the given `collection` and `object_id`, Knock will create the object as part of this
+        request.
       operationId: setObjectChannelData
       parameters:
         - description: Unique identifier for the object.
@@ -12947,8 +13032,8 @@ paths:
               knock.ObjectSetChannelDataParams{
                 ChannelDataRequest: knock.ChannelDataRequestParam{
                   Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.PushChannelDataParam{
-                    Typename: knock.F(knock.PushChannelData_TypenamePushChannelData),
                     Tokens: knock.F([]string{"push_token_1"}),
+                    Type: knock.F(knock.PushChannelDataTypePushFcm),
                   }),
                 },
               },
@@ -12981,8 +13066,8 @@ paths:
                       .channelId("182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
                       .channelDataRequest(ChannelDataRequest.builder()
                           .data(PushChannelData.builder()
-                              ._typename(PushChannelData._Typename.PUSH_CHANNEL_DATA)
                               .addToken("push_token_1")
+                              .type(PushChannelData.Type.PUSH_FCM)
                               .build())
                           .build())
                       .build();
@@ -13000,7 +13085,7 @@ paths:
             "collection",
             "object_id",
             "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
-            data: {__typename: :PushChannelData, tokens: ["push_token_1"]}
+            data: {tokens: ["push_token_1"], type: :push_fcm}
           )
 
           puts(channel_data)
@@ -16296,6 +16381,10 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              cancellation_key: cancel-workflow-123
+              recipients:
+                - jhammond
             schema:
               $ref: '#/components/schemas/CancelWorkflowRequest'
         description: Params
@@ -16320,7 +16409,10 @@ paths:
           });
 
           async function main() {
-            const response = await client.workflows.cancel('key', { cancellation_key: 'cancel-workflow-123' });
+            const response = await client.workflows.cancel('key', {
+              cancellation_key: 'cancel-workflow-123',
+              recipients: ['jhammond'],
+            });
 
             console.log(response);
           }
@@ -16336,6 +16428,7 @@ paths:
           response = client.workflows.cancel(
               key="key",
               cancellation_key="cancel-workflow-123",
+              recipients=["jhammond"],
           )
           print(response)
         go: |
@@ -16347,6 +16440,7 @@ paths:
 
             "github.com/stainless-sdks/knock-go"
             "github.com/stainless-sdks/knock-go/option"
+            "github.com/stainless-sdks/knock-go/shared"
           )
 
           func main() {
@@ -16358,6 +16452,7 @@ paths:
               "key",
               knock.WorkflowCancelParams{
                 CancellationKey: knock.F("cancel-workflow-123"),
+                Recipients: knock.F([]knock.RecipientReferenceUnionParam{shared.UnionString("jhammond")}),
               },
             )
             if err != nil {
@@ -16626,7 +16721,7 @@ paths:
                   Minutes: knock.Null[int64](),
                 }}),
                 ScheduledAt: knock.Null[time.Time](),
-                Tenant: knock.F[knock.ScheduleBulkNewParamsSchedulesTenantUnion](shared.UnionString("acme_corp")),
+                Tenant: knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("acme_corp")),
                 Workflow: knock.F("comment-created"),
               }, knock.ScheduleBulkNewParamsSchedule{
                 Data: knock.F(map[string]interface{}{
@@ -16644,7 +16739,7 @@ paths:
                   Minutes: knock.Null[int64](),
                 }}),
                 ScheduledAt: knock.Null[time.Time](),
-                Tenant: knock.F[knock.ScheduleBulkNewParamsSchedulesTenantUnion](shared.UnionString("acme_corp")),
+                Tenant: knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("acme_corp")),
                 Workflow: knock.F("comment-created"),
               }}),
             })
@@ -16696,9 +16791,7 @@ paths:
   /v1/tenants/bulk/set:
     post:
       callbacks: {}
-      description: >-
-        Set or update multiple tenants in a single operation. This operation allows you to create or update
-        multiple tenants with their properties and settings.
+      description: Set or update up to 1,000 tenants in a single operation.
       operationId: bulkSetTenants
       parameters: []
       requestBody:
@@ -16808,7 +16901,7 @@ paths:
   /v1/objects/{collection}/{object_id}/preferences/{id}:
     get:
       callbacks: {}
-      description: Returns the preference set for the specified object.
+      description: Returns the preference set for the specified object and preference set `id`.
       operationId: getObjectPreferenceSet
       parameters:
         - description: Unique identifier for the object.
@@ -16838,7 +16931,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PreferenceSet'
           description: OK
-      summary: Get a preference set
+      summary: Get object preference set
       tags:
         - Objects
         - Preferences
@@ -16932,7 +17025,12 @@ paths:
           puts(preference_set)
     put:
       callbacks: {}
-      description: Updates the preference set for the specified object.
+      description: >-
+        Sets preferences within the given preference set. This is a destructive operation and will replace any
+        existing preferences with the preferences given. If no object exists in the current environment for
+        the given `:collection` and `:object_id`, Knock will create the object as part of this request. The
+        preference set `:id` can be either `default` or a `tenant.id`. Learn more about [per-tenant
+        preferences](/preferences/tenant-preferences).
       operationId: updateObjectPreferenceSet
       parameters:
         - description: Unique identifier for the object.
@@ -17804,7 +17902,9 @@ paths:
         list the objects that the provided object is subscribed to. Determined by the `mode` query parameter.
       operationId: listSubscriptionsForObject
       parameters:
-        - description: Mode of the request.
+        - description: >-
+            Mode of the request. `recipient` to list the objects that the provided object is subscribed to,
+            `object` to list the recipients that subscribe to the provided object.
           in: query
           name: mode
           required: false
@@ -17838,7 +17938,7 @@ paths:
           required: false
           schema:
             items:
-              $ref: '#/components/schemas/RecipientReference'
+              $ref: '#/components/schemas/ObjectReference'
             type: array
         - description: Unique identifier for the object.
           in: path
@@ -18332,7 +18432,7 @@ paths:
   /v1/objects/{collection}/bulk/set:
     post:
       callbacks: {}
-      description: Bulk sets objects in the specified collection.
+      description: Bulk sets up to 1,000 objects at a time in the specified collection.
       operationId: bulkSetObjects
       parameters:
         - description: The collection this object belongs to.
