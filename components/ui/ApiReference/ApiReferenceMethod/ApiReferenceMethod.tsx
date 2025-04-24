@@ -12,6 +12,7 @@ import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import MultiLangExample from "../MultiLangExample";
 import { augmentSnippetsWithCurlRequest } from "../helpers";
 import { Heading } from "@telegraph/typography";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Props = {
   methodName: string;
@@ -149,11 +150,22 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
                     {isResponseExpanded ? "Hide properties" : "Show properties"}
                   </PropertyRow.ExpandableButton>
 
-                  {isResponseExpanded && (
-                    <PropertyRow.ChildProperties>
-                      <SchemaProperties schema={responseSchema} hideRequired />
-                    </PropertyRow.ChildProperties>
-                  )}
+                  <AnimatePresence initial={false}>
+                    <motion.div
+                      key="response-properties"
+                      initial={false}
+                      animate={{
+                        height: isResponseExpanded ? "auto" : 0,
+                        opacity: isResponseExpanded ? 1 : 0,
+                        visibility: isResponseExpanded ? "visible" : "hidden",
+                      }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <PropertyRow.ChildProperties>
+                        <SchemaProperties schema={responseSchema} hideRequired />
+                      </PropertyRow.ChildProperties>
+                    </motion.div>
+                  </AnimatePresence>
                 </>
               )}
             </PropertyRow.Container>

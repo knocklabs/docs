@@ -126,7 +126,7 @@ const ExpandableButton = ({ children, isOpen, onClick }) => (
     onClick={onClick}
     variant="ghost"
     size="0"
-    color="gray"
+    color="gray" 
     weight="light"
     px="1"
     mt="2"
@@ -134,8 +134,12 @@ const ExpandableButton = ({ children, isOpen, onClick }) => (
       marginLeft: "calc(var(--tgph-spacing-1) * -1)",
     }}
     icon={{
-      icon: isOpen ? Lucide.ArrowDown : Lucide.ArrowRight,
+      icon: Lucide.ArrowRight,
       "aria-hidden": true,
+      style: {
+        transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
+        transition: "transform 0.2s ease"
+      }
     }}
   >
     {children}
