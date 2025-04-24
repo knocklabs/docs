@@ -17,8 +17,9 @@ const Container = ({ children }) => <Box>{children}</Box>;
 const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
   <Stack
     data-wrapper
-    className={`layout-grid ${children.length === 3 ? "layout-grid--three-col" : ""
-      }`}
+    className={`layout-grid ${
+      children.length === 3 ? "layout-grid--three-col" : ""
+    }`}
     style={{
       display: "grid",
       maxWidth,

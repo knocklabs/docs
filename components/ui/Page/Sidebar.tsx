@@ -166,7 +166,6 @@ const Section = ({ section }: { section: SidebarSection }) => {
 const Wrapper = ({ children }: SidebarProps) => {
   return (
     <Box>
-
       <Box
         data-sidebar-wrapper
         as="aside"
