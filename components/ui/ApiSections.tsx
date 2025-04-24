@@ -72,17 +72,20 @@ export const ContentColumn = ({ children }) => (
 );
 
 export const ExampleColumn = ({ children }) => (
-  <Stack
-    mt="5"
-    pl="5"
-    flexDirection="column"
-    flexWrap="wrap"
-    w="full"
-    gap="5"
-    minW="0"
-  >
-    {children}
-  </Stack>
+  <Box position="relative" minW="0" w="full">
+    <Stack
+      mt="5"
+      pl="5"
+      flexDirection="column"
+      flexWrap="wrap"
+      w="full"
+      gap="5"
+      position="sticky"
+      style={{ top: "100px" }}
+    >
+      {children}
+    </Stack>
+  </Box>
 );
 
 // Unused?
