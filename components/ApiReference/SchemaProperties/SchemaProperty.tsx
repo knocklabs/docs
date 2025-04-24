@@ -35,7 +35,9 @@ const SchemaProperty = ({ name, schema }: Props) => {
     (schema as any).isPropertyRequired ||
     (!Array.isArray(schema.required) && schema.required);
 
-  const hydratedChildProperties = !!maybeChildProperties ? hydrateRequiredChildProperties(schema) : null;
+  const hydratedChildProperties = !!maybeChildProperties
+    ? hydrateRequiredChildProperties(schema)
+    : null;
 
   return (
     <PropertyRow.Container>
