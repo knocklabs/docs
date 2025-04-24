@@ -4,7 +4,7 @@ import Markdown from "react-markdown";
 
 import { Endpoint } from "../../Endpoints";
 import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
-import { CodeBlock } from "../../../CodeBlock";
+import { CodeBlock } from "../../CodeBlock";
 import { useApiReference } from "../ApiReferenceContext";
 import { SchemaProperties } from "../SchemaProperties";
 import OperationParameters from "../OperationParameters/OperationParameters";

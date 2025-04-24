@@ -8,7 +8,7 @@ import remarkGfm from "remark-gfm";
 import remarkSlug from "remark-slug";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 
-import { CodeBlock } from "../components/CodeBlock";
+import { CodeBlock } from "../components/ui/CodeBlock";
 import MDXLayout from "../layouts/MDXLayout";
 import {
   getAllFilesInDir,

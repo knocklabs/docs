@@ -6,7 +6,7 @@ import { useEventEmitter } from "@byteclaw/use-event-emitter";
 import { useEffect, useMemo } from "react";
 import { useIsMounted } from "../hooks/useIsMounted";
 import useLocalStorage from "../hooks/useLocalStorage";
-import { CodeBlock, SupportedLanguage } from "./CodeBlock";
+import { CodeBlock, SupportedLanguage } from "./ui/CodeBlock";
 
 type Props = {
   title: string;
