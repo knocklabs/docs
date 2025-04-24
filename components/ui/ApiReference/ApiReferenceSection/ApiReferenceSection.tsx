@@ -6,10 +6,12 @@ import Markdown from "react-markdown";
 import { Endpoint, Endpoints } from "../../Endpoints";
 import JSONPointer from "jsonpointer";
 import { CodeBlock } from "../../CodeBlock";
-import { StainlessResource } from "../../../lib/openApiSpec";
+import { StainlessResource } from "../../../../lib/openApiSpec";
 import { useApiReference } from "../ApiReferenceContext";
 import { resolveEndpointFromMethod } from "../helpers";
 import { SchemaProperties } from "../SchemaProperties";
+import { Box } from "@telegraph/layout";
+import { Heading } from "@telegraph/typography";
 
 type Props = {
   resourceName: string;
@@ -25,8 +27,8 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
 
   return (
     <>
-      <div data-resource-path={basePath}>
-        <Section title={resource.name} slug={resourceName}>
+      <Box data-resource-path={basePath}>
+        <Section title={resource.name} path={basePath}>
           <ContentColumn>
             {resource.description && (
               <Markdown>{resource.description}</Markdown>
@@ -47,6 +49,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
                         method={methodType.toUpperCase()}
                         path={endpoint}
                         name={methodName}
+                        withLink
                       />
                     );
                   },
@@ -55,24 +58,24 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
             )}
           </ExampleColumn>
         </Section>
-      </div>
+      </Box>
 
       {Object.entries(methods).map(([methodName, endpointOrMethodConfig]) => {
         const [methodType, endpoint] = resolveEndpointFromMethod(
           endpointOrMethodConfig,
         );
 
+        const path = `${basePath}/${methodName}`;
+
         return (
-          <div
-            key={`${methodName}-${endpoint}`}
-            data-resource-path={`${basePath}/${methodName}`}
-          >
+          <Box key={`${methodName}-${endpoint}`} data-resource-path={path}>
             <ApiReferenceMethod
               methodName={methodName}
               methodType={methodType as "get" | "post" | "put" | "delete"}
               endpoint={endpoint}
+              path={path}
             />
-          </div>
+          </Box>
         );
       })}
 
@@ -99,18 +102,26 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
           return null;
         }
 
+        const path = `${basePath}/schemas/${modelName}`;
+
         return (
-          <div
-            key={modelName}
-            data-resource-path={`${basePath}/schemas/${modelName}`}
-          >
-            <Section title={schema.title} slug={modelName}>
+          <Box key={modelName} data-resource-path={path}>
+            <Section title={schema.title} path={path}>
               <ContentColumn>
                 {schema.description && (
                   <Markdown>{schema.description}</Markdown>
                 )}
 
-                <h3 className="!text-base font-medium">Attributes</h3>
+                <Heading
+                  as="h3"
+                  size="3"
+                  weight="medium"
+                  borderBottom="px"
+                  borderColor="gray-3"
+                  pb="2"
+                >
+                  Attributes
+                </Heading>
                 <SchemaProperties schema={schema} hideRequired />
               </ContentColumn>
               <ExampleColumn>
@@ -123,7 +134,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
                 </CodeBlock>
               </ExampleColumn>
             </Section>
-          </div>
+          </Box>
         );
       })}
     </>

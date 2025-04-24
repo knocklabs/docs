@@ -23,9 +23,10 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import "@algolia/autocomplete-theme-classic";
 
-import { IoIosSearch } from "react-icons/io";
 import { IoSparkles } from "react-icons/io5";
-import { InkeepCustomTriggerProps, AIChatFunctions } from "@inkeep/widgets";
+import { AIChatFunctions } from "@inkeep/widgets";
+import { Box, Stack } from "@telegraph/layout";
+import { Input } from "@telegraph/input";
 
 const InKeepTrigger = dynamic(
   () => import("@inkeep/widgets").then((mod) => mod.InkeepCustomTrigger),
@@ -34,8 +35,11 @@ const InKeepTrigger = dynamic(
   },
 ) as any;
 
-import useInkeepSettings from "../hooks/useInKeepSettings";
+import useInkeepSettings from "../../hooks/useInKeepSettings";
 import dynamic from "next/dynamic";
+import { Icon, Lucide } from "@telegraph/icon";
+import { Text } from "@telegraph/typography";
+import { MenuItem } from "@telegraph/menu";
 
 // This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
@@ -75,11 +79,51 @@ interface ResultItem extends BaseItem {
   section: string;
 }
 
+const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || "";
+const algoliaSearchApiKey =
+  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY || "";
+const algoliaIndex = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || "";
+
+// We do some delayed rendering below to avoid hydration errors
+// Instead of returning null when the component isn't ready, we return a static version
+// This makes sure the server renders the same element and client will do a hot-swap with the real thing
+// Prevents loading jank
+const StaticSearch = () => {
+  return (
+    <Box as="form" border="px" borderColor="gray-6" borderRadius="2">
+      <Stack style={{ flexShrink: 0 }} alignItems="center" p="1">
+        <Icon icon={Lucide.Search} alt="Search" color="gray" mr="2" />
+        <Input
+          placeholder="Search the docs..."
+          size="1"
+          style={{ outline: "none" }}
+        />
+        <Stack
+          bg="gray-1"
+          borderRadius="1"
+          border="px"
+          borderColor="gray-3"
+          justifyContent="center"
+          alignItems="center"
+          width="5"
+          height="5"
+        >
+          <Text
+            as="span"
+            size="1"
+            color="black"
+            weight="medium"
+            style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+          >
+            /
+          </Text>
+        </Stack>
+      </Stack>
+    </Box>
+  );
+};
+
 const Autocomplete = () => {
-  const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || "";
-  const algoliaSearchApiKey =
-    process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY || "";
-  const algoliaIndex = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || "";
   const [autocompleteState, setAutocompleteState] =
     useState<AutocompleteState<BaseItem> | null>(null);
 
@@ -95,7 +139,7 @@ const Autocomplete = () => {
   const router = useRouter();
   const searchClient = useMemo(
     () => algoliasearch(algoliaAppId, algoliaSearchApiKey),
-    [algoliaAppId, algoliaSearchApiKey],
+    [],
   );
 
   // Function to handle opening the AI chat
@@ -123,6 +167,27 @@ const Autocomplete = () => {
       }, 500);
     }
   }, [isAiChatOpen, aiSearchTerm]);
+
+  // Lock scrolling when autocomplete is open
+  useEffect(() => {
+    if (autocompleteState?.isOpen) {
+      // Add a class that prevents scrolling on html and body
+      document.documentElement.style.overflow = "hidden";
+      document.documentElement.style.height = "100%";
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100%";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    } else {
+      // Remove the scroll lock
+      document.documentElement.style.overflow = "";
+      document.documentElement.style.height = "";
+      document.body.style.overflow = "";
+      document.body.style.height = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    }
+  }, [autocompleteState?.isOpen]);
 
   const autocomplete = useMemo(
     () =>
@@ -210,7 +275,7 @@ const Autocomplete = () => {
           },
         },
       }),
-    [algoliaIndex, router, searchClient, handleOpenAiChat],
+    [router, searchClient, handleOpenAiChat],
   );
 
   useHotkeys("/, cmd+k", (e) => {
@@ -255,7 +320,7 @@ const Autocomplete = () => {
   }, [autocomplete, autocompleteState?.isOpen]);
 
   if (!mounted) {
-    return null;
+    return <StaticSearch />;
   }
 
   type FormProps = {
@@ -276,103 +341,183 @@ const Autocomplete = () => {
   });
 
   return (
-    <div
-      {...autocomplete.getRootProps({})}
-      ref={rootRef}
-      id="docs-search"
-      className="aa-Autocomplete hidden md:block"
-    >
-      <form
-        className="aa-Form shadow-none !border-[#E4E8EE] dark:!border-gray-700 !bg-white dark:!bg-gray-800"
+    <Box {...autocomplete.getRootProps({})} tgphRef={rootRef} id="docs-search">
+      <Box
+        as="form"
+        border="px"
+        borderColor="gray-6"
+        borderRadius="2"
+        className="aa-Form"
         {...(formProps as FormProps)}
       >
-        <div className="aa-InputWrapperPrefix px-2 !h-auto flex items-center justify-center">
-          <IoIosSearch className="w-5 h-5 dark:text-gray-300" />
-        </div>
-        <div className="aa-InputWrapper">
-          <input
-            className="aa-Input !h-9 !w-[260px] !text-[14px] dark:!text-white"
-            ref={inputRef}
+        <Stack style={{ flexShrink: 0 }} alignItems="center" p="1">
+          <Icon icon={Lucide.Search} alt="Search" color="gray" mr="2" />
+          <Input
+            tgphRef={inputRef}
             placeholder="Search the docs..."
+            className="aa-Input"
             {...(inputProps as React.DetailedHTMLProps<
               React.InputHTMLAttributes<HTMLInputElement>,
               HTMLInputElement
             >)}
+            size="1"
+            style={{ outline: "none" }}
           />
-        </div>
-        <div className="aa-InputWrapperSuffix !bg-[#F7F7F8] dark:!bg-gray-600 text-gray-600 dark:text-white mr-2 !w-6 !h-6 rounded border border-gray-200 dark:border-gray-600">
-          <span className="w-full text-center">/</span>
-        </div>
-      </form>
+          <Stack
+            bg="gray-1"
+            borderRadius="1"
+            border="px"
+            borderColor="gray-3"
+            justifyContent="center"
+            alignItems="center"
+            width="5"
+            height="5"
+          >
+            <Text
+              as="span"
+              size="1"
+              color="black"
+              weight="medium"
+              style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+            >
+              /
+            </Text>
+          </Stack>
+        </Stack>
+      </Box>
 
       {autocompleteState?.isOpen && (
-        <div
-          className="!w-[500px] !bg-white dark:!bg-gray-800 !p-2 !rounded z-50 aa-Panel"
-          style={{ overscrollBehavior: "none" }}
+        <Box
+          borderRadius="2"
+          w="96"
+          bg="white"
+          p="2"
+          position="absolute"
+          border="px"
+          borderColor="gray-6"
+          mt="2"
+          shadow="1"
+          style={{
+            overscrollBehavior: "none",
+            zIndex: 50,
+            overflow: "hidden",
+            transition: "opacity 0.15s ease-in-out",
+            width: "500px",
+          }}
         >
           {autocompleteState?.collections.map((collection, index) => {
             const { source, items } = collection;
 
             return (
-              <div key={`source-${index}`} className="aa-Source">
+              <Box key={`source-${index}`}>
                 {items.length > 0 ? (
-                  <ul className="aa-List" {...autocomplete.getListProps()}>
+                  <Box
+                    as="ul"
+                    className="aa-List"
+                    {...autocomplete.getListProps()}
+                  >
                     {items.map((item) => {
                       // Check if this is our custom "Ask AI" item
                       if ((item as any).__isAskAiItem) {
                         return (
-                          <li
-                            style={{ padding: "16px" }}
+                          <MenuItem
+                            as="li"
+                            className="aa-Item"
+                            w="full"
+                            h="full"
                             key={(item as ResultItem).objectID}
-                            className="aa-Item !text-gray-800 dark:!text-gray-200 hover:text-blue-600 cursor-pointer"
+                            style={{
+                              cursor: "pointer",
+                              transition: "all 0.15s ease-in-out",
+                            }}
                             {...(autocomplete.getItemProps({
                               item,
                               source,
                             }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
+                            color="default"
+                            onClick={() => {
+                              const searchTerm = (inputProps as any).value;
+                              handleOpenAiChat(searchTerm);
+                            }}
                           >
-                            <div
-                              onClick={() => {
-                                const searchTerm = (inputProps as any).value;
-                                handleOpenAiChat(searchTerm);
-                              }}
-                              className="flex justify-between items-center"
+                            <Stack
+                              py="4"
+                              px="2"
+                              justifyContent="space-between"
+                              alignItems="center"
                             >
-                              <div>
-                                <p>{(item as ResultItem).title}</p>
-                                <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
+                              <Box>
+                                <Text
+                                  as="p"
+                                  size="2"
+                                  color="black"
+                                  weight="regular"
+                                >
+                                  {(item as ResultItem).title}
+                                </Text>
+                                <Text
+                                  as="span"
+                                  size="1"
+                                  color="gray"
+                                  weight="regular"
+                                >
                                   {(item as ResultItem).section}
-                                </span>
-                              </div>
-                              <IoSparkles className="text-lg text-gray-600 dark:text-gray-200" />
-                            </div>
-                          </li>
+                                </Text>
+                              </Box>
+                              <Icon
+                                icon={Lucide.Sparkles}
+                                alt="Sparkles"
+                                color="black"
+                                size="4"
+                              />
+                            </Stack>
+                          </MenuItem>
                         );
                       }
 
                       // Regular search result item
                       return (
-                        <li
-                          style={{ padding: "16px" }}
+                        <MenuItem
+                          as="li"
+                          w="full"
+                          h="full"
+                          className="aa-Item"
                           key={(item as ResultItem).objectID}
-                          className="aa-Item !text-gray-800 dark:!text-gray-200 hover:text-blue-600 cursor-pointer"
+                          style={{
+                            cursor: "pointer",
+                            transition: "all 0.15s ease-in-out",
+                          }}
                           {...(autocomplete.getItemProps({
                             item,
                             source,
                           }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
+                          color="default"
                         >
                           <Link href={`/${item.path}`} passHref>
-                            <Highlight hit={item} attribute="title" />
-                            <span className="mt-2 text-gray-400 dark:text-gray-600 font-medium text-[12px]">
-                              {(item as ResultItem).section}
-                            </span>
+                            <Box w="full" h="full" px="2" py="4">
+                              <Highlight hit={item} attribute="title" />
+                              <Text
+                                as="span"
+                                size="1"
+                                color="gray"
+                                weight="regular"
+                              >
+                                {(item as ResultItem).section}
+                              </Text>
+                            </Box>
                           </Link>
-                        </li>
+                        </MenuItem>
                       );
                     })}
-                  </ul>
+                  </Box>
                 ) : (
-                  <div className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium ">
-                    <span className="inline-block">No matching results.</span>{" "}
+                  <Box
+                    p="4"
+                    className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium "
+                  >
+                    <Text as="span" size="1" color="gray" weight="regular">
+                      No matching results.
+                    </Text>{" "}
                     <Link
                       href="javascript:void(0)"
                       className="text-brand"
@@ -382,12 +527,12 @@ const Autocomplete = () => {
                     >
                       Ask AI ✨
                     </Link>
-                  </div>
+                  </Box>
                 )}
-              </div>
+              </Box>
             );
           })}
-        </div>
+        </Box>
       )}
 
       {/* Add the InKeep trigger component directly in the Autocomplete component */}
@@ -406,7 +551,7 @@ const Autocomplete = () => {
           prefilledQuery: aiSearchTerm,
         }}
       />
-    </div>
+    </Box>
   );
 };
 

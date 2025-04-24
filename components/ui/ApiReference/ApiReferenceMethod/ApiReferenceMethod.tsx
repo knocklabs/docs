@@ -11,16 +11,19 @@ import OperationParameters from "../OperationParameters/OperationParameters";
 import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import MultiLangExample from "../MultiLangExample";
 import { augmentSnippetsWithCurlRequest } from "../helpers";
-import RateLimit from "../../RateLimit";
-import Callout from "../../Callout";
+import { Heading } from "@telegraph/typography";
+import { AnimatePresence, motion } from "framer-motion";
+import RateLimit from "@/components/RateLimit";
+import Callout from "@/components/Callout";
 
 type Props = {
   methodName: string;
   methodType: "get" | "post" | "put" | "delete";
   endpoint: string;
+  path?: string;
 };
 
-function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
+function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
   const { openApiSpec, baseUrl, schemaReferences } = useApiReference();
   const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];
@@ -53,9 +56,9 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
   return (
     <Section
       title={method.summary}
-      slug={method.summary}
       isIdempotent={isIdempotent}
       isRetentionSubject={isRetentionSubject}
+      path={path}
     >
       <ContentColumn>
         {isBeta && (
@@ -75,11 +78,20 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
         )}
         <Markdown>{method.description ?? ""}</Markdown>
 
-        <h3 className="!text-sm font-medium">Endpoint</h3>
+        <Heading
+          as="h3"
+          size="3"
+          weight="medium"
+          borderBottom="px"
+          borderColor="gray-3"
+          pb="2"
+        >
+          Endpoint
+        </Heading>
 
         <Endpoint
           method={methodType.toUpperCase()}
-          path={`${endpoint}`}
+          path={endpoint}
           name={methodName}
         />
 
@@ -92,26 +104,62 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
 
         {pathParameters.length > 0 && (
           <>
-            <h3 className="!text-base font-medium">Path parameters</h3>
+            <Heading
+              as="h3"
+              size="3"
+              weight="medium"
+              borderBottom="px"
+              borderColor="gray-3"
+              pb="2"
+            >
+              Path parameters
+            </Heading>
             <OperationParameters parameters={pathParameters} />
           </>
         )}
 
         {queryParameters.length > 0 && (
           <>
-            <h3 className="!text-base font-medium">Query parameters</h3>
+            <Heading
+              as="h3"
+              size="3"
+              weight="medium"
+              borderBottom="px"
+              borderColor="gray-3"
+              pb="2"
+            >
+              Query parameters
+            </Heading>
             <OperationParameters parameters={queryParameters} />
           </>
         )}
 
         {requestBody && (
           <>
-            <h3 className="!text-base font-medium">Request body</h3>
+            <Heading
+              as="h3"
+              size="3"
+              weight="medium"
+              borderBottom="px"
+              borderColor="gray-3"
+              pb="2"
+            >
+              Request body
+            </Heading>
             <SchemaProperties schema={requestBody} />
           </>
         )}
 
-        <h3 className="!text-base font-medium">Returns</h3>
+        <Heading
+          as="h3"
+          size="3"
+          weight="medium"
+          borderBottom="px"
+          borderColor="gray-3"
+          pb="2"
+        >
+          Returns
+        </Heading>
 
         {responseSchemas.map((responseSchema) => (
           <PropertyRow.Wrapper key={responseSchema.title}>
@@ -136,11 +184,25 @@ function ApiReferenceMethod({ methodName, methodType, endpoint }: Props) {
                     {isResponseExpanded ? "Hide properties" : "Show properties"}
                   </PropertyRow.ExpandableButton>
 
-                  {isResponseExpanded && (
-                    <PropertyRow.ChildProperties>
-                      <SchemaProperties schema={responseSchema} hideRequired />
-                    </PropertyRow.ChildProperties>
-                  )}
+                  <AnimatePresence initial={false}>
+                    <motion.div
+                      key="response-properties"
+                      initial={false}
+                      animate={{
+                        height: isResponseExpanded ? "auto" : 0,
+                        opacity: isResponseExpanded ? 1 : 0,
+                        visibility: isResponseExpanded ? "visible" : "hidden",
+                      }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <PropertyRow.ChildProperties>
+                        <SchemaProperties
+                          schema={responseSchema}
+                          hideRequired
+                        />
+                      </PropertyRow.ChildProperties>
+                    </motion.div>
+                  </AnimatePresence>
                 </>
               )}
             </PropertyRow.Container>

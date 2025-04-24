@@ -15,12 +15,15 @@ import yaml from "react-syntax-highlighter/dist/cjs/languages/hljs/yaml";
 import kotlin from "react-syntax-highlighter/dist/cjs/languages/hljs/kotlin";
 import swift from "react-syntax-highlighter/dist/cjs/languages/hljs/swift";
 import bash from "react-syntax-highlighter/dist/cjs/languages/hljs/bash";
-import { IoCheckmark, IoCopy } from "react-icons/io5";
 import useClipboard from "react-use-clipboard";
 
-import { lightCodeTheme, darkCodeTheme } from "../styles/codeThemes";
-import { normalize } from "../lib/normalizeCode";
-import { useIsMounted } from "../hooks/useIsMounted";
+import { lightCodeTheme, darkCodeTheme } from "../../styles/codeThemes";
+import { normalize } from "../../lib/normalizeCode";
+import { useIsMounted } from "../../hooks/useIsMounted";
+import { Box, Stack } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
+import { Button } from "@telegraph/button";
+import { Lucide } from "@telegraph/icon";
 
 SyntaxHighlighter.registerLanguage("node", javascript);
 SyntaxHighlighter.registerLanguage("javascript", javascript);
@@ -123,7 +126,7 @@ export const CodeBlock: React.FC<Props> = ({
 
   const params = useMemo(() => getParams(className) as any, [className]);
 
-  //Determine language to be used for syntax highlighting
+  // Determine language to be used for syntax highlighting
   const lang = useMemo(() => {
     // Check if `language` and `languages` exist, and if so, whether `language` is in the `languages` list for the block
     // If so, we want to use it for syntax highlighting
@@ -165,16 +168,38 @@ export const CodeBlock: React.FC<Props> = ({
   }
 
   return (
-    <div className="code-block text-sm border dark:border-gray-800 rounded overflow-hidden">
-      <div className="bg-gray-100 dark:bg-[#2E2F34] text-gray-500 dark:text-gray-300 border-b dark:border-b-transparent p-2 flex items-center">
-        {title && <span className="text-xs font-medium">{title}</span>}
+    <Box
+      border="px"
+      borderColor="gray-4"
+      borderRadius="2"
+      w="full"
+      style={{ overflow: "hidden" }}
+      className="text-sm border dark:border-gray-800 rounded overflow-hidden w-full"
+    >
+      <Stack
+        bg="gray-2"
+        borderBottom="px"
+        borderColor="gray-2"
+        p="2"
+        alignItems="center"
+      >
+        {title && (
+          <Text as="span" color="gray" size="1" weight="medium">
+            {title}
+          </Text>
+        )}
 
-        <div className="flex items-center ml-auto">
+        <Stack alignItems="center" ml="auto">
           {languages && setLanguage && (
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
-              className="ml-auto bg-transparent text-xs font-medium  mr-2 mt-0.5 text-right"
+              className="bg-transparent  mr-2 mt-0.5 text-right"
+              style={{
+                color: "var(--tgph-gray-11)",
+                fontSize: "12px",
+                fontWeight: "500",
+              }}
             >
               {languages.map((l) => (
                 <option key={l} value={l}>
@@ -184,23 +209,26 @@ export const CodeBlock: React.FC<Props> = ({
             </select>
           )}
 
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="0"
             onClick={setCopied}
-            className="text-xs uppercase  tracking-wider px-1"
-          >
-            {isCopied ? <IoCheckmark /> : <IoCopy />}
-          </button>
-        </div>
-      </div>
+            px="1"
+            icon={{
+              icon: isCopied ? Lucide.Check : Lucide.Copy,
+              "aria-hidden": true,
+            }}
+          />
+        </Stack>
+      </Stack>
       <SyntaxHighlighter
         showLineNumbers
         lineNumberStyle={{
           // ensure consistent line number styles across languages
-          color: "#ccc",
+          color: "var(--tgph-gray-8)",
           display: "inline-block",
           minWidth: "2.25em",
-          paddingRight: "1em",
+          paddingRight: "var(--tgph-spacing-5)",
           textAlign: "right",
           userSelect: "none",
           paddingLeft: "0px",
@@ -210,6 +238,6 @@ export const CodeBlock: React.FC<Props> = ({
       >
         {content}
       </SyntaxHighlighter>
-    </div>
+    </Box>
   );
 };

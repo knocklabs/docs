@@ -1,10 +1,9 @@
-import Link from "next/link";
 import sidebarContent from "../data/sidebar";
-import { Page } from "../layouts/Page";
-import DocsSidebar from "../components/DocsSidebar";
-import MinimalHeader from "../components/Header/MinimalHeader";
 import AiChatButton from "../components/AiChatButton";
-
+import { Page } from "@/components/ui/Page";
+import Meta from "@/components/Meta";
+import MinimalHeader from "@/components/Header/MinimalHeader";
+import Link from "next/link";
 const contentForDiscovery = sidebarContent.filter((s) => s.desc);
 
 // Add our integrations content in the 3rd position
@@ -27,20 +26,25 @@ contentForDiscovery.splice(2, 0, {
 
 export default function Home() {
   return (
-    <Page header={<MinimalHeader pageType="Docs" />} sidebar={<DocsSidebar />}>
-      <div className="space-y-12 max-w-3xl mx-auto">
-        <header className="py-5">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Documentation</h1>
-          <p className="text-xl text-gray-700 dark:text-gray-200 mb-8">
-            Explore our guides and examples to integrate Knock.
-          </p>
-
+    <Page.Container>
+      <Meta
+        title={`Documentation | Knock Docs`}
+        description="Explore our guides and examples to integrate Knock."
+      />
+      <Page.Masthead title="Documentation" />
+      <Page.Wrapper>
+        <Page.Sidebar content={sidebarContent} />
+        <Page.Content>
+          <Page.ContentHeader
+            title="Documentation"
+            description="Explore our guides and examples to integrate Knock."
+          />
           <div className="flex items-center space-x-2">
             <Link
               href="/getting-started/what-is-knock"
               className="bg-brand hover:bg-brand-dark text-white py-2 px-4 rounded-md font-semibold"
             >
-              Get started
+              Get started →
             </Link>
 
             <Link
@@ -50,61 +54,60 @@ export default function Home() {
               API reference
             </Link>
           </div>
-        </header>
+          <section className="bg-gray-50 dark:bg-gray-800 my-8 p-5 lg:-ml-5 lg:-mr-5 rounded">
+            <h2 className="text-xl font-semibold mb-2">What is Knock?</h2>
+            <p className="text-sm text-gray-700 dark:text-gray-200 mb-3">
+              Knock is notifications infrastructure for developers. Use our APIs
+              and dashboard to deliver great notification experiences to your
+              end users, driving customer satisfaction and retention.
+            </p>
 
-        <section className="bg-gray-50 dark:bg-gray-800 p-5 lg:-ml-5 lg:-mr-5 rounded">
-          <h2 className="text-xl font-semibold mb-2">What is Knock?</h2>
-          <p className="text-sm text-gray-700 dark:text-gray-200 mb-3">
-            Knock is notifications infrastructure for developers. Use our APIs
-            and dashboard to deliver great notification experiences to your end
-            users, driving customer satisfaction and retention.
-          </p>
+            <Link
+              href="/getting-started/what-is-knock"
+              className="text-brand hover:text-brand-dark font-medium text-sm"
+            >
+              Learn more →
+            </Link>
+          </section>
 
-          <Link
-            href="/getting-started/what-is-knock"
-            className="text-brand hover:text-brand-dark font-medium text-sm"
-          >
-            Learn more →
-          </Link>
-        </section>
+          <section className="">
+            <h2 className="text-2xl font-bold mb-3">Discover Knock</h2>
 
-        <section className="">
-          <h2 className="text-2xl font-bold mb-3">Discover Knock</h2>
+            <div className="space-y-6 pt-3">
+              {contentForDiscovery.map((s) => (
+                <div
+                  className="flex flex-col lg:flex-row border-t dark:border-t-gray-700 pt-6"
+                  key={s.slug}
+                >
+                  <div className="lg:w-80">
+                    <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-200">
+                      {s.desc}
+                    </p>
+                  </div>
 
-          <div className="space-y-6 pt-3">
-            {contentForDiscovery.map((s) => (
-              <div
-                className="flex flex-col lg:flex-row border-t dark:border-t-gray-700 pt-6"
-                key={s.slug}
-              >
-                <div className="lg:w-80">
-                  <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-200">
-                    {s.desc}
-                  </p>
-                </div>
-
-                <ul className="mt-5 lg:mt-0 lg:ml-auto lg:w-40 space-y-2">
-                  {s.pages.map((p) => (
-                    <li
-                      className="text-sm text-gray-500 dark:text-gray-300"
-                      key={p.slug}
-                    >
-                      <Link
-                        href={s.slug + p.slug}
-                        className="hover:text-gray-800 dark:hover:text-gray-100"
+                  <ul className="mt-5 lg:mt-0 lg:ml-auto lg:w-40 space-y-2">
+                    {s.pages.map((p) => (
+                      <li
+                        className="text-sm text-gray-500 dark:text-gray-300"
+                        key={p.slug}
                       >
-                        {p.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
+                        <Link
+                          href={s.slug + p.slug}
+                          className="hover:text-gray-800 dark:hover:text-gray-100"
+                        >
+                          {p.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        </Page.Content>
+      </Page.Wrapper>
       <AiChatButton />
-    </Page>
+    </Page.Container>
   );
 }

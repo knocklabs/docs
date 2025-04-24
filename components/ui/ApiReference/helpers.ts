@@ -1,7 +1,7 @@
 import { OpenAPIV3 } from "@scalar/openapi-types";
-import { StainlessConfig, StainlessResource } from "../../lib/openApiSpec";
+import { StainlessConfig, StainlessResource } from "../../../lib/openApiSpec";
 import JSONPointer from "jsonpointer";
-import { SidebarSection, SidebarSubsection } from "../../data/types";
+import { SidebarSection, SidebarSubsection } from "../../../data/types";
 import { startCase } from "lodash";
 
 function resolveEndpointFromMethod(

@@ -6,7 +6,7 @@ import { useEventEmitter } from "@byteclaw/use-event-emitter";
 import { useEffect, useMemo } from "react";
 import { useIsMounted } from "../hooks/useIsMounted";
 import useLocalStorage from "../hooks/useLocalStorage";
-import { CodeBlock, SupportedLanguage } from "./CodeBlock";
+import { CodeBlock, SupportedLanguage } from "./ui/CodeBlock";
 
 type Props = {
   title: string;
@@ -154,8 +154,7 @@ const MultiLangCodeBlock: React.FC<Props> = ({ title, snippet }) => {
     // When the language changes, set the new language
     const unsubscribe = eventEmitter.on(EVENT_NAME, setLanguage);
     return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [eventEmitter, setLanguage]);
 
   useEffect(() => {
     // When the language changes, notify any other components currently rendered

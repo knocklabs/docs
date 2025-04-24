@@ -65,8 +65,7 @@ export default function Meta(props) {
       },
       noindex: props.noIndex,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props, router.pathname]);
+  }, [props, router.asPath]);
 
   return (
     <>

@@ -11,6 +11,9 @@ import {
   hydrateRequiredChildProperties,
 } from "./helpers";
 import { useApiReference } from "../ApiReferenceContext";
+import { Stack } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
+import { AnimatePresence, motion } from "framer-motion";
 
 type Props = {
   name?: string;
@@ -54,9 +57,9 @@ const SchemaProperty = ({ name, schema }: Props) => {
           )}
 
           {typesForDisplay.length > 1 && (
-            <span className="text-xs text-gray-500 dark:text-gray-300">
+            <Text as="span" size="0">
               {typesForDisplay.length} possible types
-            </span>
+            </Text>
           )}
         </PropertyRow.Types>
         {isRequired && <PropertyRow.Required>Required</PropertyRow.Required>}
@@ -77,15 +80,26 @@ const SchemaProperty = ({ name, schema }: Props) => {
             {isChildPropertiesOpen ? "Hide values" : "Show values"}
           </PropertyRow.ExpandableButton>
 
-          {isChildPropertiesOpen && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {maybeEnum.map((item) => (
-                <PropertyRow.PropertyTag key={item}>
-                  {item}
-                </PropertyRow.PropertyTag>
-              ))}
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            <motion.div
+              key="values"
+              initial={false}
+              animate={{
+                height: isChildPropertiesOpen ? "auto" : 0,
+                opacity: isChildPropertiesOpen ? 1 : 0,
+                visibility: isChildPropertiesOpen ? "visible" : "hidden",
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              <Stack flexWrap="wrap" gap="1" mt="2">
+                {maybeEnum.map((item) => (
+                  <PropertyRow.PropertyTag key={item}>
+                    {item}
+                  </PropertyRow.PropertyTag>
+                ))}
+              </Stack>
+            </motion.div>
+          </AnimatePresence>
         </>
       )}
 
@@ -98,20 +112,22 @@ const SchemaProperty = ({ name, schema }: Props) => {
             {isChildPropertiesOpen ? "Hide properties" : "Show properties"}
           </PropertyRow.ExpandableButton>
 
-          {isChildPropertiesOpen && (
-            <PropertyRow.ChildProperties>
-              {hydratedChildProperties &&
-                Object.entries(hydratedChildProperties).map(
-                  ([name, property]) => (
-                    <SchemaProperty
-                      key={name}
-                      name={name}
-                      schema={property as OpenAPIV3.SchemaObject}
-                    />
-                  ),
-                )}
-            </PropertyRow.ChildProperties>
-          )}
+          <AnimatePresence initial={false}>
+            <motion.div
+              key="child-properties"
+              initial={false}
+              animate={{
+                height: isChildPropertiesOpen ? "auto" : 0,
+                opacity: isChildPropertiesOpen ? 1 : 0,
+                visibility: isChildPropertiesOpen ? "visible" : "hidden",
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              {Object.entries(maybeChildProperties).map(([name, property]) => (
+                <SchemaProperty key={name} name={name} schema={property} />
+              ))}
+            </motion.div>
+          </AnimatePresence>
         </>
       )}
 
@@ -125,13 +141,24 @@ const SchemaProperty = ({ name, schema }: Props) => {
               ? "Hide possible types"
               : "Show possible types"}
           </PropertyRow.ExpandableButton>
-          {isPossibleTypesOpen && (
-            <PropertyRow.ChildProperties>
-              {maybeFlattenUnionSchema(maybeUnion).map((item) => (
-                <SchemaProperty key={item.type} schema={item} />
-              ))}
-            </PropertyRow.ChildProperties>
-          )}
+          <AnimatePresence initial={false}>
+            <motion.div
+              initial={false}
+              animate={{
+                height: isPossibleTypesOpen ? "auto" : 0,
+                opacity: isPossibleTypesOpen ? 1 : 0,
+                visibility: isPossibleTypesOpen ? "visible" : "hidden",
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              <PropertyRow.ChildProperties>
+                {isPossibleTypesOpen &&
+                  maybeFlattenUnionSchema(maybeUnion).map((item) => (
+                    <SchemaProperty key={item.type} schema={item} />
+                  ))}
+              </PropertyRow.ChildProperties>
+            </motion.div>
+          </AnimatePresence>
         </>
       )}
     </PropertyRow.Container>

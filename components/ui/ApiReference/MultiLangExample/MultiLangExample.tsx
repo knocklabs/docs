@@ -1,10 +1,10 @@
 import { useEventEmitter } from "@byteclaw/use-event-emitter";
 import { useEffect, useMemo } from "react";
 
-import { useIsMounted } from "../../../hooks/useIsMounted";
-import useLocalStorage from "../../../hooks/useLocalStorage";
+import { useIsMounted } from "../../../../hooks/useIsMounted";
+import useLocalStorage from "../../../../hooks/useLocalStorage";
 import { CodeBlock, SupportedLanguage } from "../../CodeBlock";
-import { EVENT_NAME, LOCAL_STORAGE_KEY } from "../../MultiLangCodeBlock";
+import { EVENT_NAME, LOCAL_STORAGE_KEY } from "../../../MultiLangCodeBlock";
 
 type Props = {
   examples: Record<string, string>;
@@ -49,8 +49,7 @@ const MultiLangExample = ({ examples, title }: Props) => {
     // When the language changes, set the new language
     const unsubscribe = eventEmitter.on(EVENT_NAME, setLanguage);
     return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [eventEmitter, setLanguage]);
 
   useEffect(() => {
     // When the language changes, notify any other components currently rendered
@@ -68,8 +67,7 @@ const MultiLangExample = ({ examples, title }: Props) => {
     }
 
     return exampleInSelectedLanguage;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resolvedLanguage, languages]);
+  }, [examples, resolvedLanguage, languages]);
 
   if (!isMounted) return null;
 

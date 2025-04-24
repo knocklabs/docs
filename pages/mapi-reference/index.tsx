@@ -5,7 +5,7 @@ import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
 
 import { readOpenApiSpec, readStainlessSpec } from "../../lib/openApiSpec";
-import ApiReference from "../../components/ApiReference/ApiReference";
+import ApiReference from "../../components/ui/ApiReference/ApiReference";
 import { CONTENT_DIR } from "../../lib/content.server";
 import { MDX_COMPONENTS } from "../[...slug]";
 import { SidebarSection } from "../../data/types";
