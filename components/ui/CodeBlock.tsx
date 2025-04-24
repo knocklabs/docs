@@ -168,9 +168,26 @@ export const CodeBlock: React.FC<Props> = ({
   }
 
   return (
-    <Box border="px" borderColor="gray-4" borderRadius="2" w="full" style={{ overflow: "hidden" }} className="text-sm border dark:border-gray-800 rounded overflow-hidden w-full">
-      <Stack bg="gray-2" borderBottom="px" borderColor="gray-2" p="2" alignItems="center">
-        {title && <Text as="span" color="gray" size="1" weight="medium">{title}</Text>}
+    <Box
+      border="px"
+      borderColor="gray-4"
+      borderRadius="2"
+      w="full"
+      style={{ overflow: "hidden" }}
+      className="text-sm border dark:border-gray-800 rounded overflow-hidden w-full"
+    >
+      <Stack
+        bg="gray-2"
+        borderBottom="px"
+        borderColor="gray-2"
+        p="2"
+        alignItems="center"
+      >
+        {title && (
+          <Text as="span" color="gray" size="1" weight="medium">
+            {title}
+          </Text>
+        )}
 
         <Stack alignItems="center" ml="auto">
           {languages && setLanguage && (
@@ -178,7 +195,11 @@ export const CodeBlock: React.FC<Props> = ({
               value={language}
               onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
               className="bg-transparent  mr-2 mt-0.5 text-right"
-              style={{ color: "var(--tgph-gray-11)", fontSize: "12px", fontWeight: "500" }}
+              style={{
+                color: "var(--tgph-gray-11)",
+                fontSize: "12px",
+                fontWeight: "500",
+              }}
             >
               {languages.map((l) => (
                 <option key={l} value={l}>
@@ -193,7 +214,10 @@ export const CodeBlock: React.FC<Props> = ({
             size="0"
             onClick={setCopied}
             px="1"
-            icon={{ icon: isCopied ? Lucide.Check : Lucide.Copy, "aria-hidden": true }}
+            icon={{
+              icon: isCopied ? Lucide.Check : Lucide.Copy,
+              "aria-hidden": true,
+            }}
           />
         </Stack>
       </Stack>
