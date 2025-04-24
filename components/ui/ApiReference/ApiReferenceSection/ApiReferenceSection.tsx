@@ -49,6 +49,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
                         method={methodType.toUpperCase()}
                         path={endpoint}
                         name={methodName}
+                        withLink
                       />
                     );
                   },
