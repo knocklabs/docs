@@ -17,10 +17,10 @@ const Container = ({ children }) => <Box>{children}</Box>;
 const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
   <Stack
     data-wrapper
+    className={`layout-grid ${children.length === 3 ? "layout-grid--three-col" : ""
+      }`}
     style={{
       display: "grid",
-      gridTemplateColumns:
-        children.length === 2 ? "256px 1fr" : "256px 1fr 200px",
       maxWidth,
       margin: "0 auto",
     }}
@@ -77,17 +77,15 @@ export const useSidebar = () => {
 
 const DefaultSidebar = ({ content, samePageRouting = false }) => (
   <SidebarContext.Provider value={{ samePageRouting }}>
-    <Box>
-      <Sidebar.Wrapper>
-        {content.map((section) => (
-          <Sidebar.Section
-            key={section.slug}
-            section={section}
-            samePageRouting={samePageRouting}
-          />
-        ))}
-      </Sidebar.Wrapper>
-    </Box>
+    <Sidebar.Wrapper>
+      {content.map((section) => (
+        <Sidebar.Section
+          key={section.slug}
+          section={section}
+          samePageRouting={samePageRouting}
+        />
+      ))}
+    </Sidebar.Wrapper>
   </SidebarContext.Provider>
 );
 
