@@ -16,7 +16,15 @@ const Endpoints = ({ children, title = "Endpoints" }) => (
   </Box>
 );
 
-const EndpointText = ({ method, path, id }: { method: string, path: string, id?: string }) => (
+const EndpointText = ({
+  method,
+  path,
+  id,
+}: {
+  method: string;
+  path: string;
+  id?: string;
+}) => (
   <Stack direction="row" align="center" {...(id ? { id } : {})}>
     <Tag
       color={
@@ -53,7 +61,7 @@ const Endpoint = ({ method, path, name, withLink = false }) => {
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
     }
@@ -69,7 +77,7 @@ const Endpoint = ({ method, path, name, withLink = false }) => {
         <EndpointText method={method} path={path} {...(id ? { id } : {})} />
       )}
     </Box>
-  )
+  );
 };
 
 export { Endpoints, Endpoint };
