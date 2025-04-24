@@ -162,7 +162,10 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
                       transition={{ duration: 0.2 }}
                     >
                       <PropertyRow.ChildProperties>
-                        <SchemaProperties schema={responseSchema} hideRequired />
+                        <SchemaProperties
+                          schema={responseSchema}
+                          hideRequired
+                        />
                       </PropertyRow.ChildProperties>
                     </motion.div>
                   </AnimatePresence>
