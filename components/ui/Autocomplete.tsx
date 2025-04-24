@@ -90,17 +90,8 @@ const algoliaIndex = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || "";
 // Prevents loading jank
 const StaticSearch = () => {
   return (
-    <Box
-      as="form"
-      border="px"
-      borderColor="gray-6"
-      borderRadius="2"
-    >
-      <Stack
-        style={{ flexShrink: 0 }}
-        alignItems="center"
-        p="1"
-      >
+    <Box as="form" border="px" borderColor="gray-6" borderRadius="2">
+      <Stack style={{ flexShrink: 0 }} alignItems="center" p="1">
         <Icon icon={Lucide.Search} alt="Search" color="gray" mr="2" />
         <Input
           placeholder="Search the docs..."
@@ -117,13 +108,19 @@ const StaticSearch = () => {
           width="5"
           height="5"
         >
-          <Text as="span" size="1" color="black" weight="medium" style={{ lineHeight: "1", transform: "translateY(-1px)" }}>
+          <Text
+            as="span"
+            size="1"
+            color="black"
+            weight="medium"
+            style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+          >
             /
           </Text>
         </Stack>
       </Stack>
     </Box>
-  )
+  );
 };
 
 const Autocomplete = () => {
@@ -142,7 +139,7 @@ const Autocomplete = () => {
   const router = useRouter();
   const searchClient = useMemo(
     () => algoliasearch(algoliaAppId, algoliaSearchApiKey),
-    [algoliaAppId, algoliaSearchApiKey],
+    [],
   );
 
   // Function to handle opening the AI chat
@@ -175,20 +172,20 @@ const Autocomplete = () => {
   useEffect(() => {
     if (autocompleteState?.isOpen) {
       // Add a class that prevents scrolling on html and body
-      document.documentElement.style.overflow = 'hidden';
-      document.documentElement.style.height = '100%';
-      document.body.style.overflow = 'hidden';
-      document.body.style.height = '100%';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
+      document.documentElement.style.overflow = "hidden";
+      document.documentElement.style.height = "100%";
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100%";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
     } else {
       // Remove the scroll lock
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.height = '';
-      document.body.style.overflow = '';
-      document.body.style.height = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
+      document.documentElement.style.overflow = "";
+      document.documentElement.style.height = "";
+      document.body.style.overflow = "";
+      document.body.style.height = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
     }
   }, [autocompleteState?.isOpen]);
 
@@ -278,7 +275,7 @@ const Autocomplete = () => {
           },
         },
       }),
-    [algoliaIndex, router, searchClient, handleOpenAiChat],
+    [router, searchClient, handleOpenAiChat],
   );
 
   useHotkeys("/, cmd+k", (e) => {
@@ -344,11 +341,7 @@ const Autocomplete = () => {
   });
 
   return (
-    <Box
-      {...autocomplete.getRootProps({})}
-      tgphRef={rootRef}
-      id="docs-search"
-    >
+    <Box {...autocomplete.getRootProps({})} tgphRef={rootRef} id="docs-search">
       <Box
         as="form"
         border="px"
@@ -357,11 +350,7 @@ const Autocomplete = () => {
         className="aa-Form"
         {...(formProps as FormProps)}
       >
-        <Stack
-          style={{ flexShrink: 0 }}
-          alignItems="center"
-          p="1"
-        >
+        <Stack style={{ flexShrink: 0 }} alignItems="center" p="1">
           <Icon icon={Lucide.Search} alt="Search" color="gray" mr="2" />
           <Input
             tgphRef={inputRef}
@@ -384,7 +373,13 @@ const Autocomplete = () => {
             width="5"
             height="5"
           >
-            <Text as="span" size="1" color="black" weight="medium" style={{ lineHeight: "1", transform: "translateY(-1px)" }}>
+            <Text
+              as="span"
+              size="1"
+              color="black"
+              weight="medium"
+              style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+            >
               /
             </Text>
           </Stack>
@@ -416,7 +411,11 @@ const Autocomplete = () => {
             return (
               <Box key={`source-${index}`}>
                 {items.length > 0 ? (
-                  <Box as="ul" className="aa-List" {...autocomplete.getListProps()}>
+                  <Box
+                    as="ul"
+                    className="aa-List"
+                    {...autocomplete.getListProps()}
+                  >
                     {items.map((item) => {
                       // Check if this is our custom "Ask AI" item
                       if ((item as any).__isAskAiItem) {
@@ -448,12 +447,29 @@ const Autocomplete = () => {
                               alignItems="center"
                             >
                               <Box>
-                                <Text as="p" size="2" color="black" weight="regular">{(item as ResultItem).title}</Text>
-                                <Text as="span" size="1" color="gray" weight="regular">
+                                <Text
+                                  as="p"
+                                  size="2"
+                                  color="black"
+                                  weight="regular"
+                                >
+                                  {(item as ResultItem).title}
+                                </Text>
+                                <Text
+                                  as="span"
+                                  size="1"
+                                  color="gray"
+                                  weight="regular"
+                                >
                                   {(item as ResultItem).section}
                                 </Text>
                               </Box>
-                              <Icon icon={Lucide.Sparkles} alt="Sparkles" color="black" size="4" />
+                              <Icon
+                                icon={Lucide.Sparkles}
+                                alt="Sparkles"
+                                color="black"
+                                size="4"
+                              />
                             </Stack>
                           </MenuItem>
                         );
@@ -478,14 +494,14 @@ const Autocomplete = () => {
                           color="default"
                         >
                           <Link href={`/${item.path}`} passHref>
-                            <Box
-                              w="full"
-                              h="full"
-                              px="2"
-                              py="4"
-                            >
+                            <Box w="full" h="full" px="2" py="4">
                               <Highlight hit={item} attribute="title" />
-                              <Text as="span" size="1" color="gray" weight="regular">
+                              <Text
+                                as="span"
+                                size="1"
+                                color="gray"
+                                weight="regular"
+                              >
                                 {(item as ResultItem).section}
                               </Text>
                             </Box>
@@ -495,8 +511,13 @@ const Autocomplete = () => {
                     })}
                   </Box>
                 ) : (
-                  <Box p="4" className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium ">
-                    <Text as="span" size="1" color="gray" weight="regular">No matching results.</Text>{" "}
+                  <Box
+                    p="4"
+                    className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium "
+                  >
+                    <Text as="span" size="1" color="gray" weight="regular">
+                      No matching results.
+                    </Text>{" "}
                     <Link
                       href="javascript:void(0)"
                       className="text-brand"
