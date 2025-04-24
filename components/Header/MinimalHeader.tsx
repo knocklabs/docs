@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
-import Autocomplete from "../Autocomplete";
+import Autocomplete from "../ui/Autocomplete";
 import ApiSdkMenu from "../ApiSdkMenu";
 import HelpMenu from "../HelpMenu";
 import { IoClose, IoMenu, IoMoon, IoSunny } from "react-icons/io5";
