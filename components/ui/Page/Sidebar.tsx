@@ -112,6 +112,7 @@ const Item = ({
           },
         }
       : {
+          px: "1",
           color: "gray",
         };
 
