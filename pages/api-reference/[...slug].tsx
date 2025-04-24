@@ -58,6 +58,37 @@ export async function getStaticPaths() {
             ],
           },
         });
+        
+        // Check if this is a section that might have its own page
+        // If it has pages property and it's an array with items, it's a section
+        const subSubPages = (subSubPage as SidebarSubsection).pages;
+        if (subSubPages && subSubPages.length > 0) {
+          // Add a path for the section itself (like /schemas)
+          paths.push({
+            params: {
+              slug: [
+                slug,
+                subPage.slug.replace("/", ""),
+                subSubPage.slug.replace("/", ""),
+                "index" // We'll handle this special case in getStaticProps
+              ],
+            },
+          });
+        }
+        
+        // Add support for a fourth level - for schema objects
+        for (const subSubSubPage of (subSubPage as SidebarSubsection).pages ?? []) {
+          paths.push({
+            params: {
+              slug: [
+                slug,
+                subPage.slug.replace("/", ""),
+                subSubPage.slug.replace("/", ""),
+                subSubSubPage.slug.replace("/", ""),
+              ],
+            },
+          });
+        }
       }
     }
   }

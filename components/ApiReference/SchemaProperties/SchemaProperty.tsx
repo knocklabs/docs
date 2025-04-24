@@ -8,6 +8,7 @@ import {
   innerUnionSchema,
   maybeFlattenUnionSchema,
   resolveChildProperties,
+  hydrateRequiredChildProperties,
 } from "./helpers";
 import { useApiReference } from "../ApiReferenceContext";
 
@@ -17,22 +18,6 @@ type Props = {
 };
 
 const MAX_TYPES_TO_DISPLAY = 2;
-
-const hydrateChildProperties = (
-  childProperties: Record<string, OpenAPIV3.SchemaObject> | undefined,
-  requiredProperties: string[],
-) => {
-  if (!childProperties) return null;
-  return Object.fromEntries(
-    Object.entries(childProperties).map(([name, property]) => [
-      name,
-      {
-        ...property,
-        isPropertyRequired: requiredProperties.includes(name),
-      },
-    ]),
-  );
-};
 
 const SchemaProperty = ({ name, schema }: Props) => {
   const { schemaReferences } = useApiReference();
@@ -50,14 +35,7 @@ const SchemaProperty = ({ name, schema }: Props) => {
     (schema as any).isPropertyRequired ||
     (!Array.isArray(schema.required) && schema.required);
 
-  const requiredSubProperties =
-    Array.isArray(schema.required) && schema.required.length > 0
-      ? schema.required
-      : [];
-  const hydratedChildProperties = hydrateChildProperties(
-    maybeChildProperties,
-    requiredSubProperties,
-  );
+  const hydratedChildProperties = !!maybeChildProperties ? hydrateRequiredChildProperties(schema) : null;
 
   return (
     <PropertyRow.Container>

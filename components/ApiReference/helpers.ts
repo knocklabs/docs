@@ -124,7 +124,7 @@ function buildSidebarPages(
         const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
 
         return {
-          title: openApiOperation?.summary ?? "Missing",
+          title: openApiOperation?.summary,
           slug: `/${methodName}`,
         };
       }),
