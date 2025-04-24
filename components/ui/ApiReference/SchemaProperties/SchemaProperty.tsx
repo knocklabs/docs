@@ -20,8 +20,6 @@ type Props = {
   schema: OpenAPIV3.SchemaObject;
 };
 
-const MAX_TYPES_TO_DISPLAY = 2;
-
 const SchemaProperty = ({ name, schema }: Props) => {
   const { schemaReferences } = useApiReference();
   const [isPossibleTypesOpen, setIsPossibleTypesOpen] = useState(false);
@@ -32,7 +30,6 @@ const SchemaProperty = ({ name, schema }: Props) => {
   const maybeEnum = innerEnumSchema(schema);
   const maybeChildProperties = resolveChildProperties(schema);
   const typesForDisplay = getTypesForDisplay(schema);
-  const hasAdditionalTypes = typesForDisplay.length > MAX_TYPES_TO_DISPLAY;
 
   const isRequired =
     (schema as any).isPropertyRequired ||
@@ -103,7 +100,7 @@ const SchemaProperty = ({ name, schema }: Props) => {
         </>
       )}
 
-      {maybeChildProperties && (
+      {hydratedChildProperties && (
         <>
           <PropertyRow.ExpandableButton
             isOpen={isChildPropertiesOpen}
@@ -123,9 +120,15 @@ const SchemaProperty = ({ name, schema }: Props) => {
               }}
               transition={{ duration: 0.2 }}
             >
-              {Object.entries(maybeChildProperties).map(([name, property]) => (
-                <SchemaProperty key={name} name={name} schema={property} />
-              ))}
+              {Object.entries(hydratedChildProperties).map(
+                ([name, property]) => (
+                  <SchemaProperty
+                    key={name}
+                    name={name}
+                    schema={property as OpenAPIV3.SchemaObject}
+                  />
+                ),
+              )}
             </motion.div>
           </AnimatePresence>
         </>

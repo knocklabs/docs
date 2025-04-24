@@ -1,9 +1,7 @@
-import { readOpenApiSpec, readStainlessSpec } from "../../lib/openApiSpec";
-import ApiReference from "../../components/ApiReference/ApiReference";
-import { getSidebarContent } from "../../components/ApiReference/helpers";
+import { readOpenApiSpec, readStainlessSpec } from "@/lib/openApiSpec";
 import { OpenAPIV3 } from "@scalar/openapi-types";
-import { SidebarSubsection } from "../../data/types";
-import { CONTENT_DIR } from "../../lib/content.server";
+import { SidebarSubsection } from "@/data/types";
+import { CONTENT_DIR } from "@/lib/content.server";
 
 import remarkGfm from "remark-gfm";
 import { serialize } from "next-mdx-remote/serialize";
@@ -12,13 +10,15 @@ import fs from "fs";
 import { MDXRemote } from "next-mdx-remote";
 import { MDX_COMPONENTS } from "../[...slug]";
 import { RESOURCE_ORDER, PRE_SIDEBAR_CONTENT } from "./index";
+import { getSidebarContent } from "@/components/ui/ApiReference/helpers";
+import ApiReference from "@/components/ui/ApiReference/ApiReference";
 
 function ApiReferencePage({ openApiSpec, stainlessSpec, preContentMdx }) {
   return (
     <ApiReference
-      name="API"
       openApiSpec={openApiSpec}
       stainlessSpec={stainlessSpec}
+      name="API"
       preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
       resourceOrder={RESOURCE_ORDER}
       preSidebarContent={PRE_SIDEBAR_CONTENT}
