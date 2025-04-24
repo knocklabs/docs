@@ -283,7 +283,7 @@ const sidebarContent: SidebarSection[] = [
       },
       {
         slug: "/mcp-server",
-        title: "MCP Server",
+        title: "MCP server",
         isBeta: true,
       },
       {
