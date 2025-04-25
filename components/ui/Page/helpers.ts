@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { debounce } from "@/lib/debounce";
 
 export const stripPrefix = (path: string) => {
   return path.replace(/^\/[^/]+/, "");
@@ -30,7 +31,7 @@ export const highlightResource = (
     const pathNoPrefix = stripPrefix(resourceUrl);
     const pathNoTrailingSlash = stripTrailingSlash(pathNoPrefix);
     const newActiveItem: HTMLAnchorElement | null = document.querySelector(
-      `[data-resource-path='${pathNoTrailingSlash}']`,
+      `[data-content-body] [data-resource-path='${pathNoTrailingSlash}']`,
     );
 
     // Scroll to the content on the page
@@ -50,18 +51,24 @@ export const highlightResource = (
   }
 };
 
+// Create a debounced scroll function
+const debouncedScrollIntoView = debounce((element: HTMLElement) => {
+  element.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}, 250);
+
 export const updateNavStyles = (resourceUrl: string) => {
-  // Scroll the nav item into view
   const newActiveNavElement: HTMLAnchorElement | null = document.querySelector(
     `[data-sidebar-wrapper] [data-resource-path='${resourceUrl}']`,
   );
 
   if (newActiveNavElement) {
     newActiveNavElement.dataset.active = "true";
-    newActiveNavElement.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
+
+    // Use the debounced function
+    debouncedScrollIntoView(newActiveNavElement);
 
     if (document.activeElement != newActiveNavElement) {
       (document.activeElement as HTMLElement)?.blur();

@@ -46,7 +46,7 @@ const Content = ({ children, fullWidth = false }) => (
 );
 
 const ContentBody = ({ children }) => (
-  <Box mb="6" className="tgraph-content">
+  <Box mb="6" className="tgraph-content" data-content-body>
     {children}
   </Box>
 );

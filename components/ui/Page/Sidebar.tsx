@@ -7,8 +7,9 @@ import {
   CollapsibleNavItem,
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { isPathTheSame, highlightResource, stripPrefix } from "./helpers";
+import { debounce } from "@/lib/debounce";
 
 type SidebarProps = {
   content: SidebarSection[];
@@ -25,7 +26,7 @@ const Item = ({
   depth?: number;
 }) => {
   const router = useRouter();
-  const basePath = router.pathname.split("/")[1];
+  const basePath = router.asPath.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
   const resourceSection = stripPrefix(slug);
 
@@ -46,6 +47,17 @@ const Item = ({
     }),
   );
 
+  // Create the debounced function once when component mounts
+  // This helps produce a smoother experience when scrolling fast
+  const debouncedHighlight = useMemo(
+    () =>
+      debounce((path: string) => {
+        setIsOpen(true);
+        highlightResource(path);
+      }, 300), // The lower the number here, the quicker the highlight, but can get laggy if too low
+    [], // Empty dependency array means this is only created once
+  );
+
   useLayoutEffect(() => {
     let observer: IntersectionObserver | null = null;
 
@@ -56,8 +68,7 @@ const Item = ({
             const resourcePath =
               entry.target.getAttribute("data-resource-path")!;
             if (entry.isIntersecting) {
-              setIsOpen(true);
-              highlightResource(`/${basePath}${resourcePath}`);
+              debouncedHighlight(`/${basePath}${resourcePath}`);
             }
           });
         },
@@ -101,7 +112,7 @@ const Item = ({
       observer?.disconnect();
       clearTimeout(readyTimeout);
     };
-  }, [basePath, resourceSection]);
+  }, [basePath, resourceSection, debouncedHighlight]);
 
   const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> =
     depth === 0
@@ -174,6 +185,7 @@ const Wrapper = ({ children }: SidebarProps) => {
         position="fixed"
         bottom="0"
         top="24"
+        style={{ minHeight: "90vh" }}
       >
         <Stack
           direction="column"
