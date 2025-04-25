@@ -8,6 +8,7 @@ import {
   innerUnionSchema,
   maybeFlattenUnionSchema,
   resolveChildProperties,
+  hydrateRequiredChildProperties,
 } from "./helpers";
 import { useApiReference } from "../ApiReferenceContext";
 import { Stack } from "@telegraph/layout";
@@ -19,8 +20,6 @@ type Props = {
   schema: OpenAPIV3.SchemaObject;
 };
 
-const MAX_TYPES_TO_DISPLAY = 2;
-
 const SchemaProperty = ({ name, schema }: Props) => {
   const { schemaReferences } = useApiReference();
   const [isPossibleTypesOpen, setIsPossibleTypesOpen] = useState(false);
@@ -30,9 +29,15 @@ const SchemaProperty = ({ name, schema }: Props) => {
   const maybeUnion = innerUnionSchema(schema);
   const maybeEnum = innerEnumSchema(schema);
   const maybeChildProperties = resolveChildProperties(schema);
-
   const typesForDisplay = getTypesForDisplay(schema);
-  const hasAdditionalTypes = typesForDisplay.length > MAX_TYPES_TO_DISPLAY;
+
+  const isRequired =
+    (schema as any).isPropertyRequired ||
+    (!Array.isArray(schema.required) && schema.required);
+
+  const hydratedChildProperties = !!maybeChildProperties
+    ? hydrateRequiredChildProperties(schema)
+    : null;
 
   return (
     <PropertyRow.Container>
@@ -54,9 +59,7 @@ const SchemaProperty = ({ name, schema }: Props) => {
             </Text>
           )}
         </PropertyRow.Types>
-        {schema.required && (
-          <PropertyRow.Required>Required</PropertyRow.Required>
-        )}
+        {isRequired && <PropertyRow.Required>Required</PropertyRow.Required>}
       </PropertyRow.Header>
 
       {schema.description && (
@@ -97,7 +100,7 @@ const SchemaProperty = ({ name, schema }: Props) => {
         </>
       )}
 
-      {maybeChildProperties && (
+      {hydratedChildProperties && (
         <>
           <PropertyRow.ExpandableButton
             isOpen={isChildPropertiesOpen}
@@ -117,9 +120,15 @@ const SchemaProperty = ({ name, schema }: Props) => {
               }}
               transition={{ duration: 0.2 }}
             >
-              {Object.entries(maybeChildProperties).map(([name, property]) => (
-                <SchemaProperty key={name} name={name} schema={property} />
-              ))}
+              {Object.entries(hydratedChildProperties).map(
+                ([name, property]) => (
+                  <SchemaProperty
+                    key={name}
+                    name={name}
+                    schema={property as OpenAPIV3.SchemaObject}
+                  />
+                ),
+              )}
             </motion.div>
           </AnimatePresence>
         </>

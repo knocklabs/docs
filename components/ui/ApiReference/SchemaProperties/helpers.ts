@@ -1,7 +1,5 @@
 import { OpenAPIV3 } from "@scalar/openapi-types";
 
-function isRequired(schema: OpenAPIV3.SchemaObject) {}
-
 function getTypeForDisplay(schema: OpenAPIV3.SchemaObject): string {
   if (schema.type === "array" && schema.items) {
     // Get the inner type of the array
@@ -40,6 +38,8 @@ function getTypesForDisplay(schema: OpenAPIV3.SchemaObject): string[] {
 }
 
 function innerEnumSchema(schema: OpenAPIV3.SchemaObject): string[] | undefined {
+  if (!schema) return undefined;
+
   if (schema.type === "array") {
     return innerEnumSchema(schema.items as OpenAPIV3.SchemaObject);
   }
@@ -54,6 +54,8 @@ function innerEnumSchema(schema: OpenAPIV3.SchemaObject): string[] | undefined {
 function innerUnionSchema(
   schema: OpenAPIV3.SchemaObject,
 ): OpenAPIV3.SchemaObject[] | undefined {
+  if (!schema) return undefined;
+
   if (schema.type === "array") {
     return innerUnionSchema(schema.items as OpenAPIV3.SchemaObject);
   }
@@ -87,6 +89,8 @@ function maybeFlattenUnionSchema(
 function resolveChildProperties(
   schema: OpenAPIV3.SchemaObject,
 ): Record<string, OpenAPIV3.SchemaObject> | undefined {
+  if (!schema) return undefined;
+
   if (schema.type === "array") {
     return resolveChildProperties(schema.items as OpenAPIV3.SchemaObject);
   }
@@ -108,6 +112,105 @@ function resolveChildProperties(
   return undefined;
 }
 
+const hydrateRequiredChildProperties = (
+  parentSchema: OpenAPIV3.SchemaObject,
+) => {
+  // If this is an array schema, get properties from the items
+  if (parentSchema.type === "array" && parentSchema.items) {
+    const itemsSchema = parentSchema.items as OpenAPIV3.SchemaObject;
+    return hydrateRequiredChildProperties(itemsSchema);
+  }
+
+  // For regular schemas, use properties directly from the schema
+  const childProperties = parentSchema.properties;
+  if (!childProperties) return null;
+
+  // Extract required properties from the parent schema
+  const requiredProperties = Array.isArray(parentSchema.required)
+    ? parentSchema.required
+    : [];
+
+  // Process a single schema to handle required properties and recursively process nested schemas
+  const processSchema = (
+    schema: OpenAPIV3.SchemaObject,
+    isRequired = false,
+  ): OpenAPIV3.SchemaObject => {
+    // Create a copy of the schema with isPropertyRequired flag
+    const hydratedSchema = {
+      ...schema,
+      isPropertyRequired: isRequired,
+    } as OpenAPIV3.SchemaObject;
+
+    // Process nested properties if they exist
+    if (schema.properties) {
+      const nestedRequired = Array.isArray(schema.required)
+        ? schema.required
+        : [];
+      const processedProperties = Object.fromEntries(
+        Object.entries(schema.properties).map(([propName, propSchema]) => [
+          propName,
+          processSchema(
+            propSchema as OpenAPIV3.SchemaObject,
+            nestedRequired.includes(propName),
+          ),
+        ]),
+      );
+      hydratedSchema.properties = processedProperties;
+    }
+
+    // Process array items
+    if (schema.type === "array" && schema.items) {
+      const itemsSchema = schema.items as OpenAPIV3.SchemaObject;
+      hydratedSchema.items = processSchema(itemsSchema);
+    }
+
+    // Process oneOf schemas
+    if (schema.oneOf) {
+      hydratedSchema.oneOf = schema.oneOf.map((subSchema) =>
+        processSchema(subSchema as OpenAPIV3.SchemaObject),
+      );
+    }
+
+    // Process anyOf schemas
+    if (schema.anyOf) {
+      hydratedSchema.anyOf = schema.anyOf.map((subSchema) =>
+        processSchema(subSchema as OpenAPIV3.SchemaObject),
+      );
+    }
+
+    // Process allOf schemas
+    if (schema.allOf) {
+      hydratedSchema.allOf = schema.allOf.map((subSchema) =>
+        processSchema(subSchema as OpenAPIV3.SchemaObject),
+      );
+    }
+
+    // Process additional properties if it's a schema
+    if (
+      schema.additionalProperties &&
+      typeof schema.additionalProperties === "object" &&
+      !(
+        "type" in (schema.additionalProperties as any) ||
+        "properties" in (schema.additionalProperties as any)
+      )
+    ) {
+      hydratedSchema.additionalProperties = processSchema(
+        schema.additionalProperties as OpenAPIV3.SchemaObject,
+      );
+    }
+
+    return hydratedSchema;
+  };
+
+  // Process each top-level property
+  return Object.fromEntries(
+    Object.entries(childProperties).map(([name, property]) => [
+      name,
+      processSchema(property, requiredProperties.includes(name)),
+    ]),
+  );
+};
+
 export {
   getTypeForDisplay,
   getTypesForDisplay,
@@ -115,4 +218,5 @@ export {
   innerEnumSchema,
   maybeFlattenUnionSchema,
   resolveChildProperties,
+  hydrateRequiredChildProperties,
 };

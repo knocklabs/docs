@@ -13,6 +13,8 @@ import MultiLangExample from "../MultiLangExample";
 import { augmentSnippetsWithCurlRequest } from "../helpers";
 import { Heading } from "@telegraph/typography";
 import { AnimatePresence, motion } from "framer-motion";
+import RateLimit from "@/components/RateLimit";
+import Callout from "@/components/Callout";
 
 type Props = {
   methodName: string;
@@ -32,7 +34,6 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
 
   const parameters = method.parameters || [];
   const responses = method.responses || {};
-  const response = responses[Object.keys(responses)[0]];
 
   const pathParameters = parameters.filter(
     (p) => p.in === "path",
@@ -41,14 +42,40 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
     (p) => p.in === "query",
   ) as OpenAPIV3.ParameterObject[];
 
-  const responseSchema: OpenAPIV3.SchemaObject | undefined =
-    response?.content?.["application/json"]?.schema;
+  const responseSchemas: OpenAPIV3.SchemaObject[] = Object.values(
+    responses,
+  ).map((r) => r.content?.["application/json"]?.schema);
   const requestBody: OpenAPIV3.SchemaObject | undefined =
     method.requestBody?.content?.["application/json"]?.schema;
 
+  const rateLimit = method?.["x-ratelimit-tier"] ?? null;
+  const isIdempotent = method?.["x-idempotent"] ?? false;
+  const isRetentionSubject = method?.["x-retention-policy"] ?? false;
+  const isBeta = method?.["x-beta"] ?? false;
+
   return (
-    <Section title={method.summary} path={path}>
+    <Section
+      title={method.summary}
+      isIdempotent={isIdempotent}
+      isRetentionSubject={isRetentionSubject}
+      path={path}
+    >
       <ContentColumn>
+        {isBeta && (
+          <Callout
+            emoji="🚧"
+            text={
+              <>
+                This endpoint is currently in beta. If you'd like early access,
+                or this is blocking your adoption of Knock, please{" "}
+                <a href="mailto:support@knock.app?subject=Beta%20feature%20request">
+                  get in touch
+                </a>
+                .
+              </>
+            }
+          />
+        )}
         <Markdown>{method.description ?? ""}</Markdown>
 
         <Heading
@@ -67,6 +94,13 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
           path={endpoint}
           name={methodName}
         />
+
+        {rateLimit && (
+          <>
+            <h3 className="!text-sm font-medium">Rate limit</h3>
+            <RateLimit tier={rateLimit} />
+          </>
+        )}
 
         {pathParameters.length > 0 && (
           <>
@@ -127,8 +161,8 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
           Returns
         </Heading>
 
-        {responseSchema && (
-          <PropertyRow.Wrapper>
+        {responseSchemas.map((responseSchema) => (
+          <PropertyRow.Wrapper key={responseSchema.title}>
             <PropertyRow.Container>
               <PropertyRow.Header>
                 <PropertyRow.Type
@@ -173,7 +207,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
               )}
             </PropertyRow.Container>
           </PropertyRow.Wrapper>
-        )}
+        ))}
       </ContentColumn>
       <ExampleColumn>
         <MultiLangExample
@@ -188,10 +222,18 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
             },
           )}
         />
-        {responseSchema?.example && (
-          <CodeBlock title="Response" language="json" languages={["json"]}>
-            {JSON.stringify(responseSchema?.example, null, 2)}
-          </CodeBlock>
+        {responseSchemas.map(
+          (responseSchema) =>
+            responseSchema?.example && (
+              <CodeBlock
+                key={responseSchema.title}
+                title="Response"
+                language="json"
+                languages={["json"]}
+              >
+                {JSON.stringify(responseSchema?.example, null, 2)}
+              </CodeBlock>
+            ),
         )}
       </ExampleColumn>
     </Section>

@@ -34,7 +34,7 @@ const SchemaProperties = ({ schema, hideRequired = false }: Props) => {
           name="*"
           schema={{
             type: "object",
-            description: "Any additional properties are allowed",
+            description: "Any additional custom properties.",
             additionalProperties: schema.additionalProperties,
           }}
         />
