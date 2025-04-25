@@ -11,13 +11,15 @@ type BreadcrumbsProps = {
 };
 
 const Breadcrumbs = ({ pages }: BreadcrumbsProps) => {
+  console.log("pages", pages);
+  if (!pages) return null;
   return (
     <Stack direction="row" alignItems="center" gap="1" mb="4">
       {pages.map((path, index) => (
         <Stack direction="row" alignItems="center" key={index}>
-          {path.slug ? (
+          {path.slug && !path.title ? (
             <Text as="span" size="2" color="gray">
-              {path.title}
+              {path.slug}
             </Text>
           ) : (
             <Link href={path.slug}>

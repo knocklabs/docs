@@ -8,13 +8,29 @@ import {
   CollapsibleNavItem,
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
-import { useLayoutEffect, useState, useMemo } from "react";
+import { useLayoutEffect, useState, useMemo, useEffect } from "react";
 import { isPathTheSame, highlightResource, stripPrefix } from "./helpers";
 
 type SidebarProps = {
   content: SidebarSection[];
   children?: React.ReactNode;
 };
+
+function getOpenState(section: SidebarSection, slug: string, path: string) {
+  return section.pages.some((page) => {
+    if (isPathTheSame(`${slug}${page.slug}`, path)) {
+      return true;
+    }
+    if ("pages" in page) {
+      if (page.pages) {
+        return page?.pages.some((subPage) =>
+          isPathTheSame(`${slug}${page.slug}${subPage.slug}`, path),
+        );
+      }
+    }
+    return false;
+  });
+}
 
 const Item = ({
   section,
@@ -30,22 +46,14 @@ const Item = ({
   const slug = `${preSlug}${section.slug}`;
   const resourceSection = stripPrefix(slug);
 
-  const [isOpen, setIsOpen] = useState(
-    // Determines which menus should be open on initial load
-    section.pages.some((page) => {
-      if (isPathTheSame(`${slug}${page.slug}`, router.asPath)) {
-        return true;
-      }
-      if ("pages" in page) {
-        if (page.pages) {
-          return page?.pages.some((subPage) =>
-            isPathTheSame(`${slug}${page.slug}${subPage.slug}`, router.asPath),
-          );
-        }
-      }
-      return false;
-    }),
-  );
+  const [isOpen, setIsOpen] = useState(getOpenState(section, slug, router.asPath));
+
+  // Update isOpen when the path changes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsOpen(getOpenState(section, slug, router.asPath));
+    }
+  }, [section, slug, router.asPath, isOpen]);
 
   // Create the debounced function once when component mounts
   // This helps produce a smoother experience when scrolling fast

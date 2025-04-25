@@ -11,7 +11,7 @@ export const stripTrailingSlash = (path: string) => {
 };
 
 export const isPathTheSame = (path1: string, path2: string) => {
-  return path1.replace(/\/$/, "") === path2.replace(/\/$/, "");
+  return path1 === path2 || path1.replace(/\/$/, "") === path2.replace(/\/$/, "");
 };
 
 // This is the main function that coordinates the synchronization between the sidebar and the content
