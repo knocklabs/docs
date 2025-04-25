@@ -1,0 +1,151 @@
+---
+title: Getting started with the Knock agent toolkit
+description: Learn how to use the Knock agent toolkit within your AI agent workflows to power cross-channel messaging and rich human-in-the-loop interactions.
+section: Developer tools
+---
+
+## Installing the Knock agent toolkit
+
+You can install the Knock agent toolkit using npm, yarn, or pnpm.
+
+```bash
+npm install @knocklabs/agent-toolkit
+```
+
+Once installed you can use the toolkit through the exposed SDK adapters, or if you need low-level access to the toolkit you can use the `@knocklabs/agent-toolkit` package directly.
+
+## Setting up your .env file
+
+You'll need to have a [service token](/developer-tools/service-tokens) setup on your Knock account to authenticate with the Knock Agent Toolkit.
+
+```bash
+KNOCK_SERVICE_TOKEN=st_1234567890
+```
+
+## Usage with the Vercel AI SDK
+
+```typescript title="Usage with the Vercel AI SDK"
+import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+const toolkit = await createKnockToolkit({
+  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
+  permissions: {
+    users: { manage: true },
+  },
+});
+
+const result = await generateText({
+  model: openai("gpt-4o"),
+  tools: {
+    ...toolkit.getTools("users"),
+  },
+  maxSteps: 5,
+  prompt:
+    "Update the current user's profile with information about them, knowing that they are Alan Grant from Jurassic Park. Include custom properties about their favorite dinosaur.",
+});
+```
+
+## Usage with the OpenAI SDK
+
+```typescript title="Usage with the OpenAI SDK"
+import OpenAI from "openai";
+import { createToolkit } from "@knocklabs/agent-toolkit/openai";
+
+const toolkit = await createToolkit({
+  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
+});
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+
+const messages = [
+  {
+    role: "user",
+    content:
+      "Update the current user's profile with information about them, knowing that they are Alan Grant from Jurassic Park. Include custom properties about their favorite dinosaur.",
+  },
+];
+
+(async (): Promise<void> => {
+  const result = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages,
+  });
+
+  while (true) {
+    // eslint-disable-next-line no-await-in-loop
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages,
+      tools: toolkit.getTools("users"),
+    });
+
+    const message = completion.choices[0].message;
+
+    messages.push(message);
+
+    if (message.tool_calls) {
+      // eslint-disable-next-line no-await-in-loop
+      const toolMessages = await Promise.all(
+        message.tool_calls.map((tc) => toolkit.handleToolCall(tc)),
+      );
+      messages = [...messages, ...toolMessages];
+    } else {
+      console.log(completion.choices[0].message);
+      break;
+    }
+  }
+})();
+```
+
+## Usage with the LangChain framework
+
+```typescript title="Usage with the LangChain framework"
+import { createToolkit } from "@knocklabs/agent-toolkit/langchain";
+import { ChatOpenAI } from "@langchain/openai";
+import type { ChatPromptTemplate } from "@langchain/core/prompts";
+import { pull } from "langchain/hub";
+import { AgentExecutor, createStructuredChatAgent } from "langchain/agents";
+
+const toolkit = await createToolkit({
+  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
+});
+
+const llm = new ChatOpenAI({
+  model: "gpt-4o",
+});
+
+(async (): Promise<void> => {
+  const prompt = await pull<ChatPromptTemplate>(
+    "hwchase17/structured-chat-agent",
+  );
+
+  const tools = toolkit.getTools("users");
+
+  const agent = await createStructuredChatAgent({
+    llm,
+    tools,
+    prompt,
+  });
+
+  const agentExecutor = new AgentExecutor({
+    agent,
+    tools,
+  });
+
+  const response = await agentExecutor.invoke({
+    input:
+      "Update the user's profile with information about them, knowing that they are Alan Grant from Jurassic Park. Include custom properties about their favorite dinosaur.",
+  });
+
+  console.log(response);
+})();
+```
+
+## Related links
+
+- [Powering human-in-the-loop interactions](/developer-tools/agent-toolkit/human-in-the-loop-flows)
+- [Providing context](/developer-tools/agent-toolkit/providing-context)
+- [Building with LLMs](/developer-tools/building-with-llms)
+- [Model Context Protocol (MCP) Server](/developer-tools/mcp-server)

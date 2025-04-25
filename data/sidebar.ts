@@ -251,6 +251,44 @@ const sidebarContent: SidebarSection[] = [
         ],
       },
       { slug: "/validating-trigger-data", title: "Validating trigger data" },
+      {
+        slug: "/agent-toolkit",
+        title: "Agent toolkit",
+        isBeta: true,
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/getting-started", title: "Getting started" },
+          {
+            slug: "/workflows-as-tools",
+            title: "Workflows-as-tools",
+          },
+          {
+            slug: "/human-in-the-loop-flows",
+            title: "Human-in-the-loop flows",
+          },
+          {
+            slug: "/providing-context",
+            title: "Providing context",
+          },
+          {
+            slug: "/working-with-environments",
+            title: "Working with environments",
+          },
+          {
+            slug: "/tools-reference",
+            title: "Tools reference",
+          },
+        ],
+      },
+      {
+        slug: "/mcp-server",
+        title: "MCP server",
+        isBeta: true,
+      },
+      {
+        slug: "/building-with-llms",
+        title: "Building with LLMs",
+      },
     ],
   },
 
