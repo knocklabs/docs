@@ -279,6 +279,10 @@ const sidebarContent: SidebarSection[] = [
             slug: "/working-with-environments",
             title: "Working with environments",
           },
+          {
+            slug: "/tools-reference",
+            title: "Tools reference",
+          },
         ],
       },
       {
