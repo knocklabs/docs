@@ -6,9 +6,7 @@ import rehypeMdxCodeProps from "rehype-mdx-code-props";
 
 import { SidebarSection } from "@/data/types";
 import MDXLayout from "../../layouts/MDXLayout";
-import {
-  CONTENT_DIR,
-} from "../../lib/content.server";
+import { CONTENT_DIR } from "../../lib/content.server";
 import eventPayload from "../../data/code/sources/eventPayload";
 import datadogDashboardJson from "../../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../../content/integrations/extensions/new_relic_dashboard.json";
