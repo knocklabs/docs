@@ -1,26 +1,16 @@
 import fs from "fs";
-import path, { join, sep } from "path";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import remarkGfm from "remark-gfm";
-import remarkSlug from "remark-slug";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 
 import { SidebarSection } from "@/data/types";
 import MDXLayout from "../../layouts/MDXLayout";
-import {
-  getAllFilesInDir,
-  CONTENT_DIR,
-  DOCS_FILE_EXTENSIONS,
-  makeIdFromPath,
-  generateAlgoliaIndex,
-} from "../../lib/content.server";
+import { CONTENT_DIR } from "../../lib/content.server";
 import eventPayload from "../../data/code/sources/eventPayload";
 import datadogDashboardJson from "../../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../../content/integrations/extensions/new_relic_dashboard.json";
 import AiChatButton from "../../components/AiChatButton";
-import { FrontMatter } from "../../types";
 import { MDX_COMPONENTS } from "../../lib/mdxComponents";
 
 import { cliContent as cliSidebarContent } from "@/data/sidebar";
@@ -43,7 +33,7 @@ export default function ContentPage({ source, sourcePath }) {
 }
 
 // Get the props for a single path
-export async function getStaticProps({ params: { slug } }) {
+export async function getStaticProps() {
   const sourcePath = `${CONTENT_DIR}/cli.mdx`;
 
   // Read the source content file, checking for .mdx and .md files
