@@ -25,7 +25,7 @@ const Item = ({
   depth?: number;
 }) => {
   const router = useRouter();
-  const basePath = router.pathname.split("/")[1];
+  const basePath = router.asPath.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
   const resourceSection = stripPrefix(slug);
 
