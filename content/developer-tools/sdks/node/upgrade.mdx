@@ -1,0 +1,213 @@
+# Knock Node.js SDK Upgrade Guide (v0.x to v1.0)
+
+This guide will help you upgrade your existing Knock Node.js SDK to the 1.0 release.
+
+## Installation
+
+```bash
+npm install @knocklabs/node
+```
+
+## Basic Changes
+
+### Import Style
+
+**Old version:**
+
+```javascript
+const { Knock } = require("@knocklabs/node");
+```
+
+**1.x release:**
+
+```javascript
+import Knock from "@knocklabs/node";
+```
+
+### Client Initialization
+
+**Old version:**
+
+```javascript
+const knockClient = new Knock("sk_12345");
+```
+
+**1.x release:**
+
+```javascript
+const client = new Knock({
+  bearerToken: process.env["KNOCK_API_KEY"], // This is the default and can be omitted
+});
+```
+
+## New Features in v1.0
+
+1. **Fully Typed API**: Complete TypeScript definitions for all requests and responses
+
+   ```typescript
+   const user: Knock.User = await client.users.get("dnedry");
+   ```
+
+2. **Enhanced Error Handling**: Typed errors with better context
+
+   ```typescript
+   try {
+     await client.users.get("dnedry");
+   } catch (err) {
+     if (err instanceof Knock.APIError) {
+       console.log(err.status, err.name, err.headers);
+     }
+   }
+   ```
+
+3. **Auto-pagination**: Easily iterate through paginated resources
+
+   ```typescript
+   // Automatically fetches all pages
+   const allUsers = [];
+   for await (const user of client.users.list()) {
+     allUsers.push(user);
+   }
+   ```
+
+4. **Request/Response Access**: More control over raw responses
+
+   ```typescript
+   const { data: user, response } = await client.users
+     .get("dnedry")
+     .withResponse();
+   console.log(response.headers.get("X-My-Header"));
+   ```
+
+5. **Configurable Logging**: Better debugging capabilities
+
+   ```typescript
+   const client = new Knock({
+     logLevel: "debug", // Show all log messages
+   });
+   ```
+
+6. **Configurable Timeouts and Retries**: Fine-tune request behavior
+
+   ```typescript
+   const client = new Knock({
+     timeout: 20 * 1000, // 20 seconds
+     maxRetries: 3,
+   });
+   ```
+
+7. **New Resources**: Additional resources like Audiences, Channels, and Integrations
+   ```typescript
+   // Working with audiences
+   await client.audiences.addMembers("audience-id", {
+     members: ["user-1", "user-2"],
+   });
+   ```
+
+## Breaking Changes
+
+1. The `notify` method is now `workflows.trigger`
+2. Client initialization accepts an options object instead of just the API key
+3. Some parameter names have changed to match the API (e.g., `cancellationKey` → `cancellation_key`)
+4. Error handling has been completely revamped with typed errors
+5. Method naming convention changes:
+   - `users.getPreferences()` now requires a preference set ID parameter
+   - `users.bulkIdentify()` is now `users.bulk.identify()`
+   - `users.bulkDelete()` is now `users.bulk.delete()`
+   - `users.bulkSetPreferences()` is now `users.bulk.setPreferences()`
+6. Parameter style changes:
+
+   - All parameters are now in camelCase in the method signature but use snake_case in the request body
+   - Query parameters are now passed as a separate object in most list methods
+
+   ```javascript
+   // Old SDK
+   await knockClient.users.list({ page: 2, pageSize: 50 });
+
+   // New SDK
+   await client.users.list({ page: 2, page_size: 50 });
+   ```
+
+7. Response handling:
+   - The new SDK returns the data directly in most cases rather than wrapped in a `data` property
+   - Pagination is handled differently with cursor-based pagination
+
+## Common Operations
+
+### Triggering Workflows
+
+**Old version:**
+
+```javascript
+await knockClient.notify("dinosaurs-loose", {
+  actor: "dnedry",
+  recipients: ["jhammond", "agrant"],
+  data: {
+    type: "trex",
+    priority: 1,
+  },
+  tenant: "jurassic-park",
+  cancellationKey: triggerAlert.id,
+});
+```
+
+**1.x release:**
+
+```javascript
+await client.workflows.trigger("dinosaurs-loose", {
+  actor: "dnedry",
+  recipients: ["jhammond", "agrant"],
+  data: {
+    type: "trex",
+    priority: 1,
+  },
+  tenant: "jurassic-park",
+  cancellation_key: triggerAlert.id,
+});
+```
+
+### Identifying Users
+
+**Old version:**
+
+```javascript
+await knockClient.users.identify("jhammond", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net",
+});
+```
+
+**1.x release:**
+
+```javascript
+await client.users.identify("jhammond", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net",
+});
+```
+
+### Working with Objects
+
+**Old version:**
+
+```javascript
+// Set object properties
+await knockClient.objects.set("dinosaurs", "trex1", {
+  name: "Rexy",
+  species: "Tyrannosaurus rex",
+});
+```
+
+**1.x release:**
+
+```javascript
+// Set object properties
+await client.objects.set("dinosaurs", "trex1", {
+  name: "Rexy",
+  species: "Tyrannosaurus rex",
+});
+```
+
+## Support
+
+If you encounter any issues during migration, please reach out to our support team or open an issue on GitHub.

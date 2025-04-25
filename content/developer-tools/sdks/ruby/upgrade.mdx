@@ -1,0 +1,211 @@
+# Knock Ruby SDK Upgrade Guide (v0.x to v1.0)
+
+This guide will help you upgrade from the previous Knock Ruby SDK to the new v1.0 Ruby SDK.
+
+## Installation
+
+No changes are needed to your Gemfile:
+
+```ruby
+gem "knockapi"
+```
+
+## Basic Changes
+
+### Client Initialization
+
+**Old SDK:**
+
+```ruby
+require "knock"
+
+# Setting globally
+Knock.key = "sk_12345"
+
+# or using environment variable KNOCK_API_KEY
+```
+
+**New SDK:**
+
+```ruby
+require "knockapi"
+
+# Initialize a client instance
+knock = Knockapi::Client.new(
+  bearer_token: "sk_12345" # defaults to ENV["KNOCK_API_KEY"]
+)
+```
+
+## New Features in v1.0
+
+1. **Strong Typing with Sorbet**: Improved type definitions for better IDE integration
+
+   ```ruby
+   # Enable Sorbet type checking for better development experience
+   ```
+
+2. **Auto-pagination**: Easily iterate through paginated resources
+
+   ```ruby
+   # Automatically fetches more pages as needed.
+   page = knock.users.list
+   page.auto_paging_each do |user|
+     puts user.id
+   end
+   ```
+
+3. **Enhanced Error Handling**: More specific error classes
+
+   ```ruby
+   begin
+     user = knock.users.get("dnedry")
+   rescue Knockapi::Errors::APIError => e
+     puts e.status # 400
+   end
+   ```
+
+4. **Configurable Timeouts and Retries**: Fine-tune request behavior
+
+   ```ruby
+   knock = Knockapi::Client.new(
+     timeout: 20, # 20 seconds (default is 60)
+     max_retries: 3 # default is 2
+   )
+   ```
+
+5. **New Resources**: Additional resources like Audiences, Channels, and Integrations
+
+   ```ruby
+   # Working with audiences
+   knock.audiences.add_members(
+     "audience-id",
+     members: ["user-1", "user-2"]
+   )
+   ```
+
+6. **Request Options**: More control over individual requests
+   ```ruby
+   knock.users.get("dnedry", request_options: { timeout: 5 })
+   ```
+
+## Breaking Changes
+
+1. **Client Design**: The new SDK uses an instance-based client rather than module functions
+
+   - Create a client instance with `knock = Knockapi::Client.new()`
+   - Call methods via the client: `knock.workflows.trigger()` instead of `Knock::Workflows.trigger()`
+
+2. **Method Naming and Organization**:
+
+   - `Knock::Users.identify()` → `knock.users.update()`
+   - `Knock::Users.set_preferences()` → `knock.recipients.preferences.set()`
+   - `Knock::Users.get_channel_data()` → `knock.recipients.channel_data.get()`
+   - Bulk operations are now organized in their own namespaces: `knock.users.bulk.*`, `knock.objects.bulk.*`
+   - The main module is now `Knockapi` instead of `Knock`
+
+3. **Method Parameters**: Parameters are now passed differently
+
+   - Most methods now take the ID(s) as positional parameter(s), followed by named parameters
+   - Resource IDs moved from named parameters to positional parameters (e.g., `id: "user-1"` → `"user-1"`)
+   - `data:` parameters have been flattened in most methods
+
+4. **Preference Management**:
+
+   - Preferences are now handled through the `recipients.preferences` module
+   - The preference set ID must be explicitly provided (usually "default")
+
+5. **Response Handling**:
+   - The new SDK returns model instances rather than raw hashes
+   - Pagination is handled via cursor-based pagination instead of page-based
+
+## Common Operations
+
+### Triggering Workflows
+
+**Old SDK:**
+
+```ruby
+Knock::Workflows.trigger(
+  key: "dinosaurs-loose",
+  actor: "dnedry",
+  recipients: ["jhammond", "agrant"],
+  data: {
+    type: "trex",
+    priority: 1,
+  },
+  cancellation_key: trigger_alert.id,
+)
+```
+
+**New SDK:**
+
+```ruby
+knock.workflows.trigger(
+  "dinosaurs-loose",
+  recipients: ["jhammond", "agrant"],
+  actor: "dnedry",
+  data: {
+    type: "trex",
+    priority: 1,
+  },
+  cancellation_key: trigger_alert.id,
+)
+```
+
+### Identifying Users
+
+**Old SDK:**
+
+```ruby
+Knock::Users.identify(
+  id: "jhammond",
+  data: {
+    name: "John Hammond",
+    email: "jhammond@ingen.net",
+  }
+)
+```
+
+**New SDK:**
+
+```ruby
+knock.users.update(
+  "jhammond",
+  name: "John Hammond",
+  email: "jhammond@ingen.net"
+)
+```
+
+### Working with Preferences
+
+**Old SDK:**
+
+```ruby
+Knock::Users.set_preferences(
+  user_id: "jhammond",
+  channel_types: { email: true, sms: false },
+  workflows: {
+    'dinosaurs-loose': {
+      channel_types: { email: false, in_app_feed: false }
+    }
+  }
+)
+```
+
+**New SDK:**
+
+```ruby
+knock.recipients.preferences.set(
+  "users", "jhammond", "default",
+  channel_types: { email: true, sms: false },
+  workflows: {
+    'dinosaurs-loose': {
+      channel_types: { email: false, in_app_feed: false }
+    }
+  }
+)
+```
+
+## Support
+
+If you encounter any issues during migration, please reach out to our support team or open an issue on GitHub.

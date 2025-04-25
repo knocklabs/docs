@@ -1,0 +1,259 @@
+# Knock Python SDK Upgrade Guide (v0.x to v1.0)
+
+This guide will help you upgrade from the previous Knock Python SDK to the new v1.0 Python SDK.
+
+## Installation
+
+No changes are needed to your pip requirements:
+
+```bash
+pip install knockapi
+```
+
+## Basic Changes
+
+### Client Initialization
+
+**Old SDK:**
+
+```python
+from knockapi import Knock
+client = Knock(api_key="sk_12345")
+```
+
+**New SDK:**
+
+```python
+from knockapi import Knock
+client = Knock(bearer_token="sk_12345")  # defaults to ENV["KNOCK_API_KEY"]
+```
+
+## New Features in v1.0
+
+1. **Async Support**: First-class async/await support
+
+   ```python
+   from knockapi import AsyncKnock
+
+   client = AsyncKnock(bearer_token="sk_12345")
+
+   async def main():
+       response = await client.workflows.trigger(
+           key="dinosaurs-loose",
+           recipients=["dnedry"],
+           data={"dinosaur": "triceratops"},
+       )
+       print(response.workflow_run_id)
+   ```
+
+2. **Strong Type Checking**: Improved type hints with TypedDict and Pydantic models
+
+   ```python
+   # With type checking enabled, you get IDE support and validation
+   from knockapi.types import User
+
+   user: User = client.users.get("dnedry")
+   ```
+
+3. **Auto-pagination**: Easily iterate through paginated resources
+
+   ```python
+   # Automatically fetches more pages as needed
+   all_users = []
+   for user in client.users.list():
+       all_users.append(user)
+
+   # Or asynchronously
+   async for user in async_client.users.list():
+       process_user(user)
+   ```
+
+4. **Enhanced Error Handling**: More specific error classes
+
+   ```python
+   import knockapi
+
+   try:
+       client.users.get("dnedry")
+   except knockapi.APIConnectionError as e:
+       print("The server could not be reached")
+   except knockapi.RateLimitError as e:
+       print("A 429 status code was received; we should back off")
+   except knockapi.APIStatusError as e:
+       print("Status code:", e.status_code)
+   ```
+
+5. **Configurable Timeouts and Retries**: Fine-tune request behavior
+
+   ```python
+   # Configure the default for all requests:
+   client = Knock(
+       timeout=20.0,  # 20 seconds (default is 60)
+       max_retries=3  # default is 2
+   )
+
+   # Or, configure per-request:
+   client.with_options(max_retries=5).users.get("dnedry")
+   ```
+
+6. **Access to Raw Response Data**: More control over HTTP interactions
+   ```python
+   # Get raw response data including headers
+   response = client.with_raw_response.users.get("dnedry")
+   print(response.headers.get("X-Request-ID"))
+   ```
+
+## Breaking Changes
+
+1. **Client Design**: The new SDK has a cleaner interface with direct method calls
+
+   - The old approach of passing all parameters as keyword arguments is replaced with specific method signatures
+   - Parameters that were previously named keyword arguments may now be positional arguments
+
+2. **Method Naming Changes**:
+
+   - `client.users.identify()` → `client.users.update()`
+   - `client.users.get_user()` → `client.users.get()`
+   - Client-level `.notify()` shorthand is removed, use `client.workflows.trigger()` instead
+
+3. **Method Parameters**: Parameters are now passed differently
+
+   - Most methods now take the ID(s) as positional parameter(s), followed by named parameters
+   - The `data` wrapper is removed for user properties (they're now top-level parameters)
+   - Parameter names have changed in some cases (e.g., `id` → `user_id`)
+   - Preference methods require an explicit preference set ID parameter
+
+4. **Response Types**:
+
+   - The new SDK returns typed Pydantic model instances instead of dictionaries
+   - Use `.model_dump()` to get a dictionary representation of a response object
+   - Pagination is handled via cursor-based pagination instead of page-based
+
+5. **Bulk Operations**:
+   - Bulk operations are now organized in their own namespaces: `client.users.bulk.*`, `client.objects.bulk.*`
+
+## Common Operations
+
+### Triggering Workflows
+
+**Old SDK:**
+
+```python
+client.notify(
+  key="dinosaurs-loose",
+  actor="dnedry",
+  recipients=["jhammond", "agrant"],
+  data={
+    "type": "trex",
+    "priority": 1
+  },
+  cancellation_key=alert.id,
+  tenant="jurassic-park"
+)
+
+# Or via the workflows module
+client.workflows.trigger(
+  key="dinosaurs-loose",
+  actor="dnedry",
+  recipients=["jhammond", "agrant"],
+  data={
+    "type": "trex",
+    "priority": 1
+  },
+  cancellation_key=alert.id,
+  tenant="jurassic-park"
+)
+```
+
+**New SDK:**
+
+```python
+client.workflows.trigger(
+  key="dinosaurs-loose",
+  recipients=["jhammond", "agrant"],
+  actor="dnedry",
+  data={
+    "type": "trex",
+    "priority": 1
+  },
+  cancellation_key=alert.id,
+  tenant="jurassic-park"
+)
+```
+
+### Identifying Users
+
+**Old SDK:**
+
+```python
+client.users.identify(
+  id="jhammond",
+  data={
+    "name": "John Hammond",
+    "email": "jhammond@ingen.net"
+  }
+)
+```
+
+**New SDK:**
+
+```python
+client.users.update(
+  user_id="jhammond",
+  name="John Hammond",
+  email="jhammond@ingen.net"
+)
+```
+
+### Working with Preferences
+
+**Old SDK:**
+
+```python
+client.users.set_preferences(
+  user_id="jhammond",
+  channel_types={'email': True},
+  workflows={'dinosaurs-loose': False}
+)
+```
+
+**New SDK:**
+
+```python
+client.users.set_preferences(
+  user_id="jhammond",
+  id="default",
+  channel_types={'email': True},
+  workflows={'dinosaurs-loose': False}
+)
+```
+
+### Working with Objects
+
+**Old SDK:**
+
+```python
+client.objects.set(
+  collection="dinosaurs",
+  id="trex1",
+  properties={
+    "name": "Rexy",
+    "species": "Tyrannosaurus rex"
+  }
+)
+```
+
+**New SDK:**
+
+```python
+client.objects.set(
+  collection="dinosaurs",
+  id="trex1",
+  name="Rexy",
+  species="Tyrannosaurus rex"
+)
+```
+
+## Support
+
+If you encounter any issues during migration, please reach out to our support team or open an issue on GitHub.
