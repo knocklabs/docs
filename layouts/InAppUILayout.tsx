@@ -2,7 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { Page } from "@/components/ui/Page";
 import { Sidebar } from "@/components/ui/Page/Sidebar";
-import { mainContent, sdkSpecificContent, type Language } from "../data/inAppSidebar";
+import {
+  mainContent,
+  sdkSpecificContent,
+  type Language,
+} from "../data/inAppSidebar";
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
 import { Box } from "@telegraph/layout";
@@ -63,7 +67,7 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
             <Box
               style={{
                 width: "calc(100% - var(--tgph-spacing-2))",
-                margin: "0 auto"
+                margin: "0 auto",
               }}
             >
               <Select.Root
@@ -87,7 +91,7 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
                         {sdk.title}
                       </Stack>
                     </Select.Option>
-                  )
+                  );
                 })}
               </Select.Root>
             </Box>

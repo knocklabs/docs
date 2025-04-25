@@ -37,7 +37,10 @@ const languages = {
 
 export type Language = keyof typeof languages;
 
-const sdkSpecificContent: Record<Language, { items: SidebarSection[], title: string, value: string, icon: LucideIcon }> = {
+const sdkSpecificContent: Record<
+  Language,
+  { items: SidebarSection[]; title: string; value: string; icon: LucideIcon }
+> = {
   react: {
     title: "React",
     value: "react",
@@ -84,9 +87,7 @@ const sdkSpecificContent: Record<Language, { items: SidebarSection[], title: str
       {
         title: "UI Components",
         slug: "/in-app-ui/javascript",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-        ],
+        pages: [{ slug: "/overview", title: "Overview" }],
       },
     ],
   },
@@ -98,9 +99,7 @@ const sdkSpecificContent: Record<Language, { items: SidebarSection[], title: str
       {
         title: "UI Components",
         slug: "/in-app-ui/angular",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-        ],
+        pages: [{ slug: "/overview", title: "Overview" }],
       },
     ],
   },
@@ -116,12 +115,15 @@ const sdkSpecificContent: Record<Language, { items: SidebarSection[], title: str
           { slug: "/overview", title: "Overview" },
           { slug: "/components", title: "Components" },
           { slug: "/customization", title: "Customization" },
-          { slug: "/notification-feeds", title: "Custom notifications UI (headless)" },
+          {
+            slug: "/notification-feeds",
+            title: "Custom notifications UI (headless)",
+          },
         ],
       },
     ],
   },
-  "ios": {
+  ios: {
     title: "iOS",
     value: "ios",
     icon: Lucide.Apple,
@@ -137,7 +139,7 @@ const sdkSpecificContent: Record<Language, { items: SidebarSection[], title: str
       },
     ],
   },
-  "android": {
+  android: {
     title: "Android (Kotlin)",
     value: "android",
     icon: Lucide.ALargeSmall,
@@ -161,9 +163,7 @@ const sdkSpecificContent: Record<Language, { items: SidebarSection[], title: str
       {
         title: "UI Components",
         slug: "/in-app-ui/flutter",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-        ],
+        pages: [{ slug: "/overview", title: "Overview" }],
       },
     ],
   },

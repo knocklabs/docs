@@ -46,7 +46,9 @@ const Item = ({
   const slug = `${preSlug}${section.slug}`;
   const resourceSection = stripPrefix(slug);
 
-  const [isOpen, setIsOpen] = useState(getOpenState(section, slug, router.asPath));
+  const [isOpen, setIsOpen] = useState(
+    getOpenState(section, slug, router.asPath),
+  );
 
   // Update isOpen when the path changes
   useEffect(() => {
