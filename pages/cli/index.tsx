@@ -19,7 +19,6 @@ import { MDX_COMPONENTS } from "../../lib/mdxComponents";
 const CLI_DOC_PATH = path.join(CONTENT_DIR, "cli.mdx");
 
 export default function CLIPage({ source, sourcePath }) {
-  console.log(source, sourcePath);
   return (
     <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
       <MDXRemote
