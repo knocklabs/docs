@@ -48,17 +48,18 @@ const Item = ({
   const basePath = router.asPath.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
   const resourceSection = stripPrefix(slug);
+  const pathNoHash = router.asPath.split("#")[0];
 
   const [isOpen, setIsOpen] = useState(
-    defaultOpen ?? getOpenState(section, slug, router.asPath),
+    defaultOpen ?? getOpenState(section, slug, pathNoHash),
   );
 
   // Update isOpen when the path changes
   useEffect(() => {
     if (!isOpen) {
-      setIsOpen(defaultOpen ?? getOpenState(section, slug, router.asPath));
+      setIsOpen(defaultOpen ?? getOpenState(section, slug, pathNoHash));
     }
-  }, [section, slug, router.asPath, isOpen, defaultOpen]);
+  }, [section, slug, pathNoHash, isOpen, defaultOpen]);
 
   // Create the debounced function once when component mounts
   // This helps produce a smoother experience when scrolling fast
