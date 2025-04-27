@@ -91,10 +91,7 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
                   const sdk: SdkSpecificContent = sdkSpecificContent[language];
                   console.log("sdk", sdk);
                   return (
-                    <Select.Option
-                      key={sdk.value}
-                      value={sdk.value}
-                    >
+                    <Select.Option key={sdk.value} value={sdk.value}>
                       <Stack direction="row" gap="2" alignItems="center">
                         <sdk.Icon />
                         {sdk.title}

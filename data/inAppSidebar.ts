@@ -46,13 +46,10 @@ export type SdkSpecificContent = {
   items: SidebarSection[];
   title: string;
   value: string;
-  Icon: () => JSX.Element
-}
+  Icon: () => JSX.Element;
+};
 
-const sdkSpecificContent: Record<
-  Language,
-  SdkSpecificContent
-> = {
+const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
   react: {
     title: "React",
     value: "react",
