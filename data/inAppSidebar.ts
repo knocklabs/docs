@@ -1,5 +1,10 @@
-import { Lucide, type LucideIcon } from "@telegraph/icon";
-import { SidebarPage, SidebarSection } from "./types";
+import { SidebarSection } from "./types";
+import { ReactIcon } from "@/components/ui/Icons/React";
+import { JavascriptIcon } from "@/components/ui/Icons/Javascript";
+import { AngularIcon } from "@/components/ui/Icons/Angular";
+import { AppleIcon } from "@/components/ui/Icons/Apple";
+import { AndroidIcon } from "@/components/ui/Icons/Android";
+import { FlutterIcon } from "@/components/ui/Icons/Flutter";
 
 const mainContent: SidebarSection[] = [
   {
@@ -37,14 +42,21 @@ const languages = {
 
 export type Language = keyof typeof languages;
 
+export type SdkSpecificContent = {
+  items: SidebarSection[];
+  title: string;
+  value: string;
+  Icon: () => JSX.Element
+}
+
 const sdkSpecificContent: Record<
   Language,
-  { items: SidebarSection[]; title: string; value: string; icon: LucideIcon }
+  SdkSpecificContent
 > = {
   react: {
     title: "React",
     value: "react",
-    icon: Lucide.Atom,
+    Icon: ReactIcon,
     items: [
       {
         title: "UI Components",
@@ -82,7 +94,7 @@ const sdkSpecificContent: Record<
   javascript: {
     title: "JavaScript",
     value: "javascript",
-    icon: Lucide.Code,
+    Icon: JavascriptIcon,
     items: [
       {
         title: "UI Components",
@@ -94,7 +106,7 @@ const sdkSpecificContent: Record<
   angular: {
     title: "Angular",
     value: "angular",
-    icon: Lucide.Clipboard,
+    Icon: AngularIcon,
     items: [
       {
         title: "UI Components",
@@ -106,7 +118,7 @@ const sdkSpecificContent: Record<
   "react-native": {
     title: "React Native",
     value: "react-native",
-    icon: Lucide.Code,
+    Icon: ReactIcon,
     items: [
       {
         title: "UI Components",
@@ -126,7 +138,7 @@ const sdkSpecificContent: Record<
   ios: {
     title: "iOS",
     value: "ios",
-    icon: Lucide.Apple,
+    Icon: AppleIcon,
     items: [
       {
         title: "UI Components",
@@ -142,7 +154,7 @@ const sdkSpecificContent: Record<
   android: {
     title: "Android (Kotlin)",
     value: "android",
-    icon: Lucide.ALargeSmall,
+    Icon: AndroidIcon,
     items: [
       {
         title: "UI Components",
@@ -158,7 +170,7 @@ const sdkSpecificContent: Record<
   flutter: {
     title: "Flutter",
     value: "flutter",
-    icon: Lucide.ActivitySquare,
+    Icon: FlutterIcon,
     items: [
       {
         title: "UI Components",

@@ -6,13 +6,14 @@ import {
   mainContent,
   sdkSpecificContent,
   type Language,
+  type SdkSpecificContent,
 } from "../data/inAppSidebar";
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
 import { Box } from "@telegraph/layout";
 import { Stack } from "@telegraph/layout";
 import { Select } from "@telegraph/select";
-import { Icon } from "@telegraph/icon";
+import { Text } from "@telegraph/typography";
 
 const languages = Object.keys(sdkSpecificContent);
 
@@ -64,6 +65,14 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
             {mainContent.map((section) => (
               <Sidebar.Section key={section.slug} section={section} />
             ))}
+            <Text
+              as="span"
+              weight="medium"
+              color="default"
+              style={{ fontSize: "13px" }}
+            >
+              Select your SDK
+            </Text>
             <Box
               style={{
                 width: "calc(100% - var(--tgph-spacing-2))",
@@ -79,15 +88,15 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
                 size="1"
               >
                 {languages.map((language) => {
-                  const sdk = sdkSpecificContent[language];
+                  const sdk: SdkSpecificContent = sdkSpecificContent[language];
+                  console.log("sdk", sdk);
                   return (
                     <Select.Option
                       key={sdk.value}
                       value={sdk.value}
-                      label={sdk.title}
                     >
                       <Stack direction="row" gap="2" alignItems="center">
-                        <Icon icon={sdk.icon} aria-hidden={true} />
+                        <sdk.Icon />
                         {sdk.title}
                       </Stack>
                     </Select.Option>

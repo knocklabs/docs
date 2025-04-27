@@ -11,7 +11,6 @@ type BreadcrumbsProps = {
 };
 
 const Breadcrumbs = ({ pages }: BreadcrumbsProps) => {
-  console.log("pages", pages);
   if (!pages) return null;
   return (
     <Stack direction="row" alignItems="center" gap="1" mb="4">
