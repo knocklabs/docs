@@ -38,7 +38,7 @@ export type SupportedIcon =
   | "youtube"
   | "expo";
 
-const icons: Record<SupportedIcon, React.ReactNode> = {
+export const icons: Record<SupportedIcon, React.ReactNode> = {
   default: <IoCubeOutline />,
   node: <FaNodeJs />,
   python: <FaPython />,

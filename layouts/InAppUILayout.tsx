@@ -70,30 +70,25 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
               weight="medium"
               color="default"
               style={{ fontSize: "13px" }}
+              ml="2"
             >
               Select your SDK
             </Text>
-            <Box
-              style={{
-                width: "calc(100% - var(--tgph-spacing-2))",
-                margin: "0 auto",
-              }}
-            >
+            <Box>
               <Select.Root
                 placeholder="Select an option"
                 value={selectedSdk}
                 onValueChange={(value) => {
                   handleSdkChange(value as Language);
                 }}
-                size="1"
+                size="2"
               >
                 {languages.map((language) => {
                   const sdk: SdkSpecificContent = sdkSpecificContent[language];
-                  console.log("sdk", sdk);
                   return (
                     <Select.Option key={sdk.value} value={sdk.value}>
                       <Stack direction="row" gap="2" alignItems="center">
-                        <sdk.Icon />
+                        {sdk.icon}
                         {sdk.title}
                       </Stack>
                     </Select.Option>

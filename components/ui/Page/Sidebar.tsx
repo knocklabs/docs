@@ -10,6 +10,7 @@ import {
 } from "../CollapsibleNavItem";
 import { useLayoutEffect, useState, useMemo, useEffect } from "react";
 import { isPathTheSame, highlightResource, stripPrefix } from "./helpers";
+import { Tag } from "@telegraph/tag";
 
 type SidebarProps = {
   content: SidebarSection[];
@@ -36,10 +37,12 @@ const Item = ({
   section,
   preSlug = "",
   depth = 0,
+  defaultOpen,
 }: {
   section: SidebarSection;
   preSlug?: string;
   depth?: number;
+  defaultOpen?: boolean;
 }) => {
   const router = useRouter();
   const basePath = router.asPath.split("/")[1];
@@ -47,15 +50,15 @@ const Item = ({
   const resourceSection = stripPrefix(slug);
 
   const [isOpen, setIsOpen] = useState(
-    getOpenState(section, slug, router.asPath),
+    defaultOpen ?? getOpenState(section, slug, router.asPath),
   );
 
   // Update isOpen when the path changes
   useEffect(() => {
     if (!isOpen) {
-      setIsOpen(getOpenState(section, slug, router.asPath));
+      setIsOpen(defaultOpen ?? getOpenState(section, slug, router.asPath));
     }
-  }, [section, slug, router.asPath, isOpen]);
+  }, [section, slug, router.asPath, isOpen, defaultOpen]);
 
   // Create the debounced function once when component mounts
   // This helps produce a smoother experience when scrolling fast
@@ -167,6 +170,11 @@ const Item = ({
           >
             <NavItem href={href} isActive={isActive}>
               {page.title}
+              {page.isBeta && (
+                <Tag color="blue" ml="2" size="0">
+                  Beta
+                </Tag>
+              )}
             </NavItem>
           </Box>
         );
@@ -179,7 +187,7 @@ const Section = ({ section }: { section: SidebarSection }) => {
   return (
     <Stack direction="column" key={section.slug} mb="1" data-sidebar-section>
       <Box>
-        <Item section={section} />
+        <Item section={section} defaultOpen={section?.sidebarMenuDefaultOpen} />
       </Box>
     </Stack>
   );

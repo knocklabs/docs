@@ -1,10 +1,6 @@
-import { SidebarSection } from "./types";
-import { ReactIcon } from "@/components/ui/Icons/React";
-import { JavascriptIcon } from "@/components/ui/Icons/Javascript";
-import { AngularIcon } from "@/components/ui/Icons/Angular";
-import { AppleIcon } from "@/components/ui/Icons/Apple";
-import { AndroidIcon } from "@/components/ui/Icons/Android";
-import { FlutterIcon } from "@/components/ui/Icons/Flutter";
+import { type ReactNode } from "react";
+import type { SidebarSection } from "./types";
+import { icons } from "@/components/SdkCard";
 
 const mainContent: SidebarSection[] = [
   {
@@ -27,6 +23,7 @@ const mainContent: SidebarSection[] = [
         isBeta: true,
       },
     ],
+    sidebarMenuDefaultOpen: true,
   },
 ];
 
@@ -46,14 +43,14 @@ export type SdkSpecificContent = {
   items: SidebarSection[];
   title: string;
   value: string;
-  Icon: () => JSX.Element;
+  icon: ReactNode;
 };
 
 const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
   react: {
     title: "React",
     value: "react",
-    Icon: ReactIcon,
+    icon: icons.react,
     items: [
       {
         title: "UI Components",
@@ -91,7 +88,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
   javascript: {
     title: "JavaScript",
     value: "javascript",
-    Icon: JavascriptIcon,
+    icon: icons.javascript,
     items: [
       {
         title: "UI Components",
@@ -103,7 +100,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
   angular: {
     title: "Angular",
     value: "angular",
-    Icon: AngularIcon,
+    icon: icons.angular,
     items: [
       {
         title: "UI Components",
@@ -115,7 +112,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
   "react-native": {
     title: "React Native",
     value: "react-native",
-    Icon: ReactIcon,
+    icon: icons.reactnative,
     items: [
       {
         title: "UI Components",
@@ -135,7 +132,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
   ios: {
     title: "iOS",
     value: "ios",
-    Icon: AppleIcon,
+    icon: icons.expo,
     items: [
       {
         title: "UI Components",
@@ -151,7 +148,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
   android: {
     title: "Android (Kotlin)",
     value: "android",
-    Icon: AndroidIcon,
+    icon: icons.kotlin,
     items: [
       {
         title: "UI Components",
@@ -167,7 +164,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
   flutter: {
     title: "Flutter",
     value: "flutter",
-    Icon: FlutterIcon,
+    icon: icons.flutter,
     items: [
       {
         title: "UI Components",
