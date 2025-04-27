@@ -34,6 +34,9 @@ const MDXLayout: React.FC<{ frontMatter: FrontMatter; sourcePath: string }> = (
       if (asPath.startsWith("/in-app-ui")) {
         return <InAppUILayout {...props}>{props.children}</InAppUILayout>;
       }
+      if (asPath.startsWith("/sdks")) {
+        return <SdksLayout {...props}>{props.children}</SdksLayout>;
+      }
       return <DocsLayout {...props}>{props.children}</DocsLayout>;
   }
 };
