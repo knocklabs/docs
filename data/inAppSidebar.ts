@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import type { SidebarSection } from "./types";
-import { icons } from "@/components/SdkCard";
+import { icons } from "@/components/ui/SdkCard";
 
 const mainContent: SidebarSection[] = [
   {

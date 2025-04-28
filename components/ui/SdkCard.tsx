@@ -1,4 +1,4 @@
-import { IoCubeOutline } from "react-icons/io5";
+import { Icon, Lucide } from "@telegraph/icon";
 import { RiJavascriptFill } from "react-icons/ri";
 import {
   FaNodeJs,
@@ -16,6 +16,8 @@ import { FaGolang } from "react-icons/fa6";
 import { SiElixir, SiFlutter, SiExpo } from "react-icons/si";
 import { TbBrandKotlin, TbBrandReactNative } from "react-icons/tb";
 import { Card } from "./Card";
+import { Stack } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
 
 export type SupportedIcon =
   | "default"
@@ -39,7 +41,7 @@ export type SupportedIcon =
   | "expo";
 
 export const icons: Record<SupportedIcon, React.ReactNode> = {
-  default: <IoCubeOutline />,
+  default: <Icon icon={Lucide.Square} aria-hidden={true} />,
   node: <FaNodeJs />,
   python: <FaPython />,
   ruby: <DiRuby />,
@@ -69,7 +71,12 @@ type Props = {
 };
 
 const SdkCardGroup = ({ children }) => (
-  <div className="grid grid-cols-3 gap-2">{children}</div>
+  <Stack
+    style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}
+    gap="2"
+  >
+    {children}
+  </Stack>
 );
 
 const SdkCard: React.FC<Props> = ({
@@ -83,12 +90,12 @@ const SdkCard: React.FC<Props> = ({
     title={title}
     linkUrl={linkUrl}
     footer={
-      <div className="flex items-center text-gray-500 dark:text-gray-200">
+      <Stack alignItems="center">
         {icons[icon]}
-        <span className="ml-2 text-[14px] font-medium">
+        <Text as="span" ml="2" size="1" weight="medium" color="gray">
           {languages.map((lang) => lang).join(" · ")}
-        </span>
-      </div>
+        </Text>
+      </Stack>
     }
     isExternal={isExternal}
   />
