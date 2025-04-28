@@ -23,14 +23,28 @@ function TitleTag({ size, title }) {
     }
     case "h2": {
       return (
-        <Heading as="h2" id={id} color="default" weight="semi-bold" size="3" mb="2">
+        <Heading
+          as="h2"
+          id={id}
+          color="default"
+          weight="semi-bold"
+          size="3"
+          mb="2"
+        >
           {title}
         </Heading>
       );
     }
     case "h3": {
       return (
-        <Heading as="h3" id={id} color="default" weight="semi-bold" size="3" mb="2">
+        <Heading
+          as="h3"
+          id={id}
+          color="default"
+          weight="semi-bold"
+          size="3"
+          mb="2"
+        >
           {title}
         </Heading>
       );
@@ -42,9 +56,24 @@ function TitleTag({ size, title }) {
 
 const Step = ({ titleSize = "p", title, children, stepNumber }) => (
   <Stack position="relative" alignItems="flex-start" pb="4" role="listitem">
-    <Box position="absolute" style={{ height: "calc(100% - 2.75rem)", top: "2.75rem" }} w="px" bg="gray-3" />
+    <Box
+      position="absolute"
+      style={{ height: "calc(100% - 2.75rem)", top: "2.75rem" }}
+      w="px"
+      bg="gray-3"
+    />
     <Box py="2" position="absolute" style={{ marginLeft: "-14px" }}>
-      <Stack weight="semi-bold" alignItems="center" justifyContent="center" w="8" h="8" borderRadius="4" style={{ flexShrink: 0 }} bg="gray-2" size="2">
+      <Stack
+        weight="semi-bold"
+        alignItems="center"
+        justifyContent="center"
+        w="8"
+        h="8"
+        borderRadius="4"
+        style={{ flexShrink: 0 }}
+        bg="gray-2"
+        size="2"
+      >
         {stepNumber}
       </Stack>
     </Box>

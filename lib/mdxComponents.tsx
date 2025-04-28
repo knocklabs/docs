@@ -19,15 +19,35 @@ import {
 } from "../components/ui/ApiSections";
 import RateLimit from "../components/RateLimit";
 import { Heading, Code, Text } from "@telegraph/typography";
-import { TableElement, ThElement, TdElement, TheadElement } from "../components/ui/Table";
+import {
+  TableElement,
+  ThElement,
+  TdElement,
+  TheadElement,
+} from "../components/ui/Table";
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
   h2: (props) => <Heading as="h2" size="5" mb="3" mt="8" {...props} />,
   h3: (props) => <Heading as="h3" size="4" mb="2" mt="8" {...props} />,
   h4: (props) => <Heading as="h4" size="3" mb="1" mt="8" {...props} />,
-  code: (props) => <Code as="code" backgroundColor="gray-2" data-tgph-code {...props}>{props.children}</Code>,
-  li: (props) => <Text as="li" size="2" {...props} ml="4" mb="2" style={{ listStyleType: "disc", ...props.style }}>{props.children}</Text>,
+  code: (props) => (
+    <Code as="code" backgroundColor="gray-2" data-tgph-code {...props}>
+      {props.children}
+    </Code>
+  ),
+  li: (props) => (
+    <Text
+      as="li"
+      size="2"
+      {...props}
+      ml="4"
+      mb="2"
+      style={{ listStyleType: "disc", ...props.style }}
+    >
+      {props.children}
+    </Text>
+  ),
   table: (props) => <TableElement {...props} />,
   thead: (props) => <TheadElement {...props} />,
   th: (props) => <ThElement {...props} />,

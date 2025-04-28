@@ -27,16 +27,18 @@ const snippets = {
   "users.delete": require("../../data/code/users/delete").default,
   "users.merge": require("../../data/code/users/merge").default,
   "users.messages": require("../../data/code/users/messages").default,
-  "users.setPreferences": require("../../data/code/users/set-preferences").default,
+  "users.setPreferences": require("../../data/code/users/set-preferences")
+    .default,
   "users.setPreferences.conditions":
     require("../../data/code/users/set-preferences-with-conditions").default,
   "users.setPreferences.perTenant":
     require("../../data/code/users/set-preferences-per-tenant").default,
-  "users.bulkSetPreferences": require("../../data/code/users/bulk-set-preferences")
-    .default,
+  "users.bulkSetPreferences":
+    require("../../data/code/users/bulk-set-preferences").default,
   "users.listPreferences": require("../../data/code/users/list-preferences")
     .default,
-  "users.getPreferences": require("../../data/code/users/get-preferences").default,
+  "users.getPreferences": require("../../data/code/users/get-preferences")
+    .default,
   "users.getChannelData": require("../../data/code/users/get-channel-data")
     .default,
   "users.setChannelData": require("../../data/code/users/set-channel-data")
@@ -55,7 +57,8 @@ const snippets = {
   "messages.get": require("../../data/code/messages/get").default,
   "messages.getActivities": require("../../data/code/messages/get-activities")
     .default,
-  "messages.getContent": require("../../data/code/messages/get-content").default,
+  "messages.getContent": require("../../data/code/messages/get-content")
+    .default,
   "messages.getEvents": require("../../data/code/messages/get-events").default,
 
   // Objects
@@ -74,8 +77,8 @@ const snippets = {
     require("../../data/code/objects/set-channel-data-discord-webhook").default,
   "objects.setChannelData.discord.bot":
     require("../../data/code/objects/set-channel-data-discord-bot").default,
-  "objects.unsetChannelData": require("../../data/code/objects/unset-channel-data")
-    .default,
+  "objects.unsetChannelData":
+    require("../../data/code/objects/unset-channel-data").default,
   "objects.getChannelData": require("../../data/code/objects/get-channel-data")
     .default,
   "objects.listPreferences": require("../../data/code/objects/list-preferences")
@@ -99,14 +102,16 @@ const snippets = {
   "workflows.trigger-with-identification":
     require("../../data/code/workflows/trigger-with-identification").default,
   "workflows.trigger-with-user-identification":
-    require("../../data/code/workflows/trigger-with-user-identification").default,
+    require("../../data/code/workflows/trigger-with-user-identification")
+      .default,
   "workflows.trigger-with-object-identification":
     require("../../data/code/workflows/trigger-with-object-identification")
       .default,
   "workflows.trigger-with-actor":
     require("../../data/code/workflows/trigger-with-actor").default,
   "workflows.trigger-with-object-as-recipient":
-    require("../../data/code/workflows/trigger-with-object-as-recipient").default,
+    require("../../data/code/workflows/trigger-with-object-as-recipient")
+      .default,
   "workflows.trigger-with-object-as-actor":
     require("../../data/code/workflows/trigger-with-object-as-actor").default,
   "workflows.trigger-with-tenant":
@@ -119,7 +124,8 @@ const snippets = {
     require("../../data/code/workflows/trigger-with-user-channel-data").default,
   "workflows.trigger-with-user-preferences":
     require("../../data/code/workflows/trigger-with-user-preferences").default,
-  "workflows.playground": require("../../data/code/workflows/playground").default,
+  "workflows.playground": require("../../data/code/workflows/playground")
+    .default,
 };
 /* eslint-enable */
 
