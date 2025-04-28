@@ -9,7 +9,7 @@ import { Sidebar } from "./Page/Sidebar";
 import { Breadcrumbs } from "./Breadcrumbs";
 
 import "../../styles/global.css";
-
+import "../../styles/responsive.css";
 export const MAX_WIDTH = "1400px";
 
 const Container = ({ children }) => <Box>{children}</Box>;
@@ -40,6 +40,7 @@ const Content = ({ children, fullWidth = false }) => (
     pr="4"
     minWidth="0"
     style={{ maxWidth: fullWidth ? "initial" : "740px" }}
+    className="md-wrapper-padding"
   >
     <Box>{children}</Box>
   </Box>

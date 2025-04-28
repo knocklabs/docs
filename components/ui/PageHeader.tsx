@@ -83,7 +83,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
               <Autocomplete />
             </Box>
           </Stack>
-          <Stack marginLeft="auto" gap="2">
+          <Stack marginLeft="auto" gap="2" className="md-hidden">
             <Button
               as={Link}
               href="mailto:support@knock.app?subject=Support%20request"
@@ -112,7 +112,11 @@ const PageHeader = ({ title }: PageHeaderProps) => {
             </Button>
           </Stack>
         </Stack>
-        <Tabs value={selectedTab(asPath)} className="main-header-tabs">
+        <Tabs
+          value={selectedTab(asPath)}
+          className="main-header-tabs"
+          style={{ overflowX: "auto" }}
+        >
           <Tabs.List mb="0" px="4">
             <Tabs.Tab value="platform" as={Link} href="/">
               Platform
