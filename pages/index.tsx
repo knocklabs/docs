@@ -48,7 +48,7 @@ export default function Home() {
             </Link>
 
             <Link
-              href="/reference"
+              href="/api-reference"
               className="text-gray-600 dark:text-gray-300 py-2 px-3 rounded-md font-medium"
             >
               API reference

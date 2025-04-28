@@ -74,7 +74,7 @@ const sidebarContent: SidebarSection[] = [
             title: "Referencing data",
           },
           {
-            slug: "/reference-liquid-helpers",
+            slug: "/api-reference-liquid-helpers",
             title: "Liquid helpers",
           },
         ],
@@ -143,7 +143,7 @@ const sidebarContent: SidebarSection[] = [
   //       slug: "/react",
   //       pages: [
   //         { slug: "/overview", title: "Overview" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -152,7 +152,7 @@ const sidebarContent: SidebarSection[] = [
   //       pages: [
   //         { slug: "/overview", title: "Overview" },
   //         { slug: "/quick-start", title: "Quick start" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -163,7 +163,7 @@ const sidebarContent: SidebarSection[] = [
   //         { slug: "/quick-start", title: "Quick start" },
   //         { slug: "/push-notifications", title: "Push notifications" },
   //         { slug: "/deep-links", title: "Deep/universal links" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -174,7 +174,7 @@ const sidebarContent: SidebarSection[] = [
   //         { slug: "/quick-start", title: "Quick start" },
   //         { slug: "/push-notifications", title: "Push notifications" },
   //         { slug: "/deep-links", title: "Deep links" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -183,7 +183,7 @@ const sidebarContent: SidebarSection[] = [
   //       pages: [
   //         { slug: "/overview", title: "Overview" },
   //         { slug: "/quick-start", title: "Quick start" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -193,7 +193,7 @@ const sidebarContent: SidebarSection[] = [
   //         { slug: "/overview", title: "Overview" },
   //         { slug: "/quick-start", title: "Quick start" },
   //         { slug: "/push-notifications", title: "Push notifications" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -202,7 +202,7 @@ const sidebarContent: SidebarSection[] = [
   //       pages: [
   //         { slug: "/overview", title: "Overview" },
   //         { slug: "/push-notifications", title: "Push notifications" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //   ],
