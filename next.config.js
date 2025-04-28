@@ -413,7 +413,7 @@ const nextConfig = {
       {
         source: "/agent-toolkit",
         destination: "/developer-tools/agent-toolkit/overview",
-        permanent: true,
+        permanent: false,
       },
     ];
   },
