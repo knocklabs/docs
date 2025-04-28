@@ -177,7 +177,7 @@ const Section = ({ section }: { section: SidebarSection }) => {
 
 const Wrapper = ({ children }: SidebarProps) => {
   return (
-    <Box>
+    <Box className="md-hidden">
       <Box
         data-sidebar-wrapper
         as="aside"
@@ -185,6 +185,7 @@ const Wrapper = ({ children }: SidebarProps) => {
         position="fixed"
         bottom="0"
         top="24"
+        pb="12"
         style={{ minHeight: "90vh" }}
       >
         <Stack
