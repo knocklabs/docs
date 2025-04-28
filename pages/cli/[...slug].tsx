@@ -11,7 +11,7 @@ import eventPayload from "../../data/code/sources/eventPayload";
 import datadogDashboardJson from "../../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../../content/integrations/extensions/new_relic_dashboard.json";
 import AiChatButton from "../../components/AiChatButton";
-import { MDX_COMPONENTS } from "../../lib/mdxComponents";
+import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 
 import { cliContent as cliSidebarContent } from "@/data/sidebar";
 

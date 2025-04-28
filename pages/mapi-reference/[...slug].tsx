@@ -10,7 +10,7 @@ import { serialize } from "next-mdx-remote/serialize";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import fs from "fs";
 import { MDXRemote } from "next-mdx-remote";
-import { MDX_COMPONENTS } from "../../lib/mdxComponents";
+import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 import { RESOURCE_ORDER, PRE_SIDEBAR_CONTENT } from "./index";
 
 function ManagementApiReferencePage({

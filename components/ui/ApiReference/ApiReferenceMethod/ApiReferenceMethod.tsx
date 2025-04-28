@@ -14,7 +14,7 @@ import { augmentSnippetsWithCurlRequest } from "../helpers";
 import { Heading } from "@telegraph/typography";
 import { AnimatePresence, motion } from "framer-motion";
 import RateLimit from "@/components/RateLimit";
-import Callout from "@/components/Callout";
+import Callout from "@/components/ui/Callout";
 
 type Props = {
   methodName: string;
