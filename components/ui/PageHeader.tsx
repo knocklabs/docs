@@ -130,7 +130,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
             <Tabs.Tab value="sdks" as={Link} href="/sdks">
               SDKs
             </Tabs.Tab>
-            <Tabs.Tab value="api-reference" as={Link} href="/reference">
+            <Tabs.Tab value="api-reference" as={Link} href="/api-reference">
               API reference
             </Tabs.Tab>
             <Tabs.Tab value="cli-reference" as={Link} href="/cli">

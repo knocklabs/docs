@@ -74,7 +74,7 @@ const sidebarContent: SidebarSection[] = [
             title: "Referencing data",
           },
           {
-            slug: "/reference-liquid-helpers",
+            slug: "/api-reference-liquid-helpers",
             title: "Liquid helpers",
           },
         ],
@@ -143,7 +143,7 @@ const sidebarContent: SidebarSection[] = [
   //       slug: "/react",
   //       pages: [
   //         { slug: "/overview", title: "Overview" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -152,7 +152,7 @@ const sidebarContent: SidebarSection[] = [
   //       pages: [
   //         { slug: "/overview", title: "Overview" },
   //         { slug: "/quick-start", title: "Quick start" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -163,7 +163,7 @@ const sidebarContent: SidebarSection[] = [
   //         { slug: "/quick-start", title: "Quick start" },
   //         { slug: "/push-notifications", title: "Push notifications" },
   //         { slug: "/deep-links", title: "Deep/universal links" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -174,7 +174,7 @@ const sidebarContent: SidebarSection[] = [
   //         { slug: "/quick-start", title: "Quick start" },
   //         { slug: "/push-notifications", title: "Push notifications" },
   //         { slug: "/deep-links", title: "Deep links" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -183,7 +183,7 @@ const sidebarContent: SidebarSection[] = [
   //       pages: [
   //         { slug: "/overview", title: "Overview" },
   //         { slug: "/quick-start", title: "Quick start" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -193,7 +193,7 @@ const sidebarContent: SidebarSection[] = [
   //         { slug: "/overview", title: "Overview" },
   //         { slug: "/quick-start", title: "Quick start" },
   //         { slug: "/push-notifications", title: "Push notifications" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //     {
@@ -202,7 +202,7 @@ const sidebarContent: SidebarSection[] = [
   //       pages: [
   //         { slug: "/overview", title: "Overview" },
   //         { slug: "/push-notifications", title: "Push notifications" },
-  //         { slug: "/reference", title: "API reference" },
+  //         { slug: "/api-reference", title: "API reference" },
   //       ],
   //     },
   //   ],
@@ -465,6 +465,88 @@ const cliContent: SidebarSection[] = [
   },
 ];
 
-export { guidesContent, developerToolsContent, inAppUiContent, cliContent };
+const sdksSidebarContent: SidebarSection[] = [
+  {
+    title: "Getting started",
+    slug: "/sdks/overview",
+    pages: [{ slug: "", title: "Introduction" }],
+  },
+  {
+    title: "Android",
+    slug: "/sdks/android",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/quick-start", title: "Quick Start" },
+      { slug: "/push-notifications", title: "Push Notifications" },
+      { slug: "/deep-links", title: "Deep Links" },
+      { slug: "/reference", title: "Reference" },
+    ],
+  },
+  {
+    title: "Expo",
+    slug: "/sdks/expo",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/push-notifications", title: "Push Notifications" },
+      { slug: "/reference", title: "Reference" },
+    ],
+  },
+  {
+    title: "Flutter",
+    slug: "/sdks/flutter",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/quick-start", title: "Quick Start" },
+      { slug: "/reference", title: "Reference" },
+    ],
+  },
+  {
+    title: "iOS",
+    slug: "/sdks/ios",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/quick-start", title: "Quick Start" },
+      { slug: "/push-notifications", title: "Push Notifications" },
+      { slug: "/deep-links", title: "Deep Links" },
+      { slug: "/reference", title: "Reference" },
+    ],
+  },
+  {
+    title: "JavaScript",
+    slug: "/sdks/javascript",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/quick-start", title: "Quick Start" },
+      { slug: "/reference", title: "Reference" },
+    ],
+  },
+  {
+    title: "React",
+    slug: "/sdks/react",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/reference", title: "Reference" },
+    ],
+  },
+  {
+    title: "React Native",
+    slug: "/sdks/react-native",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/quick-start", title: "Quick Start" },
+      { slug: "/push-notifications", title: "Push Notifications" },
+      { slug: "/notification-feeds", title: "Notification Feeds" },
+      { slug: "/reference", title: "Reference" },
+    ],
+  },
+];
+
+export {
+  guidesContent,
+  developerToolsContent,
+  inAppUiContent,
+  cliContent,
+  sdksSidebarContent,
+};
 
 export default sidebarContent;

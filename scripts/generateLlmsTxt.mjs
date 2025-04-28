@@ -15,7 +15,7 @@ const apiContent = [
     slug: "",
     desc: "Complete reference documentation for the Knock API.",
     pages: [
-      { slug: "/reference", title: "API Reference" },
+      { slug: "/api-reference", title: "API Reference" },
       { slug: "/cli", title: "CLI Reference" },
       { slug: "/mapi-reference", title: "Management API Reference" },
     ],
