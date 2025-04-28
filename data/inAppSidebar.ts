@@ -81,6 +81,10 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
             slug: "/customizing-feed-components",
             title: "Customizing feed components",
           },
+          {
+            slug: "/migrating-from-react-notification-feed",
+            title: "Migrating from @knocklabs/react-notification-feed",
+          },
         ],
       },
     ],
