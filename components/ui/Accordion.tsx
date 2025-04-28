@@ -38,10 +38,26 @@ const Accordion = ({ children, title, description, defaultOpen = false }) => {
         alignItems="center"
       >
         <Stack alignItems="center">
-          <Icon icon={Lucide.ChevronRight} aria-hidden={true} mr="2" style={{ transition: "transform 0.2s ease-in-out", transform: open ? "rotate(90deg)" : "rotate(0deg)", flexShrink: 0 }} />
+          <Icon
+            icon={Lucide.ChevronRight}
+            aria-hidden={true}
+            mr="2"
+            style={{
+              transition: "transform 0.2s ease-in-out",
+              transform: open ? "rotate(90deg)" : "rotate(0deg)",
+              flexShrink: 0,
+            }}
+          />
           <Box>
-            {/* @ts-expect-error textWrap is fine? */}
-            <Text as="span" size="3" leading="2" weight="medium" style={{ "textWrap": "auto", overflow: "visible" }}>
+            <Text
+              as="span"
+              size="3"
+              leading="2"
+              weight="medium"
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-expect-error textWrap is fine?
+              style={{ textWrap: "auto", overflow: "visible" }}
+            >
               {title}
             </Text>
             {description ? (
@@ -58,11 +74,11 @@ const Accordion = ({ children, title, description, defaultOpen = false }) => {
             initial={false}
             animate={{
               height: open ? "auto" : 0,
-              opacity: open ? 1 : 0
+              opacity: open ? 1 : 0,
             }}
             transition={{
               duration: 0.2,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           >
             <Box mx="6" pt="4" pb="3">
@@ -71,7 +87,7 @@ const Accordion = ({ children, title, description, defaultOpen = false }) => {
           </motion.div>
         </AnimatePresence>
       </Box>
-    </Box >
+    </Box>
   );
 };
 
