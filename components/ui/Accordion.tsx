@@ -54,7 +54,7 @@ const Accordion = ({ children, title, description, defaultOpen = false }) => {
               size="3"
               leading="2"
               weight="medium"
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // eslint-disable-next-line
               // @ts-expect-error textWrap is fine?
               style={{ textWrap: "auto", overflow: "visible" }}
             >
