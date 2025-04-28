@@ -41,7 +41,7 @@ export type SupportedIcon =
   | "expo";
 
 const icons: Record<SupportedIcon, React.ReactNode> = {
-  default: <Icon icon={Lucide.Square} alt="" />,
+  default: <Icon icon={Lucide.Square} aria-hidden={true} />,
   node: <FaNodeJs />,
   python: <FaPython />,
   ruby: <DiRuby />,
