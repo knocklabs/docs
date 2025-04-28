@@ -258,7 +258,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/validating-trigger-data", title: "Validating trigger data" },
       {
         slug: "/agent-toolkit",
-        title: "Agent toolkit",
+        title: "Agent Toolkit",
         isBeta: true,
         pages: [
           { slug: "/overview", title: "Overview" },
