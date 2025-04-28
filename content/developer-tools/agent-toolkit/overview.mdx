@@ -22,6 +22,35 @@ The Knock Agent Toolkit exposes a set of tools that your AI agent applications c
   }
 />
 
+## Getting started
+
+To get started with the Knock agent toolkit, you must have:
+
+- A [Knock account](https://dashboard.knock.app/signup)
+- A [service token](/developer-tools/service-tokens) for your Knock account
+
+Once you have a Knock account and a service token, you can install the Knock agent toolkit using your preferred package manager.
+
+```bash
+npm install @knocklabs/agent-toolkit
+```
+
+You can then set environment variables for your Knock service token.
+
+```bash
+export KNOCK_SERVICE_TOKEN=<your-service-token>
+```
+
+Depending on which AI/Agent framework you're using, you can then initialize the agent toolkit and use it to power your agent.
+
+```typescript
+import { createAgentToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+const toolkit = await createAgentToolkit();
+```
+
+Read more about [getting started with the Knock agent toolkit](/developer-tools/agent-toolkit/getting-started).
+
 ## Workflows-as-tools
 
 By default Agent Toolkit will expose each of your workflows as a tool that your agents can invoke to power cross-channel messaging. If you have a workflow (`comment-created`) within your Knock account, Agent Toolkit will expose a `trigger_comment_created_workflow` tool that your agents can invoke to send a notification.
@@ -30,10 +59,7 @@ Each tool describes the parameters that are required to trigger the workflow, wh
 
 If the workflow does not specify a trigger data JSON schema, the tool will define a generic data payload for the AI agent to fill in.
 
-You can control this behavior by either:
-
-- Disabling entirely by setting `workflows.read` to `false`
-- Specifying a list of workflow keys that are allowed to be exposed to the agent (`workflows.read = ["comment-created"]`)
+You can control this behavior by specifying a list of workflow keys that are allowed to be exposed to the agent (`workflows.trigger = ["comment-created"]`). By default, no workflows are exposed as tools.
 
 Read more about [exposing workflows as tools](/developer-tools/agent-toolkit/workflows-as-tools).
 
@@ -48,9 +74,7 @@ The toolkit exposes wrappers for requiring asynchronous human input. When wrappe
 ```typescript title="Wrapping a tool as requiring human input"
 import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
 
-const toolkit = createToolkit({
-  serviceToken: process.env.KNOCK_SERVICE_TOKEN,
-});
+const toolkit = createToolkit();
 
 const classifyToolRequiringInput = toolkit.requireHumanInput(classifyWork, {
   workflow: "approve-classification",

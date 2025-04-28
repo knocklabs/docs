@@ -28,7 +28,6 @@ KNOCK_SERVICE_TOKEN=st_1234567890
 import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
 
 const toolkit = await createKnockToolkit({
-  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
   permissions: {
     users: { manage: true },
   },
@@ -51,9 +50,7 @@ const result = await generateText({
 import OpenAI from "openai";
 import { createToolkit } from "@knocklabs/agent-toolkit/openai";
 
-const toolkit = await createToolkit({
-  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
-});
+const toolkit = await createToolkit();
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -74,7 +71,6 @@ const messages = [
   });
 
   while (true) {
-    // eslint-disable-next-line no-await-in-loop
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
@@ -86,7 +82,6 @@ const messages = [
     messages.push(message);
 
     if (message.tool_calls) {
-      // eslint-disable-next-line no-await-in-loop
       const toolMessages = await Promise.all(
         message.tool_calls.map((tc) => toolkit.handleToolCall(tc)),
       );
@@ -108,9 +103,7 @@ import type { ChatPromptTemplate } from "@langchain/core/prompts";
 import { pull } from "langchain/hub";
 import { AgentExecutor, createStructuredChatAgent } from "langchain/agents";
 
-const toolkit = await createToolkit({
-  serviceToken: process.env.KNOCK_SERVICE_TOKEN!,
-});
+const toolkit = await createToolkit();
 
 const llm = new ChatOpenAI({
   model: "gpt-4o",
