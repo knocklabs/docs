@@ -24,7 +24,7 @@ function selectedTab(pathname: string) {
   if (pathname.startsWith("/mapi-reference")) {
     return "mapi-reference";
   }
-  if (pathname.startsWith("/cli-reference")) {
+  if (pathname.startsWith("/cli")) {
     return "cli-reference";
   }
   if (pathname.startsWith("/guides")) {

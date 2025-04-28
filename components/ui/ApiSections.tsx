@@ -72,7 +72,7 @@ export const ContentColumn = ({ children }) => (
 );
 
 export const ExampleColumn = ({ children }) => (
-  <Box position="relative" minW="0" w="full">
+  <Box position="relative" minW="0" w="full" data-example-column>
     <Stack
       mt="5"
       pl="5"

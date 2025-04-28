@@ -171,10 +171,11 @@ export const CodeBlock: React.FC<Props> = ({
     <Box
       border="px"
       borderColor="gray-4"
-      borderRadius="2"
+      borderRadius="4"
       w="full"
       style={{ overflow: "hidden" }}
-      className="text-sm border dark:border-gray-800 rounded overflow-hidden w-full"
+      data-code-block
+      {...props}
     >
       <Stack
         bg="gray-2"

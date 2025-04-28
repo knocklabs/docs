@@ -6,7 +6,7 @@ import remarkGfm from "remark-gfm";
 
 import { readOpenApiSpec, readStainlessSpec } from "@/lib/openApiSpec";
 import { CONTENT_DIR } from "@/lib/content.server";
-import { MDX_COMPONENTS } from "@/pages/[...slug]";
+import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 import { SidebarSection } from "@/data/types";
 import ApiReference from "@/components/ui/ApiReference/ApiReference";
 
