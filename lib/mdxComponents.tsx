@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { CodeBlock } from "../components/ui/CodeBlock";
-import Callout from "../components/Callout";
+import Callout from "../components/ui/Callout";
 import MultiLangCodeBlock from "../components/ui/MultiLangCodeBlock";
 import LocaleTable from "../components/ui/LocaleTable";
 import { Attributes, Attribute } from "../components/ui/Attributes";
@@ -9,7 +9,7 @@ import CopyableText from "../components/CopyableText";
 import { Card, CardGroup } from "../components/Card";
 import { SdkCard, SdkCardGroup } from "../components/SdkCard";
 import { Endpoints, Endpoint } from "../components/ui/Endpoints";
-import { AccordionGroup, Accordion } from "../components/Accordion";
+import { AccordionGroup, Accordion } from "../components/ui/Accordion";
 import { Steps, Step } from "../components/ui/Step";
 import {
   Section,
