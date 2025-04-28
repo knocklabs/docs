@@ -40,7 +40,7 @@ export type SupportedIcon =
   | "youtube"
   | "expo";
 
-const icons: Record<SupportedIcon, React.ReactNode> = {
+export const icons: Record<SupportedIcon, React.ReactNode> = {
   default: <Icon icon={Lucide.Square} aria-hidden={true} />,
   node: <FaNodeJs />,
   python: <FaPython />,
