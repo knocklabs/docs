@@ -8,44 +8,58 @@ import {
   CollapsibleNavItem,
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
-import { useLayoutEffect, useState, useMemo } from "react";
+import { useLayoutEffect, useState, useMemo, useEffect } from "react";
 import { isPathTheSame, highlightResource, stripPrefix } from "./helpers";
+import { Tag } from "@telegraph/tag";
 
 type SidebarProps = {
   content: SidebarSection[];
   children?: React.ReactNode;
 };
 
+function getOpenState(section: SidebarSection, slug: string, path: string) {
+  return section.pages.some((page) => {
+    if (isPathTheSame(`${slug}${page.slug}`, path)) {
+      return true;
+    }
+    if ("pages" in page) {
+      if (page.pages) {
+        return page?.pages.some((subPage) =>
+          isPathTheSame(`${slug}${page.slug}${subPage.slug}`, path),
+        );
+      }
+    }
+    return false;
+  });
+}
+
 const Item = ({
   section,
   preSlug = "",
   depth = 0,
+  defaultOpen,
 }: {
   section: SidebarSection;
   preSlug?: string;
   depth?: number;
+  defaultOpen?: boolean;
 }) => {
   const router = useRouter();
   const basePath = router.asPath.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
   const resourceSection = stripPrefix(slug);
+  const pathNoHash = router.asPath.split("#")[0];
 
   const [isOpen, setIsOpen] = useState(
-    // Determines which menus should be open on initial load
-    section.pages.some((page) => {
-      if (isPathTheSame(`${slug}${page.slug}`, router.asPath)) {
-        return true;
-      }
-      if ("pages" in page) {
-        if (page.pages) {
-          return page?.pages.some((subPage) =>
-            isPathTheSame(`${slug}${page.slug}${subPage.slug}`, router.asPath),
-          );
-        }
-      }
-      return false;
-    }),
+    defaultOpen ?? getOpenState(section, slug, pathNoHash),
   );
+
+  // Update isOpen when the path changes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsOpen(defaultOpen ?? getOpenState(section, slug, pathNoHash));
+    }
+  }, [section, slug, pathNoHash, isOpen, defaultOpen]);
 
   // Create the debounced function once when component mounts
   // This helps produce a smoother experience when scrolling fast
@@ -157,6 +171,11 @@ const Item = ({
           >
             <NavItem href={href} isActive={isActive}>
               {page.title}
+              {page.isBeta && (
+                <Tag color="blue" ml="2" size="0">
+                  Beta
+                </Tag>
+              )}
             </NavItem>
           </Box>
         );
@@ -169,7 +188,7 @@ const Section = ({ section }: { section: SidebarSection }) => {
   return (
     <Stack direction="column" key={section.slug} mb="1" data-sidebar-section>
       <Box>
-        <Item section={section} />
+        <Item section={section} defaultOpen={section?.sidebarMenuDefaultOpen} />
       </Box>
     </Stack>
   );

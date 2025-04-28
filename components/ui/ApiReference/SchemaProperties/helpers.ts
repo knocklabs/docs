@@ -172,14 +172,14 @@ const hydrateRequiredChildProperties = (
     }
 
     // Process anyOf schemas
-    if (schema.anyOf) {
+    if (schema.anyOf && Array.isArray(schema.anyOf)) {
       hydratedSchema.anyOf = schema.anyOf.map((subSchema) =>
         processSchema(subSchema as OpenAPIV3.SchemaObject),
       );
     }
 
     // Process allOf schemas
-    if (schema.allOf) {
+    if (schema.allOf && Array.isArray(schema.allOf)) {
       hydratedSchema.allOf = schema.allOf.map((subSchema) =>
         processSchema(subSchema as OpenAPIV3.SchemaObject),
       );

@@ -10,6 +10,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/example-apps", title: "Example apps" },
     ],
+    sidebarMenuDefaultOpen: true,
   },
   {
     title: "Concepts",

@@ -20,4 +20,5 @@ export type SidebarSection = {
     | SidebarPage[]
     | SidebarSubsection[]
     | Array<SidebarPage | SidebarSubsection>;
+  sidebarMenuDefaultOpen?: boolean;
 };
