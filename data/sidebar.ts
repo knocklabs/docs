@@ -1,5 +1,4 @@
 import { SidebarSection } from "./types";
-import sidebarJson from "./sidebar.json";
 
 const sidebarContent: SidebarSection[] = [
   {
@@ -33,8 +32,8 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/translations", title: "Translations" },
       { slug: "/conditions", title: "Conditions" },
       { slug: "/variables", title: "Variables" },
-      { slug: "/audiences", title: "Audiences", isBeta: true },
-      { slug: "/broadcasts", title: "Broadcasts", isBeta: true },
+      { slug: "/audiences", title: "Audiences" },
+      { slug: "/broadcasts", title: "Broadcasts" },
     ],
   },
   {
@@ -106,7 +105,7 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/api", title: "With the API" },
           { slug: "/schedules", title: "On a schedule" },
           { slug: "/events", title: "From an event" },
-          { slug: "/audiences", title: "For an audience", isBeta: true },
+          { slug: "/audiences", title: "For an audience" },
         ],
       },
       { slug: "/canceling-workflows", title: "Canceling workflows" },
@@ -129,7 +128,6 @@ const sidebarContent: SidebarSection[] = [
       {
         slug: "/commercial-unsubscribe",
         title: "Commercial unsubscribe",
-        isBeta: true,
       },
     ],
   },
