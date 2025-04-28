@@ -410,6 +410,11 @@ const nextConfig = {
         destination: "/mapi-reference",
         permanent: true,
       },
+      {
+        source: "/agent-toolkit",
+        destination: "/developer-tools/agent-toolkit/overview",
+        permanent: true,
+      },
     ];
   },
 };
