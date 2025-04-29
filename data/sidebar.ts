@@ -128,86 +128,6 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/preference-conditions", title: "Preferences conditions" },
     ],
   },
-
-  // {
-  //   title: "SDKs",
-  //   slug: "/sdks",
-  //   desc: "",
-  //   pages: [
-  //     {
-  //       title: "Overview",
-  //       slug: "/overview",
-  //     },
-  //     {
-  //       title: "React (Web)",
-  //       slug: "/react",
-  //       pages: [
-  //         { slug: "/overview", title: "Overview" },
-  //         { slug: "/api-reference", title: "API reference" },
-  //       ],
-  //     },
-  //     {
-  //       title: "Javascript (Web)",
-  //       slug: "/javascript",
-  //       pages: [
-  //         { slug: "/overview", title: "Overview" },
-  //         { slug: "/quick-start", title: "Quick start" },
-  //         { slug: "/api-reference", title: "API reference" },
-  //       ],
-  //     },
-  //     {
-  //       title: "iOS (Swift)",
-  //       slug: "/ios",
-  //       pages: [
-  //         { slug: "/overview", title: "Overview" },
-  //         { slug: "/quick-start", title: "Quick start" },
-  //         { slug: "/push-notifications", title: "Push notifications" },
-  //         { slug: "/deep-links", title: "Deep/universal links" },
-  //         { slug: "/api-reference", title: "API reference" },
-  //       ],
-  //     },
-  //     {
-  //       title: "Android (Kotlin)",
-  //       slug: "/android",
-  //       pages: [
-  //         { slug: "/overview", title: "Overview" },
-  //         { slug: "/quick-start", title: "Quick start" },
-  //         { slug: "/push-notifications", title: "Push notifications" },
-  //         { slug: "/deep-links", title: "Deep links" },
-  //         { slug: "/api-reference", title: "API reference" },
-  //       ],
-  //     },
-  //     {
-  //       title: "Flutter",
-  //       slug: "/flutter",
-  //       pages: [
-  //         { slug: "/overview", title: "Overview" },
-  //         { slug: "/quick-start", title: "Quick start" },
-  //         { slug: "/api-reference", title: "API reference" },
-  //       ],
-  //     },
-  //     {
-  //       title: "React Native",
-  //       slug: "/react-native",
-  //       pages: [
-  //         { slug: "/overview", title: "Overview" },
-  //         { slug: "/quick-start", title: "Quick start" },
-  //         { slug: "/push-notifications", title: "Push notifications" },
-  //         { slug: "/api-reference", title: "API reference" },
-  //       ],
-  //     },
-  //     {
-  //       title: "Expo",
-  //       slug: "/expo",
-  //       pages: [
-  //         { slug: "/overview", title: "Overview" },
-  //         { slug: "/push-notifications", title: "Push notifications" },
-  //         { slug: "/api-reference", title: "API reference" },
-  //       ],
-  //     },
-  //   ],
-  // },
-
   {
     title: "Manage your account",
     slug: "/manage-your-account",
@@ -231,10 +151,12 @@ const developerToolsContent: SidebarSection[] = [
     title: "Developer tools",
     slug: "/developer-tools",
     desc: "Use our powerful developer tools in order to integrate Knock seamlessly into your development workflow.",
+    sidebarMenuDefaultOpen: true,
     pages: [
       { slug: "/api-keys", title: "API keys" },
       { slug: "/service-tokens", title: "Service tokens" },
       { slug: "/knock-cli", title: "Knock CLI" },
+      { slug: "/sdks", title: "SDKs" },
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
@@ -279,115 +201,6 @@ const guidesContent: SidebarSection[] = [
         slug: "/modeling-users-objects-and-tenants",
         title: "Modeling Users, Objects, and Tenants",
       },
-    ],
-  },
-];
-
-const inAppUiContent: SidebarSection[] = [
-  {
-    title: "In-app UI",
-    slug: "/in-app-ui",
-    desc: "Use the Knock in-app experiences APIs and components to build rich notifications experiences inside of your product.",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      {
-        slug: "/api-overview",
-        title: "API endpoints",
-      },
-      {
-        slug: "/security-and-authentication",
-        title: "Security & authentication",
-      },
-      {
-        slug: "/message-types",
-        title: "Message types",
-        isBeta: true,
-      },
-      // {
-      //   title: "React",
-      //   slug: "/react",
-      //   pages: [
-      //     { slug: "/overview", title: "Overview" },
-      //     { slug: "/feed", title: "Notification feed" },
-      //     {
-      //       slug: "/messaging-components",
-      //       title: "Messaging components",
-      //       isBeta: true,
-      //     },
-      //     { slug: "/toasts", title: "Toasts" },
-      //     { slug: "/inbox", title: "Notification inbox" },
-      //     {
-      //       slug: "/custom-notifications-ui",
-      //       title: "Custom feed UI (headless)",
-      //     },
-      //     { slug: "/preferences", title: "Preferences" },
-      //     { slug: "/slack-kit", title: "SlackKit" },
-      //     { slug: "/teams-kit", title: "TeamsKit" },
-      //     {
-      //       slug: "/filtering-in-app-feeds",
-      //       title: "Filtering feeds",
-      //     },
-      //     {
-      //       slug: "/customizing-feed-components",
-      //       title: "Customizing feed components",
-      //     },
-      //   ],
-      // },
-      // {
-      //   title: "Javascript",
-      //   slug: "/javascript",
-      //   pages: [{ slug: "/overview", title: "Overview" }],
-      // },
-      // {
-      //   title: "Angular",
-      //   slug: "/angular",
-      //   pages: [{ slug: "/overview", title: "Overview" }],
-      // },
-      // {
-      //   title: "React Native",
-      //   slug: "/react-native",
-      //   pages: [
-      //     { slug: "/overview", title: "Overview" },
-      //     { slug: "/components", title: "Components" },
-      //     {
-      //       slug: "/customization",
-      //       title: "Customization",
-      //     },
-      //     {
-      //       slug: "/notification-feeds",
-      //       title: "Custom notifications UI (headless)",
-      //     },
-      //   ],
-      // },
-      // {
-      //   title: "iOS (Swift)",
-      //   slug: "/ios",
-      //   pages: [
-      //     { slug: "/overview", title: "Overview" },
-      //     { slug: "/components", title: "Components" },
-      //     {
-      //       slug: "/customization",
-      //       title: "Customization",
-      //     },
-      //   ],
-      // },
-      // {
-      //   title: "Android (Kotlin)",
-      //   slug: "/android",
-      //   pages: [
-      //     { slug: "/overview", title: "Overview" },
-      //     { slug: "/components", title: "Components" },
-      //     {
-      //       slug: "/customization",
-      //       title: "Customization",
-      //     },
-      //   ],
-      // },
-      // {
-      //   title: "Flutter",
-      //   slug: "/flutter",
-      //   pages: [{ slug: "/overview", title: "Overview" }],
-      // },
     ],
   },
 ];
@@ -465,88 +278,6 @@ const cliContent: SidebarSection[] = [
   },
 ];
 
-const sdksSidebarContent: SidebarSection[] = [
-  {
-    title: "Getting started",
-    slug: "/sdks/overview",
-    pages: [{ slug: "", title: "Introduction" }],
-  },
-  {
-    title: "Android",
-    slug: "/sdks/android",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      { slug: "/quick-start", title: "Quick Start" },
-      { slug: "/push-notifications", title: "Push Notifications" },
-      { slug: "/deep-links", title: "Deep Links" },
-      { slug: "/reference", title: "Reference" },
-    ],
-  },
-  {
-    title: "Expo",
-    slug: "/sdks/expo",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      { slug: "/push-notifications", title: "Push Notifications" },
-      { slug: "/reference", title: "Reference" },
-    ],
-  },
-  {
-    title: "Flutter",
-    slug: "/sdks/flutter",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      { slug: "/quick-start", title: "Quick Start" },
-      { slug: "/reference", title: "Reference" },
-    ],
-  },
-  {
-    title: "iOS",
-    slug: "/sdks/ios",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      { slug: "/quick-start", title: "Quick Start" },
-      { slug: "/push-notifications", title: "Push Notifications" },
-      { slug: "/deep-links", title: "Deep Links" },
-      { slug: "/reference", title: "Reference" },
-    ],
-  },
-  {
-    title: "JavaScript",
-    slug: "/sdks/javascript",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      { slug: "/quick-start", title: "Quick Start" },
-      { slug: "/reference", title: "Reference" },
-    ],
-  },
-  {
-    title: "React",
-    slug: "/sdks/react",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      { slug: "/reference", title: "Reference" },
-    ],
-  },
-  {
-    title: "React Native",
-    slug: "/sdks/react-native",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      { slug: "/quick-start", title: "Quick Start" },
-      { slug: "/push-notifications", title: "Push Notifications" },
-      { slug: "/notification-feeds", title: "Notification Feeds" },
-      { slug: "/reference", title: "Reference" },
-    ],
-  },
-];
-
-export {
-  guidesContent,
-  developerToolsContent,
-  inAppUiContent,
-  cliContent,
-  sdksSidebarContent,
-};
+export { guidesContent, developerToolsContent, cliContent };
 
 export default sidebarContent;

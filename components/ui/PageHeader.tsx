@@ -33,9 +33,6 @@ function selectedTab(pathname: string) {
   if (pathname.startsWith("/integrations")) {
     return "integrations";
   }
-  if (pathname.startsWith("/sdks")) {
-    return "sdks";
-  }
   return "platform";
 }
 
@@ -126,9 +123,6 @@ const PageHeader = ({ title }: PageHeaderProps) => {
             </Tabs.Tab>
             <Tabs.Tab value="in-app-ui" as={Link} href="/in-app-ui">
               Building in-app UI
-            </Tabs.Tab>
-            <Tabs.Tab value="sdks" as={Link} href="/sdks">
-              SDKs
             </Tabs.Tab>
             <Tabs.Tab value="api-reference" as={Link} href="/api-reference">
               API reference
