@@ -28,7 +28,7 @@ import {
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
-  h2: (props) => <Heading as="h2" size="5" mb="3" mt="8" {...props} />,
+  h2: (props) => <Heading as="h2" size="6" mb="3" mt="8" {...props} />,
   h3: (props) => <Heading as="h3" size="4" mb="2" mt="8" {...props} />,
   h4: (props) => <Heading as="h4" size="3" mb="1" mt="8" {...props} />,
   code: (props) => (
@@ -47,6 +47,9 @@ export const MDX_COMPONENTS = {
     >
       {props.children}
     </Text>
+  ),
+  figcaption: (props) => (
+    <Text as="figcaption" mt="2" mb="4" data-tgph-figcaption {...props} />
   ),
   table: (props) => <TableElement {...props} />,
   thead: (props) => <TheadElement {...props} />,

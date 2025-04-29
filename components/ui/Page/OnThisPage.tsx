@@ -3,8 +3,7 @@ import Link from "next/link";
 import { Box, Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { Icon, Lucide } from "@telegraph/icon";
-import { motion } from "framer-motion";
-
+import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
 export interface Props {
   title: string;
   sourcePath: string;
@@ -101,7 +100,6 @@ const HeaderList: React.FC<{ headers: Header[]; nesting: number }> = ({
 const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
   const [headers, setHeaders] = useState<Header[]>([]);
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const gradientRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const documentHeaders = Array.from(
@@ -110,39 +108,6 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
 
     setHeaders(buildHeaderTree(documentHeaders));
   }, [title, sourcePath]);
-
-  // A nice way to show that there is more content below the scroller
-  useEffect(() => {
-    if (scrollerRef.current && gradientRef.current) {
-      const scroller = scrollerRef.current;
-      const gradient = gradientRef.current;
-
-      const handleScroll = () => {
-        if (!scroller || !gradient) return;
-
-        // If content height is less than or equal to viewport height, hide gradient
-        if (scroller.scrollHeight <= scroller.clientHeight) {
-          gradient.style.opacity = "0";
-          scroller.style.paddingBottom = "var(--tgph-spacing-4)";
-          return;
-        }
-
-        const scrollableHeight = scroller.scrollHeight - scroller.clientHeight;
-        const scrolledAmount = scroller.scrollTop;
-        const scrollPercentage = Math.min(scrolledAmount / scrollableHeight, 1);
-
-        // Invert the percentage so opacity goes from 1 to 0 as we scroll down
-        gradient.style.opacity = String(1 - scrollPercentage);
-      };
-
-      scroller.addEventListener("scroll", handleScroll);
-      handleScroll(); // Initial check
-
-      return () => {
-        scroller.removeEventListener("scroll", handleScroll);
-      };
-    }
-  }, [headers]);
 
   if (headers.length === 0) {
     return null;
@@ -174,19 +139,7 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
           >
             <HeaderList headers={headers} nesting={0} />
           </Stack>
-          <Box
-            position="absolute"
-            left="0"
-            bottom="0"
-            right="0"
-            height="32"
-            tgphRef={gradientRef}
-            style={{
-              background:
-                "linear-gradient(to bottom, transparent, var(--tgph-surface-1))",
-              pointerEvents: "none",
-            }}
-          />
+          <ScrollerBottomGradient scrollerRef={scrollerRef} />
           <Box borderTop="px" borderColor="gray-3" mb="4" />
           <Text
             as="a"

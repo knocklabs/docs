@@ -33,33 +33,32 @@ const Card: React.FC<Props> = ({
   isExternal = false,
 }) => (
   <Stack h="full" rounded="2" border="px" borderColor="gray-4" minH="20">
-    <MenuItem h="full" w="full">
-      <Box
-        as={Link}
-        target={isExternal ? "_blank" : undefined}
-        href={linkUrl}
-        title={title}
-        style={{ textDecoration: "none" }}
-        w="full"
-        p="3"
-      >
-        <>
-          {emoji && <Box mb="1">{emoji}</Box>}
+    <MenuItem
+      h="full"
+      w="full"
+      as={Link}
+      target={isExternal ? "_blank" : undefined}
+      href={linkUrl}
+      title={title}
+      style={{ textDecoration: "none" }}
+      p="3"
+    >
+      <Box w="full">
+        {emoji && <Box mb="1">{emoji}</Box>}
 
-          <Box mb="1">
-            <Text as="span" color="accent" size="2" weight="semi-bold">
-              {title}
-            </Text>
-          </Box>
+        <Box mb="1">
+          <Text as="span" color="accent" size="2" weight="semi-bold">
+            {title}
+          </Text>
+        </Box>
 
-          {children && (
-            <Text as="div" size="2">
-              {children}
-            </Text>
-          )}
+        {children && (
+          <Text as="div" size="2">
+            {children}
+          </Text>
+        )}
 
-          {footer && <Stack alignItems="center">{footer}</Stack>}
-        </>
+        {footer && <Stack alignItems="center">{footer}</Stack>}
       </Box>
     </MenuItem>
   </Stack>

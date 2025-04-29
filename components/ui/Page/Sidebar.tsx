@@ -8,9 +8,15 @@ import {
   CollapsibleNavItem,
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
-import { useLayoutEffect, useState, useMemo, useEffect } from "react";
-import { isPathTheSame, highlightResource, stripPrefix } from "./helpers";
+import { useLayoutEffect, useState, useMemo, useEffect, useRef } from "react";
+import {
+  isPathTheSame,
+  highlightResource,
+  stripPrefix,
+  updateNavStyles,
+} from "./helpers";
 import { Tag } from "@telegraph/tag";
+import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
 
 type SidebarProps = {
   content: SidebarSection[];
@@ -49,6 +55,7 @@ const Item = ({
   const slug = `${preSlug}${section.slug}`;
   const resourceSection = stripPrefix(slug);
   const pathNoHash = router.asPath.split("#")[0];
+  const [initializedOnPath, setInitializedOnPath] = useState(pathNoHash);
 
   const [isOpen, setIsOpen] = useState(
     defaultOpen ?? getOpenState(section, slug, pathNoHash),
@@ -56,10 +63,15 @@ const Item = ({
 
   // Update isOpen when the path changes
   useEffect(() => {
-    if (!isOpen) {
-      setIsOpen(defaultOpen ?? getOpenState(section, slug, pathNoHash));
+    // Have to do an initialization check like this so we can control it manually still
+    if (pathNoHash !== initializedOnPath) {
+      setInitializedOnPath(pathNoHash);
+      if (!isOpen) {
+        const isDeterminedOpen = getOpenState(section, slug, pathNoHash);
+        setIsOpen(defaultOpen ?? isDeterminedOpen);
+      }
     }
-  }, [section, slug, pathNoHash, isOpen, defaultOpen]);
+  }, [section, slug, pathNoHash, isOpen, defaultOpen, initializedOnPath]);
 
   // Create the debounced function once when component mounts
   // This helps produce a smoother experience when scrolling fast
@@ -195,6 +207,15 @@ const Section = ({ section }: { section: SidebarSection }) => {
 };
 
 const Wrapper = ({ children }: SidebarProps) => {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const basePath = router.asPath.split("#")[0];
+
+  // If we have a tall sidebar, we want to scroll the nav item into view when the page loads
+  useEffect(() => {
+    updateNavStyles(basePath);
+  }, [basePath]);
+
   return (
     <Box className="md-hidden">
       <Box
@@ -204,17 +225,24 @@ const Wrapper = ({ children }: SidebarProps) => {
         position="fixed"
         bottom="0"
         top="24"
-        pb="12"
         style={{ minHeight: "90vh" }}
       >
+        <ScrollerBottomGradient
+          scrollerRef={scrollerRef}
+          managePadding={false}
+          gradientProps={{
+            height: "48",
+          }}
+        />
         <Stack
           direction="column"
           gap="1"
           h="full"
           pt="2"
-          pb="4"
           px="4"
+          pb="12"
           style={{ overflowY: "auto" }}
+          tgphRef={scrollerRef}
         >
           {children}
         </Stack>
