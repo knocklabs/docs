@@ -85,16 +85,34 @@ $client->tenants()->list([
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-result, _ := knockClient.Tenants.List(ctx, nil)
-
-// Supports pagination parameters and filters
-result, _ := knockClient.Tenants.List(ctx, &knock.ListTenantsRequest{
-    PageSize: 20,
-    Name: "Tenant 1",
+// List tenants with pagination
+tenants, _ := knockClient.Tenants.List(ctx, knock.TenantListParams{
+	PageSize: param.New(20),
+	Name:     param.New("Tenant 1"),
 })
+
+// Auto-paging version
+tenantsPager := knockClient.Tenants.ListAutoPaging(ctx, knock.TenantListParams{
+	PageSize: param.New(20),
+	Name:     param.New("Tenant 1"),
+})
+
+// Iterate through tenants
+for tenantsPager.Next() {
+	tenant := tenantsPager.Current()
+	// Process tenant...
+}
 `,
   java: `
 import app.knock.api.client.KnockClient;

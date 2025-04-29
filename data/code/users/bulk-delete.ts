@@ -55,8 +55,8 @@ $client->users()->bulkDelete(['user-1', 'user-2']);
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Users.BulkDelete(ctx, &knock.&BulkDeleteUserRequest{
-  UserIDs: []string{"user-1", "user-2"}
+result, _ := knockClient.Users.Bulk.Delete(ctx, knock.UserBulkDeleteParams{
+  UserIDs: param.Strings([]string{"user-1", "user-2"}),
 })
 `,
   java: `

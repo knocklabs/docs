@@ -109,14 +109,14 @@ $client->users()->bulkSetPreferences([
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Users.BulkSetPreferences(ctx, &knock.&BulkSetUserPreferencesRequest{
-  UserIDs:     []string{"jhammond", "dnedry"},
-  Preferences: map[string]interface{}{
-    "channel_types": map[string]interface{}{
+result, _ := knockClient.Users.Bulk.SetPreferences(ctx, knock.UserBulkSetPreferencesParams{
+  UserIDs: param.Strings([]string{"jhammond", "dnedry"}),
+  Preferences: knock.PreferenceSetRequestParam{
+    ChannelTypes: param.Raw(map[string]interface{}{
       "email": true,
       "sms":   false,
-    }
-  }
+    }),
+  },
 })
 `,
   java: `

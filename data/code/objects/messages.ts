@@ -106,17 +106,30 @@ $client->objects()->getMessages('projects', 'project-1', [
 import (
 	"context"
 
-	"github.com/knocklabs/knock-go"
+	"github.com/stainless-sdks/knock-go"
+	"github.com/stainless-sdks/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+client := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-response, _ := knockClient.Objects.GetMessages(ctx, &knock.GetObjectMessagesRequest{
-  Collection: "projects",
-  ObjectID:   "project-1",
-  PageSize:   10
+// List messages with pagination
+messages, _ := client.Messages.List(ctx, knock.MessageListParams{
+	PageSize: param.New(20),
+	Tenant:   param.New("my-tenant"),
 })
+
+// Auto-paging version
+messagesPager := client.Messages.ListAutoPaging(ctx, knock.MessageListParams{
+	PageSize: param.New(20),
+	Tenant:   param.New("my-tenant"),
+})
+
+// Iterate through messages
+for messagesPager.Next() {
+	message := messagesPager.Current()
+	// Process message...
+}
 `,
   java: `
 import app.knock.api.client.KnockClient;

@@ -136,27 +136,33 @@ $client->users()->setPreferences($user->id(), [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-request := &knock.SetUserPreferencesRequest{UserID: user.ID}
-
-request.AddChannelTypesPreference(map[string]interface{}{
-  "email": true,
-  "sms": false
-})
-
-request.AddWorkflowsPreference(map[string]interface{}{
-  "dinosaurs-loose": map[string]interface{}{
-    "channel_types": map[string]interface{}{
-      "email":       false,
-      "in_app_feed": true,
-      "sms":         true,
-    },
+preferenceSet, _ := knockClient.Users.SetPreferences(ctx, user.ID, "default", knock.UserSetPreferencesParams{
+  PreferenceSetRequest: knock.PreferenceSetRequestParam{
+    ChannelTypes: param.Raw(map[string]interface{}{
+      "email": true,
+      "sms":   false,
+    }),
+    Workflows: param.Raw(map[string]interface{}{
+      "dinosaurs-loose": map[string]interface{}{
+        "channel_types": map[string]interface{}{
+          "email":       false,
+          "in_app_feed": true,
+          "sms":         true,
+        },
+      },
+    }),
   },
 })
-
-preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request)
 `,
   java: `
 import app.knock.api.client.KnockClient;

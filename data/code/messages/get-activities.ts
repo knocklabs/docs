@@ -78,18 +78,28 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-activities, err := client.Messages.List(
-	ctx,
-	message.ID,
-	knock.MessageActivityListParams{
-		PageSize: knock.F(10),
-	},
-)
+// List activities with pagination
+activities, _ := knockClient.Messages.ListActivities(ctx, message.ID, knock.MessageListActivitiesParams{
+	PageSize: param.New(10),
+})
+
+// Auto-paging version
+activitiesPager := knockClient.Messages.ListActivitiesAutoPaging(ctx, message.ID, knock.MessageListActivitiesParams{
+	PageSize: param.New(10),
+})
+
+// Iterate through activities
+for activitiesPager.Next() {
+	activity := activitiesPager.Current()
+	// Process activity...
+}
 `,
   java: `
 import app.knock.api.client.KnockClient;

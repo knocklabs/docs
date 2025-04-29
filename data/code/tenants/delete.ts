@@ -44,12 +44,17 @@ $client = new Client('sk_12345');
 $client->tenants()->delete('tenant-1');
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-response, _ := knockClient.Tenants.Delete(ctx, &knock.DeleteTenantRequest{
-  ID:         "tenant-1"
-})
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+response, _ := knockClient.Tenants.Delete(ctx, "tenant-1")
 `,
   java: `
 import app.knock.api.client.KnockClient;

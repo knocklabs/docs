@@ -119,6 +119,27 @@ var result = client.workflows().trigger(
         .build()
 );
 `,
+  go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+params := knock.WorkflowTriggerParams{
+  Recipients: []knock.RecipientRequestUnionParam{"1", "2"},
+  Data: map[string]interface{}{"project_name": "My Project"},
+  Actor: "3",
+  CancellationKey: "cancel_123",
+  Tenant: "jurassic_world_employees",
+}
+
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
+`,
 };
 
 export default languages;

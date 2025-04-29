@@ -52,14 +52,18 @@ $client = new Client('sk_12345');
 $client->users()->getPreference($user->id(), 'default');
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // The preference set ID is required. Use "default" for the default preference set
-preferences, _ := knockClient.Users.GetPreferences(ctx, &knock.GetUserPreferencesRequest{
-  UserID: user.ID,
-  PreferenceID: "default",
-})
+preferences, _ := knockClient.Users.GetPreferences(ctx, user.ID, "default", knock.UserGetPreferencesParams{})
 `,
   java: `
 import app.knock.api.KnockClient;

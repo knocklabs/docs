@@ -119,22 +119,26 @@ $client->workflows()->trigger('new-comment', [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
-  Workflow:   "new-comment",
-  Recipients: []interface{}{"1", "2"},
-
-  // optional
-  Data:            map[string]interface{}{"project_name": "My Project"},
-  Actor:           "3",
-  CancellationKey: "cancel_123",
-  Tenant:          "jurassic_world_employees",
-},
-&knock.MethodOptions{
-  IdempotencyKey: "123",
-})
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", knock.WorkflowTriggerParams{
+	Recipients: param.New([]string{"1", "2"}),
+	Data: param.New(map[string]interface{}{
+		"project_name": "My Project",
+	}),
+	Actor:           param.New("3"),
+	CancellationKey: param.New("cancel_123"),
+	Tenant:          param.New("jurassic_world_employees"),
+}, option.WithIdempotencyKey("123"))
 `,
   java: `
 import app.knock.api.client.KnockClient;

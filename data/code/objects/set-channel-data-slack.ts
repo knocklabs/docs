@@ -136,26 +136,25 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+client := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 knockSlackChannelID := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
+channelData, _ := client.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
 	Collection: "projects",
 	ObjectID:   "project-1",
 	ChannelID:  knockSlackChannelID,
-	Data: map[string]interface{}{
-		"connections": []interface{}{
-			map[string]interface{}{
-				"incoming_webhook": map[string]interface{}{
-					"url": "url-from-slack",
-				},
+	Data: knock.SlackChannelDataParam{
+		Connections: param.New([]knock.SlackChannelDataConnectionsUnionParam{
+			knock.SlackChannelDataConnectionsSlackIncomingWebhookConnectionParam{
+				URL: param.New("url-from-slack"),
 			},
-		},
+		}),
 	},
 })
 `,

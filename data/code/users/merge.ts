@@ -52,12 +52,18 @@ $client->users()->merge($user->id(), [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-result, _ := knockClient.Users.Merge(ctx, &knock.MergeUserRequest{
-  ID:         user.ID,
-  FromUserID: "user-to-merge-from",
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+result, _ := knockClient.Users.Merge(ctx, user.ID, knock.UserMergeParams{
+  FromUserID: param.String("user-to-merge-from"),
 })
 `,
   java: `

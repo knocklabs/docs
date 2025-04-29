@@ -42,6 +42,19 @@ ObjectListParams params = ObjectListParams.builder()
     .build();
 ObjectListPage objects = client.objects().list(params);
 `,
+  go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+objects, _ := knockClient.Objects.List(ctx, "projects", &knock.ObjectListParams{})
+`,
   // TODO: Add additional SDK examples
 };
 

@@ -70,16 +70,20 @@ $client->users()->getChannelData($user->id(), [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 apnsChannelId := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-channel_data, _ := knockClient.Users.GetChannelData(ctx, &knock.GetUserChannelDataRequest{
-  UserID:    user.ID,
-  ChannelID: apnsChannelId
-})
+channelData, _ := knockClient.Users.GetChannelData(ctx, user.ID, apnsChannelId)
 `,
   java: `
 import app.knock.api.client.KnockClient;

@@ -127,27 +127,32 @@ $client->workflows()->trigger('new-comment', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "new-comment",
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{"project_name": "My Project"},
+  Recipients: []knock.RecipientRequestUnionParam{
+    map[string]interface{}{
+      "id": "1",
+      "name": "John Hammond",
+      "email": "jhammond@ingen.net",
+    },
+    map[string]interface{}{
+      "id": "2",
+      "name": "Ellie Sattler",
+      "email": "esattler@ingen.net",
+    },
+  },
 }
 
-request.AddRecipientByEntity(map[string]interface{
-  "id": "1",
-  "name": "John Hammond",
-  "email": "jhammond@ingen.net",
-})
-
-request.AddRecipientByEntity(map[string]interface{
-  "id": "2",
-  "name": "Ellie Sattler",
-  "email": "esattler@ingen.net",
-})
-
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
 `,
   java: `
 import app.knock.api.client.KnockClient;

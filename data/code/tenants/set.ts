@@ -118,22 +118,27 @@ $client->tenants()->set('tenant-1', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-tenant, _ := knockClient.Tenants.Set(ctx, &knock.SetTenantRequest{
-  ID:         "tenant-1",
-  Properties: map[string]interface{
-    "name":       "Tenant 1"
-  }
-  Settings: map[string]interface{
-    "branding":  map[string]interface{
-      "primary_color":          "#33FF5B",
-      "primary_color_contrast": "#ffffff",
-      "logo_url":               "https:www.example.com/path-to-logo-asset-url",
-      "icon_url":               "https:www.example.com/path-to-icon-asset-url"
-    }
-  }
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+tenant, _ := knockClient.Tenants.Set(ctx, "tenant-1", knock.TenantSetParams{
+	Name: param.New("Tenant 1"),
+	Settings: param.New(map[string]interface{}{
+		"branding": map[string]interface{}{
+			"primary_color":          "#33FF5B",
+			"primary_color_contrast": "#ffffff",
+			"logo_url":               "https://www.example.com/path-to-logo-asset-url",
+			"icon_url":               "https://www.example.com/path-to-icon-asset-url",
+		},
+	}),
 })
 `,
   java: `

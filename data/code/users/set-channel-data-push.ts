@@ -58,17 +58,22 @@ $client->users()->setChannelData($user->id(), '5a88728a-3ecb-400d-ba6f-9c0956ab2
   'tokens' => [$apnsToken]
 ]);
   `,
-  go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+  go: ` 
+import (
+	"context"
 
-channelData, _ := knockClient.Users.SetChannelData(ctx, &knock.SetUserChannelDataRequest{
-  UserID:    user.ID,
-  ChannelID: "5a88728a-3ecb-400d-ba6f-9c0956ab252f",
-  Data: map[string]interface{}{
-    "tokens": []string{}{
-      apnsToken
-    },
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+channelData, _ := knockClient.Users.SetChannelData(ctx, user.ID, "5a88728a-3ecb-400d-ba6f-9c0956ab252f", knock.UserSetChannelDataParams{
+  ChannelDataRequest: knock.ChannelDataRequestParam{
+    Data: param.Raw(map[string]interface{}{
+      "tokens": []string{apnsToken},
+    }),
   },
 })
   `,

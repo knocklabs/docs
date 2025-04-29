@@ -151,35 +151,36 @@ $client->workflows()->trigger('new-comment', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "new-comment",
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{"project_name": "My Project"},
+  Recipients: []knock.RecipientRequestUnionParam{
+    map[string]interface{}{
+      "id": "project-1",
+      "collection": "projects",
+      "name": "My project",
+      "total_assets": 10,
+      "tags": []string{"cool", "fun", "project"},
+    },
+    map[string]interface{}{
+      "id": "project-2",
+      "collection": "projects",
+      "name": "My second project",
+      "total_assets": 5,
+      "tags": []string{"very", "cool", "project"},
+    },
+  },
 }
 
-request.AddRecipientByEntity(
-  map[string]interface{}{
-    "id": "project-1",
-    "collection": "projects",
-    "name": "My project",
-    "total_assets": 10,
-    "tags": []string{"cool", "fun", "project"},
-  }
-)
-
-request.AddRecipientByEntity(
-  map[string]interface{}{
-    "id": "project-2",
-    "collection": "projects",
-    "name": "My second project",
-    "total_assets": 5,
-    "tags": []string{"very", "cool", "project"},
-  }
-)
-
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
 `,
   java: `
 import app.knock.api.client.KnockClient;

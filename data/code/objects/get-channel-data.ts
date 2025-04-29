@@ -79,19 +79,16 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 apnsChannelId := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-channelData, _ := knockClient.Objects.GetChannelData(ctx, &knock.GetObjectChannelDataRequest{
-  Collection: "projects",
-  ObjectID:   "project-1",
-  ChannelID:  apnsChannelId
-})
+channelData, _ := knockClient.Objects.GetChannelData(ctx, "projects", "project-1", apnsChannelId)
 `,
   java: `
 import app.knock.api.client.KnockClient;

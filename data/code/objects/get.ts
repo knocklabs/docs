@@ -51,15 +51,13 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-object, _ := knockClient.Objects.Get(ctx, &knock.GetObjectRequest{
-  Collection: "projects",
-  ID:         "project-1"
-})
+object, _ := knockClient.Objects.Get(ctx, "projects", "project-1")
 `,
   java: `
 import app.knock.api.client.KnockClient;

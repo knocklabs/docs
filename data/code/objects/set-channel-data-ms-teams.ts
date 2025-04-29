@@ -139,27 +139,28 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+client := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 knockTeamsChannelID := "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f"
 
-channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
-  Collection: "projects",
-  ObjectID:   "project-1",
-  ChannelID:  knockTeamsChannelID,
-  Data: map[string]interface{}{
-    "connections": []interface{}{
-      map[string]interface{}{
-        "incoming_webhook": map[string]interface{}{
-          "url": "url-from-teams"
-        }
-      }
-    },
-  },
+channelData, _ := client.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
+	Collection: "projects",
+	ObjectID:   "project-1",
+	ChannelID:  knockTeamsChannelID,
+	Data: knock.MsTeamsChannelDataParam{
+		Connections: param.New([]knock.MsTeamsChannelDataConnectionsUnionParam{
+			knock.MsTeamsChannelDataConnectionsMsTeamsIncomingWebhookConnectionParam{
+				IncomingWebhook: param.New(knock.MsTeamsChannelDataConnectionsMsTeamsIncomingWebhookConnectionIncomingWebhookParam{
+					URL: param.New("url-from-teams"),
+				}),
+			},
+		}),
+	},
 })
 `,
   java: `

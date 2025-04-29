@@ -44,8 +44,17 @@ $client = new Client('sk_12345');
 $allPreferences = $client->objects()->getPreferences('projects', 'project-1');
 `,
   go: `
-// This endpoint is not yet supported in the Go SDK
+import (
+	"context"
 
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+allPreferences, _ := knockClient.Objects.ListPreferences(ctx, "projects", "project-1")
 `,
   java: `
 import app.knock.api.client.KnockClient;

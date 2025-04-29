@@ -110,30 +110,35 @@ $client->users()->setPreferences($user->id(), [
 ], tenant.id);
   `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-request := &knock.SetUserPreferencesRequest{
-  UserID: user.ID,
-  PreferenceID: tenant.ID
-}
-
-request.AddChannelTypesPreference(map[string]interface{}{
-  "email": true,
-  "sms": false
-})
-
-request.AddWorkflowsPreference(map[string]interface{}{
-  "dinosaurs-loose": map[string]interface{}{
-    "channel_types": map[string]interface{}{
-      "email":       false,
-      "in_app_feed": true,
-      "sms":         true,
+preferenceSetRequest := &knock.PreferenceSetRequestParam{
+  ChannelTypes: map[string]interface{}{
+    "email": true,
+    "sms":   false,
+  },
+  Workflows: map[string]interface{}{
+    "dinosaurs-loose": map[string]interface{}{
+      "channel_types": map[string]interface{}{
+        "email":       false,
+        "in_app_feed": true,
+        "sms":         true,
+      },
     },
   },
-})
+}
 
-preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request)
+preferenceSet, _ := knockClient.Users.SetPreferences(ctx, user.ID, tenant.ID, &knock.UserSetPreferencesParams{
+  PreferenceSetRequest: *preferenceSetRequest,
+})
   `,
   java: `
 import app.knock.api.client.KnockClient;

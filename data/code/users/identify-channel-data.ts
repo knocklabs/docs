@@ -109,21 +109,29 @@ $client->users()->identify('1', [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // Get this value in your Knock dashboard
 apnsChannelId := "some-channel-id-from-knock"
 
-user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
-  ID: "1",
-  Name: "John Hammond",
-  Email: "jhammond@ingen.net",
-  ChannelData: map[string]map{
-    apnsChannelId: map[string]string {
-      "tokens": ["apns-push-token"]
-    }
-  }
+user, _ := knockClient.Users.Update(ctx, "1", knock.UserUpdateParams{
+  IdentifyUserRequest: knock.IdentifyUserRequestParam{
+    Name:  param.String("John Hammond"),
+    Email: param.String("jhammond@ingen.net"),
+    ChannelData: param.Raw(map[string]interface{}{
+      apnsChannelId: map[string]interface{}{
+        "tokens": []string{"apns-push-token"},
+      },
+    }),
+  },
 })
 `,
   java: `

@@ -43,12 +43,17 @@ $client = new Client('sk_12345');
 $client->users()->get($user->id());
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-user, _ = knockClient.Users.Get(ctx, &knock.GetUserRequest{
-  ID: user.ID,
-})
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+user, _ := knockClient.Users.Get(ctx, user.ID)
 `,
   java: `
 import app.knock.api.client.KnockClient;

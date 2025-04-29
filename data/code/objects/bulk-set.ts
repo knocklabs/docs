@@ -154,12 +154,36 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-// The Go SDK doesn't currently support this example
+objects := []knock.InlineObjectRequestParam{
+  {
+    ID:         "project-1",
+    Collection: "projects",
+    Properties: map[string]interface{}{
+      "name":         "My project",
+      "total_assets": 10,
+      "tags":         []string{"cool", "fun", "project"},
+    },
+  },
+  {
+    ID:         "project-2",
+    Collection: "projects",
+    Properties: map[string]interface{}{
+      "name":         "My second project",
+      "total_assets": 5,
+      "tags":         []string{"very", "cool", "project"},
+    },
+  },
+}
+
+bulkOp, _ := knockClient.Objects.Bulk.Set(ctx, "projects", &knock.ObjectBulkSetParams{
+  Objects: objects,
+})
 `,
   java: `
 import app.knock.api.client.KnockClient;

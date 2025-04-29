@@ -54,17 +54,14 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // If no preference set id is provided, the SDK will return the object's "default" preferences
-preferenceSet, _ := knockClient.Objects.GetPreferences(ctx, &knock.GetObjectPreferencesRequest{
-  Collection:   "projects",
-  ID:           "project-1",
-  PreferenceID: "tenant-1",
-})
+preferenceSet, _ := knockClient.Objects.GetPreferences(ctx, "projects", "project-1", "tenant-1")
 `,
   java: `
 import app.knock.api.client.KnockClient;

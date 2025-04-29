@@ -63,16 +63,19 @@ $apns_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652";
 $client->users()->unsetChannelData($user->id(), $apns_channel_id);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 apnsChannelId := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-channelData, _ := knockClient.Users.DeleteChannelData(ctx, &knock.DeleteUserChannelDataRequest{
-  UserID:    user.ID,
-  ChannelID: apnsChannelId,
-})
+result, _ := knockClient.Users.UnsetChannelData(ctx, user.ID, apnsChannelId)
 `,
   java: `
 import app.knock.api.client.KnockClient;

@@ -41,12 +41,17 @@ $client = new Client('sk_12345');
 $allPreferences = $client->users()->getPreferences($user->id());
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-allPreferences, _ := knockClient.Users.GetAllPreferences(ctx, &knock.GetAllPreferencesRequest{
-    UserID: user.ID,
-})
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+allPreferences, _ := knockClient.Users.ListPreferences(ctx, user.ID)
 `,
   java: `
 import app.knock.api.client.KnockClient;

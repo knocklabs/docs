@@ -76,22 +76,29 @@ $client->workflows()->trigger('reservation-reminder-email', [
 ]);
   `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "reservation-reminder-email",
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{
-      "reservation_id": reservation.ID
+    "reservation_id": reservation.ID
   },
-  Tenant: "black-lodge"
+  Tenant: "black-lodge",
+  Recipients: make([]knock.RecipientRequestUnionParam, len(reservationGuestIds)),
 }
 
-for _, r := range reservationGuestIds {
-  request.AddRecipientByID(r)
+for i, r := range reservationGuestIds {
+  params.Recipients[i] = r
 }
 
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, "reservation-reminder-email", params)
   `,
   java: `
 import app.knock.api.client.KnockClient;

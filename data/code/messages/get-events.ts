@@ -78,15 +78,28 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-result, _ := knockClient.Messages.GetEvents(ctx, &knock.GetMessageEventsRequest{
-  ID: message.ID,
-  PageSize: 10,
+// List events with pagination
+events, _ := knockClient.Messages.ListEvents(ctx, message.ID, knock.MessageListEventsParams{
+	PageSize: param.New(10),
 })
+
+// Auto-paging version
+eventsPager := knockClient.Messages.ListEventsAutoPaging(ctx, message.ID, knock.MessageListEventsParams{
+	PageSize: param.New(10),
+})
+
+// Iterate through events
+for eventsPager.Next() {
+	event := eventsPager.Current()
+	// Process event...
+}
 `,
   java: `
 import app.knock.api.client.KnockClient;

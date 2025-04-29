@@ -79,18 +79,19 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+client := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 knockChannelID := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-response, _ := knockClient.Objects.DeleteChannelData(ctx, &knock.DeleteObjectChannelDataRequest{
-  Collection: "projects",
-  ID:         "project-1",
-  ChannelID:  knockChannelID,
+response, _ := client.Objects.DeleteChannelData(ctx, &knock.DeleteObjectChannelDataRequest{
+	Collection: "projects",
+	ObjectID:   "project-1",
+	ChannelID:  knockChannelID,
 })
 `,
   java: `

@@ -141,28 +141,34 @@ $client->workflows()->trigger('new-comment', [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
 // Get this value in your Knock dashboard
 apnsChannelId := "some-channel-id-from-knock"
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "new-comment",
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{"project_name": "My Project"},
-}
-
-request.AddRecipientByEntity(map[string]interface{}{
-  "id": "1",
-  "email": "jhammond@ingen.net",
-  "channel_data": map[string]map{
-    apnsChannelId: map[string]interface {
-      "tokens": ["apns-push-token"]
+  Recipients: []knock.RecipientRequestUnionParam{
+    map[string]interface{}{
+      "id": "1",
+      "email": "jhammond@ingen.net",
+      "channel_data": map[string]interface{}{
+        apnsChannelId: map[string]interface{}{
+          "tokens": []string{"apns-push-token"},
+        },
+      },
     },
   },
-})
+}
 
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
 `,
   java: `
 import app.knock.api.client.KnockClient;

@@ -46,9 +46,7 @@ $client->users()->delete($user->id());
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Users.Delete(ctx, &knock.DeleteUserRequest{
-  ID: user.ID,
-})
+result, _ := knockClient.Users.Delete(ctx, user.ID)
 `,
   java: `
 import app.knock.api.client.KnockClient;

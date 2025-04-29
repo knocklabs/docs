@@ -48,12 +48,13 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-content, err := client.Messages.GetContent(ctx, message.ID)
+content, _ := knockClient.Messages.GetContent(ctx, message.ID)
 `,
   java: `
 import app.knock.api.client.KnockClient;

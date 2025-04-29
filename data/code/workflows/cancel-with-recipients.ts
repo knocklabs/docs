@@ -62,17 +62,22 @@ $client->workflows()->cancel('new-user-invited', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-request := &knock.CancelWorkflowRequest{
-  Workflow:        "new-user-invited",
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+params := knock.WorkflowCancelParams{
   CancellationKey: userInvite.ID,
+  Recipients: []knock.RecipientReferenceUnionParam{"user_1", "user_2"},
 }
 
-request.AddRecipientByID("user_1")
-
-err := knockClient.Workflows.Cancel(ctx, request)
+result, _ := knockClient.Workflows.Cancel(ctx, "new-user-invited", params)
 `,
   java: `
 import app.knock.api.client.KnockClient;

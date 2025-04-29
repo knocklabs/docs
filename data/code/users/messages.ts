@@ -93,13 +93,19 @@ $client->users()->getMessages($user->id(), [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-messages, _ := knockClient.Users.GetMessages(ctx, &knock.GetUserMessagesRequest{
-  ID:       user.ID,
-  PageSize: 20,
-  Tenant    "my_tenant"
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+messages, _ := knockClient.Users.ListMessages(ctx, user.ID, knock.UserListMessagesParams{
+  PageSize: param.Int64(20),
+  Tenant:   param.String("my_tenant"),
 })
 `,
   java: `

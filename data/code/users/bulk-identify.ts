@@ -127,21 +127,19 @@ $client->users()->bulkIdentify([
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Users.BulkIdentify(ctx, &knock.&BulkIdentifyUserRequest{
-  Users: []*User{
+result, _ := knockClient.Users.Bulk.Identify(ctx, knock.UserBulkIdentifyParams{
+  Users: param.Raw([]map[string]interface{}{
     {
-      ID: "1",
-      // Optional fields:
-      // Name: "John Hammond",
-      // Email: "jhammond@ingen.net"
+      "id":    "1",
+      "name":  "John Hammond",
+      "email": "jhammond@ingen.net",
     },
     {
-      ID: "2",
-      // Optional fields:
-      // Name: "Ellie Sattler",
-      // Email: "esattler@ingen.net"
-    }
-  }
+      "id":    "2",
+      "name":  "Ellie Sattler",
+      "email": "esattler@ingen.net",
+    },
+  }),
 })
 `,
   java: `

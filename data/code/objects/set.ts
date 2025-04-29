@@ -100,21 +100,20 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
-  Collection: "projects",
-  ID:         "project-1",
+object, _ := knockClient.Objects.Set(ctx, "projects", "project-1", &knock.ObjectSetParams{
   Properties: map[string]interface{}{
     "name":         "My project",
     "total_assets": 10,
     "tags":         []string{"cool", "fun", "project"},
     "locale":       "en-US",
-    "timezone":     "America/New_York"
-  }
+    "timezone":     "America/New_York",
+  },
 })
 `,
   java: `

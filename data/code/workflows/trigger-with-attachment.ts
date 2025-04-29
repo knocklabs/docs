@@ -112,13 +112,19 @@ $client->workflows()->trigger('invoice-paid', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "invoice-paid",
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{
-    "attachments": []map[string]interface{
+    "attachments": []map[string]interface{}{
       {
         "name": "Invoice.pdf",
         "content": fileContents,
@@ -126,14 +132,14 @@ request := &knock.TriggerWorkflowRequest{
       }
     },
   },
+  Recipients: make([]knock.RecipientRequestUnionParam, len(recipientIds)),
 }
 
-for _, r := range recipientIds {
-  request.AddRecipientByID(r)
+for i, r := range recipientIds {
+  params.Recipients[i] = r
 }
 
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
-
+result, _ := knockClient.Workflows.Trigger(ctx, "invoice-paid", params)
 `,
   java: `
 import app.knock.api.client.KnockClient;

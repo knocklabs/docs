@@ -70,14 +70,21 @@ $client->users()->identify('1', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
-  ID: "1",
-  // Optional fields:
-  // Name: "John Hammond",
-  // Email: "jhammond@ingen.net"
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+
+user, _ := knockClient.Users.Update(ctx, "1", knock.UserUpdateParams{
+  IdentifyUserRequest: knock.IdentifyUserRequestParam{
+    Name:  param.String("John Hammond"),
+    Email: param.String("jhammond@ingen.net"),
+  },
 })
 `,
   java: `

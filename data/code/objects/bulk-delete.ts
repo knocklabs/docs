@@ -66,12 +66,17 @@ import (
 	"context"
 
 	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
 )
 
 ctx := context.Background()
-client := knock.NewClient("sk_12345")
+knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
 
-// The Go SDK doesn't currently support this example
+objectIDs := []string{"project-1", "project-2"}
+
+bulkOp, _ := knockClient.Objects.Bulk.Delete(ctx, "projects", &knock.ObjectBulkDeleteParams{
+  ObjectIDs: objectIDs,
+})
 `,
   java: `
 import app.knock.api.KnockClient;
