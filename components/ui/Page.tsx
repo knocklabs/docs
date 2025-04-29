@@ -40,7 +40,7 @@ const Content = ({ children, fullWidth = false }) => (
     pr="4"
     minWidth="0"
     style={{ maxWidth: fullWidth ? "initial" : "740px" }}
-    className="md-wrapper-padding"
+    className="lg-wrapper-padding"
   >
     <Box>{children}</Box>
   </Box>
