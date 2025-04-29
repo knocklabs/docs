@@ -96,6 +96,8 @@ channelData, _ := knockClient.Objects.GetChannelData(ctx, &knock.GetObjectChanne
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectGetChannelDataParams;
+import app.knock.api.models.recipients.channeldata.ChannelData;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
@@ -104,7 +106,12 @@ KnockClient client = KnockOkHttpClient.builder()
 // Find this value in your Knock dashboard under Integrations > Channels
 String apnsChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-ChannelData channelData = client.objects().getChannelData("projects", "project-1", apnsChannelId);
+ObjectGetChannelDataParams params = ObjectGetChannelDataParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .channelId(apnsChannelId)
+    .build();
+ChannelData channelData = client.objects().getChannelData(params);
 `,
 };
 

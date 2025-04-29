@@ -133,22 +133,32 @@ request.AddWorkflowsPreference(map[string]interface{}{
 preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request)
   `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.PreferenceSet;
+import app.knock.api.models.users.UserSetPreferencesParams;
+import app.knock.api.core.JsonValue;
+import java.util.List;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-PreferenceSetRequest request = PreferenceSetRequest.builder()
-  .workflow("dinosaurs-loose",
-    new PreferenceSetBuilder()
-      .condition("recipient.muted_alert_ids", "not_contains", "data.alert_id")
-      .build()
-  )
-  .build();
+UserSetPreferencesParams params = UserSetPreferencesParams.builder()
+    .userId(user.getId())
+    .preferenceSetId("default")
+    .workflows(UserSetPreferencesParams.Workflows.builder()
+        .putAdditionalProperty("dinosaurs-loose", JsonValue.from(UserSetPreferencesParams.WorkflowPreference.builder()
+            .conditions(List.of(UserSetPreferencesParams.Condition.builder()
+                .variable("recipient.muted_alert_ids")
+                .operator("not_contains")
+                .argument("data.alert_id")
+                .build()))
+            .build()))
+        .build())
+    .build();
 
-PreferenceSet preferences = client.users().setPreferences(user.getId(), request);
+PreferenceSet preferences = client.users().setPreferences(params);
 `,
 };
 

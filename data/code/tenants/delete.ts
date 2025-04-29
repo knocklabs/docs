@@ -52,14 +52,17 @@ response, _ := knockClient.Tenants.Delete(ctx, &knock.DeleteTenantRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.tenants.TenantDeleteParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-client.tenants().delete("tenant-1");
+client.tenants().delete(TenantDeleteParams.builder()
+    .id("tenant-1")
+    .build());
 `,
 };
 

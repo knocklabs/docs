@@ -115,24 +115,28 @@ for _, f := range followerIds {
 result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("new-comment")
-    .actor(comment.author().getId())
-    .recipients(followerIds)
-    .data("document_id", document.getId())
-    .data("document_name", document.getName())
-    .data("comment_id", comment.getId())
-    .data("comment_text", comment.getText())
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .actor(comment.author().getId())
+        .recipients(followerIds)
+        .data(data -> {
+            data.put("document_id", document.getId());
+            data.put("document_name", document.getName());
+            data.put("comment_id", comment.getId());
+            data.put("comment_text", comment.getText());
+            return data;
+        })
+        .build()
+);
 `,
 };
 

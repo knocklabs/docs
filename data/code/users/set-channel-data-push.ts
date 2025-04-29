@@ -73,18 +73,26 @@ channelData, _ := knockClient.Users.SetChannelData(ctx, &knock.SetUserChannelDat
 })
   `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.ChannelData;
+import app.knock.api.models.users.UserSetChannelDataParams;
+import app.knock.api.core.JsonValue;
+import java.util.List;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-ChannelData channelData = client.users().setChannelData(
-  user.getId(), 
-  "5a88728a-3ecb-400d-ba6f-9c0956ab252f", 
-  Map.of("tokens", List.of(apnsToken))
-);
+UserSetChannelDataParams params = UserSetChannelDataParams.builder()
+    .userId(user.getId())
+    .channelId("5a88728a-3ecb-400d-ba6f-9c0956ab252f")
+    .data(UserSetChannelDataParams.Data.builder()
+        .putAdditionalProperty("tokens", JsonValue.from(List.of(apnsToken)))
+        .build())
+    .build();
+
+ChannelData channelData = client.users().setChannelData(params);
 `,
 };
 

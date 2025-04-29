@@ -136,27 +136,35 @@ request.AddWorkflowsPreference(map[string]interface{}{
 preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request)
   `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.PreferenceSet;
+import app.knock.api.models.users.UserSetPreferencesParams;
+import app.knock.api.core.JsonValue;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-PreferenceSetRequest request = PreferenceSetRequest.builder()
-  .id(tenant.getId())
-  .email(true)
-  .sms(false)
-  .workflow("dinosaurs-loose",
-    new PreferenceSetBuilder()
-      .email(false)
-      .inAppFeed(true)
-      .sms(true)
-      .build()
-  )
-  .build();
+UserSetPreferencesParams params = UserSetPreferencesParams.builder()
+    .userId(user.getId())
+    .preferenceSetId(tenant.getId())
+    .channelTypes(UserSetPreferencesParams.ChannelTypes.builder()
+        .putAdditionalProperty("email", JsonValue.from(true))
+        .putAdditionalProperty("sms", JsonValue.from(false))
+        .build())
+    .workflows(UserSetPreferencesParams.Workflows.builder()
+        .putAdditionalProperty("dinosaurs-loose", JsonValue.from(UserSetPreferencesParams.WorkflowPreference.builder()
+            .channelTypes(UserSetPreferencesParams.ChannelTypes.builder()
+                .putAdditionalProperty("email", JsonValue.from(false))
+                .putAdditionalProperty("in_app_feed", JsonValue.from(true))
+                .putAdditionalProperty("sms", JsonValue.from(true))
+                .build())
+            .build()))
+        .build())
+    .build();
 
-PreferenceSet preferences = client.users().setPreferences(user.getId(), request);
+PreferenceSet preferences = client.users().setPreferences(params);
 `,
 };
 

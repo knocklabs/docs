@@ -103,17 +103,22 @@ result, _ := knockClient.Messages.List(ctx, &knock.ListMessagesRequest{
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.messages.MessageListParams;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
+// Basic request
+var messages = client.messages().list();
 
-queryParams.pageSize(10);
-queryParams.tenant("my_tenant");
-
-CursorResult<KnockMessage> result = client.messages().list(queryParams);
+// With pagination and filters
+var filteredMessages = client.messages().list(
+    MessageListParams.builder()
+        .pageSize(20)
+        .tenant("my_tenant")
+        .build()
+);
   `,
 };
 

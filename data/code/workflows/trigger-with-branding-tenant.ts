@@ -94,21 +94,25 @@ for _, r := range reservationGuestIds {
 result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
   `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
 
-KnockClient client = KnockClient.builder()
-  .apiKey("sk_12345")
-  .build();
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
+    .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-  .key("reservation-reminder-email")
-  .recipients(reservationGuestIds)
-  .data("reservation_id", reservation.getId())
-  .tenant("black-lodge")
-  .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("reservation-reminder-email")
+        .recipients(reservationGuestIds)
+        .data(data -> {
+            data.put("reservation_id", reservation.getId());
+            return data;
+        })
+        .tenant("black-lodge")
+        .build()
+);
   `,
 };
 

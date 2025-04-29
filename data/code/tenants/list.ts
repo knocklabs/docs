@@ -97,21 +97,25 @@ result, _ := knockClient.Tenants.List(ctx, &knock.ListTenantsRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.Page;
+import app.knock.api.models.tenants.Tenant;
+import app.knock.api.models.tenants.TenantListParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-CursorResult<Tenant> result = client.tenants().list();
+Page<Tenant> result = client.tenants().list();
 
 // supports pagination parameters and filters
-KnockClient.TenantsResource.QueryParams queryParams = new KnockClient.TenantsResource.QueryParams();
-queryParams.pageSize(20);
-queryParams.name("Tenant 1");
+TenantListParams params = TenantListParams.builder()
+    .pageSize(20)
+    .name("Tenant 1")
+    .build();
 
-CursorResult<Tenant> result = client.tenants().list(queryParams);
+Page<Tenant> result = client.tenants().list(params);
 `,
 };
 

@@ -119,25 +119,27 @@ for _, r := range []string{"1", "2"} {
 result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import app.knock.api.models.workflows.WorkflowTrigger;
+import java.util.Arrays;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+WorkflowTriggerParams params = WorkflowTriggerParams.builder()
     .key("new-comment")
-    .recipients(List.of("1", "2"))
-
-    // optional
-    .data("project_name", "My project")
+    .recipients(Arrays.asList("1", "2"))
+    .data(Map.of("project_name", "My Project"))
     .actor("3")
     .cancellationKey("cancel_123")
     .tenant("jurassic_world_employees")
     .build();
 
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+WorkflowTrigger result = client.workflows().trigger(params);
 `,
 };
 

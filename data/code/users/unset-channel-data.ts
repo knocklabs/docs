@@ -75,20 +75,21 @@ channelData, _ := knockClient.Users.DeleteChannelData(ctx, &knock.DeleteUserChan
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.UserDeleteChannelDataParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 // Find this value in your Knock dashboard under Integrations > Channels
 String apnsChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-client.users().unsetChannelData(
-  user.getId(), 
-  apnsChannelId
-);
+client.users().deleteChannelData(UserDeleteChannelDataParams.builder()
+    .userId(user.getId())
+    .channelId(apnsChannelId)
+    .build());
 `,
 };
 

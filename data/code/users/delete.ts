@@ -51,14 +51,17 @@ result, _ := knockClient.Users.Delete(ctx, &knock.DeleteUserRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.UserDeleteParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-client.users().delete(user.getId());
+client.users().delete(UserDeleteParams.builder()
+    .userId(user.getId())
+    .build());
 `,
 };
 

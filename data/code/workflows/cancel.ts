@@ -69,19 +69,21 @@ result, _ := knockClient.Workflows.Cancel(ctx, &knock.CancelWorkflowRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowCancelParams;
+import app.knock.api.models.workflows.WorkflowCancel;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+WorkflowCancelParams params = WorkflowCancelParams.builder()
     .key("new-user-invited")
     .cancellationKey(userInvite.getId())
     .build();
 
-client.workflows().cancel(WorkflowCancelRequest.from(workflowTrigger));
+WorkflowCancel result = client.workflows().cancel(params);
 `,
 };
 

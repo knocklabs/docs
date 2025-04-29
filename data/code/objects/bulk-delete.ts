@@ -74,14 +74,19 @@ client := knock.NewClient("sk_12345")
 // The Go SDK doesn't currently support this example
 `,
   java: `
-import app.knock.api.client.KnockClient;
-import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
 
-KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
     .build();
 
-client.objects().bulkDeleteInCollection("projects", List.of("project-1", "project-2"));
+ObjectBulkDeleteParams params = ObjectBulkDeleteParams.builder()
+    .collection("projects")
+    .objectIds(Arrays.asList("project-1", "project-2"))
+    .build();
+
+BulkOperation result = client.objects().bulk().delete(params);
 `,
 };
 

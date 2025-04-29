@@ -51,14 +51,18 @@ user, _ = knockClient.Users.Get(ctx, &knock.GetUserRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.User;
+import app.knock.api.models.users.UserGetParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-UserIdentity user = client.users().get(user.getId());
+User user = client.users().get(UserGetParams.builder()
+    .userId(user.getId())
+    .build());
 `,
 };
 

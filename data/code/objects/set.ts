@@ -120,18 +120,27 @@ object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectSetParams;
+import app.knock.api.models.objects.Object;
+import app.knock.api.core.JsonValue;
+import java.util.Arrays;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
-KnockObject object = client.objects().set("projects", "project-1", Map.of(
-  "name", "Project one",
-  "total_assets", 10,
-  "tags", List.of("cool", "fun", "project"),
-  "locale", "en-US",
-  "timezone", "America/New_York"
-));
+ObjectSetParams params = ObjectSetParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .properties(ObjectSetParams.Properties.builder()
+        .putAdditionalProperty("name", JsonValue.from("My project"))
+        .putAdditionalProperty("total_assets", JsonValue.from(10))
+        .putAdditionalProperty("tags", JsonValue.from(Arrays.asList("cool", "fun", "project")))
+        .putAdditionalProperty("locale", JsonValue.from("en-US"))
+        .putAdditionalProperty("timezone", JsonValue.from("America/New_York"))
+        .build())
+    .build();
+Object object = client.objects().set(params);
 `,
 };
 

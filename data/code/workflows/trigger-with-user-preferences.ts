@@ -188,33 +188,45 @@ request.AddRecipientByEntity(map[string]interface{}{
 result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import java.util.List;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("new-comment")
-    .data("project_name", "My project")
-    .addRecipient(
-      Map.of(
-        "id", "1",
-        "email", "jhammond@ingen.net",
-        "preferences", Map.of(
-          "default", Map.of(
-            "channel_types", Map.of(
-              "email", true,
-              "sms", true
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .data(data -> {
+            data.put("project_name", "My Project");
+            return data;
+        })
+        .recipients(List.of(
+            Map.of(
+                "id", "1",
+                "email", "jhammond@ingen.net",
+                "preferences", Map.of(
+                    "default", Map.of(
+                        "channel_types", Map.of(
+                            "email", true,
+                            "sms", true
+                        )
+                    ),
+                    "{{ tenant.id }}", Map.of(
+                        "channel_types", Map.of(
+                            "email", false,
+                            "sms", false
+                        )
+                    )
+                )
             )
-          )
-        )
-      )
-    )
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+        ))
+        .build()
+);
 `,
 };
 

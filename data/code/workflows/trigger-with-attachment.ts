@@ -136,26 +136,32 @@ result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
 
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import java.util.List;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("invoice-paid")
-    .recipients(recipientIds)
-    .data("attachments", List.of(
-      Map.of(
-        "name", "Invoice.pdf",
-        "content", fileContents,
-        "content_type", "application/pdf"
-      )
-    ))
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("invoice-paid")
+        .recipients(recipientIds)
+        .data(data -> {
+            data.put("attachments", List.of(
+                Map.of(
+                    "name", "Invoice.pdf",
+                    "content", fileContents,
+                    "content_type", "application/pdf"
+                )
+            ));
+            return data;
+        })
+        .build()
+);
 `,
 };
 

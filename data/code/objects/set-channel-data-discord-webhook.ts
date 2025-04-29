@@ -165,6 +165,10 @@ channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChanne
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectSetChannelDataParams;
+import app.knock.api.models.recipients.channeldata.ChannelData;
+import app.knock.api.core.JsonValue;
+import java.util.Arrays;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
@@ -173,18 +177,21 @@ KnockClient client = KnockOkHttpClient.builder()
 // Find this value in your Knock dashboard under Integrations > Channels
 String knockDiscordChannelId = "7f1b3d5a-9c8e-4f2d-b6a7-3e2c8d9f0e1b";
 
-Map<String, Object> data = Map.of(
-  "connections", List.of(
-    Map.of("incoming_webhook", Map.of("url", "url-from-discord"))
-  )
-);
-
-ChannelData channelData = client.objects().setChannelData(
-  "projects",
-  "project-1",
-  knockDiscordChannelId,
-  data
-);
+ObjectSetChannelDataParams params = ObjectSetChannelDataParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .channelId(knockDiscordChannelId)
+    .data(ObjectSetChannelDataParams.Data.builder()
+        .putAdditionalProperty("connections", JsonValue.from(Arrays.asList(
+            ObjectSetChannelDataParams.Data.Connection.builder()
+                .incomingWebhook(ObjectSetChannelDataParams.Data.Connection.IncomingWebhook.builder()
+                    .url("url-from-discord")
+                    .build())
+                .build()
+        )))
+        .build())
+    .build();
+ChannelData channelData = client.objects().setChannelData(params);
 `,
 };
 

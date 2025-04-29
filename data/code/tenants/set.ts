@@ -137,24 +137,30 @@ tenant, _ := knockClient.Tenants.Set(ctx, &knock.SetTenantRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.tenants.Tenant;
+import app.knock.api.models.tenants.TenantSetParams;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-Tenant tenant = client.tenants().set("tenant-1", Map.of(
-    "name", "Tenant 1",
-    "settings", Map.of(
+TenantSetParams params = TenantSetParams.builder()
+    .id("tenant-1")
+    .name("Tenant 1")
+    .settings(Map.of(
         "branding", Map.of(
             "primary_color", "#33FF5B",
             "primary_color_contrast", "#ffffff",
-            "logo_url", "https:www.example.com/path-to-logo-asset-url",
-            "icon_url", "https:www.example.com/path-to-icon-asset-url"
+            "logo_url", "https://www.example.com/path-to-logo-asset-url",
+            "icon_url", "https://www.example.com/path-to-icon-asset-url"
         )
-    )
-));
+    ))
+    .build();
+
+Tenant tenant = client.tenants().set(params);
 `,
 };
 

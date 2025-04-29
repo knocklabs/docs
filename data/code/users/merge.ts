@@ -61,14 +61,19 @@ result, _ := knockClient.Users.Merge(ctx, &knock.MergeUserRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.User;
+import app.knock.api.models.users.UserMergeParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-UserIdentity user = client.users().merge(user.getId(), "user-to-merge-from");
+User user = client.users().merge(UserMergeParams.builder()
+    .userId(user.getId())
+    .fromUserId("user-to-merge-from")
+    .build());
 `,
 };
 

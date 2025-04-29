@@ -152,7 +152,7 @@ KnockClient client = KnockClient.builder()
     .apiKey("sk_12345")
     .build();
 
-List<UserIdentity> userIdentities = List.of(
+List<UserIdentity> userIdentities = Arrays.asList(
   UserIdentity.builder()
     .id("1")
     .name("John Hammond")
@@ -165,7 +165,9 @@ List<UserIdentity> userIdentities = List.of(
     .build()
 );
 
-BulkOperation result = client.users().bulkIdentify(userIdentities);
+BulkOperation result = client.users().bulk().identify(BulkIdentifyParams.builder()
+    .users(userIdentities)
+    .build());
 `,
 };
 

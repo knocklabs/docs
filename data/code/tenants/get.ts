@@ -52,14 +52,18 @@ tenant, _ := knockClient.Tenants.Get(ctx, &knock.GetTenantRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.tenants.Tenant;
+import app.knock.api.models.tenants.TenantGetParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-Tenant tenant = client.tenants().get("tenant-1");
+Tenant tenant = client.tenants().get(TenantGetParams.builder()
+    .id("tenant-1")
+    .build());
 `,
 };
 

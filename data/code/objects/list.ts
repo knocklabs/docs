@@ -27,6 +27,21 @@ client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 objects = client.objects.list("projects")
 `,
+  java: `
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectListParams;
+import app.knock.api.models.objects.ObjectListPage;
+
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
+    .build();
+
+ObjectListParams params = ObjectListParams.builder()
+    .collection("projects")
+    .build();
+ObjectListPage objects = client.objects().list(params);
+`,
   // TODO: Add additional SDK examples
 };
 

@@ -164,27 +164,37 @@ client := knock.NewClient("sk_12345")
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.BulkOperation;
+import app.knock.api.models.objects.ObjectBulkSetParams;
+import app.knock.api.core.JsonValue;
+import java.util.Arrays;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
-List<Map<String, Object>> objectsToSet = List.of(
-  Map.of(
-    "id", "project-1",
-    "name", "My project",
-    "total_assets", 10,
-    "tags", List.of("cool", "fun", "project")
-  ),
-  Map.of(
-    "id", "project-2",
-    "name", "My second project",
-    "total_assets", 5,
-    "tags", List.of("very", "cool", "project")
-  )
-)
-
-BulkOperation bulkOp = client.objects().bulkSetInCollection("projects", objectsToSet);
+ObjectBulkSetParams params = ObjectBulkSetParams.builder()
+    .collection("projects")
+    .objects(Arrays.asList(
+        ObjectBulkSetParams.Object.builder()
+            .id("project-1")
+            .properties(ObjectBulkSetParams.Object.Properties.builder()
+                .putAdditionalProperty("name", JsonValue.from("My project"))
+                .putAdditionalProperty("total_assets", JsonValue.from(10))
+                .putAdditionalProperty("tags", JsonValue.from(Arrays.asList("cool", "fun", "project")))
+                .build())
+            .build(),
+        ObjectBulkSetParams.Object.builder()
+            .id("project-2")
+            .properties(ObjectBulkSetParams.Object.Properties.builder()
+                .putAdditionalProperty("name", JsonValue.from("My second project"))
+                .putAdditionalProperty("total_assets", JsonValue.from(5))
+                .putAdditionalProperty("tags", JsonValue.from(Arrays.asList("very", "cool", "project")))
+                .build())
+            .build()
+    ))
+    .build();
+BulkOperation bulkOp = client.objects().bulk().set(params);
 `,
 };
 

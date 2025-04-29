@@ -119,8 +119,27 @@ result, _ := knockClient.Users.BulkSetPreferences(ctx, &knock.&BulkSetUserPrefer
   }
 })
 `,
-  java: `  
-// This example is currently not supported in the Java SDK
+  java: `
+import app.knock.api.KnockClient;
+import app.knock.api.model.*;
+
+KnockClient client = KnockClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+List<String> userIds = Arrays.asList("jhammond", "dnedry", "imalcolm", "esattler");
+
+BulkSetPreferencesParams params = BulkSetPreferencesParams.builder()
+    .userIds(userIds)
+    .preferences(PreferenceSet.builder()
+        .channelTypes(Map.of(
+            "email", true,
+            "sms", false
+        ))
+        .build())
+    .build();
+
+BulkOperation result = client.users().bulk().setPreferences(params);
 `,
 };
 

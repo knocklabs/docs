@@ -121,15 +121,20 @@ response, _ := knockClient.Objects.GetMessages(ctx, &knock.GetObjectMessagesRequ
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectListMessagesParams;
+import app.knock.api.models.objects.ObjectListMessagesPage;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
-queryParams.pageSize(10);
-
-CursorResult<KnockMessage> result = client.objects().getMessages("projects", "project-1", queryParams);
+ObjectListMessagesParams params = ObjectListMessagesParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .pageSize(10)
+    .tenant("my_tenant")
+    .build();
+ObjectListMessagesPage messages = client.objects().listMessages(params);
 `,
 };
 

@@ -91,15 +91,26 @@ result, _ := knockClient.Messages.GetEvents(ctx, &knock.GetMessageEventsRequest{
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.messages.MessageListEventsParams;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
-queryParams.pageSize(10);
+// Basic request
+var events = client.messages().listEvents(
+    MessageListEventsParams.builder()
+        .messageId(messageId)
+        .build()
+);
 
-CursorResult<KnockMessageEvent> eventResult = client.messages().events(messageId, queryParams);
+// With pagination
+var eventsWithPagination = client.messages().listEvents(
+    MessageListEventsParams.builder()
+        .messageId(messageId)
+        .pageSize(10)
+        .build()
+);
   `,
 };
 

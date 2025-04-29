@@ -96,6 +96,7 @@ response, _ := knockClient.Objects.DeleteChannelData(ctx, &knock.DeleteObjectCha
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectUnsetChannelDataParams;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
@@ -104,7 +105,12 @@ KnockClient client = KnockOkHttpClient.builder()
 // Find this value in your Knock dashboard under Integrations > Channels
 String knockChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-client.objects().unsetChannelData("projects", "project-1", knockChannelId);
+ObjectUnsetChannelDataParams params = ObjectUnsetChannelDataParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .channelId(knockChannelId)
+    .build();
+client.objects().unsetChannelData(params);
 `,
 };
 

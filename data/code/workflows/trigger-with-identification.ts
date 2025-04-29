@@ -234,40 +234,44 @@ request.AddRecipientByEntity(
 result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import java.util.List;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("new-comment")
-    .data("project_name", "My project")
-    .actor(
-      Map.of(
-        "id", "1",
-        "name", "John Hammond",
-        "email", "jhammond@ingen.net"
-      )
-    )
-    .recipients(List.of(
-      Map.of(
-        "id", "project-1",
-        "collection", "projects",
-        "name", "My project",
-        "total_assets", 10,
-        "tags", List.of("cool", "fun", "project")
-      ),
-      Map.of(
-        "id", "2",
-        "name", "Ellie Sattler",
-        "email", "esattler@ingen.net"
-      )
-    ))
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .data(data -> {
+            data.put("project_name", "My Project");
+            return data;
+        })
+        .actor(Map.of(
+            "id", "1",
+            "name", "John Hammond",
+            "email", "jhammond@ingen.net"
+        ))
+        .recipients(List.of(
+            Map.of(
+                "id", "project-1",
+                "collection", "projects",
+                "name", "My project",
+                "total_assets", 10,
+                "tags", List.of("cool", "fun", "project")
+            ),
+            Map.of(
+                "id", "2",
+                "name", "Ellie Sattler",
+                "email", "esattler@ingen.net"
+            )
+        ))
+        .build()
+);
 `,
 };
 

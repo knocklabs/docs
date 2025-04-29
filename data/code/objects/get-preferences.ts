@@ -69,13 +69,20 @@ preferenceSet, _ := knockClient.Objects.GetPreferences(ctx, &knock.GetObjectPref
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectGetPreferencesParams;
+import app.knock.api.models.recipients.preferences.PreferenceSet;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
 // The preference set id must be "default" or the id of a tenant you have created
-PreferenceSet prefs = client.objects().getPreferencesById("projects", "project-1", "default");
+ObjectGetPreferencesParams params = ObjectGetPreferencesParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .id("tenant-1")
+    .build();
+PreferenceSet prefs = client.objects().getPreferences(params);
 `,
 };
 

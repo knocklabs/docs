@@ -70,7 +70,10 @@ KnockClient client = KnockClient.builder()
     .build();
 
 // The preference set ID is required. Use "default" for the default preference set
-PreferenceSet preferences = client.users().getPreferencesById(user.getId(), "default");
+PreferenceSet preferences = client.users().getPreferences(UserGetPreferencesParams.builder()
+    .userId(user.getId())
+    .preferenceSetId("default")
+    .build());
 `,
 };
 

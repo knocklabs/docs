@@ -137,29 +137,31 @@ result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.core.RequestOptions;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("new-comment")
-    .recipients(List.of("1", "2"))
-
-    // optional
-    .data("project_name", "My project")
-    .actor("3")
-    .cancellationKey("cancel_123")
-    .tenant("jurassic_world_employees")
+RequestOptions requestOptions = RequestOptions.builder()
+    .putAdditionalHeader("Idempotency-Key", "123")
     .build();
 
-MethodOptions methodOptions = MethodOptions.builder()
-    .idempotencyKey("123")
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger, methodOptions);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .addRecipient("1")
+        .addRecipient("2") 
+        .data(data -> data.put("project_name", "My Project"))
+        .actor("3")
+        .cancellationKey("cancel_123")
+        .tenant("jurassic_world_employees")
+        .build(),
+    requestOptions
+);
 `,
 };
 

@@ -60,12 +60,17 @@ result, _ := knockClient.Messages.Get(ctx, &knock.GetMessageRequest{
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.messages.MessageGetParams;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
-KnockMessage message = client.messages().get(messageId);
+var message = client.messages().get(
+    MessageGetParams.builder()
+        .messageId(messageId)
+        .build()
+);
   `,
 };
 

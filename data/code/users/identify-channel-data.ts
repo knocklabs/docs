@@ -127,27 +127,33 @@ user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.User;
+import app.knock.api.models.users.UserIdentifyParams;
+import app.knock.api.core.JsonValue;
+import java.util.List;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 // Get this value in your Knock dashboard
 String apnsChannelId = "some-channel-id-from-knock";
 
-UserIdentity user = client.users().identify("1", UserIdentity.builder()
-  .name("John Hammond")
-  .email("jhammond@ingen.net")
-  .property("channel_data",
-    Map.of(
-      apnsChannelId, Map.of(
-      "tokens", List.of("apns-push-token")
-      )
-    )
-  )
-  .build());
+UserIdentifyParams params = UserIdentifyParams.builder()
+    .userId("1")
+    .name("John Hammond")
+    .email("jhammond@ingen.net")
+    .channelData(UserIdentifyParams.ChannelData.builder()
+        .putAdditionalProperty(apnsChannelId, JsonValue.from(Map.of(
+            "tokens", List.of("apns-push-token")
+        )))
+        .build())
+    .build();
+
+User user = client.users().identify(params);
 `,
 };
 

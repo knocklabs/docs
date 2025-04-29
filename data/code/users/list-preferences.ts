@@ -49,14 +49,19 @@ allPreferences, _ := knockClient.Users.GetAllPreferences(ctx, &knock.GetAllPrefe
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.PreferenceSet;
+import app.knock.api.models.users.UserGetPreferencesParams;
+import java.util.List;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-List<PreferenceSet> allPreferences = client.users().getPreferences(user.getId());
+List<PreferenceSet> allPreferences = client.users().getPreferences(UserGetPreferencesParams.builder()
+    .userId(user.getId())
+    .build());
 `,
 };
 export default languages;

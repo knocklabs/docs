@@ -60,14 +60,16 @@ result, _ := knockClient.Users.BulkDelete(ctx, &knock.&BulkDeleteUserRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.services.blocking.BulkOperationService;
+import java.util.List;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-BulkOperation result = client.users().bulkDelete(List.of("user-1", "user-2"));
+var result = client.users().bulk().delete(List.of("user-1", "user-2"));
 `,
 };
 

@@ -50,12 +50,19 @@ $allPreferences = $client->objects()->getPreferences('projects', 'project-1');
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectListPreferencesParams;
+import app.knock.api.models.recipients.preferences.PreferenceSet;
+import java.util.List;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
-List<PreferenceSet> allPreferences = client.objects().getPreferences("projects", "project-1");
+ObjectListPreferencesParams params = ObjectListPreferencesParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .build();
+List<PreferenceSet> allPreferences = client.objects().listPreferences(params);
 `,
 };
 

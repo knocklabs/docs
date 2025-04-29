@@ -75,20 +75,23 @@ request.AddRecipientByID("user_1")
 err := knockClient.Workflows.Cancel(ctx, request)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowCancelParams;
+import app.knock.api.models.workflows.WorkflowCancel;
+import java.util.Arrays;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+WorkflowCancelParams params = WorkflowCancelParams.builder()
     .key("new-user-invited")
     .cancellationKey(userInvite.getId())
-    .recipients(List.of("user-1"))
+    .recipients(Arrays.asList("user_1", "user_2"))
     .build();
 
-client.workflows().cancel(WorkflowCancelRequest.from(workflowTrigger));
+WorkflowCancel result = client.workflows().cancel(params);
 `,
 };
 

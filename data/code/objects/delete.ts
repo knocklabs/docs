@@ -64,12 +64,17 @@ response, _ := knockClient.Objects.Delete(ctx, &knock.DeleteObjectRequest{
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectDeleteParams;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
-client.objects().delete("projects", "project-1");
+ObjectDeleteParams params = ObjectDeleteParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .build();
+String response = client.objects().delete(params);
 `,
 };
 

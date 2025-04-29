@@ -93,6 +93,32 @@ await knock.workflows.trigger("new-comment", {
   tenant: "jurassic_world_employees"
 });
 `,
+  java: `
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import java.util.Map;
+import java.util.Arrays;
+
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
+    .build();
+
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .addRecipient("1")
+        .addRecipient("2")
+        .data(data -> {
+            data.put("project_name", "My Project");
+            return data;
+        })
+        .actor("3")
+        .cancellationKey("cancel_123")
+        .tenant("jurassic_world_employees")
+        .build()
+);
+`,
 };
 
 export default languages;

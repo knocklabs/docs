@@ -103,19 +103,23 @@ messages, _ := knockClient.Users.GetMessages(ctx, &knock.GetUserMessagesRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.messages.KnockMessage;
+import app.knock.api.models.users.UserGetMessagesParams;
+import app.knock.api.core.CursorResult;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
+UserGetMessagesParams params = UserGetMessagesParams.builder()
+    .userId(user.getId())
+    .pageSize(20)
+    .tenant("my_tenant")
+    .build();
 
-queryParams.pageSize(20);
-queryParams.tenant("my_tenant");
-
-CursorResult<KnockMessage> result = client.users().getMessages(user.getId(), queryParams);
+CursorResult<KnockMessage> result = client.users().getMessages(params);
 `,
 };
 

@@ -81,17 +81,20 @@ user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.User;
+import app.knock.api.models.users.UserIdentifyParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-UserIdentity user = client.users().identify("1", UserIdentity.builder()
-  .name("John Hammond")
-  .email("jhammond@ingen.net")
-  .build());
+User user = client.users().identify(UserIdentifyParams.builder()
+    .userId("1")
+    .name("John Hammond")
+    .email("jhammond@ingen.net")
+    .build());
 `,
 };
 

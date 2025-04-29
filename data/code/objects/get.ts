@@ -64,12 +64,18 @@ object, _ := knockClient.Objects.Get(ctx, &knock.GetObjectRequest{
   java: `
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectGetParams;
+import app.knock.api.models.objects.Object;
 
 KnockClient client = KnockOkHttpClient.builder()
     .bearerToken("sk_12345")
     .build();
 
-KnockObject object = client.objects().get("projects", "project-1");
+ObjectGetParams params = ObjectGetParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .build();
+Object object = client.objects().get(params);
 `,
 };
 

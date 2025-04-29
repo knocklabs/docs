@@ -103,21 +103,29 @@ channelData, _ := knockClient.Users.SetChannelData(ctx, &knock.SetUserChannelDat
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.ChannelData;
+import app.knock.api.models.users.UserSetChannelDataParams;
+import app.knock.api.core.JsonValue;
+import java.util.List;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 // Find this value in your Knock dashboard under Integrations > Channels
 String apnsChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-ChannelData channelData = client.users().setChannelData(
-  user.getId(), 
-  apnsChannelId, 
-  Map.of("tokens", List.of(userDeviceToken)
-);
+UserSetChannelDataParams params = UserSetChannelDataParams.builder()
+    .userId(user.getId())
+    .channelId(apnsChannelId)
+    .data(UserSetChannelDataParams.Data.builder()
+        .putAdditionalProperty("tokens", JsonValue.from(List.of(userDeviceToken)))
+        .build())
+    .build();
+
+ChannelData channelData = client.users().setChannelData(params);
 `,
 };
 
