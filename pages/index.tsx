@@ -7,7 +7,6 @@ import Link from "next/link";
 import { Box, Stack } from "@telegraph/layout";
 import { Lucide } from "@telegraph/icon";
 import { Text } from "@telegraph/typography";
-import { PostmanIcon } from "@/components/ui/OverviewContent/PostmanIcon";
 import {
   Tool,
   ContentCard,
@@ -237,7 +236,7 @@ export default function Home() {
                 href="/developer-tools/management-api"
               />
               <Tool
-                icon={PostmanIcon}
+                icon={"Postman"}
                 title="Postman"
                 description="Use our Postman collection to get familiar with the Knock API."
                 href="/developer-tools/knock-and-postman"

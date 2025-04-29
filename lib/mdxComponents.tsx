@@ -32,6 +32,7 @@ import {
   BuildingBlock,
   Tool,
   ResponsiveThreeColumn,
+  ResponsiveTwoColumn,
 } from "../components/ui/OverviewContent/Blocks";
 import { Box, Stack } from "@telegraph/layout";
 
@@ -93,6 +94,7 @@ export const MDX_COMPONENTS = {
   BuildingBlock,
   Tool,
   ResponsiveThreeColumn,
+  ResponsiveTwoColumn,
   OverviewSectionContainer: OverviewSection.Container,
   OverviewSectionHeader: OverviewSection.Header,
   OverviewSectionContent: OverviewSection.Content,

@@ -223,7 +223,7 @@ export const BuildingBlock = ({
           <Heading as="h4" size="2" weight="medium" mb="1">
             {title}
           </Heading>
-          <Text as="p" size="1" color="gray">
+          <Text as="p" size="1" color="gray" style={{ marginBottom: "0" }}>
             {description}
           </Text>
         </Box>
@@ -249,6 +249,31 @@ export const ResponsiveThreeColumn = ({
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(3, 1fr)",
+        ...props.style,
+      }}
+    >
+      {children}
+    </Stack>
+  );
+};
+
+type ResponsiveTwoColumnProps = TgphComponentProps<typeof Stack>;
+
+export const ResponsiveTwoColumn = ({
+  children,
+  ...props
+}: ResponsiveTwoColumnProps) => {
+  return (
+    <Stack
+      direction="row"
+      gap="6"
+      w="full"
+      justifyContent="space-between"
+      className="md-one-column"
+      {...props}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
         ...props.style,
       }}
     >
