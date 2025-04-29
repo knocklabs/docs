@@ -58,17 +58,13 @@ require "knockapi"
 
 client = Knockapi::Client.new(bearer_token: "sk_12345")
 
-Knock::Objects.set(
-  collection: "projects",
-  id: "project-1",
-  properties: {
-    name: "My project",
-    total_assets: 10,
-    tags: ["cool", "fun", "project"],
-    locale: "en-US",
-    timezone: "America/New_York"
-  }
-)
+client.objects.set("projects", "project-1", {
+  name: "My project",
+  total_assets: 10,
+  tags: ["cool", "fun", "project"],
+  locale: "en-US",
+  timezone: "America/New_York"
+})
 `,
   csharp: `
 var knockClient = new KnockClient(

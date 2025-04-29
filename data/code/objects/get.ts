@@ -31,10 +31,7 @@ require "knockapi"
 
 client = Knockapi::Client.new(bearer_token: "sk_12345")
 
-Knock::Objects.get(
-  collection: "projects",
-  id: "project-1"
-)
+client.objects.get("projects", "project-1")
 `,
   csharp: `
 var knockClient = new KnockClient(

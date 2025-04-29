@@ -70,9 +70,7 @@ require "knockapi"
 
 client = Knockapi::Client.new(bearer_token: "sk_12345")
 
-Knock::Objects.set_preferences(
-  collection: "projects",
-  id: "project-1",
+client.objects.set_preferences("projects", "project-1", "default", {
   channel_types: {
     email: true,
     sms: false
@@ -82,11 +80,11 @@ Knock::Objects.set_preferences(
       channel_types: {
         email: false,
         in_app_feed: true,
-        sms: true,
+        sms: true
       }
     }
   }
-)
+})
 `,
   csharp: `
 var knockClient = new KnockClient(

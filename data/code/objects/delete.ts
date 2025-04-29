@@ -31,10 +31,7 @@ require "knockapi"
 
 client = Knockapi::Client.new(bearer_token: "sk_12345")
 
-Knock::Objects.delete(
-  collection: "projects",
-  id: "project-1",
-)
+client.objects.delete("projects", "project-1")
 `,
   csharp: `
 var knockClient = new KnockClient(

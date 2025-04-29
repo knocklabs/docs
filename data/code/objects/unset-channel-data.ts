@@ -49,11 +49,7 @@ client = Knockapi::Client.new(bearer_token: "sk_12345")
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-Knock::Objects.unset_channel_data(
-  collection: "projects",
-  id: project.id,
-  channel_id: knock_channel_id
-)
+client.objects.unset_channel_data("projects", project.id, knock_channel_id)
 `,
   csharp: `
 var knockClient = new KnockClient(
