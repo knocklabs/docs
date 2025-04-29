@@ -22,18 +22,19 @@ Knock.Users.get_preferences(knock_client, user.id, preference_set: "tenant-1")
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-# If no preference set id is provided, the SDK will return the user's "default" preferences
+# The preference set ID is required. Use "default" for the default preference set
 client.users.get_preferences(
   user_id=user.id,
-  id="tenant-1"
+  id="default"
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-# If no preference set id is provided, the SDK will return the user's "default" preferences
-Knock::Users.get_preferences(user.id, preference_set: "tenant-1")
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+# The preference set ID is required. Use "default" for the default preference set
+client.users.get_preferences(user.id, "default")
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -54,10 +55,10 @@ $client->users()->getPreference($user->id(), 'default');
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-// If no preference set id is provided, the SDK will return the user's "default" preferences
+// The preference set ID is required. Use "default" for the default preference set
 preferences, _ := knockClient.Users.GetPreferences(ctx, &knock.GetUserPreferencesRequest{
   UserID: user.ID,
-  PreferenceID: "tenant-1",
+  PreferenceID: "default",
 })
 `,
   java: `
@@ -68,11 +69,8 @@ KnockClient client = KnockClient.builder()
     .apiKey("sk_12345")
     .build();
 
-// Request a user's "default" preferences
-PreferenceSet preferences = client.users().getDefaultPreferences(user.getId());
-
-// Request tenant-specific preferences for a user
-PreferenceSet preferences = client.users().getPreferencesById(user.getId(), "tenant-1");
+// The preference set ID is required. Use "default" for the default preference set
+PreferenceSet preferences = client.users().getPreferencesById(user.getId(), "default");
 `,
 };
 

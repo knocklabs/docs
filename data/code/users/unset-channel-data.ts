@@ -26,16 +26,14 @@ client.users.unset_channel_data(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 apns_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-Knock::Users.unset_channel_data(
-  id: user.id,
-  channel_id: apns_channel_id,
-)  
+client.users.unset_channel_data(user.id, apns_channel_id)
 `,
   csharp: `
 var knockClient = new KnockClient(

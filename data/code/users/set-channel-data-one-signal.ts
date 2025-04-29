@@ -22,17 +22,14 @@ client.users.set_channel_data(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.set_channel_data(
-  id: user.id,
-  channel_id: "8209f26c-62a5-461d-95e2-a5716a26e652",
-  channel_data: {
-    player_ids: [oneSignalPlayerId]
-  }
-)  
-`,
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.users.set_channel_data(user.id, "8209f26c-62a5-461d-95e2-a5716a26e652", {
+  player_ids: [oneSignalPlayerId]
+})
+  `,
   csharp: `
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });

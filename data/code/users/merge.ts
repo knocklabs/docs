@@ -28,13 +28,13 @@ client.users.merge(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.merge(
-  id: user.id,
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.users.merge(user.id, {
   from_user_id: "user-to-merge-from"
-)
+})
 `,
   csharp: `
 var knockClient = new KnockClient(

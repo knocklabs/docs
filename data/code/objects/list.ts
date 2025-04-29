@@ -20,6 +20,13 @@ objects = client.objects.list(
     collection="projects"
 )
 `,
+  ruby: `
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+objects = client.objects.list("projects")
+`,
   // TODO: Add additional SDK examples
 };
 

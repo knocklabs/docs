@@ -27,10 +27,11 @@ client = Knock(api_key="sk_12345")
 client.users.bulk.delete(user_ids=user_ids)
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.bulk_delete(user_ids: user_ids)  
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.users.bulk.delete(user_ids)
 `,
   csharp: `
 var knockClient = new KnockClient(

@@ -56,15 +56,21 @@ client.users.bulk.set_preferences(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 user_ids = ["jhammond", "dnedry", "imalcolm", "esattler"]
 
-Knock::Users.bulk_set_preferences(
+client.users.bulk.set_preferences({
   user_ids: user_ids,
-  channel_types: { email: true, sms: false }
-)
+  preferences: {
+    channel_types: {
+      email: true,
+      sms: false
+    }
+  }
+})
 `,
   csharp: `
 var knockClient = new KnockClient(

@@ -21,10 +21,11 @@ knock_client = MyApp.Knock.client()
 all_preferences = Knock.Users.get_all_preferences(knock_client, user.id)
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-all_preferences = Knock::Users.get_all_preferences(user.id)
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+all_preferences = client.users.list_preferences(user.id)
 `,
   csharp: `
 var knockClient = new KnockClient(

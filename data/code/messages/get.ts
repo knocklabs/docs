@@ -28,7 +28,7 @@ require "knockapi"
 
 client = Knockapi::Client.new(bearer_token: "sk_12345")
 
-Knock::Messages.get(id: message.id)
+client.messages.get(message.id)
 `,
   csharp: `
 var knockClient = new KnockClient(

@@ -51,24 +51,22 @@ client.users.update(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 # Get this value in your Knock dashboard
 apns_channel_id = "some-channel-id-from-knock"
 
-Knock::Users.identify(
-  id: "1",
-  data: {
-    name: "John Hammond",
-    email: "jhammond@ingen.net",
-    channel_data: {
-      apns_channel_id: {
-        tokens: ["apns_push_token"]
-      }
+client.users.update("1", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net",
+  channel_data: {
+    apns_channel_id: {
+      tokens: ["apns_push_token"]
     }
   }
-)
+})
 `,
   csharp: `
 var knockClient = new KnockClient(

@@ -53,21 +53,17 @@ client.users.list_messages(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.get_messages(
-  id: user.id
-)
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.users.list_messages(user.id)
 
 # supports pagination parameters and filters
-Knock::Users.get_messages(
-  id: user.id,
-  options={
-    'page_size': 20,
-    'tenant': 'my_tenant'
-  }
-)
+client.users.list_messages(user.id, {
+  page_size: 20,
+  tenant: "my_tenant"
+})
 `,
   csharp: `
 var knockClient = new KnockClient(

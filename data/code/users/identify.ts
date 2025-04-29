@@ -38,16 +38,14 @@ client.users.update(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.identify(
-  id: "1",
-  data: {
-    name: "John Hammond",
-    email: "jhammond@ingen.net"
-  }
-)
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.users.update("1", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net"
+})
 `,
   csharp: `
 var knockClient = new KnockClient(

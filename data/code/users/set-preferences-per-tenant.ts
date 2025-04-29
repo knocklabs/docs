@@ -36,12 +36,11 @@ client.users.set_preferences(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.set_preferences(
-  user_id: user.id,
-  preference_set: tenant.id,
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.users.set_preferences(user.id, tenant.id, {
   channel_types: {
     email: true,
     sms: false
@@ -55,7 +54,7 @@ Knock::Users.set_preferences(
       }
     }
   }
-)
+})
 `,
   csharp: `
 var knockClient = new KnockClient(

@@ -44,11 +44,11 @@ require "knockapi"
 
 client = Knockapi::Client.new(bearer_token: "sk_12345")
 
-Knock::Messages.get_events(id: message.id)
+client.messages.list_events(message.id)
 
 # supports pagination parameters
 
-Knock::Messages.get_events(id: message.id, options: {page_size: 10})
+client.messages.list_events(message.id, page_size: 10)
 `,
   csharp: `
 var knockClient = new KnockClient(

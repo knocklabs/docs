@@ -69,10 +69,11 @@ client.users.bulk.update([
 ])
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.bulk_identify([
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.users.bulk.update([
   {
     id: "1",
     name: "John Hammond",

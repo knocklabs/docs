@@ -54,11 +54,11 @@ require "knockapi"
 
 client = Knockapi::Client.new(bearer_token: "sk_12345")
 
-Knock::Messages.list()
+client.messages.list()
 
 # supports pagination parameters and filters
 
-Knock::Messages.list(options: {'page_size': 20, 'tenant': "my_tenant"})
+client.messages.list(page_size: 20, tenant: "my_tenant")
 `,
   csharp: `
 var knockClient = new KnockClient(
