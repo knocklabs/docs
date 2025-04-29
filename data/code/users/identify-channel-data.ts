@@ -39,15 +39,13 @@ client = Knock(api_key="sk_12345")
 # Get this value in your Knock dashboard
 apns_channel_id = "some-channel-id-from-knock"
 
-client.users.identify(
-  id="1",
-  data={
-    "name": "John Hammond",
-    "email": "jhammond@ingen.net",
-    "channel_data": {
-      apns_channel_id: {
-          "tokens": ["apns_push_token"]
-      }
+client.users.update(
+  user_id="1",
+  name="John Hammond",
+  email="jhammond@ingen.net",
+  channel_data={
+    apns_channel_id: {
+      "tokens": ["apns_push_token"]
     }
   }
 )

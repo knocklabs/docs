@@ -18,9 +18,10 @@ all_preferences = Knock.Objects.get_all_preferences(knock_client, "projects", "p
 `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
 
-all_preferences = client.objects.get_all_preferences(collection="projects", id="project-1")
+client = Knock(api_key="sk_12345")
+
+all_preferences = client.objects.list_preferences(collection="projects", object_id="project-1")
 `,
   ruby: `
 require "knockapi"

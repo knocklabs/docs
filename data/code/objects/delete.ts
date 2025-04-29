@@ -18,13 +18,14 @@ Knock.Objects.delete(knock_client, "projects", "project-1")
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
+
+client = Knock(api_key="sk_12345")
 
 client.objects.delete(
-  collection="projects",
-  id="project-1"
+    collection="projects",
+    id="project-1"
 )
-  `,
+`,
   ruby: `
 require "knockapi"
 

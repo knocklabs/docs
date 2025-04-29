@@ -52,17 +52,14 @@ Knock.Tenants.set(knock_client, "tenant-1", %{
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.tenants.set_tenant(
+client.tenants.set(
   id="tenant-1",
-  tenant_data={
-    "name": "Tenant 1",
-    "settings": {
-      "branding": {
-        "primary_color": "#33FF5B",
-        "primary_color_contrast": "#ffffff",
-        "logo_url": "https:www.example.com/path-to-logo-asset-url",
-        "icon_url": "https:www.example.com/path-to-icon-asset-url"
-      }
+  settings={
+    "branding": {
+      "primary_color": "#33FF5B",
+      "primary_color_contrast": "#ffffff",
+      "logo_url": "https:www.example.com/path-to-logo-asset-url",
+      "icon_url": "https:www.example.com/path-to-icon-asset-url"
     }
   }
 )

@@ -41,17 +41,15 @@ Knock.Users.get_messages(
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.users.get_messages(
-  id=user.id
+client.users.list_messages(
+  user_id=user.id
 )
 
 # supports pagination parameters and filters
-client.users.get_messages(
-  id=user.id, 
-  options={
-    'page_size': 20, 
-    'tenant': "my_tenant"
-  }
+client.users.list_messages(
+  user_id=user.id, 
+  page_size=20,
+  tenant="my_tenant"
 )
 `,
   ruby: `

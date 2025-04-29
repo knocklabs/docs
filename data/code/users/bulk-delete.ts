@@ -24,7 +24,7 @@ Knock.Users.bulk_delete(knock_client, user_ids)
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.users.bulk_delete(user_ids=user_ids)
+client.users.bulk.delete(user_ids=user_ids)
 `,
   ruby: `
 require "knock"

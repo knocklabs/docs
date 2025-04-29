@@ -11,6 +11,15 @@ const knock = new Knock({
 
 const objects = await knock.objects.list("projects");
 `,
+  python: `
+from knockapi import Knock
+
+client = Knock(api_key="sk_12345")
+
+objects = client.objects.list(
+    collection="projects"
+)
+`,
   // TODO: Add additional SDK examples
 };
 

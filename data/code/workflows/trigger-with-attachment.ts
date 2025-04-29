@@ -27,17 +27,17 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
-  key="invoice-paid",
-  recipients=recipient_ids,
-  data={
-    "attachments": [
-      {
-        "name": "Invoice.pdf",
-        "content_type": "application/pdf",
-        "content": file_contents,
-      }
-    ]
-  }
+    key="invoice-paid",
+    recipients=recipient_ids,
+    data={
+        "attachments": [
+            {
+                "name": "Invoice.pdf",
+                "content_type": "application/pdf",
+                "content": file_contents
+            }
+        ]
+    }
 )
 `,
   ruby: `

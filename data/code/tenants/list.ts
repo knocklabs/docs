@@ -36,12 +36,13 @@ Knock.Tenants.list(
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
 client.tenants.list()
 
 # supports pagination parameters and filters
-client.tenants.list({'page_size': 20, 'name': "Tenant 1"})
+client.tenants.list(page_size=20, name="Tenant 1")
   `,
   ruby: `
 require "knock"

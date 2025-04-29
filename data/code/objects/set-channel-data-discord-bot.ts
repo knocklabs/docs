@@ -52,16 +52,17 @@ Knock.Objects.set_channel_data(knock_client, "projects", project.id, knock_disco
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
+
+client = Knock(api_key="sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_discord_channel_id = "7f1b3d5a-9c8e-4f2d-b6a7-3e2c8d9f0e1b"
 
 client.objects.set_channel_data(
   collection="projects",
-  id=project.id,
+  object_id=project.id,
   channel_id=knock_discord_channel_id,
-  channel_data={
+  data={
     "connections": [
       {
         "channel_id": "channel-id-from-discord"

@@ -31,13 +31,13 @@ Knock.Messages.get_events(knock_client, message.id, page_size: 10)
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
 
-client.messages.get_events(message.id)
+client = Knock(api_key="sk_12345")
+
+client.messages.list_events(message_id)
 
 # supports pagination parameters
-
-Knock.Messages.get_events(message.id, {'page_size': 10})
+client.messages.list_events(message_id, page_size=10)
   `,
   ruby: `
 require "knockapi"

@@ -29,22 +29,22 @@ client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
     key="new-comment",
-    data={ "project_name": "My Project" },
+    data={"project_name": "My Project"},
     recipients=[
-      {
-          "id": "project-1",
-          "collection": "projects",
-          "name": "My project",
-          "total_assets": 10,
-          "tags": ["cool", "fun", "project"],
-      },
-      {
-          "id": "project-2",
-          "collection": "projects",
-          "name": "My second project",
-          "total_assets": 5,
-          "tags": ["very", "cool", "project"],
-      }
+        {
+            "id": "project-1",
+            "collection": "projects",
+            "name": "My project",
+            "total_assets": 10,
+            "tags": ["cool", "fun", "project"]
+        },
+        {
+            "id": "project-2",
+            "collection": "projects",
+            "name": "My second project",
+            "total_assets": 5,
+            "tags": ["very", "cool", "project"]
+        }
     ]
 )
 `,

@@ -14,9 +14,9 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.users.set_channel_data(
-  id=user.id, 
-  channel_id="8209f26c-62a5-461d-95e2-a5716a26e652"
-  channel_data={
+  user_id=user.id, 
+  channel_id="8209f26c-62a5-461d-95e2-a5716a26e652",
+  data={
     "tokens": [user_device_token]
   }
 )

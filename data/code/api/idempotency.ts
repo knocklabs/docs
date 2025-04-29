@@ -34,19 +34,17 @@ await knock.workflows.trigger("new-comment", {
 `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
     key="new-comment",
-    recipients=["1", "2"]
-
-    # optional
-    data={ "project_name": "My Project" },
+    recipients=["1", "2"],
+    data={"project_name": "My Project"},
     actor="3",
     cancellation_key="cancel_123",
-    tenant="jurassic_world_employees"
-
-    idempotency_key="123"
+    tenant="jurassic_world_employees",
+    extra_headers={"Idempotency-Key": "123"}
 )
 `,
   ruby: `

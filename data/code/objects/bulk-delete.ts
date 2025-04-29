@@ -24,12 +24,10 @@ Knock.Objects.bulk_delete(knock_client, "projects", object_ids)
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
 
-client.objects.bulk_delete(
-  collection="projects",
-  object_ids=object_ids
-)
+client = Knock(api_key="sk_12345")
+
+client.objects.bulk.delete(collection="projects", object_ids=["project-1", "project-2"])
   `,
   ruby: `
 require "knockapi"

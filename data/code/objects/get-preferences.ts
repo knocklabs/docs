@@ -20,10 +20,11 @@ Knock.Objects.get_preferences(knock_client, "projects", "project-1", preference_
 `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
+
+client = Knock(api_key="sk_12345")
 
 # If no preference set id is provided, the SDK will return the object's "default" preferences
-client.objects.get_preferences(collection="projects", id="project-1", options={"preference_set": "tenant-1"})
+client.objects.get_preferences(collection="projects", object_id="project-1", id="tenant-1")
 `,
   ruby: `
 require "knockapi"

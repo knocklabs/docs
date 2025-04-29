@@ -22,7 +22,7 @@ client = Knock(api_key="sk_12345")
 
 client.users.set_preferences(
   user_id=user.id,
-  preference_set=tenant.id,
+  id=tenant.id,
   channel_types={ "email": True, "sms": False },
   workflows={
     "dinosaurs-loose": {

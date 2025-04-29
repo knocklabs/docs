@@ -18,11 +18,10 @@ Knock.Tenants.get(knock_client, "tenant-1")
 `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
-client.tenants.get(
-  id="tenant-1"
-)
+client.tenants.get(id="tenant-1")
 `,
   ruby: `
 require "knock"

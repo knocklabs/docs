@@ -52,16 +52,17 @@ Knock.Objects.set_channel_data(knock_client, "projects", project.id, knock_teams
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
+
+client = Knock(api_key="sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_teams_channel_id = "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f"
 
 client.objects.set_channel_data(
   collection="projects",
-  id=project.id,
+  object_id=project.id,
   channel_id=knock_teams_channel_id,
-  channel_data={
+  data={
     "connections": [
       {
         "incoming_webhook": { "url": "url-from-teams" }

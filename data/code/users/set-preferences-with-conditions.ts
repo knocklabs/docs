@@ -24,6 +24,7 @@ client = Knock(api_key="sk_12345")
 
 client.users.set_preferences(
   user_id=user.id,
+  id="default",
   workflows={
     "dinosaurs-loose": {
       "conditions": [{

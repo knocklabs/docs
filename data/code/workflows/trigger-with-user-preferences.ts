@@ -25,11 +25,9 @@ await knock.workflows.trigger("new-comment", {
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-apns_push_token = "apns-push-token"
-
 client.workflows.trigger(
     key="new-comment",
-    data={ "project_name": "My Project" },
+    data={"project_name": "My Project"},
     recipients=[
         {
             "id": "1",
@@ -37,17 +35,16 @@ client.workflows.trigger(
             "preferences": {
                 "default": {
                     "channel_types": {
-                        "email": true,
-                        "sms": true
+                        "email": True,
+                        "sms": True
                     }
                 },
                 "{{ tenant.id }}": {
                     "channel_types": {
-                        "email": true,
-                        "sms": true
+                        "email": False,
+                        "sms": False
                     }
                 }
-              }
             }
         }
     ]

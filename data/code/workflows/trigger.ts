@@ -21,7 +21,7 @@ await knock.workflows.trigger("new-comment", {
   // optional
   data: { "project_name": "My Project" },
   actor: "3",
-  cancellationKey: "cancel_123",
+  cancellation_key: "cancel_123",
   tenant: "jurassic_world_employees"
 });
 `,
@@ -31,10 +31,8 @@ client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
     key="new-comment",
-    recipients=["1", "2"]
-
-    # optional
-    data={ "project_name": "My Project" },
+    recipients=["1", "2"],
+    data={"project_name": "My Project"},
     actor="3",
     cancellation_key="cancel_123",
     tenant="jurassic_world_employees"

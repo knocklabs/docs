@@ -43,11 +43,13 @@ await knock.objects.setPreferences("projects", "project-1", {
 `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
+
+client = Knock(api_key="sk_12345")
 
 client.objects.set_preferences(
   collection="projects",
-  id="project-1",
+  object_id="project-1",
+  id="default",
   channel_types={
     "email": True,
     "sms": False
@@ -57,7 +59,7 @@ client.objects.set_preferences(
       "channel_types": {
         "email": False,
         "in_app_feed": True,
-        "sms": True,
+        "sms": True
       }
     }
   }

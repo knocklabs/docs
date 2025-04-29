@@ -18,10 +18,11 @@ Knock.Messages.get_content(knock_client, message.id)
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
 
-client.messages.get_content(message.id)
-  `,
+client = Knock(api_key="sk_12345")
+
+client.messages.get_content(message_id)
+`,
   ruby: `
 require "knockapi"
 

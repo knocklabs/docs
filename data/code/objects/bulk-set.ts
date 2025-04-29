@@ -60,9 +60,10 @@ MyApp.Knock.client()
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
 
-client.objects.bulk_set(
+client = Knock(api_key="sk_12345")
+
+client.objects.bulk.set(
   collection="projects",
   objects=[
     {

@@ -4,7 +4,7 @@ import Knock from "@knocklabs/node";
 const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
-  actor: { id: project.id, collection: "projects" }
+  actor: { id: project.id, collection: "projects" },
   recipients: followerIds,
 });
   `,
@@ -13,9 +13,9 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
-  key="new-comment",
-  actor={ "id": project.id, "collection": "projects" },
-  recipients=follower_ids
+    key="new-comment",
+    actor={"id": project.id, "collection": "projects"},
+    recipients=follower_ids
 )
 `,
   ruby: `

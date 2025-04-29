@@ -54,16 +54,17 @@ Knock.Objects.set_channel_data(knock_client, "projects", project.id, knock_slack
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
+
+client = Knock(api_key="sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_slack_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
 client.objects.set_channel_data(
   collection="projects",
-  id=project.id,
+  object_id=project.id,
   channel_id=knock_slack_channel_id,
-  channel_data={
+  data={
     "connections": [
       {
         "incoming_webhook": { "url": "url-from-slack" }

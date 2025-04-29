@@ -16,12 +16,12 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
-  key="reservation-reminder-email",
-  data={
-      "reservation_id": reservation.id
-  },
-  recipients=reservation_guest_ids,
-  tenant="black-lodge"
+    key="reservation-reminder-email",
+    data={
+        "reservation_id": reservation.id
+    },
+    recipients=reservation_guest_ids,
+    tenant="black-lodge"
 )
   `,
   ruby: `

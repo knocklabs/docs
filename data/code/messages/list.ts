@@ -41,13 +41,13 @@ Knock.Messages.list(
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
+
+client = Knock(api_key="sk_12345")
 
 client.messages.list()
 
 # supports pagination parameters and filters
-
-client.messages.list({'page_size': 20, 'tenant': "my_tenant"})
+client.messages.list(page_size=20, tenant="my_tenant")
   `,
   ruby: `
 require "knockapi"

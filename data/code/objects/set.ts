@@ -38,18 +38,19 @@ Knock.Objects.set(knock_client, "projects", "project-1", %{
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
 
-client.objects.set_object(
-  collection="projects",
-  id="project-1",
-  data={
-    "name": "My project",
-    "total_assets": 10,
-    "tags": ["cool", "fun", "project"],
-    "locale": "en-US",
-    "timezone": "America/New_York"
-  }
+client = Knock(api_key="sk_12345")
+
+client.objects.set(
+    collection="projects",
+    id="project-1",
+    channel_data={
+        "name": "My project",
+        "total_assets": 10,
+        "tags": ["cool", "fun", "project"],
+        "locale": "en-US",
+        "timezone": "America/New_York"
+    }
 )
   `,
   ruby: `

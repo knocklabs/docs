@@ -48,19 +48,17 @@ Knock.Objects.get_messages(
   `,
   python: `
 from knockapi import Knock
-client = Knock(bearer_token="sk_12345")
 
-client.objects.get_messages(
-  collection="projects",
-  id=project.id,
-)
+client = Knock(api_key="sk_12345")
+
+client.objects.list_messages(collection="projects", id=project.id)
 
 # supports pagination parameters and filters
-
-client.objects.get_messages(
+client.objects.list_messages(
   collection="projects",
   id=project.id,
-  options={'page_size': 10, 'tenant': "my_tenant"}
+  page_size=10,
+  tenant="my_tenant"
 )
   `,
   ruby: `

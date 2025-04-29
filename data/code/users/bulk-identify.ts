@@ -55,7 +55,7 @@ MyApp.Knock.client()
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.users.bulk_identify([
+client.users.bulk.update([
   {
     "id": "1",
     "name": "John Hammond",

@@ -30,7 +30,7 @@ apns_channel_id = "some-channel-id-from-knock"
 
 client.workflows.trigger(
     key="new-comment",
-    data={ "project_name": "My Project" },
+    data={"project_name": "My Project"},
     recipients=[
         {
             "id": "1",

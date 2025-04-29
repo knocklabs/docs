@@ -5,8 +5,9 @@ const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 const userInvite = await invites.approve(inviteToken);
 
-await knock.workflows.cancel("new-user-invited", userInvite.id, {
-  recipients: ["user_1", "user_2"],
+await knock.workflows.cancel("new-user-invited", {
+  cancellation_key: userInvite.id,
+  recipients: ["user_1", "user_2"]
 });
   `,
   python: `
@@ -14,9 +15,9 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.workflows.cancel(
-  key="new-user-invited",
-  cancellation_key=user_invite.id,
-  recipients=["user_1", "user_2"]
+    key="new-user-invited",
+    cancellation_key=user_invite.id,
+    recipients=["user_1", "user_2"]
 )
 `,
   ruby: `

@@ -31,12 +31,10 @@ Knock.Users.identify(knock_client, "1", %{
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.users.identify(
-  id="1",
-  data={
-    "name": "John Hammond",
-    "email": "jhammond@ingen.net"
-  }
+client.users.update(
+  user_id="1",
+  name="John Hammond",
+  email="jhammond@ingen.net"
 )
 `,
   ruby: `

@@ -45,9 +45,14 @@ client = Knock(api_key="sk_12345")
 
 user_ids = ["jhammond", "dnedry", "imalcolm", "esattler"]
 
-client.users.bulk_set_preferences(
-  user_ids=user_ids, 
-  channel_types={ "email": True, "sms": False }
+client.users.bulk.set_preferences(
+  user_ids=user_ids,
+  preferences={
+    "channel_types": {
+      "email": True,
+      "sms": False
+    }
+  }
 )
 `,
   ruby: `

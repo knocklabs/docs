@@ -13,7 +13,7 @@ const allPreferences = await knockClient.users.listPreferences(user.id);
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-all_preferences = client.users.get_all_preferences(user.id)
+all_preferences = client.users.list_preferences(user_id=user.id)
 `,
   elixir: `
 knock_client = MyApp.Knock.client()

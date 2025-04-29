@@ -73,7 +73,7 @@ await knock.workflows.trigger("new-comment", {
   // optional
   data: { "project_name": "My Project" },
   actor: "3",
-  cancellationKey: "cancel_123",
+  cancellation_key: "cancel_123",
   tenant: "jurassic_world_employees"
 });
 `,
@@ -88,7 +88,7 @@ await knock.workflows.trigger("new-comment", {
   // optional
   data: { "project_name": "My Project" },
   actor: "3",
-  cancellationKey: "cancel_123",
+  cancellation_key: "cancel_123",
   tenant: "jurassic_world_employees"
 });
 `,

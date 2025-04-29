@@ -61,7 +61,7 @@ client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
     key="new-comment",
-    data={ "project_name": "My Project" },
+    data={"project_name": "My Project"},
     actor={
         "id": "1",
         "name": "John Hammond",
@@ -73,7 +73,7 @@ client.workflows.trigger(
             "collection": "projects",
             "name": "My project",
             "total_assets": 10,
-            "tags": ["cool", "fun", "project"],
+            "tags": ["cool", "fun", "project"]
         },
         {
             "id": "2",

@@ -14,10 +14,10 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
-  key="new-comment",
-  recipients=[
-    { "id": project.id, "collection": "projects" },
-  ]
+    key="new-comment",
+    recipients=[
+        {"id": project.id, "collection": "projects"}
+    ]
 )
 `,
   ruby: `
