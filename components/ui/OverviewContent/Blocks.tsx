@@ -13,7 +13,7 @@ export const Tool = ({
   description,
   href,
 }: {
-    icon: string | LucideIcon | React.ReactNode;
+  icon: string | LucideIcon | React.ReactNode;
   title: string;
   description: string;
   href: string;
@@ -39,7 +39,11 @@ export const Tool = ({
           icon
         ) : (
           <Icon
-              icon={typeof icon === "string" ? Lucide[icon as keyof typeof Lucide] as LucideIcon : icon as LucideIcon}
+            icon={
+              typeof icon === "string"
+                ? (Lucide[icon as keyof typeof Lucide] as LucideIcon)
+                : (icon as LucideIcon)
+            }
             aria-hidden={true}
             w="8"
             h="8"
@@ -79,7 +83,7 @@ export const ContentCard = ({
   title: string;
   description: string;
   href: string;
-    icon: string | LucideIcon;
+  icon: string | LucideIcon;
   style?: React.CSSProperties;
 }) => {
   return (
@@ -98,7 +102,11 @@ export const ContentCard = ({
         data-content-card-inner
       >
         <Icon
-          icon={typeof icon === "string" ? Lucide[icon as keyof typeof Lucide] as LucideIcon : icon as LucideIcon}
+          icon={
+            typeof icon === "string"
+              ? (Lucide[icon as keyof typeof Lucide] as LucideIcon)
+              : (icon as LucideIcon)
+          }
           aria-hidden={true}
           w="10"
           h="10"
@@ -179,7 +187,7 @@ export const BuildingBlock = ({
 }: {
   title: string;
   description: string;
-    icon: string | LucideIcon;
+  icon: string | LucideIcon;
   href: string;
 }) => {
   return (
@@ -193,7 +201,11 @@ export const BuildingBlock = ({
     >
       <Stack w="full" h="full">
         <Icon
-          icon={typeof icon === "string" ? Lucide[icon as keyof typeof Lucide] as LucideIcon : icon as LucideIcon}
+          icon={
+            typeof icon === "string"
+              ? (Lucide[icon as keyof typeof Lucide] as LucideIcon)
+              : (icon as LucideIcon)
+          }
           aria-hidden={true}
           w="10"
           h="10"
@@ -218,7 +230,10 @@ export const BuildingBlock = ({
 
 type ResponsiveThreeColumnProps = TgphComponentProps<typeof Stack>;
 
-export const ResponsiveThreeColumn = ({ children, ...props }: ResponsiveThreeColumnProps) => {
+export const ResponsiveThreeColumn = ({
+  children,
+  ...props
+}: ResponsiveThreeColumnProps) => {
   return (
     <Stack
       direction="row"
@@ -227,7 +242,11 @@ export const ResponsiveThreeColumn = ({ children, ...props }: ResponsiveThreeCol
       justifyContent="space-between"
       className="md-one-column"
       {...props}
-      style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", ...props.style }}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        ...props.style,
+      }}
     >
       {children}
     </Stack>
