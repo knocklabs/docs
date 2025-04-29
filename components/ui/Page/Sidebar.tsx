@@ -230,6 +230,9 @@ const Wrapper = ({ children }: SidebarProps) => {
         <ScrollerBottomGradient
           scrollerRef={scrollerRef}
           managePadding={false}
+          gradientProps={{
+            height: "48",
+          }}
         />
         <Stack
           direction="column"

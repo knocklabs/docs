@@ -1,31 +1,68 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box } from "@telegraph/layout";
-import { useRouter } from "next/router";
 import { TgphComponentProps } from "@telegraph/helpers";
 
 export function useOnRefReady<T extends HTMLElement>(
   ref: React.RefObject<T>,
   callback: (node: T) => void,
 ) {
+  const lastNodeRef = useRef<T | null>(null);
+
   useEffect(() => {
-    const node = ref.current;
-    if (node) {
-      callback(node);
-      return;
-    }
+    const checkAndCall = () => {
+      const node = ref.current;
+      if (node && node !== lastNodeRef.current) {
+        lastNodeRef.current = node;
+        callback(node);
+      }
+    };
+
+    checkAndCall();
 
     // If node isn't ready yet, set up a MutationObserver
     const observer = new MutationObserver(() => {
-      if (ref.current) {
-        callback(ref.current);
-        observer.disconnect();
-      }
+      checkAndCall();
     });
 
     const parent = document.body; // Safe default for top-level elements
     observer.observe(parent, { childList: true, subtree: true });
 
     return () => observer.disconnect();
+  }, [ref, callback]);
+}
+
+// Observe mutations to update gradient when content changes
+export function useMutationObserver<T extends HTMLElement>(
+  ref: React.RefObject<T>,
+  callback: (node: T) => void,
+) {
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    let lastScrollHeight = node.scrollHeight;
+
+    const handleChange = () => {
+      if (node.scrollHeight !== lastScrollHeight) {
+        lastScrollHeight = node.scrollHeight;
+        callback(node);
+      }
+    };
+
+    // MutationObserver for content changes
+    const mutationObserver = new MutationObserver(handleChange);
+    mutationObserver.observe(node, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    // Initial check
+    handleChange();
+
+    return () => {
+      mutationObserver.disconnect();
+    };
   }, [ref, callback]);
 }
 
@@ -43,25 +80,15 @@ export const ScrollerBottomGradient = ({
   scrollerRef: React.RefObject<HTMLDivElement>;
   managePadding?: boolean;
 }) => {
-  const router = useRouter();
   const gradientRef = useRef<HTMLDivElement>(null);
 
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const [gradient, setGradient] = useState<HTMLDivElement | null>(null);
-  const [initialized, setInitialized] = useState(false);
 
   useOnRefReady(scrollerRef, (node) => setScroller(node));
   useOnRefReady(gradientRef, (node) => setGradient(node));
 
-  // Reset the state and refs when the route changes
-  useEffect(() => {
-    router.events.on("routeChangeStart", () => {
-      setInitialized(false);
-      setScroller(null);
-    });
-  }, [router]);
-
-  const getGradientOpacity = useCallback(() => {
+  const setGradientOpacity = useCallback(() => {
     if (!scroller || !gradient) return;
 
     // If content height is less than or equal to scroller height, hide gradient
@@ -71,39 +98,37 @@ export const ScrollerBottomGradient = ({
         // Pull it off the bottom of the scroller
         scroller.style.paddingBottom = "var(--tgph-spacing-4)";
       }
-      return;
     }
 
     const scrollableHeight = scroller.scrollHeight - scroller.clientHeight;
     const scrolledAmount = scroller.scrollTop;
-    const scrollPercentage = Math.min(scrolledAmount / scrollableHeight, 1);
+    // Make the transition more aggressive by using a power function
+    // This will cause the opacity to change more rapidly near the bottom
+    const scrollPercentage = Math.min(
+      Math.pow(scrolledAmount / scrollableHeight, 4),
+      1,
+    );
 
     // Invert the percentage so opacity goes from 1 to 0 as we scroll down
     gradient.style.opacity = String(1 - scrollPercentage);
   }, [scroller, gradient, managePadding]);
 
-  const initialize = useCallback(() => {
-    // Mostly for TS
-    if (!scroller || !gradient) return;
-    scroller.addEventListener("scroll", getGradientOpacity);
-    getGradientOpacity(); // Initial check
-
-    // Wait for scroller container to finish animating before measuring if it needs opacity
-    scroller.addEventListener("transitionend", getGradientOpacity);
-
-    return () => {
-      scroller.removeEventListener("scroll", getGradientOpacity);
-      scroller.removeEventListener("transitionend", getGradientOpacity);
-    };
-  }, [scroller, gradient, getGradientOpacity]);
+  // Watch for scroller height changes
+  useMutationObserver(scrollerRef, setGradientOpacity);
 
   // A nice way to show that there is more content below the scroller
   useEffect(() => {
-    if (!initialized && scroller && gradient) {
-      initialize();
-      setInitialized(true);
-    }
-  }, [scroller, gradient, initialized, initialize]);
+    if (!scroller || !gradient) return;
+
+    scroller.addEventListener("scroll", setGradientOpacity);
+    setGradientOpacity(); // Initial check
+    scroller.addEventListener("transitionend", setGradientOpacity);
+
+    return () => {
+      scroller.removeEventListener("scroll", setGradientOpacity);
+      scroller.removeEventListener("transitionend", setGradientOpacity);
+    };
+  }, [scroller, gradient, setGradientOpacity]);
 
   return (
     <Box
