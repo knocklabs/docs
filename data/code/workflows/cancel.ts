@@ -27,12 +27,12 @@ client.workflows.cancel(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.cancel(
-  key: "new-user-invited",
-  cancellation_key: user_invite.id,
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
+
+knock.workflows.cancel("new-user-invited",
+  cancellation_key: user_invite.id
 )
 `,
   csharp: `

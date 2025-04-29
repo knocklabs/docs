@@ -19,13 +19,13 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "new-comment",
-  actor: { "id": project.id, "collection": "projects" },
-  recipients: follower_ids,
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
+
+knock.workflows.trigger("new-comment",
+  actor: { id: project.id, collection: "projects" },
+  recipients: follower_ids
 )
 `,
   csharp: `

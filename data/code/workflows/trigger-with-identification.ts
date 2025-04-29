@@ -84,11 +84,11 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "new-comment",
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
+
+knock.workflows.trigger("new-comment",
   data: { project_name: "My Project" },
   actor: {
     id: "1",
@@ -251,22 +251,20 @@ WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
         "email", "jhammond@ingen.net"
       )
     )
-    .addRecipient(
+    .recipients(List.of(
       Map.of(
         "id", "project-1",
         "collection", "projects",
         "name", "My project",
         "total_assets", 10,
         "tags", List.of("cool", "fun", "project")
-      )
-    )
-    .addRecipient(
+      ),
       Map.of(
         "id", "2",
         "name", "Ellie Sattler",
         "email", "esattler@ingen.net"
       )
-    )
+    ))
     .build();
 
 WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);

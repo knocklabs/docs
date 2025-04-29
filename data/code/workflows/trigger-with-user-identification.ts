@@ -41,11 +41,11 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "new-comment",
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
+
+knock.workflows.trigger("new-comment",
   data: { project_name: "My Project" },
   recipients: [
     {

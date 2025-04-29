@@ -25,14 +25,14 @@ client.workflows.trigger(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "reservation-reminder-email",
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
+
+knock.workflows.trigger("reservation-reminder-email",
   recipients: reservation_guest_ids,
   data: {
-    "reservation_id": reservation.id
+    reservation_id: reservation.id
   },
   tenant: "black-lodge"
 )

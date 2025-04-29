@@ -45,21 +45,21 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
 
 # Get this value in your Knock dashboard
 apns_channel_id = "some-channel-id-from-knock"
 
-Knock::Workflows.trigger(
-  key: "new-comment",
+knock.workflows.trigger("new-comment",
   data: { project_name: "My Project" },
   recipients: [
     {
       id: "1",
       email: "jhammond@ingen.net",
       channel_data: {
-        apns_channel_id: {
+        apns_channel_id => {
           tokens: ["apns_push_token"]
         }
       }

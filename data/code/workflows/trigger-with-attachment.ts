@@ -41,18 +41,18 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "invoice-paid",
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
+
+knock.workflows.trigger("invoice-paid",
   recipients: recipient_ids,
   data: {
     attachments: [
       {
         name: "Invoice.pdf",
         content_type: "application/pdf",
-        content: file_contents,
+        content: file_contents
       }
     ]
   }

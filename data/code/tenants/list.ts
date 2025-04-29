@@ -45,13 +45,17 @@ client.tenants.list()
 client.tenants.list(page_size=20, name="Tenant 1")
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Tenants.list()
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
+
+knock.tenants.list()
 
 # supports pagination parameters and filters
-Knock::Tenants.list(options: {'page_size': 20, 'name': "Tenant 1"})
+knock.tenants.list(
+  page_size: 20,
+  name: "Tenant 1"
+)
 `,
   csharp: `
 var knockClient = new KnockClient(

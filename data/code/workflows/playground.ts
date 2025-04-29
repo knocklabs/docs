@@ -15,12 +15,13 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.workflows.trigger(
   key: "new-comment",
-  recipients: ["1", "2"]
+  recipients: ["1", "2"],
 
   # optional
   data: { project_name: "My Project" },

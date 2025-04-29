@@ -31,18 +31,18 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "new-comment",
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
+
+knock.workflows.trigger("new-comment",
   actor: comment.author.id,
   recipients: follower_ids,
   data: {
-    "document_id": comment.document.id,
-    "document_name": comment.document.name,
-    "comment_id": comment.id,
-    "comment_text": comment.text,
+    document_id: comment.document.id,
+    document_name: comment.document.name,
+    comment_id: comment.id,
+    comment_text: comment.text
   }
 )
 `,

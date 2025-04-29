@@ -24,12 +24,11 @@ client = Knock(api_key="sk_12345")
 client.tenants.get(id="tenant-1")
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Tenants.get(
-  id: "tenant-1"
-)  
+knock = Knockapi::Client.new(bearer_token: "sk_12345")
+
+knock.tenants.get("tenant-1")
 `,
   csharp: `
 var knockClient = new KnockClient(
