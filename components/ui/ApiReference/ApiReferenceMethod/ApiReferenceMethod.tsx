@@ -87,6 +87,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
           borderBottom="px"
           borderColor="gray-3"
           pb="2"
+          mt="4"
         >
           Endpoint
         </Heading>
@@ -115,6 +116,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
               borderBottom="px"
               borderColor="gray-3"
               pb="2"
+              mt="6"
             >
               Path parameters
             </Heading>
@@ -131,6 +133,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
               borderBottom="px"
               borderColor="gray-3"
               pb="2"
+              mt="6"
             >
               Query parameters
             </Heading>
@@ -147,6 +150,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
               borderBottom="px"
               borderColor="gray-3"
               pb="2"
+              mt="6"
             >
               Request body
             </Heading>
@@ -161,6 +165,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
           borderBottom="px"
           borderColor="gray-3"
           pb="2"
+          mt="6"
         >
           Returns
         </Heading>
