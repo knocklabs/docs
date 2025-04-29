@@ -179,7 +179,12 @@ const guidesContent: SidebarSection[] = [
   {
     title: "Guides",
     slug: "/guides",
+    sidebarMenuDefaultOpen: true,
     pages: [
+      {
+        slug: "/overview",
+        title: "Overview",
+      },
       {
         slug: "/implementation-guide",
         title: "Knock implementation guide",
