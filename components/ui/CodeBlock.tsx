@@ -229,7 +229,7 @@ export const CodeBlock: React.FC<Props> = ({
           color: "var(--tgph-gray-8)",
           display: "inline-block",
           minWidth: "2.25em",
-          paddingRight: "var(--tgph-spacing-5)",
+          paddingRight: "1em",
           textAlign: "right",
           userSelect: "none",
           paddingLeft: "0px",
