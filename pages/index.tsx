@@ -1,9 +1,21 @@
+import React from "react";
 import sidebarContent from "../data/sidebar";
 import AiChatButton from "../components/AiChatButton";
 import { Page } from "@/components/ui/Page";
 import Meta from "@/components/Meta";
-import MinimalHeader from "@/components/Header/MinimalHeader";
 import Link from "next/link";
+import { Box, Stack } from "@telegraph/layout";
+import { Lucide } from "@telegraph/icon";
+import { Text } from "@telegraph/typography";
+import { PostmanIcon } from "@/components/ui/OverviewContent/PostmanIcon";
+import {
+  Tool,
+  ContentCard,
+  ConceptCard,
+  BuildingBlock,
+} from "@/components/ui/OverviewContent/Blocks";
+import { Section } from "@/components/ui/OverviewContent/Section";
+
 const contentForDiscovery = sidebarContent.filter((s) => s.desc);
 
 // Add our integrations content in the 3rd position
@@ -31,80 +43,211 @@ export default function Home() {
         title={`Documentation | Knock Docs`}
         description="Explore our guides and examples to integrate Knock."
       />
-      <Page.Masthead title="Documentation" />
+      <Page.Masthead
+        title="Welcome to Knock Docs"
+        description="Knock is infrastructure for sending product and customer messaging. Learn more."
+      />
       <Page.Wrapper>
         <Page.Sidebar content={sidebarContent} />
         <Page.Content>
           <Page.ContentHeader
-            title="Documentation"
-            description="Explore our guides and examples to integrate Knock."
-          />
-          <div className="flex items-center space-x-2">
-            <Link
+            title="Welcome to Knock Docs"
+            description="Knock is infrastructure for sending product and customer messaging."
+          >
+            <Text
+              as={Link}
               href="/getting-started/what-is-knock"
-              className="bg-brand hover:bg-brand-dark text-white py-2 px-4 rounded-md font-semibold"
+              size="3"
+              color="accent"
+              weight="medium"
             >
-              Get started →
-            </Link>
-
-            <Link
-              href="/api-reference"
-              className="text-gray-600 dark:text-gray-300 py-2 px-3 rounded-md font-medium"
+              {" "}
+              <Box as="span" style={{ textDecoration: "underline" }}>
+                Learn more.
+              </Box>
+            </Text>
+          </Page.ContentHeader>
+          <Stack
+            direction="row"
+            gap="6"
+            w="full"
+            justifyContent="space-between"
+            className="md-one-column"
+            style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)" }}
+          >
+            <ContentCard
+              title="Quick start"
+              description="Integrate Knock with your backend web app and send your first notification."
+              href="/getting-started/quick-start"
+              icon={Lucide.Rabbit}
+              style={{
+                justifySelf: "left",
+              }}
+            />
+            <ContentCard
+              title="In-app UI"
+              description="Ship your first notification feed, banners, modals, or cards using pre-built UI components."
+              href="/in-app-ui/overview"
+              icon={Lucide.SquareCode}
+              style={{
+                justifySelf: "center",
+              }}
+            />
+            <ContentCard
+              title="API & SDKs"
+              description="Integrate a complete notification engine to your product with a REST-ful API."
+              href="/developer-tools/sdks"
+              icon={Lucide.Package}
+              style={{
+                justifySelf: "right",
+              }}
+            />
+          </Stack>
+          <Box mt="16">
+            <Section.Header
+              title="Learn core concepts"
+              href="/concepts/overview"
+            />
+            <Section.Content
+              className="md-one-column"
+              style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
             >
-              API reference
-            </Link>
-          </div>
-          <section className="bg-gray-50 dark:bg-gray-800 my-8 p-5 lg:-ml-5 lg:-mr-5 rounded">
-            <h2 className="text-xl font-semibold mb-2">What is Knock?</h2>
-            <p className="text-sm text-gray-700 dark:text-gray-200 mb-3">
-              Knock is notifications infrastructure for developers. Use our APIs
-              and dashboard to deliver great notification experiences to your
-              end users, driving customer satisfaction and retention.
-            </p>
-
-            <Link
-              href="/getting-started/what-is-knock"
-              className="text-brand hover:text-brand-dark font-medium text-sm"
+              <ConceptCard
+                title="How do I send notifications?"
+                description="Learn the basics of grouping together your cross-channel notifications into different workflows."
+                href="/send-notifications/triggering-workflows/overview"
+                image="/images/overviews/home/small-workflow.png"
+              />
+              <ConceptCard
+                title="How do user preferences work?"
+                description="Learn how Knock's preference system enables your users to opt-out of the notifications you send."
+                href="/preferences/overview"
+                image="/images/overviews/home/preferences.png"
+              />
+              <ConceptCard
+                title="Who can I send notifications to?"
+                description="Become familiar with how Knock models recipients as a person or a non-user entity that receives notifications."
+                href="/managing-recipients/overview"
+                image="/images/overviews/home/receivers.png"
+              />
+              <ConceptCard
+                title="What channels can I send notifications on?"
+                description="Learn what a channel is in Knock and how you can use channels to power your cross-channel notifications."
+                href="/integrations/overview"
+                image="/images/overviews/home/channels.png"
+              />
+            </Section.Content>
+          </Box>
+          <Box mt="16">
+            <Section.Header title="Start building" />
+            <Section.Content
+              gap="4"
+              flexDirection="column"
+              className="md-one-column"
+              style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
             >
-              Learn more →
-            </Link>
-          </section>
-
-          <section className="">
-            <h2 className="text-2xl font-bold mb-3">Discover Knock</h2>
-
-            <div className="space-y-6 pt-3">
-              {contentForDiscovery.map((s) => (
-                <div
-                  className="flex flex-col lg:flex-row border-t dark:border-t-gray-700 pt-6"
-                  key={s.slug}
-                >
-                  <div className="lg:w-80">
-                    <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-200">
-                      {s.desc}
-                    </p>
-                  </div>
-
-                  <ul className="mt-5 lg:mt-0 lg:ml-auto lg:w-40 space-y-2">
-                    {s.pages.map((p) => (
-                      <li
-                        className="text-sm text-gray-500 dark:text-gray-300"
-                        key={p.slug}
-                      >
-                        <Link
-                          href={s.slug + p.slug}
-                          className="hover:text-gray-800 dark:hover:text-gray-100"
-                        >
-                          {p.title}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
+              <BuildingBlock
+                title="Design a workflow"
+                href="/designing-workflows/overview"
+                description="Create a cross-channel notification."
+                icon={Lucide.Layers}
+              />
+              <BuildingBlock
+                title="Add users to Knock"
+                href="/managing-recipients/identifying-recipients"
+                description="Identify recipients to power your notifications."
+                icon={Lucide.UsersRound}
+              />
+              <BuildingBlock
+                title="Add an in-app feed"
+                href="/in-app-ui/overview"
+                description="Build your in-app notifications experience."
+                icon={Lucide.BellDot}
+              />
+              <BuildingBlock
+                title="Create a preference center"
+                href="/preferences/overview"
+                description="Enable your users to opt-out of notifications."
+                icon={Lucide.ListTodo}
+              />
+              <BuildingBlock
+                title="Build a Slack integration"
+                href="/integrations/chat/slack/overview"
+                description="Use Knock to send notifications to Slack."
+                icon={Lucide.Slack}
+              />
+              <BuildingBlock
+                title="Power cross-channel alerts"
+                href="/integrations/overview"
+                description="Create alerting-style workflows in Knock."
+                icon={Lucide.BellRing}
+              />
+              <BuildingBlock
+                title="Plan your Knock implementation"
+                href="/guides/implementation-guide"
+                description="Migrate your notification system into Knock."
+                icon={Lucide.Sprout}
+              />
+              <BuildingBlock
+                title="Model your data in Knock"
+                href="/guides/modeling-users-objects-and-tenants"
+                description="Map your application's data model into Knock."
+                icon={Lucide.DatabaseZap}
+              />
+            </Section.Content>
+          </Box>
+          <Box mt="16">
+            <Section.Header title="Knock AI" />
+            <Section.Content
+              className="md-one-column"
+              gap="4"
+              style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
+            >
+              <ConceptCard
+                title="Agent toolkit"
+                description="Give your AI agents the ability to send cross-channel messaging and power rich human-in-the-loop flows."
+                href="/developer-tools/agent-toolkit/overview"
+                image="/images/overviews/home/agent-toolkit.png"
+              />
+              <ConceptCard
+                title="MCP"
+                description="Use the Knock MCP server to make Knock accessible to LLMs and AI agents via tool calling."
+                href="/developer-tools/mcp-server"
+                image="/images/overviews/home/mcp.png"
+              />
+            </Section.Content>
+          </Box>
+          <Box mt="16">
+            <Section.Header title="Developer tools" />
+            <Section.Content gap="4" className="md-flex-column">
+              <Tool
+                icon={Lucide.Terminal}
+                title="CLI"
+                description="Build, test, and manage your notifications from the terminal."
+                href="/developer-tools/knock-cli"
+              />
+              <Tool
+                icon={Lucide.Landmark}
+                title="mAPI"
+                description="Programmatically interact with Knock dashboard resources."
+                href="/developer-tools/management-api"
+              />
+              <Tool
+                icon={PostmanIcon}
+                title="Postman"
+                description="Use our Postman collection to get familiar with the Knock API."
+                href="/developer-tools/knock-and-postman"
+              />
+              <Tool
+                icon={Lucide.Infinity}
+                title="CI/CD"
+                description="Add Knock to your deployment pipeline with our CLI."
+                href="/developer-tools/integrating-into-cicd"
+              />
+            </Section.Content>
+          </Box>
+          {/* Breathing room */}
+          <Box mb="32" />
         </Page.Content>
       </Page.Wrapper>
       <AiChatButton />
