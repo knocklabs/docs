@@ -20,13 +20,15 @@ curl -X PUT https://api.knock.app/v1/objects/projects/project-1/preferences/defa
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-await knockClient.objects.setPreferences("projects", "project-1", {
-  channel_types: { 
-    email: true, 
-    sms: false 
+await knock.objects.setPreferences("projects", "project-1", {
+  channel_types: {
+    email: true,
+    sms: false
   },
   workflows: {
     "dinosaurs-loose": {
@@ -41,14 +43,14 @@ await knockClient.objects.setPreferences("projects", "project-1", {
 `,
   python: `
 from knockapi import Knock
-client = Knock(api_key="sk_12345")
+client = Knock(bearer_token="sk_12345")
 
 client.objects.set_preferences(
   collection="projects",
   id="project-1",
-  channel_types={ 
-    "email": True, 
-    "sms": False 
+  channel_types={
+    "email": True,
+    "sms": False
   },
   workflows={
     "dinosaurs-loose": {
@@ -62,8 +64,9 @@ client.objects.set_preferences(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 Knock::Objects.set_preferences(
   collection: "projects",
@@ -146,8 +149,14 @@ $client->objects()->setPreferences('projects', 'project-1', [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+client := knock.NewClient("sk_12345")
 
 request := &knock.SetObjectPreferencesRequest{
   Collection: "projects",
@@ -172,11 +181,11 @@ request.AddWorkflowsPreference(map[string]interface{}{
 preferenceSet, _ := knockClient.Objects.SetPreferences(ctx, request)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 PreferenceSetRequest request = PreferenceSetRequest.builder()

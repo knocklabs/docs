@@ -4,8 +4,10 @@ curl -X GET https://api.knock.app/v1/messages/3mY9N4p7DcmL9j1K44qmrdO6t7W/conten
   -H "Authorization: Bearer sk_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
 await knock.messages.getContent(message.id);
 `,
@@ -16,15 +18,16 @@ Knock.Messages.get_content(knock_client, message.id)
   `,
   python: `
 from knockapi import Knock
-client = Knock(api_key="sk_12345")
+client = Knock(bearer_token="sk_12345")
 
 client.messages.get_content(message.id)
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Messages.get_content(id: message.id)
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.messages.get_content(message.id)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -34,28 +37,37 @@ await knockClient.Messages.GetContent(message.Id);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->messages()->getContent($message->id());
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-result, _ := knockClient.Messages.GetContent(ctx, &knock.GetMessageContentRequest{
-  ID: message.ID,
-})
+	"github.com/knocklabs/knock-go"
+)
+
+ctx := context.Background()
+client := knock.NewClient("sk_12345")
+
+content, err := client.Messages.GetContent(ctx, message.ID)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.messages.MessageGetContentParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-KnockMessageContent messageContent = client.messages().content(messageId);
+var content = client.messages().getContent(
+    MessageGetContentParams.builder()
+        .messageId(messageId)
+        .build()
+);
   `,
 };
 

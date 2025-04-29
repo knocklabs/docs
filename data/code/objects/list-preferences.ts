@@ -4,10 +4,12 @@ curl -X GET https://api.knock.app/v1/objects/projects/project-1/preferences \\
   -H "Authorization: Bearer sk_test_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-const allPreferences = await knockClient.objects.getAllPreferences("projects", "project-1");
+const allPreferences = await knock.objects.getAllPreferences("projects", "project-1");
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
@@ -16,13 +18,14 @@ all_preferences = Knock.Objects.get_all_preferences(knock_client, "projects", "p
 `,
   python: `
 from knockapi import Knock
-client = Knock(api_key="sk_12345")
+client = Knock(bearer_token="sk_12345")
 
 all_preferences = client.objects.get_all_preferences(collection="projects", id="project-1")
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 all_preferences = Knock::Objects.get_all_preferences(collection: "projects", id: "project-1")
 `,
@@ -34,7 +37,7 @@ var allPreferences = await knockClient.Objects.GetAllPreferences("projects", "pr
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $allPreferences = $client->objects()->getPreferences('projects', 'project-1');
@@ -44,11 +47,11 @@ $allPreferences = $client->objects()->getPreferences('projects', 'project-1');
 
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 List<PreferenceSet> allPreferences = client.objects().getPreferences("projects", "project-1");

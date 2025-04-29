@@ -15,13 +15,15 @@ curl -X PUT https://api.knock.app/v1/objects/projects/project-1/channel_data/9e8
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
 // Find this value in your Knock dashboard under Integrations > Channels
 const KNOCK_TEAMS_CHANNEL_ID = "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f";
 
-await knockClient.objects.setChannelData(
+await knock.objects.setChannelData(
   "projects",
   project.id,
   KNOCK_TEAMS_CHANNEL_ID,
@@ -50,7 +52,7 @@ Knock.Objects.set_channel_data(knock_client, "projects", project.id, knock_teams
   `,
   python: `
 from knockapi import Knock
-client = Knock(api_key="sk_12345")
+client = Knock(bearer_token="sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_teams_channel_id = "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f"
@@ -58,10 +60,10 @@ knock_teams_channel_id = "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f"
 client.objects.set_channel_data(
   collection="projects",
   id=project.id,
-  channel_id=knock_teams_channel_id, 
+  channel_id=knock_teams_channel_id,
   channel_data={
     "connections": [
-      { 
+      {
         "incoming_webhook": { "url": "url-from-teams" }
       }
     ]
@@ -69,8 +71,9 @@ client.objects.set_channel_data(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_teams_channel_id = "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f"
@@ -81,12 +84,12 @@ Knock::Objects.set_channel_data(
   channel_id: knock_teams_channel_id,
   channel_data: {
     connections: [
-      { 
+      {
         incoming_webhook: { url: "url-from-teams" }
       }
     ]
   }
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -106,15 +109,15 @@ var channelData = new Dictionary<string, object>{
 };
 
 await knockClient.Objects.SetChannelData(
-  "projects", 
-  project.Id, 
-  knockTeamsChannelId, 
+  "projects",
+  project.Id,
+  knockTeamsChannelId,
   channelData
 );
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 // Find this value in your Knock dashboard under Integrations > Channels
@@ -131,8 +134,14 @@ $client->objects()->setChannelData('projects', 'project-1', $knockTeamsChannelId
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+client := knock.NewClient("sk_12345")
 
 // Find this value in your Knock dashboard under Integrations > Channels
 knockTeamsChannelID := "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f"
@@ -153,11 +162,11 @@ channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChanne
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 // Find this value in your Knock dashboard under Integrations > Channels

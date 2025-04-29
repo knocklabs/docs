@@ -11,14 +11,16 @@ curl -X GET https://api.knock.app/v1/messages \\
   --url-query tenant=my_tenant
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-const messages = await knockClient.messages.list()
+const messages = await knock.messages.list()
 
 // supports pagination parameters and filters
 
-const messages = await knockClient.messages.list(
+const messages = await knock.messages.list(
   {
     page_size: 20,
     tenant: "my-tenant"
@@ -39,7 +41,7 @@ Knock.Messages.list(
   `,
   python: `
 from knockapi import Knock
-client = Knock(api_key="sk_12345")
+client = Knock(bearer_token="sk_12345")
 
 client.messages.list()
 
@@ -48,8 +50,9 @@ client.messages.list()
 client.messages.list({'page_size': 20, 'tenant': "my_tenant"})
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 Knock::Messages.list()
 
@@ -74,7 +77,7 @@ await knockClient.Messages.List(params);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->messages()->list([
@@ -83,8 +86,14 @@ $client->messages()->list([
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+client := knock.NewClient("sk_12345")
 
 result, _ := knockClient.Messages.List(ctx, &knock.ListMessagesRequest{
   PageSize: 20,
@@ -92,11 +101,11 @@ result, _ := knockClient.Messages.List(ctx, &knock.ListMessagesRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();

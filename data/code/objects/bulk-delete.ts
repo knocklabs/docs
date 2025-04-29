@@ -8,8 +8,10 @@ curl -X POST https://api.knock.app/v1/objects/projects/bulk/delete \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock("sk_example_12345679");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
 const objectIds = ["project-1", "project-2"];
 
@@ -22,21 +24,22 @@ Knock.Objects.bulk_delete(knock_client, "projects", object_ids)
   `,
   python: `
 from knockapi import Knock
-client = Knock(api_key="sk_12345")
+client = Knock(bearer_token="sk_12345")
 
 client.objects.bulk_delete(
   collection="projects",
-  object_ids=object_ids 
+  object_ids=object_ids
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 Knock::Objects.bulk_delete(
   collection: "projects",
   object_ids: object_ids
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -55,23 +58,29 @@ await knockClient.Objects.BulkDelete("projects", options);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->objects()->bulkDelete('projects', ['project-1', 'project-2']);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+client := knock.NewClient("sk_12345")
 
 // The Go SDK doesn't currently support this example
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 client.objects().bulkDeleteInCollection("projects", List.of("project-1", "project-2"));

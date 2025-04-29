@@ -21,8 +21,10 @@ curl -X POST "https://api.knock.app/v1/objects/projects/bulk/set" \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
 await knock.objects.bulkSet("projects", [
   {
@@ -58,7 +60,7 @@ MyApp.Knock.client()
   `,
   python: `
 from knockapi import Knock
-client = Knock(api_key="sk_12345")
+client = Knock(bearer_token="sk_12345")
 
 client.objects.bulk_set(
   collection="projects",
@@ -79,8 +81,9 @@ client.objects.bulk_set(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 Knock::Objects.bulk_set(
   collection: "projects",
@@ -146,17 +149,23 @@ $client->objects()->bulkSet('projects', [
 ])
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+client := knock.NewClient("sk_12345")
 
 // The Go SDK doesn't currently support this example
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 List<Map<String, Object>> objectsToSet = List.of(

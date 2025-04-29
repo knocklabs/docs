@@ -4,14 +4,16 @@ curl -X GET https://api.knock.app/v1/messages/3mY9N4p7DcmL9j1K44qmrdO6t7W/activi
   -H "Authorization: Bearer sk_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-await knock.messages.getActivities(message.id);
+await knock.messages.listActivities(message.id);
 
 // supports pagination parameters
 
-await knock.messages.getActivities(
+await knock.messages.listActivities(
   message.id,
   {
     page_size: 10
@@ -29,23 +31,24 @@ Knock.Messages.get_activities(knock_client, message.id, page_size: 10)
   `,
   python: `
 from knockapi import Knock
-client = Knock(api_key="sk_12345")
+client = Knock(bearer_token="sk_12345")
 
-client.messages.get_activities(message.id)
+client.messages.list_activities(message.id)
 
 # supports pagination parameters
 
-Knock.Messages.get_activities(message.id, {'page_size': 10})
+client.messages.list_activities(message.id, page_size=10)
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Messages.get_activities(id: message.id)
+client = Knockapi::Client.new(bearer_token: "sk_12345")
+
+client.messages.list_activities(message.id)
 
 # supports pagination parameters
 
-Knock::Messages.get_activities(id: message.id, options: {page_size: 10})
+client.messages.list_activities(message.id, page_size: 10)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -63,7 +66,7 @@ await knockClient.Messages.GetActivities(message.id, params);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->messages()->getActivities($message->id(), [
@@ -71,26 +74,46 @@ $client->messages()->getActivities($message->id(), [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-result, _ := knockClient.Messages.GetActivities(ctx, &knock.GetMessageActivitiesRequest{
-  ID: message.ID,
-  PageSize: 10
-})
+	"github.com/knocklabs/knock-go"
+)
+
+ctx := context.Background()
+client := knock.NewClient("sk_12345")
+
+activities, err := client.Messages.List(
+	ctx,
+	message.ID,
+	knock.MessageActivityListParams{
+		PageSize: knock.F(10),
+	},
+)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.messages.MessageListActivitiesParams;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
-queryParams.pageSize(10);
+// Basic request
+var activities = client.messages().listActivities(
+    MessageListActivitiesParams.builder()
+        .messageId(messageId)
+        .build()
+);
 
-CursorResult<KnockMessageActivity> result = client.messages().activities(messageId, queryParams);
+// With pagination
+var activitiesWithPagination = client.messages().listActivities(
+    MessageListActivitiesParams.builder()
+        .messageId(messageId)
+        .pageSize(10)
+        .build()
+);
   `,
 };
 

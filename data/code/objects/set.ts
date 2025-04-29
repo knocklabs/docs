@@ -12,10 +12,12 @@ curl -X PUT https://api.knock.app/v1/objects/projects/project-1 \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-knockClient.objects.set("projects", "project-1", {
+knock.objects.set("projects", "project-1", {
   name: "My project",
   total_assets: 10,
   tags: ["cool", "fun", "project"],
@@ -36,7 +38,7 @@ Knock.Objects.set(knock_client, "projects", "project-1", %{
   `,
   python: `
 from knockapi import Knock
-client = Knock(api_key="sk_12345")
+client = Knock(bearer_token="sk_12345")
 
 client.objects.set_object(
   collection="projects",
@@ -51,8 +53,9 @@ client.objects.set_object(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(bearer_token: "sk_12345")
 
 Knock::Objects.set(
   collection: "projects",
@@ -96,8 +99,14 @@ $client->objects()->set('projects', 'project-1', [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+client := knock.NewClient("sk_12345")
 
 object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
   Collection: "projects",
@@ -112,11 +121,11 @@ object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
 
-KnockClient client = KnockClient.builder()
-    .apiKey("sk_12345")
+KnockClient client = KnockOkHttpClient.builder()
+    .bearerToken("sk_12345")
     .build();
 
 KnockObject object = client.objects().set("projects", "project-1", Map.of(
