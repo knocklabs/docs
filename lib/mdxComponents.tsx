@@ -25,6 +25,8 @@ import {
   TdElement,
   TheadElement,
 } from "../components/ui/Table";
+import { Section as OverviewSection } from "../components/ui/OverviewContent/Section";
+import { ContentCard, ConceptCard, BuildingBlock, Tool, ResponsiveThreeColumn } from "../components/ui/OverviewContent/Blocks";
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
@@ -78,4 +80,10 @@ export const MDX_COMPONENTS = {
   Accordion,
   Steps,
   Step,
+  OverviewSection,
+  ContentCard,
+  ConceptCard,
+  BuildingBlock,
+  Tool,
+  ResponsiveThreeColumn,
 };

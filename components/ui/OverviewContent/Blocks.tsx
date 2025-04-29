@@ -2,9 +2,10 @@ import { MenuItem } from "@telegraph/menu";
 import Link from "next/link";
 import { Heading, Text } from "@telegraph/typography";
 import { Stack, Box } from "@telegraph/layout";
-import { Icon, type LucideIcon } from "@telegraph/icon";
+import { Icon, Lucide, type LucideIcon } from "@telegraph/icon";
 import React from "react";
 import Image from "next/image";
+import { TgphComponentProps } from "@telegraph/helpers";
 
 export const Tool = ({
   icon,
@@ -12,7 +13,7 @@ export const Tool = ({
   description,
   href,
 }: {
-  icon: LucideIcon | React.ReactNode;
+    icon: string | LucideIcon | React.ReactNode;
   title: string;
   description: string;
   href: string;
@@ -38,7 +39,7 @@ export const Tool = ({
           icon
         ) : (
           <Icon
-            icon={icon as LucideIcon}
+              icon={typeof icon === "string" ? Lucide[icon as keyof typeof Lucide] as LucideIcon : icon as LucideIcon}
             aria-hidden={true}
             w="8"
             h="8"
@@ -78,11 +79,11 @@ export const ContentCard = ({
   title: string;
   description: string;
   href: string;
-  icon: LucideIcon;
+    icon: string | LucideIcon;
   style?: React.CSSProperties;
 }) => {
   return (
-    <Box borderRadius="2" style={style} shadow="1">
+    <Box borderRadius="2" style={style} shadow="1" data-content-card>
       <Stack
         as={Link}
         href={href}
@@ -94,9 +95,10 @@ export const ContentCard = ({
         borderColor="gray-2"
         borderRadius="2"
         p="3"
+        data-content-card-inner
       >
         <Icon
-          icon={icon}
+          icon={typeof icon === "string" ? Lucide[icon as keyof typeof Lucide] as LucideIcon : icon as LucideIcon}
           aria-hidden={true}
           w="10"
           h="10"
@@ -104,10 +106,10 @@ export const ContentCard = ({
           p="2"
           borderRadius="2"
         />
-        <Heading as="p" size="3" weight="medium">
+        <Heading as="span" size="3" weight="medium" mb="0">
           {title}
         </Heading>
-        <Text as="p" size="1" color="gray">
+        <Text as="span" size="1" color="gray">
           {description}
         </Text>
       </Stack>
@@ -177,7 +179,7 @@ export const BuildingBlock = ({
 }: {
   title: string;
   description: string;
-  icon: LucideIcon;
+    icon: string | LucideIcon;
   href: string;
 }) => {
   return (
@@ -191,7 +193,7 @@ export const BuildingBlock = ({
     >
       <Stack w="full" h="full">
         <Icon
-          icon={icon}
+          icon={typeof icon === "string" ? Lucide[icon as keyof typeof Lucide] as LucideIcon : icon as LucideIcon}
           aria-hidden={true}
           w="10"
           h="10"
@@ -211,5 +213,23 @@ export const BuildingBlock = ({
         </Box>
       </Stack>
     </MenuItem>
+  );
+};
+
+type ResponsiveThreeColumnProps = TgphComponentProps<typeof Stack>;
+
+export const ResponsiveThreeColumn = ({ children, ...props }: ResponsiveThreeColumnProps) => {
+  return (
+    <Stack
+      direction="row"
+      gap="6"
+      w="full"
+      justifyContent="space-between"
+      className="md-one-column"
+      {...props}
+      style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", ...props.style }}
+    >
+      {children}
+    </Stack>
   );
 };
