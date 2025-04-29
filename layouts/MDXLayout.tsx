@@ -8,7 +8,6 @@ import { ApiReferenceLayout } from "./ApiReferenceLayout";
 import InAppUILayout from "./InAppUILayout";
 
 import { useRouter } from "next/router";
-import { SdksLayout } from "./SdksLayout";
 
 const MDXLayout: React.FC<{ frontMatter: FrontMatter; sourcePath: string }> = (
   props,
@@ -28,14 +27,9 @@ const MDXLayout: React.FC<{ frontMatter: FrontMatter; sourcePath: string }> = (
       return (
         <CliReferenceLayout {...props}>{props.children}</CliReferenceLayout>
       );
-    case "sdks":
-      return <SdksLayout {...props}>{props.children}</SdksLayout>;
     default:
       if (asPath.startsWith("/in-app-ui")) {
         return <InAppUILayout {...props}>{props.children}</InAppUILayout>;
-      }
-      if (asPath.startsWith("/sdks")) {
-        return <SdksLayout {...props}>{props.children}</SdksLayout>;
       }
       return <DocsLayout {...props}>{props.children}</DocsLayout>;
   }

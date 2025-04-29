@@ -1,10 +1,6 @@
 import { useRouter } from "next/router";
 import sidebarContent from "../data/sidebar";
-import {
-  guidesContent,
-  developerToolsContent,
-  inAppUiContent,
-} from "../data/sidebar";
+import { guidesContent, developerToolsContent } from "../data/sidebar";
 
 export function useSidebarContent() {
   const { asPath } = useRouter();
@@ -13,9 +9,6 @@ export function useSidebarContent() {
   }
   if (asPath.startsWith("/developer-tools")) {
     return developerToolsContent;
-  }
-  if (asPath.startsWith("/in-app-ui")) {
-    return inAppUiContent;
   }
   return sidebarContent;
 }

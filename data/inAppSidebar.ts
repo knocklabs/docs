@@ -35,6 +35,7 @@ const languages = {
   ios: "ios",
   android: "android",
   flutter: "flutter",
+  expo: "expo",
 } as const;
 
 export type Language = keyof typeof languages;
@@ -59,11 +60,6 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/feed", title: "Notification feed" },
-          // {
-          //   slug: "/messaging-components",
-          //   title: "Messaging components",
-          //   isBeta: true,
-          // },
           { slug: "/toasts", title: "Toasts" },
           { slug: "/inbox", title: "Notification inbox" },
           {
@@ -87,6 +83,14 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
           },
         ],
       },
+      {
+        title: "SDK",
+        slug: "/in-app-ui/react/sdk",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/reference", title: "Reference" },
+        ],
+      },
     ],
   },
   javascript: {
@@ -98,6 +102,17 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
         title: "UI Components",
         slug: "/in-app-ui/javascript",
         pages: [{ slug: "/overview", title: "Overview" }],
+        sidebarMenuDefaultOpen: true,
+      },
+      {
+        title: "SDK",
+        slug: "/in-app-ui/javascript/sdk",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick Start" },
+          { slug: "/reference", title: "Reference" },
+        ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -130,6 +145,19 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
             title: "Custom notifications UI (headless)",
           },
         ],
+        sidebarMenuDefaultOpen: true,
+      },
+      {
+        title: "SDK",
+        slug: "/in-app-ui/react-native/sdk",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick Start" },
+          { slug: "/push-notifications", title: "Push Notifications" },
+          { slug: "/notification-feeds", title: "Notification Feeds" },
+          { slug: "/reference", title: "Reference" },
+        ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -146,6 +174,19 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
           { slug: "/components", title: "Components" },
           { slug: "/customization", title: "Customization" },
         ],
+        sidebarMenuDefaultOpen: true,
+      },
+      {
+        title: "SDK",
+        slug: "/in-app-ui/ios/sdk",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick Start" },
+          { slug: "/push-notifications", title: "Push Notifications" },
+          { slug: "/deep-links", title: "Deep Links" },
+          { slug: "/reference", title: "Reference" },
+        ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -163,6 +204,18 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
           { slug: "/customization", title: "Customization" },
         ],
       },
+      {
+        title: "SDK",
+        slug: "/in-app-ui/android/sdk",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick Start" },
+          { slug: "/push-notifications", title: "Push Notifications" },
+          { slug: "/deep-links", title: "Deep Links" },
+          { slug: "/reference", title: "Reference" },
+        ],
+        sidebarMenuDefaultOpen: true,
+      },
     ],
   },
   flutter: {
@@ -174,6 +227,34 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
         title: "UI Components",
         slug: "/in-app-ui/flutter",
         pages: [{ slug: "/overview", title: "Overview" }],
+        sidebarMenuDefaultOpen: true,
+      },
+      {
+        title: "SDK",
+        slug: "/in-app-ui/flutter/sdk",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/quick-start", title: "Quick Start" },
+          { slug: "/reference", title: "Reference" },
+        ],
+        sidebarMenuDefaultOpen: true,
+      },
+    ],
+  },
+  expo: {
+    title: "Expo",
+    value: "expo",
+    icon: icons.expo,
+    items: [
+      {
+        title: "SDK",
+        slug: "/in-app-ui/expo/sdk",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/push-notifications", title: "Push Notifications" },
+          { slug: "/reference", title: "Reference" },
+        ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
