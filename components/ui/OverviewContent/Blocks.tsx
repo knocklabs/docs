@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Heading, Text } from "@telegraph/typography";
 import { Stack, Box } from "@telegraph/layout";
 import { Icon, Lucide, type LucideIcon } from "@telegraph/icon";
+import { Icons } from "../Icons";
 import React from "react";
 import Image from "next/image";
 import { TgphComponentProps } from "@telegraph/helpers";
@@ -41,7 +42,7 @@ export const Tool = ({
           <Icon
             icon={
               typeof icon === "string"
-                ? (Lucide[icon as keyof typeof Lucide] as LucideIcon)
+                ? (Icons[icon as keyof typeof Lucide] as LucideIcon)
                 : (icon as LucideIcon)
             }
             aria-hidden={true}
@@ -79,18 +80,21 @@ export const ContentCard = ({
   href,
   icon,
   style,
+  newTab,
 }: {
   title: string;
   description: string;
   href: string;
   icon: string | LucideIcon;
   style?: React.CSSProperties;
+  newTab?: boolean;
 }) => {
   return (
     <Box borderRadius="2" style={style} shadow="1" data-content-card>
       <Stack
         as={Link}
         href={href}
+        target={newTab ? "_blank" : undefined}
         w="full"
         h="full"
         flexDirection="column"
@@ -104,7 +108,7 @@ export const ContentCard = ({
         <Icon
           icon={
             typeof icon === "string"
-              ? (Lucide[icon as keyof typeof Lucide] as LucideIcon)
+              ? (Icons[icon as keyof typeof Lucide] as LucideIcon)
               : (icon as LucideIcon)
           }
           aria-hidden={true}
@@ -203,7 +207,7 @@ export const BuildingBlock = ({
         <Icon
           icon={
             typeof icon === "string"
-              ? (Lucide[icon as keyof typeof Lucide] as LucideIcon)
+              ? (Icons[icon as keyof typeof Lucide] as LucideIcon)
               : (icon as LucideIcon)
           }
           aria-hidden={true}

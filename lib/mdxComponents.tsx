@@ -33,6 +33,7 @@ import {
   Tool,
   ResponsiveThreeColumn,
 } from "../components/ui/OverviewContent/Blocks";
+import { Box, Stack } from "@telegraph/layout";
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
@@ -92,4 +93,10 @@ export const MDX_COMPONENTS = {
   BuildingBlock,
   Tool,
   ResponsiveThreeColumn,
+  OverviewSectionContainer: OverviewSection.Container,
+  OverviewSectionHeader: OverviewSection.Header,
+  OverviewSectionContent: OverviewSection.Content,
+  Text,
+  Box: Box,
+  Stack: Stack,
 };
