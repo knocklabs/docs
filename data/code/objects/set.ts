@@ -17,7 +17,7 @@ const knock = new Knock({
   bearerToken: process.env.KNOCK_API_KEY
 });
 
-knock.objects.set("projects", "project-1", {
+await knock.objects.set("projects", "project-1", {
   name: "My project",
   total_assets: 10,
   tags: ["cool", "fun", "project"],

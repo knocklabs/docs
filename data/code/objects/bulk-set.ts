@@ -26,7 +26,7 @@ const knock = new Knock({
   bearerToken: process.env.KNOCK_API_KEY
 });
 
-await knock.objects.bulkSet("projects", [
+await knock.objects.bulk.set("projects", [
   {
     id: "project-1",
     name: "My project",

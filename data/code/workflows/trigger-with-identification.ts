@@ -29,8 +29,8 @@ curl -X POST https://api.knock.app/v1/workflows/new-comment/trigger \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   data: { project_name: "My Project" },

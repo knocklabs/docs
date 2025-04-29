@@ -16,14 +16,14 @@ const knock = new Knock({
   bearerToken: process.env.KNOCK_API_KEY
 });
 
-const messages = await knock.objects.getMessages(
+const messages = await knock.objects.listMessages(
   "projects",
   project.id
 );
 
 // supports pagination parameters and filters
 
-const messages = await knock.objects.getMessages(
+const messages = await knock.objects.listMessages(
   "projects",
   project.id,
   {

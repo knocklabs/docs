@@ -5,15 +5,17 @@ curl -X GET https://api.knock.app/v1/users/1/channel_data/8209f26c-62a5-461d-95e
   -H "Authorization: Bearer sk_test_12345"
 `,
   node: ` 
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
 // Find this value in your Knock dashboard under Integrations > Channels
 const APNS_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-const channelData = await knockClient.users.getChannelData(
+const channelData = await knock.users.getChannelData(
   user.id,
-  APNS_CHANNEL_ID,
+  APNS_CHANNEL_ID
 );
 `,
   elixir: `

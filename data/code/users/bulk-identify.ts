@@ -18,10 +18,12 @@ curl -X POST https://api.knock.app/v1/users/bulk/identify \\
 
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-await knock.users.bulkIdentify([
+await knock.users.bulk.identify([
   {
     id: "1",
     name: "John Hammond",

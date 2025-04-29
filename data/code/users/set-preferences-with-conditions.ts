@@ -1,9 +1,9 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
-await knockClient.users.setPreferences("jhammond", {
+await knockClient.users.setPreferences("jhammond", "default", {
   workflows: {
     "dinosaurs-loose": {
       conditions: [

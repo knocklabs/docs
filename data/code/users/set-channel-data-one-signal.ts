@@ -1,11 +1,11 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
 const CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-await knockClient.users.setChannelData("jhammond", CHANNEL_ID, {
+await knockClient.users.setChannelData(user.id, CHANNEL_ID, {
   player_ids: [oneSignalPlayerId]
 });
   `,

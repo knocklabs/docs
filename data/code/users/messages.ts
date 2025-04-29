@@ -10,13 +10,13 @@ curl -X GET https://api.knock.app/v1/users/1/messages \\
   --url-query tenant=my_tenant
 `,
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
-await knockClient.users.getMessages(user.id);
+await knockClient.users.listMessages(user.id);
 
 // supports pagination parameters and filters
-await knockClient.users.getMessages(
+await knockClient.users.listMessages(
   user.id,
   {
     page_size: 20,

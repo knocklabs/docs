@@ -20,10 +20,10 @@ curl -X PUT https://api.knock.app/v1/users/1/preferences/default \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
-await knockClient.users.setPreferences(user.id, {
+await knockClient.users.setPreferences(user.id, "default", {
   channel_types: { 
     email: true, 
     sms: false

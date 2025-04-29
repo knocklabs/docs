@@ -10,18 +10,18 @@ curl -X GET https://api.knock.app/v1/tenants \\
   --url-query 'name=Tenant 1'
   `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-const tenants = await knockClient.tenants.list()
+const tenants = await knock.tenants.list();
 
 // supports pagination parameters and filters
-const tenants = await knockClient.tenants.list(
-  {
-    page_size: 20,
-    name: "Tenant 1"
-  }
-);
+const tenants = await knock.tenants.list({
+  page_size: 20,
+  name: "Tenant 1"
+});
 `,
   elixir: `
 knock_client = MyApp.Knock.client()

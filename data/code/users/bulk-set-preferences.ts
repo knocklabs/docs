@@ -15,13 +15,19 @@ curl -X POST https://api.knock.app/v1/users/bulk/preferences \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
 const userIds = ["jhammond", "dnedry", "imalcolm", "esattler"];
 
-await knockClient.users.bulkSetPreferences(userIds, {
-  channel_types: { email: true, sms: false }
+await knockClient.users.bulk.setPreferences({
+  user_ids: userIds,
+  preferences: {
+    channel_types: {
+      email: true,
+      sms: false
+    }
+  }
 });
 `,
   elixir: `

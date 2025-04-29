@@ -64,8 +64,8 @@ curl -X POST 'https://api.knock.app/v1/workflows/new-comment/trigger' \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   recipients: ["1", "2"],
@@ -80,7 +80,7 @@ await knock.workflows.trigger("new-comment", {
   javascript: `
 // You can use "javascript" when you don't want to make your JS example Node-specific
 
-const knock = new Knock(process.env.KNOCK_API_KEY);
+const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   recipients: ["1", "2"],

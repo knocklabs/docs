@@ -8,10 +8,12 @@ curl -X POST https://api.knock.app/v1/users/bulk/delete \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock("sk_example_123456789");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-const bulkOperation = await knock.users.bulkDelete(userIds);
+const bulkOperation = await knock.users.bulk.delete(userIds);
 `,
   elixir: `
 knock_client = MyApp.Knock.client()

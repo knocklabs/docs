@@ -4,13 +4,13 @@ curl -X GET https://api.knock.app/v1/users/1/preferences/default \\
   -H "Authorization: Bearer sk_test_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
-
-// If no preference set id is provided, the SDK will return the user's "default" preferences
-const preferences = await knockClient.users.getPreferences(user.id, {
-  preferenceSet: "tenant-1"
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
 });
+
+// Get the user's default preferences
+const preferences = await knock.users.getPreferences(user.id, "default");
 `,
   elixir: `
 knock_client = MyApp.Knock.client()

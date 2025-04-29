@@ -9,7 +9,7 @@ const knock = new Knock({
   bearerToken: process.env.KNOCK_API_KEY
 });
 
-const allPreferences = await knock.objects.getAllPreferences("projects", "project-1");
+const allPreferences = await knock.objects.listPreferences("projects", "project-1");
 `,
   elixir: `
 knock_client = MyApp.Knock.client()

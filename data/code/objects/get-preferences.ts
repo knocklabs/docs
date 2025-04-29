@@ -10,7 +10,7 @@ const knock = new Knock({
 });
 
 // If no preference set id is provided, the SDK will return the object's "default" preferences
-await knock.objects.getPreferences("projects", "project-1", { preferenceSet: "tenant-1" });
+await knock.objects.getPreferences("projects", "project-1", "tenant-1");
 `,
   elixir: `
 knock_client = MyApp.Knock.client()

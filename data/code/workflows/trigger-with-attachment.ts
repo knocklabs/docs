@@ -1,9 +1,9 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 import fs from "fs";
 
-const knock = new Knock(process.env.KNOCK_API_KEY);
+const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 const fileContent = fs
   .readFileSync(\`${__dirname}/attachment.pdf\`)

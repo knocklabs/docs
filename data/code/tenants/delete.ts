@@ -4,10 +4,12 @@ curl -X DELETE https://api.knock.app/v1/tenants/tenant-1 \\
   -H "Authorization: Bearer sk_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-await knockClient.tenants.delete("tenant-1");
+await knock.tenants.delete("tenant-1");
 `,
   elixir: `
 knock_client = MyApp.Knock.client()

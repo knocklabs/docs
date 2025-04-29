@@ -13,13 +13,13 @@ curl -X PUT https://api.knock.app/v1/users/1/channel_data/8209f26c-62a5-461d-95e
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
 // Find this value in your Knock dashboard under Integrations > Channels
 const APNS_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-await knockClient.users.setChannelData("user.id", APNS_CHANNEL_ID, {
+await knockClient.users.setChannelData(user.id, APNS_CHANNEL_ID, {
   tokens: [userDeviceToken],
 });
 `,

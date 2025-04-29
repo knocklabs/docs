@@ -16,10 +16,12 @@ curl -X PUT https://api.knock.app/v1/tenants/tenant-1 \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  bearerToken: process.env.KNOCK_API_KEY
+});
 
-knockClient.tenants.set("tenant-1", {
+await knock.tenants.set("tenant-1", {
   name: "Tenant 1",
   settings: {
     branding: {

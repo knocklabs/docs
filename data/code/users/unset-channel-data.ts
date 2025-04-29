@@ -5,7 +5,7 @@ curl -X DELETE https://api.knock.app/v1/users/1/channel_data/8209f26c-62a5-461d-
   -H "Authorization: Bearer sk_test_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
 // Find this value in your Knock dashboard under Integrations > Channels

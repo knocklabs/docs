@@ -1,9 +1,9 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 const knockClient = new Knock("sk_12345");
 
-await knockClient.users.setPreferences("jhammond", {
+await knockClient.users.setPreferences("jhammond", tenant.id, {
   channel_types: { email: true, sms: false },
   workflows: {
     "dinosaurs-loose": {
@@ -14,7 +14,7 @@ await knockClient.users.setPreferences("jhammond", {
       },
     },
   },
-}, { preferenceSet: tenant.id });
+});
   `,
   python: `
 from knockapi import Knock

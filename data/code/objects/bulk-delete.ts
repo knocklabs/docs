@@ -15,7 +15,7 @@ const knock = new Knock({
 
 const objectIds = ["project-1", "project-2"];
 
-await knock.objects.bulkDelete("projects", objectIds);
+await knock.objects.bulk.delete("projects", objectIds);
 `,
   elixir: `
 knock_client = MyApp.Knock.client()

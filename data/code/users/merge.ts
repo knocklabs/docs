@@ -8,8 +8,8 @@ curl -X POST https://api.knock.app/v1/users/user_1/merge \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 await knock.users.merge(user.id, "user-to-merge-from");
 `,
