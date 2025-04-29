@@ -17,7 +17,7 @@ import {
   ErrorExample,
   ExampleColumn,
 } from "../components/ui/ApiSections";
-import RateLimit from "../components/RateLimit";
+import RateLimit from "../components/ui/RateLimit";
 import { Heading, Code, Text } from "@telegraph/typography";
 import {
   TableElement,

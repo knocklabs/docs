@@ -39,7 +39,7 @@ const Content = ({ children, fullWidth = false }) => (
     pl="24"
     pr="4"
     minWidth="0"
-    style={{ maxWidth: fullWidth ? "initial" : "740px" }}
+    style={{ maxWidth: fullWidth ? "initial" : "920px" }}
     className="lg-wrapper-padding"
   >
     <Box>{children}</Box>
@@ -52,14 +52,15 @@ const ContentBody = ({ children }) => (
   </Box>
 );
 
-const ContentHeader = ({ title, description }) => (
+const ContentHeader = ({ title, description, children }) => (
   <Box mb="6">
     <Heading as="h1" size="7" mb="2">
       {title}
     </Heading>
     {description && (
-      <Text as="p" size="4" color="gray">
+      <Text as="p" size="3" color="gray" weight="medium">
         {description}
+        {children}
       </Text>
     )}
   </Box>

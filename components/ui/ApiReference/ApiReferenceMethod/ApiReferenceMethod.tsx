@@ -13,8 +13,10 @@ import MultiLangExample from "../MultiLangExample";
 import { augmentSnippetsWithCurlRequest } from "../helpers";
 import { Heading } from "@telegraph/typography";
 import { AnimatePresence, motion } from "framer-motion";
-import RateLimit from "@/components/RateLimit";
+import RateLimit from "@/components/ui/RateLimit";
 import Callout from "@/components/ui/Callout";
+import { Box } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
 
 type Props = {
   methodName: string;
@@ -96,10 +98,12 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
         />
 
         {rateLimit && (
-          <>
-            <h3 className="!text-sm font-medium">Rate limit</h3>
+          <Box mb="6" mt="1">
+            <Heading as="h3" weight="medium" size="3" mb="1">
+              Rate limit
+            </Heading>
             <RateLimit tier={rateLimit} />
-          </>
+          </Box>
         )}
 
         {pathParameters.length > 0 && (
