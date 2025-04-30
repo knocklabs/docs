@@ -411,7 +411,6 @@ const nextConfig = {
         permanent: true,
       },
       {
-<<<<<<< HEAD
         source: "/developer-tools",
         destination: "/developer-tools/overview",
         permanent: true,
