@@ -282,9 +282,9 @@ const nextConfig = {
       },
       // Reference redirects
       {
-        source: "/in-app-ui/:sdk/reference",
-        destination: "/sdks/:sdk/reference",
-        permanent: false,
+        source: "/sdks/:sdk/reference",
+        destination: "/in-app-ui/:sdk/sdk/reference",
+        permanent: true,
       },
       {
         source: "/getting-started/going-to-production",
@@ -323,7 +323,7 @@ const nextConfig = {
       },
       {
         source: "/in-app-ui/android/quick-start",
-        destination: "/sdks/android/quick-start",
+        destination: "/in-app-ui/android/sdk/quick-start",
         permanent: true,
       },
       {
