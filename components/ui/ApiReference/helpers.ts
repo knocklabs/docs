@@ -16,6 +16,21 @@ function resolveEndpointFromMethod(
   return [methodType, endpoint];
 }
 
+function resolveResponseSchemas(method: OpenAPIV3.OperationObject) {
+  const responseSchemas: OpenAPIV3.SchemaObject[] = Object.values(
+    method.responses || {},
+  )
+    .map((r) => r.content?.["application/json"]?.schema)
+    .map((responseSchema) => {
+      if (responseSchema?.allOf) {
+        return responseSchema.allOf[0];
+      }
+      return responseSchema;
+    });
+
+  return responseSchemas;
+}
+
 function buildSchemaReferencesForResource(
   resource: StainlessResource,
   openApiSpec: OpenAPIV3.Document,
@@ -199,4 +214,5 @@ export {
   buildSidebarPages,
   augmentSnippetsWithCurlRequest,
   buildSchemaReferences,
+  resolveResponseSchemas,
 };
