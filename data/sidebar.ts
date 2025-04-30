@@ -156,27 +156,7 @@ const developerToolsContent: SidebarSection[] = [
       { slug: "/api-keys", title: "API keys" },
       { slug: "/service-tokens", title: "Service tokens" },
       { slug: "/knock-cli", title: "Knock CLI" },
-      {
-        slug: "/sdks",
-        title: "SDKs",
-        pages: [
-          {
-            slug: "/overview",
-            title: "Overview",
-          },
-          {
-            slug: "/upgrade-guides",
-            title: "Upgrade guides",
-            pages: [
-              { slug: "/node", title: "Node.js 1.0" },
-              { slug: "/python", title: "Python 1.0" },
-              { slug: "/java", title: "Java 1.0" },
-              { slug: "/ruby", title: "Ruby 1.0" },
-              { slug: "/go", title: "Go 1.0" },
-            ],
-          },
-        ],
-      },
+      { slug: "/sdks", title: "SDKs" },
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
@@ -191,6 +171,17 @@ const developerToolsContent: SidebarSection[] = [
         ],
       },
       { slug: "/validating-trigger-data", title: "Validating trigger data" },
+      {
+        slug: "/migration-guides",
+        title: "Migration guides",
+        pages: [
+          { slug: "/node", title: "Node.js 1.0" },
+          { slug: "/python", title: "Python 1.0" },
+          { slug: "/java", title: "Java 1.0" },
+          { slug: "/ruby", title: "Ruby 1.0" },
+          { slug: "/go", title: "Go 1.0" },
+        ],
+      },
     ],
   },
 ];
