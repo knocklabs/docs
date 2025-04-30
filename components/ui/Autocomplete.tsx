@@ -90,12 +90,14 @@ const algoliaIndex = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || "";
 // Prevents loading jank
 const StaticSearch = () => {
   return (
-    <Box as="form" border="px" borderColor="gray-6" borderRadius="2">
+    <Box as="form" border="px" borderColor="gray-4" borderRadius="2">
       <Stack style={{ flexShrink: 0 }} alignItems="center" p="1">
         <Icon icon={Lucide.Search} alt="Search" color="gray" mr="2" />
         <Input
           placeholder="Search the docs..."
           size="1"
+          color="gray-10"
+          className="aa-Input"
           style={{ outline: "none" }}
         />
         <Stack
@@ -326,7 +328,7 @@ const Autocomplete = () => {
       <Box
         as="form"
         border="px"
-        borderColor="gray-6"
+        borderColor="gray-4"
         borderRadius="2"
         className="aa-Form"
         {...(formProps as FormProps)}
@@ -337,6 +339,7 @@ const Autocomplete = () => {
             tgphRef={inputRef}
             placeholder="Search the docs..."
             className="aa-Input"
+            color="gray-10"
             {...(inputProps as React.DetailedHTMLProps<
               React.InputHTMLAttributes<HTMLInputElement>,
               HTMLInputElement
