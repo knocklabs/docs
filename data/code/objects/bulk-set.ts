@@ -21,10 +21,12 @@ curl -X POST "https://api.knock.app/v1/objects/projects/bulk/set" \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-await knock.objects.bulkSet("projects", [
+await knock.objects.bulk.set("projects", [
   {
     id: "project-1",
     name: "My project",
@@ -58,9 +60,10 @@ MyApp.Knock.client()
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
-client.objects.bulk_set(
+client.objects.bulk.set(
   collection="projects",
   objects=[
     {
@@ -79,8 +82,9 @@ client.objects.bulk_set(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 Knock::Objects.bulk_set(
   collection: "projects",
@@ -146,35 +150,75 @@ $client->objects()->bulkSet('projects', [
 ])
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-// The Go SDK doesn't currently support this example
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+objects := []knock.InlineObjectRequestParam{
+  {
+    ID:         "project-1",
+    Collection: "projects",
+    Properties: map[string]interface{}{
+      "name":         "My project",
+      "total_assets": 10,
+      "tags":         []string{"cool", "fun", "project"},
+    },
+  },
+  {
+    ID:         "project-2",
+    Collection: "projects",
+    Properties: map[string]interface{}{
+      "name":         "My second project",
+      "total_assets": 5,
+      "tags":         []string{"very", "cool", "project"},
+    },
+  },
+}
+
+bulkOp, _ := knockClient.Objects.Bulk.Set(ctx, "projects", &knock.ObjectBulkSetParams{
+  Objects: objects,
+})
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.BulkOperation;
+import app.knock.api.models.objects.ObjectBulkSetParams;
+import app.knock.api.core.JsonValue;
+import java.util.Arrays;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-List<Map<String, Object>> objectsToSet = List.of(
-  Map.of(
-    "id", "project-1",
-    "name", "My project",
-    "total_assets", 10,
-    "tags", List.of("cool", "fun", "project")
-  ),
-  Map.of(
-    "id", "project-2",
-    "name", "My second project",
-    "total_assets", 5,
-    "tags", List.of("very", "cool", "project")
-  )
-)
-
-BulkOperation bulkOp = client.objects().bulkSetInCollection("projects", objectsToSet);
+ObjectBulkSetParams params = ObjectBulkSetParams.builder()
+    .collection("projects")
+    .objects(Arrays.asList(
+        ObjectBulkSetParams.Object.builder()
+            .id("project-1")
+            .properties(ObjectBulkSetParams.Object.Properties.builder()
+                .putAdditionalProperty("name", JsonValue.from("My project"))
+                .putAdditionalProperty("total_assets", JsonValue.from(10))
+                .putAdditionalProperty("tags", JsonValue.from(Arrays.asList("cool", "fun", "project")))
+                .build())
+            .build(),
+        ObjectBulkSetParams.Object.builder()
+            .id("project-2")
+            .properties(ObjectBulkSetParams.Object.Properties.builder()
+                .putAdditionalProperty("name", JsonValue.from("My second project"))
+                .putAdditionalProperty("total_assets", JsonValue.from(5))
+                .putAdditionalProperty("tags", JsonValue.from(Arrays.asList("very", "cool", "project")))
+                .build())
+            .build()
+    ))
+    .build();
+BulkOperation bulkOp = client.objects().bulk().set(params);
 `,
 };
 

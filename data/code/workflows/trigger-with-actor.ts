@@ -1,7 +1,7 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   actor: comment.author.id,
@@ -19,30 +19,30 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
-  key="new-comment",
-  actor=comment.author.id,
-  recipients=follower_ids,
-  data={
-    "document_id": comment.document.id,
-    "document_name": comment.document.name,
-    "comment_id": comment.id,
-    "comment_text": comment.text,
-  }
+    key="new-comment",
+    actor=comment.author.id,
+    recipients=follower_ids,
+    data={
+        "document_id": comment.document.id,
+        "document_name": comment.document.name,
+        "comment_id": comment.id,
+        "comment_text": comment.text
+    }
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "new-comment",
+knock = Knockapi::Client.new(api_key: "sk_12345")
+
+knock.workflows.trigger("new-comment",
   actor: comment.author.id,
   recipients: follower_ids,
   data: {
-    "document_id": comment.document.id,
-    "document_name": comment.document.name,
-    "comment_id": comment.id,
-    "comment_text": comment.text,
+    document_id: comment.document.id,
+    document_name: comment.document.name,
+    comment_id: comment.id,
+    comment_text: comment.text
   }
 )
 `,
@@ -94,45 +94,56 @@ $client->workflows()->trigger('new-comment', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "new-comment",
-  Actor:      comment.Author.ID,
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+params := knock.WorkflowTriggerParams{
+  Actor: comment.Author.ID,
   Data: map[string]interface{}{
     "document_id":   document.ID,
     "document_name": document.Name,
     "comment_id":    comment.ID,
     "comment_text":  comment.Text,
   },
+  Recipients: make([]knock.RecipientRequestUnionParam, len(followerIds)),
 }
 
-for _, f := range followerIds {
-  request.AddRecipientByID(f)
+for i, f := range followerIds {
+  params.Recipients[i] = f
 }
 
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("new-comment")
-    .actor(comment.author().getId())
-    .recipients(followerIds)
-    .data("document_id", document.getId())
-    .data("document_name", document.getName())
-    .data("comment_id", comment.getId())
-    .data("comment_text", comment.getText())
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .actor(comment.author().getId())
+        .recipients(followerIds)
+        .data(data -> {
+            data.put("document_id", document.getId());
+            data.put("document_name", document.getName());
+            data.put("comment_id", comment.getId());
+            data.put("comment_text", comment.getText());
+            return data;
+        })
+        .build()
+);
 `,
 };
 

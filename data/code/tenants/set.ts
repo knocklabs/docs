@@ -16,10 +16,12 @@ curl -X PUT https://api.knock.app/v1/tenants/tenant-1 \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-knockClient.tenants.set("tenant-1", {
+await knock.tenants.set("tenant-1", {
   name: "Tenant 1",
   settings: {
     branding: {
@@ -50,36 +52,31 @@ Knock.Tenants.set(knock_client, "tenant-1", %{
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.tenants.set_tenant(
+client.tenants.set(
   id="tenant-1",
-  tenant_data={
-    "name": "Tenant 1",
-    "settings": {
-      "branding": {
-        "primary_color": "#33FF5B",
-        "primary_color_contrast": "#ffffff",
-        "logo_url": "https:www.example.com/path-to-logo-asset-url",
-        "icon_url": "https:www.example.com/path-to-icon-asset-url"
-      }
+  settings={
+    "branding": {
+      "primary_color": "#33FF5B",
+      "primary_color_contrast": "#ffffff",
+      "logo_url": "https:www.example.com/path-to-logo-asset-url",
+      "icon_url": "https:www.example.com/path-to-icon-asset-url"
     }
   }
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Tenants.set(
-  id: "tenant-1",
-  tenant_data: {
-    name: "Tenant 1",
-    settings: {
-      branding: {
-        primary_color: "#33FF5B",
-        primary_color_contrast: "#ffffff",
-        logo_url: "https:www.example.com/path-to-logo-asset-url",
-        icon_url: "https:www.example.com/path-to-icon-asset-url"
-      }
+knock = Knockapi::Client.new(api_key: "sk_12345")
+
+knock.tenants.set("tenant-1",
+  name: "Tenant 1",
+  settings: {
+    branding: {
+      primary_color: "#33FF5B",
+      primary_color_contrast: "#ffffff",
+      logo_url: "https:www.example.com/path-to-logo-asset-url",
+      icon_url: "https:www.example.com/path-to-icon-asset-url"
     }
   }
 )
@@ -121,43 +118,54 @@ $client->tenants()->set('tenant-1', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-tenant, _ := knockClient.Tenants.Set(ctx, &knock.SetTenantRequest{
-  ID:         "tenant-1",
-  Properties: map[string]interface{
-    "name":       "Tenant 1"
-  }
-  Settings: map[string]interface{
-    "branding":  map[string]interface{
-      "primary_color":          "#33FF5B",
-      "primary_color_contrast": "#ffffff",
-      "logo_url":               "https:www.example.com/path-to-logo-asset-url",
-      "icon_url":               "https:www.example.com/path-to-icon-asset-url"
-    }
-  }
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+tenant, _ := knockClient.Tenants.Set(ctx, "tenant-1", knock.TenantSetParams{
+	Name: param.New("Tenant 1"),
+	Settings: param.New(map[string]interface{}{
+		"branding": map[string]interface{}{
+			"primary_color":          "#33FF5B",
+			"primary_color_contrast": "#ffffff",
+			"logo_url":               "https://www.example.com/path-to-logo-asset-url",
+			"icon_url":               "https://www.example.com/path-to-icon-asset-url",
+		},
+	}),
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.tenants.Tenant;
+import app.knock.api.models.tenants.TenantSetParams;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-Tenant tenant = client.tenants().set("tenant-1", Map.of(
-    "name", "Tenant 1",
-    "settings", Map.of(
+TenantSetParams params = TenantSetParams.builder()
+    .id("tenant-1")
+    .name("Tenant 1")
+    .settings(Map.of(
         "branding", Map.of(
             "primary_color", "#33FF5B",
             "primary_color_contrast", "#ffffff",
-            "logo_url", "https:www.example.com/path-to-logo-asset-url",
-            "icon_url", "https:www.example.com/path-to-icon-asset-url"
+            "logo_url", "https://www.example.com/path-to-logo-asset-url",
+            "icon_url", "https://www.example.com/path-to-icon-asset-url"
         )
-    )
-));
+    ))
+    .build();
+
+Tenant tenant = client.tenants().set(params);
 `,
 };
 

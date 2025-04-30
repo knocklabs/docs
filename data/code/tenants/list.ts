@@ -10,18 +10,18 @@ curl -X GET https://api.knock.app/v1/tenants \\
   --url-query 'name=Tenant 1'
   `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-const tenants = await knockClient.tenants.list()
+const tenants = await knock.tenants.list();
 
 // supports pagination parameters and filters
-const tenants = await knockClient.tenants.list(
-  {
-    page_size: 20,
-    name: "Tenant 1"
-  }
-);
+const tenants = await knock.tenants.list({
+  page_size: 20,
+  name: "Tenant 1"
+});
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
@@ -36,21 +36,26 @@ Knock.Tenants.list(
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
 client.tenants.list()
 
 # supports pagination parameters and filters
-client.tenants.list({'page_size': 20, 'name': "Tenant 1"})
+client.tenants.list(page_size=20, name="Tenant 1")
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Tenants.list()
+knock = Knockapi::Client.new(api_key: "sk_12345")
+
+knock.tenants.list()
 
 # supports pagination parameters and filters
-Knock::Tenants.list(options: {'page_size': 20, 'name': "Tenant 1"})
+knock.tenants.list(
+  page_size: 20,
+  name: "Tenant 1"
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -80,33 +85,55 @@ $client->tenants()->list([
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-result, _ := knockClient.Tenants.List(ctx, nil)
-
-// Supports pagination parameters and filters
-result, _ := knockClient.Tenants.List(ctx, &knock.ListTenantsRequest{
-    PageSize: 20,
-    Name: "Tenant 1",
+// List tenants with pagination
+tenants, _ := knockClient.Tenants.List(ctx, knock.TenantListParams{
+	PageSize: param.New(20),
+	Name:     param.New("Tenant 1"),
 })
+
+// Auto-paging version
+tenantsPager := knockClient.Tenants.ListAutoPaging(ctx, knock.TenantListParams{
+	PageSize: param.New(20),
+	Name:     param.New("Tenant 1"),
+})
+
+// Iterate through tenants
+for tenantsPager.Next() {
+	tenant := tenantsPager.Current()
+	// Process tenant...
+}
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.Page;
+import app.knock.api.models.tenants.Tenant;
+import app.knock.api.models.tenants.TenantListParams;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-CursorResult<Tenant> result = client.tenants().list();
+Page<Tenant> result = client.tenants().list();
 
 // supports pagination parameters and filters
-KnockClient.TenantsResource.QueryParams queryParams = new KnockClient.TenantsResource.QueryParams();
-queryParams.pageSize(20);
-queryParams.name("Tenant 1");
+TenantListParams params = TenantListParams.builder()
+    .pageSize(20)
+    .name("Tenant 1")
+    .build();
 
-CursorResult<Tenant> result = client.tenants().list(queryParams);
+Page<Tenant> result = client.tenants().list(params);
 `,
 };
 

@@ -4,10 +4,12 @@ curl -X DELETE https://api.knock.app/v1/tenants/tenant-1 \\
   -H "Authorization: Bearer sk_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-await knockClient.tenants.delete("tenant-1");
+await knock.tenants.delete("tenant-1");
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
@@ -16,19 +18,17 @@ Knock.Tenants.delete(knock_client, "tenant-1")
 `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
-client.tenants.delete(
-  id="tenant-1"
-)
+client.tenants.delete(id="tenant-1")
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Tenants.delete(
-  id: "tenant-1",
-)  
+knock = Knockapi::Client.new(api_key: "sk_12345")
+
+knock.tenants.delete("tenant-1")
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -38,28 +38,36 @@ await knockClient.Tenants.Delete("tenant-1");
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->tenants()->delete('tenant-1');
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-response, _ := knockClient.Tenants.Delete(ctx, &knock.DeleteTenantRequest{
-  ID:         "tenant-1"
-})
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+response, _ := knockClient.Tenants.Delete(ctx, "tenant-1")
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.tenants.TenantDeleteParams;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-client.tenants().delete("tenant-1");
+client.tenants().delete(TenantDeleteParams.builder()
+    .id("tenant-1")
+    .build());
 `,
 };
 

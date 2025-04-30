@@ -9,10 +9,12 @@ curl -X PUT https://api.knock.app/v1/users/1 \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-await knock.users.identify("1", {
+await knock.users.update("1", {
   name: "John Hammond",
   email: "jhammond@ingen.net",
 });
@@ -29,25 +31,21 @@ Knock.Users.identify(knock_client, "1", %{
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.users.identify(
-  id="1",
-  data={
-    "name": "John Hammond",
-    "email": "jhammond@ingen.net"
-  }
+client.users.update(
+  user_id="1",
+  name="John Hammond",
+  email="jhammond@ingen.net"
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.identify(
-  id: "1",
-  data: {
-    name: "John Hammond",
-    email: "jhammond@ingen.net"
-  }
-)
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.users.update("1", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net"
+})
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -72,28 +70,38 @@ $client->users()->identify('1', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
-  ID: "1",
-  // Optional fields:
-  // Name: "John Hammond",
-  // Email: "jhammond@ingen.net"
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+user, _ := knockClient.Users.Update(ctx, "1", knock.UserUpdateParams{
+  IdentifyUserRequest: knock.IdentifyUserRequestParam{
+    Name:  param.String("John Hammond"),
+    Email: param.String("jhammond@ingen.net"),
+  },
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.User;
+import app.knock.api.models.users.UserIdentifyParams;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-UserIdentity user = client.users().identify("1", UserIdentity.builder()
-  .name("John Hammond")
-  .email("jhammond@ingen.net")
-  .build());
+User user = client.users().identify(UserIdentifyParams.builder()
+    .userId("1")
+    .name("John Hammond")
+    .email("jhammond@ingen.net")
+    .build());
 `,
 };
 
