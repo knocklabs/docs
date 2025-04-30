@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { Page } from "@/components/ui/Page";
-import { Sidebar } from "@/components/ui/Page/Sidebar";
+import { Sidebar, SidebarContext } from "@/components/ui/Page/Sidebar";
 import {
   mainContent,
   sdkSpecificContent,
@@ -60,47 +60,50 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
       />
       <Page.Masthead title={frontMatter.title} />
       <Page.Wrapper>
-        <Sidebar.Wrapper>
-          <Stack direction="column" gap="2">
-            {mainContent.map((section) => (
-              <Sidebar.Section key={section.slug} section={section} />
-            ))}
-            <Text
-              as="span"
-              weight="medium"
-              color="default"
-              style={{ fontSize: "13px" }}
-              ml="2"
-            >
-              Select your SDK
-            </Text>
-            <Box>
-              <Select.Root
-                placeholder="Select an option"
-                value={selectedSdk}
-                onValueChange={(value) => {
-                  handleSdkChange(value as Language);
-                }}
-                size="2"
+        <SidebarContext.Provider value={{ samePageRouting: false }}>
+          <Sidebar.Wrapper>
+            <Stack direction="column" gap="2">
+              {mainContent.map((section) => (
+                <Sidebar.Section key={section.slug} section={section} />
+              ))}
+              <Text
+                as="span"
+                weight="medium"
+                color="default"
+                style={{ fontSize: "13px" }}
+                ml="2"
               >
-                {languages.map((language) => {
-                  const sdk: SdkSpecificContent = sdkSpecificContent[language];
-                  return (
-                    <Select.Option key={sdk.value} value={sdk.value}>
-                      <Stack direction="row" gap="2" alignItems="center">
-                        {sdk.icon}
-                        {sdk.title}
-                      </Stack>
-                    </Select.Option>
-                  );
-                })}
-              </Select.Root>
-            </Box>
-            {selectedSdkContent.items.map((section) => (
-              <Sidebar.Section key={section.slug} section={section} />
-            ))}
-          </Stack>
-        </Sidebar.Wrapper>
+                Select your SDK
+              </Text>
+              <Box>
+                <Select.Root
+                  placeholder="Select an option"
+                  value={selectedSdk}
+                  onValueChange={(value) => {
+                    handleSdkChange(value as Language);
+                  }}
+                  size="2"
+                >
+                  {languages.map((language) => {
+                    const sdk: SdkSpecificContent =
+                      sdkSpecificContent[language];
+                    return (
+                      <Select.Option key={sdk.value} value={sdk.value}>
+                        <Stack direction="row" gap="2" alignItems="center">
+                          {sdk.icon}
+                          {sdk.title}
+                        </Stack>
+                      </Select.Option>
+                    );
+                  })}
+                </Select.Root>
+              </Box>
+              {selectedSdkContent.items.map((section) => (
+                <Sidebar.Section key={section.slug} section={section} />
+              ))}
+            </Stack>
+          </Sidebar.Wrapper>
+        </SidebarContext.Provider>
         <Page.Content>
           {breadcrumbs && <Page.Breadcrumbs pages={breadcrumbs} />}
           <Page.ContentHeader

@@ -59,6 +59,7 @@ export const Section = ({
         gridTemplateColumns: "1fr 1fr",
         justifyItems: "flex-start",
       }}
+      className="md-one-column"
     >
       {children}
     </Stack>
@@ -82,6 +83,7 @@ export const ExampleColumn = ({ children }) => (
       gap="5"
       position="sticky"
       style={{ top: "100px" }}
+      className="md-no-left-padding"
     >
       {children}
     </Stack>

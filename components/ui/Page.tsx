@@ -1,18 +1,51 @@
-import { createContext, useContext } from "react";
 import { Box, Stack } from "@telegraph/layout";
 import { Text, Heading } from "@telegraph/typography";
 
 import { PageHeader } from "./PageHeader";
 
 import { OnThisPage } from "./Page/OnThisPage";
-import { Sidebar } from "./Page/Sidebar";
+import { Sidebar, SidebarContext } from "./Page/Sidebar";
 import { Breadcrumbs } from "./Breadcrumbs";
 
 import "../../styles/global.css";
 import "../../styles/responsive.css";
+import { createContext, useContext, useState } from "react";
 export const MAX_WIDTH = "1400px";
 
-const Container = ({ children }) => <Box>{children}</Box>;
+const PageContext = createContext({
+  isSearchOpen: false,
+  setIsSearchOpen: (isSearchOpen: boolean) => {},
+});
+
+export const usePageContext = () => useContext(PageContext);
+
+const Container = ({ children }) => {
+  // Wider context for whether search input is open
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  return (
+    <PageContext.Provider value={{ isSearchOpen, setIsSearchOpen }}>
+      <Box position="relative">
+        {children}
+        <Box
+          style={{
+            pointerEvents: "none",
+            zIndex: 49,
+            opacity: isSearchOpen ? 0.65 : 0,
+            transition: "opacity 0.5s ease-in-out",
+          }}
+          bg="surface-1"
+          position="fixed"
+          h="full"
+          w="full"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
+        />
+      </Box>
+    </PageContext.Provider>
+  );
+};
 
 const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
   <Stack
@@ -65,18 +98,6 @@ const ContentHeader = ({ title, description, children }) => (
     )}
   </Box>
 );
-
-interface SidebarContextType {
-  samePageRouting: boolean;
-}
-
-const SidebarContext = createContext<SidebarContextType>({
-  samePageRouting: false,
-});
-
-export const useSidebar = () => {
-  return useContext(SidebarContext);
-};
 
 const DefaultSidebar = ({ content, samePageRouting = false }) => (
   <SidebarContext.Provider value={{ samePageRouting }}>

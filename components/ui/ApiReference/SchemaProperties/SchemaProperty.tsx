@@ -86,9 +86,14 @@ const SchemaProperty = ({ name, schema }: Props) => {
                 opacity: isChildPropertiesOpen ? 1 : 0,
                 visibility: isChildPropertiesOpen ? "visible" : "hidden",
               }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.2, delay: 0.05 }}
             >
-              <Stack flexWrap="wrap" gap="1" mt="2">
+              <Stack
+                flexWrap="wrap"
+                gap="1"
+                mt={isChildPropertiesOpen ? "2" : "0"}
+                style={{ transition: "margin-top 0.1s ease-in-out" }}
+              >
                 {maybeEnum.map((item) => (
                   <PropertyRow.PropertyTag key={item}>
                     {item}

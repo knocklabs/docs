@@ -22,7 +22,10 @@ export const highlightResource = (
   {
     moveToItem = false,
     replaceUrl,
-  }: { moveToItem?: boolean; replaceUrl?: string } = {},
+  }: {
+    moveToItem?: boolean;
+    replaceUrl?: string;
+  } = {},
 ) => {
   const resourceUrlNoTrailingSlash = stripTrailingSlash(resourceUrl);
 

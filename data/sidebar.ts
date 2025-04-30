@@ -153,6 +153,7 @@ const developerToolsContent: SidebarSection[] = [
     desc: "Use our powerful developer tools in order to integrate Knock seamlessly into your development workflow.",
     sidebarMenuDefaultOpen: true,
     pages: [
+      { slug: "/overview", title: "Overview" },
       { slug: "/api-keys", title: "API keys" },
       { slug: "/service-tokens", title: "Service tokens" },
       { slug: "/knock-cli", title: "Knock CLI" },

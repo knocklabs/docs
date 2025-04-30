@@ -8,7 +8,15 @@ import {
   CollapsibleNavItem,
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
-import { useLayoutEffect, useState, useMemo, useEffect, useRef } from "react";
+import {
+  useLayoutEffect,
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  createContext,
+  useContext,
+} from "react";
 import {
   isPathTheSame,
   highlightResource,
@@ -17,6 +25,19 @@ import {
 } from "./helpers";
 import { Tag } from "@telegraph/tag";
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
+import { usePageContext } from "../Page";
+
+interface SidebarContextType {
+  samePageRouting: boolean;
+}
+
+export const SidebarContext = createContext<SidebarContextType>({
+  samePageRouting: false,
+});
+
+export const useSidebar = () => {
+  return useContext(SidebarContext);
+};
 
 type SidebarProps = {
   content: SidebarSection[];
@@ -56,6 +77,8 @@ const Item = ({
   const resourceSection = stripPrefix(slug);
   const pathNoHash = router.asPath.split("#")[0];
   const [initializedOnPath, setInitializedOnPath] = useState(pathNoHash);
+  const { samePageRouting } = useSidebar();
+  const { isSearchOpen } = usePageContext();
 
   const [isOpen, setIsOpen] = useState(
     defaultOpen ?? getOpenState(section, slug, pathNoHash),
@@ -79,12 +102,20 @@ const Item = ({
     () =>
       debounce((path: string) => {
         setIsOpen(true);
-        highlightResource(path);
+        // This can get triggered when the page moves, but moving the page can highlight a new
+        // item and focus it, which breaks keyboard navigation of search.
+        // So when the search is open, we skip the focus.
+        if (!isSearchOpen) {
+          highlightResource(path);
+        }
       }, 300), // The lower the number here, the quicker the highlight, but can get laggy if too low
-    [], // Empty dependency array means this is only created once
+    [isSearchOpen], // Empty dependency array means this is only created once
   );
 
   useLayoutEffect(() => {
+    // Don't need all the logic if its not a same page routing
+    if (!samePageRouting) return;
+
     let observer: IntersectionObserver | null = null;
 
     function getObserver() {
@@ -105,8 +136,7 @@ const Item = ({
       );
     }
 
-    // Begin observing after a short delay to allow the page to arrive at its initial state
-    const readyTimeout = setTimeout(() => {
+    const addListeners = () => {
       observer = getObserver();
 
       // Wait for initial scroll before observing
@@ -131,14 +161,17 @@ const Item = ({
         window.removeEventListener("scroll", scrollBuffer);
       };
       window.addEventListener("scroll", scrollBuffer);
-    }, 2500);
+    };
+
+    // Begin observing after a short delay to allow the page to arrive at its initial state
+    const readyTimeout = setTimeout(addListeners, 2500);
 
     // Cleanup observer on unmount
     return () => {
       observer?.disconnect();
       clearTimeout(readyTimeout);
     };
-  }, [basePath, resourceSection, debouncedHighlight]);
+  }, [basePath, resourceSection, debouncedHighlight, samePageRouting]);
 
   const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> =
     depth === 0
@@ -149,7 +182,8 @@ const Item = ({
           },
         }
       : {
-          px: "1",
+          // py: "4",
+          pl: "1",
           color: "gray",
         };
 
@@ -178,7 +212,6 @@ const Item = ({
         return (
           <Box
             // Tuck in the nested menus a little more
-            ml={depth > 0 ? "2" : "0"}
             key={index + page.slug}
           >
             <NavItem href={href} isActive={isActive}>
@@ -236,7 +269,6 @@ const Wrapper = ({ children }: SidebarProps) => {
         />
         <Stack
           direction="column"
-          gap="1"
           h="full"
           pt="2"
           px="4"

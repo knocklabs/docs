@@ -40,6 +40,7 @@ export const CollapsibleNavItem = ({
             isOpen ? "rotate-90" : ""
           }`,
         }}
+        py="4"
         {...props}
       >
         <Text
@@ -64,7 +65,7 @@ export const CollapsibleNavItem = ({
           transition={{ duration: 0.2 }}
           className={`overflow-hidden ${!isOpen ? "pointer-events-none" : ""}`}
         >
-          <Box borderLeft="px" ml="3" pl="2" my="2" borderColor="gray-3">
+          <Box borderLeft="px" ml="3" pl="2" borderColor="gray-3">
             {children}
           </Box>
         </motion.div>

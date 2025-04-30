@@ -7,7 +7,6 @@ import Link from "next/link";
 import { Box, Stack } from "@telegraph/layout";
 import { Lucide } from "@telegraph/icon";
 import { Text } from "@telegraph/typography";
-import { PostmanIcon } from "@/components/ui/OverviewContent/PostmanIcon";
 import {
   Tool,
   ContentCard,
@@ -103,7 +102,7 @@ export default function Home() {
               }}
             />
           </Stack>
-          <Box mt="16">
+          <Section.Container>
             <Section.Header
               title="Learn core concepts"
               href="/concepts/overview"
@@ -111,6 +110,8 @@ export default function Home() {
             <Section.Content
               className="md-one-column"
               style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
+              nudgePadding={2}
+              gap="6"
             >
               <ConceptCard
                 title="How do I send notifications?"
@@ -137,14 +138,15 @@ export default function Home() {
                 image="/images/overviews/home/channels.png"
               />
             </Section.Content>
-          </Box>
-          <Box mt="16">
+          </Section.Container>
+          <Section.Container>
             <Section.Header title="Start building" />
             <Section.Content
               gap="4"
               flexDirection="column"
               className="md-one-column"
               style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
+              nudgePadding={2}
             >
               <BuildingBlock
                 title="Design a workflow"
@@ -195,13 +197,14 @@ export default function Home() {
                 icon={Lucide.DatabaseZap}
               />
             </Section.Content>
-          </Box>
-          <Box mt="16">
+          </Section.Container>
+          <Section.Container>
             <Section.Header title="Knock AI" />
             <Section.Content
               className="md-one-column"
               gap="4"
               style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}
+              nudgePadding={2}
             >
               <ConceptCard
                 title="Agent toolkit"
@@ -216,8 +219,8 @@ export default function Home() {
                 image="/images/overviews/home/mcp.png"
               />
             </Section.Content>
-          </Box>
-          <Box mt="16">
+          </Section.Container>
+          <Section.Container>
             <Section.Header title="Developer tools" />
             <Section.Content gap="4" className="md-flex-column">
               <Tool
@@ -233,7 +236,7 @@ export default function Home() {
                 href="/developer-tools/management-api"
               />
               <Tool
-                icon={PostmanIcon}
+                icon={"Postman"}
                 title="Postman"
                 description="Use our Postman collection to get familiar with the Knock API."
                 href="/developer-tools/knock-and-postman"
@@ -245,7 +248,7 @@ export default function Home() {
                 href="/developer-tools/integrating-into-cicd"
               />
             </Section.Content>
-          </Box>
+          </Section.Container>
           {/* Breathing room */}
           <Box mb="32" />
         </Page.Content>
