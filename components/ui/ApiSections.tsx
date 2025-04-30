@@ -9,15 +9,13 @@ export const Section = ({
   isIdempotent = false,
   isRetentionSubject = false,
   path = undefined,
-  wrapperClassName = "",
 }: {
   title?: string;
   children: React.ReactNode;
   headingClassName?: string;
   isIdempotent?: boolean;
   isRetentionSubject?: boolean;
-  path?: string;
-  wrapperClassName?: string;
+    path?: string;
 }) => (
   <Box
     as="section"
@@ -61,7 +59,7 @@ export const Section = ({
         gridTemplateColumns: "1fr 1fr",
         justifyItems: "flex-start",
       }}
-      className={wrapperClassName}
+      className="md-one-column"
     >
       {children}
     </Stack>
@@ -85,6 +83,7 @@ export const ExampleColumn = ({ children }) => (
       gap="5"
       position="sticky"
       style={{ top: "100px" }}
+      className="md-no-left-padding"
     >
       {children}
     </Stack>

@@ -61,7 +61,6 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
       isIdempotent={isIdempotent}
       isRetentionSubject={isRetentionSubject}
       path={path}
-      wrapperClassName="md-one-column"
     >
       <ContentColumn>
         {isBeta && (
