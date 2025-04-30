@@ -176,10 +176,10 @@ const developerToolsContent: SidebarSection[] = [
   },
 ];
 
-const guidesContent: SidebarSection[] = [
+const tutorialsContent: SidebarSection[] = [
   {
-    title: "Guides",
-    slug: "/guides",
+    title: "Tutorials",
+    slug: "/tutorials",
     sidebarMenuDefaultOpen: true,
     pages: [
       {
@@ -284,6 +284,6 @@ const cliContent: SidebarSection[] = [
   },
 ];
 
-export { guidesContent, developerToolsContent, cliContent };
+export { tutorialsContent, developerToolsContent, cliContent };
 
 export default sidebarContent;

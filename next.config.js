@@ -288,7 +288,7 @@ const nextConfig = {
       },
       {
         source: "/getting-started/going-to-production",
-        destination: "/guides/implementation-guide#going-to-production",
+        destination: "/tutorials/implementation-guide#going-to-production",
         permanent: true,
       },
       {
@@ -318,7 +318,7 @@ const nextConfig = {
       },
       {
         source: "/in-app-ui/javascript/quick-start",
-        destination: "/sdks/javascript/quick-start",
+        destination: "/in-app-ui/javascript/sdk/quick-start",
         permanent: true,
       },
       {
@@ -328,12 +328,12 @@ const nextConfig = {
       },
       {
         source: "/in-app-ui/flutter",
-        destination: "/in-app-ui/flutter/overview",
+        destination: "/in-app-ui/flutter/sdk/overview",
         permanent: true,
       },
       {
         source: "/guides/going-to-production",
-        destination: "/guides/implementation-guide#going-to-production",
+        destination: "/tutorials/implementation-guide#going-to-production",
         permanent: true,
       },
       //SlackKit redirects
@@ -427,7 +427,7 @@ const nextConfig = {
       },
       {
         source: "/guides",
-        destination: "/guides/overview",
+        destination: "/tutorials/overview",
         permanent: true,
       },
       {

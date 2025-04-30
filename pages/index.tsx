@@ -186,13 +186,13 @@ export default function Home() {
               />
               <BuildingBlock
                 title="Plan your Knock implementation"
-                href="/guides/implementation-guide"
+                href="/tutorials/implementation-guide"
                 description="Migrate your notification system into Knock."
                 icon={Lucide.Sprout}
               />
               <BuildingBlock
                 title="Model your data in Knock"
-                href="/guides/modeling-users-objects-and-tenants"
+                href="/tutorials/modeling-users-objects-and-tenants"
                 description="Map your application's data model into Knock."
                 icon={Lucide.DatabaseZap}
               />
