@@ -97,6 +97,7 @@ const StaticSearch = () => {
           placeholder="Search the docs..."
           size="1"
           color="gray-10"
+          className="aa-Input"
           style={{ outline: "none" }}
         />
         <Stack
