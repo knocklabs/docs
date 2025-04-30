@@ -25,6 +25,7 @@ import {
 } from "./helpers";
 import { Tag } from "@telegraph/tag";
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
+import { usePageContext } from "../Page";
 
 interface SidebarContextType {
   samePageRouting: boolean;
@@ -77,6 +78,7 @@ const Item = ({
   const pathNoHash = router.asPath.split("#")[0];
   const [initializedOnPath, setInitializedOnPath] = useState(pathNoHash);
   const { samePageRouting } = useSidebar();
+  const { isSearchOpen } = usePageContext();
 
   const [isOpen, setIsOpen] = useState(
     defaultOpen ?? getOpenState(section, slug, pathNoHash),
@@ -86,7 +88,6 @@ const Item = ({
   useEffect(() => {
     // Have to do an initialization check like this so we can control it manually still
     if (pathNoHash !== initializedOnPath) {
-      console.log("pathNoHash", pathNoHash);
       setInitializedOnPath(pathNoHash);
       if (!isOpen) {
         const isDeterminedOpen = getOpenState(section, slug, pathNoHash);
@@ -101,9 +102,14 @@ const Item = ({
     () =>
       debounce((path: string) => {
         setIsOpen(true);
-        highlightResource(path);
+        // This can get triggered when the page moves, but moving the page can highlight a new
+        // item and focus it, which breaks keyboard navigation of search.
+        // So when the search is open, we skip the focus.
+        if (!isSearchOpen) {
+          highlightResource(path);
+        }
       }, 300), // The lower the number here, the quicker the highlight, but can get laggy if too low
-    [], // Empty dependency array means this is only created once
+    [isSearchOpen], // Empty dependency array means this is only created once
   );
 
   useLayoutEffect(() => {
@@ -119,7 +125,6 @@ const Item = ({
             const resourcePath =
               entry.target.getAttribute("data-resource-path")!;
             if (entry.isIntersecting) {
-              console.log("highlighting", `/${basePath}${resourcePath}`);
               debouncedHighlight(`/${basePath}${resourcePath}`);
             }
           });

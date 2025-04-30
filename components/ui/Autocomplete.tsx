@@ -23,7 +23,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import "@algolia/autocomplete-theme-classic";
 
-import { IoSparkles } from "react-icons/io5";
 import { AIChatFunctions } from "@inkeep/widgets";
 import { Box, Stack } from "@telegraph/layout";
 import { Input } from "@telegraph/input";
@@ -40,6 +39,7 @@ import dynamic from "next/dynamic";
 import { Icon, Lucide } from "@telegraph/icon";
 import { Text } from "@telegraph/typography";
 import { MenuItem } from "@telegraph/menu";
+import { usePageContext } from "./Page";
 
 // This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
@@ -124,6 +124,7 @@ const StaticSearch = () => {
 };
 
 const Autocomplete = () => {
+  const { setIsSearchOpen } = usePageContext();
   const [autocompleteState, setAutocompleteState] =
     useState<AutocompleteState<BaseItem> | null>(null);
 
@@ -168,31 +169,11 @@ const Autocomplete = () => {
     }
   }, [isAiChatOpen, aiSearchTerm]);
 
-  // Lock scrolling when autocomplete is open
-  useEffect(() => {
-    if (autocompleteState?.isOpen) {
-      // Add a class that prevents scrolling on html and body
-      document.documentElement.style.overflow = "hidden";
-      document.documentElement.style.height = "100%";
-      document.body.style.overflow = "hidden";
-      document.body.style.height = "100%";
-      document.body.style.position = "fixed";
-      document.body.style.width = "100%";
-    } else {
-      // Remove the scroll lock
-      document.documentElement.style.overflow = "";
-      document.documentElement.style.height = "";
-      document.body.style.overflow = "";
-      document.body.style.height = "";
-      document.body.style.position = "";
-      document.body.style.width = "";
-    }
-  }, [autocompleteState?.isOpen]);
-
   const autocomplete = useMemo(
     () =>
       createAutocomplete({
         onStateChange({ state }) {
+          setIsSearchOpen(state.isOpen);
           setAutocompleteState(state);
         },
         getSources() {
@@ -341,7 +322,7 @@ const Autocomplete = () => {
   });
 
   return (
-    <Box {...autocomplete.getRootProps({})} tgphRef={rootRef} id="docs-search">
+    <Box {...autocomplete.getRootProps()} tgphRef={rootRef} id="docs-search">
       <Box
         as="form"
         border="px"
