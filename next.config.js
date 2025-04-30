@@ -431,6 +431,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/guides/:guide",
+        destination: "/tutorials/:guide",
+        permanent: true,
+      },
+      {
         source: "/sdks",
         destination: "/sdks/overview",
         permanent: true,
