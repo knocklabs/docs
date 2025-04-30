@@ -256,7 +256,7 @@ const Autocomplete = () => {
           },
         },
       }),
-    [router, searchClient, handleOpenAiChat],
+    [router, searchClient, handleOpenAiChat, setIsSearchOpen],
   );
 
   useHotkeys("/, cmd+k", (e) => {

@@ -171,7 +171,7 @@ const Item = ({
       observer?.disconnect();
       clearTimeout(readyTimeout);
     };
-  }, [basePath, resourceSection, debouncedHighlight]);
+  }, [basePath, resourceSection, debouncedHighlight, samePageRouting]);
 
   const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> =
     depth === 0
