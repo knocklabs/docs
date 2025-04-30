@@ -1,65 +1,12 @@
-# Knock Java SDK Upgrade Guide (v0.x to v1.0)
-
-This guide will help you upgrade from the previous Knock Java SDK to the new v1.0 Java SDK.
-
-## Installation
-
-Update your dependency to use the new SDK:
-
-**Old SDK:**
-
-```groovy
-// Gradle
-dependencies {
-    implementation 'app.knock.api:knock-client:0.2.1'
-}
-```
-
-```xml
-<!-- Maven -->
-<dependency>
-    <groupId>app.knock.api</groupId>
-    <artifactId>knock-client</artifactId>
-    <version>0.2.1</version>
-</dependency>
-```
-
-**New SDK:**
-
-```groovy
-// Gradle
-implementation("app.knock.api:knock-java:0.0.1-alpha.0")
-```
-
-```xml
-<!-- Maven -->
-<dependency>
-  <groupId>app.knock.api</groupId>
-  <artifactId>knock-java</artifactId>
-  <version>0.0.1-alpha.0</version>
-</dependency>
-```
+---
+title: Java SDK upgrade (v0.x to v1.0)
+description: This guide will help you upgrade from the previous Knock Java SDK to the new v1.0 Java SDK.
+section: Developer tools
+---
 
 ## Basic Changes
 
 ### Client Initialization
-
-**Old SDK:**
-
-```java
-import app.knock.api.KnockClient;
-
-// Using environment variables (KNOCK_API_KEY)
-KnockClient client = KnockClient.builder().build();
-
-// Or explicit configuration
-KnockClient client = KnockClient.builder()
-        .baseUrl("https://api.knock.app")
-        .apiKey("sk_12345")
-        .build();
-```
-
-**New SDK:**
 
 ```java
 import app.knock.api.client.KnockClient;
@@ -202,14 +149,16 @@ WorkflowTriggerResult result = client.workflows().trigger(workflowTrigger);
 **New SDK:**
 
 ```java
-import app.knock.api.core.JsonValue;
+`import app.knock.api.core.JsonValue;
 import app.knock.api.models.workflows.WorkflowTriggerParams;
 import app.knock.api.models.workflows.WorkflowTriggerResponse;
 
 WorkflowTriggerParams params = WorkflowTriggerParams.builder()
     .key("dinosaurs-loose")
-    .addRecipient("jhammond")
-    .addRecipient("agrant")
+    .recipients(List.of(
+        RecipientRequest.ofUserRecipient("jhammond"),
+        RecipientRequest.ofUserRecipient("agrant")
+    ))
     .actor("dnedry")
     .data(WorkflowTriggerParams.Data.builder()
         .putAdditionalProperty("fences_electrified", JsonValue.from(false))
@@ -217,7 +166,7 @@ WorkflowTriggerParams params = WorkflowTriggerParams.builder()
         .build())
     .build();
 
-WorkflowTriggerResponse response = client.workflows().trigger(params);
+WorkflowTriggerResponse response = client.workflows().trigger(params);`
 ```
 
 ### User Preferences
@@ -406,4 +355,4 @@ client.users().unsetChannelData(
 
 ## Support
 
-If you encounter any issues during migration, please reach out to our support team or open an issue on GitHub.
+If you encounter any issues during migration, please [reach out to our support team](mailto:support@knock.app) or open an issue on [GitHub](https://github.com/knocklabs/knock-java/issues).
