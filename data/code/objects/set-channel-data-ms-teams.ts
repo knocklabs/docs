@@ -17,7 +17,7 @@ curl -X PUT https://api.knock.app/v1/objects/projects/project-1/channel_data/9e8
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 // Find this value in your Knock dashboard under Integrations > Channels
@@ -74,7 +74,7 @@ client.objects.set_channel_data(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_teams_channel_id = "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f"
@@ -143,7 +143,7 @@ import (
 )
 
 ctx := context.Background()
-client := knock.NewClient(option.WithBearerToken("sk_12345"))
+client := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 knockTeamsChannelID := "9e8d7c6b-5a4f-3e2d-1c0b-9a8b7c6d5e4f"
@@ -172,7 +172,7 @@ import app.knock.api.core.JsonValue;
 import java.util.Arrays;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 // Find this value in your Knock dashboard under Integrations > Channels

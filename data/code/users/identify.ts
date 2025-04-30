@@ -11,7 +11,7 @@ curl -X PUT https://api.knock.app/v1/users/1 \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.users.update("1", {
@@ -40,7 +40,7 @@ client.users.update(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.users.update("1", {
   name: "John Hammond",
@@ -78,7 +78,7 @@ import (
 	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 user, _ := knockClient.Users.Update(ctx, "1", knock.UserUpdateParams{
   IdentifyUserRequest: knock.IdentifyUserRequestParam{
@@ -94,7 +94,7 @@ import app.knock.api.models.users.User;
 import app.knock.api.models.users.UserIdentifyParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 User user = client.users().identify(UserIdentifyParams.builder()

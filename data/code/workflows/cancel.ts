@@ -9,7 +9,7 @@ curl -X POST https://api.knock.app/v1/workflows/new-user-invited/cancel \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 const userInvite = await invites.approve(inviteToken);
 
@@ -29,7 +29,7 @@ client.workflows.cancel(
   ruby: `
 require "knockapi"
 
-knock = Knockapi::Client.new(bearer_token: "sk_12345")
+knock = Knockapi::Client.new(api_key: "sk_12345")
 
 knock.workflows.cancel("new-user-invited",
   cancellation_key: user_invite.id
@@ -46,7 +46,7 @@ var options = new CancelWorkflow {
 await knockClient.Workflows.Cancel("new-user-invited", options);
 `,
   elixir: `
-knock_client = MyApp.Knock.client()  
+knock_client = MyApp.Knock.client()
 
 Knock.Workflows.cancel("new-user-invited", user_invite.id)
 `,
@@ -67,7 +67,7 @@ import (
 	"github.com/knocklabs/knock-go/option"
 )
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowCancelParams{
   CancellationKey: userInvite.ID,
@@ -82,7 +82,7 @@ import app.knock.api.models.workflows.WorkflowCancelParams;
 import app.knock.api.models.workflows.WorkflowCancel;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 WorkflowCancelParams params = WorkflowCancelParams.builder()

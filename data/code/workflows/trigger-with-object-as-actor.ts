@@ -1,7 +1,7 @@
 const languages = {
   node: `
 import Knock from "@knocklabs/node";
-const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   actor: { id: project.id, collection: "projects" },
@@ -21,7 +21,7 @@ client.workflows.trigger(
   ruby: `
 require "knockapi"
 
-knock = Knockapi::Client.new(bearer_token: "sk_12345")
+knock = Knockapi::Client.new(api_key: "sk_12345")
 
 knock.workflows.trigger("new-comment",
   actor: { id: project.id, collection: "projects" },
@@ -43,7 +43,7 @@ var workflowTriggerOpts = new TriggerWorkflow {
 var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerOpts)
 `,
   elixir: `
-knock_client = MyApp.Knock.client()  
+knock_client = MyApp.Knock.client()
 
 Knock.Workflows.trigger("new-comment", %{
   actor: %{ id: project.id, collection: "projects" }
@@ -68,7 +68,7 @@ import (
 	"github.com/knocklabs/knock-go/option"
 )
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowTriggerParams{
   Actor: map[string]interface{}{
@@ -91,7 +91,7 @@ import app.knock.api.models.workflows.WorkflowTriggerParams;
 import java.util.Map;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 var result = client.workflows().trigger(

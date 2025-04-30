@@ -6,7 +6,7 @@ curl -X DELETE https://api.knock.app/v1/tenants/tenant-1 \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.tenants.delete("tenant-1");
@@ -26,7 +26,7 @@ client.tenants.delete(id="tenant-1")
   ruby: `
 require "knockapi"
 
-knock = Knockapi::Client.new(bearer_token: "sk_12345")
+knock = Knockapi::Client.new(api_key: "sk_12345")
 
 knock.tenants.delete("tenant-1")
 `,
@@ -38,7 +38,7 @@ await knockClient.Tenants.Delete("tenant-1");
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->tenants()->delete('tenant-1');
@@ -52,7 +52,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 response, _ := knockClient.Tenants.Delete(ctx, "tenant-1")
 `,
@@ -62,7 +62,7 @@ import app.knock.api.client.okhttp.KnockOkHttpClient;
 import app.knock.api.models.tenants.TenantDeleteParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 client.tenants().delete(TenantDeleteParams.builder()

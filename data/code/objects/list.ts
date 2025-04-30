@@ -6,7 +6,7 @@ curl -X GET https://api.knock.app/v1/objects/projects \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 const objects = await knock.objects.list("projects");
@@ -23,7 +23,7 @@ objects = client.objects.list(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 objects = client.objects.list("projects")
 `,
@@ -34,7 +34,7 @@ import app.knock.api.models.objects.ObjectListParams;
 import app.knock.api.models.objects.ObjectListPage;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 ObjectListParams params = ObjectListParams.builder()
@@ -51,7 +51,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 objects, _ := knockClient.Objects.List(ctx, "projects", &knock.ObjectListParams{})
 `,

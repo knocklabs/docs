@@ -5,7 +5,7 @@ curl -X GET https://api.knock.app/v1/users/1/preferences \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 const allPreferences = await knockClient.users.listPreferences(user.id);
 `,
@@ -23,7 +23,7 @@ all_preferences = Knock.Users.get_all_preferences(knock_client, user.id)
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 all_preferences = client.users.list_preferences(user.id)
 `,
@@ -49,7 +49,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 allPreferences, _ := knockClient.Users.ListPreferences(ctx, user.ID)
 `,
@@ -61,7 +61,7 @@ import app.knock.api.models.users.UserGetPreferencesParams;
 import java.util.List;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 List<PreferenceSet> allPreferences = client.users().getPreferences(UserGetPreferencesParams.builder()

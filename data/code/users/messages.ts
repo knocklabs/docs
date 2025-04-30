@@ -11,7 +11,7 @@ curl -X GET https://api.knock.app/v1/users/1/messages \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knockClient.users.listMessages(user.id);
 
@@ -55,7 +55,7 @@ client.users.list_messages(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.users.list_messages(user.id)
 
@@ -101,7 +101,7 @@ import (
 	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 messages, _ := knockClient.Users.ListMessages(ctx, user.ID, knock.UserListMessagesParams{
   PageSize: param.Int64(20),
@@ -116,7 +116,7 @@ import app.knock.api.models.users.UserGetMessagesParams;
 import app.knock.api.core.CursorResult;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 UserGetMessagesParams params = UserGetMessagesParams.builder()

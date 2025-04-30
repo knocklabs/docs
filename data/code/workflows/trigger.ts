@@ -13,7 +13,7 @@ curl -X POST https://api.knock.app/v1/workflows/new-comment/trigger \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   recipients: ["1", "2"],
@@ -41,7 +41,7 @@ client.workflows.trigger(
   ruby: `
 require "knockapi"
 
-knock = Knockapi::Client.new(bearer_token: "sk_12345")
+knock = Knockapi::Client.new(api_key: "sk_12345")
 
 knock.workflows.trigger("new-comment",
   recipients: ["1", "2"],
@@ -106,7 +106,7 @@ import (
 	"github.com/knocklabs/knock-go/option"
 )
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowTriggerParams{
   Recipients: []knock.RecipientRequestUnionParam{"1", "2"},
@@ -127,7 +127,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 WorkflowTriggerParams params = WorkflowTriggerParams.builder()

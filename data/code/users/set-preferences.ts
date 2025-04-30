@@ -21,7 +21,7 @@ curl -X PUT https://api.knock.app/v1/users/1/preferences/default \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knockClient.users.setPreferences(user.id, "default", {
   channel_types: {
@@ -64,7 +64,7 @@ client.users.set_preferences(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.users.set_preferences(user.id, "default", {
   channel_types: {
@@ -144,7 +144,7 @@ import (
 	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 preferenceSet, _ := knockClient.Users.SetPreferences(ctx, user.ID, "default", knock.UserSetPreferencesParams{
   PreferenceSetRequest: knock.PreferenceSetRequestParam{
@@ -172,7 +172,7 @@ import app.knock.api.models.users.UserSetPreferencesParams;
 import app.knock.api.core.JsonValue;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 UserSetPreferencesParams params = UserSetPreferencesParams.builder()

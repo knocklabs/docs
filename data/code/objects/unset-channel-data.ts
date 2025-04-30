@@ -7,7 +7,7 @@ curl -X DELETE https://api.knock.app/v1/objects/projects/project-1/channel_data/
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 // Find this value in your Knock dashboard under Integrations > Channels
@@ -44,7 +44,7 @@ client.objects.unset_channel_data(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
@@ -83,7 +83,7 @@ import (
 )
 
 ctx := context.Background()
-client := knock.NewClient(option.WithBearerToken("sk_12345"))
+client := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 knockChannelID := "8209f26c-62a5-461d-95e2-a5716a26e652"
@@ -100,7 +100,7 @@ import app.knock.api.client.okhttp.KnockOkHttpClient;
 import app.knock.api.models.objects.ObjectUnsetChannelDataParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 // Find this value in your Knock dashboard under Integrations > Channels

@@ -6,7 +6,7 @@ curl -X GET https://api.knock.app/v1/users/1/preferences/default \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 // Get the user's default preferences
@@ -31,7 +31,7 @@ client.users.get_preferences(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # The preference set ID is required. Use "default" for the default preference set
 client.users.get_preferences(user.id, "default")
@@ -60,7 +60,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // The preference set ID is required. Use "default" for the default preference set
 preferences, _ := knockClient.Users.GetPreferences(ctx, user.ID, "default", knock.UserGetPreferencesParams{})

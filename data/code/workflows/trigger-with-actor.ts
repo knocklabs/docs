@@ -1,7 +1,7 @@
 const languages = {
   node: `
 import Knock from "@knocklabs/node";
-const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   actor: comment.author.id,
@@ -33,7 +33,7 @@ client.workflows.trigger(
   ruby: `
 require "knockapi"
 
-knock = Knockapi::Client.new(bearer_token: "sk_12345")
+knock = Knockapi::Client.new(api_key: "sk_12345")
 
 knock.workflows.trigger("new-comment",
   actor: comment.author.id,
@@ -102,7 +102,7 @@ import (
 	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowTriggerParams{
   Actor: comment.Author.ID,
@@ -127,7 +127,7 @@ import app.knock.api.client.okhttp.KnockOkHttpClient;
 import app.knock.api.models.workflows.WorkflowTriggerParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 var result = client.workflows().trigger(

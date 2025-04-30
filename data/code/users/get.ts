@@ -6,7 +6,7 @@ curl -X GET https://api.knock.app/v1/users/1 \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.users.get(user.id);
@@ -25,7 +25,7 @@ client.users.get(user.id)
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.users.get(user.id)
 `,
@@ -51,7 +51,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 user, _ := knockClient.Users.Get(ctx, user.ID)
 `,
@@ -62,7 +62,7 @@ import app.knock.api.models.users.User;
 import app.knock.api.models.users.UserGetParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 User user = client.users().get(UserGetParams.builder()

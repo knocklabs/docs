@@ -16,7 +16,7 @@ curl -X POST https://api.knock.app/v1/users/bulk/preferences \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 const userIds = ["jhammond", "dnedry", "imalcolm", "esattler"];
 
@@ -58,7 +58,7 @@ client.users.bulk.set_preferences(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 user_ids = ["jhammond", "dnedry", "imalcolm", "esattler"]
 

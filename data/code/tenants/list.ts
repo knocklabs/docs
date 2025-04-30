@@ -12,7 +12,7 @@ curl -X GET https://api.knock.app/v1/tenants \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 const tenants = await knock.tenants.list();
@@ -47,7 +47,7 @@ client.tenants.list(page_size=20, name="Tenant 1")
   ruby: `
 require "knockapi"
 
-knock = Knockapi::Client.new(bearer_token: "sk_12345")
+knock = Knockapi::Client.new(api_key: "sk_12345")
 
 knock.tenants.list()
 
@@ -94,7 +94,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // List tenants with pagination
 tenants, _ := knockClient.Tenants.List(ctx, knock.TenantListParams{
@@ -122,7 +122,7 @@ import app.knock.api.models.tenants.Tenant;
 import app.knock.api.models.tenants.TenantListParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 Page<Tenant> result = client.tenants().list();

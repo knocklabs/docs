@@ -6,7 +6,7 @@ curl -X DELETE "https://api.knock.app/v1/objects/projects/project-1" \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.objects.delete("projects", "project-1");
@@ -29,7 +29,7 @@ client.objects.delete(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.objects.delete("projects", "project-1")
 `,
@@ -55,7 +55,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 response, _ := knockClient.Objects.Delete(ctx, "projects", "project-1")
 `,
@@ -65,7 +65,7 @@ import app.knock.api.client.okhttp.KnockOkHttpClient;
 import app.knock.api.models.objects.ObjectDeleteParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 ObjectDeleteParams params = ObjectDeleteParams.builder()

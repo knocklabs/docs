@@ -16,7 +16,7 @@ curl -X POST https://api.knock.app/v1/workflows/new-comment/trigger \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knock = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   recipients: ["1", "2"],
@@ -50,7 +50,7 @@ client.workflows.trigger(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.workflows.trigger(
   key: "new-comment",
@@ -128,7 +128,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", knock.WorkflowTriggerParams{
 	Recipients: param.New([]string{"1", "2"}),
@@ -147,7 +147,7 @@ import app.knock.api.core.RequestOptions;
 import app.knock.api.models.workflows.WorkflowTriggerParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 RequestOptions requestOptions = RequestOptions.builder()
@@ -158,7 +158,7 @@ var result = client.workflows().trigger(
     WorkflowTriggerParams.builder()
         .key("new-comment")
         .addRecipient("1")
-        .addRecipient("2") 
+        .addRecipient("2")
         .data(data -> data.put("project_name", "My Project"))
         .actor("3")
         .cancellationKey("cancel_123")

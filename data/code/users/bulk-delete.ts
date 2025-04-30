@@ -10,7 +10,7 @@ curl -X POST https://api.knock.app/v1/users/bulk/delete \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 const bulkOperation = await knock.users.bulk.delete(userIds);
@@ -29,7 +29,7 @@ client.users.bulk.delete(user_ids=user_ids)
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.users.bulk.delete(user_ids)
 `,
@@ -66,7 +66,7 @@ import app.knock.api.services.blocking.BulkOperationService;
 import java.util.List;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 var result = client.users().bulk().delete(List.of("user-1", "user-2"));

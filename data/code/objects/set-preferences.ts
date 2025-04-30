@@ -22,7 +22,7 @@ curl -X PUT https://api.knock.app/v1/objects/projects/project-1/preferences/defa
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.objects.setPreferences("projects", "project-1", {
@@ -68,7 +68,7 @@ client.objects.set_preferences(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.objects.set_preferences("projects", "project-1", "default", {
   channel_types: {
@@ -157,7 +157,7 @@ import (
 )
 
 ctx := context.Background()
-client := knock.NewClient(option.WithBearerToken("sk_12345"))
+client := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 preferenceSet, _ := client.Objects.SetPreferences(ctx, &knock.SetObjectPreferencesRequest{
 	Collection: "projects",
@@ -186,7 +186,7 @@ import app.knock.api.models.recipients.preferences.PreferenceSet;
 import app.knock.api.core.JsonValue;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 ObjectSetPreferencesParams params = ObjectSetPreferencesParams.builder()

@@ -6,7 +6,7 @@ curl -X DELETE https://api.knock.app/v1/users/1 \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.users.delete(user.id);
@@ -25,7 +25,7 @@ client.users.delete(user.id)
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.users.delete(user.id)
 `,
@@ -33,7 +33,7 @@ client.users.delete(user.id)
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
-await knockClient.Users.Delete(user.Id);  
+await knockClient.Users.Delete(user.Id);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
@@ -54,7 +54,7 @@ import app.knock.api.client.okhttp.KnockOkHttpClient;
 import app.knock.api.models.users.UserDeleteParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 client.users().delete(UserDeleteParams.builder()

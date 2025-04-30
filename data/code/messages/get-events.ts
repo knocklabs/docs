@@ -6,7 +6,7 @@ curl -X GET https://api.knock.app/v1/messages/3mY9N4p7DcmL9j1K44qmrdO6t7W/events
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.messages.listEvents(message.id);
@@ -42,7 +42,7 @@ client.messages.list_events(message.id, page_size=10)
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.messages.list_events(message.id)
 
@@ -83,7 +83,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // List events with pagination
 events, _ := knockClient.Messages.ListEvents(ctx, message.ID, knock.MessageListEventsParams{
@@ -107,7 +107,7 @@ import app.knock.api.client.okhttp.KnockOkHttpClient;
 import app.knock.api.models.messages.MessageListEventsParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 // Basic request

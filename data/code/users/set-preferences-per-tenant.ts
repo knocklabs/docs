@@ -1,7 +1,7 @@
 const languages = {
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knockClient.users.setPreferences("jhammond", tenant.id, {
   channel_types: { email: true, sms: false },
@@ -38,7 +38,7 @@ client.users.set_preferences(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.users.set_preferences(user.id, tenant.id, {
   channel_types: {
@@ -118,7 +118,7 @@ import (
 	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 preferenceSetRequest := &knock.PreferenceSetRequestParam{
   ChannelTypes: map[string]interface{}{
@@ -148,7 +148,7 @@ import app.knock.api.models.users.UserSetPreferencesParams;
 import app.knock.api.core.JsonValue;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 UserSetPreferencesParams params = UserSetPreferencesParams.builder()

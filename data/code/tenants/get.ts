@@ -6,7 +6,7 @@ curl -X GET https://api.knock.app/v1/tenants/tenant-1 \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.tenants.get("tenant-1");
@@ -26,7 +26,7 @@ client.tenants.get(id="tenant-1")
   ruby: `
 require "knockapi"
 
-knock = Knockapi::Client.new(bearer_token: "sk_12345")
+knock = Knockapi::Client.new(api_key: "sk_12345")
 
 knock.tenants.get("tenant-1")
 `,
@@ -38,7 +38,7 @@ await knockClient.Tenants.Get("tenant-1");
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->tenants()->get('tenant-1');
@@ -52,7 +52,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 tenant, _ := knockClient.Tenants.Get(ctx, "tenant-1")
 `,
@@ -63,7 +63,7 @@ import app.knock.api.models.tenants.Tenant;
 import app.knock.api.models.tenants.TenantGetParams;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 Tenant tenant = client.tenants().get(TenantGetParams.builder()

@@ -6,7 +6,7 @@ curl -X GET https://api.knock.app/v1/objects/projects/project-1/preferences/defa
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 // If no preference set id is provided, the SDK will return the object's "default" preferences
@@ -29,7 +29,7 @@ client.objects.get_preferences(collection="projects", object_id="project-1", id=
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # If no preference set id is provided, the SDK will return the object's "default" preferences
 Knock::Objects.get_preferences(collection: "projects", id: "project-1", preference_set: "tenant-1")
@@ -58,7 +58,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // If no preference set id is provided, the SDK will return the object's "default" preferences
 preferenceSet, _ := knockClient.Objects.GetPreferences(ctx, "projects", "project-1", "tenant-1")
@@ -70,7 +70,7 @@ import app.knock.api.models.objects.ObjectGetPreferencesParams;
 import app.knock.api.models.recipients.preferences.PreferenceSet;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 // The preference set id must be "default" or the id of a tenant you have created

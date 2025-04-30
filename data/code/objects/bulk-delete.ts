@@ -10,7 +10,7 @@ curl -X POST https://api.knock.app/v1/objects/projects/bulk/delete \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 const objectIds = ["project-1", "project-2"];
@@ -32,7 +32,7 @@ client.objects.bulk.delete(collection="projects", object_ids=["project-1", "proj
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 Knock::Objects.bulk_delete(
   collection: "projects",
@@ -70,7 +70,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 objectIDs := []string{"project-1", "project-2"}
 

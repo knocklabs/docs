@@ -20,7 +20,7 @@ curl -X POST https://api.knock.app/v1/users/bulk/identify \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.users.bulk.identify([
@@ -71,7 +71,7 @@ client.users.bulk.update([
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.users.bulk.update([
   {

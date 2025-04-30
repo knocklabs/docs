@@ -1,7 +1,7 @@
 const languages = {
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 const CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
@@ -24,7 +24,7 @@ client.users.set_channel_data(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 client.users.set_channel_data(user.id, "8209f26c-62a5-461d-95e2-a5716a26e652", {
   tokens: [user_device_token]
@@ -67,7 +67,7 @@ import (
 	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 channelData, _ := knockClient.Users.SetChannelData(ctx, user.ID, "5a88728a-3ecb-400d-ba6f-9c0956ab252f", knock.UserSetChannelDataParams{
   ChannelDataRequest: knock.ChannelDataRequestParam{
@@ -86,7 +86,7 @@ import app.knock.api.core.JsonValue;
 import java.util.List;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 UserSetChannelDataParams params = UserSetChannelDataParams.builder()

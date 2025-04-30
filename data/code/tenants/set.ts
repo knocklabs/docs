@@ -18,7 +18,7 @@ curl -X PUT https://api.knock.app/v1/tenants/tenant-1 \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.tenants.set("tenant-1", {
@@ -67,7 +67,7 @@ client.tenants.set(
   ruby: `
 require "knockapi"
 
-knock = Knockapi::Client.new(bearer_token: "sk_12345")
+knock = Knockapi::Client.new(api_key: "sk_12345")
 
 knock.tenants.set("tenant-1",
   name: "Tenant 1",
@@ -127,7 +127,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 tenant, _ := knockClient.Tenants.Set(ctx, "tenant-1", knock.TenantSetParams{
 	Name: param.New("Tenant 1"),
@@ -149,7 +149,7 @@ import app.knock.api.models.tenants.TenantSetParams;
 import java.util.Map;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 TenantSetParams params = TenantSetParams.builder()

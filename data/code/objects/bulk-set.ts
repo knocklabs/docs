@@ -23,7 +23,7 @@ curl -X POST "https://api.knock.app/v1/objects/projects/bulk/set" \\
   node: `
 import Knock from "@knocklabs/node";
 const knock = new Knock({
-  bearerToken: process.env.KNOCK_API_KEY
+  apiKey: process.env.KNOCK_API_KEY
 });
 
 await knock.objects.bulk.set("projects", [
@@ -84,7 +84,7 @@ client.objects.bulk.set(
   ruby: `
 require "knockapi"
 
-client = Knockapi::Client.new(bearer_token: "sk_12345")
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 Knock::Objects.bulk_set(
   collection: "projects",
@@ -158,7 +158,7 @@ import (
 )
 
 ctx := context.Background()
-knockClient := knock.NewClient(option.WithBearerToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 objects := []knock.InlineObjectRequestParam{
   {
@@ -194,7 +194,7 @@ import app.knock.api.core.JsonValue;
 import java.util.Arrays;
 
 KnockClient client = KnockOkHttpClient.builder()
-    .bearerToken("sk_12345")
+    .apiKey("sk_12345")
     .build();
 
 ObjectBulkSetParams params = ObjectBulkSetParams.builder()
