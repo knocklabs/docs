@@ -48,7 +48,6 @@ const mainContent: SidebarSection[] = [
         title: "Customizing feed components",
       },
     ],
-    sidebarMenuDefaultOpen: false,
   },
   {
     title: "Guides",
@@ -65,7 +64,6 @@ const mainContent: SidebarSection[] = [
         title: "Rendering guides",
       },
     ],
-    sidebarMenuDefaultOpen: false,
   },
 ];
 
