@@ -9,6 +9,7 @@ export const Section = ({
   isIdempotent = false,
   isRetentionSubject = false,
   path = undefined,
+  wrapperClassName = "",
 }: {
   title?: string;
   children: React.ReactNode;
@@ -16,6 +17,7 @@ export const Section = ({
   isIdempotent?: boolean;
   isRetentionSubject?: boolean;
   path?: string;
+    wrapperClassName?: string;
 }) => (
   <Box
     as="section"
@@ -59,6 +61,7 @@ export const Section = ({
         gridTemplateColumns: "1fr 1fr",
         justifyItems: "flex-start",
       }}
+      className={wrapperClassName}
     >
       {children}
     </Stack>

@@ -98,19 +98,22 @@ export const ScrollerBottomGradient = ({
         // Pull it off the bottom of the scroller
         scroller.style.paddingBottom = "var(--tgph-spacing-4)";
       }
+      return; // Add return here to avoid further logic
     }
 
     const scrollableHeight = scroller.scrollHeight - scroller.clientHeight;
     const scrolledAmount = scroller.scrollTop;
-    // Make the transition more aggressive by using a power function
-    // This will cause the opacity to change more rapidly near the bottom
-    const scrollPercentage = Math.min(
-      Math.pow(scrolledAmount / scrollableHeight, 4),
-      1,
-    );
+    const scrollPercentage = scrolledAmount / scrollableHeight;
 
-    // Invert the percentage so opacity goes from 1 to 0 as we scroll down
-    gradient.style.opacity = String(1 - scrollPercentage);
+    // Only start fading in the bottom 10%
+    const fadeStart = 0.9; // 90%
+    if (scrollPercentage < fadeStart) {
+      gradient.style.opacity = "1";
+    } else {
+      // Fade out from 1 to 0 as we scroll from 90% to 100%
+      const fadeProgress = (scrollPercentage - fadeStart) / (1 - fadeStart);
+      gradient.style.opacity = String(1 - Math.min(fadeProgress, 1));
+    }
   }, [scroller, gradient, managePadding]);
 
   // Watch for scroller height changes
@@ -123,6 +126,8 @@ export const ScrollerBottomGradient = ({
     scroller.addEventListener("scroll", setGradientOpacity);
     setGradientOpacity(); // Initial check
     scroller.addEventListener("transitionend", setGradientOpacity);
+
+    gradient.style.transition = "opacity 0.25s ease-in-out";
 
     return () => {
       scroller.removeEventListener("scroll", setGradientOpacity);

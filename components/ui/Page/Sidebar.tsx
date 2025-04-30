@@ -86,6 +86,7 @@ const Item = ({
   useEffect(() => {
     // Have to do an initialization check like this so we can control it manually still
     if (pathNoHash !== initializedOnPath) {
+      console.log("pathNoHash", pathNoHash);
       setInitializedOnPath(pathNoHash);
       if (!isOpen) {
         const isDeterminedOpen = getOpenState(section, slug, pathNoHash);
@@ -115,10 +116,10 @@ const Item = ({
       return new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            console.log("entry", entry);
             const resourcePath =
               entry.target.getAttribute("data-resource-path")!;
             if (entry.isIntersecting) {
+              console.log("highlighting", `/${basePath}${resourcePath}`);
               debouncedHighlight(`/${basePath}${resourcePath}`);
             }
           });
@@ -176,7 +177,8 @@ const Item = ({
           },
         }
       : {
-          px: "1",
+        // py: "4",
+        pl: "1",
           color: "gray",
         };
 
@@ -205,7 +207,6 @@ const Item = ({
         return (
           <Box
             // Tuck in the nested menus a little more
-            ml={depth > 0 ? "2" : "0"}
             key={index + page.slug}
           >
             <NavItem href={href} isActive={isActive}>
@@ -263,7 +264,6 @@ const Wrapper = ({ children }: SidebarProps) => {
         />
         <Stack
           direction="column"
-          gap="1"
           h="full"
           pt="2"
           px="4"
