@@ -1,0 +1,35 @@
+---
+title: Working with environments in the Knock Agent Toolkit
+description: Learn how the Knock Agent Toolkit operates across multiple environments in your Knock account.
+section: Developer tools
+---
+
+The Knock Agent Toolkit allows you to work across multiple Knock environments.
+
+By default, the toolkit will operate in the `development` environment for all mutation operations. There are times however where you may want your agent to be able to operate across multiple environments, like when the agent has access to creating workflows (which can only be done in the `development` environment), and also executing those workflows in a different environment.
+
+## Setting the environment on initialization
+
+If you want to constrain your agent to operate in a specific Knock environment, you can set the environment on initialization. By default this will be the `development` environment.
+
+```typescript
+const toolkit = await createToolkit({
+  environment: "production",
+});
+```
+
+## Setting the environment in a prompt
+
+If you want to allow the Agent to operate across multiple environments, you can also set the environment in a prompt:
+
+```plaintext
+You are operating in the Knock production environment.
+
+Trigger the welcome workflow for the current user.
+```
+
+This will ensure that the `environment` parameter is passed to the trigger workflow tool call, forcing the workflow to be triggered in the `production` environment.
+
+## Workflows-as-tools and environments
+
+If you're using workflows-as-tools, it's recommended that you set the environment on initialization of the toolkit such that the Agent can only find and trigger workflows in a specific environment.

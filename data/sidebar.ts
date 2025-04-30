@@ -33,8 +33,8 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/translations", title: "Translations" },
       { slug: "/conditions", title: "Conditions" },
       { slug: "/variables", title: "Variables" },
-      { slug: "/audiences", title: "Audiences", isBeta: true },
-      { slug: "/broadcasts", title: "Broadcasts", isBeta: true },
+      { slug: "/audiences", title: "Audiences" },
+      { slug: "/broadcasts", title: "Broadcasts" },
     ],
   },
   {
@@ -74,7 +74,7 @@ const sidebarContent: SidebarSection[] = [
             title: "Referencing data",
           },
           {
-            slug: "/api-reference-liquid-helpers",
+            slug: "/reference-liquid-helpers",
             title: "Liquid helpers",
           },
         ],
@@ -106,7 +106,7 @@ const sidebarContent: SidebarSection[] = [
           { slug: "/api", title: "With the API" },
           { slug: "/schedules", title: "On a schedule" },
           { slug: "/events", title: "From an event" },
-          { slug: "/audiences", title: "For an audience", isBeta: true },
+          { slug: "/audiences", title: "For an audience" },
         ],
       },
       { slug: "/canceling-workflows", title: "Canceling workflows" },
@@ -126,6 +126,10 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/tenant-preferences", title: "Tenant preferences" },
       { slug: "/object-preferences", title: "Object preferences" },
       { slug: "/preference-conditions", title: "Preferences conditions" },
+      {
+        slug: "/commercial-unsubscribe",
+        title: "Commercial unsubscribe",
+      },
     ],
   },
   {
@@ -182,6 +186,44 @@ const developerToolsContent: SidebarSection[] = [
           { slug: "/ruby", title: "Ruby 1.0" },
           { slug: "/go", title: "Go 1.0" },
         ],
+      },
+      {
+        slug: "/agent-toolkit",
+        title: "Agent Toolkit",
+        isBeta: true,
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/getting-started", title: "Getting started" },
+          {
+            slug: "/workflows-as-tools",
+            title: "Workflows-as-tools",
+          },
+          {
+            slug: "/human-in-the-loop-flows",
+            title: "Human-in-the-loop flows",
+          },
+          {
+            slug: "/providing-context",
+            title: "Providing context",
+          },
+          {
+            slug: "/working-with-environments",
+            title: "Working with environments",
+          },
+          {
+            slug: "/tools-reference",
+            title: "Tools reference",
+          },
+        ],
+      },
+      {
+        slug: "/mcp-server",
+        title: "MCP server",
+        isBeta: true,
+      },
+      {
+        slug: "/building-with-llms",
+        title: "Building with LLMs",
       },
     ],
   },

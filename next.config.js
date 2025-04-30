@@ -411,6 +411,7 @@ const nextConfig = {
         permanent: true,
       },
       {
+<<<<<<< HEAD
         source: "/developer-tools",
         destination: "/developer-tools/overview",
         permanent: true,
@@ -439,6 +440,11 @@ const nextConfig = {
         source: "/sdks",
         destination: "/sdks/overview",
         permanent: true,
+      },
+      {
+        source: "/agent-toolkit",
+        destination: "/developer-tools/agent-toolkit/overview",
+        permanent: false,
       },
     ];
   },
