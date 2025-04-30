@@ -10,7 +10,10 @@ import { SchemaProperties } from "../SchemaProperties";
 import OperationParameters from "../OperationParameters/OperationParameters";
 import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import MultiLangExample from "../MultiLangExample";
-import { augmentSnippetsWithCurlRequest, resolveResponseSchemas } from "../helpers";
+import {
+  augmentSnippetsWithCurlRequest,
+  resolveResponseSchemas,
+} from "../helpers";
 import { Heading } from "@telegraph/typography";
 import { AnimatePresence, motion } from "framer-motion";
 import RateLimit from "@/components/ui/RateLimit";
@@ -43,9 +46,8 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
     (p) => p.in === "query",
   ) as OpenAPIV3.ParameterObject[];
 
-  const responseSchemas: OpenAPIV3.SchemaObject[] = resolveResponseSchemas(
-    method,
-  );
+  const responseSchemas: OpenAPIV3.SchemaObject[] =
+    resolveResponseSchemas(method);
 
   const requestBody: OpenAPIV3.SchemaObject | undefined =
     method.requestBody?.content?.["application/json"]?.schema;

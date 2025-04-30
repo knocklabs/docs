@@ -16,13 +16,13 @@ function resolveEndpointFromMethod(
   return [methodType, endpoint];
 }
 
-function resolveResponseSchemas(
-  method: OpenAPIV3.OperationObject,
-) {
+function resolveResponseSchemas(method: OpenAPIV3.OperationObject) {
   const responseSchemas: OpenAPIV3.SchemaObject[] = Object.values(
     method.responses || {},
-  ).map((r) => r.content?.["application/json"]?.schema).map(responseSchema => {
-    if (responseSchema?.allOf) {
+  )
+    .map((r) => r.content?.["application/json"]?.schema)
+    .map((responseSchema) => {
+      if (responseSchema?.allOf) {
         return responseSchema.allOf[0];
       }
       return responseSchema;
