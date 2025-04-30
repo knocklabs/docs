@@ -3,6 +3,7 @@ export type SidebarPage = {
   title: string;
   path?: string;
   isBeta?: boolean;
+  pages?: SidebarPage[];
 };
 
 export type SidebarSubsection = {

@@ -47,7 +47,7 @@ export const getSidebarInfo = (
     });
 
     // Update temporary variables for the next segment search
-    sidebarContent = section && "pages" in section ? section?.pages : [];
+    sidebarContent = section && "pages" in section ? section.pages || [] : [];
     path += `/${slug}`;
   }
 
