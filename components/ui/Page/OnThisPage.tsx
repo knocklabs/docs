@@ -77,6 +77,22 @@ const HeaderList: React.FC<{ headers: Header[]; nesting: number }> = ({
           <Text
             as={Link}
             href={`#${h.id}`}
+            onClick={(e) => {
+              // Default browser behavior was buggy as hell, so we're handling it manually
+              e.preventDefault();
+              const el = document.getElementById(h.id);
+              if (el) {
+                const topOfElement =
+                  el.getBoundingClientRect().top + window.scrollY;
+                // Subtract 100 to give it 100px padding from the top, plus some comfort room
+                const val = topOfElement - 110;
+                window.scrollTo({
+                  top: val,
+                  behavior: "smooth",
+                });
+                history.replaceState(null, "", `#${h.id}`);
+              }
+            }}
             size="2"
             color="gray"
             style={{

@@ -28,10 +28,18 @@ const SectionContent = ({
   );
 };
 
-const SectionHeader = ({ title, href }: { title: string; href?: string }) => {
+const SectionHeader = ({
+  title,
+  href,
+  id,
+}: {
+  title: string;
+  href?: string;
+  id?: string;
+}) => {
   return (
     <Stack justifyContent="space-between" alignItems="center" mb="8">
-      <Heading as="h2" size="4" weight="medium">
+      <Heading as="h2" size="4" weight="medium" id={id}>
         {title}
       </Heading>
       {href && (

@@ -1,11 +1,10 @@
-import { createContext, useContext } from "react";
 import { Box, Stack } from "@telegraph/layout";
 import { Text, Heading } from "@telegraph/typography";
 
 import { PageHeader } from "./PageHeader";
 
 import { OnThisPage } from "./Page/OnThisPage";
-import { Sidebar } from "./Page/Sidebar";
+import { Sidebar, SidebarContext } from "./Page/Sidebar";
 import { Breadcrumbs } from "./Breadcrumbs";
 
 import "../../styles/global.css";
@@ -65,18 +64,6 @@ const ContentHeader = ({ title, description, children }) => (
     )}
   </Box>
 );
-
-interface SidebarContextType {
-  samePageRouting: boolean;
-}
-
-const SidebarContext = createContext<SidebarContextType>({
-  samePageRouting: false,
-});
-
-export const useSidebar = () => {
-  return useContext(SidebarContext);
-};
 
 const DefaultSidebar = ({ content, samePageRouting = false }) => (
   <SidebarContext.Provider value={{ samePageRouting }}>

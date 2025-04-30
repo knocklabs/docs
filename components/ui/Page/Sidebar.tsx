@@ -8,7 +8,15 @@ import {
   CollapsibleNavItem,
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
-import { useLayoutEffect, useState, useMemo, useEffect, useRef } from "react";
+import {
+  useLayoutEffect,
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  createContext,
+  useContext,
+} from "react";
 import {
   isPathTheSame,
   highlightResource,
@@ -17,6 +25,18 @@ import {
 } from "./helpers";
 import { Tag } from "@telegraph/tag";
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
+
+interface SidebarContextType {
+  samePageRouting: boolean;
+}
+
+export const SidebarContext = createContext<SidebarContextType>({
+  samePageRouting: false,
+});
+
+export const useSidebar = () => {
+  return useContext(SidebarContext);
+};
 
 type SidebarProps = {
   content: SidebarSection[];
@@ -56,6 +76,7 @@ const Item = ({
   const resourceSection = stripPrefix(slug);
   const pathNoHash = router.asPath.split("#")[0];
   const [initializedOnPath, setInitializedOnPath] = useState(pathNoHash);
+  const { samePageRouting } = useSidebar();
 
   const [isOpen, setIsOpen] = useState(
     defaultOpen ?? getOpenState(section, slug, pathNoHash),
@@ -85,12 +106,16 @@ const Item = ({
   );
 
   useLayoutEffect(() => {
+    // Don't need all the logic if its not a same page routing
+    if (!samePageRouting) return;
+
     let observer: IntersectionObserver | null = null;
 
     function getObserver() {
       return new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
+            console.log("entry", entry);
             const resourcePath =
               entry.target.getAttribute("data-resource-path")!;
             if (entry.isIntersecting) {
@@ -105,8 +130,7 @@ const Item = ({
       );
     }
 
-    // Begin observing after a short delay to allow the page to arrive at its initial state
-    const readyTimeout = setTimeout(() => {
+    const addListeners = () => {
       observer = getObserver();
 
       // Wait for initial scroll before observing
@@ -131,7 +155,10 @@ const Item = ({
         window.removeEventListener("scroll", scrollBuffer);
       };
       window.addEventListener("scroll", scrollBuffer);
-    }, 2500);
+    };
+
+    // Begin observing after a short delay to allow the page to arrive at its initial state
+    const readyTimeout = setTimeout(addListeners, 2500);
 
     // Cleanup observer on unmount
     return () => {

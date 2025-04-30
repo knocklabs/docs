@@ -7,7 +7,7 @@ import {
   updateNavStyles,
 } from "./Page/helpers";
 import { Stack } from "@telegraph/layout";
-import { useSidebar } from "./Page";
+import { useSidebar } from "./Page/Sidebar";
 
 type NavItemProps = {
   href: string;
