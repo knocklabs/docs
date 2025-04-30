@@ -27,7 +27,7 @@ function selectedTab(pathname: string) {
   if (pathname.startsWith("/cli")) {
     return "cli-reference";
   }
-  if (pathname.startsWith("/guides")) {
+  if (pathname.startsWith("/tutorials")) {
     return "tutorials";
   }
   if (pathname.startsWith("/integrations")) {
@@ -136,7 +136,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
             <Tabs.Tab value="developer-tools" as={Link} href="/developer-tools">
               Developer tools
             </Tabs.Tab>
-            <Tabs.Tab value="tutorials" as={Link} href="/guides">
+            <Tabs.Tab value="tutorials" as={Link} href="/tutorials">
               Tutorials
             </Tabs.Tab>
           </Tabs.List>
