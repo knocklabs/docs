@@ -21,7 +21,7 @@ from knockapi import Knock
 
 client = Knock(api_key="sk_12345")
 
-client.messages.get_content(message_id)
+client.messages.get_content(message.id)
 `,
   ruby: `
 require "knockapi"

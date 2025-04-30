@@ -34,10 +34,10 @@ from knockapi import Knock
 
 client = Knock(api_key="sk_12345")
 
-client.messages.list_events(message_id)
+client.messages.list_events(message.id)
 
 # supports pagination parameters
-client.messages.list_events(message_id, page_size=10)
+client.messages.list_events(message.id, page_size=10)
   `,
   ruby: `
 require "knockapi"

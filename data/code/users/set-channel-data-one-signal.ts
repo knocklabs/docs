@@ -1,7 +1,7 @@
 const languages = {
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 const CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
@@ -14,7 +14,7 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.users.set_channel_data(
-  user_id=user.id, 
+  user_id=user.id,
   channel_id="8209f26c-62a5-461d-95e2-a5716a26e652",
   data={
     "player_ids": [oneSignalPlayerId]
@@ -33,14 +33,14 @@ client.users.set_channel_data(user.id, "8209f26c-62a5-461d-95e2-a5716a26e652", {
   csharp: `
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
-  
+
 var channelData = new Dictionary<string, object>{
   { "player_ids", new List<string> { oneSignalPlayerId } }
 };
 
 var channelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-await knockClient.Users.SetChannelData(user.Id, channelId, channelData);  
+await knockClient.Users.SetChannelData(user.Id, channelId, channelData);
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
@@ -51,9 +51,9 @@ Knock.Users.set_channel_data(knock_client, user.id, "8209f26c-62a5-461d-95e2-a57
   `,
   php: `
 use Knock\\KnockSdk\\Client;
-  
+
 $client = new Client('sk_12345');
-  
+
 $client->users()->setChannelData($user->id(), '5a88728a-3ecb-400d-ba6f-9c0956ab252f', [
   'player_ids' => [$oneSignalPlayerId]
 ]);

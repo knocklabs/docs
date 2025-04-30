@@ -5,7 +5,7 @@ curl -X GET https://api.knock.app/v1/users/1/preferences \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 const allPreferences = await knockClient.users.listPreferences(user.id);
 `,

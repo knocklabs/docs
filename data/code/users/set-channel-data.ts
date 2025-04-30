@@ -14,7 +14,7 @@ curl -X PUT https://api.knock.app/v1/users/1/channel_data/8209f26c-62a5-461d-95e
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 // Find this value in your Knock dashboard under Integrations > Channels
 const APNS_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
@@ -31,7 +31,7 @@ client = Knock(api_key="sk_12345")
 apns_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
 client.users.set_channel_data(
-  user_id=user.id, 
+  user_id=user.id,
   channel_id=apns_channel_id,
   data={
     "tokens": [user_device_token]
@@ -61,7 +61,7 @@ var channelData = new Dictionary<string, object>{
 // Find this value in your Knock dashboard under Integrations > Channels
 var apnsChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-await knockClient.Users.SetChannelData(user.Id, apnsChannelId, channelData)  
+await knockClient.Users.SetChannelData(user.Id, apnsChannelId, channelData)
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
@@ -75,12 +75,12 @@ Knock.Users.set_channel_data(knock_client, user.id, apns_channel_id, %{
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-  
+
 $client = new Client('sk_12345');
 
 // Find this value in your Knock dashboard under Integrations > Channels
 $apns_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652";
-  
+
 $client->users()->setChannelData($user->id(), $apns_channel_id, [
   'tokens' => [$userDeviceToken]
 ]);

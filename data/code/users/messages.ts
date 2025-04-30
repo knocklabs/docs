@@ -11,7 +11,7 @@ curl -X GET https://api.knock.app/v1/users/1/messages \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 await knockClient.users.listMessages(user.id);
 
@@ -33,7 +33,7 @@ Knock.Users.get_messages(knock_client, user.id)
 Knock.Users.get_messages(
   knock_client,
   user.id,
-  page_size: 20, 
+  page_size: 20,
   tenant: "my_tenant"
 )
 `,
@@ -47,7 +47,7 @@ client.users.list_messages(
 
 # supports pagination parameters and filters
 client.users.list_messages(
-  user_id=user.id, 
+  user_id=user.id,
   page_size=20,
   tenant="my_tenant"
 )

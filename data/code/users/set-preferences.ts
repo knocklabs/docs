@@ -21,11 +21,11 @@ curl -X PUT https://api.knock.app/v1/users/1/preferences/default \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 await knockClient.users.setPreferences(user.id, "default", {
-  channel_types: { 
-    email: true, 
+  channel_types: {
+    email: true,
     sms: false
   },
   workflows: {
@@ -46,9 +46,9 @@ client = Knock(api_key="sk_12345")
 client.users.set_preferences(
   user_id=user.id,
   id="default",
-  channel_types={ 
-    "email": True, 
-    "sms": False 
+  channel_types={
+    "email": True,
+    "sms": False
   },
   workflows={
     "dinosaurs-loose": {

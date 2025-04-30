@@ -16,7 +16,7 @@ curl -X POST https://api.knock.app/v1/users/bulk/preferences \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+const knockClient = new Knock({ bearerToken: process.env.KNOCK_API_KEY });
 
 const userIds = ["jhammond", "dnedry", "imalcolm", "esattler"];
 
@@ -83,9 +83,9 @@ var options = new BulkSetUserPreferencesOptions {
     }
   }
   UserIds = new List<string> {
-    "jhammond", 
-    "dnedry", 
-    "imalcolm", 
+    "jhammond",
+    "dnedry",
+    "imalcolm",
     "esattler"
   }
 }
