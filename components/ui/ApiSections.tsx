@@ -17,7 +17,7 @@ export const Section = ({
   isIdempotent?: boolean;
   isRetentionSubject?: boolean;
   path?: string;
-    wrapperClassName?: string;
+  wrapperClassName?: string;
 }) => (
   <Box
     as="section"

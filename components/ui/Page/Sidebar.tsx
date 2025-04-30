@@ -177,8 +177,8 @@ const Item = ({
           },
         }
       : {
-        // py: "4",
-        pl: "1",
+          // py: "4",
+          pl: "1",
           color: "gray",
         };
 
