@@ -3,6 +3,7 @@ import SectionHeading from "./SectionHeading";
 import { Box, Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { highlightResource } from "./Page/helpers";
+import Link from "next/link";
 
 export const Section = ({
   title,
@@ -58,13 +59,13 @@ export const Section = ({
                 color="black"
                 borderRadius="2"
               >
-                <a
+                <Link
                   href="/api-reference/overview/idempotent-requests"
                   onClick={onIdempotentClick}
                   style={{ color: "inherit", textDecoration: "none" }}
                 >
                   Idempotent
-                </a>
+                </Link>
               </Text>
             </Box>
           )}
@@ -79,13 +80,13 @@ export const Section = ({
                 color="black"
                 borderRadius="2"
               >
-                <a
+                <Link
                   href="/api-reference/overview/data-retention"
                   onClick={onRetentionClick}
                   style={{ color: "inherit", textDecoration: "none" }}
                 >
                   Retention policy applied
-                </a>
+                </Link>
               </Text>
             </Box>
           )}
