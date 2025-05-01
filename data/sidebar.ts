@@ -74,7 +74,7 @@ const sidebarContent: SidebarSection[] = [
             title: "Referencing data",
           },
           {
-            slug: "/api-reference-liquid-helpers",
+            slug: "/reference-liquid-helpers",
             title: "Liquid helpers",
           },
         ],

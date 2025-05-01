@@ -17,7 +17,7 @@ import {
 import { Heading } from "@telegraph/typography";
 import { AnimatePresence, motion } from "framer-motion";
 import RateLimit from "@/components/ui/RateLimit";
-import Callout from "@/components/ui/Callout";
+import { Callout } from "@/components/ui/Callout";
 import { Box } from "@telegraph/layout";
 
 type Props = {
@@ -65,9 +65,11 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
       path={path}
     >
       <ContentColumn>
+        <Markdown>{method.description ?? ""}</Markdown>
         {isBeta && (
           <Callout
             emoji="🚧"
+            bgColor="blue"
             text={
               <>
                 This endpoint is currently in beta. If you'd like early access,
@@ -80,7 +82,6 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
             }
           />
         )}
-        <Markdown>{method.description ?? ""}</Markdown>
 
         <Heading
           as="h3"

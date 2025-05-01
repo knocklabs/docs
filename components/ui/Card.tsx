@@ -32,7 +32,7 @@ const Card: React.FC<Props> = ({
   linkUrl,
   isExternal = false,
 }) => (
-  <Stack h="full" rounded="2" border="px" borderColor="gray-4" minH="20">
+  <Stack h="full" rounded="2" border="px" borderColor="gray-4">
     <MenuItem
       h="full"
       w="full"
@@ -42,6 +42,7 @@ const Card: React.FC<Props> = ({
       title={title}
       style={{ textDecoration: "none" }}
       p="3"
+      minH="20"
     >
       <Box w="full">
         {emoji && <Box mb="1">{emoji}</Box>}

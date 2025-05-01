@@ -1,58 +1,105 @@
 import { Box, Stack } from "@telegraph/layout";
 import React from "react";
 import { Text } from "@telegraph/typography";
-const Callout = ({
+import { TgphComponentProps } from "@telegraph/helpers";
+
+export const Callout = ({
   emoji,
-  children,
   text,
+  title,
+  bgColor = "default",
+  isCentered = false,
+  maxWidth = "100%",
+  style,
 }: {
   emoji: string;
-  children?: React.ReactNode;
-  text?: React.ReactNode;
-}): JSX.Element => (
-  <Stack
-    w="full"
-    bg="gray-1"
-    borderRadius="4"
-    p="4"
-    pr="3"
-    mb="6"
-    border="px"
-    borderColor="gray-3"
-    data-callout
-  >
-    <Box>
-      <Stack
-        alignItems="center"
-        justifyContent="center"
-        h="6"
-        w="6"
-        borderRadius="4"
-        style={{ flexShrink: 0 }}
-      >
-        <Box style={{ paddingTop: "2px" }}>
-          <Box w="full" h="full">
-            {emoji}
-          </Box>
-        </Box>
-      </Stack>
-    </Box>
-    <Stack flexDirection="column" minW="0" ml="2" w="full">
-      {text && (
-        <Text
-          as="span"
-          color="gray"
-          size="2"
-          mb="0"
-          leading="3"
-          style={{ marginBottom: "0px" }}
-        >
-          {text}
-        </Text>
-      )}
-      {children}
-    </Stack>
-  </Stack>
-);
+  title?: string;
+  text?: React.ReactNode | React.ReactNode[];
+  // Blue should be used for beta warnings
+  bgColor?: "default" | "blue" | "yellow" | "accent" | "red";
+  isCentered?: boolean;
+  maxWidth?: string;
+  style?: React.CSSProperties;
+}): JSX.Element => {
+  const centeredProps: TgphComponentProps<typeof Stack> = isCentered
+    ? { mx: "auto", style: { maxWidth: "90%" } }
+    : { style: { maxWidth } };
 
-export default Callout;
+  const bgColorMap: Record<
+    typeof bgColor,
+    TgphComponentProps<typeof Stack>["backgroundColor"]
+  > = {
+    default: "gray-1",
+    blue: "blue-2",
+    yellow: "yellow-2",
+    accent: "accent-2",
+    red: "red-2",
+  };
+
+  const textColorMap: Record<
+    typeof bgColor,
+    TgphComponentProps<typeof Text>["color"]
+  > = {
+    default: "black",
+    blue: "black",
+    yellow: "black",
+    accent: "black",
+    red: "black",
+  };
+
+  return (
+    <Stack
+      as="aside"
+      w="full"
+      backgroundColor={bgColorMap[bgColor]}
+      borderRadius="4"
+      p="4"
+      pr="4"
+      my="8"
+      border="px"
+      borderColor="gray-3"
+      data-callout
+      {...centeredProps}
+      style={style}
+    >
+      <Box>
+        <Stack
+          alignItems="center"
+          justifyContent="center"
+          h="8"
+          w="8"
+          borderRadius="4"
+          style={{ flexShrink: 0 }}
+          className="md-hidden"
+        >
+          <Box>
+            <Box w="full" h="full">
+              {emoji}
+            </Box>
+          </Box>
+        </Stack>
+      </Box>
+      <Text
+        as="span"
+        color={textColorMap[bgColor]}
+        size="2"
+        mb="0"
+        leading="3"
+        pl="2"
+        style={{ marginBottom: "0px" }}
+      >
+        {title && (
+          <Text
+            as="span"
+            size="2"
+            weight="semi-bold"
+            style={{ color: "var(--color)" }}
+          >
+            {title}{" "}
+          </Text>
+        )}
+        {text && text}
+      </Text>
+    </Stack>
+  );
+};
