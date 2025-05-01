@@ -413,6 +413,7 @@ const Autocomplete = () => {
                             style={{
                               cursor: "pointer",
                               transition: "all 0.15s ease-in-out",
+                              gridTemplateColumns: "1fr"
                             }}
                             {...(autocomplete.getItemProps({
                               item,
@@ -429,6 +430,7 @@ const Autocomplete = () => {
                               px="2"
                               justifyContent="space-between"
                               alignItems="center"
+                              w="full"
                             >
                               <Box>
                                 <Text
@@ -470,6 +472,7 @@ const Autocomplete = () => {
                           style={{
                             cursor: "pointer",
                             transition: "all 0.15s ease-in-out",
+                            gridTemplateColumns: "1fr"
                           }}
                           {...(autocomplete.getItemProps({
                             item,
