@@ -2,7 +2,7 @@ import { SidebarSection } from "./types";
 
 const sidebarContent: SidebarSection[] = [
   {
-    title: "API Reference",
+    title: "API reference",
     slug: "/api-reference",
     pages: [
       { slug: "#overview", title: "Overview" },
