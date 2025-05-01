@@ -9,7 +9,7 @@ const languages = {
     gem install knockapi
   `,
   go: `
-    go get github.com/knocklabs/knock-go/knock
+    go get github.com/knocklabs/knock-go
   `,
   php: `
     composer require knocklabs/knock-php php-http/guzzle7-adapter

@@ -15,13 +15,15 @@ curl -X PUT https://api.knock.app/v1/objects/projects/project-1/channel_data/7f1
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
 // Find this value in your Knock dashboard under Integrations > Channels
 const KNOCK_DISCORD_CHANNEL_ID = "7f1b3d5a-9c8e-4f2d-b6a7-3e2c8d9f0e1b";
 
-await knockClient.objects.setChannelData(
+await knock.objects.setChannelData(
   "projects",
   project.id,
   KNOCK_DISCORD_CHANNEL_ID,
@@ -50,6 +52,7 @@ Knock.Objects.set_channel_data(knock_client, "projects", project.id, knock_disco
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
@@ -57,11 +60,11 @@ knock_discord_channel_id = "7f1b3d5a-9c8e-4f2d-b6a7-3e2c8d9f0e1b"
 
 client.objects.set_channel_data(
   collection="projects",
-  id=project.id,
-  channel_id=knock_discord_channel_id, 
-  channel_data={
+  object_id=project.id,
+  channel_id=knock_discord_channel_id,
+  data={
     "connections": [
-      { 
+      {
         "incoming_webhook": { "url": "url-from-discord" }
       }
     ]
@@ -69,8 +72,9 @@ client.objects.set_channel_data(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_discord_channel_id = "7f1b3d5a-9c8e-4f2d-b6a7-3e2c8d9f0e1b"
@@ -81,12 +85,12 @@ Knock::Objects.set_channel_data(
   channel_id: knock_discord_channel_id,
   channel_data: {
     connections: [
-      { 
+      {
         incoming_webhook: { url: "url-from-discord" }
       }
     ]
   }
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -106,15 +110,15 @@ var channelData = new Dictionary<string, object>{
 };
 
 await knockClient.Objects.SetChannelData(
-  "projects", 
-  project.Id, 
-  knockDiscordChannelId, 
+  "projects",
+  project.Id,
+  knockDiscordChannelId,
   channelData
 );
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 // Find this value in your Knock dashboard under Integrations > Channels
@@ -131,50 +135,64 @@ $client->objects()->setChannelData('projects', 'project-1', $knockDiscordChannel
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+client := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 knockDiscordChannelID := "7f1b3d5a-9c8e-4f2d-b6a7-3e2c8d9f0e1b"
 
-channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
-  Collection: "projects",
-  ObjectID:   "project-1",
-  ChannelID:  knockDiscordChannelID,
-  Data: map[string]interface{}{
-    "connections": []interface{}{
-      map[string]interface{}{
-        "incoming_webhook": map[string]interface{}{
-          "url": "url-from-discord"
-        }
-      }
-    },
-  },
+channelData, _ := client.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
+	Collection: "projects",
+	ObjectID:   "project-1",
+	ChannelID:  knockDiscordChannelID,
+	Data: knock.DiscordChannelDataParam{
+		Connections: param.New([]knock.DiscordChannelDataConnectionsUnionParam{
+			knock.DiscordChannelDataConnectionsDiscordIncomingWebhookConnectionParam{
+				IncomingWebhook: param.New(knock.DiscordChannelDataConnectionsDiscordIncomingWebhookConnectionIncomingWebhookParam{
+					URL: param.New("url-from-discord"),
+				}),
+			},
+		}),
+	},
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectSetChannelDataParams;
+import app.knock.api.models.recipients.channeldata.ChannelData;
+import app.knock.api.core.JsonValue;
+import java.util.Arrays;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
 // Find this value in your Knock dashboard under Integrations > Channels
 String knockDiscordChannelId = "7f1b3d5a-9c8e-4f2d-b6a7-3e2c8d9f0e1b";
 
-Map<String, Object> data = Map.of(
-  "connections", List.of(
-    Map.of("incoming_webhook", Map.of("url", "url-from-discord"))
-  )
-);
-
-ChannelData channelData = client.objects().setChannelData(
-  "projects",
-  "project-1",
-  knockDiscordChannelId,
-  data
-);
+ObjectSetChannelDataParams params = ObjectSetChannelDataParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .channelId(knockDiscordChannelId)
+    .data(ObjectSetChannelDataParams.Data.builder()
+        .putAdditionalProperty("connections", JsonValue.from(Arrays.asList(
+            ObjectSetChannelDataParams.Data.Connection.builder()
+                .incomingWebhook(ObjectSetChannelDataParams.Data.Connection.IncomingWebhook.builder()
+                    .url("url-from-discord")
+                    .build())
+                .build()
+        )))
+        .build())
+    .build();
+ChannelData channelData = client.objects().setChannelData(params);
 `,
 };
 

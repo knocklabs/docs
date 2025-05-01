@@ -9,7 +9,7 @@ import {
   type SdkSpecificContent,
 } from "../data/inAppSidebar";
 import Meta from "../components/Meta";
-import { getSidebarInfo, slugToPaths } from "../lib/content";
+import { getInAppSidebar, slugToPaths } from "../lib/content";
 import { Box } from "@telegraph/layout";
 import { Stack } from "@telegraph/layout";
 import { Select } from "@telegraph/select";
@@ -20,6 +20,7 @@ const languages = Object.keys(sdkSpecificContent);
 const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
   const paths = slugToPaths(router.query.slug);
+
   const [selectedSdk, setSelectedSdk] = useState<Language>(() => {
     const sdk = paths[1];
     if (sdk && sdkSpecificContent[sdk as Language]) {
@@ -27,7 +28,9 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
     }
     return Object.keys(sdkSpecificContent)[0] as Language;
   });
+
   const selectedSdkContent = sdkSpecificContent[selectedSdk];
+  const allSidebarContent = [...mainContent, ...selectedSdkContent.items];
 
   useEffect(() => {
     const content = document.querySelector(".main-content");
@@ -40,8 +43,8 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   }, [paths]);
 
   const { breadcrumbs } = useMemo(
-    () => getSidebarInfo(paths, sdkSpecificContent[selectedSdk].items),
-    [paths, sdkSpecificContent, selectedSdk],
+    () => getInAppSidebar(paths, allSidebarContent, selectedSdkContent),
+    [paths, allSidebarContent, selectedSdkContent],
   );
 
   // Update URL state when the SDK changes

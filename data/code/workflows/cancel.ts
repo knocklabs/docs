@@ -8,29 +8,31 @@ curl -X POST https://api.knock.app/v1/workflows/new-user-invited/cancel \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 const userInvite = await invites.approve(inviteToken);
 
-await knock.workflows.cancel("new-user-invited", userInvite.id);
+await knock.workflows.cancel("new-user-invited", {
+  cancellation_key: userInvite.id
+});
 `,
   python: `
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.workflows.cancel(
-  key="new-user-invited",
-  cancellation_key=user_invite.id,
+    key="new-user-invited",
+    cancellation_key=user_invite.id
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.cancel(
-  key: "new-user-invited",
-  cancellation_key: user_invite.id,
+knock = Knockapi::Client.new(api_key: "sk_12345")
+
+knock.workflows.cancel("new-user-invited",
+  cancellation_key: user_invite.id
 )
 `,
   csharp: `
@@ -44,7 +46,7 @@ var options = new CancelWorkflow {
 await knockClient.Workflows.Cancel("new-user-invited", options);
 `,
   elixir: `
-knock_client = MyApp.Knock.client()  
+knock_client = MyApp.Knock.client()
 
 Knock.Workflows.cancel("new-user-invited", user_invite.id)
 `,
@@ -58,28 +60,37 @@ $client->workflows()->cancel('new-user-invited', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-result, _ := knockClient.Workflows.Cancel(ctx, &knock.CancelWorkflowRequest{
-  Workflow:         "new-user-invited",
-  CancellationKey:  userInvite.ID,
-})
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+params := knock.WorkflowCancelParams{
+  CancellationKey: userInvite.ID,
+}
+
+result, _ := knockClient.Workflows.Cancel(ctx, "new-user-invited", params)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowCancelParams;
+import app.knock.api.models.workflows.WorkflowCancel;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
+WorkflowCancelParams params = WorkflowCancelParams.builder()
     .key("new-user-invited")
     .cancellationKey(userInvite.getId())
     .build();
 
-client.workflows().cancel(WorkflowCancelRequest.from(workflowTrigger));
+WorkflowCancel result = client.workflows().cancel(params);
 `,
 };
 

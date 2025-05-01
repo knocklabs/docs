@@ -5,13 +5,15 @@ curl -X GET https://api.knock.app/v1/objects/projects/project-1/channel_data/820
   -H "Authorization: Bearer sk_test_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
 // Find this value in your Knock dashboard under Integrations > Channels
 const APNS_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-const channelData = await knockClient.objects.getChannelData(
+const channelData = await knock.objects.getChannelData(
   "projects",
   project.id,
   APNS_CHANNEL_ID,
@@ -27,6 +29,7 @@ Knock.Objects.get_channel_data(knock_client, "projects", project.id, apns_channe
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
@@ -34,13 +37,14 @@ apns_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
 client.objects.get_channel_data(
   collection="projects",
-  id=project.id, 
+  object_id=project.id,
   channel_id=apns_channel_id
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 apns_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
@@ -49,7 +53,7 @@ Knock::Objects.get_channel_data(
   collection: "projects",
   id: project.id,
   channel_id: apns_channel_id
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -58,11 +62,11 @@ var knockClient = new KnockClient(
 // Find this value in your Knock dashboard under Integrations > Channels
 var apnsChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-await knockClient.Objects.GetChannelData("projects", project.Id, apnsChannelId); 
+await knockClient.Objects.GetChannelData("projects", project.Id, apnsChannelId);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 // Find this value in your Knock dashboard under Integrations > Channels
@@ -71,30 +75,40 @@ $apnsChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 $client->objects()->getChannelData('projects', 'project-1', $apnsChannelId);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 apnsChannelId := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-channelData, _ := knockClient.Objects.GetChannelData(ctx, &knock.GetObjectChannelDataRequest{
-  Collection: "projects",
-  ObjectID:   "project-1",
-  ChannelID:  apnsChannelId
-})
+channelData, _ := knockClient.Objects.GetChannelData(ctx, "projects", "project-1", apnsChannelId)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectGetChannelDataParams;
+import app.knock.api.models.recipients.channeldata.ChannelData;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
 // Find this value in your Knock dashboard under Integrations > Channels
 String apnsChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-ChannelData channelData = client.objects().getChannelData("projects", "project-1", apnsChannelId);
+ObjectGetChannelDataParams params = ObjectGetChannelDataParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .channelId(apnsChannelId)
+    .build();
+ChannelData channelData = client.objects().getChannelData(params);
 `,
 };
 

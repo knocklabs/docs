@@ -18,10 +18,12 @@ curl -X POST https://api.knock.app/v1/users/bulk/identify \\
 
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-await knock.users.bulkIdentify([
+await knock.users.bulk.identify([
   {
     id: "1",
     name: "John Hammond",
@@ -53,7 +55,7 @@ MyApp.Knock.client()
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.users.bulk_identify([
+client.users.bulk.update([
   {
     "id": "1",
     "name": "John Hammond",
@@ -67,10 +69,11 @@ client.users.bulk_identify([
 ])
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.bulk_identify([
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.users.bulk.update([
   {
     id: "1",
     name: "John Hammond",
@@ -124,21 +127,19 @@ $client->users()->bulkIdentify([
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Users.BulkIdentify(ctx, &knock.&BulkIdentifyUserRequest{
-  Users: []*User{
+result, _ := knockClient.Users.Bulk.Identify(ctx, knock.UserBulkIdentifyParams{
+  Users: param.Raw([]map[string]interface{}{
     {
-      ID: "1",
-      // Optional fields:
-      // Name: "John Hammond",
-      // Email: "jhammond@ingen.net"
+      "id":    "1",
+      "name":  "John Hammond",
+      "email": "jhammond@ingen.net",
     },
     {
-      ID: "2",
-      // Optional fields:
-      // Name: "Ellie Sattler",
-      // Email: "esattler@ingen.net"
-    }
-  }
+      "id":    "2",
+      "name":  "Ellie Sattler",
+      "email": "esattler@ingen.net",
+    },
+  }),
 })
 `,
   java: `
@@ -149,7 +150,7 @@ KnockClient client = KnockClient.builder()
     .apiKey("sk_12345")
     .build();
 
-List<UserIdentity> userIdentities = List.of(
+List<UserIdentity> userIdentities = Arrays.asList(
   UserIdentity.builder()
     .id("1")
     .name("John Hammond")
@@ -162,7 +163,9 @@ List<UserIdentity> userIdentities = List.of(
     .build()
 );
 
-BulkOperation result = client.users().bulkIdentify(userIdentities);
+BulkOperation result = client.users().bulk().identify(BulkIdentifyParams.builder()
+    .users(userIdentities)
+    .build());
 `,
 };
 

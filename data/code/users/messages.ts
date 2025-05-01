@@ -10,13 +10,13 @@ curl -X GET https://api.knock.app/v1/users/1/messages \\
   --url-query tenant=my_tenant
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
-await knockClient.users.getMessages(user.id);
+await knockClient.users.listMessages(user.id);
 
 // supports pagination parameters and filters
-await knockClient.users.getMessages(
+await knockClient.users.listMessages(
   user.id,
   {
     page_size: 20,
@@ -33,7 +33,7 @@ Knock.Users.get_messages(knock_client, user.id)
 Knock.Users.get_messages(
   knock_client,
   user.id,
-  page_size: 20, 
+  page_size: 20,
   tenant: "my_tenant"
 )
 `,
@@ -41,35 +41,29 @@ Knock.Users.get_messages(
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-client.users.get_messages(
-  id=user.id
+client.users.list_messages(
+  user_id=user.id
 )
 
 # supports pagination parameters and filters
-client.users.get_messages(
-  id=user.id, 
-  options={
-    'page_size': 20, 
-    'tenant': "my_tenant"
-  }
+client.users.list_messages(
+  user_id=user.id,
+  page_size=20,
+  tenant="my_tenant"
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.get_messages(
-  id: user.id
-)
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.users.list_messages(user.id)
 
 # supports pagination parameters and filters
-Knock::Users.get_messages(
-  id: user.id,
-  options={
-    'page_size': 20,
-    'tenant': 'my_tenant'
-  }
-)
+client.users.list_messages(user.id, {
+  page_size: 20,
+  tenant: "my_tenant"
+})
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -99,29 +93,39 @@ $client->users()->getMessages($user->id(), [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-messages, _ := knockClient.Users.GetMessages(ctx, &knock.GetUserMessagesRequest{
-  ID:       user.ID,
-  PageSize: 20,
-  Tenant    "my_tenant"
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+messages, _ := knockClient.Users.ListMessages(ctx, user.ID, knock.UserListMessagesParams{
+  PageSize: param.Int64(20),
+  Tenant:   param.String("my_tenant"),
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.messages.KnockMessage;
+import app.knock.api.models.users.UserGetMessagesParams;
+import app.knock.api.core.CursorResult;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
+UserGetMessagesParams params = UserGetMessagesParams.builder()
+    .userId(user.getId())
+    .pageSize(20)
+    .tenant("my_tenant")
+    .build();
 
-queryParams.pageSize(20);
-queryParams.tenant("my_tenant");
-
-CursorResult<KnockMessage> result = client.users().getMessages(user.getId(), queryParams);
+CursorResult<KnockMessage> result = client.users().getMessages(params);
 `,
 };
 

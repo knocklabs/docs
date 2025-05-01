@@ -1,0 +1,212 @@
+---
+title: Powering human-in-the-loop flows with the Knock Agent Toolkit
+description: Learn how to use the Knock Agent Toolkit within your AI agent workflows to power rich human-in-the-loop interactions.
+section: Developer tools
+---
+
+Knock Agent Toolkit enables you to power rich human-in-the-loop interactions.
+
+For example, you can use Agent Toolkit to create a workflow that lets a person to approve or reject work that the agent has done, powered by Knock's cross-channel messaging workflows.
+
+Agent Toolkit exposes a set of helper methods that make it trivial for you to wrap your tool calls in asynchronous human approvals or inputs.
+
+Knock takes care of the heavy lifting for you, making it easy to build rich human-in-the-loop flows with little effort.
+
+## Use cases
+
+Using Knock, it's possible to power human-in-the-loop interactions that:
+
+- Send cross-channel notifications to email, SMS, in-app feeds, and workplace chat applications like Slack and MS Teams.
+- Power advanced cross-channel escalation flows to bubble up messages between channels or across team members.
+- Solicit structured input such as approve/reject buttons, or unstructured feedback in the form of text or prompt modifications.
+- Handle long-running async interactions that "interrupt" and "resume" your agent workflows.
+- Give full visibility into the messages sent from your AI agent workflows and track engagement of those messages across channels.
+
+## How Knock powers human-in-the-loop flows
+
+Knock uses [workflows](/concepts/workflows) to power human-in-the-loop messaging across channels. Here's a high-level overview of how this works:
+
+1. You setup a workflow in the Knock dashboard that describes the message to send and the channels to send it to.
+2. Your agent calls to Knock to [trigger the workflow](/send-notifications/triggering-workflows/overview) with a set of recipients and any additional context for the request.
+3. Your user receives the message on the channel, which includes the context for the request and a set of actions to take.
+4. The user then interacts with the message and the result is sent back to Knock.
+5. Knock then triggers an [outbound webhook](/developer-tools/outbound-webhooks/overview) back to your agent application with the result of the interaction.
+6. Your agent application can then use the incoming interaction event from Knock to resume execution, or respond to the interaction.
+
+## Helper methods
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      <strong>Note</strong>: The following helper methods are only exposed for
+      the AI SDK. If you're using the Knock Agent Toolkit with another agent
+      framework and need to implement a custom flow, please reach out to us at{" "}
+      <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
+
+The Knock Agent Toolkit exposes a set of helper methods that you can use to power human-in-the-loop flows for common cases, as well as low-level primitives should you need to implement a custom flow.
+
+### `toolkit.requiresHumanInput`
+
+The `requiresHumanInput` helper method allows you to wrap a tool in requiring human input to proceed. When a tool is wrapped with this method, when the LLM tries to invoke the call it will instead delegate the tool call to Knock, passing the tool execution context to the Knock workflow.
+
+```typescript title="Wrap tool in requiring input"
+import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+const toolkit = await createToolkit();
+
+const { classifyWork: classifyToolRequiringInput } = toolkit.requireHumanInput(
+  { classifyWork },
+  {
+    // (required) The key of the workflow to trigger
+    workflow: "approve-classification",
+    // (required) The list of recipients to trigger the workflow for
+    recipients: ["user_123"],
+    // (optional) Any additional data to pass along with the request
+    data: {},
+  },
+);
+```
+
+Calling `requireHumanInput` will return a new tool that you pass in place of the original tool in your model. When the LLM invokes the new tool, it will instead delegate the tool call to Knock, passing the tool execution context to the Knock workflow.
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      Note: when the LLM invokes the new tool, it will appear as if the
+      tool-call completed, albeit with a result that indicates that the tool is
+      still waiting for human input. This is expected behavior.
+    </>
+  }
+/>
+### `toolkit.handleMessageInteracted`
+
+The `handleMessageInteracted` helper method allows you to handle an incoming `message.interacted` event from Knock and determine if there's an interaction with the message that should be handled by your agent workflow.
+
+```typescript title="Handling an incoming interaction"
+import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+const toolkit = await createToolkit();
+
+function handleIncomingInteraction(event) {
+  const interactionEvent = toolkit.handleMessageInteracted(event);
+
+  if (
+    interactionEvent &&
+    interactionEvent.workflow === "my-approval-workflow" &&
+    interactionEvent.interaction.action === "approved"
+  ) {
+    // Do something as a result of the approval
+  }
+}
+```
+
+### `toolkit.resumeToolExecution`
+
+The `resumeToolExecution` helper method allows you to resume tool execution after a human has interacted with the message and you have received an affirmative response to proceed.
+
+You pass the `resumeToolExecution` method the `DeferredToolCallInteractionResult` that you've received from Knock via the `handleMessageInteracted` method. Here's an example of how you might use this method:
+
+```typescript title="Resuming tool execution"
+import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+const toolkit = await createToolkit();
+
+function handleIncomingInteraction(event) {
+  const interactionEvent = toolkit.handleMessageInteracted(event);
+
+  if (interactionEvent && interactionEvent.hasToolCall) {
+    const toolResult = await toolkit.resumeToolExecution(interactionEvent);
+    // Do something with the tool result
+  }
+}
+```
+
+When using the `resumeToolExecution` method, you must have first registered any tools that require human input using the `requiresHumanInput` method. This ensures that the toolkit has access to the necessary information to resume the tool execution.
+
+In the AI SDK, the `resumeToolExecution` method will return a tool status object where you can access the result under the `result` property. The original `toolCallId` is also included.
+
+## Example: In-app approval flow
+
+In this guide we show you how to setup an approval flow that sends an in-app notification to a notification feed requesting approval when the agent wishes to invoke a particular tool.
+
+<Steps>
+  <Step title="Setting up a workflow to power approvals">
+    To start, you'll want to setup a Knock workflow with a single, in-app feed channel step that sends an approval message to an in-app feed. You can find a workflow template for this in the [workflow templates repository](https://github.com/knocklabs/workflow-templates/tree/main/approve-tool-call).
+  </Step>
+  <Step title="Rendering the feed">
+    Next, you'll need to render the in-app feed in your application. You can find a guide on how to do this in the [building in-app feed guide](/in-app-ui/react/feed). By default, your in-app feed will handle the interaction on the "Approve" and "Reject" buttons and send the `message.interacted` event to Knock.
+  </Step>
+  <Step title="Setting up an outbound webhook in Knock">
+    A human-in-the-loop interaction is inherently an asynchronous action, and therefore requires that we might need to handle the approval at some later point. Knock uses [outbound webhooks](/developer-tools/outbound-webhooks/overview) to forward your events to your application, helping to implement this asynchronous behavior.
+
+    To set up an outbound webhook, you'll need to create a new webhook under **Developers** > **Webhooks** in the Knock dashboard. Add a URL for your service and select the `message.interacted` event. You can read more about the available [event types in our guide](/developer-tools/outbound-webhooks/event-types).
+
+  </Step>
+  <Step title="Wrapping a tool as requiring human input">
+    The Agent Toolkit exposes a `requiresHumanInput` helper that you can use to wrap a tool call as one that requires human input to proceed.
+ 
+    ```typescript title="Wrap a tool as requiring human input"
+    import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+    const toolkit = await createToolkit();
+
+    const { classificationTool: wrappedClassificationTool } = toolkit.requiresHumanInput({ classificationTool }, {
+      // The workflow to use to send the approval request
+      workflow: "approve-tool-call",
+      // A list of users who should be notified about this request
+      recipients: ["user_123", "user_456"],
+      data: {
+        // (optional) any additional data to send with the request that helps identify it
+        // this data will then be made available to you when receiving the webhook
+      }
+    });
+    ```
+
+    Now, when your agent calls your `classificationTool`, it will instead call your `wrappedClassificationTool` and delegate the tool call to Knock, bringing one or more humans into the agent's loop.
+
+  </Step>
+  <Step title="Handling the response and resuming tool execution">
+    Finally, you will need to implement a handler for the `message.interacted` webhook event that fires when someone interacts with the "approve" or "reject" buttons in the notification feed.
+
+    You'll use this method to handle the incoming interaction event and to resume your agent's execution. Depending on which agent framework you're using, you'll need to implement this handler differently. We've left this example fairly abstract as a result.
+
+    ```typescript title="Handling the response and resuming tool execution"
+    import { createToolkit, handleMessageInteracted } from "@knocklabs/agent-toolkit/ai-sdk";
+
+    const handleMessageInteracted = async (event: MessageInteractedEvent) => {
+      const agent = await getAgentInstance();
+
+      const toolkit = await createToolkit();
+
+      const interactionEvent = toolkit.handleMessageInteracted(event);
+
+      if (interactionEvent && interactionEvent.interaction.action === "approved") {
+        const toolResult = await toolkit.resumeToolExecution(interactionEvent);
+        // Resume my agent's execution
+        await agent.resumeLoopWithToolResult(toolResult);
+      }
+    }
+    ```
+
+  </Step>
+</Steps>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I power a direct approve/reject via email without routing the buttons through my server?">
+    No, right now you must setup a URL handler on your server to implement these
+    actions. One possible approach is that you drive the resulting approve or
+    reject click directly to your agent workflow to handle.
+  </Accordion>
+  <Accordion title="Can I power a direct approve/reject workflow via Slack or MS Teams without routing the interaction through my server?">
+    No, as with email you must implement a webhook handler for these channels
+    where you handle this interaction before sending it back to Knock to
+    proceed.
+  </Accordion>
+</AccordionGroup>

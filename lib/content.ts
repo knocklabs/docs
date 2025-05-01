@@ -1,3 +1,4 @@
+import { SdkSpecificContent } from "@/data/inAppSidebar";
 import { SidebarPage, SidebarSection } from "../data/types";
 
 // Converts a Next.js router slug to a paths array
@@ -10,6 +11,98 @@ export const slugToPaths = (slug: string | string[] | undefined): string[] => {
     return slug;
   }
 };
+
+// TODO: Make this generic. This is a hack right now and it won't work for arbitrary paths.
+export function getInAppSidebar(
+  paths: string[],
+  allSidebarContent: SidebarSection[],
+  selectedSdkContent: SdkSpecificContent,
+) {
+  if (!paths.includes(selectedSdkContent.value)) {
+    return getSidebarInfo(paths, allSidebarContent);
+  }
+
+  // Get the deepest page that matches the paths
+  const { section, page } = depthFirstSidebarInfo(paths, allSidebarContent);
+
+  return {
+    breadcrumbs: [
+      {
+        slug: "in-app-ui",
+        title: "In-App UI",
+        path: "/in-app-ui",
+      },
+      {
+        slug: `/in-app-ui/${selectedSdkContent.value}`,
+        title: selectedSdkContent.title,
+        path: `/in-app-ui/${selectedSdkContent.value}`,
+      },
+      {
+        slug: `${section?.slug}`,
+        title: section?.title,
+        path: `${section?.slug}`,
+      },
+      {
+        slug: `${section?.slug}${page?.slug}`,
+        title: page?.title,
+        path: `${section?.slug}${page?.slug}`,
+      },
+    ],
+  };
+}
+
+export function depthFirstSidebarInfo(
+  paths: string[],
+  sidebarContent: SidebarSection[],
+) {
+  const slug = `/${paths.join("/")}`;
+
+  // Initialize result variables
+  let matchingSection: SidebarSection | undefined;
+  let matchingPage: SidebarPage | undefined;
+
+  // Helper function to recursively search sections
+  function searchSections(
+    sections: SidebarSection[],
+    currentPath: string = "",
+  ) {
+    for (const section of sections) {
+      const sectionPath = `${currentPath}${section.slug}`;
+
+      // Add this section's pages to flattened list
+      if (section.pages) {
+        for (const page of section.pages) {
+          const pagePath = `${sectionPath}${page.slug}`;
+
+          if (pagePath === slug) {
+            matchingSection = section;
+            matchingPage = page;
+            return;
+          }
+
+          // Recurse into nested pages if they exist
+          if ("pages" in page && page.pages) {
+            searchSections([{ ...page, slug: pagePath } as SidebarSection], "");
+          }
+        }
+      }
+
+      // Check if this section matches the target slug
+      if (sectionPath === slug) {
+        matchingSection = section;
+        return;
+      }
+    }
+  }
+
+  // Start the search
+  searchSections(sidebarContent);
+
+  return {
+    section: matchingSection,
+    page: matchingPage,
+  };
+}
 
 // Returns the breadcrumbs and adjacent pages in the sidebar given a path
 export const getSidebarInfo = (

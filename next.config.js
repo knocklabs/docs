@@ -440,6 +440,11 @@ const nextConfig = {
         destination: "/sdks/overview",
         permanent: true,
       },
+      {
+        source: "/agent-toolkit",
+        destination: "/developer-tools/agent-toolkit/overview",
+        permanent: false,
+      },
     ];
   },
 };

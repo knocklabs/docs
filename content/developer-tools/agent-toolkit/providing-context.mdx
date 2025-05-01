@@ -1,0 +1,33 @@
+---
+title: Providing context to your Knock Agent Toolkit instance
+description: Learn how to configure the Knock Agent Toolkit to use context to aid with tool calls in your AI agent workflows.
+section: Developer tools
+---
+
+The Knock Agent Toolkit allows you to pass context on initialization to automatically scope requests to Knock. This is useful when you're interacting with a single logged in user, or you already know the organization or user context that you'll be working with.
+
+## Available context
+
+- `userId`: The user ID of the user that the agent is interacting with.
+- `tenantId`: The tenant ID of the organization/workspace/account that the agent is interacting with.
+
+## Setting context
+
+You can set context on the `createToolkit` method.
+
+```typescript
+const toolkit = await createToolkit({
+  userId: "user_123",
+  tenantId: "tenant_123",
+});
+```
+
+## Where context is used
+
+Once you've set the `userId` or `tenantId` context, it will be used to automatically scope requests to Knock. This means that you don't need to pass the `userId` or `tenantId` with every request, it will be set automatically.
+
+Many of the tools that the Knock Agent Toolkit exposes will use the context as a default value, making it possible to omit the this parameter from the LLM's tool call.
+
+For example, when executing a workflow trigger where we have a `userId` set, we can say: `trigger the welcome workflow for the current user` instead of `trigger the welcome workflow for user_123`.
+
+Or, as another example when updating a user's profile, we can say: `update the profile for the current user` instead of `update the profile for user_123`.

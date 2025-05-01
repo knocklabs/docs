@@ -1,7 +1,7 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 // Get this value in your Knock dashboard
 const APNS_CHANNEL_ID = "some-channel-id-from-knock";
@@ -30,7 +30,7 @@ apns_channel_id = "some-channel-id-from-knock"
 
 client.workflows.trigger(
     key="new-comment",
-    data={ "project_name": "My Project" },
+    data={"project_name": "My Project"},
     recipients=[
         {
             "id": "1",
@@ -45,21 +45,21 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+knock = Knockapi::Client.new(api_key: "sk_12345")
 
 # Get this value in your Knock dashboard
 apns_channel_id = "some-channel-id-from-knock"
 
-Knock::Workflows.trigger(
-  key: "new-comment",
+knock.workflows.trigger("new-comment",
   data: { project_name: "My Project" },
   recipients: [
     {
       id: "1",
       email: "jhammond@ingen.net",
       channel_data: {
-        apns_channel_id: {
+        apns_channel_id => {
           tokens: ["apns_push_token"]
         }
       }
@@ -141,57 +141,69 @@ $client->workflows()->trigger('new-comment', [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // Get this value in your Knock dashboard
 apnsChannelId := "some-channel-id-from-knock"
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "new-comment",
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{"project_name": "My Project"},
-}
-
-request.AddRecipientByEntity(map[string]interface{}{
-  "id": "1",
-  "email": "jhammond@ingen.net",
-  "channel_data": map[string]map{
-    apnsChannelId: map[string]interface {
-      "tokens": ["apns-push-token"]
+  Recipients: []knock.RecipientRequestUnionParam{
+    map[string]interface{}{
+      "id": "1",
+      "email": "jhammond@ingen.net",
+      "channel_data": map[string]interface{}{
+        apnsChannelId: map[string]interface{}{
+          "tokens": []string{"apns-push-token"},
+        },
+      },
     },
   },
-})
+}
 
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import java.util.List;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
 // Get this value in your Knock dashboard
 String apnsChannelId = "some-channel-id-from-knock";
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("new-comment")
-    .data("project_name", "My project")
-    .addRecipient(
-      Map.of(
-        "id", "1",
-        "email", "jhammond@ingen.net",
-        "channel_data", Map.of(
-          apnsChannelId, Map.of(
-            "tokens", List.of("apns-push-token")
-          )
-        )
-      )
-    )
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .data(data -> {
+            data.put("project_name", "My Project");
+            return data;
+        })
+        .recipients(List.of(
+            Map.of(
+                "id", "1",
+                "email", "jhammond@ingen.net",
+                "channel_data", Map.of(
+                    apnsChannelId, Map.of(
+                        "tokens", List.of("apns-push-token")
+                    )
+                )
+            )
+        ))
+        .build()
+);
 `,
 };
 

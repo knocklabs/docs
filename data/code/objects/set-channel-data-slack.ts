@@ -17,13 +17,15 @@ curl -X PUT https://api.knock.app/v1/objects/projects/project-1/channel_data/820
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
 // Find this value in your Knock dashboard under Integrations > Channels
 const KNOCK_SLACK_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-await knockClient.objects.setChannelData(
+await knock.objects.setChannelData(
   "projects",
   project.id,
   KNOCK_SLACK_CHANNEL_ID,
@@ -52,6 +54,7 @@ Knock.Objects.set_channel_data(knock_client, "projects", project.id, knock_slack
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
@@ -59,11 +62,11 @@ knock_slack_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
 client.objects.set_channel_data(
   collection="projects",
-  id=project.id,
-  channel_id=knock_slack_channel_id, 
-  channel_data={
+  object_id=project.id,
+  channel_id=knock_slack_channel_id,
+  data={
     "connections": [
-      { 
+      {
         "incoming_webhook": { "url": "url-from-slack" }
       }
     ]
@@ -71,24 +74,20 @@ client.objects.set_channel_data(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 knock_slack_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-Knock::Objects.set_channel_data(
-  collection: "projects",
-  id: project.id,
-  channel_id: knock_slack_channel_id,
-  channel_data: {
-    connections: [
-      { 
-        incoming_webhook: { url: "url-from-slack" }
-      }
-    ]
-  }
-)  
+client.objects.set_channel_data("projects", project.id, knock_slack_channel_id, {
+  connections: [
+    {
+      incoming_webhook: { url: "url-from-slack" }
+    }
+  ]
+})
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -108,15 +107,15 @@ var channelData = new Dictionary<string, object>{
 var knockSlackChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
 await knockClient.Objects.SetChannelData(
-  "projects", 
-  project.Id, 
-  knockSlackChannelId, 
+  "projects",
+  project.Id,
+  knockSlackChannelId,
   channelData
 );
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 // Find this value in your Knock dashboard under Integrations > Channels
@@ -133,50 +132,62 @@ $client->objects()->setChannelData('projects', 'project-1', $knockSlackChannelId
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+client := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 knockSlackChannelID := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-channelData, _ := knockClient.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
+channelData, _ := client.Objects.SetChannelData(ctx, &knock.SetObjectChannelDataRequest{
 	Collection: "projects",
 	ObjectID:   "project-1",
 	ChannelID:  knockSlackChannelID,
-	Data: map[string]interface{}{
-		"connections": []interface{}{
-			map[string]interface{}{
-				"incoming_webhook": map[string]interface{}{
-					"url": "url-from-slack",
-				},
+	Data: knock.SlackChannelDataParam{
+		Connections: param.New([]knock.SlackChannelDataConnectionsUnionParam{
+			knock.SlackChannelDataConnectionsSlackIncomingWebhookConnectionParam{
+				URL: param.New("url-from-slack"),
 			},
-		},
+		}),
 	},
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectSetChannelDataParams;
+import app.knock.api.models.recipients.channeldata.ChannelData;
+import app.knock.api.core.JsonValue;
+import java.util.Arrays;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
-
-Map<String, Object> data = Map.of(
-  "connections", List.of(
-    Map.of("incoming_webhook", Map.of("url", "url-from-slack"))
-  )
-);
 
 // Find this value in your Knock dashboard under Integrations > Channels
 String knockSlackChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-ChannelData channelData = client.objects().setChannelData(
-  "projects",
-  "project-1",
-  knockSlackChannelId,
-  data
-);
+ObjectSetChannelDataParams params = ObjectSetChannelDataParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .channelId(knockSlackChannelId)
+    .data(ObjectSetChannelDataParams.Data.builder()
+        .putAdditionalProperty("connections", JsonValue.from(Arrays.asList(
+            ObjectSetChannelDataParams.Data.Connection.builder()
+                .incomingWebhook(ObjectSetChannelDataParams.Data.Connection.IncomingWebhook.builder()
+                    .url("url-from-slack")
+                    .build())
+                .build()
+        )))
+        .build())
+    .build();
+ChannelData channelData = client.objects().setChannelData(params);
 `,
 };
 

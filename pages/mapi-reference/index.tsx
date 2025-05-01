@@ -25,7 +25,7 @@ export const RESOURCE_ORDER = [
 
 export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
   {
-    title: "API Reference",
+    title: "API reference",
     slug: `/mapi-reference/overview`,
     pages: [
       {
