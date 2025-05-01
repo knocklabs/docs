@@ -1,6 +1,5 @@
 import React, { useRouter } from "next/router";
 import { Inter } from "next/font/google";
-import { ThemeProvider } from "next-themes";
 import { useEffect } from "react";
 import * as analytics from "../lib/analytics";
 import {
@@ -38,18 +37,10 @@ function App({ Component, pageProps }) {
 
   return (
     <main className={inter.className}>
-      <ThemeProvider
-        defaultTheme="light"
-        enableSystem={false}
-        forcedTheme={Component.forcedTheme}
-        attribute="class"
-        disableTransitionOnChange
-      >
-        <EventEmitterContext.Provider value={eventEmitter}>
-          <Component {...pageProps} />
-        </EventEmitterContext.Provider>
-        {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
-      </ThemeProvider>
+      <EventEmitterContext.Provider value={eventEmitter}>
+        <Component {...pageProps} />
+      </EventEmitterContext.Provider>
+      {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
     </main>
   );
 }

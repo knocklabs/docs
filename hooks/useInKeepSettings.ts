@@ -4,7 +4,6 @@ import type {
   InkeepWidgetBaseSettings,
   InkeepModalSettings,
 } from "@inkeep/widgets";
-import { useTheme } from "next-themes";
 
 type InkeepSharedSettings = {
   baseSettings: InkeepWidgetBaseSettings;
@@ -14,8 +13,6 @@ type InkeepSharedSettings = {
 };
 
 const useInkeepSettings = (): InkeepSharedSettings => {
-  const { theme } = useTheme();
-
   const baseSettings: InkeepWidgetBaseSettings = {
     apiKey: process.env.NEXT_PUBLIC_INKEEP_API_KEY || "",
     integrationId: process.env.NEXT_PUBLIC_INKEEP_INTEGRATION_ID || "",
@@ -23,7 +20,7 @@ const useInkeepSettings = (): InkeepSharedSettings => {
     primaryBrandColor: "#262626",
     organizationDisplayName: "Knock",
     colorMode: {
-      forcedColorMode: theme === "light" ? "light" : "dark",
+      forcedColorMode: "light",
     },
   };
 

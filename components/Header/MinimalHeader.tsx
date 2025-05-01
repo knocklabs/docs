@@ -1,11 +1,9 @@
 import Link from "next/link";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 
 import Autocomplete from "../ui/Autocomplete";
 import ApiSdkMenu from "../ApiSdkMenu";
 import HelpMenu from "../HelpMenu";
-import { IoClose, IoMenu, IoMoon, IoSunny } from "react-icons/io5";
+import { IoClose, IoMenu } from "react-icons/io5";
 
 type Props = {
   pageType: string;
@@ -14,14 +12,6 @@ type Props = {
 };
 
 const MinimalHeader = ({ pageType, toggleSidebar, sidebarShown }: Props) => {
-  const { theme, setTheme } = useTheme();
-
-  // Fix hydration error by hiding theme button during ssr
-  // See this next-themes issue for more info: https://github.com/pacocoursey/next-themes/issues/169
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
   return (
     <header
       className="border-b dark:border-b-gray-800 px-5 h-16 dark:bg-transparent bg-gray-50 flex items-center"
@@ -55,17 +45,6 @@ const MinimalHeader = ({ pageType, toggleSidebar, sidebarShown }: Props) => {
       <Autocomplete />
 
       <div className="ml-auto flex items-center space-x-2 md:space-x-4">
-        {mounted ? (
-          <button
-            type="button"
-            className="p-2 text-gray-500 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" && <IoMoon />}
-            {theme === "light" && <IoSunny />}
-          </button>
-        ) : null}
-
         <ApiSdkMenu />
 
         <div className="hidden md:block">
