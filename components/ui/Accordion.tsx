@@ -1,11 +1,10 @@
 import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import { Lucide, Icon } from "@telegraph/icon";
-import clsx from "classnames";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { IoChevronForward } from "react-icons/io5";
 import { Text } from "@telegraph/typography";
+
 const AccordionGroup = ({ children }) => (
   <div
     className="[&>div]:border-0 [&>div]:rounded-none [&>div>button]:rounded-none [&>div]:mb-0 overflow-hidden mt-0 mb-3 rounded-xl divide-y divide-inherit border dark:border-zinc-800"
@@ -48,7 +47,7 @@ const Accordion = ({ children, title, description, defaultOpen = false }) => {
               flexShrink: 0,
             }}
           />
-          <Box>
+          <Box ml="2">
             <Text
               as="span"
               size="3"
@@ -61,7 +60,13 @@ const Accordion = ({ children, title, description, defaultOpen = false }) => {
               {title}
             </Text>
             {description ? (
-              <Text as="p" size="2">
+              <Text
+                as="span"
+                size="1"
+                mt="1"
+                color="gray"
+                style={{ display: "block" }}
+              >
                 {description}
               </Text>
             ) : null}
