@@ -274,6 +274,7 @@ const cliContent: SidebarSection[] = [
       { slug: "/authentication", title: "Authentication" },
       { slug: "/global-flags", title: "Global flags" },
     ],
+    sidebarMenuDefaultOpen: true,
   },
   {
     title: "Workflows",

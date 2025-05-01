@@ -70,7 +70,7 @@ const Content = ({ children, fullWidth = false }) => (
     py="8"
     width="full"
     pl="24"
-    pr="4"
+    pr="12"
     minWidth="0"
     style={{ maxWidth: fullWidth ? "initial" : "920px" }}
     className="lg-wrapper-padding"

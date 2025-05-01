@@ -3,6 +3,7 @@ import { TgphComponentProps } from "@telegraph/helpers";
 import { Heading, Text } from "@telegraph/typography";
 import { Icon, Lucide } from "@telegraph/icon";
 import Link from "next/link";
+import { Button } from "@telegraph/button";
 
 type SectionContentProps = { nudgePadding?: number } & TgphComponentProps<
   typeof Stack
@@ -43,18 +44,19 @@ const SectionHeader = ({
         {title}
       </Heading>
       {href && (
-        <Stack as={Link} href={href} alignItems="center">
-          <Text as="span" size="1">
+        <Stack
+          as={Link}
+          href={href}
+          alignItems="center"
+          style={{ marginRight: "calc(var(--tgph-spacing-3) * -1)" }}
+        >
+          <Button
+            variant="ghost"
+            size="1"
+            trailingIcon={{ icon: Lucide.ChevronRight, "aria-hidden": true }}
+          >
             View all
-          </Text>
-          <Icon
-            icon={Lucide.ChevronRight}
-            aria-hidden={true}
-            w="3"
-            h="3"
-            color="gray"
-            ml="1"
-          />
+          </Button>
         </Stack>
       )}
     </Stack>

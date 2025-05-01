@@ -45,6 +45,7 @@ export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
         slug: `/postman`,
       },
     ],
+    sidebarMenuDefaultOpen: true,
   },
 ];
 
