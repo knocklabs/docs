@@ -21,11 +21,11 @@ const Breadcrumbs = ({ pages }: BreadcrumbsProps) => {
               {path.slug}
             </Text>
           ) : (
-            <Link href={path.slug}>
-              <Text as="span" size="2" color="gray">
-                {path.title}
-              </Text>
-            </Link>
+            // <Link href={path.slug}>
+            <Text as="span" size="2" color="gray">
+              {path.title}
+            </Text>
+            // </Link>
           )}
           {index !== pages.length - 1 && (
             <Icon
