@@ -44,13 +44,14 @@ export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
       { slug: "/errors", title: "Errors" },
       { slug: "/error-codes", title: "Common error codes" },
     ],
+    sidebarMenuDefaultOpen: true,
   },
 ];
 
 function ApiReferencePage({ openApiSpec, stainlessSpec, preContentMdx }) {
   return (
     <ApiReference
-      name="API"
+      name="API reference"
       openApiSpec={openApiSpec}
       stainlessSpec={stainlessSpec}
       preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}

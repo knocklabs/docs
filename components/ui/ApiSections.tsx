@@ -1,6 +1,8 @@
 import cn from "classnames";
 import SectionHeading from "./SectionHeading";
 import { Box, Stack } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
+import { highlightResource } from "./Page/helpers";
 
 export const Section = ({
   title,
@@ -16,55 +18,95 @@ export const Section = ({
   isIdempotent?: boolean;
   isRetentionSubject?: boolean;
   path?: string;
-}) => (
-  <Box
-    as="section"
-    borderBottom="px"
-    borderColor="gray-3"
-    py="16"
-    data-resource-path={path}
-  >
-    {title && (
-      <SectionHeading
-        tag="h2"
-        className={cn([headingClassName, "mb-6"])}
-        path={path}
-      >
-        {isIdempotent && (
-          <div className="mb-2">
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center mr-3 bg-yellow-100 dark:bg-transparent dark:border-yellow-500">
-              <a href="#idempotent-requests">Idempotent</a>
-            </span>
-          </div>
-        )}
-        {isRetentionSubject && (
-          <div className="mb-2">
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-300 border border-transparent font-mono rounded p-1 center mr-3 bg-orange-100 dark:bg-transparent dark:border-orange-600">
-              <a
-                href="#data-retention"
-                style={{ color: "inherit", textDecoration: "none" }}
-              >
-                Retention policy applied
-              </a>
-            </span>
-          </div>
-        )}
-        {title}
-      </SectionHeading>
-    )}
-    <Stack
-      w="full"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        justifyItems: "flex-start",
-      }}
-      className="md-one-column"
+}) => {
+  const onRetentionClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    highlightResource(`/api-reference/overview/data-retention`, {
+      moveToItem: true,
+    });
+  };
+
+  const onIdempotentClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    highlightResource(`/api-reference/overview/idempotent-requests`, {
+      moveToItem: true,
+    });
+  };
+
+  return (
+    <Box
+      as="section"
+      borderBottom="px"
+      borderColor="gray-3"
+      py="16"
+      data-resource-path={path}
     >
-      {children}
-    </Stack>
-  </Box>
-);
+      {title && (
+        <SectionHeading
+          tag="h2"
+          className={cn([headingClassName, "mb-6"])}
+          path={path}
+        >
+          {isIdempotent && (
+            <Box mb="2">
+              <Text
+                as="span"
+                size="1"
+                bg="yellow-4"
+                py="1"
+                px="3"
+                color="black"
+                borderRadius="2"
+              >
+                <a
+                  href="/api-reference/overview/idempotent-requests"
+                  onClick={onIdempotentClick}
+                  style={{ color: "inherit", textDecoration: "none" }}
+                >
+                  Idempotent
+                </a>
+              </Text>
+            </Box>
+          )}
+          {isRetentionSubject && (
+            <Box mb="2">
+              <Text
+                as="span"
+                size="1"
+                bg="yellow-4"
+                py="1"
+                px="3"
+                color="black"
+                borderRadius="2"
+              >
+                <a
+                  href="/api-reference/overview/data-retention"
+                  onClick={onRetentionClick}
+                  style={{ color: "inherit", textDecoration: "none" }}
+                >
+                  Retention policy applied
+                </a>
+              </Text>
+            </Box>
+          )}
+          {title}
+        </SectionHeading>
+      )}
+      <Stack
+        w="full"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          justifyItems: "flex-start",
+        }}
+        className="md-one-column"
+        overflow="hidden"
+      >
+        {children}
+      </Stack>
+    </Box>
+  );
+};
 
 export const ContentColumn = ({ children }) => (
   <Stack pr="3" w="full">

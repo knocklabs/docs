@@ -4,7 +4,7 @@ import { Tag } from "@telegraph/tag";
 import Link from "next/link";
 
 const Endpoints = ({ children, title = "Endpoints" }) => (
-  <Box border="px" borderColor="gray-3" borderRadius="2">
+  <Box border="px" borderColor="gray-3" borderRadius="2" maxW="full">
     <Box bg="gray-2" p="2">
       <Text as="span" size="2" weight="medium">
         {title}
@@ -42,7 +42,7 @@ const EndpointText = ({
     >
       {method}
     </Tag>
-    <Code as="span" mr="4" size="1">
+    <Code as="span" size="1" overflow="hidden" textOverflow="ellipsis">
       {path}
     </Code>
   </Stack>
