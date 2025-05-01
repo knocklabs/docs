@@ -108,7 +108,10 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
           </Sidebar.Wrapper>
         </SidebarContext.Provider>
         <Page.Content>
-          {breadcrumbs && <Page.Breadcrumbs pages={breadcrumbs} />}
+          <Page.TopContainer>
+            {breadcrumbs && <Page.Breadcrumbs pages={breadcrumbs} />}
+            <Page.ContentActions pages={allSidebarContent} />
+          </Page.TopContainer>
           <Page.ContentHeader
             title={frontMatter.title}
             description={frontMatter.description}

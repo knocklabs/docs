@@ -64,6 +64,7 @@ async function getMarkdownContent(slug) {
       const content = fs.readFileSync(markdownPath, "utf-8");
       const frontmatter = await parseFrontmatter(content);
       return {
+        ...frontmatter,
         description: frontmatter?.description || "",
         fullContent: content,
       };

@@ -6,6 +6,7 @@ import { PageHeader } from "./PageHeader";
 import { OnThisPage } from "./Page/OnThisPage";
 import { Sidebar, SidebarContext } from "./Page/Sidebar";
 import { Breadcrumbs } from "./Breadcrumbs";
+import { ContentActions } from "./ContentActions";
 
 import "../../styles/global.css";
 import "../../styles/responsive.css";
@@ -18,6 +19,14 @@ const PageContext = createContext({
 });
 
 export const usePageContext = () => useContext(PageContext);
+
+export const TopContainer = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Stack direction="row" justifyContent="space-between" alignItems="center" gap="1" mb="4">
+      {children}
+    </Stack>
+  );
+};
 
 const Container = ({ children }) => {
   // Wider context for whether search input is open
@@ -115,6 +124,8 @@ const DefaultSidebar = ({ content, samePageRouting = false }) => (
 
 const Page = Object.assign({
   Breadcrumbs,
+  TopContainer,
+  ContentActions,
   Container,
   Masthead,
   Sidebar: DefaultSidebar,

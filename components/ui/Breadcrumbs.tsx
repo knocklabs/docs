@@ -13,7 +13,7 @@ type BreadcrumbsProps = {
 const Breadcrumbs = ({ pages }: BreadcrumbsProps) => {
   if (!pages) return null;
   return (
-    <Stack direction="row" alignItems="center" gap="1" mb="4">
+    <Stack direction="row" alignItems="center" gap="1">
       {pages.map((path, index) => (
         <Stack direction="row" alignItems="center" key={index}>
           {path.slug && !path.title ? (
