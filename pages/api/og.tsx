@@ -14,15 +14,19 @@ export default async function handler(request: NextRequest) {
     : "Documentation";
   const description = searchParams.has("description")
     ? searchParams.get("description")
-    : "Explore our guides and examples to integrate Knock.";
+    : "Explore our walkthroughs and examples to integrate Knock.";
 
   // Load static assets (font && bg image)
   const backgroundImageData = await fetch(
-    new URL("../../assets/og_background.jpg", import.meta.url),
+    new URL("../../assets/og_background.png", import.meta.url),
   ).then((res) => res.arrayBuffer());
 
-  const fontData = await fetch(
-    new URL("../../assets/OpenSauceOne-Bold.ttf", import.meta.url),
+  const fontDataMedium = await fetch(
+    new URL("../../assets/Inter_28pt-Medium.ttf", import.meta.url),
+  ).then((res) => res.arrayBuffer());
+
+  const fontDataSemiBold = await fetch(
+    new URL("../../assets/Inter_28pt-SemiBold.ttf", import.meta.url),
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
@@ -30,7 +34,7 @@ export default async function handler(request: NextRequest) {
       <div
         style={{
           display: "flex",
-          fontFamily: "OpenSauceOne",
+          fontFamily: "Inter",
         }}
       >
         {/* @ts-ignore */}
@@ -50,28 +54,33 @@ export default async function handler(request: NextRequest) {
         >
           <div
             style={{
-              marginTop: 136,
+              marginTop: 200,
               display: "flex",
               flexDirection: "column",
+              position: "absolute",
+              bottom: 100,
+              left: 62,
             }}
           >
             <div
               style={{
-                fontSize: 64,
-                fontWeight: 700,
-                letterSpacing: "-.0125em",
-                lineHeight: "1",
+                fontSize: "48px",
+                fontWeight: 600,
+                letterSpacing: "-0.6px",
+                lineHeight: "56px",
+                color: "#1C2024",
               }}
             >
               {title}
             </div>
             <div
               style={{
-                marginTop: 24,
-                fontSize: 36,
-                fontWeight: 700,
-                letterSpacing: "-0.0125em",
-                lineHeight: "1.25",
+                marginTop: "8px",
+                fontSize: "30px",
+                fontWeight: 500,
+                letterSpacing: "-0.225px",
+                lineHeight: "36px",
+                color: "#60646C",
               }}
             >
               {description}
@@ -85,9 +94,16 @@ export default async function handler(request: NextRequest) {
       height: 630,
       fonts: [
         {
-          name: "OpenSauceOne",
-          data: fontData,
+          name: "Inter",
+          data: fontDataMedium,
           style: "normal",
+          weight: 500,
+        },
+        {
+          name: "Inter",
+          data: fontDataSemiBold,
+          style: "normal",
+          weight: 600,
         },
       ],
     },
