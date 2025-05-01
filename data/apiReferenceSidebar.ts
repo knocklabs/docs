@@ -19,6 +19,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "#errors", title: "Errors" },
       { slug: "#error-codes", title: "Common error codes" },
     ],
+    sidebarMenuDefaultOpen: true,
   },
 
   {
