@@ -54,7 +54,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
     icon: icons.react,
     items: [
       {
-        title: "UI Components",
+        title: "UI components",
         slug: "/in-app-ui/react",
         desc: "Use the Knock in-app experiences APIs and components to build rich notifications experiences inside of your product.",
         sidebarMenuDefaultOpen: true,
@@ -91,6 +91,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
           { slug: "/overview", title: "Overview" },
           { slug: "/reference", title: "Reference" },
         ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -100,7 +101,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
     icon: icons.javascript,
     items: [
       {
-        title: "UI Components",
+        title: "UI components",
         slug: "/in-app-ui/javascript",
         pages: [{ slug: "/overview", title: "Overview" }],
         sidebarMenuDefaultOpen: true,
@@ -110,9 +111,10 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
         slug: "/in-app-ui/javascript/sdk",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick Start" },
+          { slug: "/quick-start", title: "Quick start" },
           { slug: "/reference", title: "Reference" },
         ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -122,7 +124,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
     icon: icons.angular,
     items: [
       {
-        title: "UI Components",
+        title: "UI components",
         slug: "/in-app-ui/angular",
         pages: [{ slug: "/overview", title: "Overview" }],
         sidebarMenuDefaultOpen: true,
@@ -135,7 +137,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
     icon: icons.reactnative,
     items: [
       {
-        title: "UI Components",
+        title: "UI components",
         slug: "/in-app-ui/react-native",
         pages: [
           { slug: "/overview", title: "Overview" },
@@ -153,21 +155,22 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
         slug: "/in-app-ui/react-native/sdk",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick Start" },
-          { slug: "/push-notifications", title: "Push Notifications" },
-          { slug: "/notification-feeds", title: "Notification Feeds" },
+          { slug: "/quick-start", title: "Quick start" },
+          { slug: "/push-notifications", title: "Push notifications" },
+          { slug: "/notification-feeds", title: "Notification feeds" },
           { slug: "/reference", title: "Reference" },
         ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
   ios: {
     title: "iOS",
     value: "ios",
-    icon: icons.expo,
+    icon: icons.swift,
     items: [
       {
-        title: "UI Components",
+        title: "UI components",
         slug: "/in-app-ui/ios",
         pages: [
           { slug: "/overview", title: "Overview" },
@@ -181,11 +184,12 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
         slug: "/in-app-ui/ios/sdk",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick Start" },
-          { slug: "/push-notifications", title: "Push Notifications" },
-          { slug: "/deep-links", title: "Deep Links" },
+          { slug: "/quick-start", title: "Quick start" },
+          { slug: "/push-notifications", title: "Push notifications" },
+          { slug: "/deep-links", title: "Deep links" },
           { slug: "/reference", title: "Reference" },
         ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -195,24 +199,26 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
     icon: icons.kotlin,
     items: [
       {
-        title: "UI Components",
+        title: "UI components",
         slug: "/in-app-ui/android",
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/components", title: "Components" },
           { slug: "/customization", title: "Customization" },
         ],
+        sidebarMenuDefaultOpen: true,
       },
       {
         title: "SDK",
         slug: "/in-app-ui/android/sdk",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick Start" },
-          { slug: "/push-notifications", title: "Push Notifications" },
-          { slug: "/deep-links", title: "Deep Links" },
+          { slug: "/quick-start", title: "Quick start" },
+          { slug: "/push-notifications", title: "Push notifications" },
+          { slug: "/deep-links", title: "Deep links" },
           { slug: "/reference", title: "Reference" },
         ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -232,9 +238,10 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
         slug: "/in-app-ui/flutter/sdk",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick Start" },
+          { slug: "/quick-start", title: "Quick start" },
           { slug: "/reference", title: "Reference" },
         ],
+        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -248,7 +255,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
         slug: "/in-app-ui/expo/sdk",
         pages: [
           { slug: "/overview", title: "Overview" },
-          { slug: "/push-notifications", title: "Push Notifications" },
+          { slug: "/push-notifications", title: "Push notifications" },
           { slug: "/reference", title: "Reference" },
         ],
         sidebarMenuDefaultOpen: true,

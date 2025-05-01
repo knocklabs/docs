@@ -130,7 +130,7 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
   }
 
   return (
-    <Box as="aside" className="lg-hidden">
+    <Box as="aside" className="lg-hidden" pr="4">
       <Box
         position="sticky"
         top="32"

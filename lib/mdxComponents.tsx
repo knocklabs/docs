@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { CodeBlock } from "../components/ui/CodeBlock";
-import Callout from "../components/ui/Callout";
+import { Callout } from "../components/ui/Callout";
 import MultiLangCodeBlock from "../components/ui/MultiLangCodeBlock";
 import LocaleTable from "../components/ui/LocaleTable";
 import { Attributes, Attribute } from "../components/ui/Attributes";
@@ -35,6 +35,7 @@ import {
   ResponsiveTwoColumn,
 } from "../components/ui/OverviewContent/Blocks";
 import { Box, Stack } from "@telegraph/layout";
+import { Tag } from "@telegraph/tag";
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
@@ -101,4 +102,5 @@ export const MDX_COMPONENTS = {
   Text,
   Box: Box,
   Stack: Stack,
+  Tag,
 };
