@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { useTheme } from "next-themes";
 import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import javascript from "react-syntax-highlighter/dist/cjs/languages/hljs/javascript";
 import ruby from "react-syntax-highlighter/dist/cjs/languages/hljs/ruby";
@@ -122,7 +121,6 @@ export const CodeBlock: React.FC<Props> = ({
   ...props
 }) => {
   const isMounted = useIsMounted();
-  const { theme } = useTheme();
 
   const params = useMemo(() => getParams(className) as any, [className]);
 
@@ -235,7 +233,7 @@ export const CodeBlock: React.FC<Props> = ({
           paddingLeft: "0px",
         }}
         language={lang}
-        style={theme === "light" ? lightCodeTheme : darkCodeTheme}
+        style={lightCodeTheme}
       >
         {content}
       </SyntaxHighlighter>
