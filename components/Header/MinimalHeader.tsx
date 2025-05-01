@@ -45,7 +45,6 @@ const MinimalHeader = ({ pageType, toggleSidebar, sidebarShown }: Props) => {
       <Autocomplete />
 
       <div className="ml-auto flex items-center space-x-2 md:space-x-4">
-
         <ApiSdkMenu />
 
         <div className="hidden md:block">

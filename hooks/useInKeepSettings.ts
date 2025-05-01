@@ -13,7 +13,6 @@ type InkeepSharedSettings = {
 };
 
 const useInkeepSettings = (): InkeepSharedSettings => {
-
   const baseSettings: InkeepWidgetBaseSettings = {
     apiKey: process.env.NEXT_PUBLIC_INKEEP_API_KEY || "",
     integrationId: process.env.NEXT_PUBLIC_INKEEP_INTEGRATION_ID || "",

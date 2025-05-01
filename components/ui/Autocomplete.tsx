@@ -413,7 +413,7 @@ const Autocomplete = () => {
                             style={{
                               cursor: "pointer",
                               transition: "all 0.15s ease-in-out",
-                              gridTemplateColumns: "1fr"
+                              gridTemplateColumns: "1fr",
                             }}
                             {...(autocomplete.getItemProps({
                               item,
@@ -472,7 +472,7 @@ const Autocomplete = () => {
                           style={{
                             cursor: "pointer",
                             transition: "all 0.15s ease-in-out",
-                            gridTemplateColumns: "1fr"
+                            gridTemplateColumns: "1fr",
                           }}
                           {...(autocomplete.getItemProps({
                             item,
