@@ -204,7 +204,6 @@ const sidebarContent: SidebarSection[] = [
   {
     title: "Audiences",
     slug: "/api-reference",
-    isBeta: true,
     pages: [
       { slug: "#audiences", title: "Overview" },
       { slug: "#audiences-list-members", title: "List audience members" },
