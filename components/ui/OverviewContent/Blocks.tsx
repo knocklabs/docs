@@ -7,6 +7,7 @@ import { Icons } from "../Icons";
 import React from "react";
 import Image from "next/image";
 import { TgphComponentProps } from "@telegraph/helpers";
+import { useAppearance } from "@telegraph/appearance";
 
 export const Tool = ({
   icon,
@@ -89,6 +90,8 @@ export const ContentCard = ({
   style?: React.CSSProperties;
   newTab?: boolean;
 }) => {
+  const { appearance } = useAppearance();
+
   return (
     <Box borderRadius="2" style={style} shadow="1" data-content-card>
       <Stack
@@ -100,7 +103,7 @@ export const ContentCard = ({
         flexDirection="column"
         gap="2"
         border="px"
-        borderColor="gray-2"
+        borderColor={appearance === "light" ? "gray-2" : "gray-4"}
         borderRadius="2"
         p="3"
         data-content-card-inner

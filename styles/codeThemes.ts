@@ -47,5 +47,51 @@ const customLight = {
   "hljs-strong": { fontWeight: "bold" },
 };
 
+const customDark = {
+  hljs: {
+    fontSize: "12px",
+    display: "block",
+    overflowX: "auto",
+    paddingBlock: "var(--tgph-spacing-5)",
+    paddingInline: "var(--tgph-spacing-5)",
+    color: "var(--tgph-gray-11)",
+    background: "var(--tgph-surface-1)",
+  },
+  "hljs-comment": { color: "var(--tgph-gray-9)", fontStyle: "italic" },
+  "hljs-quote": { color: "#a0a1a7", fontStyle: "italic" },
+  "hljs-doctag": { color: "#a626a4" },
+  "hljs-keyword": { color: "var(--tgph-purple-9)" },
+  "hljs-formula": { color: "#a626a4" },
+  "hljs-section": { color: "#e45649" },
+  "hljs-name": { color: "#e45649" },
+  "hljs-selector-tag": { color: "#e45649" },
+  "hljs-deletion": { color: "#e45649" },
+  "hljs-subst": { color: "#e45649" },
+  "hljs-literal": { color: "var(--tgph-purple-11)" },
+  "hljs-string": { color: "var(--tgph-green-11)" },
+  "hljs-regexp": { color: "var(--tgph-yellow-9)" },
+  "hljs-addition": { color: "var(--tgph-yellow-9)" },
+  "hljs-attribute": { color: "var(--tgph-yellow-9)" },
+  "hljs-meta-string": { color: "var(--tgph-yellow-9)" },
+  "hljs-built_in": { color: "var(--tgph-purple-11)" },
+  "hljs-class .hljs-title": { color: "#c18401" },
+  "hljs-attr": { color: "var(--tgph-yellow-9)" },
+  "hljs-variable": { color: "var(--tgph-purple-11)" },
+  "hljs-template-variable": { color: "var(--tgph-yellow-9)" },
+  "hljs-type": { color: "var(--tgph-yellow-9)" },
+  "hljs-selector-class": { color: "var(--tgph-yellow-9)" },
+  "hljs-selector-attr": { color: "var(--tgph-yellow-9)" },
+  "hljs-selector-pseudo": { color: "var(--tgph-yellow-9)" },
+  "hljs-number": { color: "var(--tgph-yellow-9)" },
+  "hljs-symbol": { color: "var(--tgph-purple-11)" },
+  "hljs-bullet": { color: "var(--tgph-blue-11)" },
+  "hljs-link": { color: "var(--tgph-blue-11)", textDecoration: "underline" },
+  "hljs-meta": { color: "var(--tgph-blue-11)" },
+  "hljs-selector-id": { color: "var(--tgph-blue-11)" },
+  "hljs-title": { color: "var(--tgph-blue-11)" },
+  "hljs-emphasis": { fontStyle: "italic" },
+  "hljs-strong": { fontWeight: "bold" },
+};
+
 export const lightCodeTheme = customLight;
-export const darkCodeTheme = atomOneDark;
+export const darkCodeTheme = customDark;

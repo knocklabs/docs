@@ -272,7 +272,7 @@ const Wrapper = ({ children }: SidebarProps) => {
           h="full"
           pt="2"
           px="4"
-          pb="12"
+          pb="16"
           style={{ overflowY: "auto" }}
           tgphRef={scrollerRef}
         >

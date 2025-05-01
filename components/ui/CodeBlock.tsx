@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useTheme } from "next-themes";
+import { useAppearance } from "@telegraph/appearance";
 import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import javascript from "react-syntax-highlighter/dist/cjs/languages/hljs/javascript";
 import ruby from "react-syntax-highlighter/dist/cjs/languages/hljs/ruby";
@@ -122,7 +122,7 @@ export const CodeBlock: React.FC<Props> = ({
   ...props
 }) => {
   const isMounted = useIsMounted();
-  const { theme } = useTheme();
+  const { appearance } = useAppearance();
 
   const params = useMemo(() => getParams(className) as any, [className]);
 
@@ -170,7 +170,7 @@ export const CodeBlock: React.FC<Props> = ({
   return (
     <Box
       border="px"
-      borderColor="gray-4"
+      borderColor={appearance === "light" ? "gray-2" : "gray-4"}
       borderRadius="4"
       w="full"
       style={{ overflow: "hidden" }}
@@ -180,7 +180,7 @@ export const CodeBlock: React.FC<Props> = ({
       <Stack
         bg="gray-2"
         borderBottom="px"
-        borderColor="gray-2"
+        borderColor={appearance === "light" ? "gray-2" : "gray-4"}
         p="2"
         alignItems="center"
       >
@@ -195,7 +195,7 @@ export const CodeBlock: React.FC<Props> = ({
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
-              className="bg-transparent  mr-2 mt-0.5 text-right"
+              className="bg-transparent mr-2 mt-0.5 text-right"
               style={{
                 color: "var(--tgph-gray-11)",
                 fontSize: "12px",
@@ -235,7 +235,7 @@ export const CodeBlock: React.FC<Props> = ({
           paddingLeft: "0px",
         }}
         language={lang}
-        style={theme === "light" ? lightCodeTheme : darkCodeTheme}
+        style={appearance === "light" ? lightCodeTheme : darkCodeTheme}
       >
         {content}
       </SyntaxHighlighter>

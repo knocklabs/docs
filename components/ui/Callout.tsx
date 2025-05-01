@@ -2,6 +2,7 @@ import { Box, Stack } from "@telegraph/layout";
 import React from "react";
 import { Text } from "@telegraph/typography";
 import { TgphComponentProps } from "@telegraph/helpers";
+import { useAppearance } from "@telegraph/appearance";
 
 export const Callout = ({
   emoji,
@@ -21,6 +22,8 @@ export const Callout = ({
   maxWidth?: string;
   style?: React.CSSProperties;
 }): JSX.Element => {
+  const { appearance } = useAppearance();
+
   const centeredProps: TgphComponentProps<typeof Stack> = isCentered
     ? { mx: "auto", style: { maxWidth: "90%" } }
     : { style: { maxWidth } };
@@ -29,22 +32,22 @@ export const Callout = ({
     typeof bgColor,
     TgphComponentProps<typeof Stack>["backgroundColor"]
   > = {
-    default: "gray-1",
-    blue: "blue-2",
-    yellow: "yellow-2",
-    accent: "accent-2",
-    red: "red-2",
+    default: appearance === "light" ? "gray-1" : "gray-3",
+    blue: appearance === "light" ? "blue-2" : "blue-3",
+    yellow: appearance === "light" ? "yellow-2" : "yellow-4",
+    accent: appearance === "light" ? "accent-2" : "accent-3",
+    red: appearance === "light" ? "red-2" : "red-3",
   };
 
   const textColorMap: Record<
     typeof bgColor,
     TgphComponentProps<typeof Text>["color"]
   > = {
-    default: "black",
-    blue: "black",
-    yellow: "black",
-    accent: "black",
-    red: "black",
+    default: "default",
+    blue: "default",
+    yellow: "default",
+    accent: appearance === "light" ? "default" : "gray",
+    red: "default",
   };
 
   return (

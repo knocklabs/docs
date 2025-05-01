@@ -4,23 +4,26 @@ import { Lucide, Icon } from "@telegraph/icon";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { Text } from "@telegraph/typography";
+import { useAppearance } from "@telegraph/appearance";
 
 const AccordionGroup = ({ children }) => (
-  <div
-    className="[&>div]:border-0 [&>div]:rounded-none [&>div>button]:rounded-none [&>div]:mb-0 overflow-hidden mt-0 mb-3 rounded-xl divide-y divide-inherit border dark:border-zinc-800"
+  <Box
+    borderColor="gray-4"
     role="list"
   >
     {children}
-  </div>
+  </Box>
 );
 
 type AccordionProps = {
   title: string;
   description?: string;
   defaultOpen?: boolean;
+  children: React.ReactNode;
 };
 
-const Accordion = ({ children, title, description, defaultOpen = false }) => {
+const Accordion = ({ children, title, description, defaultOpen = false }: AccordionProps) => {
+  const { appearance } = useAppearance();
   const [open, setOpen] = useState<boolean>(defaultOpen);
 
   return (
@@ -34,6 +37,8 @@ const Accordion = ({ children, title, description, defaultOpen = false }) => {
         px="8"
         w="full"
         justifyContent="flex-start"
+        borderColor={appearance === "light" ? "gray-2" : "gray-4"}
+        borderBottom="px"
         alignItems="center"
       >
         <Stack alignItems="center">

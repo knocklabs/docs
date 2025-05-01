@@ -4,6 +4,7 @@ import { Code, Text } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 import { Lucide } from "@telegraph/icon";
 import { highlightResource } from "@/components/ui/Page/helpers";
+import { useAppearance } from "@telegraph/appearance";
 
 const Header = ({ children }) => (
   <Stack data-property-row-header alignItems="baseline" gap="1" mb="1">
@@ -53,6 +54,8 @@ const Type = ({
   children: React.ReactNode;
   href?: string;
 }) => {
+  const { appearance } = useAppearance();
+
   if (href) {
     const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
@@ -84,7 +87,7 @@ const Type = ({
       bg="gray-2"
       px="1"
       borderRadius="2"
-      color="black"
+      color="default"
       weight="regular"
       border="px"
       borderColor="gray-5"

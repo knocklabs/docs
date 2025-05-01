@@ -40,6 +40,7 @@ import { Icon, Lucide } from "@telegraph/icon";
 import { Text } from "@telegraph/typography";
 import { MenuItem } from "@telegraph/menu";
 import { usePageContext } from "./Page";
+import { useAppearance } from "@telegraph/appearance";
 
 // This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
@@ -113,7 +114,7 @@ const StaticSearch = () => {
           <Text
             as="span"
             size="1"
-            color="black"
+            color="default"
             weight="medium"
             style={{ lineHeight: "1", transform: "translateY(-1px)" }}
           >
@@ -126,6 +127,7 @@ const StaticSearch = () => {
 };
 
 const Autocomplete = () => {
+  const { appearance } = useAppearance();
   const { setIsSearchOpen } = usePageContext();
   const [autocompleteState, setAutocompleteState] =
     useState<AutocompleteState<BaseItem> | null>(null);
@@ -339,7 +341,7 @@ const Autocomplete = () => {
             tgphRef={inputRef}
             placeholder="Search the docs..."
             className="aa-Input"
-            color="gray-10"
+            color="default"
             {...(inputProps as React.DetailedHTMLProps<
               React.InputHTMLAttributes<HTMLInputElement>,
               HTMLInputElement
@@ -348,7 +350,7 @@ const Autocomplete = () => {
             style={{ outline: "none" }}
           />
           <Stack
-            bg="gray-1"
+            bg={appearance === "light" ? "gray-1" : "gray-3"}
             borderRadius="1"
             border="px"
             borderColor="gray-3"
@@ -360,7 +362,7 @@ const Autocomplete = () => {
             <Text
               as="span"
               size="1"
-              color="black"
+              color="default"
               weight="medium"
               style={{ lineHeight: "1", transform: "translateY(-1px)" }}
             >
@@ -374,8 +376,8 @@ const Autocomplete = () => {
         <Box
           borderRadius="2"
           w="96"
-          bg="white"
           p="2"
+          bg="surface-1"
           position="absolute"
           border="px"
           borderColor="gray-6"
@@ -434,7 +436,7 @@ const Autocomplete = () => {
                                 <Text
                                   as="p"
                                   size="2"
-                                  color="black"
+                                  color="default"
                                   weight="regular"
                                 >
                                   {(item as ResultItem).title}
@@ -451,7 +453,7 @@ const Autocomplete = () => {
                               <Icon
                                 icon={Lucide.Sparkles}
                                 alt="Sparkles"
-                                color="black"
+                                color="default"
                                 size="4"
                               />
                             </Stack>
@@ -495,10 +497,7 @@ const Autocomplete = () => {
                     })}
                   </Box>
                 ) : (
-                  <Box
-                    p="4"
-                    className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium "
-                  >
+                    <Box p="4">
                     <Text as="span" size="1" color="gray" weight="regular">
                       No matching results.
                     </Text>{" "}
