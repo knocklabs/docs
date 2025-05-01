@@ -43,14 +43,14 @@ export default function Home() {
         description="Explore our guides and examples to integrate Knock."
       />
       <Page.Masthead
-        title="Welcome to Knock Docs"
+        title="Documentation"
         description="Knock is infrastructure for sending product and customer messaging. Learn more."
       />
       <Page.Wrapper>
         <Page.Sidebar content={sidebarContent} />
         <Page.Content>
           <Page.ContentHeader
-            title="Welcome to Knock Docs"
+            title="Documentation"
             description="Knock is infrastructure for sending product and customer messaging."
           >
             <Text
