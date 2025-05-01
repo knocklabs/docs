@@ -11,6 +11,41 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/getting-started",
+        destination: "/getting-started/what-is-knock",
+        permanent: true,
+      },
+      {
+        source: "/managing-recipients",
+        destination: "/managing-recipients/overview",
+        permanent: true,
+      },
+      {
+        source: "/send-notifications",
+        destination: "/send-notifications/triggering-workflows/overview",
+        permanent: true,
+      },
+      {
+        source: "/triggering-workflows",
+        destination: "/send-notifications/triggering-workflows/overview",
+        permanent: true,
+      },
+      {
+        source: "/preferences",
+        destination: "/preferences/overview",
+        permanent: true,
+      },
+      {
+        source: "/manage-your-account",
+        destination: "/manage-your-account/authentication-methods",
+        permanent: true,
+      },
+      {
+        source: "/sources",
+        destination: "/sources/overview",
+        permanent: true,
+      },
+      {
         source: "/integrations",
         destination: "/integrations/overview",
         permanent: true,
@@ -52,7 +87,7 @@ const nextConfig = {
       },
       {
         source: "/integrations/chat",
-        destination: "/integrations/chat/slack",
+        destination: "/integrations/chat/overview",
         permanent: true,
       },
       {
@@ -68,6 +103,16 @@ const nextConfig = {
       {
         source: "/integrations/microsoft-teams",
         destination: "/integrations/chat/microsoft-teams",
+        permanent: true,
+      },
+      {
+        source: "/microsoft-teams",
+        destination: "/integrations/chat/microsoft-teams/overview",
+        permanent: true,
+      },
+      {
+        source: "/slack",
+        destination: "/integrations/chat/slack/overview",
         permanent: true,
       },
       {
@@ -154,6 +199,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/integrations/webhook",
+        destination: "/integrations/webhook/overview",
+        permanent: true,
+      },
+      {
+        source: "/integrations/extensions",
+        destination: "/integrations/extensions/overview",
+        permanent: true,
+      },
+      {
         source: "/integrations/chat/slack",
         destination: "/integrations/chat/slack/overview",
         permanent: true,
@@ -161,6 +216,11 @@ const nextConfig = {
       {
         source: "/in-app-ui/react",
         destination: "/in-app-ui/react/overview",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/sdk",
+        destination: "/in-app-ui/react/sdk/overview",
         permanent: true,
       },
       {
