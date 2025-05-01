@@ -14,11 +14,12 @@ section: Preferences
 
 <Callout
   emoji="✨"
+  bgColor="accent"
+  title="Enterprise plan feature."
   text={
     <>
-      <span className="font-bold">Enterprise plan feature.</span> Per-tenant
-      user preferences and tenant preference defaults are only available on our{" "}
-      <a href="https://knock.app/pricing">Enterprise plan</a>.
+      Per-tenant user preferences and tenant preference defaults are only
+      available on our <a href="https://knock.app/pricing">Enterprise plan</a>.
     </>
   }
 />
@@ -29,11 +30,12 @@ If you're a B2B application or a multi-tenant SaaS product, you can use tenant p
 
 <Callout
   emoji="🚨"
+  bgColor="yellow"
+  title="Terminology callout."
   text={
     <>
-      <span className="font-bold">Terminology callout.</span> This guide assumes
-      you know about tenants in Knock and what they do. If you're new to
-      tenants, we recommend reading our concept guide on{" "}
+      This guide assumes you know about tenants in Knock and what they do. If
+      you're new to tenants, we recommend reading our concept guide on{" "}
       <a href="/concepts/tenants">tenants</a> before continuing.
     </>
   }
@@ -49,11 +51,11 @@ Here is how tenant preferences work and the steps you'll take to implement them:
 
 ## Create a per-tenant default `PreferenceSet`
 
-You set the default `PreferenceSet` for a tenant via the API by calling the `tenants.set` method. The preferences should follow the format of a recipient <a href="/reference#preferences"><code>PreferenceSet</code></a>.
+You set the default `PreferenceSet` for a tenant via the API by calling the `tenants.set` method. The preferences should follow the format of a recipient <a href="/api-reference/recipients/preferences"><code>PreferenceSet</code></a>.
 
 ```javascript title="Set the default preferences for a tenant"
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 const preferences = {
   workflows: {
@@ -76,14 +78,15 @@ await knock.tenants.set("tenant-id", {
 
 ## Set a per-tenant user `PreferenceSet`
 
-A `PreferenceSet` has an `id`. When you [set a given user's preferences](/reference#set-preferences-user) in Knock, you'll use the `default` ID to apply the preferences universally for the user. When using one of our [SDKs](/sdks/overview), the `default` preference set is used if you don't provide an `id`.
+A `PreferenceSet` has an `id`. When you [set a given user's preferences](/api-reference/users/set_preferences) in Knock, you'll use the `default` ID to apply the preferences universally for the user. When using one of our [SDKs](/developer-tools/sdks), the `default` preference set is used if you don't provide an `id`.
 
 <Callout
   emoji="🚨"
+  bgColor="yellow"
+  title="Terminology clarification."
   text={
     <>
-      <span className="font-bold">Terminology clarification.</span> You'll
-      encounter "default" in a few places in the Knock preferences model:
+      You'll encounter "default" in a few places in the Knock preferences model:
       <br />
       <ol>
         <li>
@@ -106,8 +109,8 @@ A `PreferenceSet` has an `id`. When you [set a given user's preferences](/refere
 <br />
 
 ```javascript title="Set tenant preferences for a user"
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.users.setPreferences(
   "user-id",
@@ -127,8 +130,8 @@ await knock.users.setPreferences(
 You can also get a user's tenant-specific preferences.
 
 ```javascript title="Get tenant preferences for a user"
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 const preferences = await knock.users.getPreferences("user-id", {
   preferenceSet: "tenant-id",
@@ -140,8 +143,8 @@ const preferences = await knock.users.getPreferences("user-id", {
 When you trigger a workflow run, you pass a `tenant` parameter to tell Knock which tenant in your application the workflow is executing for.
 
 ```javascript title="Trigger a workflow with a tenant"
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("workflow-name", {
   tenant: "spotify",

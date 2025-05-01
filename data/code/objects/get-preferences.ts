@@ -4,11 +4,13 @@ curl -X GET https://api.knock.app/v1/objects/projects/project-1/preferences/defa
   -H "Authorization: Bearer sk_test_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
 // If no preference set id is provided, the SDK will return the object's "default" preferences
-await knockClient.objects.getPreferences("projects", "project-1", { preferenceSet: "tenant-1" });
+await knock.objects.getPreferences("projects", "project-1", "tenant-1");
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
@@ -18,14 +20,16 @@ Knock.Objects.get_preferences(knock_client, "projects", "project-1", preference_
 `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
 # If no preference set id is provided, the SDK will return the object's "default" preferences
-client.objects.get_preferences(collection="projects", id="project-1", options={"preference_set": "tenant-1"})
+client.objects.get_preferences(collection="projects", object_id="project-1", id="tenant-1")
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # If no preference set id is provided, the SDK will return the object's "default" preferences
 Knock::Objects.get_preferences(collection: "projects", id: "project-1", preference_set: "tenant-1")
@@ -39,33 +43,43 @@ await knockClient.Objects.GetPreferences("projects", "project-1", preferenceSetI
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 // The preference set id must be "default" or the id of a tenant you have created
 $client->objects()->getPreference('projects', 'project-1', 'default');
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // If no preference set id is provided, the SDK will return the object's "default" preferences
-preferenceSet, _ := knockClient.Objects.GetPreferences(ctx, &knock.GetObjectPreferencesRequest{
-  Collection:   "projects",
-  ID:           "project-1",
-  PreferenceID: "tenant-1",
-})
+preferenceSet, _ := knockClient.Objects.GetPreferences(ctx, "projects", "project-1", "tenant-1")
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectGetPreferencesParams;
+import app.knock.api.models.recipients.preferences.PreferenceSet;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
 // The preference set id must be "default" or the id of a tenant you have created
-PreferenceSet prefs = client.objects().getPreferencesById("projects", "project-1", "default");
+ObjectGetPreferencesParams params = ObjectGetPreferencesParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .id("tenant-1")
+    .build();
+PreferenceSet prefs = client.objects().getPreferences(params);
 `,
 };
 

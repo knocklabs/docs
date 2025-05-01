@@ -1,9 +1,9 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
-await knockClient.users.setPreferences("jhammond", {
+await knockClient.users.setPreferences("jhammond", "default", {
   workflows: {
     "dinosaurs-loose": {
       conditions: [
@@ -24,6 +24,7 @@ client = Knock(api_key="sk_12345")
 
 client.users.set_preferences(
   user_id=user.id,
+  id="default",
   workflows={
     "dinosaurs-loose": {
       "conditions": [{
@@ -37,11 +38,11 @@ client.users.set_preferences(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.set_preferences(
-  user_id: user.id,
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.users.set_preferences(user.id, "default", {
   workflows: {
     "dinosaurs-loose": {
       conditions: [{
@@ -52,7 +53,7 @@ Knock::Users.set_preferences(
       }]
     }
   }
-)
+})
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -112,42 +113,61 @@ $client->users()->setPreferences($user->id(), [
 ]);
   `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-request := &knock.SetUserPreferencesRequest{UserID: user.ID}
-
-request.AddWorkflowsPreference(map[string]interface{}{
-  "dinosaurs-loose": map[string]interface{}{
-    "conditions": []map[string]interface{}{
-      map[string]interface{}{
-        "variable": "recipient.muted_alert_ids",
-        "operator": "not_contains",
-        "argument": "data.alert_id"
-      }
+preferenceSetRequest := &knock.PreferenceSetRequestParam{
+  Workflows: map[string]interface{}{
+    "dinosaurs-loose": map[string]interface{}{
+      "conditions": []map[string]interface{}{
+        {
+          "variable":  "recipient.muted_alert_ids",
+          "operator":  "not_contains",
+          "argument":  "data.alert_id",
+        },
+      },
     },
   },
-})
+}
 
-preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request)
+preferenceSet, _ := knockClient.Users.SetPreferences(ctx, user.ID, "default", &knock.UserSetPreferencesParams{
+  PreferenceSetRequest: *preferenceSetRequest,
+})
   `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.PreferenceSet;
+import app.knock.api.models.users.UserSetPreferencesParams;
+import app.knock.api.core.JsonValue;
+import java.util.List;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-PreferenceSetRequest request = PreferenceSetRequest.builder()
-  .workflow("dinosaurs-loose",
-    new PreferenceSetBuilder()
-      .condition("recipient.muted_alert_ids", "not_contains", "data.alert_id")
-      .build()
-  )
-  .build();
+UserSetPreferencesParams params = UserSetPreferencesParams.builder()
+    .userId(user.getId())
+    .preferenceSetId("default")
+    .workflows(UserSetPreferencesParams.Workflows.builder()
+        .putAdditionalProperty("dinosaurs-loose", JsonValue.from(UserSetPreferencesParams.WorkflowPreference.builder()
+            .conditions(List.of(UserSetPreferencesParams.Condition.builder()
+                .variable("recipient.muted_alert_ids")
+                .operator("not_contains")
+                .argument("data.alert_id")
+                .build()))
+            .build()))
+        .build())
+    .build();
 
-PreferenceSet preferences = client.users().setPreferences(user.getId(), request);
+PreferenceSet preferences = client.users().setPreferences(params);
 `,
 };
 

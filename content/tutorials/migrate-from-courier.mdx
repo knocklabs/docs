@@ -1,0 +1,252 @@
+---
+title: Migrate from Courier to Knock
+description: Learn how to migrate your notifications from Courier to Knock.
+tags: ["migrate", "courier", "migration"]
+section: Guides
+---
+
+Knock’s APIs and developer tools make it easy to migrate your notification templates and user data from other notifications platforms into Knock. In this guide, we will walk you through planning and executing a migration from Courier into Knock.
+
+## Mapping Courier concepts to Knock concepts
+
+Before migrating any data into Knock, it’s helpful to understand how the resources in your Courier account map to concepts and resources in Knock.
+
+### Integrations
+
+In order to deliver notifications with Courier, you installed one or more <a href="https://www.courier.com/docs/external-integrations/intro" target="_blank">Integrations</a> for downstream providers in your Courier dashboard. In Knock, we refer to these delivery platforms as [Channels](/concepts/channels).
+
+Channels are configured under the **Integrations** tab in your Knock dashboard. You can see a full list of supported Channel types and providers [here](/integrations/overview).
+
+In addition to first-party integrations with message delivery platforms, Knock also offers convenient connections to customer data platforms (CDPs) and reverse ETL providers to bring your data into Knock ([Sources](/integrations/sources/overview)), as well as to popular analytics and data warehousing tools to allow you to export important data out of Knock ([Extensions](/integrations/extensions/overview)).
+
+### Automations and Notification Templates
+
+In Courier, the content of your notifications is contained in <a href="https://www.courier.com/docs/platform/content/notification-designer/notification-designer-overview" target="_blank">templates</a> built in your dashboard, and the orchestration and logic of sending your notifications is contained in <a href="https://www.courier.com/docs/platform/automations/" target="_blank">Automations</a>.
+
+Knock combines both of these things into a single resource called a [Workflow](/concepts/workflows), which serves as a container for all of the logic and message templates associated with a given notification in your system. You can also create [Partials](/designing-workflows/partials), which are content blocks that can be used across multiple workflows.
+
+When you’re ready to start sending notifications, you’ll do so by [triggering](/send-notifications/triggering-workflows) your workflows.
+
+### Users and Profiles
+
+Courier uses the concept of <a href="https://www.courier.com/docs/platform/users/" target="_blank">Users</a> to represent the recipients of notifications, with optional <a href="https://www.courier.com/docs/reference/profiles/" target="_blank">Profile</a> records associated with each user to hold data about that user.
+
+Knock combines these concepts under a single [User](/concepts/users) object on which you can store any number of custom properties related to your notifications’ recipients.
+
+### Lists
+
+Courier allows you to build <a href="https://www.courier.com/docs/reference/lists/" target="_blank">Lists</a> of users that you would like to send a given notification to. In Knock, we call this concept [Subscriptions](/concepts/subscriptions).
+
+Subscriptions are an extension of [Objects](/concepts/objects) and express the relationship between a [Recipient](/concepts/recipients) (the subscriber) and an Object. When you trigger a notification to an Object recipient, Knock will fan out the workflow trigger to **all recipients that are subscribers**, automatically enqueuing a workflow run for each recipient subscriber on your behalf.
+
+### Tenants and Brands
+
+If you’re currently using <a href="https://www.courier.com/docs/reference/tenants/" target="_blank">Tenants</a> in Courier to scope your notifications to a particular workspace or organization (and optionally associating <a href="https://www.courier.com/docs/reference/brands/" target="_blank">Brands</a> with those Tenants), you can achieve similar functionality with Knock [Tenants](/concepts/tenants).
+
+Unlike Courier, per-tenant branding attributes are stored directly on a Tenant in Knock rather than as a separate resource. Knock also does not directly associate Tenants with the recipients of a notification (no subscription logic necessary!); rather, a `tenant` is applied as context to a particular workflow trigger in order to [apply per-tenant branding](/concepts/tenants#custom-branding), [per-tenant preferences](/concepts/tenants#per-tenant-user-preferences-and-tenant-preference-defaults), and [scope in-app feed messages to particular tenants](/concepts/tenants#scoping-in-app-feeds).
+
+<Callout
+  emoji="✨"
+  title="Note:"
+  text={
+    <>
+      Per-tenant branding and per-tenant preferences are features of our{" "}
+      <a href="https://knock.app/pricing" target="_blank">
+        Enterprise plan
+      </a>
+      . If you’d like to find out more information about Enterprise plan features
+      and pricing, please contact us at <a href="mailto:sales@knock.app">
+        sales@knock.app
+      </a>.
+    </>
+  }
+/>
+
+### User Preferences
+
+Courier’s <a href="https://www.courier.com/docs/reference/user-preferences/intro" target="_blank">User Preferences API</a> allows you to set notifications preferences for a given user by a Topic categorization and a Preference Section (a group of multiple Topics), as well as by delivery channel.
+
+Knock’s [Preferences](/preferences/overview) model has a single high-level `category` property that can be assigned on a Workflow; because a given workflow can have more than one `category`, you can use this property to map both Topics and Preference Sections to your notifications in Knock.
+
+Our powerful Preferences API allows your users to opt out of notifications based on the notification’s delivery `channel_type`, the `category` of the notification, the specific notification `workflow`, or a combination of these properties. You can also extend these preferences to be [tenant-specific](/preferences/tenant-preferences) or to [evaluate conditionally](/preferences/preference-conditions).
+
+### Translations
+
+Courier’s <a href="https://www.courier.com/docs/reference/translations/" target="_blank">Translations API</a> allows you to read and write translations to Courier in the form of `.po` files that are referenced using the handlebars templating language within a notification template.
+
+Knock helps you to power notifications in multiple locales and languages using Knock [Translations](/concepts/translations). You can work with Translations directly in your dashboard or programmatically via API, and Knock supports both `json` and `.po` file formats.
+
+When using the `t` tag [method](/concepts/translations#translation-methods-filter-vs-tag) of referencing translations in your message templates, Knock will automatically generate the associated translation files for each of your registered locales behind the scenes.
+
+## Migrating your data into Knock
+
+Now that you have a good understanding of how the resources in your Courier account map to concepts and resources in Knock, you can start planning your migration.
+
+Knock offers APIs and developer tools that make a migration smooth and efficient:
+
+- A [Management API](/mapi) that allows you to work programmatically with the resources that you can also create directly in your Knock dashboard (like Workflows and their associated message templates, email [Layouts](/integrations/email/layouts), and Translations).
+- A command line interface ([Knock CLI](/developer-tools/knock-cli)) that wraps the Management API, allowing you to work with your dashboard resources from the command line.
+- [Bulk endpoints](/api-reference/bulk-endpoints) that allow you to upsert large amounts of data in a single API request (more on specific endpoints below).
+
+<Callout
+  emoji="🚸"
+  title="Inline recipient identification."
+  text={
+    <>
+      While the following steps outline a suggested order for migrating
+      individual resource types into Knock based on your existing Courier
+      integration, it’s helpful to note that Knock also supports{" "}
+      <a href="/managing-recipients/identifying-recipients#inline-identifying-recipients">
+        inline identification
+      </a>{" "}
+      of recipients in order to allow you to upsert recipients as you are
+      performing other actions like triggering a workflow or creating
+      subscriptions. Your approach may vary depending on your specific
+      requirements.
+    </>
+  }
+/>
+
+We recommend migrating data into Knock in the following order to ensure that certain resources which are dependencies of other resources are migrated first:
+
+<Steps titleSize="h3">
+  <Step title="Configure your integrations">
+    You’ll want to configure your Channels prior to migrating any workflows so that you can set the correct delivery methods for each of your notifications.
+
+    You can do this by navigating to **Integrations** > **Channels** in your Knock dashboard.
+
+  </Step>
+  <Step title="Build workflows">
+    Next, you can begin migrating Automations and Notification Templates into Knock Workflows.
+
+    While you cannot request Courier Automations definitions via API, you can access a JSON representation of each Automation by navigating to the <a href="https://app.courier.com/assets/automations" target="_blank">Automations</a> section of your Courier dashboard, selecting the relevant automation, then clicking the “Code” button in the top navigation bar.
+
+    Unfortunately, you also cannot export the message content of your notification templates from Courier. However, you _can_ request the delivery routing logic for your notifications from the Courier API and use this information to reconstruct your Workflows in Knock.
+
+    Knock’s environment model means that you’ll be upserting all of your Workflows and other dashboard resources to your Development environment, where you’ll commit and then promote changes to higher environments (like Production). Read more [here](/concepts/environments).
+
+    You can assign one or more [categories](/concepts/workflows#workflow-categories) to your workflows. These can be used to power recipient preferences (which we will cover in more detail below) and are roughly similar to Courier’s <a href="https://www.courier.com/docs/platform/preferences/preferences-editor/#subscription-topics" target="_blank">subscription topics</a>.
+
+    <AccordionGroup>
+      <Accordion title="Relevant endpoints">
+          <a href="https://www.courier.com/docs/reference/notifications/get-notifications" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="GET" path="https://api.courier.com/notifications" />
+          </a>
+          <a href="https://docs.knock.app/mapi-reference/workflows/upsert" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="PUT" path="https://control.knock.app/v1/workflows/{workflow_key}" />
+          </a>
+          <a href="https://docs.knock.app/mapi-reference/email_layouts/upsert" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="PUT" path="https://control.knock.app/v1/email_layouts/{email_layout_key}" />
+          </a>
+          <a href="https://docs.knock.app/mapi-reference/partials/upsert" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="PUT" path="https://control.knock.app/v1/partials/{partial_key}" />
+          </a>
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+  <Step title="Import translation files">
+    Next, you can migrate any translation files that are required to power your notifications. If you're already using translations in Courier, you should be able to use the same `.po` files in Knock.
+
+    <AccordionGroup>
+      <Accordion title="Relevant endpoints">
+          <a href="https://www.courier.com/docs/reference/translations/get_translation/" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="GET" path="https://api.courier.com/translations/:domain/:locale" />
+          </a>
+          <a href="https://docs.knock.app/mapi-reference/translations/upsert" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="PUT" path="https://control.knock.app/v1/translations/{locale_code}" />
+          </a>
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+  <Step title="Add tenants">
+    The next step is to migrate Tenants and Brands from Courier to Knock. Remember that in Knock, tenant-specific branding is stored as a property of a Tenant rather than as a separate resource.
+
+    <AccordionGroup>
+      <Accordion title="Relevant endpoints">
+          <a href="https://www.courier.com/docs/reference/tenants/get-tenants/" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="GET" path="https://api.courier.com/tenants" />
+          </a>
+          <a href="https://www.courier.com/docs/reference/brands/list-brands/" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="GET" path="https://api.courier.com/brands" />
+          </a>
+          <a href="https://docs.knock.app/api-reference/tenants/set" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="PUT" path="https://api.knock.app/v1/tenants/:id" />
+          </a>
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+  <Step title="Migrate users">
+    Migrating your users and their data will be one of the most important parts of a transition from Courier to Knock. There are a few key points to be aware of as you plan this part of your migration:
+      - Courier’s <a href="https://www.courier.com/docs/reference/profiles/" target="_blank">Profiles API</a> does not include an endpoint to list all users, so you’ll need to export them one at a time.
+      - Knock uses the concept of [environments](/concepts/environments) to ensure logical separation of your data between local, staging, and production environments. This means that recipients and preferences created in one environment are never accessible to another. Your data for production users should be migrated into your Production environment in Knock.
+      - Knock offers several different ways of “identifying” user data into our systems, and the best approach for you may differ depending on your use case. You can read more about the various approaches [here](/managing-recipients/identifying-recipients).
+
+    <AccordionGroup>
+      <Accordion title="Relevant endpoints">
+          <a href="https://www.courier.com/docs/reference/profiles/by-id/" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="GET" path="https://api.courier.com/profiles/:user_id" />
+          </a>
+          <a href="https://docs.knock.app/api-reference/users/update" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="PUT" path="https://api.knock.app/v1/users/:user_id" />
+          </a>
+          <a href="https://docs.knock.app/api-reference/users/bulk/identify" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="POST" path="https://api.knock.app/v1/users/bulk/identify" />
+          </a>
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+  <Step title="Object subscriptions">
+    [Subscriptions](/concepts/subscriptions) in Knock are an extension of [Objects](/concepts/objects) (a special type of non-user notification recipient). In order to migrate your List subscriptions from Courier to Knock, you’ll need to:
+      - Export all Lists and their subscribers from Courier.
+      - Create a new Object in Knock for each one of these Lists. Objects are organized into [collections](/concepts/objects#sending-object-data-to-knock) that represent the category or type of resource that they’ll be notifying.
+      - Subscribe the appropriate users to each of these new Objects.
+
+    Knock offers several bulk endpoints that can be used to optimize this data upsert with only a few API calls.
+
+    <AccordionGroup>
+      <Accordion title="Relevant endpoints">
+          <a href="https://www.courier.com/docs/reference/lists/list/" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="GET" path="https://api.courier.com/lists" />
+          </a>
+          <a href="https://www.courier.com/docs/reference/lists/subscriptions/" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="GET" path="https://api.courier.com/lists/:list_id/subscriptions" />
+          </a>
+          <a href="https://docs.knock.app/api-reference/objects/set" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="PUT" path="https://api.knock.app/v1/objects/:collection/:id" />
+          </a>
+          <a href="https://docs.knock.app/api-reference/objects/bulk/set" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="POST" path="https://api.knock.app/v1/objects/:collection/bulk/set" />
+          </a>
+          <a href="https://docs.knock.app/api-reference/objects/add_subscriptions" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="POST" path="https://api.knock.app/v1/objects/:collection/:id/subscriptions" />
+          </a>
+          <a href="https://docs.knock.app/api-reference/objects/bulk/add_subscriptions" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="POST" path="https://api.knock.app/v1/objects/:collection/bulk/subscriptions/add" />
+          </a>
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+  <Step title="Preferences">
+    At this point, you’re ready to migrate all of your users’ notification [preferences](/preferences/overview) to Knock. If you’re currently using User Preferences in Courier, you should be able to map your users’ settings to your new Knock resources in order to power your preference center.
+
+    <AccordionGroup>
+      <Accordion title="Relevant endpoints">
+          <a href="https://www.courier.com/docs/reference/user-preferences/list-all-user-preferences/" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="GET" path="https://api.courier.com/users/:user_id/preferences" />
+          </a>
+          <a href="https://docs.knock.app/api-reference/users/set_preferences" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="PUT" path="https://api.knock.app/v1/users/:user_id/preferences/:id" />
+          </a>
+          <a href="https://docs.knock.app/api-reference/users/bulk/set_preferences" target="_blank" style={{textDecoration: 'none'}}>
+            <Endpoint method="POST" path="https://api.knock.app/v1/users/bulk/preferences" />
+          </a>
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+</Steps>

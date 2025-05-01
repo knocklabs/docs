@@ -10,6 +10,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/example-apps", title: "Example apps" },
     ],
+    sidebarMenuDefaultOpen: true,
   },
   {
     title: "Concepts",
@@ -132,114 +133,35 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
   {
-    title: "Building in-app UI",
-    slug: "/in-app-ui",
-    desc: "Use the Knock in-app experiences APIs and components to build rich notifications experiences inside of your product.",
+    title: "Manage your account",
+    slug: "/manage-your-account",
+    desc: "Learn more about the tools available in managing your Knock account.",
     pages: [
-      { slug: "/overview", title: "Overview" },
-      {
-        slug: "/api-overview",
-        title: "API endpoints",
-      },
-      {
-        slug: "/security-and-authentication",
-        title: "Security & authentication",
-      },
-      {
-        slug: "/message-types",
-        title: "Message types",
-        isBeta: true,
-      },
-      {
-        title: "React",
-        slug: "/react",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/feed", title: "Notification feed" },
-          { slug: "/toasts", title: "Toasts" },
-          { slug: "/inbox", title: "Notification inbox" },
-          {
-            slug: "/custom-notifications-ui",
-            title: "Custom feed UI (headless)",
-          },
-          { slug: "/preferences", title: "Preferences" },
-          { slug: "/slack-kit", title: "SlackKit" },
-          { slug: "/teams-kit", title: "TeamsKit" },
-          {
-            slug: "/filtering-in-app-feeds",
-            title: "Filtering feeds",
-          },
-          {
-            slug: "/customizing-feed-components",
-            title: "Customizing feed components",
-          },
-        ],
-      },
-      {
-        title: "Javascript",
-        slug: "/javascript",
-        pages: [{ slug: "/overview", title: "Overview" }],
-      },
-      {
-        title: "Angular",
-        slug: "/angular",
-        pages: [{ slug: "/overview", title: "Overview" }],
-      },
-      {
-        title: "React Native",
-        slug: "/react-native",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/components", title: "Components" },
-          {
-            slug: "/customization",
-            title: "Customization",
-          },
-          {
-            slug: "/notification-feeds",
-            title: "Custom notifications UI (headless)",
-          },
-        ],
-      },
-      {
-        title: "iOS (Swift)",
-        slug: "/ios",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/components", title: "Components" },
-          {
-            slug: "/customization",
-            title: "Customization",
-          },
-        ],
-      },
-      {
-        title: "Android (Kotlin)",
-        slug: "/android",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/components", title: "Components" },
-          {
-            slug: "/customization",
-            title: "Customization",
-          },
-        ],
-      },
-      {
-        title: "Flutter",
-        slug: "/flutter",
-        pages: [{ slug: "/overview", title: "Overview" }],
-      },
+      { slug: "/authentication-methods", title: "Authentication methods" },
+      { slug: "/saml-sso", title: "SAML SSO" },
+      { slug: "/directory-sync", title: "Directory sync (SCIM)" },
+      { slug: "/managing-members", title: "Managing members" },
+      { slug: "/roles-and-permissions", title: "Roles and permissions" },
+      { slug: "/audit-logs", title: "Audit logs" },
+      { slug: "/data-obfuscation", title: "Data obfuscation" },
+      { slug: "/account-timezone", title: "Account timezone" },
+      { slug: "/data-retention", title: "Data retention" },
     ],
   },
+];
+
+const developerToolsContent: SidebarSection[] = [
   {
     title: "Developer tools",
     slug: "/developer-tools",
     desc: "Use our powerful developer tools in order to integrate Knock seamlessly into your development workflow.",
+    sidebarMenuDefaultOpen: true,
     pages: [
+      { slug: "/overview", title: "Overview" },
       { slug: "/api-keys", title: "API keys" },
       { slug: "/service-tokens", title: "Service tokens" },
       { slug: "/knock-cli", title: "Knock CLI" },
+      { slug: "/sdks", title: "SDKs" },
       { slug: "/management-api", title: "Management API" },
       { slug: "/api-logs", title: "API logs" },
       { slug: "/knock-and-postman", title: "Knock and Postman" },
@@ -254,6 +176,17 @@ const sidebarContent: SidebarSection[] = [
         ],
       },
       { slug: "/validating-trigger-data", title: "Validating trigger data" },
+      {
+        slug: "/migration-guides",
+        title: "Migration guides",
+        pages: [
+          { slug: "/node", title: "Node.js 1.0" },
+          { slug: "/python", title: "Python 1.0" },
+          { slug: "/java", title: "Java 1.0" },
+          { slug: "/ruby", title: "Ruby 1.0" },
+          { slug: "/go", title: "Go 1.0" },
+        ],
+      },
       {
         slug: "/agent-toolkit",
         title: "Agent Toolkit",
@@ -294,107 +227,18 @@ const sidebarContent: SidebarSection[] = [
       },
     ],
   },
+];
 
+const tutorialsContent: SidebarSection[] = [
   {
-    title: "SDKs",
-    slug: "/sdks",
-    desc: "",
+    title: "Tutorials",
+    slug: "/tutorials",
+    sidebarMenuDefaultOpen: true,
     pages: [
       {
-        title: "Overview",
         slug: "/overview",
+        title: "Overview",
       },
-      {
-        title: "React (Web)",
-        slug: "/react",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/reference", title: "API reference" },
-        ],
-      },
-      {
-        title: "Javascript (Web)",
-        slug: "/javascript",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick start" },
-          { slug: "/reference", title: "API reference" },
-        ],
-      },
-      {
-        title: "iOS (Swift)",
-        slug: "/ios",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick start" },
-          { slug: "/push-notifications", title: "Push notifications" },
-          { slug: "/deep-links", title: "Deep/universal links" },
-          { slug: "/reference", title: "API reference" },
-        ],
-      },
-      {
-        title: "Android (Kotlin)",
-        slug: "/android",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick start" },
-          { slug: "/push-notifications", title: "Push notifications" },
-          { slug: "/deep-links", title: "Deep links" },
-          { slug: "/reference", title: "API reference" },
-        ],
-      },
-      {
-        title: "Flutter",
-        slug: "/flutter",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick start" },
-          { slug: "/reference", title: "API reference" },
-        ],
-      },
-      {
-        title: "React Native",
-        slug: "/react-native",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/quick-start", title: "Quick start" },
-          { slug: "/push-notifications", title: "Push notifications" },
-          { slug: "/reference", title: "API reference" },
-        ],
-      },
-      {
-        title: "Expo",
-        slug: "/expo",
-        pages: [
-          { slug: "/overview", title: "Overview" },
-          { slug: "/push-notifications", title: "Push notifications" },
-          { slug: "/reference", title: "API reference" },
-        ],
-      },
-    ],
-  },
-
-  {
-    title: "Manage your account",
-    slug: "/manage-your-account",
-    desc: "Learn more about the tools available in managing your Knock account.",
-    pages: [
-      { slug: "/authentication-methods", title: "Authentication methods" },
-      { slug: "/saml-sso", title: "SAML SSO" },
-      { slug: "/directory-sync", title: "Directory sync (SCIM)" },
-      { slug: "/managing-members", title: "Managing members" },
-      { slug: "/roles-and-permissions", title: "Roles and permissions" },
-      { slug: "/audit-logs", title: "Audit logs" },
-      { slug: "/data-obfuscation", title: "Data obfuscation" },
-      { slug: "/account-timezone", title: "Account timezone" },
-      { slug: "/data-retention", title: "Data retention" },
-    ],
-  },
-
-  {
-    title: "Guides",
-    slug: "/guides",
-    pages: [
       {
         slug: "/implementation-guide",
         title: "Knock implementation guide",
@@ -419,5 +263,80 @@ const sidebarContent: SidebarSection[] = [
     ],
   },
 ];
+
+const cliContent: SidebarSection[] = [
+  {
+    title: "Getting started",
+    slug: "/cli/overview",
+    pages: [
+      { slug: "", title: "Introduction" },
+      { slug: "/installation", title: "Install the Knock CLI" },
+      { slug: "/authentication", title: "Authentication" },
+      { slug: "/global-flags", title: "Global flags" },
+    ],
+  },
+  {
+    title: "Workflows",
+    slug: "/cli/workflow",
+    pages: [
+      { slug: "/list", title: "List workflows" },
+      { slug: "/get", title: "Get workflows" },
+      { slug: "/pull", title: "Pull workflows" },
+      { slug: "/push", title: "Push workflows" },
+      { slug: "/run", title: "Run workflow" },
+      { slug: "/validate", title: "Validate workflow" },
+      { slug: "/activate", title: "Activate workflow" },
+    ],
+  },
+
+  {
+    title: "Email layouts",
+    slug: "/cli/email-layout",
+    pages: [
+      { slug: "/list", title: "List email layouts" },
+      { slug: "/get", title: "Get email layouts" },
+      { slug: "/pull", title: "Pull email layouts" },
+      { slug: "/push", title: "Push email layouts" },
+      { slug: "/validate", title: "Validate email layouts" },
+    ],
+  },
+
+  {
+    title: "Translations",
+    slug: "/cli/translation",
+    pages: [
+      { slug: "/list", title: "List translations" },
+      { slug: "/get", title: "Get translations" },
+      { slug: "/pull", title: "Pull translations" },
+      { slug: "/push", title: "Push translations" },
+      { slug: "/validate", title: "Validate translations" },
+    ],
+  },
+
+  {
+    title: "Partials",
+    slug: "/cli/partial",
+    pages: [
+      { slug: "/list", title: "List partials" },
+      { slug: "/get", title: "Get partials" },
+      { slug: "/pull", title: "Pull partials" },
+      { slug: "/push", title: "Push partials" },
+      { slug: "/validate", title: "Validate partials" },
+    ],
+  },
+
+  {
+    title: "Commits",
+    slug: "/cli/commit",
+    pages: [
+      { slug: "/list", title: "List commits" },
+      { slug: "/get", title: "Get commits" },
+      { slug: "/all", title: "Commit changes" },
+      { slug: "/promote", title: "Promote changes" },
+    ],
+  },
+];
+
+export { tutorialsContent, developerToolsContent, cliContent };
 
 export default sidebarContent;

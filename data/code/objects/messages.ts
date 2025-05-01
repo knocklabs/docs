@@ -11,17 +11,19 @@ curl -X GET "https://api.knock.app/v1/objects/projects/project-1/messages \\
   --url-query tenant=my-tenant
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-const messages = await knockClient.objects.getMessages(
+const messages = await knock.objects.listMessages(
   "projects",
   project.id
 );
 
 // supports pagination parameters and filters
 
-const messages = await knockClient.objects.getMessages(
+const messages = await knock.objects.listMessages(
   "projects",
   project.id,
   {
@@ -46,24 +48,23 @@ Knock.Objects.get_messages(
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
-client.objects.get_messages(
-  collection="projects",
-  id=project.id,
-)
+client.objects.list_messages(collection="projects", id=project.id)
 
 # supports pagination parameters and filters
-
-client.objects.get_messages(
+client.objects.list_messages(
   collection="projects",
   id=project.id,
-  options={'page_size': 10, 'tenant': "my_tenant"}
+  page_size=10,
+  tenant="my_tenant"
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 Knock::Objects.get_messages(
   collection: "projects",
@@ -102,27 +103,51 @@ $client->objects()->getMessages('projects', 'project-1', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-response, _ := knockClient.Objects.GetMessages(ctx, &knock.GetObjectMessagesRequest{
-  Collection: "projects",
-  ObjectID:   "project-1",
-  PageSize:   10
+	"github.com/stainless-sdks/knock-go"
+	"github.com/stainless-sdks/knock-go/option"
+)
+
+ctx := context.Background()
+client := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+// List messages with pagination
+messages, _ := client.Messages.List(ctx, knock.MessageListParams{
+	PageSize: param.New(20),
+	Tenant:   param.New("my-tenant"),
 })
+
+// Auto-paging version
+messagesPager := client.Messages.ListAutoPaging(ctx, knock.MessageListParams{
+	PageSize: param.New(20),
+	Tenant:   param.New("my-tenant"),
+})
+
+// Iterate through messages
+for messagesPager.Next() {
+	message := messagesPager.Current()
+	// Process message...
+}
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectListMessagesParams;
+import app.knock.api.models.objects.ObjectListMessagesPage;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
-queryParams.pageSize(10);
-
-CursorResult<KnockMessage> result = client.objects().getMessages("projects", "project-1", queryParams);
+ObjectListMessagesParams params = ObjectListMessagesParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .pageSize(10)
+    .tenant("my_tenant")
+    .build();
+ObjectListMessagesPage messages = client.objects().listMessages(params);
 `,
 };
 

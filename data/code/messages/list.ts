@@ -11,14 +11,16 @@ curl -X GET https://api.knock.app/v1/messages \\
   --url-query tenant=my_tenant
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-const messages = await knockClient.messages.list()
+const messages = await knock.messages.list()
 
 // supports pagination parameters and filters
 
-const messages = await knockClient.messages.list(
+const messages = await knock.messages.list(
   {
     page_size: 20,
     tenant: "my-tenant"
@@ -39,23 +41,24 @@ Knock.Messages.list(
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
 client.messages.list()
 
 # supports pagination parameters and filters
-
-client.messages.list({'page_size': 20, 'tenant': "my_tenant"})
+client.messages.list(page_size=20, tenant="my_tenant")
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Messages.list()
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.messages.list()
 
 # supports pagination parameters and filters
 
-Knock::Messages.list(options: {'page_size': 20, 'tenant': "my_tenant"})
+client.messages.list(page_size: 20, tenant: "my_tenant")
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -74,7 +77,7 @@ await knockClient.Messages.List(params);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->messages()->list([
@@ -83,28 +86,54 @@ $client->messages()->list([
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-result, _ := knockClient.Messages.List(ctx, &knock.ListMessagesRequest{
-  PageSize: 20,
-  Tenant: "my_tenant",
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+// List messages with pagination
+messages, _ := knockClient.Messages.List(ctx, knock.MessageListParams{
+	PageSize: param.New(20),
+	Tenant:   param.New("my-tenant"),
 })
+
+// Auto-paging version
+messagesPager := knockClient.Messages.ListAutoPaging(ctx, knock.MessageListParams{
+	PageSize: param.New(20),
+	Tenant:   param.New("my-tenant"),
+})
+
+// Iterate through messages
+for messagesPager.Next() {
+	message := messagesPager.Current()
+	// Process message...
+}
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.messages.MessageListParams;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
+// Basic request
+var messages = client.messages().list();
 
-queryParams.pageSize(10);
-queryParams.tenant("my_tenant");
-
-CursorResult<KnockMessage> result = client.messages().list(queryParams);
+// With pagination and filters
+var filteredMessages = client.messages().list(
+    MessageListParams.builder()
+        .pageSize(20)
+        .tenant("my_tenant")
+        .build()
+);
   `,
 };
 

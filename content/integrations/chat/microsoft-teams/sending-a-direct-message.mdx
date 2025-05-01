@@ -34,13 +34,14 @@ If you already use Knock's tenant concept to power other 'account-based' feature
 
 <Callout
   emoji="💡"
+  title="Note:"
   text={
     <>
-      <strong>Note: </strong>
-      Our best-practice recommendation is that tenants in Knock should map one-to-one
-      to whatever abstraction you use to model accounts, organizations, or workspaces.
-      You can think of tenants as the top-level container within your data model
-      that you use to power multi-tenancy in your application.
+      Our best-practice recommendation is that tenants in Knock should map
+      one-to-one to whatever abstraction you use to model accounts,
+      organizations, or workspaces. You can think of tenants as the top-level
+      container within your data model that you use to power multi-tenancy in
+      your application.
     </>
   }
 />
@@ -87,12 +88,15 @@ You'll need to generate a token for your user that includes access to the Knock 
 Using the below example, you can quickly generate a token with the [Node SDK](https://github.com/knocklabs/knock-node#signing-jwts).
 
 ```javascript
-import { Knock } from "@knocklabs/node";
-import { Grants } from "@knocklabs/node/dist/src/common/userTokens";
+import {
+  signUserToken,
+  buildUserTokenGrant,
+  Grants,
+} from "@knocklabs/node/lib";
 
-const token = await Knock.signUserToken("user-1", {
+const token = await signUserToken("user-1", {
   grants: [
-    Knock.buildUserTokenGrant({ type: "tenant", id: "org_3sh72ds78" }, [
+    buildUserTokenGrant({ type: "tenant", id: "org_3sh72ds78" }, [
       Grants.MsTeamsChannelsRead,
     ]),
   ],
@@ -163,11 +167,12 @@ Remember to consider which roles in your application can access the `MsTeamsAuth
 
 <Callout
   emoji="⚠️"
+  title="Note:"
   text={
     <>
-      <strong>Note:</strong> The <code>MsTeamsAuthButton</code> component does
-      not automatically install your Microsoft Teams bot into a user's personal
-      scope. Your users will need to{" "}
+      The <code>MsTeamsAuthButton</code> component does not automatically
+      install your Microsoft Teams bot into a user's personal scope. Your users
+      will need to{" "}
       <a
         href="https://support.microsoft.com/en-us/office/add-an-app-to-microsoft-teams-b2217706-f7ed-4e64-8e96-c413afd02f77"
         target="_blank"
@@ -196,10 +201,10 @@ In order to determine the user ID of the Knock `User`, you'll likely want to que
 If you're using the <a href="https://github.com/microsoft/botbuilder-js" target="_blank">Bot Framework SDK for JavaScript</a> and the <a href="https://github.com/microsoftgraph/msgraph-sdk-javascript" target="_blank">Microsoft Graph JavaScript client library</a> with the Knock Node SDK, your code will look something like this:
 
 ```javascript
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 import { Client } from "@microsoft/microsoft-graph-client";
 
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 const graphApiClient = Client.initWithMiddleware({
   // Initialize your Microsoft Graph API client here

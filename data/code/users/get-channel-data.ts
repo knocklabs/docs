@@ -4,16 +4,18 @@ const languages = {
 curl -X GET https://api.knock.app/v1/users/1/channel_data/8209f26c-62a5-461d-95e2-a5716a26e652 \\
   -H "Authorization: Bearer sk_test_12345"
 `,
-  node: ` 
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+  node: `
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
 // Find this value in your Knock dashboard under Integrations > Channels
 const APNS_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-const channelData = await knockClient.users.getChannelData(
+const channelData = await knock.users.getChannelData(
   user.id,
-  APNS_CHANNEL_ID,
+  APNS_CHANNEL_ID
 );
 `,
   elixir: `
@@ -32,21 +34,19 @@ client = Knock(api_key="sk_12345")
 apns_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
 client.users.get_channel_data(
-  id=user.id,
+  user_id=user.id,
   channel_id=apns_channel_id
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # Find this value in your Knock dashboard under Integrations > Channels
 apns_channel_id = "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-Knock::Users.get_channel_data(
-  id: user.id,
-  channel_id: apns_channel_id
-)
+client.users.get_channel_data(user.id, apns_channel_id)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -70,29 +70,38 @@ $client->users()->getChannelData($user->id(), [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // Find this value in your Knock dashboard under Integrations > Channels
 apnsChannelId := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
-channel_data, _ := knockClient.Users.GetChannelData(ctx, &knock.GetUserChannelDataRequest{
-  UserID:    user.ID,
-  ChannelID: apnsChannelId
-})
+channelData, _ := knockClient.Users.GetChannelData(ctx, user.ID, apnsChannelId)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.ChannelData;
+import app.knock.api.models.users.UserGetChannelDataParams;
 
 // Find this value in your Knock dashboard under Integrations > Channels
 String apnsChannelId = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-ChannelData channelData = client.users().getUserChannelData(user.getId(), apnsChannelId);
+ChannelData channelData = client.users().getChannelData(UserGetChannelDataParams.builder()
+    .userId(user.getId())
+    .channelId(apnsChannelId)
+    .build());
 `,
 };
 

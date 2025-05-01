@@ -1,0 +1,93 @@
+---
+title: Handling deep links
+description: Follow this guide to get started with deep linking in the Knock Android SDK.
+section: SDKs
+---
+
+<Callout
+  emoji="💡"
+  title="Note:"
+  text={
+    <>
+      We recommend taking advantage of our{" "}
+      <a href="/in-app-ui/android/sdk/reference#knockmessagingservice--knockactivity">
+        KnockMessagingService & KnockActivity
+      </a>{" "}
+      to simplify deep link handling.
+    </>
+  }
+/>
+
+## App links
+
+Follow the steps below to configure URLs that deeply link to specific content in your Android application. You can read more about app links in the Android Developer documentation <a href="https://developer.android.com/studio/write/app-link-indexing" target="_blank">here</a>.
+
+<Steps titleSize="h3">
+  <Step title="Define intent filters" >
+    In your `AndroidManifest.xml` file, add intent filters for the app link schemes you want to use. The App Links Assistant in Android Studio simplifies this process with a step-by-step wizard.
+
+    ```xml title="Add intent filters to your AndroidManifest.xml file"
+    <activity
+        android:name="com.example.android.GizmosActivity"
+        android:label="@string/title_gizmos" >
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <!-- Accepts URIs that begin with "http://www.example.com/gizmos" -->
+            <data android:scheme="http"
+                  android:host="www.example.com"
+                  android:pathPrefix="/gizmos" />
+            <!-- note that the leading "/" is required for pathPrefix-->
+        </intent-filter>
+    </activity>
+    ```
+
+  </Step>
+
+  <Step title="Include an app link in your Knock message payload" >
+    - In your trigger `data` payload that you send to Knock, include a property with a value for your app link. The name of the property doesn't matter, so long as you know beforehand what it will be called.
+    - You can configure the format of the API request sent to FCM in your workflow step's [payload overrides](/integrations/push/firebase#using-overrides-to-customize-notifications).
+
+    ```json title="Payload override configuration for an FCM notification in Knock"
+    {
+      "data": {
+        "link": "https://example.com/app-link"
+      }
+    }
+    ```
+
+  </Step>
+
+  <Step title="Handle incoming URLs from a push notification" >
+    Handle incoming URLs in your `KnockActivity` or `KnockMessagingService`.
+
+    ```kotlin title="Example for handling app links"
+    class MainActivity: KnockActivity() {
+      override fun onKnockPushNotificationTappedInBackground(intent: Intent) {
+        super.onKnockPushNotificationTappedInBackground(intent)
+
+        intent?.extras?.getString("link")?.let { appLink ->
+            // Handle your app link routing here
+        }
+      }
+
+      override fun onKnockPushNotificationTappedInForeground(message: RemoteMessage) {
+          super.onKnockPushNotificationTappedInForeground(message)
+
+          remoteMessage.data.isNotEmpty().let {
+              val appLink = remoteMessage.data["link"]
+              appLink?.let {
+                // Handle your app link routing here
+              }
+          }
+      }
+    }
+    ```
+
+  </Step>
+</Steps>
+
+## Verify app links
+
+You can optionally <a href="https://developer.android.com/training/app-links/verify-android-applinks#web-assoc" target="_blank">associate your app links with your website</a>.

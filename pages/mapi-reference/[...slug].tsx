@@ -1,6 +1,6 @@
 import { readOpenApiSpec, readStainlessSpec } from "../../lib/openApiSpec";
-import ApiReference from "../../components/ApiReference/ApiReference";
-import { getSidebarContent } from "../../components/ApiReference/helpers";
+import ApiReference from "../../components/ui/ApiReference/ApiReference";
+import { getSidebarContent } from "../../components/ui/ApiReference/helpers";
 import { OpenAPIV3 } from "@scalar/openapi-types";
 import { SidebarSubsection } from "../../data/types";
 import { CONTENT_DIR } from "../../lib/content.server";
@@ -10,7 +10,7 @@ import { serialize } from "next-mdx-remote/serialize";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import fs from "fs";
 import { MDXRemote } from "next-mdx-remote";
-import { MDX_COMPONENTS } from "../[...slug]";
+import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 import { RESOURCE_ORDER, PRE_SIDEBAR_CONTENT } from "./index";
 
 function ManagementApiReferencePage({

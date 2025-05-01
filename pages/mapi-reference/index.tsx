@@ -5,9 +5,9 @@ import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
 
 import { readOpenApiSpec, readStainlessSpec } from "../../lib/openApiSpec";
-import ApiReference from "../../components/ApiReference/ApiReference";
+import ApiReference from "../../components/ui/ApiReference/ApiReference";
 import { CONTENT_DIR } from "../../lib/content.server";
-import { MDX_COMPONENTS } from "../[...slug]";
+import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 import { SidebarSection } from "../../data/types";
 
 export const RESOURCE_ORDER = [
@@ -25,7 +25,7 @@ export const RESOURCE_ORDER = [
 
 export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
   {
-    title: "API Reference",
+    title: "API reference",
     slug: `/mapi-reference/overview`,
     pages: [
       {

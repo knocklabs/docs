@@ -1,9 +1,9 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock("sk_12345");
+import Knock from "@knocklabs/node";
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
-await knockClient.users.setPreferences("jhammond", {
+await knockClient.users.setPreferences("jhammond", tenant.id, {
   channel_types: { email: true, sms: false },
   workflows: {
     "dinosaurs-loose": {
@@ -14,7 +14,7 @@ await knockClient.users.setPreferences("jhammond", {
       },
     },
   },
-}, { preferenceSet: tenant.id });
+});
   `,
   python: `
 from knockapi import Knock
@@ -22,7 +22,7 @@ client = Knock(api_key="sk_12345")
 
 client.users.set_preferences(
   user_id=user.id,
-  preference_set=tenant.id,
+  id=tenant.id,
   channel_types={ "email": True, "sms": False },
   workflows={
     "dinosaurs-loose": {
@@ -36,12 +36,11 @@ client.users.set_preferences(
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.set_preferences(
-  user_id: user.id,
-  preference_set: tenant.id,
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.users.set_preferences(user.id, tenant.id, {
   channel_types: {
     email: true,
     sms: false
@@ -55,7 +54,7 @@ Knock::Users.set_preferences(
       }
     }
   }
-)
+})
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -111,53 +110,66 @@ $client->users()->setPreferences($user->id(), [
 ], tenant.id);
   `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-request := &knock.SetUserPreferencesRequest{
-  UserID: user.ID,
-  PreferenceID: tenant.ID
-}
-
-request.AddChannelTypesPreference(map[string]interface{}{
-  "email": true,
-  "sms": false
-})
-
-request.AddWorkflowsPreference(map[string]interface{}{
-  "dinosaurs-loose": map[string]interface{}{
-    "channel_types": map[string]interface{}{
-      "email":       false,
-      "in_app_feed": true,
-      "sms":         true,
+preferenceSetRequest := &knock.PreferenceSetRequestParam{
+  ChannelTypes: map[string]interface{}{
+    "email": true,
+    "sms":   false,
+  },
+  Workflows: map[string]interface{}{
+    "dinosaurs-loose": map[string]interface{}{
+      "channel_types": map[string]interface{}{
+        "email":       false,
+        "in_app_feed": true,
+        "sms":         true,
+      },
     },
   },
-})
+}
 
-preferenceSet, _ := knockClient.Users.SetPreferences(ctx, request)
+preferenceSet, _ := knockClient.Users.SetPreferences(ctx, user.ID, tenant.ID, &knock.UserSetPreferencesParams{
+  PreferenceSetRequest: *preferenceSetRequest,
+})
   `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.PreferenceSet;
+import app.knock.api.models.users.UserSetPreferencesParams;
+import app.knock.api.core.JsonValue;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-PreferenceSetRequest request = PreferenceSetRequest.builder()
-  .id(tenant.getId())
-  .email(true)
-  .sms(false)
-  .workflow("dinosaurs-loose",
-    new PreferenceSetBuilder()
-      .email(false)
-      .inAppFeed(true)
-      .sms(true)
-      .build()
-  )
-  .build();
+UserSetPreferencesParams params = UserSetPreferencesParams.builder()
+    .userId(user.getId())
+    .preferenceSetId(tenant.getId())
+    .channelTypes(UserSetPreferencesParams.ChannelTypes.builder()
+        .putAdditionalProperty("email", JsonValue.from(true))
+        .putAdditionalProperty("sms", JsonValue.from(false))
+        .build())
+    .workflows(UserSetPreferencesParams.Workflows.builder()
+        .putAdditionalProperty("dinosaurs-loose", JsonValue.from(UserSetPreferencesParams.WorkflowPreference.builder()
+            .channelTypes(UserSetPreferencesParams.ChannelTypes.builder()
+                .putAdditionalProperty("email", JsonValue.from(false))
+                .putAdditionalProperty("in_app_feed", JsonValue.from(true))
+                .putAdditionalProperty("sms", JsonValue.from(true))
+                .build())
+            .build()))
+        .build())
+    .build();
 
-PreferenceSet preferences = client.users().setPreferences(user.getId(), request);
+PreferenceSet preferences = client.users().setPreferences(params);
 `,
 };
 

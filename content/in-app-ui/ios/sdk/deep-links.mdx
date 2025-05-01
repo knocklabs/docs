@@ -1,0 +1,150 @@
+---
+title: Handling deep/universal links
+description: Follow this guide to get started with deep/universal linking in the Knock iOS SDK.
+section: SDKs
+---
+
+<Callout
+  emoji="💡"
+  title="Note:"
+  style={{ alignItems: "center" }}
+  text={
+    <>
+      We recommend taking advantage of our{" "}
+      <a href="/in-app-ui/ios/sdk/reference#knockappdelegate">
+        KnockAppDelegate
+      </a>{" "}
+      to simplify deep link handling.
+    </>
+  }
+/>
+
+## Deep Links
+
+Follow the steps below to configure URLs that deeply link to specific content in your iOS application.
+
+<Steps titleSize="h3">
+  <Step title="Define URL schemes">
+    - In Xcode, navigate to your app target's **Info** tab.
+    - Add a new URL type under **URL Types** with a unique scheme.
+
+    <Image
+      src="/images/xcode-project-info.png"
+      alt="Xcode Project Info"
+      className="rounded-md mx-auto border border-gray-200"
+      width={1020}
+      height={802}
+    />
+
+  </Step>
+
+  <Step title="Include a deep link in your Knock message payload">
+    - In your trigger `data` payload that you send to Knock, include a property with a value for your deep link. The name of the property doesn't matter, so long as you know beforehand what it will be called.
+    - You can configure the format of the API request sent to APNs in your workflow step's [payload overrides](/integrations/push/apns#using-overrides-to-customize-notifications).
+
+    <Image
+      src="/images/deep-link-payload-override.png"
+      alt="Deep link payload override"
+      className="rounded-md mx-auto border border-gray-200"
+      width={500}
+      height={507}
+    />
+
+  </Step>
+
+  <Step title="Handle incoming URLs from a push notification">
+    You can handle incoming URLs from a push notification by implementing the `pushNotificationTapped` method in your `KnockAppDelegate`. This can also be done manually.
+
+    <AccordionGroup>
+      <Accordion title="Handle a push notification being tapped while the app is closed">
+
+        ```swift title="Handle with KnockAppDelegate"
+        class MyAppDelegate: KnockAppDelegate {
+            override func pushNotificationTapped(userInfo: [AnyHashable : Any]) {
+                super.pushNotificationTapped(userInfo: userInfo)
+                if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+                    UIApplication.shared.open(url)
+                }
+            }
+        }
+        ```
+        <br />
+        ```swift title="Handle manually"
+        class MyAppDelegate: UIResponder, UIApplicationDelegate {
+            open func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+                // Check if launched from the tap of a notification
+                if let launchOptions = launchOptions, let userInfo = launchOptions[.remoteNotification] as? [String: AnyObject] {
+                    // retrieve url
+                    if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                return true
+            }
+        }
+        ```
+    </Accordion>
+
+        <Accordion title="Handle a push notification being tapped while the app is in the foreground or background">
+
+            ```swift title="Handle with KnockAppDelegate"
+            class MyAppDelegate: KnockAppDelegate {
+                override func pushNotificationTapped(userInfo: [AnyHashable : Any]) {
+                    super.pushNotificationTapped(userInfo: userInfo)
+                    if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+            }
+            ```
+            <br />
+            ```swift title="Handle manually"
+            class MyAppDelegate: UIResponder, UIApplicationDelegate {
+                open func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+                    if let deeplink = userInfo["link"] as? String, let url = URL(string: deeplink) {
+                        UIApplication.shared.open(url)
+                    }
+                    completionHandler()
+                }
+            }
+            ```
+        </Accordion>
+    </AccordionGroup>
+
+  </Step>
+</Steps>
+
+## Universal Links
+
+Universal links will redirect users to a browser when the app is not installed.
+
+<Steps titleSize="h3">
+  <Step title="Enable Associated Domains">
+    - Add the **Associated Domains** capability in your app target's **Signing & Capabilities** tab.
+    - Add your domain in the format **`applinks:yourdomain.com`**.
+  </Step>
+
+  <Step title="Handle incoming links">
+    Implement `application(_:continue:restorationHandler:)` in your `AppDelegate` or `SceneDelegate`.
+
+    ```swift title="Handle incoming universal links"
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity,
+                      restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+         if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+             if let incomingURL = userActivity.webpageURL {
+                 // Handle the incoming URL appropriately
+             }
+         }
+         return true
+     }
+    ```
+
+  </Step>
+
+  <Step title="Server configuration">
+    - Ensure your server hosts an Apple App Site Association (AASA) file at **`https://yourdomain.com/.well-known/apple-app-site-association`**.
+
+    For more detailed instructions on configuring universal links, visit <a href="https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app" target="_blank">Apple's Official Documentation</a>.
+
+  </Step>
+</Steps>

@@ -1,0 +1,358 @@
+---
+title: Java SDK upgrade (v0.x to v1.0)
+description: This guide will help you upgrade from the previous Knock Java SDK to the new v1.0 Java SDK.
+section: Developer tools
+---
+
+## Basic Changes
+
+### Client Initialization
+
+```java
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+
+// Using environment variables (KNOCK_API_KEY and KNOCK_BASE_URL)
+KnockClient client = KnockOkHttpClient.fromEnv();
+
+// Or explicit configuration
+KnockClient client = KnockOkHttpClient.builder()
+    .baseUrl("https://api.knock.app")
+    .apiKey("sk_12345")
+    .build();
+```
+
+## New Features in v1.0
+
+1. **Asynchronous Execution**: Easily switch to asynchronous operations
+
+   ```java
+   // Perform operations asynchronously
+   CompletableFuture<User> userFuture = client.async().users().get(
+       UserGetParams.builder().userId("jhammond").build()
+   );
+
+   // Or create an async client from the beginning
+   KnockClientAsync asyncClient = KnockOkHttpClientAsync.fromEnv();
+   ```
+
+2. **Immutable Objects**: All objects are immutable for thread safety
+
+   ```java
+   // Each class is immutable once constructed and has a toBuilder() method
+   // for creating modified copies if needed
+   UserUpdateParams params = UserUpdateParams.builder()
+       .userId("jhammond")
+       .name("John Hammond")
+       .build();
+
+   // Create a modified copy
+   UserUpdateParams updatedParams = params.toBuilder()
+       .email("john@ingen.com")
+       .build();
+   ```
+
+3. **Pagination Helpers**: Easily work with paginated resources
+
+   ```java
+   // Auto-pagination for iterating through all results
+   UserListPage page = client.users().list(params);
+   for (User user : page.autoPager()) {
+       System.out.println(user);
+   }
+
+   // Or as a Stream
+   client.users().list(params).autoPager().stream()
+       .limit(50)
+       .forEach(user -> System.out.println(user));
+   ```
+
+4. **Raw Response Access**: Work with raw HTTP responses when needed
+
+   ```java
+   // Access the raw HTTP response
+   HttpResponseFor<User> userResponse = client.users().withRawResponse().get(
+       UserGetParams.builder().userId("jhammond").build()
+   );
+
+   int statusCode = userResponse.statusCode();
+   Headers headers = userResponse.headers();
+   User user = userResponse.parse();
+   ```
+
+5. **Enhanced Error Handling**: Better error types with detailed information
+
+   ```java
+   try {
+       client.users().get(UserGetParams.builder().userId("nonexistent").build());
+   } catch (NotFoundException e) {
+       // Handle 404 error
+   } catch (KnockServiceException e) {
+       // Handle other API errors
+   } catch (KnockException e) {
+       // Handle generic errors
+   }
+   ```
+
+6. **Additional Properties**: Add undocumented parameters when needed
+   ```java
+   WorkflowTriggerParams params = WorkflowTriggerParams.builder()
+       .putAdditionalHeader("Secret-Header", "42")
+       .putAdditionalQueryParam("secret_query_param", "42")
+       .putAdditionalBodyProperty("secretProperty", JsonValue.from("42"))
+       .build();
+   ```
+
+## Breaking Changes
+
+1. **Request Parameter Style**:
+
+   - The new SDK uses builder patterns for all request parameters
+   - Parameters are grouped into structured objects rather than flat lists
+
+2. **Method Signatures**:
+
+   - Most methods now take parameter objects instead of individual parameters
+   - The new SDK uses a more consistent naming convention across all methods
+
+3. **Type System**:
+
+   - The new SDK uses `JsonValue` and typed fields for better type safety
+   - Field access methods have changed to accommodate the new type system
+
+4. **Error Handling**:
+
+   - The new SDK provides more detailed and structured error information
+
+5. **API Key Configuration**:
+
+   - API key is now passed as a bearer token instead of a dedicated API key parameter
+
+## Common Operations
+
+### Triggering Workflows
+
+**Old SDK:**
+
+```java
+WorkflowTrigger workflowTrigger = WorkflowTrigger.builder()
+  .key("dinosaurs-loose")
+  .actor("dnedry")
+  .recipients(List.of("jhammond", "agrant"))
+  .data("fences_electrified", false)
+  .data("breeds", List.of("velociraptors", "trex"))
+  .build();
+
+WorkflowTriggerResult result = client.workflows().trigger(workflowTrigger);
+```
+
+**New SDK:**
+
+```java
+`import app.knock.api.core.JsonValue;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import app.knock.api.models.workflows.WorkflowTriggerResponse;
+
+WorkflowTriggerParams params = WorkflowTriggerParams.builder()
+    .key("dinosaurs-loose")
+    .recipients(List.of(
+        RecipientRequest.ofUserRecipient("jhammond"),
+        RecipientRequest.ofUserRecipient("agrant")
+    ))
+    .actor("dnedry")
+    .data(WorkflowTriggerParams.Data.builder()
+        .putAdditionalProperty("fences_electrified", JsonValue.from(false))
+        .putAdditionalProperty("breeds", JsonValue.from(List.of("velociraptors", "trex")))
+        .build())
+    .build();
+
+WorkflowTriggerResponse response = client.workflows().trigger(params);`
+```
+
+### User Preferences
+
+**Old SDK:**
+
+```java
+// Set preference set for user
+PreferenceSetRequest request = PreferenceSetRequest.builder()
+    .channelTypes(
+        new PreferenceSetBuilder()
+            .email(true)
+            .buildChannelTypes())
+    .build();
+
+client.users().setPreferences("jhammond", request);
+
+// Set workflow-specific preferences
+PreferenceSetRequest workflowRequest = PreferenceSetRequest.builder()
+    .workflow("dinosaurs-loose",
+        new PreferenceSetBuilder()
+            .email(false)
+            .sms(true)
+            .condition("recipient.handles_dino_types", "contains", "data.dino_type")
+            .build())
+    .build();
+
+client.users().setPreferences("jhammond", workflowRequest);
+
+// Get preferences
+PreferenceSet defaultPrefs = client.users().getDefaultPreferences("jhammond");
+PreferenceSet specificPrefs = client.users().getPreferencesById("jhammond", "other-preference-set");
+```
+
+**New SDK:**
+
+```java
+import app.knock.api.core.JsonValue;
+import app.knock.api.models.recipients.preferences.PreferenceSetRequest;
+import app.knock.api.models.users.UserSetPreferencesParams;
+
+// Set preference set for user
+PreferenceSetRequest request = PreferenceSetRequest.builder()
+    .channelTypes(
+        PreferenceSetRequest.PreferenceSetChannelTypes.builder()
+            .putAdditionalProperty("email", JsonValue.from(true))
+            .build())
+    .build();
+
+client.users().setPreferences(
+    UserSetPreferencesParams.builder()
+        .userId("jhammond")
+        .id("default")
+        .preferenceSetRequest(request)
+        .build()
+);
+
+// Set workflow-specific preferences
+PreferenceSetRequest workflowRequest = PreferenceSetRequest.builder()
+    .workflows(
+        PreferenceSetRequest.Workflows.builder()
+            .putAdditionalProperty("dinosaurs-loose",
+                JsonValue.from(Map.of(
+                    "channel_types", Map.of("email", false, "sms", true),
+                    "conditions", List.of(Map.of(
+                        "variable", "recipient.handles_dino_types",
+                        "operator", "contains",
+                        "argument", "data.dino_type"
+                    ))
+                )))
+            .build()
+    )
+    .build();
+
+client.users().setPreferences(
+    UserSetPreferencesParams.builder()
+        .userId("jhammond")
+        .id("default")
+        .preferenceSetRequest(workflowRequest)
+        .build()
+);
+
+// Get preferences
+var defaultPrefs = client.users().getPreferences(
+    app.knock.api.models.users.UserGetPreferencesParams.builder()
+        .userId("jhammond")
+        .id("default")
+        .build()
+);
+
+var specificPrefs = client.users().getPreferences(
+    app.knock.api.models.users.UserGetPreferencesParams.builder()
+        .userId("jhammond")
+        .id("other-preference-set")
+        .build()
+);
+```
+
+### Identifying Users
+
+**Old SDK:**
+
+```java
+UserIdentity userIdentity = UserIdentity.builder()
+        .id("jhammond")
+        .name("John Hammond")
+        .email("jhammond@ingen.com")
+        .property("expenses_spared", "none")
+        .build();
+
+client.users().identify(userIdentity);
+```
+
+**New SDK:**
+
+```java
+import app.knock.api.core.JsonValue;
+import app.knock.api.models.users.UserUpdateParams;
+
+client.users().update(
+    UserUpdateParams.builder()
+        .userId("jhammond")
+        .name("John Hammond")
+        .email("jhammond@ingen.com")
+        .putAdditionalBodyProperty("expenses_spared", JsonValue.from("none"))
+        .build()
+);
+```
+
+### Setting Channel Data
+
+**Old SDK:**
+
+```java
+String channelId = "114a928a-5b35-4e1b-9069-ac873ee972d3";
+ChannelData channelData = client.users().setChannelData(
+    "jhammond",
+    channelId,
+    Map.of("tokens", List.of("some-token"))
+);
+
+// Get channel data
+ChannelData retrievedChannelData = client.users().getUserChannelData("jhammond", channelId);
+
+// Unset (delete) channel data
+client.users().unsetUserChannelData("jhammond", channelId);
+```
+
+**New SDK:**
+
+```java
+import app.knock.api.core.JsonValue;
+import app.knock.api.models.users.UserSetChannelDataParams;
+import app.knock.api.models.users.UserGetChannelDataParams;
+import app.knock.api.models.users.UserUnsetChannelDataParams;
+
+String channelId = "114a928a-5b35-4e1b-9069-ac873ee972d3";
+
+// Set channel data
+var channelData = client.users().setChannelData(
+    UserSetChannelDataParams.builder()
+        .userId("jhammond")
+        .channelId(channelId)
+        .data(UserSetChannelDataParams.Data.builder()
+            .putAdditionalProperty("tokens", JsonValue.from(List.of("some-token")))
+            .build())
+        .build()
+);
+
+// Get channel data
+var retrievedData = client.users().getChannelData(
+    UserGetChannelDataParams.builder()
+        .userId("jhammond")
+        .channelId(channelId)
+        .build()
+);
+
+// Unset channel data
+client.users().unsetChannelData(
+    UserUnsetChannelDataParams.builder()
+        .userId("jhammond")
+        .channelId(channelId)
+        .build()
+);
+```
+
+## Support
+
+If you encounter any issues during migration, please [reach out to our support team](mailto:support@knock.app) or open an issue on [GitHub](https://github.com/knocklabs/knock-java/issues).

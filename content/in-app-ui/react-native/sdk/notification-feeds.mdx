@@ -1,0 +1,150 @@
+---
+title: "Building notification feeds with React Native"
+description: How to build notification feeds powered by Knock in your React Native applications.
+tags: ["inbox", "feeds", "toasts"]
+section: Building in-app UI
+---
+
+In this guide, you'll find common recipes to help you build in-app feed experiences within your React Native applications. The SDK handles all aspects of managing the data surrounding notifications on your behalf, including managing unread badge counts.
+
+<Callout
+  emoji="🌠"
+  title="Note"
+  text={
+    <>
+      in the current version of the React Native SDK there are no pre-built UI
+      components. That means you must bring your own notification components to
+      render an in-app feed.
+    </>
+  }
+/>
+
+**Quick links**:
+
+- [`@knocklabs/react-native` library reference](/in-app-ui/react-native/sdk/reference)
+- [`@knocklabs/client` library reference](/in-app-ui/javascript/sdk/reference)
+
+## Getting started
+
+To use this example, you'll need [an account on Knock](https://dashboard.knock.app), as well as an in-app feed channel with a workflow that produces in-app feed messages. You'll also need:
+
+- A public API key for the Knock environment (set as `KNOCK_PUBLIC_API_KEY`)
+- The channel ID for the in-app feed (set as `KNOCK_FEED_CHANNEL_ID`)
+
+## Installing dependencies
+
+```bash title="Installing dependencies"
+npm install @knocklabs/react-native
+```
+
+## Rendering a notification feed
+
+<Callout
+  emoji="🔐"
+  title="Secure your feed"
+  text={
+    <>
+      By default, Knock feeds are accessible to anyone who has the feed ID. This makes it
+      easy to get started in development. To secure your feed for production,
+      enable enhanced security mode in your Knock dashboard and pass a signed
+      {" "}<code>userToken</code> as a prop to the <code>KnockFeedProvider</code> component.
+
+      For more information, visit <a href="/in-app-ui/security-and-authentication">the security & authentication guide</a>
+      for client-side applications.
+    </>
+
+}
+/>
+
+### Using the `KnockProvider` and `KnockFeedProvider`
+
+```jsx
+import { useEffect } from "react";
+import { KnockProvider, KnockFeedProvider, useKnockFeed } from "@knocklabs/react-native";
+
+const YourApp = () => {
+  const currentUser = useCurrentUser();
+
+  return (
+    <KnockProvider
+      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+      userId={currentUser.id}
+      // In production, you must pass a signed userToken
+      // and enable enhanced security mode in your Knock dashboard
+      // userToken={currentUser.knockUserToken}
+    >
+      <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+        <NotificationFeed />
+      </KnockFeedProvider>
+    </KnockProvider>
+  );
+};
+
+const NotificationFeed = () => {
+  const { useFeedStore, feedClient } = useKnockFeed();
+  const { items, metadata } = useFeedStore();
+
+  // Fetch the feed
+  useEffect(() => feedClient.fetch(), [feedClient]);
+
+  return (
+    <View>
+      <Text>Total unread: {metadata.unread_count}</Text>
+      {items.map(item => (
+        <View key={item.id}>
+          {/* Notification cell goes here */}
+        </View>
+      )}
+    </View>
+  )
+};
+```
+
+### Using the `useNotifications` hook
+
+```jsx
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+  useNotificationStore
+} from "@knocklabs/react-native";
+
+const MyNotificationsFeed = () => {
+  const knock = useAuthenticatedKnockClient(
+    process.env.KNOCK_PUBLIC_API_KEY,
+    user.id,
+    user.knockToken,
+  );
+
+  const notificationFeed = useNotifications(
+    knock,
+    process.env.KNOCK_FEED_CHANNEL_ID,
+  );
+
+  const { metadata, items } = useNotificationStore(notificationFeed);
+
+  // Fetch the feed contents
+  useEffect(() => {
+    notificationFeed.fetch();
+  }, [notificationFeed]);
+
+  return (
+    <View>
+      <Text>Total unread: {metadata.unread_count}</Text>
+      {items.map(item => (
+        <View key={item.id}>
+          {/* Notification cell goes here */}
+        </View>
+      )}
+    </View>
+  );
+};
+```
+
+## Common feed recipes
+
+### Filtering/scoping a feed
+
+A feed can be scoped by any of the parameters that are accepted on the [feed endpoint](/api-reference/users/feeds/list_items) via the `FeedClientOptions` set in the `defaultFeedOptions` for the `KnockFeedProvider` component, or via the `useNotifications` hook.
+
+You can read more in this [guide on feed filtering](/in-app-ui/react/filtering-in-app-feeds).

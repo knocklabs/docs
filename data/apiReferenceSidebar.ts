@@ -2,8 +2,8 @@ import { SidebarSection } from "./types";
 
 const sidebarContent: SidebarSection[] = [
   {
-    title: "API Reference",
-    slug: "/reference",
+    title: "API reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#overview", title: "Overview" },
       { slug: "#client-libraries", title: "Client libraries" },
@@ -23,7 +23,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Workflows",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#workflows", title: "Overview" },
       { slug: "#trigger-workflow", title: "Trigger a workflow" },
@@ -37,7 +37,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Messages",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#messages", title: "Overview" },
       { slug: "#list-messages", title: "List messages" },
@@ -59,7 +59,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Feeds",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#feeds", title: "Overview" },
       { slug: "#get-feed", title: "Get a feed for a user" },
@@ -68,7 +68,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Users",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#users", title: "Overview" },
       { slug: "#identify-user", title: "Identify a user" },
@@ -84,7 +84,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Objects",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#objects", title: "Overview" },
       { slug: "#list-objects", title: "List objects" },
@@ -99,7 +99,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Subscriptions",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#subscriptions", title: "Overview" },
       { slug: "#list-subscriptions", title: "List subscriptions" },
@@ -112,7 +112,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Preferences",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#preferences", title: "Overview" },
       { slug: "#get-all-preferences-user", title: "List user preferences" },
@@ -127,7 +127,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Tenants",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#tenants", title: "Overview" },
       { slug: "#list-tenants", title: "List tenants" },
@@ -139,7 +139,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Schedules",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#schedules", title: "Overview" },
       { slug: "#list-schedules", title: "List schedules" },
@@ -154,7 +154,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Channel Data",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#channel-data", title: "Overview" },
       { slug: "#get-user-channel-data", title: "Get user channel data" },
@@ -171,7 +171,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Bulk Operations",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#bulk-operations", title: "Overview" },
       { slug: "#bulk-operation-status", title: "Get bulk operation" },
@@ -180,7 +180,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Slack",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#slack", title: "Overview" },
       { slug: "#slack-auth-check", title: "Auth check" },
@@ -191,7 +191,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Microsoft Teams",
-    slug: "/reference",
+    slug: "/api-reference",
     pages: [
       { slug: "#ms-teams", title: "Overview" },
       { slug: "#ms-teams-auth-check", title: "Auth check" },
@@ -203,8 +203,7 @@ const sidebarContent: SidebarSection[] = [
 
   {
     title: "Audiences",
-    slug: "/reference",
-    isBeta: true,
+    slug: "/api-reference",
     pages: [
       { slug: "#audiences", title: "Overview" },
       { slug: "#audiences-list-members", title: "List audience members" },

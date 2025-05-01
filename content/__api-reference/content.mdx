@@ -1,0 +1,507 @@
+<Section title="API reference" slug="overview">
+<ContentColumn>
+The Knock API enables you to add a complete notification engine to your product. This API provides
+programmatic access to integrating Knock via a REST-ful API.
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Base URL"
+https://api.knock.app/v1
+```
+
+</ExampleColumn>
+
+</Section>
+
+<Section title="Client libraries" slug="client-libraries" path="/overview/client-libraries">
+<ContentColumn>
+
+Knock offers native SDKs in several popular programming languages:
+
+- [Node JS](https://github.com/knocklabs/knock-node)
+- [Python](https://github.com/knocklabs/knock-python)
+- [Ruby](https://github.com/knocklabs/knock-ruby)
+- [Go](https://github.com/knocklabs/knock-go)
+- [PHP](https://github.com/knocklabs/knock-php)
+- [Java](https://github.com/knocklabs/knock-java)
+- [C# (dotnet)](https://github.com/knocklabs/knock-dotnet)
+- [Elixir](https://github.com/knocklabs/knock-elixir)
+
+</ContentColumn>
+</Section>
+
+<Section title="API keys" slug="api-keys" path="/overview/api-keys">
+<ContentColumn>
+
+Knock authenticates your API requests using your account's API keys. API requests made without authentication or using an incorrect key will return a 401 error. Requests using a valid key but with insufficient permissions will return a 403 error.
+
+You can view and manage your API keys in the Developer Dashboard. There are two types of API keys:
+
+- Publishable keys are only meant to identify your account with Knock. They aren't secret, and can safely be made public in any of your client-side code. Publishable keys are prefixed with `pk_*`.
+
+- Secret keys can perform any API request to Knock, they should be kept secure and private! Be sure to prevent secret keys from being made publicly accessible, such as in client-side code, GitHub, unsecured S3 buckets, and so forth. Secret keys are prefixed with `sk_*`.
+
+Each Environment in your account has both a publishable and secret key pair. API requests will be scoped to the provided key's Environment.
+
+</ContentColumn>
+</Section>
+
+<Section title="Authentication" slug="authentication" path="/overview/authentication">
+<ContentColumn>
+
+You must pass your API key to Knock as a Bearer token using the `Authorization` header.
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Authentication header"
+Authorization: Bearer sk_test_12345
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Rate limits" slug="rate-limits" path="/overview/rate-limits">
+<ContentColumn>
+
+Each endpoint in the Knock API is rate limited. Knock uses a tier system to determine the rate limit scale for each endpoint. When your request has been rate limited, the Knock API will return a `429 Too Many Requests` error in response.
+
+<Callout
+  emoji="💡"
+  title="Rate limit tiers are assigned per-endpoint."
+  text={
+    <>
+      Knock does not have separate rate limit tiers for different accounts or
+      pricing plans. Each endpoint in this reference has a rate limit tier label
+      that indicates the scale of requests you can make to that endpoint.
+    </>
+  }
+/>
+
+Knock's default behavior scopes rate limits based on the authorizing credential used in your requests. When you use a public or private API key to authorize a request, Knock will scope the rate limit for each endpoint by the [environment](/concepts/environments) associated with the key. If you use a signed user token as your authorizing credential, Knock will scope the rate limit by both the key's environment and the signing user. See our guide on [enhanced security mode](/in-app-ui/security-and-authentication#authentication-with-enhanced-security) for more details on working with signed user tokens.
+
+If you're concerned about exceeding a Knock rate limit, please [contact us](https://knock.app/contact-sales) and we can help figure out a usage rate that's right for your specific needs.
+
+</ContentColumn>
+<ExampleColumn>
+
+<div className="prose-sm lg:prose dark:prose-invert">
+  <table>
+    <thead>
+      <tr>
+        <th>Scale</th>
+        <th>Limit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <RateLimit tier={1} />
+        </td>
+        <td>1 request / second</td>
+      </tr>
+      <tr>
+        <td>
+          <RateLimit tier={2} />
+        </td>
+        <td>5 requests / second</td>
+      </tr>
+      <tr>
+        <td>
+          <RateLimit tier={3} />
+        </td>
+        <td>60 requests / second</td>
+      </tr>
+      <tr>
+        <td>
+          <RateLimit tier={4} />
+        </td>
+        <td>200 requests / second</td>
+      </tr>
+      <tr>
+        <td>
+          <RateLimit tier={5} />
+        </td>
+        <td>1,000 requests / second</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</ExampleColumn>
+</Section>
+
+<Section title="Batch and bulk endpoint deduplication rate limits" slug="batch-rate-limits" path="/overview/batch-rate-limits">
+<ContentColumn>
+
+Knock's batch and bulk endpoints may also have an additional layer of rate limiting applied. For these cases, Knock will also limit the number of times you can update a specific entity over a given scale. These limits are in place to prevent too many duplicate modifications applied to the same set of entities.
+
+When you exceed a batch deduplication rate limit, Knock will still return a success (`2xx`) response if it is able to handle the request. For any entities not updated due to a rate limit hit, Knock will return the data as it exists at request time. Knock will also include an `x-ratelimited-{param}` header. The `{param}` value will be the name of the request param within which the rate limit was applied. The value will be a comma-delimited string of the param values that were rejected due to a rate limit hit.
+
+Knock can apply batch deduplication rate limits to all or part of a request. If Knock rejects a subset of your batch, you can expect to see the full set of requested entities in the response body, and the IDs of those that were rejected in the `x-ratelimited-{param}` header.
+
+</ContentColumn>
+<ExampleColumn>
+
+<div className="prose-sm lg:prose dark:prose-invert mb-6">
+  <table>
+    <thead>
+      <tr>
+        <th>Scale</th>
+        <th>Limit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <RateLimit isBatch tier={1} />
+        </td>
+        <td>1 update / second / entity</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+```json title="Example request body"
+{
+  "message_ids": [1, 2, 3, 4]
+}
+```
+
+```json title="Example response body"
+[
+  { "__typename": "Message", "id": 1 },
+  { "__typename": "Message", "id": 2 },
+  { "__typename": "Message", "id": 3 },
+  { "__typename": "Message", "id": 4 }
+]
+```
+
+```json title="Example response header"
+{
+  "x-ratelimited-message_ids": "2,4"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Idempotent requests" slug="idempotent-requests" path="/overview/idempotent-requests">
+<ContentColumn>
+
+Knock supports [idempotency](https://en.wikipedia.org/wiki/Idempotence) so that requests can be retried safely without unintended side effects.
+
+To perform an idempotent request, set an `Idempotency-Key` header on your request. This idempotency key is a unique value that you generate for each request. It is used to identify and prevent the duplicate processing of requests. If you retry a request with the same idempotency key within 24 hours from the original request, Knock will return the same response as the original request. You may use any string up to 255 characters in length as an idempotency key.
+
+Idempotency keys can be random UUIDs, or they can have some meaning in your application. For example, if you are sending a notification after a user has placed an order, you could use a key that is a combination of the reason for the notification, the user ID, and the order ID (e.g. `order-placed:user-123:order-456`). If your user then cancels the order, you could use an idempotency key like `order-cancelled:user-123:order-456`. This will ensure each type of notification is only sent once, even if your system retries the request multiple times.
+
+If you are making calls to Knock from a job queue, the ID of the job can be a good choice for an idempotency key. If the job fails and is retried, the same idempotency key will be used.
+
+<Callout
+  emoji="💡"
+  title="The default idempotency window for the Knock API is 24 hours."
+  text={
+    <>
+      If you're interested in configuring a different idempotency window for
+      your account, please contact us at{" "}
+      <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
+
+</ContentColumn>
+<ExampleColumn>
+
+<Endpoints title="Supported endpoints">
+  <Endpoint
+    name="trigger-workflow"
+    method="POST"
+    path="/workflows/:key/trigger"
+    withLink
+  />
+</Endpoints>
+
+<MultiLangCodeBlock
+  snippet="api.idempotency"
+  title="Making an idempotent API call"
+/>
+
+```json title="Response headers"
+{
+  "idempotent-replayed": "true",
+  "original-x-request-id": "F1FIj5XwD_m4h0sAASfi"
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Data retention" slug="data-retention" path="/overview/data-retention">
+<ContentColumn>
+
+Several V1 API endpoints return data that is subject to deletion according to the data retention policy associated with your account. These endpoints are tagged with the `Retention policy applied` badge.
+
+For more information, see the [data retention docs](/manage-your-account/data-retention).
+
+</ContentColumn>
+</Section>
+
+<Section title="Bulk endpoints" slug="bulk-endpoints">
+<ContentColumn>
+
+Knock exposes several endpoints that enqueue and return a `BulkOperation`. These endpoints perform their logic asynchronously, and you use the `BulkOperation` record to track progress.
+
+In some cases, a bulk endpoint will accept a large set of entities to perform some action upon. In others, a bulk endpoint will accept a set of filter parameters and then execute an action across a large set of data on your account.
+
+See the [Bulk operations section](#bulk-operations) for more information on parsing and polling bulk operation statuses.
+
+</ContentColumn>
+</Section>
+
+<Section title="Trigger data filtering" slug="trigger-data-filtering">
+<ContentColumn>
+
+Some V1 API endpoints that return lists of message data accept a `trigger_data` parameter. Knock uses this parameter to scope results it returns down to messages generated with the trigger data you provide.
+
+The trigger data that Knock filters against is the _**combined and truncated data from the time the message was generated**_.
+
+If a batch step preceded the creation of your message, the trigger data available for filtering will be the combined data for all the workflow triggers bundled into your batch. If a fetch step preceded, then the filterable data will include any data pulled in via the fetch step request.
+
+Knock truncates trigger data for filtering to ensure it can efficiently process your request. The current data truncation rules are:
+
+- Nested data structures (objects and arrays) are removed. Trigger data for filtering will be a JSON object with a single level of key-value pairs.
+- Supported values are the JSON scalars string, number, boolean, and `null`.
+- String values are limited to 256 characters in length. Strings that exceed this limit are truncated to the maximum.
+
+</ContentColumn>
+</Section>
+
+<Section title="Pagination" slug="pagination" path="/overview/pagination">
+<ContentColumn>
+
+All top-level API resources expose support for bulk fetches via a `list` method. For instance, you can [list users](#list-users), [list objects](#list-objects) in a collection, and [list subscriptions](#list-subscriptions).
+
+Resources that return multiple entities support the same cursor-based pagination to interact with the resources, using `after`, `before`, and `page_size` parameters as well as returning a common format for the metadata associated with the page.
+
+### Query parameters
+
+<Attributes>
+  <Attribute
+    name="after"
+    type="string"
+    description="The pagination cursor to fetch items after. Usually derived from the after cursor in `PageInfo`."
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The pagination cursor to fetch items before. Usually derived from the before cursor in `PageInfo`."
+  />
+  <Attribute
+    name="page_size"
+    type="number (optional)"
+    description="A number between 1 and 50 that represents the number of items to return in the response. Defaults to 50."
+  />
+</Attributes>
+
+### Response format
+
+<Attributes>
+  <Attribute
+    name="entries"
+    type="object[]"
+    description="A list of items contained in this response"
+  />
+  <Attribute
+    name="page_info"
+    type="PageInfo"
+    description="Metadata about the page of data returned"
+  />
+</Attributes>
+
+### PageInfo response details
+
+<Attributes>
+  <Attribute
+    name="after"
+    type="string"
+    description="The cursor to use to fetch items after the last item in the list. May be null when there are no other items to retrieve."
+  />
+  <Attribute
+    name="before"
+    type="string"
+    description="The cursor to use to fetch items before the first item in the list. May be null when there are no other items to retrieve."
+  />
+  <Attribute
+    name="page_size"
+    type="number"
+    description="The maximum number of items requested in the page"
+  />
+  <Attribute
+    name="total_count"
+    type="number"
+    description="The total number of items in this resource (up-to 10,000)"
+  />
+</Attributes>
+
+</ContentColumn>
+
+<ExampleColumn>
+
+```json title="Response"
+{
+  "entries": [
+    {
+      "__typename": "User",
+      "id": "user_1",
+      "name": "User name",
+      "email": "user-1@example.com",
+      "created_at": null,
+      "updated_at": "2021-03-05T12:00:00Z"
+    },
+    {
+      "__typename": "User",
+      "id": "user_2",
+      "name": "User name",
+      "email": "user-2@example.com",
+      "created_at": null,
+      "updated_at": "2021-03-05T12:00:00Z"
+    }
+  ],
+  "page_info": {
+    "__typename": "PageInfo",
+    "page_size": 50,
+    "total_count": 2,
+    "after": null,
+    "before": null
+  }
+}
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Errors" slug="errors" direction="column" path="/overview/errors">
+<ContentColumn>
+
+Knock uses standard [HTTP response codes](https://developer.mozilla.org/en-US/Web/HTTP/Status) to indicate the success or failure of your API requests.
+
+- `2xx` success status codes confirm that your request worked as expected.
+
+- `4xx` error status codes indicate an error caused by incorrect or missing request information (e.g. providing an incorrect API key).
+
+- `5xx` error status codes indicate a Knock server error.
+
+</ContentColumn>
+</Section>
+
+<Section title="Error codes" slug="error-codes" direction="column" path="/overview/error-codes">
+<div className="w-full">
+
+<span className="mb-6">
+  {"Here's a list of common "}
+  <span className="bg-code-background text-code rounded text-sm font-normal py-0.75 px-1.5 font-mono inline-block border-1 border-gray-200">
+    4xx
+  </span>
+  {
+    " error codes you may encounter while working with the Knock API. We also provide additional context on how to resolve them."
+  }
+</span>
+
+<ErrorExample
+  title="actor_missing"
+  description="You called a workflow with an actor that has not yet been identified in Knock. To resolve, identify the actor prior to passing their ID in a workflow trigger."
+/>
+
+<ErrorExample
+  title="api_key_expired"
+  description="Your API key has expired. You can regenerate one on the developers page of the Knock dashboard."
+/>
+
+<ErrorExample
+  title="api_key_missing"
+  description="The API key you provided is invalid."
+/>
+
+<ErrorExample
+  title="authentication_required"
+  description="This endpoint requires authentication. Check the Authentication section of this API reference for more information."
+/>
+
+<ErrorExample
+  title="channel_invalid"
+  description="The channel you supplied in this request is invalid. A common cause of this error is that the channel you're referencing has not yet been configured in the current environment."
+/>
+
+<ErrorExample
+  title="incorrect_token_type"
+  description="You cannot call this endpoint with this token."
+/>
+
+<ErrorExample
+  title="invalid_params"
+  description="The parameters supplied in your request were invalid. Check the payload you're sending to Knock to make sure it's valid."
+/>
+
+<ErrorExample
+  title="invalid_user_token"
+  description="The user token supplied is invalid."
+/>
+
+<ErrorExample
+  title="missing_jwt_signing_key"
+  description={
+    <p>
+      <span>
+        Your request needs a JWT signing key. You can learn more about JWT
+        signing keys in our{" "}
+      </span>
+      <a
+        href="/client-integration/authenticating-users"
+        className="text-brand underline"
+      >
+        client authentication docs.
+      </a>
+    </p>
+  }
+/>
+
+<ErrorExample
+  title="missing_user_token"
+  description={
+    <p>
+      This environment requires that you supply a `X-Knock-User-Token` header
+      when using a public API key. You can learn more in our{" "}
+      <a
+        href="/client-integration/authenticating-users"
+        className="text-brand underline"
+      >
+        client authentication docs.
+      </a>
+    </p>
+  }
+/>
+
+<ErrorExample
+  title="workflow_inactive"
+  description={
+    <p>
+      The workflow you attempted to invoke is marked with an inactive{" "}
+      <a
+        href="/concepts/workflows#workflow-status"
+        className="text-brand underline"
+      >
+        status
+      </a>
+      . To resolve this error, activate the workflow on its page in the dashboard.
+    </p>
+  }
+/>
+
+<ErrorExample
+  title="workflow_missing"
+  description="The workflow you attempted to invoke could not be found. To resolve this error, confirm that you're calling the correct environment and that your workflow has been committed to it."
+/>
+
+</div>
+</Section>

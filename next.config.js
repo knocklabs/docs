@@ -282,13 +282,13 @@ const nextConfig = {
       },
       // Reference redirects
       {
-        source: "/in-app-ui/:sdk/reference",
-        destination: "/sdks/:sdk/reference",
-        permanent: false,
+        source: "/sdks/:sdk/reference",
+        destination: "/in-app-ui/:sdk/sdk/reference",
+        permanent: true,
       },
       {
         source: "/getting-started/going-to-production",
-        destination: "/guides/implementation-guide#going-to-production",
+        destination: "/tutorials/implementation-guide#going-to-production",
         permanent: true,
       },
       {
@@ -318,22 +318,22 @@ const nextConfig = {
       },
       {
         source: "/in-app-ui/javascript/quick-start",
-        destination: "/sdks/javascript/quick-start",
+        destination: "/in-app-ui/javascript/sdk/quick-start",
         permanent: true,
       },
       {
         source: "/in-app-ui/android/quick-start",
-        destination: "/sdks/android/quick-start",
+        destination: "/in-app-ui/android/sdk/quick-start",
         permanent: true,
       },
       {
         source: "/in-app-ui/flutter",
-        destination: "/in-app-ui/flutter/overview",
+        destination: "/in-app-ui/flutter/sdk/overview",
         permanent: true,
       },
       {
         source: "/guides/going-to-production",
-        destination: "/guides/implementation-guide#going-to-production",
+        destination: "/tutorials/implementation-guide#going-to-production",
         permanent: true,
       },
       //SlackKit redirects
@@ -408,6 +408,36 @@ const nextConfig = {
       {
         source: "/mapi",
         destination: "/mapi-reference",
+        permanent: true,
+      },
+      {
+        source: "/developer-tools",
+        destination: "/developer-tools/overview",
+        permanent: true,
+      },
+      {
+        source: "/tutorials",
+        destination: "/tutorials/overview",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui",
+        destination: "/in-app-ui/overview",
+        permanent: true,
+      },
+      {
+        source: "/guides",
+        destination: "/tutorials/overview",
+        permanent: true,
+      },
+      {
+        source: "/guides/:guide",
+        destination: "/tutorials/:guide",
+        permanent: true,
+      },
+      {
+        source: "/sdks",
+        destination: "/sdks/overview",
         permanent: true,
       },
       {

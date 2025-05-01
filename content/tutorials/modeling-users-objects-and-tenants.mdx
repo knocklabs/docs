@@ -1,0 +1,223 @@
+---
+title: Modeling Users, Objects, and Tenants in Knock
+description: Learn how to map your application's data model into Knock.
+section: Guides
+---
+
+In this guide, we’ll cover some best practices in modeling users, tenants, and objects in Knock. Since Knock is a set of flexible abstractions, there are many possible ways to map these concepts in Knock to entities in your own application, but this guide will use examples to help you with this decision-making process.
+
+To do this, we’ll use an example collaboration app called Collab.io that consists of users, workspaces, projects, and alerts.
+
+<Image
+  src="/images/tutorials/modeling-users-objects-and-tenants/app-overview-new.png"
+  width="1576"
+  height="2212"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="Collab.io app overview"
+/>
+
+## Users in Knock
+
+Users in Knock are the most straightforward concept to explain in this guide because users in your application will map directly to users in Knock. Users in Knock are identified with a unique `id`, which in most cases should be the same `id` that you use to identify them in your application.
+
+<Image
+  src="/images/tutorials/modeling-users-objects-and-tenants/user-modeled-new.png"
+  width="2152"
+  height="1848"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="users modeled as users"
+/>
+
+Users can have any number of custom properties associated with them, and [Knock reserves a number of optional properties](/concepts/users#optional-attributes) like `email`, `name`, `phone_number`, `timezone`, and `avatar` that are used as defaults across different message delivery channels.
+
+```javascript title="Example user modeled as an Knock User"
+{
+  "id": "user_1234567890",
+  "name": "Dummy User",
+  "email": "dummy@example.com",
+  "plan_type": "professional_2024",
+  "updated_at": "2021-03-07T12:00:00.000Z",
+  "created_at": null,
+  "__typename": "User"
+}
+```
+
+You can sync these properties with Knock through a process called [identification](https://docs.knock.app/managing-recipients/identifying-recipients).
+
+## Objects in Knock
+
+[Objects](/concepts/objects) in Knock are a flexible abstraction that you can use to send notifications to non-user recipients. You can also represent relationships between these non-user recipients and users via [Subscriptions](/concepts/subscriptions).
+
+Let’s look at some non-user recipient use cases first.
+
+### Non-user recipients
+
+These non-user recipients can include things like a Slack integration or a webhook destination. Objects are like a NoSQL data store that allows you to map resources from your application into Knock. Objects in Knock live inside of collections and are identified with an id that’s unique to that collection.
+
+#### A webhook destination
+
+The `alert` entities inside of Collab.io exist to send webhooks to a downstream service when certain events are triggered inside of a project. To store this entity in Knock, you can create an Object with the id of `alert_URJXQKT1` inside of the `alerts` collection.
+
+<Image
+  src="/images/tutorials/modeling-users-objects-and-tenants/alert-modeled-new.png"
+  width="2152"
+  height="1848"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="alerts modeled as objects"
+/>
+
+Since an Object can store any number of custom properties, you can also include values for `url` and `signingKey` along with any other data you might need when sending a webhook event or listing these alerts in your application’s UI.
+
+```javascript title="Example alert modeled as an Object"
+{
+   "__typename": "Object",
+   "collection": "alerts",
+   "created_at": null,
+   "id": "alert_URJXQKT1",
+   "properties": {
+       "description": "Project event destination",
+       "events": [
+           "project:info",
+           "project:alert"
+       ],
+       "name": "Project alerts",
+       "signingKey": "1888e28c-67ce-4f4c-be74-9ab8896785e4",
+       "url": "https://hkdk.events/m3vdn670twnfs7"
+   },
+   "updated_at": "2024-07-01T21:20:10.538Z"
+}
+```
+
+When you trigger a workflow with this object as a recipient, you can use the `url` and `signingKey` properties to generate a secure webhook request. Using the `events` array, you can store event subscriptions directly on the Object and filter out webhook events using a [step condition](https://docs.knock.app/designing-workflows/step-conditions). To learn more about using Objects and webhooks, you can read [our guide on creating customer facing webhooks](https://docs.knock.app/tutorials/customer-webhooks).
+
+#### A Slack integration
+
+The `project` entities in Collab.io are the main surface areas for collaboration in the application and generate several types of notifications. Let’s assume that users can map individual projects to Slack channels in a shared workspace so that new comments get sent to a particular channel.
+
+To map this entity to Knock, you would create an Object with the id of `project_1YQ4XR18` inside of the `projects` collection.
+
+<Image
+  src="/images/tutorials/modeling-users-objects-and-tenants/project-modeled-new.png"
+  width="2152"
+  height="1848"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="projects modeled as objects"
+/>
+
+The Object which represents that `project` might look like this:
+
+```javascript title="Example project modeled as an Object"
+{
+   "__typename": "Object",
+   "collection": "projects",
+   "created_at": null,
+   "id": "project_1YQ4XR18",
+   "properties": {
+       "name": "New product launch"
+   },
+   "updated_at": "2024-06-20T18:37:43.500Z"
+}
+
+```
+
+Unlike the webhook example, where we used custom properties on the Object to power a downstream notification using the webhook channel, channels like Slack look for connection information in a special property called [channel data](https://docs.knock.app/managing-recipients/setting-channel-data).
+
+Details like the `channel_id` and `access_token` are stored on the Object’s channel data, which you can see in the example below:
+
+```javascript title="Example channel data for a Slack channel"
+{
+  "__typename": "ChannelData",
+  "channel_id": "e8bbc2cc-5195-4a41-a247-f44ffcdc874f",
+  "data": {
+    "connections": [
+        {
+            "access_token": "xoxo-bdade7f76ad767ad676gg6767",
+            "channel_id": "C06GCKH3E68",
+            "incoming_webhook": null,
+            "user_id": null
+        }
+    ],
+    "token": null
+  }
+}
+```
+
+When you use the `project_1YQ4XR18` object as a recipient in a workflow with a Slack channel step, Knock automatically looks for channel data on the object to provide the necessary details to deliver the notification.
+
+```javascript title="Triggering a workflow for an object recipient"
+await knock.workflows.trigger("new-comment", {
+  recipients: [{ collection: "projects", id: "project_1YQ4XR18" }],
+  actor: "user_FE5WFU3D"
+  data: {
+    comment: "Does anyone have an update on this product launch?"
+  },
+});
+```
+
+### Subscriptions
+
+In addition to acting as non-user recipients, Objects also allow you to express a relationship to groups of users via [Subscriptions](https://docs.knock.app/concepts/subscriptions). Object subscriptions are great for use cases where you want to notify a group of users in bulk, like a contact list, or fan out to all the subscribers or a particular topic. In more advanced implementations, you can also [model hierarchies using objects and subscriptions](https://docs.knock.app/concepts/subscriptions#modeling-nested-subscription-hierarchies), which should give you more flexibility in fan-out operations.
+
+Let’s look at an example of how you can subscribe a Collab.io user to updates on a `project`.
+
+First, you need to create a subscription between the `user` and the `project`, and add any custom properties you want stored on the subscription. You can access subscription properties for recipients in your message templates using the `recipient.subscription` property:
+
+```javascript title="Creating a subscription between a user and a project"
+await knock.objects.addSubscriptions("projects", "project_1YQ4XR18", {
+  recipients: ["user_JG9NGAJQ"],
+  properties: {
+    // Optionally set other properties on the subscription for each recipient
+  },
+});
+```
+
+Finally, to send a message to all recipients, you trigger a workflow using the `project_1YQ4XR18` object as a recipient:
+
+```javascript title="Triggering a fan out to object subscribers"
+await knock.workflows.trigger("new-comment", {
+  recipients: [{ collection: "projects", id: "project_1YQ4XR18" }],
+  actor: "user_FE5WFU3D"
+  data: {
+    comment: "Does anyone have an update on this product launch?"
+  },
+});
+```
+
+When this workflow is triggered, Knock will generate individual workflow runs for the object itself AND for each of the object’s subscribers.
+
+If you recall from the previous step, there is also some Slack channel data stored on `project_1YQ4XR18` in Knock, and the `workflow.trigger` code snippet above is also used in that example. This is why Knock can be so powerful in simplifying notification logic.
+
+In practice, that means the first workflow run using the `project` object can generate a Slack notification, and all of the following workflow runs can notify individual recipients on another channel like email or in-app messaging.
+
+## Tenants in Knock
+
+[Tenants](/concepts/tenants) in Knock are a concept that allow you to segment your users and their messages. Most SaaS applications have some concept that is similar to “accounts,” “organizations,” “workspaces,” or “groups.” Under the hood, Tenants are a system-level Object collection called `$tenants`, so you can operate on them the same way you would an Object. You can set custom properties and subscribe users to them.
+
+In Collab.io, tenants are modeled as `workspaces`, which contain `projects` and `alerts`. You can create a corresponding Tenant in Knock using the same id that you use in your application:
+
+<Image
+  src="/images/tutorials/modeling-users-objects-and-tenants/tenants-modeled-new.png"
+  width="2152"
+  height="1848"
+  className="rounded-md mx-auto border border-gray-200"
+  alt="workspaces modeled as tenants"
+/>
+
+Tenants in Knock are loosely coupled to your users and objects, which means Knock does not know anything about the relationship between your users and tenants.
+
+Instead, you need to tell Knock that a particular workflow run belongs to a particular tenant when triggering a workflow. This means that you have less data to synchronize to Knock, and the risk of drift between what's current in your system and what's reflected in Knock is reduced.
+
+```javascript title="Tagging a workflow run with a tenant"
+await knock.workflows.trigger("new-comment", {
+  recipients: [{ collection: "projects", id: "project_1YQ4XR18" }],
+  actor: "user_FE5WFU3D"
+  data: {
+    comment: "Does anyone have an update on this product launch?"
+  },
+ tenant: "workspace_B80E71BI"
+});
+```
+
+Tagging messages with a particular tenant can help you segment your notifications and [apply per-tenant branding and preferences.](/concepts/tenants#guides-for-using-tenants)
+
+Tenants are also useful for helping you [scope the in-app feed](/concepts/tenants#scoping-in-app-feeds) to messages about a certain workspace or organization.

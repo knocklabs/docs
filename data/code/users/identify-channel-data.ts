@@ -1,7 +1,7 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 // Get this value in your Knock dashboard
 const APNS_CHANNEL_ID = "some-channel-id-from-knock";
@@ -39,38 +39,34 @@ client = Knock(api_key="sk_12345")
 # Get this value in your Knock dashboard
 apns_channel_id = "some-channel-id-from-knock"
 
-client.users.identify(
-  id="1",
-  data={
-    "name": "John Hammond",
-    "email": "jhammond@ingen.net",
-    "channel_data": {
-      apns_channel_id: {
-          "tokens": ["apns_push_token"]
-      }
+client.users.update(
+  user_id="1",
+  name="John Hammond",
+  email="jhammond@ingen.net",
+  channel_data={
+    apns_channel_id: {
+      "tokens": ["apns_push_token"]
     }
   }
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 # Get this value in your Knock dashboard
 apns_channel_id = "some-channel-id-from-knock"
 
-Knock::Users.identify(
-  id: "1",
-  data: {
-    name: "John Hammond",
-    email: "jhammond@ingen.net",
-    channel_data: {
-      apns_channel_id: {
-        tokens: ["apns_push_token"]
-      }
+client.users.update("1", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net",
+  channel_data: {
+    apns_channel_id: {
+      tokens: ["apns_push_token"]
     }
   }
-)
+})
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -113,45 +109,59 @@ $client->users()->identify('1', [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // Get this value in your Knock dashboard
 apnsChannelId := "some-channel-id-from-knock"
 
-user, _ := knockClient.Users.Identify(ctx, &knock.IdentifyUserRequest{
-  ID: "1",
-  Name: "John Hammond",
-  Email: "jhammond@ingen.net",
-  ChannelData: map[string]map{
-    apnsChannelId: map[string]string {
-      "tokens": ["apns-push-token"]
-    }
-  }
+user, _ := knockClient.Users.Update(ctx, "1", knock.UserUpdateParams{
+  IdentifyUserRequest: knock.IdentifyUserRequestParam{
+    Name:  param.String("John Hammond"),
+    Email: param.String("jhammond@ingen.net"),
+    ChannelData: param.Raw(map[string]interface{}{
+      apnsChannelId: map[string]interface{}{
+        "tokens": []string{"apns-push-token"},
+      },
+    }),
+  },
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.User;
+import app.knock.api.models.users.UserIdentifyParams;
+import app.knock.api.core.JsonValue;
+import java.util.List;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
 // Get this value in your Knock dashboard
 String apnsChannelId = "some-channel-id-from-knock";
 
-UserIdentity user = client.users().identify("1", UserIdentity.builder()
-  .name("John Hammond")
-  .email("jhammond@ingen.net")
-  .property("channel_data",
-    Map.of(
-      apnsChannelId, Map.of(
-      "tokens", List.of("apns-push-token")
-      )
-    )
-  )
-  .build());
+UserIdentifyParams params = UserIdentifyParams.builder()
+    .userId("1")
+    .name("John Hammond")
+    .email("jhammond@ingen.net")
+    .channelData(UserIdentifyParams.ChannelData.builder()
+        .putAdditionalProperty(apnsChannelId, JsonValue.from(Map.of(
+            "tokens", List.of("apns-push-token")
+        )))
+        .build())
+    .build();
+
+User user = client.users().identify(params);
 `,
 };
 

@@ -1,0 +1,123 @@
+resources:
+  workflows:
+    name: Workflows
+    description: |-
+      A [Workflow](/concepts/workflows) orchestrates the delivery of messages to your end users. When you configure a workflow you'll determine which channels its messages should route to, what those messages should look like on each channel, as well as any [functions](/designing-workflows/overview#function-steps)—batch, throttle, delay—you want applied to the messages prior to delivery.
+
+      To send notifications, you’ll trigger your workflows. A workflow is triggered by a `trigger` call, typically when an event occurs in your product that you want your users to know about (e.g. a new comment.)
+  messages:
+    name: Messages
+    description: |-
+      A [Message](/concepts/messages) is a notification delivered on a particular channel to a user.
+    subresources:
+      batch:
+        name: Batch operations
+        description: |-
+          Operations that can be performed on a batch of messages.
+  channels:
+    name: Channels
+    description: |-
+      A [Channel](/concepts/channels) is a delivery method for a message.
+    subresources:
+      bulk:
+        name: Bulk
+        description: |-
+          Bulk operations available for messages of a given channel.
+  users:
+    name: Users
+    description: |-
+      A [User](/concepts/users) is an individual from your system, represented in Knock. They are most commonly a recipient of a notification.
+    subresources:
+      feeds:
+        name: Feeds
+        description: |-
+          A feed exposes the messages delivered to an in-app feed channel, formatted specially to be consumed in a notification feed.
+
+          A feed will always return a list of `FeedItems`, which are pointers to a message delivered and contain all of the information needed in order to render an item within a notification feed.
+
+          **Note: feeds are a specialized form of messages that are designed purely for in-app rendering, and as such return information that is required on the client to do so**
+      guides:
+        name: Guides
+        description: |-
+          A [Guide](/concepts/guides) is a collection of steps that can be used to guide a user through a workflow.
+      bulk:
+        name: Bulk operations
+        description: |-
+          Bulk operations available for users. These endpoints return a BulkOperation that executes the job asynchronously. Progress can be tracked via the [Bulk operations API](/api-reference/bulk_operations).
+  objects:
+    name: Objects
+    description: |-
+      An [Object](/concepts/objects) represents a resource in your system that you've stored in Knock. It can be used to send out-of-app notifications to non-user recipients (such as a public channel in a chat app), or to trigger notifications to [subscribers](/concepts/subscriptions) of a non-user resource such as a shared document.
+    subresources:
+      bulk:
+        name: Bulk operations
+        description: |-
+          Bulk operations available for objects. These endpoints return a BulkOperation that executes the job asynchronously. Progress can be tracked via the [Bulk operations API](/api-reference/bulk_operations).
+  tenants:
+    name: Tenants
+    description: |-
+      A [Tenant](/concepts/tenants) a grouping with configurable settings that can be applied to a workflow when it's triggered in order to override account-level settings such as branding. Use tenants when sending a notification to user(s) that you want to configure specific brand elements for, such as a separate organization logo.
+    subresources:
+      bulk:
+        name: Bulk operations
+        description: |-
+          Bulk operations available for tenants. These endpoints return a BulkOperation that executes the job asynchronously. Progress can be tracked via the [Bulk operations API](/api-reference/bulk_operations).
+  recipients:
+    name: Recipients
+    description: |-
+      A [Recipient](/concepts/recipients) represents a person or a non-user entity from your system, represented in Knock. They are most commonly the recipient of a notification, but can also be used to denote an actor that a notification is sent on behalf of.
+    subresources:
+      subscriptions:
+        name: Subscriptions
+        description: |-
+          Subscriptions express the relationship between a [Recipient](/concepts/recipients) (the subscriber) and an [Object](/concepts/objects). Subscribers are notified when the object that they are subscribed to is a `recipient` on a workflow trigger request.
+      preferences:
+        name: Preferences
+        description: |-
+          [Preferences](/concepts/preferences) determine whether a recipient should receive a particular type of notification. By default all preferences are opted in unless a preference explicitly opts the recipient out of the notification.
+
+          The preference set `:id` can be either `"default"` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
+      channel_data:
+        name: Channel data
+        description: |-
+          [Channel data](/managing-recipients/setting-channel-data) is channel-specific information stored on a Knock [user](/api-reference/users) or [object](/api-reference/objects) that's needed to deliver a notification to an end provider.
+
+          For a push channel, this includes device-specific tokens that map the recipient to the device they use. For chat apps, such as Slack, this includes the access token used to send notifications to a customer's Slack channel.
+
+          The shape of the `data` payload varies depending on the channel type; you can learn more about channel data schemas [here](/send-notifications/setting-channel-data#provider-data-requirements).
+  schedules:
+    name: Schedules
+    description: |-
+      A [Schedule](/concepts/schedules) allows you to automatically trigger a workflow at a given time for one or more recipients. You can think of a schedule as a managed, recipient-timezone-aware cron job that Knock will run on your behalf.
+    subresources:
+      bulk:
+        name: Bulk schedules
+        description: |-
+          Bulk operations available for schedules.
+  audiences:
+    name: Audiences
+    description: |-
+      An [Audience](/concepts/audiences) represents a user segment. Use the Audiences API to sync user segments from your data warehouse to Knock. Audiences can be used to target messages or orchestrate workflows via branch and step conditions. They can also be used as the recipient of a [Broadcast](/concepts/broadcasts).
+  bulk_operations:
+    name: Bulk operations
+    description: |-
+      A [Bulk Operation](/concepts/bulk-operations) is a set of changes applied across 0 or more records triggered via a call to the Knock API and performed asynchronously. The BulkOperation record represents the state of the operation, including recording the number of rows that have been modified during the operation.
+
+      Please note here: the `estimated_total_rows` field may have a different value to the `processed_rows` field due to the asynchronous nature of the operation.
+  providers:
+    name: Providers
+    description: |-
+      A Provider is a channel-specific configuration that determines how a message is delivered to a recipient.
+    subresources:
+      slack:
+        name: Slack
+        description: |-
+          A Slack provider is a channel-specific configuration that determines how a message is delivered to a recipient via Slack.
+      ms_teams:
+        name: Microsoft Teams
+        description: |-
+          A Microsoft Teams provider is a channel-specific configuration that determines how a message is delivered to a recipient via Microsoft Teams.
+  shared:
+    name: Shared
+    description: |-
+      Resources that are shared across the API.
