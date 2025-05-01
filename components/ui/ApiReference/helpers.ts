@@ -2,7 +2,6 @@ import { OpenAPIV3 } from "@scalar/openapi-types";
 import { StainlessConfig, StainlessResource } from "../../../lib/openApiSpec";
 import JSONPointer from "jsonpointer";
 import { SidebarSection, SidebarSubsection } from "../../../data/types";
-import { startCase } from "lodash";
 
 function resolveEndpointFromMethod(
   endpointOrMethodConfig: string | { endpoint: string },
@@ -151,7 +150,7 @@ function buildSidebarPages(
       ...Object.entries(resource.subresources).map(
         ([subresourceName, subresource]) => {
           return {
-            title: startCase(subresource.name || subresourceName),
+            title: subresource.name || subresourceName,
             slug: `/${subresourceName}`,
             pages: buildSidebarPages(subresource, openApiSpec),
           };
