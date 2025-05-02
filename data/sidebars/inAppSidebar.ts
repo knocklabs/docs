@@ -14,7 +14,37 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
       },
       {
         slug: "/security-and-authentication",
-        title: "Security & auth",
+        title: "Security + authentication",
+      },
+      {
+        slug: "/feeds-vs-guides",
+        title: "Feeds v. guides",
+      },
+      {
+        title: "Feeds",
+        slug: "/feeds",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/filtering-in-app-feeds",
+            title: "Filtering feeds",
+          },
+        ],
+      },
+      {
+        title: "Guides",
+        slug: "/guides",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/create-guides",
+            title: "Creating guides",
+          },
+          {
+            slug: "/render-guides",
+            title: "Rendering guides",
+          },
+        ],
       },
       {
         slug: "/message-types",
@@ -24,6 +54,34 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
     ],
     sidebarMenuDefaultOpen: true,
   },
+  // {
+  //   title: "Feeds",
+  //   slug: "/in-app-ui/feeds",
+  //   desc: "Power real-time feeds, inboxes, and notification centers in your product.",
+  //   pages: [
+  //     { slug: "/overview", title: "Overview" },
+  //     {
+  //       slug: "/filtering-in-app-feeds",
+  //       title: "Filtering feeds",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Guides",
+  //   slug: "/in-app-ui/guides",
+  //   desc: "Power announcements, onboarding, and evergreen in-app experiences in your product.",
+  //   pages: [
+  //     { slug: "/overview", title: "Overview" },
+  //     {
+  //       slug: "/create-guides",
+  //       title: "Creating guides",
+  //     },
+  //     {
+  //       slug: "/render-guides",
+  //       title: "Rendering guides",
+  //     },
+  //   ],
+  // },
 ];
 
 const languages = {
@@ -51,7 +109,6 @@ export const REACT_SIDEBAR: SidebarSection[] = [
     title: "UI components",
     slug: "/in-app-ui/react",
     desc: "Use the Knock in-app experiences APIs and components to build rich notifications experiences inside of your product.",
-    sidebarMenuDefaultOpen: true,
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/feed", title: "Notification feed" },
@@ -77,6 +134,7 @@ export const REACT_SIDEBAR: SidebarSection[] = [
         title: "Migrating from @knocklabs/react-notification-feed",
       },
     ],
+    sidebarMenuDefaultOpen: true,
   },
   {
     title: "SDK",
