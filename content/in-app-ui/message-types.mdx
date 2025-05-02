@@ -1,6 +1,6 @@
 ---
-title: In-app message types
-description: Learn more about working with in-app message types.
+title: Message types
+description: Message types map the components in your application to the guide editing experience in Knock.
 section: Building in-app UI
 ---
 
@@ -11,7 +11,7 @@ section: Building in-app UI
     <>
       Message types are currently in beta. If you'd like early access, or this
       is blocking your adoption of Knock, please{" "}
-      <a href="mailto:support@knock.app?subject=Message%20types">
+      <a href="mailto:support@knock.app?subject=Guides%20beta%20access">
         get in touch
       </a>
       .
@@ -19,41 +19,47 @@ section: Building in-app UI
   }
 />
 
-Knock’s in-app template system is built on our concept of Message Types. Within the Knock model, a message type represents a _type_ of message that you map to a UI component/element within your application to show to your users.
+A message type maps to a UI component/element in your product that you show to your users.
 
-Knock comes with the following in-app messages types to use as message templates out-of-the-box, each of which maps to a component you’ll find in `@knocklabs/react`
+Once a message type exists, you can use it to create [guides](/concepts/guides) to render non-feed messages in your product.
 
-- Banner (`<Banner />`)
-- Modal (`<Modal />` )
-- Card (`<Card />`)
-
-Once a template type exists, you can use it in the [Knock in-app template editor](/designing-workflows/template-editor/overview):
-
-<img
-  src="/images/in-app-ui/message-types-template-editor.png"
+<Image
+  src="/images/concepts/guides/DraftingGuideContent - messageTypeDropdown.png"
   alt="In-app message types"
   className="rounded-md mx-auto border border-gray-200"
   width={1243}
   height={457}
 />
 
+<Callout emoji="🌠">
+  <span className="font-bold">Feeds v. guides.</span> To learn more about the
+  difference between feeds and guides, see our
+  <a href="/in-app-ui/feeds-v-guides">feeds v. guides doc</a>.
+</Callout>
+
+## Overview
+
+A message type has:
+
+- **A schema.** A schema defines the fields a message type will have in the template editor and forms the structure of the message contents returned by the [guides API](/api-reference/guides/).
+- **At least one variant.** Message types can have one or more variants.
+- **A template preview.** A template preview is a visual representation of what the message type will look like in the template editor.
+
 ### Variants
 
-Message types can have one or more _variants_. For example, the `card` template type comes with 3 variants:
+A message type can have one or more _variants_. For example, the `card` template type comes with 3 variants:
 
-- **Default**: content with an action URL to determine where the cell should route to.
-- **Single action**: content with a single primary button.
-- **Multi-action:** content with two buttons, one primary and one secondary.
+- **Default.** Content with an action URL to determine where the cell should route to.
+- **Single action.** Content with a single primary button.
+- **Multi-action.** Content with two buttons, one primary and one secondary.
 
 When creating an in-app template, your content editors can select from the available variants and customize the message's contents based on the selected variant.
 
 ### Schemas
 
-A schema defines _a message type and its variants._ The schema indicates the fields a message type will have in the template editor and forms the structure of the message contents generated when a message is produced from an in-app step.
+A message type has a schema that defines the fields a message type will have in the template editor and forms the structure of the message contents generated when a message is produced from an in-app step.
 
-You can think of the schema as a blueprint for how the content editor will create the message template and what fields they can edit within that experience.
-
-The template type schema in Knock determines its template editing experience which governs the content that will be returned by the Knock API and rendered in your UI components.
+You can think of the schema as a blueprint for how the content editor will create the message template and what fields can be edited within that experience.
 
 <AccordionGroup>
   <Accordion title="A schema example">
@@ -300,9 +306,53 @@ If the editor creates an in-app message template using the “default” variant
 
 </AccordionGroup>
 
-### Customizing message types
+### Template previews
 
-Each message type and its variants can be customized or removed entirely. You can also introduce completely new in-app message types to match your product's needs. This can be especially useful if you want to build custom in-app UI elements and power their content generation using Knock.
+A template preview is a visual representation of what the message type will look like in the template editor.
+
+You draft template previews using HTML, CSS, and Liquid.
+
+You can reference variables from your schema to customize the preview, like this:
+
+```js title="Using a variable"
+<div class="modal__body">{{ body }}</div>
+```
+
+You can also reference variant keys to customize the preview based on the variant that is selected in the template editor, like this:
+
+```js title="Using a variant"
+{% if variant == "single-action" or variant == "multi-action" %}
+<div class="modal__footer">
+  <button class="modal__btn">{{ primary_button.text }}</button>
+
+  {% if variant == "multi-action" %}
+  <button class="modal__btn modal__btn--secondary">
+    {{ secondary_button.text }}
+  </button>
+  {% endif %}
+</div>
+{% endif %}
+```
+
+## Pre-built message types
+
+Knock comes with the following pre-built messages types to use out-of-the-box, each of which maps to a component you’ll find in [`@knocklabs/react`](https://www.npmjs.com/package/@knocklabs/react).
+
+- Banner (`<Banner />`)
+- Modal (`<Modal />` )
+- Card (`<Card />`)
+
+<Image
+  src="/images/concepts/guides/KnockPrebuiltComponents.png"
+  alt="Pre-built components"
+  className="rounded-md mx-auto"
+  width={1243}
+  height={457}
+/>
+
+## Headless message types
+
+You can also create your own message types that map to your own UI components.
 
 An in-app message schema has the following structure:
 
@@ -322,7 +372,7 @@ An in-app message schema has the following structure:
 }
 ```
 
-#### Variants
+### Variants
 
 Your schema must have one or more variants. You can name your variants anything you would like, but the variant key must be unique.
 
@@ -332,7 +382,7 @@ Each variant must have:
 - A `name` to display in the message template editor to select the variant
 - One or more `fields` (see below)
 
-#### Fields
+### Fields
 
 All fields must have:
 
@@ -340,7 +390,7 @@ All fields must have:
 - `key`: A unique key for the field in the variant
 - `label`: A label to render
 
-#### Field types
+### Field types
 
 <AccordionGroup>
   <Accordion title="Text">
@@ -614,6 +664,8 @@ A multi-line plain text area
   </Accordion>
 </AccordionGroup>
 
-### Versioning in-app message types
+## Versioning message types
 
 Message types are versioned using Knock’s commit model, meaning changes to a message type schema are committed into the current environment.
+
+When you make an update to a message type, any templates using that message type will continue to use the old version until you explicitly update the template to use the new version. You can do this by navigating to the template in the Knock dashboard and clicking the "Update" button.

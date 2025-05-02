@@ -1,0 +1,43 @@
+---
+title: Feeds v. guides
+description: An overview of the differences between feeds and guides.
+tags: []
+section: Building in-app UI
+---
+
+Knock uses two different concepts to power in-app messaging: feeds and guides.
+
+In this document we'll cover the key differences between the two, and when to use each.
+
+## Feeds
+
+The [feeds API](/api-reference/users/feeds) is great for building in-product messaging that relies on a _feed_ of per-user notifications.
+
+The key unique principle of the feeds API relative to guides is that feed messages must be generated ahead of render time. If you consider the UX of a notification feed or inbox, it makes sense. The user opens the feed, the feed fetches the messages, and the messages are rendered.
+
+Here are a few characteristics of the feeds API.
+
+- Returns a list of messages generated ahead of time by triggering workflows and scheduling broadcasts.
+- Returns messages in reverse chronological order.
+- Returns aggregate values for unread counts, read counts, and seen counts, for use in feed badge UIs.
+- Can be filtered by status (unread, read, seen, archived) or custom properties.
+
+When to use feeds:
+
+- When you want to build a notification feed or inbox or notification center.
+- When you want to build a notification experience that can be thought of as a list of items.
+
+## Guides
+
+The [guides API](/api-reference/users/guides/) is great for building in-product messaging that doesn't fit well into the feed-based model, such as announcements, paywalls, and other one-time or evergreen UI.
+
+The key unique principle of the guides API is that messages are generated at render time. This means that instead of pre-generating a message using a workflow or a broadcast, guides are generated when a user in your frontend is eligible to see a particular guide. When a guide renders to a user, Knock generates a message on the backend for analytics and observability purposes.
+
+Here are a few characteristics of the guides API:
+
+- Returns either a single guide with a `key` or a list of guides that all share a `message-type`
+- Does not include aggregate counts of unseen/unread items
+
+When to use guides:
+
+- For non-feed use cases such as modals, banners, tooltips, and inline components such as paywalls or other UI.

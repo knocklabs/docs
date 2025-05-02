@@ -445,6 +445,11 @@ const nextConfig = {
         destination: "/developer-tools/agent-toolkit/overview",
         permanent: false,
       },
+      {
+        source: "/in-app-ui/filtering-in-app-feeds",
+        destination: "/in-app-ui/feeds/filtering-in-app-feeds",
+        permanent: true,
+      },
     ];
   },
 };
