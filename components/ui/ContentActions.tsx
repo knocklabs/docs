@@ -14,7 +14,10 @@ interface ContentActionsProps extends TgphComponentProps<typeof Box> {
   showOnMobile?: boolean;
 }
 
-export const ContentActions: React.FC<ContentActionsProps> = ({ showOnMobile = false, ...props }) => {
+export const ContentActions: React.FC<ContentActionsProps> = ({
+  showOnMobile = false,
+  ...props
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();

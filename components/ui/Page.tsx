@@ -107,9 +107,14 @@ interface ContentHeaderProps {
   description: string;
   bottomContent?: React.ReactNode;
   children?: React.ReactNode;
-};
+}
 
-const ContentHeader = ({ title, description, bottomContent, children }: ContentHeaderProps) => (
+const ContentHeader = ({
+  title,
+  description,
+  bottomContent,
+  children,
+}: ContentHeaderProps) => (
   <Box mb="6">
     <Heading as="h1" size="7" mb="2">
       {title}
@@ -120,9 +125,7 @@ const ContentHeader = ({ title, description, bottomContent, children }: ContentH
         {children}
       </Text>
     )}
-    {bottomContent && (
-      <Box mt="4">{bottomContent}</Box>
-    )}
+    {bottomContent && <Box mt="4">{bottomContent}</Box>}
   </Box>
 );
 
