@@ -282,6 +282,11 @@ const nextConfig = {
       },
       // Reference redirects
       {
+        source: "/sdks/:sdk",
+        destination: "/in-app-ui/:sdk/sdk/overview",
+        permanent: true,
+      },
+      {
         source: "/sdks/:sdk/reference",
         destination: "/in-app-ui/:sdk/sdk/reference",
         permanent: true,
