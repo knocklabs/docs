@@ -8,12 +8,13 @@ import { Lucide } from "@telegraph/icon";
 import { MenuItem } from "@telegraph/menu";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { TgphComponentProps } from "@telegraph/helpers";
 
-interface ContentActionsProps {
-  pages: (SidebarPage | SidebarSection)[];
+interface ContentActionsProps extends TgphComponentProps<typeof Box> {
+  showOnMobile?: boolean;
 }
 
-export const ContentActions: React.FC<ContentActionsProps> = ({ pages }) => {
+export const ContentActions: React.FC<ContentActionsProps> = ({ showOnMobile = false, ...props }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
@@ -40,7 +41,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({ pages }) => {
   };
 
   return (
-    <Box className="md-hidden">
+    <Box className={showOnMobile ? "" : "md-hidden"} {...props}>
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger asChild>
           <Button
@@ -53,7 +54,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({ pages }) => {
             Copy for LLM
           </Button>
         </Popover.Trigger>
-        <Popover.Content sideOffset={4} align="start">
+        <Popover.Content sideOffset={4} align="start" py="0" gap="0">
           <MenuItem
             as="button"
             onClick={copyAsMarkdown}
@@ -62,6 +63,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({ pages }) => {
               icon: isCopied ? Lucide.Check : Lucide.Copy,
               "aria-hidden": true,
             }}
+            py="4"
           >
             {isCopied ? "Copied!" : "Copy as markdown"}
           </MenuItem>
@@ -74,6 +76,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({ pages }) => {
             href={mdPath}
             target="_blank"
             rel="noopener noreferrer"
+            py="4"
           >
             View as Markdown
           </MenuItem>

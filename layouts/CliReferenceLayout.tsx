@@ -5,6 +5,7 @@ import Meta from "../components/Meta";
 import { useRouter } from "next/router";
 import { useInitialScrollState } from "../components/ui/Page/helpers";
 import { CLI_SIDEBAR } from "../data/sidebars/cliSidebar";
+import { ContentActions } from "../components/ui/ContentActions";
 
 export const CliReferenceLayout = ({ frontMatter, children }) => {
   const router = useRouter();
@@ -31,14 +32,12 @@ export const CliReferenceLayout = ({ frontMatter, children }) => {
       <Page.Wrapper>
         <Page.Sidebar content={CLI_SIDEBAR} samePageRouting />
         <Page.Content fullWidth>
-          <Page.TopContainer>
-            {/* Empty element to push the actions to the right */}
-            <div></div>
-            <Page.ContentActions />
-          </Page.TopContainer>
           <Page.ContentHeader
             title={frontMatter.title}
             description={frontMatter.description}
+            bottomContent={
+              <ContentActions showOnMobile style={{ marginLeft: "-6px" }} />
+            }
           />
           <Page.ContentBody>{children}</Page.ContentBody>
         </Page.Content>

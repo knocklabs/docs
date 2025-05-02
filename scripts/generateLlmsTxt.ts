@@ -248,15 +248,76 @@ async function generateAllLlmsFiles() {
     fullContent.push("---\n");
 
     // IN-APP UI
+    // We have to overwrite the titles so the markdown gets more than just "UI Components" and "SDK" for each section
+    // This looks crazy but honestyl prefer this over a function
     await processSections(IN_APP_UI_SIDEBAR, indexContent, fullContent);
-    await processSections(REACT_SIDEBAR, indexContent, fullContent);
-    await processSections(JAVASCRIPT_SIDEBAR, indexContent, fullContent);
-    await processSections(ANGULAR_SIDEBAR, indexContent, fullContent);
-    await processSections(REACT_NATIVE_SIDEBAR, indexContent, fullContent);
-    await processSections(SWIFT_SIDEBAR, indexContent, fullContent);
-    await processSections(ANDROID_SIDEBAR, indexContent, fullContent);
-    await processSections(FLUTTER_SIDEBAR, indexContent, fullContent);
-    await processSections(EXPO_SIDEBAR, indexContent, fullContent);
+    await processSections(
+      [
+        { ...REACT_SIDEBAR[0], title: "React UI Components" },
+        { ...REACT_SIDEBAR[1], title: "React SDK" },
+        ...REACT_SIDEBAR.slice(2),
+      ],
+      indexContent,
+      fullContent,
+    );
+    await processSections(
+      [
+        { ...JAVASCRIPT_SIDEBAR[0], title: "JavaScript UI Components" },
+        { ...JAVASCRIPT_SIDEBAR[1], title: "JavaScript SDK" },
+        ...JAVASCRIPT_SIDEBAR.slice(2),
+      ],
+      indexContent,
+      fullContent,
+    );
+    await processSections(
+      [
+        { ...ANGULAR_SIDEBAR[0], title: "Angular UI Components" },
+        ...ANGULAR_SIDEBAR.slice(1),
+      ],
+      indexContent,
+      fullContent,
+    );
+    await processSections(
+      [
+        { ...REACT_NATIVE_SIDEBAR[0], title: "React Native UI Components" },
+        { ...REACT_NATIVE_SIDEBAR[1], title: "React Native SDK" },
+        ...REACT_NATIVE_SIDEBAR.slice(2),
+      ],
+      indexContent,
+      fullContent,
+    );
+    await processSections(
+      [
+        { ...SWIFT_SIDEBAR[0], title: "Swift UI Components" },
+        { ...SWIFT_SIDEBAR[1], title: "Swift SDK" },
+        ...SWIFT_SIDEBAR.slice(2),
+      ],
+      indexContent,
+      fullContent,
+    );
+    await processSections(
+      [
+        { ...ANDROID_SIDEBAR[0], title: "Android UI Components" },
+        { ...ANDROID_SIDEBAR[1], title: "Android SDK" },
+        ...ANDROID_SIDEBAR.slice(2),
+      ],
+      indexContent,
+      fullContent,
+    );
+    await processSections(
+      [
+        { ...FLUTTER_SIDEBAR[0], title: "Flutter UI Components" },
+        { ...FLUTTER_SIDEBAR[1], title: "Flutter SDK" },
+        ...FLUTTER_SIDEBAR.slice(2),
+      ],
+      indexContent,
+      fullContent,
+    );
+    await processSections(
+      [{ ...EXPO_SIDEBAR[0], title: "Expo SDK" }, ...EXPO_SIDEBAR.slice(1)],
+      indexContent,
+      fullContent,
+    );
 
     // DIVIDER
     indexContent.push("---\n");
@@ -276,7 +337,7 @@ async function generateAllLlmsFiles() {
     fullContent.push("---\n");
 
     // CLI REFERENCE
-    await processSections(CLI_SIDEBAR, indexContent, fullContent);
+    await processSections(CLI_SIDEBAR, indexContent, fullContent, "/cli");
 
     // DIVIDER
     indexContent.push("---\n");

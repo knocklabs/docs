@@ -36,6 +36,7 @@ import {
 } from "../components/ui/OverviewContent/Blocks";
 import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
+import { ContentActions } from "@/components/ui/ContentActions";
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
@@ -103,4 +104,5 @@ export const MDX_COMPONENTS = {
   Box: Box,
   Stack: Stack,
   Tag,
+  ContentActions,
 };

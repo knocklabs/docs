@@ -11,6 +11,8 @@ import { ContentActions } from "./ContentActions";
 import "../../styles/global.css";
 import "../../styles/responsive.css";
 import { createContext, useContext, useState } from "react";
+import { TgphComponentProps } from "@telegraph/helpers";
+
 export const MAX_WIDTH = "1400px";
 
 const PageContext = createContext({
@@ -100,7 +102,14 @@ const ContentBody = ({ children }) => (
   </Box>
 );
 
-const ContentHeader = ({ title, description, children }) => (
+interface ContentHeaderProps {
+  title: string;
+  description: string;
+  bottomContent?: React.ReactNode;
+  children?: React.ReactNode;
+};
+
+const ContentHeader = ({ title, description, bottomContent, children }: ContentHeaderProps) => (
   <Box mb="6">
     <Heading as="h1" size="7" mb="2">
       {title}
@@ -110,6 +119,9 @@ const ContentHeader = ({ title, description, children }) => (
         {description}
         {children}
       </Text>
+    )}
+    {bottomContent && (
+      <Box mt="4">{bottomContent}</Box>
     )}
   </Box>
 );
