@@ -42,13 +42,19 @@ export const highlightResource = (
     // Scroll to the content on the page
     if (newActiveItem) {
       // Get the desired padding from the CSS variable
-      const topPadding = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--top-padding'), 10) || 0;
+      const topPadding =
+        parseInt(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--top-padding",
+          ),
+          10,
+        ) || 0;
       const elementRect = newActiveItem.getBoundingClientRect();
       const targetScrollY = window.scrollY + elementRect.top - topPadding;
 
       window.scrollTo({
         top: targetScrollY,
-        behavior: "instant", 
+        behavior: "instant",
       });
 
       newActiveItem.focus();
@@ -125,14 +131,20 @@ export const useInitialScrollState = () => {
 
       if (element) {
         // Get the desired padding from the CSS variable
-        const topPadding = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--top-padding'), 10) || 0;
+        const topPadding =
+          parseInt(
+            getComputedStyle(document.documentElement).getPropertyValue(
+              "--top-padding",
+            ),
+            10,
+          ) || 0;
         const elementRect = element.getBoundingClientRect();
         // Calculate scroll position relative to the current scroll, adjusted for padding.
         // No need for window.scrollY here as we are setting the absolute scroll position on load (within timeout).
         const targetScrollY = window.pageYOffset + elementRect.top - topPadding;
-        
+
         // Use 'auto' for immediate jump on load, respecting user agent settings for motion if any.
-        window.scrollTo({ top: targetScrollY, behavior: 'auto' }); 
+        window.scrollTo({ top: targetScrollY, behavior: "auto" });
       } else {
         // Fallback or default scroll behavior if element not found initially
         window.scrollTo(0, 0);
