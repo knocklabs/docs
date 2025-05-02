@@ -26,7 +26,6 @@ const algoliasearch = require("algoliasearch");
     console.log("✅ Algolia index cleared!");
     console.log("Restart the server to rebuild the index.");
     process.exit(0);
-
   } catch (error) {
     console.error("Error clearing Algolia index.");
     console.error(error);
