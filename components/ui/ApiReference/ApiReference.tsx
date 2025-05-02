@@ -3,7 +3,6 @@
 import { ApiReferenceProvider } from "./ApiReferenceContext";
 import { ApiReferenceSection } from ".";
 import { Page as TelegraphPage } from "../Page";
-import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { StainlessConfig } from "../../../lib/openApiSpec";
 import { OpenAPIV3 } from "@scalar/openapi-types";
