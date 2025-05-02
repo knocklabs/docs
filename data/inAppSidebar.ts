@@ -22,6 +22,32 @@ const mainContent: SidebarSection[] = [
         title: "Feeds v. guides",
       },
       {
+        title: "Feeds",
+        slug: "/feeds",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/filtering-in-app-feeds",
+            title: "Filtering feeds",
+          },
+        ],
+      },
+      {
+        title: "Guides",
+        slug: "/guides",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/create-guides",
+            title: "Creating guides",
+          },
+          {
+            slug: "/render-guides",
+            title: "Rendering guides",
+          },
+        ],
+      },
+      {
         slug: "/message-types",
         title: "Message types",
         isBeta: true,
@@ -29,34 +55,34 @@ const mainContent: SidebarSection[] = [
     ],
     sidebarMenuDefaultOpen: true,
   },
-  {
-    title: "Feeds",
-    slug: "/in-app-ui/feeds",
-    desc: "Power real-time feeds, inboxes, and notification centers in your product.",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      {
-        slug: "/filtering-in-app-feeds",
-        title: "Filtering feeds",
-      },
-    ],
-  },
-  {
-    title: "Guides",
-    slug: "/in-app-ui/guides",
-    desc: "Power announcements, onboarding, and evergreen in-app experiences in your product.",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      {
-        slug: "/create-guides",
-        title: "Creating guides",
-      },
-      {
-        slug: "/render-guides",
-        title: "Rendering guides",
-      },
-    ],
-  },
+  // {
+  //   title: "Feeds",
+  //   slug: "/in-app-ui/feeds",
+  //   desc: "Power real-time feeds, inboxes, and notification centers in your product.",
+  //   pages: [
+  //     { slug: "/overview", title: "Overview" },
+  //     {
+  //       slug: "/filtering-in-app-feeds",
+  //       title: "Filtering feeds",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Guides",
+  //   slug: "/in-app-ui/guides",
+  //   desc: "Power announcements, onboarding, and evergreen in-app experiences in your product.",
+  //   pages: [
+  //     { slug: "/overview", title: "Overview" },
+  //     {
+  //       slug: "/create-guides",
+  //       title: "Creating guides",
+  //     },
+  //     {
+  //       slug: "/render-guides",
+  //       title: "Rendering guides",
+  //     },
+  //   ],
+  // },
 ];
 
 const languages = {
