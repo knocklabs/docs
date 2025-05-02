@@ -24,6 +24,7 @@ const SectionHeading = ({
   path,
   ...rest
 }: Props) => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const size: HeadingProps["size"] =
     tag === "h1"
       ? "6"
@@ -49,7 +50,11 @@ const SectionHeading = ({
     await navigator.clipboard.writeText(url);
     setShowCopied(true);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setShowCopied(false), 2000);
+    timeoutRef.current = setTimeout(() => {
+      // Remove styling from the cliked heading
+      buttonRef.current?.blur();
+      setShowCopied(false);
+    }, 2000);
   };
 
   useEffect(() => {
@@ -70,6 +75,7 @@ const SectionHeading = ({
         style={{
           marginLeft: "-8px",
         }}
+        tgphRef={buttonRef}
       >
         <Tooltip label="Copy link to section" side="top">
           {/* @ts-expect-error shut it */}
