@@ -18,34 +18,26 @@ const mainContent: SidebarSection[] = [
         title: "Security + authentication",
       },
       {
+        slug: "/feeds-vs-guides",
+        title: "Feeds v. guides",
+      },
+      {
         slug: "/message-types",
         title: "Message types",
         isBeta: true,
-      },
-      {
-        slug: "/feeds-vs-guides",
-        title: "Feeds v. guides",
       },
     ],
     sidebarMenuDefaultOpen: true,
   },
   {
     title: "Feeds",
-    slug: "/feeds",
+    slug: "/in-app-ui/feeds",
     desc: "Power real-time feeds, inboxes, and notification centers in your product.",
     pages: [
       { slug: "/overview", title: "Overview" },
       {
-        slug: "/custom-notifications-ui",
-        title: "Custom feed UI (headless)",
-      },
-      {
         slug: "/filtering-in-app-feeds",
         title: "Filtering feeds",
-      },
-      {
-        slug: "/customizing-feed-components",
-        title: "Customizing feed components",
       },
     ],
   },
@@ -105,7 +97,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
           { slug: "/inbox", title: "Notification inbox" },
           {
             slug: "/custom-notifications-ui",
-            title: "Custom feed UI (headless)",
+            title: "Headless feed UI",
           },
           { slug: "/preferences", title: "Preferences" },
           { slug: "/slack-kit", title: "SlackKit" },
