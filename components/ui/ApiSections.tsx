@@ -48,8 +48,8 @@ export const Section = ({
             <Box mb="2">
               <Text
                 as="span"
-                size="1"
-                bg="yellow-4"
+                size="0"
+                bg="yellow-3"
                 py="1"
                 px="3"
                 color="black"
@@ -69,8 +69,8 @@ export const Section = ({
             <Box mb="2">
               <Text
                 as="span"
-                size="1"
-                bg="yellow-4"
+                size="0"
+                bg="yellow-3"
                 py="1"
                 px="3"
                 color="black"

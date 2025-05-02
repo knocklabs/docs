@@ -11,9 +11,10 @@ type HeadingProps = TgphComponentProps<typeof Heading>;
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
-type Props = React.HTMLProps<HTMLHeadingElement> & {
+interface Props extends HeadingProps {
   tag: HeadingTag;
   path?: string;
+  tooltipSide?: "top" | "bottom" | "left" | "right";
 };
 
 const SectionHeading = ({
@@ -22,6 +23,7 @@ const SectionHeading = ({
   children,
   className,
   path,
+  tooltipSide = "top",
   ...rest
 }: Props) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -31,22 +33,25 @@ const SectionHeading = ({
       : tag === "h2"
       ? "6"
       : tag === "h3"
-      ? "5"
+          ? "4"
       : tag === "h4"
-      ? "4"
+            ? "3"
       : tag === "h5"
-      ? "4"
-      : ("4" as const);
+              ? "3"
+              : "3";
 
   const [showCopied, setShowCopied] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const showLink = path || id;
+
   const onHeadingClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    const url =
+    const url = path ?
       window.location.origin +
       "/" +
       window.location.pathname.split("/")[1] +
-      path;
+      path
+      : window.location.href;
     await navigator.clipboard.writeText(url);
     setShowCopied(true);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -63,8 +68,21 @@ const SectionHeading = ({
     };
   }, []);
 
+  if (!showLink) {
+    return (
+      <Heading as={tag} size={size} mb="4" {...rest}>
+        {children}
+      </Heading>
+    );
+  }
+
   return (
-    <Stack flexDirection="row" alignItems="center" mb="4">
+    <Stack
+      flexDirection="row"
+      alignItems="center"
+      mt={rest?.mt || 0}
+      mb={rest?.mb || 4}
+    >
       <Button
         variant="ghost"
         // @ts-expect-error shut it
@@ -77,9 +95,9 @@ const SectionHeading = ({
         }}
         tgphRef={buttonRef}
       >
-        <Tooltip label="Copy link to section" side="top">
+        <Tooltip label="Copy link to section" side={tooltipSide}>
           {/* @ts-expect-error shut it */}
-          <Heading as={tag} size={size} {...rest} id={id}>
+          <Heading as={tag} size={size} {...rest} id={id} mt="0" mb="0">
             {children}
           </Heading>
         </Tooltip>
