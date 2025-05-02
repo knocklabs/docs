@@ -263,21 +263,6 @@ async function generateAllLlmsFiles() {
     fullContent.push("---\n");
 
     // API REFERENCE
-    // const apiSidebar = await getApiSidebar();
-    // await processSections(apiSidebar, indexContent, fullContent);
-
-    // DIVIDER
-    indexContent.push("---\n");
-    fullContent.push("---\n");
-
-    // CLI REFERENCE
-    await processSections(CLI_SIDEBAR, indexContent, fullContent);
-
-    // DIVIDER
-    indexContent.push("---\n");
-    fullContent.push("---\n");
-
-    // API REFERENCE
     const apiSidebar = await getApiSidebar();
     await processSections(
       apiSidebar,
@@ -285,6 +270,13 @@ async function generateAllLlmsFiles() {
       fullContent,
       "/api-reference",
     );
+
+    // DIVIDER
+    indexContent.push("---\n");
+    fullContent.push("---\n");
+
+    // CLI REFERENCE
+    await processSections(CLI_SIDEBAR, indexContent, fullContent);
 
     // DIVIDER
     indexContent.push("---\n");
