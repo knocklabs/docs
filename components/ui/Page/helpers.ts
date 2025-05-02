@@ -48,7 +48,6 @@ export const highlightResource = (
 
       window.scrollTo({
         top: targetScrollY,
-        // Use 'instant' matching the original scrollIntoView behavior here
         behavior: "instant", 
       });
 
