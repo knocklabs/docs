@@ -35,7 +35,7 @@ const SectionHeading = ({
       ? "4"
       : tag === "h5"
       ? "4"
-              : "4" as const;
+      : ("4" as const);
 
   const [showCopied, setShowCopied] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -62,7 +62,7 @@ const SectionHeading = ({
     <Stack flexDirection="row" alignItems="center" mb="4">
       <Button
         variant="ghost"
-    // @ts-expect-error shut it
+        // @ts-expect-error shut it
         size={size}
         onClick={onHeadingClick}
         borderRadius="2"
@@ -87,7 +87,9 @@ const SectionHeading = ({
             transition={{ duration: 0.15 }}
             style={{ display: "inline-block", marginLeft: 8 }}
           >
-            <Tag size="1" color="green">Copied link to clipboard!</Tag>
+            <Tag size="1" color="green">
+              Copied link to clipboard!
+            </Tag>
           </motion.div>
         )}
       </AnimatePresence>
