@@ -12,7 +12,7 @@ import fs from "fs";
 import { MDXRemote } from "next-mdx-remote";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 import {
-  mapiOverviewSidebarContent,
+  MAPI_REFERENCE_OVERVIEW_CONTENT,
   RESOURCE_ORDER,
 } from "../../data/sidebars/mapiOverviewSidebar";
 
@@ -28,7 +28,7 @@ function ManagementApiReferencePage({
       stainlessSpec={stainlessSpec}
       preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
       resourceOrder={RESOURCE_ORDER}
-      preSidebarContent={mapiOverviewSidebarContent}
+      preSidebarContent={MAPI_REFERENCE_OVERVIEW_CONTENT}
     />
   );
 }
@@ -43,7 +43,7 @@ export async function getStaticPaths() {
     stainlessSpec,
     RESOURCE_ORDER,
     "/mapi-reference",
-    mapiOverviewSidebarContent,
+    MAPI_REFERENCE_OVERVIEW_CONTENT,
   );
 
   for (const page of pages) {

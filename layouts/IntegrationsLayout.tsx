@@ -1,14 +1,8 @@
 import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-// import { Page } from "./Page";
-import PageNav from "../components/PageNav";
-import Breadcrumbs from "../components/Breadcrumbs";
 import { INTEGRATIONS_SIDEBAR } from "../data/sidebars/integrationsSidebar";
-import IntegrationsSidebar from "../components/IntegrationsSidebar";
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
-import Link from "next/link";
-import MinimalHeader from "../components/Header/MinimalHeader";
 import { Page } from "@/components/ui/Page";
 
 const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
