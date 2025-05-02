@@ -15,7 +15,37 @@ const mainContent: SidebarSection[] = [
       },
       {
         slug: "/security-and-authentication",
-        title: "Security & auth",
+        title: "Security + authentication",
+      },
+      {
+        slug: "/feeds-vs-guides",
+        title: "Feeds v. guides",
+      },
+      {
+        title: "Feeds",
+        slug: "/feeds",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/filtering-in-app-feeds",
+            title: "Filtering feeds",
+          },
+        ],
+      },
+      {
+        title: "Guides",
+        slug: "/guides",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/create-guides",
+            title: "Creating guides",
+          },
+          {
+            slug: "/render-guides",
+            title: "Rendering guides",
+          },
+        ],
       },
       {
         slug: "/message-types",
@@ -25,6 +55,34 @@ const mainContent: SidebarSection[] = [
     ],
     sidebarMenuDefaultOpen: true,
   },
+  // {
+  //   title: "Feeds",
+  //   slug: "/in-app-ui/feeds",
+  //   desc: "Power real-time feeds, inboxes, and notification centers in your product.",
+  //   pages: [
+  //     { slug: "/overview", title: "Overview" },
+  //     {
+  //       slug: "/filtering-in-app-feeds",
+  //       title: "Filtering feeds",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Guides",
+  //   slug: "/in-app-ui/guides",
+  //   desc: "Power announcements, onboarding, and evergreen in-app experiences in your product.",
+  //   pages: [
+  //     { slug: "/overview", title: "Overview" },
+  //     {
+  //       slug: "/create-guides",
+  //       title: "Creating guides",
+  //     },
+  //     {
+  //       slug: "/render-guides",
+  //       title: "Rendering guides",
+  //     },
+  //   ],
+  // },
 ];
 
 const languages = {
@@ -65,15 +123,11 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
           { slug: "/inbox", title: "Notification inbox" },
           {
             slug: "/custom-notifications-ui",
-            title: "Custom feed UI (headless)",
+            title: "Headless feed UI",
           },
           { slug: "/preferences", title: "Preferences" },
           { slug: "/slack-kit", title: "SlackKit" },
           { slug: "/teams-kit", title: "TeamsKit" },
-          {
-            slug: "/filtering-in-app-feeds",
-            title: "Filtering feeds",
-          },
           {
             slug: "/customizing-feed-components",
             title: "Customizing feed components",
@@ -87,11 +141,11 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
       {
         title: "SDK",
         slug: "/in-app-ui/react/sdk",
+        sidebarMenuDefaultOpen: true,
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/reference", title: "Reference" },
         ],
-        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -109,12 +163,12 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
       {
         title: "SDK",
         slug: "/in-app-ui/javascript/sdk",
+        sidebarMenuDefaultOpen: true,
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/quick-start", title: "Quick start" },
           { slug: "/reference", title: "Reference" },
         ],
-        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -153,6 +207,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
       {
         title: "SDK",
         slug: "/in-app-ui/react-native/sdk",
+        sidebarMenuDefaultOpen: true,
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/quick-start", title: "Quick start" },
@@ -160,7 +215,6 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
           { slug: "/notification-feeds", title: "Notification feeds" },
           { slug: "/reference", title: "Reference" },
         ],
-        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -182,6 +236,7 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
       {
         title: "SDK",
         slug: "/in-app-ui/ios/sdk",
+        sidebarMenuDefaultOpen: true,
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/quick-start", title: "Quick start" },
@@ -189,7 +244,6 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
           { slug: "/deep-links", title: "Deep links" },
           { slug: "/reference", title: "Reference" },
         ],
-        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -201,16 +255,17 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
       {
         title: "UI components",
         slug: "/in-app-ui/android",
+        sidebarMenuDefaultOpen: true,
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/components", title: "Components" },
           { slug: "/customization", title: "Customization" },
         ],
-        sidebarMenuDefaultOpen: true,
       },
       {
         title: "SDK",
         slug: "/in-app-ui/android/sdk",
+        sidebarMenuDefaultOpen: true,
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/quick-start", title: "Quick start" },
@@ -218,7 +273,6 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
           { slug: "/deep-links", title: "Deep links" },
           { slug: "/reference", title: "Reference" },
         ],
-        sidebarMenuDefaultOpen: true,
       },
     ],
   },
@@ -236,12 +290,12 @@ const sdkSpecificContent: Record<Language, SdkSpecificContent> = {
       {
         title: "SDK",
         slug: "/in-app-ui/flutter/sdk",
+        sidebarMenuDefaultOpen: true,
         pages: [
           { slug: "/overview", title: "Overview" },
           { slug: "/quick-start", title: "Quick start" },
           { slug: "/reference", title: "Reference" },
         ],
-        sidebarMenuDefaultOpen: true,
       },
     ],
   },

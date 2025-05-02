@@ -1,0 +1,88 @@
+---
+title: Creating guides
+description: How to create guides in the Knock dashboard to power your in-product messaging.
+tags: []
+section: Building in-app UI
+---
+
+In this document you'll learn how to create a guide in the Knock dashboard.
+
+## Overview
+
+A guide is created in the Knock dashboard under the "Guides" page. Guides have:
+
+- **Content.** The template of the guide. When you create your template, you select a [message type](/in-app-ui/message-types) which defines the schema of the content to be authored in a guide.
+- **Targeting rules.** Configuration rules for determining which users in your application are eligible to see a guide. Targeting rules are built with the standard Knock condition builder. You can target based on audience membership, user properties, tenant properties, and more. Defaults to "All users".
+- **Activation rules.** Configuration rules for determining where in your application the guide is rendered.
+
+Here are some other important things to know about guides:
+
+- **Guides are version controlled.** Just like workflows, guides follow our [versioning model](/concepts/commits). That means changes are made in your `development` environment and are promoted to `production`.
+- **Guides depend on message types**. A [message type](/in-app-ui/message-types) defines the _schema_ of the content to be authored in a guide. You can think of a message type as the structure of the component, defining which fields are available.
+- **Guides can be managed by anyone with the owner, admin, or member permission.**
+- **Guides can have personalized content**. Just like workflow templates, you can personalize the contents of a guide message using Liquid.
+- **Guide targeting uses [audiences](/concepts/audiences) and [conditions](/concepts/conditions)**. When you're building a guide, you can target it to "All users", or to specific audience you've uploaded to Knock. You can also use conditions to target users with specific properties, tenants with specific properties, or any `data` you've passed to the Guides API at runtime.
+
+## Runtime data and personalization/targeting
+
+Guides can receive runtime data from your application via the [guides API](/api-reference/users/guides/). You can use this data to personalize the guide's content and set its targeting rules.
+
+- `recipient`. The current user that is requesting the guide. The full user object, including any custom properties, is available in the rendering scope.
+- `data`. Any custom data provided from the client to the guides API.
+- `tenant`. The full tenant object if provided to the guides API.
+- `vars`. Any [variables](/concepts/variables) available in your Knock environment.
+
+TODO we should add a code example of passing data to a KnockGuideProvider here.
+
+## Drafting content
+
+Creating the content for a guide is just like creating an in-app message template elsewhere in Knock. You select your message type, its variant, and then use the fields available to you to draft your content.
+
+<Image
+  src="/images/concepts/guides/DraftingGuideContent.png"
+  alt="Drafting guide content"
+  width={1356}
+  height={1452}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+When creating your template content, you can make personalizations using [Liquid](/designing-workflows/template-editor/overview) and any [data passed to the guides API](/guides#overview) at runtime, including `data`, `recipient`, `tenant`, and `vars` properties.
+
+All existing [liquid filters and functions](/designing-workflows/template-editor/reference-liquid-helpers) are available in the guide template, including the ability to use translations via the `t` tag and `t` filter.
+
+## Targeting
+
+You can currently target guides to:
+
+- All users (no targeting)
+- A user within a specific [audience](/concepts/audiences)
+
+It's also possible to specify targeting conditions which can further limit who is eligible for the guide using Knock's [condition model](/concepts/conditions). You can use conditions to target any [data passed to the guides API](/guides#overview) at runtime, including `data`, `recipient`, and `tenant` properties.
+
+## Activation
+
+A guide is activated when it is rendered to the user in your application. You can optionally configure activation rules that determine where in your application a guide should be rendered.
+
+Today activation rules are limited to path-based rules, which means you can target a guide to only render on certain pages in your application.
+
+If you do not provide any activation rules, the guide will activate when you call the `useGuide` hook in your application. More on this below.
+
+<Image
+  src="/images/concepts/guides/GuideActivation.png"
+  alt="GuideActivation"
+  width={1356}
+  height={1452}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+## Enabling and disabling guides
+
+You can stop serving a guide immediately to all your customers by toggling the "Active" status in each environment. Making the status "Inactive" will immediately stop any guides being displayed to users.
+
+## Analytics and observability
+
+Guides produce [messages](/concepts/messages) that capture the content rendered to the user and the engagement of the user with the guide, just like workflows and broadcasts within Knock.
+
+This means guide messages will appear in messages tables synched to your data warehouse and in downstream events sent to Segment and Heap.
+
+They are also sent to any connected metrics integrations with New Relic and Datadog, and included in outbound webhooks.
