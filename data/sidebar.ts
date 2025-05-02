@@ -35,6 +35,7 @@ const sidebarContent: SidebarSection[] = [
       { slug: "/variables", title: "Variables" },
       { slug: "/audiences", title: "Audiences" },
       { slug: "/broadcasts", title: "Broadcasts" },
+      { slug: "/guides", title: "Guides", isBeta: true },
     ],
   },
   {

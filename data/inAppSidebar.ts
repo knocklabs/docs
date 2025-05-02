@@ -15,7 +15,7 @@ const mainContent: SidebarSection[] = [
       },
       {
         slug: "/security-and-authentication",
-        title: "Security & auth",
+        title: "Security + authentication",
       },
       {
         slug: "/message-types",

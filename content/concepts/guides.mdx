@@ -1,0 +1,312 @@
+---
+title: Guides
+description: Power in-product messaging such as announcements, paywalls, and banners using your own components.
+tags: []
+section: Concepts
+---
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      Guides are currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Guides%20beta%20access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+A guide represents a piece of UI that you want to be **powered by Knock within your application**.
+
+<Image
+  src="/images/concepts/guides/WhatIsAGuide.png"
+  alt="Whatisaguide"
+  width={1356}
+  height={1452}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+You configure your guide in the Knock dashboard, including its **content**, its **targeting** rules (who can see it), and its **activation** rules (where in your product they can see it).
+
+You then use our API and client SDKs to power the **data** of a guide within your application. Your engineering team owns the UI layer, and your content team owns the contents of the UI shown to users. Knock seamlessly powers this on your behalf, making it effortless to build powerful, managed UI components that any one in your team can maintain.
+
+## Use cases
+
+- **Upgrade flows.** Show a guide to users on a `free` plan to display an upgrade button.
+- **Outage banners.** Show a guides to all customers when there's upcoming maintenance for your product.
+- **In-place feature announcements.** Ship static pieces of UI that prompt a user to learn more about new features.
+- **Welcome modals.** Display a welcome modal to new users to help them get started with your product.
+
+## Benefits
+
+Using Knock guides to power your application UI gives you:
+
+- **Native performance.** Guides render as first-class React, Vue, or Angular components instead of injected scripts. They add no runtime overhead and stay aligned with your design system.
+- **Composable primitives for engineers.** The package ships components, hooks, low-level APIs, and socket infrastructure you can assemble into any in-product announcement, UI, or tour.
+- **Self-service for product and marketing.** Content, targeting, and activation rules are edited entirely in the dashboard; no code or deploys required.
+- **Built-in analytics and observability.** Delivery and engagement events are tracked automatically and can be forwarded to the analytics destinations you already use, whether that's a data warehouse, a third-party analytics service, or your own custom analytics platform.
+
+## Create a guide in Knock
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Note:</span> To build a new guide in Knock,
+      you must first have setup one or more{" "}
+      <a href="/in-app-ui/message-types">message types</a>. Message types are
+      the building blocks for guides and map the components in your application
+      to the content editing experience in Knock.
+    </>
+  }
+/>
+
+Guides are created within the Knock dashboard under the "Guides" tab. Here are some important things to know about guides:
+
+- **Guides are version controlled.** Just like workflows, guides also follow our [versioning model](/concepts/commits). That means changes are made in your `development` environment and are promoted to `production`.
+- **Guides depend on message types**. A message type defines the _schema_ of the content to be authored in a guide. You can think of a message type as the structure of the component, defining which fields are available.
+- **Guides can be managed by anyone with the owner, admin, or member permission.**
+- **Guides can have personalized content**. Just like workflow templates, you can personalize the contents of a guide message using liquid.
+- **Guide targeting uses [audiences](/concepts/audiences) and [conditions](/concepts/conditions)**. When you're building a guide, you can target it to "All users", or to specific audience you've uploaded to Knock. You can also use conditions to target users with specific properties, tenants with specific properties, or any `data` you've passed to the Guides API at runtime.
+
+### The anatomy of a guide
+
+A guide is configured in the Knock dashboard with:
+
+- **Content.** The template of the guide. Your template uses a Knock message type to map the guide's content to a component in your application (such as `<Modal/>` , `<Banner/>` , or `<Card/>`.)
+- **Targeting rules.** Configuration rules for determining which users in your application are eligible to see a guide. Targeting rules are built with the standard Knock condition builder. You can target based on audience membership, user properties, tenant properties, and more. Defaults to "All users".
+- **Activation rules.** Configuration rules for determining where in your application the guide is rendered.
+
+### Runtime data and personalization
+
+Guides can also receive runtime data from your application via the [guides API](/api-reference/guides/). You can use this data to personalize the guide's content and set its targeting rules.
+
+- `recipient`. The current user that is requesting the guide. The full user object, including any custom properties, is available in the rendering scope.
+- `data`. Any custom data provided from the client to the guides API.
+- `tenant`. The full tenant object if provided to the guides API.
+- `vars`. Any [variables](https://docs.knock.app/concepts/variables) available in your Knock environment.
+
+### Drafting content
+
+Creating the content for a guide is just like creating an in-app message template elsewhere in Knock. You select your message type, its variant, and then use the fields available to you to draft your content.
+
+<Image
+  src="/images/concepts/guides/DraftingGuideContent.png"
+  alt="Drafting guide content"
+  width={1356}
+  height={1452}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+When creating your template content, you can make personalizations using [Liquid](https://docs.knock.app/designing-workflows/template-editor/overview) and any [data passed to the guides API](/guides#the-anatomy-of-a-guide) at runtime, including `data`, `recipient`, `tenant`, and `vars` properties.
+
+All existing [liquid filters and functions](https://docs.knock.app/designing-workflows/template-editor/reference-liquid-helpers) are available in the guide template, including the ability to use translations via the `t` tag and `t` filter.
+
+### Targeting
+
+You can currently target guides to:
+
+- All users (no targeting)
+- A user within a specific [audience](https://docs.knock.app/concepts/audiences)
+
+It's also possible to specify targeting conditions which can further limit who is eligible for the guide using Knock's [condition model](https://docs.knock.app/concepts/conditions). You can use conditions to target any [data passed to the guides API](/guides#the-anatomy-of-a-guide) at runtime, including `data`, `recipient`, and `tenant` properties.
+
+### Activation
+
+Currently there's no way to determine when/where a guide is shown from the Knock dashboard. The only activation option available is via the `useGuide` which makes the component responsible for determining when a guide should be displayed.
+
+We'll soon be releasing the ability to set activation rules in Knock to control where in your application a guide (such as a modal or a banner) renders.
+
+<Image
+  src="/images/concepts/guides/GuideActivation.png"
+  alt="GuideActivation"
+  width={1356}
+  height={1452}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+### Enabling and disabling guides
+
+You can stop serving a guide immediately to all your customers by toggling the "Active" status in each environment. Making the status "Inactive" will immediately stop any guides being displayed to users.
+
+### Analytics and observability
+
+Guides produce [messages](/concepts/messages) that capture the content rendered to the user and the engagement of the user with the guide, just like workflows and broadcasts within Knock.
+
+This means guide messages will appear in messages tables synched to your data warehouse and in downstream events sent to Segment and Heap.
+
+They are also sent to any connected metrics integrations with New Relic and Datadog, and included in outbound webhooks.
+
+## Render a guide in your application
+
+<Callout
+  emoji="🚨"
+  text={
+    <>
+      <span className="font-bold">Note:</span> You must be on @knocklabs/react
+      version 0.7.0 or higher in order to use our new Guides related features.
+      Older SDK versions do not have this capability.
+    </>
+  }
+/>
+
+### Getting started
+
+<AccordionGroup>
+  <Accordion title="1. Setup the KnockGuideProvider within your application.">
+    
+    You'll need to ensure the guide provider is a child component of the `KnockProvider`. You can find the `channelId` for your guide on the guide details page in the dashboard.
+
+    ```tsx title="Setup the KnockGuideProvider within your application."
+    import { KnockProvider, KnockGuideProvider } from "@knocklabs/react";
+    import { useCurrentUser } from "@/lib/hooks";
+
+    const MyApplication = () => {
+      // Get your authenticated current user
+      const currentUser = useCurrentUser();
+
+      return (
+        <KnockProvider
+          apiKey={process.env.NEXT_PUBLIC_KNOCK_API_KEY}
+          userId={currentUser.id}
+        >
+          <KnockGuideProvider
+            channelId={process.env.NEXT_PUBLIC_KNOCK_GUIDE_CHANNEL_ID}
+            // A boolean property that controls when guides are ready to be shown
+            // use when you are working with async data
+            readyToTarget
+            // When set to true (default), starts a websocket
+            listenForUpdates
+            targetParams={
+              {
+                // an optional set of data to pass
+                // data: { foo: "bar" },
+                // tenant: workspace.id,
+              }
+            }
+          >
+            <Header />
+            <Sidebar />
+            {/* Rest of your app */}
+          </KnockGuideProvider>
+        </KnockProvider>
+      );
+    };
+    ```
+
+  </Accordion>
+  <Accordion title="2. Build a component to render your guide.">
+    ```tsx
+    import { useEffect } from "react";
+    import { useGuide } from "@knocklabs/react";
+
+    const ChangelogCard = () => {
+      const { step } = useGuide({ type: "changelog-card" });
+
+      useEffect(() => {
+        if (step) step.markAsSeen();
+      }, [step]);
+
+      if (!step) return null;
+
+      return (
+        <div onClick={() => step.markAsInteracted()}>
+          <h3>{step.content.title}</h3>
+          <p>{step.content.body}</p>
+        </div>
+      );
+    };
+    ```
+
+  </Accordion>
+  <Accordion title="3. Mount your component under the KnockGuideProvider.">
+    Once mounted in your application tree, if your user becomes eligible for the guide, then the component will be rendered and displayed to your users.
+
+    ```tsx
+    import { ChangelogCard } from "@/components/ChangelogCard";
+
+    const Sidebar = () => {
+      return (
+        <div>
+          {/* Rest of my sidebar */}
+          <ChangelogCard />
+        </div>
+      );
+    };
+    ```
+
+  </Accordion>
+</AccordionGroup>
+
+### Working with fetched guides
+
+Knock exposes a `useGuide` hook, which accepts either a `type` (corresponding to a message type _key_) or a `key` (a specific _guide_ _key_) to select a guide from the fetched set of guides.
+
+Here's how to think about when to use both of these:
+
+- `key`: If you want your component to only ever render a specific instance of a guide, like when building an embedded UI, then use the `key` selector.
+- `type`: If you want to render **any guide** that uses this message type, like when building a generic "Banner" component that could be used multiple times across many guides, but only ever shows a single banner at a time, then use the `type` selector.
+  - When multiple guides exist for a single `type`, we return the most recently created guide first. We are in-progress on a guides ordering feature where you will be able to control this behavior from the Knock dashboard and manually configure which guide should return first.
+
+In the future we'll be adding a `useGuides` (plural) hook to return one or more guides that match a set of criteria. Please [let us know](mailto:support@knock.app?subject=Guides%20beta%20feedback) if you need this.
+
+### Handling engagement tracking
+
+Each guide step exposes methods to work with engagement tracking:
+
+- `step.markAsSeen`: mark that the user has seen the guide, but not yet interacted with it.
+- `step.markAsInteracted`: mark the step as interacted with, optionally passing metadata about the interaction
+- `step.markAsArchived`: mark the step as archived, making it no longer visible for the user.
+
+If you need to understand the current status of the guide step, you can access the state under `step.message` which will expose a `StepMessageState` including:
+
+- `seen_at`: when the message was last seen (timestamp or null)
+- `read_at`: when the message was last read (timestamp or null)
+- `interacted_at`: when the message was last interacted
+- `archived_at`: when the message was last archived
+
+### Advanced: working with the `GuideClient`
+
+In certain cases, you may need to drop down to operate on the guide client, which is the state management layer automatically created when you mount a `GuideProvider`.
+
+You can always access the guide client by using the `useGuideContext` hook:
+
+```tsx
+const { client: guideClient } = useGuideContext();
+```
+
+One use case for accessing the guide client is to force a refetch of the users eligible guides, which you can do through the `guideClient.fetch()` method.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="How does pricing for Guides work?">
+    We are using a monthly active users (MAU) pricing model for guides. If
+    you're interested in learning more, please reach out to us at
+    [support@knock.app](mailto:support@knock.app?subject=Guides%20beta%20feedback).
+    We'll be announcing pricing details when we GA launch guides.
+  </Accordion>
+  <Accordion title="Can I use guides in my cross-channel workflows and broadcasts?">
+    Not today. We're working on this and if you're interested we'd love to hear
+    your use case at
+    [support@knock.app](mailto:support@knock.app?subject=Guides%20beta%20feedback).
+  </Accordion>
+  <Accordion title="Is guide eligibility recalculated in real-time?">
+    No, right now if your user enters an audience their guide eligibility will
+    not be recalculated. Instead, you must either wait for the next guide fetch
+    or manually trigger a refetch of the guides.
+  </Accordion>
+  <Accordion title="Can I pass application state to guides to use in targeting and personalization?">
+    Yes, you can pass an arbitrary dictionary of data from your application to
+    the guides API which can be used to determine eligibility as well as used in
+    guide personalization.
+  </Accordion>
+  <Accordion title="Can I power multi-step product tours with guides?">
+    Not as of our initial beta release. We're working on this and if you're
+    interested we'd love to hear your use case at
+    [support@knock.app](mailto:support@knock.app?subject=Guides%20beta%20feedback).
+  </Accordion>
+</AccordionGroup>
