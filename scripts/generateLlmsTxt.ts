@@ -257,7 +257,6 @@ async function generateAllLlmsFiles() {
 
     // IN-APP UI
     // We have to overwrite the titles so the markdown gets more than just "UI Components" and "SDK" for each section
-    // This looks crazy but honestyl prefer this over a function
     await processSections(IN_APP_UI_SIDEBAR, indexContent, fullContent);
     await processSections(
       processSdkSidebar(REACT_SIDEBAR, "React"),
