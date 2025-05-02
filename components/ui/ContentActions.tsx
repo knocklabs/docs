@@ -53,17 +53,14 @@ export const ContentActions: React.FC<ContentActionsProps> = ({ pages }) => {
             Copy for LLM
           </Button>
         </Popover.Trigger>
-        <Popover.Content
-          sideOffset={4}
-          align="start"
-        >
+        <Popover.Content sideOffset={4} align="start">
           <MenuItem
             as="button"
             onClick={copyAsMarkdown}
             disabled={isCopied}
             icon={{
               icon: isCopied ? Lucide.Check : Lucide.Copy,
-              "aria-hidden": true
+              "aria-hidden": true,
             }}
           >
             {isCopied ? "Copied!" : "Copy as markdown"}
@@ -72,7 +69,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({ pages }) => {
             as={Link}
             icon={{
               icon: Lucide.SquareArrowOutUpRight,
-              "aria-hidden": true
+              "aria-hidden": true,
             }}
             href={mdPath}
             target="_blank"
@@ -82,6 +79,6 @@ export const ContentActions: React.FC<ContentActionsProps> = ({ pages }) => {
           </MenuItem>
         </Popover.Content>
       </Popover.Root>
-    </Box >
+    </Box>
   );
 };

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 // import { Page } from "./Page";
 import PageNav from "../components/PageNav";
 import Breadcrumbs from "../components/Breadcrumbs";
-import sidebarContent from "../data/integrationsSidebar";
+import { INTEGRATIONS_SIDEBAR } from "../data/sidebars/integrationsSidebar";
 import IntegrationsSidebar from "../components/IntegrationsSidebar";
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
@@ -37,7 +37,7 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
       sidebarPaths = [`${paths[0]}/${paths[1]}`, ...paths.slice(2)];
     }
 
-    return getSidebarInfo(sidebarPaths, sidebarContent);
+    return getSidebarInfo(sidebarPaths, INTEGRATIONS_SIDEBAR);
   }, [paths]);
 
   return (
@@ -48,9 +48,12 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
       />
       <Page.Masthead title={frontMatter.title} />
       <Page.Wrapper>
-        <Page.Sidebar content={sidebarContent}></Page.Sidebar>
+        <Page.Sidebar content={INTEGRATIONS_SIDEBAR}></Page.Sidebar>
         <Page.Content>
-          {breadcrumbs && <Page.Breadcrumbs pages={breadcrumbs} />}
+          <Page.TopContainer>
+            {breadcrumbs && <Page.Breadcrumbs pages={breadcrumbs} />}
+            <Page.ContentActions />
+          </Page.TopContainer>
           <Page.ContentHeader
             title={frontMatter.title}
             description={frontMatter.description}

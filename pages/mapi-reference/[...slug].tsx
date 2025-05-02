@@ -11,7 +11,10 @@ import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import fs from "fs";
 import { MDXRemote } from "next-mdx-remote";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
-import { RESOURCE_ORDER, PRE_SIDEBAR_CONTENT } from "./index";
+import {
+  mapiOverviewSidebarContent,
+  RESOURCE_ORDER,
+} from "../../data/sidebars/mapiOverviewSidebar";
 
 function ManagementApiReferencePage({
   openApiSpec,
@@ -25,7 +28,7 @@ function ManagementApiReferencePage({
       stainlessSpec={stainlessSpec}
       preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
       resourceOrder={RESOURCE_ORDER}
-      preSidebarContent={PRE_SIDEBAR_CONTENT}
+      preSidebarContent={mapiOverviewSidebarContent}
     />
   );
 }
@@ -40,7 +43,7 @@ export async function getStaticPaths() {
     stainlessSpec,
     RESOURCE_ORDER,
     "/mapi-reference",
-    PRE_SIDEBAR_CONTENT,
+    mapiOverviewSidebarContent,
   );
 
   for (const page of pages) {

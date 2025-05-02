@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import sidebarContent from "../data/integrationsSidebar";
+import sidebarContent from "../data/sidebars/integrationsSidebar";
 import Sidebar from "./Sidebar";
 
 const IntegrationsSidebar = (props) => (

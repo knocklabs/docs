@@ -38,7 +38,10 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
       <Page.Wrapper>
         <Page.Sidebar content={sidebarContent} />
         <Page.Content>
-          {breadcrumbs && <Page.Breadcrumbs pages={breadcrumbs} />}
+          <Page.TopContainer>
+            {breadcrumbs && <Page.Breadcrumbs pages={breadcrumbs} />}
+            <Page.ContentActions />
+          </Page.TopContainer>
           <Page.ContentHeader
             title={frontMatter.title}
             description={frontMatter.description}

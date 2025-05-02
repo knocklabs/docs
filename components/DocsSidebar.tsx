@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { IoSwapHorizontal, IoLogoSlack } from "react-icons/io5";
-import sidebarContent from "../data/sidebar";
+import sidebarContent from "../data/sidebars/platformSidebar";
 import Sidebar from "./Sidebar";
 
 const DocsSidebar = (props) => (

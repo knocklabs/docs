@@ -4,7 +4,7 @@ import { slugToPaths } from "../lib/content";
 import Meta from "../components/Meta";
 import { useRouter } from "next/router";
 import { useInitialScrollState } from "../components/ui/Page/helpers";
-import { cliContent as cliSidebarData } from "../data/sidebar";
+import { CLI_SIDEBAR } from "../data/sidebars/cliSidebar";
 
 export const CliReferenceLayout = ({ frontMatter, children }) => {
   const router = useRouter();
@@ -29,8 +29,13 @@ export const CliReferenceLayout = ({ frontMatter, children }) => {
       />
       <Page.Masthead title={frontMatter.title} />
       <Page.Wrapper>
-        <Page.Sidebar content={cliSidebarData} samePageRouting />
+        <Page.Sidebar content={CLI_SIDEBAR} samePageRouting />
         <Page.Content fullWidth>
+          <Page.TopContainer>
+            {/* Empty element to push the actions to the right */}
+            <div></div>
+            <Page.ContentActions />
+          </Page.TopContainer>
           <Page.ContentHeader
             title={frontMatter.title}
             description={frontMatter.description}

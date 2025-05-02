@@ -3,19 +3,76 @@ import { useRouter } from "next/router";
 import { Page } from "@/components/ui/Page";
 import { Sidebar, SidebarContext } from "@/components/ui/Page/Sidebar";
 import {
-  mainContent,
-  sdkSpecificContent,
+  IN_APP_UI_SIDEBAR,
+  REACT_SIDEBAR,
+  JAVASCRIPT_SIDEBAR,
+  ANGULAR_SIDEBAR,
+  REACT_NATIVE_SIDEBAR,
+  SWIFT_SIDEBAR,
+  ANDROID_SIDEBAR,
+  FLUTTER_SIDEBAR,
+  EXPO_SIDEBAR,
   type Language,
   type SdkSpecificContent,
-} from "../data/inAppSidebar";
+} from "../data/sidebars/inAppSidebar";
 import Meta from "../components/Meta";
 import { getInAppSidebar, slugToPaths } from "../lib/content";
 import { Box } from "@telegraph/layout";
 import { Stack } from "@telegraph/layout";
 import { Select } from "@telegraph/select";
 import { Text } from "@telegraph/typography";
+import { icons } from "@/components/ui/SdkCard";
 
-const languages = Object.keys(sdkSpecificContent);
+const languageMap = {
+  react: {
+    title: "React",
+    value: "react",
+    icon: icons.react,
+    items: REACT_SIDEBAR,
+  },
+  javascript: {
+    title: "JavaScript",
+    value: "javascript",
+    icon: icons.javascript,
+    items: JAVASCRIPT_SIDEBAR,
+  },
+  angular: {
+    title: "Angular",
+    value: "angular",
+    icon: icons.angular,
+    items: ANGULAR_SIDEBAR,
+  },
+  "react-native": {
+    title: "React Native",
+    value: "react-native",
+    icon: icons.reactnative,
+    items: REACT_NATIVE_SIDEBAR,
+  },
+  ios: {
+    title: "Swift",
+    value: "ios",
+    icon: icons.swift,
+    items: SWIFT_SIDEBAR,
+  },
+  android: {
+    title: "Android (Kotlin)",
+    value: "android",
+    icon: icons.kotlin,
+    items: ANDROID_SIDEBAR,
+  },
+  flutter: {
+    title: "Flutter",
+    value: "flutter",
+    icon: icons.flutter,
+    items: FLUTTER_SIDEBAR,
+  },
+  expo: {
+    title: "Expo",
+    value: "expo",
+    icon: icons.expo,
+    items: EXPO_SIDEBAR,
+  },
+};
 
 const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
@@ -23,14 +80,14 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
 
   const [selectedSdk, setSelectedSdk] = useState<Language>(() => {
     const sdk = paths[1];
-    if (sdk && sdkSpecificContent[sdk as Language]) {
+    if (sdk && languageMap[sdk as Language]) {
       return sdk as Language;
     }
-    return Object.keys(sdkSpecificContent)[0] as Language;
+    return Object.keys(languageMap)[0] as Language;
   });
 
-  const selectedSdkContent = sdkSpecificContent[selectedSdk];
-  const allSidebarContent = [...mainContent, ...selectedSdkContent.items];
+  const selectedSdkContent = languageMap[selectedSdk];
+  const allSidebarContent = [...IN_APP_UI_SIDEBAR, ...selectedSdkContent.items];
 
   useEffect(() => {
     const content = document.querySelector(".main-content");
@@ -50,7 +107,7 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   // Update URL state when the SDK changes
   const handleSdkChange = (value: Language) => {
     setSelectedSdk(value);
-    const newContent = sdkSpecificContent[value].items[0];
+    const newContent = languageMap[value].items[0];
     router.push(`${newContent.slug}${newContent.pages[0].slug}`);
     return value;
   };
@@ -66,7 +123,7 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
         <SidebarContext.Provider value={{ samePageRouting: false }}>
           <Sidebar.Wrapper>
             <Stack direction="column" gap="2">
-              {mainContent.map((section) => (
+              {IN_APP_UI_SIDEBAR.map((section) => (
                 <Sidebar.Section key={section.slug} section={section} />
               ))}
               <Text
@@ -87,9 +144,8 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
                   }}
                   size="2"
                 >
-                  {languages.map((language) => {
-                    const sdk: SdkSpecificContent =
-                      sdkSpecificContent[language];
+                  {Object.keys(languageMap).map((language) => {
+                    const sdk: SdkSpecificContent = languageMap[language];
                     return (
                       <Select.Option key={sdk.value} value={sdk.value}>
                         <Stack direction="row" gap="2" alignItems="center">

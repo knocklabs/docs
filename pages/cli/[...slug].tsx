@@ -13,7 +13,7 @@ import newRelicDashboardJson from "../../content/integrations/extensions/new_rel
 import AiChatButton from "../../components/AiChatButton";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 
-import { cliContent as cliSidebarContent } from "@/data/sidebar";
+import { cliContent as cliSidebarContent } from "@/data/sidebars/platformSidebar";
 
 export default function ContentPage({ source, sourcePath }) {
   return (

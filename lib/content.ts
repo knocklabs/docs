@@ -1,4 +1,4 @@
-import { SdkSpecificContent } from "@/data/inAppSidebar";
+import { SdkSpecificContent } from "@/data/sidebars/inAppSidebar";
 import { SidebarPage, SidebarSection } from "../data/types";
 
 // Converts a Next.js router slug to a paths array

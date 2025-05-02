@@ -1,5 +1,5 @@
 import React from "react";
-import sidebarContent from "../data/sidebar";
+import { PLATFORM_SIDEBAR } from "../data/sidebars/platformSidebar";
 import AiChatButton from "../components/AiChatButton";
 import { Page } from "@/components/ui/Page";
 import Meta from "@/components/Meta";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/OverviewContent/Blocks";
 import { Section } from "@/components/ui/OverviewContent/Section";
 
-const contentForDiscovery = sidebarContent.filter((s) => s.desc);
+const contentForDiscovery = PLATFORM_SIDEBAR.filter((s) => s.desc);
 
 // Add our integrations content in the 3rd position
 contentForDiscovery.splice(2, 0, {
@@ -47,7 +47,7 @@ export default function Home() {
         description="Knock is infrastructure for sending product and customer messaging. Learn more."
       />
       <Page.Wrapper>
-        <Page.Sidebar content={sidebarContent} />
+        <Page.Sidebar content={PLATFORM_SIDEBAR} />
         <Page.Content>
           <Page.ContentHeader
             title="Documentation"

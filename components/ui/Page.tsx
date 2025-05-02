@@ -22,7 +22,13 @@ export const usePageContext = () => useContext(PageContext);
 
 export const TopContainer = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Stack direction="row" justifyContent="space-between" alignItems="center" gap="1" mb="4">
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      alignItems="center"
+      gap="1"
+      mb="4"
+    >
       {children}
     </Stack>
   );

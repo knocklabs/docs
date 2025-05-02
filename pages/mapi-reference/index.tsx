@@ -8,46 +8,10 @@ import { readOpenApiSpec, readStainlessSpec } from "../../lib/openApiSpec";
 import ApiReference from "../../components/ui/ApiReference/ApiReference";
 import { CONTENT_DIR } from "../../lib/content.server";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
-import { SidebarSection } from "../../data/types";
-
-export const RESOURCE_ORDER = [
-  "environments",
-  "channels",
-  "workflows",
-  "email_layouts",
-  "translations",
-  "partials",
-  "commits",
-  "variables",
-  "templates",
-  "message_types",
-];
-
-export const PRE_SIDEBAR_CONTENT: SidebarSection[] = [
-  {
-    title: "API reference",
-    slug: `/mapi-reference/overview`,
-    pages: [
-      {
-        title: "Overview",
-        slug: `/`,
-      },
-      {
-        title: "Authentication",
-        slug: `/authentication`,
-      },
-      {
-        title: "Errors",
-        slug: `/errors`,
-      },
-      {
-        title: "Postman",
-        slug: `/postman`,
-      },
-    ],
-    sidebarMenuDefaultOpen: true,
-  },
-];
+import {
+  MAPI_REFERENCE_OVERVIEW_CONTENT,
+  RESOURCE_ORDER,
+} from "../../data/sidebars/mapiOverviewSidebar";
 
 function ManagementApiReferenceNew({
   openApiSpec,
@@ -61,7 +25,7 @@ function ManagementApiReferenceNew({
       stainlessSpec={stainlessSpec}
       preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
       resourceOrder={RESOURCE_ORDER}
-      preSidebarContent={PRE_SIDEBAR_CONTENT}
+      preSidebarContent={MAPI_REFERENCE_OVERVIEW_CONTENT}
     />
   );
 }

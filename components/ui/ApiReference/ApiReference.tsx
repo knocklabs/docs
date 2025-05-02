@@ -56,6 +56,11 @@ function ApiReference({
             samePageRouting
           />
           <TelegraphPage.Content fullWidth>
+            <TelegraphPage.TopContainer>
+              {/* Empty element to push the actions to the right */}
+              <div></div>
+              <TelegraphPage.ContentActions />
+            </TelegraphPage.TopContainer>
             <TelegraphPage.ContentHeader
               title={name}
               description={`Complete reference documentation for the Knock ${name}.`}
