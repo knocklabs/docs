@@ -72,23 +72,40 @@ export async function getStaticPaths() {
   };
 }
 
+// At the top of the file (outside the function)
+let cachedOpenApiSpecMapi: any = null;
+let cachedStainlessSpecMapi: any = null;
+let cachedPreContentMdxMapi: any = null;
+
 export async function getStaticProps() {
-  const openApiSpec = await readOpenApiSpec("mapi");
-  const stainlessSpec = await readStainlessSpec("mapi");
+  if (!cachedOpenApiSpecMapi) {
+    cachedOpenApiSpecMapi = await readOpenApiSpec("mapi");
+  }
+  if (!cachedStainlessSpecMapi) {
+    cachedStainlessSpecMapi = await readStainlessSpec("mapi");
+  }
 
   const preContent = fs.readFileSync(
     `${CONTENT_DIR}/__mapi-reference/content.mdx`,
   );
 
-  const preContentMdx = await serialize(preContent, {
-    parseFrontmatter: true,
-    mdxOptions: {
-      remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeMdxCodeProps] as any,
-    },
-  });
+  if (!cachedPreContentMdxMapi) {
+    cachedPreContentMdxMapi = await serialize(preContent, {
+      parseFrontmatter: true,
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypeMdxCodeProps] as any,
+      },
+    });
+  }
 
-  return { props: { openApiSpec, stainlessSpec, preContentMdx } };
+  return {
+    props: {
+      openApiSpec: cachedOpenApiSpecMapi,
+      stainlessSpec: cachedStainlessSpecMapi,
+      preContentMdx: cachedPreContentMdxMapi,
+    },
+  };
 }
 
 export default ManagementApiReferencePage;
