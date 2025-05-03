@@ -49,7 +49,7 @@ const RateLimit: React.FC<Props> = ({ tier, isBatch = false }) => {
   const renderLink = !inOverview && pathname === "api-reference";
 
   return (
-    <Tooltip label={tooltip}>
+    <Tooltip label={tooltip} side="right">
       <Tag
         as={renderLink ? Link : "div"}
         href={renderLink ? `/${pathname}/overview/rate-limits` : ``}

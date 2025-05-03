@@ -43,17 +43,13 @@ export const Section = ({
       data-resource-path={path}
     >
       {title && (
-        <SectionHeading
-          tag="h2"
-          className={cn([headingClassName, "mb-6"])}
-          path={path}
-        >
+        <>
           {isIdempotent && (
             <Box mb="2">
               <Text
                 as="span"
-                size="1"
-                bg="yellow-4"
+                size="0"
+                bg="yellow-3"
                 py="1"
                 px="3"
                 color="black"
@@ -73,8 +69,8 @@ export const Section = ({
             <Box mb="2">
               <Text
                 as="span"
-                size="1"
-                bg="yellow-4"
+                size="0"
+                bg="yellow-3"
                 py="1"
                 px="3"
                 color="black"
@@ -90,8 +86,14 @@ export const Section = ({
               </Text>
             </Box>
           )}
-          {title}
-        </SectionHeading>
+          <SectionHeading
+            tag="h2"
+            className={cn([headingClassName, "mb-6"])}
+            path={path}
+          >
+            {title}
+          </SectionHeading>
+        </>
       )}
       <Stack
         w="full"

@@ -1,79 +1,123 @@
-import React, { useEffect, useState } from "react";
-import useClipboard from "react-use-clipboard";
-import { highlightResource } from "./Page/helpers";
+import React, { useEffect, useState, useRef } from "react";
 import { Heading } from "@telegraph/typography";
 import { TgphComponentProps } from "@telegraph/helpers";
+import { Button } from "@telegraph/button";
+import { Tooltip } from "@telegraph/tooltip";
+import { motion, AnimatePresence } from "framer-motion";
+import { Tag } from "@telegraph/tag";
+import { Stack } from "@telegraph/layout";
+
+type HeadingProps = TgphComponentProps<typeof Heading>;
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
-type Props = React.HTMLProps<HTMLHeadingElement> & {
+interface Props extends HeadingProps {
   tag: HeadingTag;
   path?: string;
+  tooltipSide?: "top" | "bottom" | "left" | "right";
 };
 
-const SectionHeading: React.FC<Props> = ({
+const SectionHeading = ({
   id,
   tag,
   children,
   className,
   path,
+  tooltipSide = "top",
   ...rest
-}) => {
-  const [targetUrl, setTargetUrl] = useState("");
-  const [, onCopy] = useClipboard(targetUrl, { successDuration: 2000 });
-
-  // Wait for client to load before setting the target URL
-  useEffect(() => {
-    if (path) {
-      const url =
-        window.location.origin +
-        "/" +
-        window.location.pathname.split("/")[1] +
-        path;
-      setTargetUrl(url);
-    }
-  }, [path]);
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (path) {
-      highlightResource(path, { moveToItem: true, replaceUrl: targetUrl });
-    }
-    onCopy();
-  };
-
-  const size =
+}: Props) => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const size: HeadingProps["size"] =
     tag === "h1"
       ? "6"
       : tag === "h2"
       ? "6"
       : tag === "h3"
-      ? "5"
+          ? "4"
       : tag === "h4"
-      ? "4"
+            ? "3"
       : tag === "h5"
-      ? "4"
-      : "4";
+              ? "3"
+              : "3";
+
+  const [showCopied, setShowCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const showLink = path || id;
+
+  const onHeadingClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const url = path ?
+      window.location.origin +
+      "/" +
+      window.location.pathname.split("/")[1] +
+      path
+      : window.location.href;
+    await navigator.clipboard.writeText(url);
+    setShowCopied(true);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      // Remove styling from the cliked heading
+      buttonRef.current?.blur();
+      setShowCopied(false);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  if (!showLink) {
+    return (
+      <Heading as={tag} size={size} mb="4" {...rest}>
+        {children}
+      </Heading>
+    );
+  }
 
   return (
-    // @ts-expect-error shut it
-    <Heading as={tag} size={size} mb="4" {...rest} id={id}>
-      {children}
-
-      {targetUrl && (
-        <a
-          href={targetUrl}
-          style={{ color: "inherit", textDecoration: "none" }}
-          className="absolute -left-4 lg:-left-6 pr-1 lg:pr-3 cursor-pointer"
-          onClick={handleClick}
-        >
-          <span
-            className="invisible"
-            aria-label={`Jump link to ${children} section`}
-          />
-        </a>
-      )}
-    </Heading>
+    <Stack
+      flexDirection="row"
+      alignItems="center"
+      mt={rest?.mt || 0}
+      mb={rest?.mb || 4}
+    >
+      <Button
+        variant="ghost"
+        // @ts-expect-error shut it
+        size={size}
+        onClick={onHeadingClick}
+        borderRadius="2"
+        px="2"
+        style={{
+          marginLeft: "-8px",
+        }}
+        tgphRef={buttonRef}
+      >
+        <Tooltip label="Copy link to section" side={tooltipSide}>
+          {/* @ts-expect-error shut it */}
+          <Heading as={tag} size={size} {...rest} id={id} mt="0" mb="0">
+            {children}
+          </Heading>
+        </Tooltip>
+      </Button>
+      <AnimatePresence>
+        {showCopied && (
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.15 }}
+            style={{ display: "inline-block", marginLeft: 8 }}
+          >
+            <Tag size="1" color="green">
+              Copied link to clipboard!
+            </Tag>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Stack>
   );
 };
 
