@@ -26,25 +26,6 @@ function ApiReferencePage({ openApiSpec, stainlessSpec, preContentMdx }) {
   );
 }
 
-let cachedApiReferencePageComponent;
-
-function CachedApiReferencePage({
-  openApiSpec,
-  stainlessSpec,
-  preContentMdx,
-}) {
-  if (!cachedApiReferencePageComponent) {
-    cachedApiReferencePageComponent = (
-      <ApiReferencePage
-        openApiSpec={openApiSpec}
-        stainlessSpec={stainlessSpec}
-        preContentMdx={preContentMdx}
-      />
-    );
-  }
-  return cachedApiReferencePageComponent;
-}
-
 export async function getStaticPaths() {
   const openApiSpec = await readOpenApiSpec("api");
   const stainlessSpec = await readStainlessSpec("api");
@@ -155,4 +136,4 @@ export async function getStaticProps() {
   };
 }
 
-export default CachedApiReferencePage;
+export default ApiReferencePage;

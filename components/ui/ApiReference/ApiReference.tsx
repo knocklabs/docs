@@ -38,6 +38,7 @@ function ApiReference({
       <Meta
         title={`${name} | Knock Docs`}
         description={`Complete reference documentation for the Knock ${name}.`}
+        canonical={`/${basePath}`}
       />
       <TelegraphPage.Masthead title={name} />
       <ApiReferenceProvider
