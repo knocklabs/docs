@@ -30,6 +30,25 @@ function ManagementApiReferencePage({
   );
 }
 
+let cachedMapiReferencePageComponent;
+
+function CachedMapiReferencePage({
+  openApiSpec,
+  stainlessSpec,
+  preContentMdx,
+}) {
+  if (!cachedMapiReferencePageComponent) {
+    cachedMapiReferencePageComponent = (
+      <ManagementApiReferencePage
+        openApiSpec={openApiSpec}
+        stainlessSpec={stainlessSpec}
+        preContentMdx={preContentMdx}
+      />
+    );
+  }
+  return cachedMapiReferencePageComponent;
+}
+
 export async function getStaticPaths() {
   const openApiSpec = await readOpenApiSpec("mapi");
   const stainlessSpec = await readStainlessSpec("mapi");
@@ -108,4 +127,4 @@ export async function getStaticProps() {
   };
 }
 
-export default ManagementApiReferencePage;
+export default CachedMapiReferencePage;

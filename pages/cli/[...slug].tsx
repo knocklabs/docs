@@ -15,21 +15,26 @@ import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 
 import { cliContent as cliSidebarContent } from "@/data/sidebar";
 
-export default function ContentPage({ source, sourcePath }) {
-  return (
-    <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
-      <MDXRemote
-        {...source}
-        components={MDX_COMPONENTS}
-        scope={{
-          datadogDashboardJson,
-          newRelicDashboardJson,
-          eventPayload,
-        }}
-      />
-      <AiChatButton />
-    </MDXLayout>
-  );
+let cachedCliPageComponent;
+
+function CachedCliPageComponent({ source, sourcePath }) {
+  if (!cachedCliPageComponent) {
+    cachedCliPageComponent = (
+      <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
+        <MDXRemote
+          {...source}
+          components={MDX_COMPONENTS}
+          scope={{
+            datadogDashboardJson,
+            newRelicDashboardJson,
+            eventPayload,
+          }}
+        />
+        <AiChatButton />
+      </MDXLayout>
+    );
+  }
+  return cachedCliPageComponent;
 }
 
 // Get the props for a single path
@@ -84,3 +89,5 @@ export async function getStaticPaths() {
     fallback: false,
   };
 }
+
+export default CachedCliPageComponent;
