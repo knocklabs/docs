@@ -11,6 +11,7 @@ import { getSidebarContent } from "./helpers";
 import { SidebarSection } from "../../../data/types";
 import Meta from "../../Meta";
 import { useInitialScrollState } from "../Page/helpers";
+import { ContentActions } from "../ContentActions";
 
 type Props = {
   name: string;
@@ -59,6 +60,10 @@ function ApiReference({
             <TelegraphPage.ContentHeader
               title={name}
               description={`Complete reference documentation for the Knock ${name}.`}
+              bottomContent={
+                // Optically align with content above
+                <ContentActions showOnMobile style={{ marginLeft: "-6px" }} />
+              }
             />
             <TelegraphPage.ContentBody>
               {preContent}

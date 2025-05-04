@@ -13,7 +13,7 @@ import newRelicDashboardJson from "../../content/integrations/extensions/new_rel
 import AiChatButton from "../../components/AiChatButton";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 
-import { cliContent as cliSidebarContent } from "@/data/sidebar";
+import { CLI_SIDEBAR } from "@/data/sidebars/cliSidebar";
 
 export default function ContentPage({ source, sourcePath }) {
   return (
@@ -52,7 +52,7 @@ export async function getStaticProps() {
 
 export async function getStaticPaths() {
   const paths: { params: { slug: string[] } }[] = [];
-  const pages: SidebarSection[] = cliSidebarContent;
+  const pages: SidebarSection[] = CLI_SIDEBAR;
 
   for (const page of pages) {
     const slug = page.slug.split("/").pop() as string;

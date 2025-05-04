@@ -6,10 +6,13 @@ import { PageHeader } from "./PageHeader";
 import { OnThisPage } from "./Page/OnThisPage";
 import { Sidebar, SidebarContext } from "./Page/Sidebar";
 import { Breadcrumbs } from "./Breadcrumbs";
+import { ContentActions } from "./ContentActions";
 
 import "../../styles/global.css";
 import "../../styles/responsive.css";
 import { createContext, useContext, useState } from "react";
+import { TgphComponentProps } from "@telegraph/helpers";
+
 export const MAX_WIDTH = "1400px";
 
 const PageContext = createContext({
@@ -18,6 +21,20 @@ const PageContext = createContext({
 });
 
 export const usePageContext = () => useContext(PageContext);
+
+export const TopContainer = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      alignItems="center"
+      gap="1"
+      mb="4"
+    >
+      {children}
+    </Stack>
+  );
+};
 
 const Container = ({ children }) => {
   // Wider context for whether search input is open
@@ -85,7 +102,19 @@ const ContentBody = ({ children }) => (
   </Box>
 );
 
-const ContentHeader = ({ title, description, children }) => (
+interface ContentHeaderProps {
+  title: string;
+  description: string;
+  bottomContent?: React.ReactNode;
+  children?: React.ReactNode;
+}
+
+const ContentHeader = ({
+  title,
+  description,
+  bottomContent,
+  children,
+}: ContentHeaderProps) => (
   <Box mb="6">
     <Heading as="h1" size="7" mb="2">
       {title}
@@ -96,6 +125,7 @@ const ContentHeader = ({ title, description, children }) => (
         {children}
       </Text>
     )}
+    {bottomContent && <Box mt="4">{bottomContent}</Box>}
   </Box>
 );
 
@@ -115,6 +145,8 @@ const DefaultSidebar = ({ content, samePageRouting = false }) => (
 
 const Page = Object.assign({
   Breadcrumbs,
+  TopContainer,
+  ContentActions,
   Container,
   Masthead,
   Sidebar: DefaultSidebar,

@@ -4,7 +4,8 @@ import { slugToPaths } from "../lib/content";
 import Meta from "../components/Meta";
 import { useRouter } from "next/router";
 import { useInitialScrollState } from "../components/ui/Page/helpers";
-import { cliContent as cliSidebarData } from "../data/sidebar";
+import { CLI_SIDEBAR } from "../data/sidebars/cliSidebar";
+import { ContentActions } from "../components/ui/ContentActions";
 
 export const CliReferenceLayout = ({ frontMatter, children }) => {
   const router = useRouter();
@@ -29,11 +30,14 @@ export const CliReferenceLayout = ({ frontMatter, children }) => {
       />
       <Page.Masthead title={frontMatter.title} />
       <Page.Wrapper>
-        <Page.Sidebar content={cliSidebarData} samePageRouting />
+        <Page.Sidebar content={CLI_SIDEBAR} samePageRouting />
         <Page.Content fullWidth>
           <Page.ContentHeader
             title={frontMatter.title}
             description={frontMatter.description}
+            bottomContent={
+              <ContentActions showOnMobile style={{ marginLeft: "-6px" }} />
+            }
           />
           <Page.ContentBody>{children}</Page.ContentBody>
         </Page.Content>
