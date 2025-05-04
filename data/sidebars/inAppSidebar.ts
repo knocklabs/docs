@@ -122,10 +122,6 @@ export const REACT_SIDEBAR: SidebarSection[] = [
       { slug: "/slack-kit", title: "SlackKit" },
       { slug: "/teams-kit", title: "TeamsKit" },
       {
-        slug: "/filtering-in-app-feeds",
-        title: "Filtering feeds",
-      },
-      {
         slug: "/customizing-feed-components",
         title: "Customizing feed components",
       },
