@@ -40,9 +40,9 @@ import SectionHeading from "@/components/ui/SectionHeading";
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
-  h2: (props) => <SectionHeading as="h2" size="6" mb="3" mt="8" {...props} />,
-  h3: (props) => <SectionHeading as="h3" size="4" mb="2" mt="8" {...props} />,
-  h4: (props) => <SectionHeading as="h4" size="3" mb="1" mt="8" {...props} />,
+  h2: (props) => <SectionHeading tag="h2" mb="3" mt="8" {...props} />,
+  h3: (props) => <SectionHeading tag="h3" mb="2" mt="8" {...props} />,
+  h4: (props) => <SectionHeading tag="h4" mb="1" mt="8" {...props} />,
   code: (props) => (
     <Code as="code" backgroundColor="gray-2" data-tgph-code {...props}>
       {props.children}
