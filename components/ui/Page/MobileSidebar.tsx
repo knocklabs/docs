@@ -77,7 +77,7 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
           borderColor="gray-4"
           w="full"
           style={{
-            height: "calc(100lvh - var(--header-height))",
+            height: "calc(100dvh - var(--header-height))",
             top: "var(--header-height)",
             right: "0",
           }}
