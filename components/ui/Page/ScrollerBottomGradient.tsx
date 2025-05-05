@@ -127,7 +127,7 @@ export const ScrollerBottomGradient = ({
   );
 
   // Watch for scroller height changes
-  useMutationObserver(scrollerRef, debounce(setGradientOpacity, 100));
+  useMutationObserver(scrollerRef, setGradientOpacity);
 
   // A nice way to show that there is more content below the scroller
   useEffect(() => {
@@ -147,7 +147,7 @@ export const ScrollerBottomGradient = ({
 
   return (
     <Box
-      position="fixed"
+      position="absolute"
       left="0"
       bottom="0"
       right="0"
