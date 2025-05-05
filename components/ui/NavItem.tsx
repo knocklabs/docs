@@ -35,10 +35,13 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
     }
   };
 
+  // Next.js is really annoying if you have prefetch={true} so let's just NOT
+  const prefetchProps = samePageRouting ? { prefetch: false } : {};
+
   return (
     <Stack
       as={Link}
-      prefetch={!samePageRouting}
+      {...prefetchProps}
       href={stripTrailingSlash(href)}
       onClick={onClick}
       display="inline-flex"
