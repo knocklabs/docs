@@ -11,7 +11,7 @@ import { ContentActions } from "./ContentActions";
 import "../../styles/global.css";
 import "../../styles/responsive.css";
 import { createContext, useContext, useState } from "react";
-import { TgphComponentProps } from "@telegraph/helpers";
+import { MobileSidebar } from "./Page/MobileSidebar";
 
 export const MAX_WIDTH = "1400px";
 
@@ -80,7 +80,15 @@ const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
   </Stack>
 );
 
-const Masthead = ({ title }) => <PageHeader title={title} />;
+const Masthead = ({
+  title,
+  mobileSidebar,
+}: {
+  title: string;
+  mobileSidebar?: React.ReactNode;
+}) => {
+  return <PageHeader title={title} mobileSidebar={mobileSidebar} />;
+};
 
 const Content = ({ children, fullWidth = false }) => (
   <Box
@@ -129,18 +137,48 @@ const ContentHeader = ({
   </Box>
 );
 
-const DefaultSidebar = ({ content, samePageRouting = false }) => (
+// Separate wrapper / positioning from the regular sidebar component
+// so that we can use the same sidebar in different layouts.
+const DefaultSidebarContent = ({
+  content,
+  samePageRouting = false,
+  gradientHeight = "48",
+  contentProps = {},
+}) => (
   <SidebarContext.Provider value={{ samePageRouting }}>
-    <Sidebar.Wrapper>
+    <Sidebar.Content gradientHeight={gradientHeight} {...contentProps}>
       {content.map((section) => (
-        <Sidebar.Section
-          key={section.slug}
-          section={section}
-          samePageRouting={samePageRouting}
-        />
+        <Sidebar.Section key={section.slug} section={section} />
       ))}
-    </Sidebar.Wrapper>
+    </Sidebar.Content>
   </SidebarContext.Provider>
+);
+
+// Default sidebar wrapper that positions the sidebar fixed to the left of the page.
+const DefaultFullSidebar = ({ content, samePageRouting = false }) => (
+  <Sidebar.FullLayout>
+    <DefaultSidebarContent
+      content={content}
+      samePageRouting={samePageRouting}
+    />
+  </Sidebar.FullLayout>
+);
+
+const DefaultMobileSidebar = ({
+  content,
+  samePageRouting = false,
+}: {
+  content: React.ReactNode;
+  samePageRouting: boolean;
+}) => (
+  <MobileSidebar>
+    <DefaultSidebarContent
+      content={content}
+      samePageRouting={samePageRouting}
+      gradientHeight="24"
+      contentProps={{ px: "3", style: { marginLeft: "-2px" } }}
+    />
+  </MobileSidebar>
 );
 
 const Page = Object.assign({
@@ -149,7 +187,9 @@ const Page = Object.assign({
   ContentActions,
   Container,
   Masthead,
-  Sidebar: DefaultSidebar,
+  FullSidebar: DefaultFullSidebar,
+  SidebarContent: DefaultSidebarContent,
+  MobileSidebar: DefaultMobileSidebar,
   Content,
   ContentBody,
   ContentHeader,

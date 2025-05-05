@@ -28,9 +28,14 @@ export const CliReferenceLayout = ({ frontMatter, children }) => {
         title={`${frontMatter.title} | Knock Docs`}
         description={frontMatter.description}
       />
-      <Page.Masthead title={frontMatter.title} />
+      <Page.Masthead
+        title={frontMatter.title}
+        mobileSidebar={
+          <Page.MobileSidebar content={CLI_SIDEBAR} samePageRouting />
+        }
+      />
       <Page.Wrapper>
-        <Page.Sidebar content={CLI_SIDEBAR} samePageRouting />
+        <Page.FullSidebar content={CLI_SIDEBAR} samePageRouting />
         <Page.Content fullWidth>
           <Page.ContentHeader
             title={frontMatter.title}

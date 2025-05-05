@@ -40,13 +40,27 @@ function ApiReference({
         title={`${name} | Knock Docs`}
         description={`Complete reference documentation for the Knock ${name}.`}
       />
-      <TelegraphPage.Masthead title={name} />
+      <TelegraphPage.Masthead
+        title={name}
+        mobileSidebar={
+          <TelegraphPage.MobileSidebar
+            samePageRouting
+            content={getSidebarContent(
+              openApiSpec,
+              stainlessSpec,
+              resourceOrder,
+              basePath,
+              preSidebarContent,
+            )}
+          />
+        }
+      />
       <ApiReferenceProvider
         openApiSpec={openApiSpec}
         stainlessConfig={stainlessSpec}
       >
         <TelegraphPage.Wrapper>
-          <TelegraphPage.Sidebar
+          <TelegraphPage.FullSidebar
             content={getSidebarContent(
               openApiSpec,
               stainlessSpec,

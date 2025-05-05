@@ -40,6 +40,7 @@ export const CollapsibleNavItem = ({
             isOpen ? "rotate-90" : ""
           }`,
         }}
+        w="full"
         py="4"
         {...props}
       >

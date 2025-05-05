@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box } from "@telegraph/layout";
 import { TgphComponentProps } from "@telegraph/helpers";
+import { debounce } from "@/lib/debounce";
 
 export function useOnRefReady<T extends HTMLElement>(
   ref: React.RefObject<T>,
@@ -88,36 +89,45 @@ export const ScrollerBottomGradient = ({
   useOnRefReady(scrollerRef, (node) => setScroller(node));
   useOnRefReady(gradientRef, (node) => setGradient(node));
 
-  const setGradientOpacity = useCallback(() => {
-    if (!scroller || !gradient) return;
+  const setGradientOpacity = useCallback(
+    debounce(() => {
+      if (!scroller || !gradient) return;
 
-    // If content height is less than or equal to scroller height, hide gradient
-    if (scroller.scrollHeight <= scroller.clientHeight) {
-      gradient.style.opacity = "0";
-      if (managePadding) {
-        // Pull it off the bottom of the scroller
-        scroller.style.paddingBottom = "var(--tgph-spacing-4)";
+      const position = scroller.getBoundingClientRect();
+      gradient.style.top = `${position.height}px`;
+      gradient.style.width = `${position.width}px`;
+
+      console.log(gradient.style.top, gradient.style.width);
+
+      // If content height is less than or equal to scroller height, hide gradient
+      if (scroller.scrollHeight <= scroller.clientHeight) {
+        gradient.style.opacity = "0";
+        if (managePadding) {
+          // Pull it off the bottom of the scroller
+          scroller.style.paddingBottom = "var(--tgph-spacing-4)";
+        }
+        return; // Add return here to avoid further logic
       }
-      return; // Add return here to avoid further logic
-    }
 
-    const scrollableHeight = scroller.scrollHeight - scroller.clientHeight;
-    const scrolledAmount = scroller.scrollTop;
-    const scrollPercentage = scrolledAmount / scrollableHeight;
+      const scrollableHeight = scroller.scrollHeight - scroller.clientHeight;
+      const scrolledAmount = scroller.scrollTop;
+      const scrollPercentage = scrolledAmount / scrollableHeight;
 
-    // Only start fading in the bottom 10%
-    const fadeStart = 0.9; // 90%
-    if (scrollPercentage < fadeStart) {
-      gradient.style.opacity = "1";
-    } else {
-      // Fade out from 1 to 0 as we scroll from 90% to 100%
-      const fadeProgress = (scrollPercentage - fadeStart) / (1 - fadeStart);
-      gradient.style.opacity = String(1 - Math.min(fadeProgress, 1));
-    }
-  }, [scroller, gradient, managePadding]);
+      // Only start fading in the bottom 10%
+      const fadeStart = 0.9; // 90%
+      if (scrollPercentage < fadeStart) {
+        gradient.style.opacity = "1";
+      } else {
+        // Fade out from 1 to 0 as we scroll from 90% to 100%
+        const fadeProgress = (scrollPercentage - fadeStart) / (1 - fadeStart);
+        gradient.style.opacity = String(1 - Math.min(fadeProgress, 1));
+      }
+    }, 50),
+    [scroller, gradient, managePadding],
+  );
 
   // Watch for scroller height changes
-  useMutationObserver(scrollerRef, setGradientOpacity);
+  useMutationObserver(scrollerRef, debounce(setGradientOpacity, 100));
 
   // A nice way to show that there is more content below the scroller
   useEffect(() => {
@@ -137,7 +147,7 @@ export const ScrollerBottomGradient = ({
 
   return (
     <Box
-      position="absolute"
+      position="fixed"
       left="0"
       bottom="0"
       right="0"

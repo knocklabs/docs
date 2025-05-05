@@ -324,7 +324,13 @@ const Autocomplete = () => {
   });
 
   return (
-    <Box {...autocomplete.getRootProps()} tgphRef={rootRef} id="docs-search">
+    <Box
+      {...autocomplete.getRootProps()}
+      w="full"
+      style={{ flexShrink: 0 }}
+      tgphRef={rootRef}
+      id="docs-search"
+    >
       <Box
         as="form"
         border="px"
@@ -333,13 +339,12 @@ const Autocomplete = () => {
         className="aa-Form"
         {...(formProps as FormProps)}
       >
-        <Stack style={{ flexShrink: 0 }} alignItems="center" p="1">
+        <Stack alignItems="center" p="1">
           <Icon icon={Lucide.Search} alt="Search" color="gray" mr="2" />
           <Input
             tgphRef={inputRef}
             placeholder="Search the docs..."
             className="aa-Input"
-            color="gray-10"
             {...(inputProps as React.DetailedHTMLProps<
               React.InputHTMLAttributes<HTMLInputElement>,
               HTMLInputElement
@@ -356,6 +361,7 @@ const Autocomplete = () => {
             alignItems="center"
             width="5"
             height="5"
+            className="md-hidden"
           >
             <Text
               as="span"
@@ -381,12 +387,14 @@ const Autocomplete = () => {
           borderColor="gray-6"
           mt="2"
           shadow="1"
+          data-search-results-container
           style={{
             overscrollBehavior: "none",
             zIndex: 50,
             overflow: "hidden",
             transition: "opacity 0.15s ease-in-out",
-            width: "500px",
+            width: "clamp(200px, 500px, 90vw)",
+            left: "clamp(5%, auto, 5%)",
           }}
         >
           {autocompleteState?.collections.map((collection, index) => {

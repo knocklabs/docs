@@ -8,6 +8,7 @@ import {
 } from "./Page/helpers";
 import { Stack } from "@telegraph/layout";
 import { useSidebar } from "./Page/Sidebar";
+import { useMobileSidebar } from "./Page/MobileSidebar";
 
 type NavItemProps = {
   href: string;
@@ -19,12 +20,18 @@ type NavItemProps = {
 
 const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
   const { samePageRouting } = useSidebar();
+  const { isOpen: isMobileSidebarOpen, closeSidebar: closeMobileSidebar } =
+    useMobileSidebar();
+
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (samePageRouting) {
       e.preventDefault();
       highlightResource(href, { moveToItem: true });
     } else {
       updateNavStyles(href);
+    }
+    if (isMobileSidebarOpen) {
+      closeMobileSidebar();
     }
   };
 
