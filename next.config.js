@@ -497,8 +497,10 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: "/designing-workflows/template-editor/api-reference-liquid-helpers",
-        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
+        source:
+          "/designing-workflows/template-editor/api-reference-liquid-helpers",
+        destination:
+          "/designing-workflows/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       // API reference redirects
