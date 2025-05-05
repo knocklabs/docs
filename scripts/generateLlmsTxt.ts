@@ -120,11 +120,16 @@ async function writePublicMarkdown(slug, content) {
 
 async function getMarkdownContent(slug) {
   try {
-    const markdownPath = path.join(
+    let markdownPath = path.join(
       process.cwd(),
       "content",
       `${slug.slice(1)}.mdx`,
     );
+
+    // Try accessing a regular .md file if the .mdx file doesn't exist
+    if (!fs.existsSync(markdownPath)) {
+      markdownPath = path.join(process.cwd(), "content", `${slug.slice(1)}.md`);
+    }
 
     if (fs.existsSync(markdownPath)) {
       const content = fs.readFileSync(markdownPath, "utf-8");
@@ -134,9 +139,18 @@ async function getMarkdownContent(slug) {
         description: frontmatter?.description || "",
         fullContent: content,
       };
+    } else {
+      const noErrorPaths = ["/api-reference", "/mapi-reference", "/cli"];
+      const noError = noErrorPaths.some((path) => slug.startsWith(path));
+
+      if (noError) {
+        return { description: "", fullContent: "" };
+      }
+
+      throw new Error(`Warning: Could not load content for ${slug}`);
     }
   } catch (error) {
-    console.warn(`Warning: Could not load content for ${slug}`);
+    console.warn(error);
   }
   return { description: "", fullContent: "" };
 }
@@ -152,10 +166,13 @@ async function processPages(
 ) {
   for (const page of pages) {
     totalPages += 1;
-    const fullHref = `${parentSlug}${page.slug}`;
-    const { description, fullContent: pageContent } = await getMarkdownContent(
-      fullHref,
-    );
+    let fullHref = `${parentSlug}${page.slug}`;
+    fullHref = fullHref.replace("//", "/");
+
+    const { description, fullContent: pageContent } = page.pages
+      ? { description: "", fullContent: "" }
+      : await getMarkdownContent(fullHref);
+
     const indent = "  ".repeat(indentLevel);
     const betaTag = page.isBeta ? " (Beta)" : "";
     const descriptionText = description ? `: ${description}` : "";
@@ -360,6 +377,13 @@ async function generateAllLlmsFiles() {
 
     await writeApiMarkdown("api");
     await writeApiMarkdown("mapi");
+
+    await writePublicMarkdown(
+      "/cli",
+      (
+        await getMarkdownContent("/cli")
+      ).fullContent,
+    );
 
     console.log("✅ All LLMS files generated successfully");
     console.log(`Total pages processed: ${totalPages}`);
