@@ -442,7 +442,12 @@ const nextConfig = {
       },
       {
         source: "/sdks",
-        destination: "/sdks/overview",
+        destination: "/in-app-ui/overview",
+        permanent: true,
+      },
+      {
+        source: "/sdks/overview",
+        destination: "/in-app-ui/overview",
         permanent: true,
       },
       {
@@ -453,6 +458,119 @@ const nextConfig = {
       {
         source: "/in-app-ui/filtering-in-app-feeds",
         destination: "/in-app-ui/feeds/filtering-in-app-feeds",
+        permanent: true,
+      },
+      // Platform-specific SDK redirects
+      {
+        source: "/sdks/ios/overview",
+        destination: "/in-app-ui/ios/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/sdks/android/overview",
+        destination: "/in-app-ui/android/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/sdks/react/overview",
+        destination: "/in-app-ui/react/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/sdks/flutter/overview",
+        destination: "/in-app-ui/flutter/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/sdks/react-native/overview",
+        destination: "/in-app-ui/react-native/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/sdks/expo/overview",
+        destination: "/in-app-ui/expo/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/sdks/javascript/overview",
+        destination: "/in-app-ui/javascript/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/template-editor/api-reference-liquid-helpers",
+        destination: "/designing-workflows/template-editor/reference-liquid-helpers",
+        permanent: true,
+      },
+      // API reference redirects
+      {
+        source: "/api-reference/subscriptions",
+        destination: "/api-reference/#subscriptions",
+        permanent: true,
+      },
+      {
+        source: "/api-reference/ms_teams/list_teams",
+        destination: "/api-reference/#ms-teams-integration",
+        permanent: true,
+      },
+      {
+        source: "/api-reference/ms_teams/list_channels",
+        destination: "/api-reference/#ms-teams-integration",
+        permanent: true,
+      },
+      {
+        source: "/api-reference/slack/list_channels",
+        destination: "/api-reference/#slack-integration",
+        permanent: true,
+      },
+      {
+        source: "/api-reference/get-user",
+        destination: "/api-reference/#recipients",
+        permanent: true,
+      },
+      {
+        source: "/api-reference/users/bulk/update",
+        destination: "/api-reference/#recipients",
+        permanent: true,
+      },
+      {
+        source: "/api-reference/guides",
+        destination: "/api-reference",
+        permanent: true,
+      },
+      {
+        source: "/api-reference/guides/:path*",
+        destination: "/api-reference",
+        permanent: true,
+      },
+      {
+        source: "/api-reference/bulk-endpoints",
+        destination: "/api-reference/#recipients",
+        permanent: true,
+      },
+      {
+        source: "/mapi-reference/email-layouts/schemas/email-layout",
+        destination: "/mapi-reference",
+        permanent: true,
+      },
+      {
+        source: "/send-notifications/api",
+        destination: "/send-notifications/overview",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/androis/sdk/reference",
+        destination: "/in-app-ui/android/sdk/reference",
+        permanent: true,
+      },
+      // In-app UI filtering redirects
+      {
+        source: "/in-app-ui/react/filtering-in-app-feeds",
+        destination: "/in-app-ui/feeds/filtering-in-app-feeds",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/messaging-components",
+        destination: "/in-app-ui/react/overview",
         permanent: true,
       },
     ];
