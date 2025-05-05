@@ -38,6 +38,7 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
   return (
     <Stack
       as={Link}
+      prefetch={!samePageRouting}
       href={stripTrailingSlash(href)}
       onClick={onClick}
       display="inline-flex"

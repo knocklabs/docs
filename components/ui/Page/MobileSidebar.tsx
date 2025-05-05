@@ -61,31 +61,7 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
           "aria-hidden": false,
           alt: `${isOpen ? "Close" : "Open"} sidebar`,
         }}
-      >
-        {isOpen ? "Close menu" : ""}
-      </Button>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isOpen ? 0.95 : 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
-      >
-        {/* Overlay */}
-        <Box
-          position="fixed"
-          bg="surface-1"
-          w="full"
-          left="0"
-          h="full"
-          style={{
-            top: "var(--header-height)",
-            height: "calc(100vh - var(--header-height))",
-            pointerEvents: isOpen ? "auto" : "none",
-            zIndex: 48,
-          }}
-          onClick={handleSidebarOpen}
-        />
-      </motion.div>
+      />
       <motion.div
         initial={{ x: "100%" }}
         animate={{ x: isOpen ? 0 : "100%" }}
@@ -105,7 +81,7 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
           position="fixed"
           borderLeft="px"
           borderColor="gray-4"
-          w="64"
+          w="full"
           style={{
             height: "calc(100vh - var(--header-height))",
             top: "var(--header-height)",
@@ -129,12 +105,12 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
             <Stack w="full" flexDirection="column" gap="2" pt="0">
               <Button
                 as={Link}
-                href="mailto:support@knock.app?subject=Support%20request"
+                href="https://dashboard.knock.app/signup"
                 size="1"
-                variant="ghost"
-                color="gray"
+                variant="solid"
+                color="accent"
               >
-                Contact support
+                Get started
               </Button>
               <Button
                 as={Link}
@@ -146,12 +122,12 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
               </Button>
               <Button
                 as={Link}
-                href="https://dashboard.knock.app/signup"
+                href="mailto:support@knock.app?subject=Support%20request"
                 size="1"
-                variant="solid"
-                color="accent"
+                variant="ghost"
+                color="gray"
               >
-                Get started
+                Contact support
               </Button>
             </Stack>
           </Stack>

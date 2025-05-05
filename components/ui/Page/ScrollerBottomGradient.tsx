@@ -97,8 +97,6 @@ export const ScrollerBottomGradient = ({
       gradient.style.top = `${position.height}px`;
       gradient.style.width = `${position.width}px`;
 
-      console.log(gradient.style.top, gradient.style.width);
-
       // If content height is less than or equal to scroller height, hide gradient
       if (scroller.scrollHeight <= scroller.clientHeight) {
         gradient.style.opacity = "0";
