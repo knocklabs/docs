@@ -475,6 +475,11 @@ const nextConfig = {
         destination: "/in-app-ui/feeds/filtering-in-app-feeds",
         permanent: true,
       },
+      {
+        source: "/reference",
+        destination: "/api-reference",
+        permanent: true,
+      },
     ];
   },
 };
