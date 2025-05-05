@@ -103,23 +103,40 @@ export async function getStaticPaths() {
   };
 }
 
+// At the top of the file (outside the function)
+let cachedOpenApiSpec: any = null;
+let cachedStainlessSpec: any = null;
+let cachedPreContentMdx: any = null;
+
 export async function getStaticProps() {
-  const openApiSpec = await readOpenApiSpec("api");
-  const stainlessSpec = await readStainlessSpec("api");
+  if (!cachedOpenApiSpec) {
+    cachedOpenApiSpec = await readOpenApiSpec("api");
+  }
+  if (!cachedStainlessSpec) {
+    cachedStainlessSpec = await readStainlessSpec("api");
+  }
 
   const preContent = fs.readFileSync(
     `${CONTENT_DIR}/__api-reference/content.mdx`,
   );
 
-  const preContentMdx = await serialize(preContent, {
-    parseFrontmatter: true,
-    mdxOptions: {
-      remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeMdxCodeProps] as any,
-    },
-  });
+  if (!cachedPreContentMdx) {
+    cachedPreContentMdx = await serialize(preContent, {
+      parseFrontmatter: true,
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypeMdxCodeProps] as any,
+      },
+    });
+  }
 
-  return { props: { openApiSpec, stainlessSpec, preContentMdx } };
+  return {
+    props: {
+      openApiSpec: cachedOpenApiSpec,
+      stainlessSpec: cachedStainlessSpec,
+      preContentMdx: cachedPreContentMdx,
+    },
+  };
 }
 
 export default ApiReferencePage;
