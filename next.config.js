@@ -442,7 +442,22 @@ const nextConfig = {
       },
       {
         source: "/sdks",
-        destination: "/sdks/overview",
+        destination: "/developer-tools/sdks",
+        permanent: true,
+      },
+      {
+        source: "/sdks/overview",
+        destination: "/developer-tools/sdks",
+        permanent: true,
+      },
+      {
+        source: "/sdks/:sdk/overview",
+        destination: "/in-app-ui/:sdk/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/messaging-components",
+        destination: "/in-app-ui/react/feed",
         permanent: true,
       },
       {
