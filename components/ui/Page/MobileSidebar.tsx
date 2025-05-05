@@ -39,13 +39,6 @@ export const useMobileSidebar = () => {
 export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [isOpen]);
-
   const handleSidebarOpen = () => {
     setIsOpen(!isOpen);
   };
@@ -71,8 +64,9 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
           top: 0,
           right: 0,
           width: "100%",
+          height: "100%",
           zIndex: 49,
-          pointerEvents: isOpen ? "auto" : "none",
+          pointerEvents: "none",
         }}
       >
         <Box
@@ -83,9 +77,8 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
           borderColor="gray-4"
           w="full"
           style={{
-            height: "calc(100vh - var(--header-height))",
+            height: "calc(100lvh - var(--header-height))",
             top: "var(--header-height)",
-            pointerEvents: "auto",
             right: "0",
           }}
         >
@@ -96,6 +89,10 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
             gap="2"
             data-mobile-sidebar
             p="4"
+            style={{
+              overflowY: "auto",
+              pointerEvents: "auto",
+            }}
           >
             <MobileSidebarContext.Provider
               value={{ isOpen, closeSidebar: handleSidebarOpen }}
