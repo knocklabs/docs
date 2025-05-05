@@ -218,12 +218,12 @@ const nextConfig = {
       {
         source: "/send-and-manage-data/outbound-webhooks",
         destination: "/developer-tools/outbound-webhooks",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/vercel",
         destination: "/integrations/extensions/vercel",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/angular",
@@ -238,12 +238,12 @@ const nextConfig = {
       {
         source: "/send-and-manage-data/:slug*",
         destination: "/concepts/:slug*",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-notifications/setting-preferences",
         destination: "/managing-recipients/setting-preferences",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/managing-recipients/setting-preferences",
@@ -463,7 +463,7 @@ const nextConfig = {
       {
         source: "/agent-toolkit",
         destination: "/developer-tools/agent-toolkit/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/filtering-in-app-feeds",
