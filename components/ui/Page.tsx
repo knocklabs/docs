@@ -137,47 +137,30 @@ const ContentHeader = ({
   </Box>
 );
 
-// Separate wrapper / positioning from the regular sidebar component
-// so that we can use the same sidebar in different layouts.
-const DefaultSidebarContent = ({
+// Default sidebar wrapper that positions the sidebar fixed to the left of the page.
+const DefaultFullSidebar = ({
   content,
   samePageRouting = false,
-  gradientHeight = "48",
   contentProps = {},
 }) => (
-  <SidebarContext.Provider value={{ samePageRouting }}>
-    <Sidebar.Content gradientHeight={gradientHeight} {...contentProps}>
-      {content.map((section) => (
-        <Sidebar.Section key={section.slug} section={section} />
-      ))}
-    </Sidebar.Content>
-  </SidebarContext.Provider>
-);
-
-// Default sidebar wrapper that positions the sidebar fixed to the left of the page.
-const DefaultFullSidebar = ({ content, samePageRouting = false }) => (
   <Sidebar.FullLayout>
-    <DefaultSidebarContent
-      content={content}
-      samePageRouting={samePageRouting}
-    />
+    <SidebarContext.Provider value={{ samePageRouting }}>
+      <Sidebar.ScrollContainer {...contentProps}>
+        {content.map((section) => (
+          <Sidebar.Section key={section.slug} section={section} />
+        ))}
+      </Sidebar.ScrollContainer>
+    </SidebarContext.Provider>
   </Sidebar.FullLayout>
 );
 
-const DefaultMobileSidebar = ({
-  content,
-  samePageRouting = false,
-}: {
-  content: React.ReactNode;
-  samePageRouting: boolean;
-}) => (
+const DefaultMobileSidebar = ({ content, samePageRouting = false }) => (
   <MobileSidebar>
-    <DefaultSidebarContent
-      content={content}
-      samePageRouting={samePageRouting}
-      gradientHeight="24"
-      contentProps={{ px: "3", style: { marginLeft: "-2px" } }}
-    />
+    <SidebarContext.Provider value={{ samePageRouting }}>
+      {content.map((section) => (
+        <Sidebar.Section key={section.slug} section={section} />
+      ))}
+    </SidebarContext.Provider>
   </MobileSidebar>
 );
 
@@ -188,7 +171,6 @@ const Page = Object.assign({
   Container,
   Masthead,
   FullSidebar: DefaultFullSidebar,
-  SidebarContent: DefaultSidebarContent,
   MobileSidebar: DefaultMobileSidebar,
   Content,
   ContentBody,

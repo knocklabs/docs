@@ -98,7 +98,7 @@ const InAppSidebar = ({
   };
 
   return (
-    <Stack direction="column" gap="2">
+    <>
       {IN_APP_UI_SIDEBAR.map((section) => (
         <Sidebar.Section key={section.slug} section={section} />
       ))}
@@ -134,7 +134,7 @@ const InAppSidebar = ({
       {selectedSdkContent.items.map((section) => (
         <Sidebar.Section key={section.slug} section={section} />
       ))}
-    </Stack>
+    </>
   );
 };
 
@@ -197,13 +197,15 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
       <Page.Wrapper>
         <SidebarContext.Provider value={{ samePageRouting: false }}>
           <Sidebar.FullLayout>
-            <Sidebar.Content>
-              <InAppSidebar
-                selectedSdk={selectedSdk}
-                selectedSdkContent={selectedSdkContent}
-                handleSdkChange={handleSdkChange}
-              />
-            </Sidebar.Content>
+            <Sidebar.ScrollContainer>
+              <Stack direction="column" gap="2">
+                <InAppSidebar
+                  selectedSdk={selectedSdk}
+                  selectedSdkContent={selectedSdkContent}
+                  handleSdkChange={handleSdkChange}
+                />
+              </Stack>
+            </Sidebar.ScrollContainer>
           </Sidebar.FullLayout>
         </SidebarContext.Provider>
         <Page.Content>

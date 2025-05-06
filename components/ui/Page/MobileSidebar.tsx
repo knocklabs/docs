@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "@telegraph/button";
 import { Stack } from "@telegraph/layout";
 import Link from "next/link";
+import { Sidebar } from "./Sidebar";
 
 interface MobileSidebarContextType {
   isOpen: boolean;
@@ -39,6 +40,13 @@ export const useMobileSidebar = () => {
 export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
   const handleSidebarOpen = () => {
     setIsOpen(!isOpen);
   };
@@ -70,7 +78,6 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
         }}
       >
         <Box
-          h="full"
           bg="surface-1"
           position="fixed"
           borderLeft="px"
@@ -82,16 +89,17 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
             right: "0",
           }}
         >
-          <Stack
+          <Sidebar.ScrollContainer
             w="full"
-            h="full"
-            flexDirection="column"
             gap="2"
             data-mobile-sidebar
-            p="4"
+            pt="4"
+            pr="4"
+            pl="4"
+            pb="32"
             style={{
-              overflowY: "auto",
               pointerEvents: "auto",
+              maxHeight: "90%",
             }}
           >
             <MobileSidebarContext.Provider
@@ -99,34 +107,56 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
             >
               {children}
             </MobileSidebarContext.Provider>
-            <Stack w="full" flexDirection="column" gap="2" pt="0">
-              <Button
-                as={Link}
-                href="https://dashboard.knock.app/signup"
-                size="1"
-                variant="solid"
-                color="accent"
-              >
-                Get started
-              </Button>
-              <Button
-                as={Link}
-                href="https://dashboard.knock.app/login"
-                size="1"
-                variant="outline"
-              >
-                Log in
-              </Button>
-              <Button
-                as={Link}
-                href="mailto:support@knock.app?subject=Support%20request"
-                size="1"
-                variant="ghost"
-                color="gray"
-              >
-                Contact support
-              </Button>
-            </Stack>
+          </Sidebar.ScrollContainer>
+          <Stack
+            bg="surface-1"
+            position="fixed"
+            bottom="0"
+            p="4"
+            w="full"
+            flexDirection="column"
+            gap="2"
+            pt="0"
+          >
+            <Box
+              position="absolute"
+              top="0"
+              left="0"
+              right="0"
+              h="20"
+              style={{
+                background:
+                  "linear-gradient(to bottom, var(--tgph-surface-1), transparent)",
+                transform: "rotate(180deg)",
+                transformOrigin: "top",
+              }}
+            />
+            <Button
+              as={Link}
+              href="https://dashboard.knock.app/signup"
+              size="2"
+              variant="solid"
+              color="accent"
+            >
+              Get started
+            </Button>
+            <Button
+              as={Link}
+              href="https://dashboard.knock.app/login"
+              size="2"
+              variant="outline"
+            >
+              Log in
+            </Button>
+            <Button
+              as={Link}
+              href="mailto:support@knock.app?subject=Support%20request"
+              size="2"
+              variant="ghost"
+              color="gray"
+            >
+              Contact support
+            </Button>
           </Stack>
         </Box>
       </motion.div>

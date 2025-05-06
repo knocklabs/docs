@@ -248,7 +248,8 @@ const FullLayout = ({ children }: SidebarProps) => {
         position="fixed"
         bottom="0"
         p="4"
-        pt="2"
+        pt="8"
+        pb="0"
         style={{
           minHeight: "90vh",
           height: "calc(100vh - var(--header-height) - var(--tgph-spacing-4))",
@@ -261,7 +262,7 @@ const FullLayout = ({ children }: SidebarProps) => {
   );
 };
 
-const Content = ({
+const ScrollContainer = ({
   children,
   gradientHeight = "48",
   ...props
@@ -277,16 +278,14 @@ const Content = ({
 
   return (
     <Stack
-      direction="column"
+      flexDirection="column"
       data-sidebar-content
       h="full"
       tgphRef={scrollerRef}
-      {...props}
-      style={{ overflowY: "auto", ...props?.style }}
-      position="relative"
       pb="12"
       px="0"
-      className="scroll-shadows"
+      {...props}
+      style={{ overflowY: "auto", ...props?.style }}
     >
       {/* Have to revisit this to make it work in more situations
       <ScrollerBottomGradient
@@ -304,7 +303,7 @@ const Content = ({
 const Sidebar = Object.assign({
   Section,
   FullLayout,
-  Content,
+  ScrollContainer,
 });
 
 export { Sidebar };
