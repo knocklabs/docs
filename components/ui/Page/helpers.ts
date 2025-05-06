@@ -41,9 +41,20 @@ export const highlightResource = (
 
     // Scroll to the content on the page
     if (newActiveItem) {
-      newActiveItem.scrollIntoView({
+      // Get the desired padding from the CSS variable
+      const topPadding =
+        parseInt(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--top-padding",
+          ),
+          10,
+        ) || 0;
+      const elementRect = newActiveItem.getBoundingClientRect();
+      const targetScrollY = window.scrollY + elementRect.top - topPadding;
+
+      window.scrollTo({
+        top: targetScrollY,
         behavior: "instant",
-        block: "start",
       });
 
       newActiveItem.focus();
@@ -104,6 +115,22 @@ export const updateNavStyles = (resourceUrl: string) => {
   });
 };
 
+const scrollToElementWithPadding = (document: Document, element: Element) => {
+  const topPadding =
+    parseInt(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--top-padding",
+      ),
+      10,
+    ) || 0;
+  const elementRect = element.getBoundingClientRect();
+  // Calculate scroll position relative to the current scroll, adjusted for padding.
+  const targetScrollY = window.pageYOffset + elementRect.top - topPadding;
+
+  // Use 'auto' for immediate jump on load, respecting user agent settings for motion if any.
+  window.scrollTo({ top: targetScrollY, behavior: "auto" });
+};
+
 export const useInitialScrollState = () => {
   const router = useRouter();
   const basePath = router.pathname.split("/")[1];
@@ -118,7 +145,12 @@ export const useInitialScrollState = () => {
         `[data-resource-path="${resourcePath}"]`,
       );
 
-      element?.scrollIntoView();
+      if (element) {
+        scrollToElementWithPadding(document, element);
+      } else {
+        // Fallback or default scroll behavior if element not found initially
+        window.scrollTo(0, 0);
+      }
     }, 250);
 
     return () => clearTimeout(timeout);
