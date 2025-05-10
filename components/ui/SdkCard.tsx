@@ -72,6 +72,7 @@ type Props = {
 
 const SdkCardGroup = ({ children }) => (
   <Stack
+    className="md-one-column"
     style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}
     gap="2"
   >

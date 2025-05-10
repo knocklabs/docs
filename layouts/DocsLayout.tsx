@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import { Page } from "../components/ui/Page";
 import { useSidebarContent } from "../hooks/useSidebarContent";
 
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
+import { Box } from "@telegraph/layout";
 
 const DocsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
@@ -34,9 +34,14 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
         title={`${frontMatter.title} | Knock Docs`}
         description={frontMatter.description}
       />
-      <Page.Masthead title={frontMatter.title} />
+      <Page.Masthead
+        title={frontMatter.title}
+        mobileSidebar={<Page.MobileSidebar content={sidebarContent} />}
+      />
       <Page.Wrapper>
-        <Page.Sidebar content={sidebarContent} />
+        <Box className="md-hidden" position="relative" h="full" w="full">
+          <Page.FullSidebar content={sidebarContent} />
+        </Box>
         <Page.Content>
           <Page.TopContainer>
             {breadcrumbs && <Page.Breadcrumbs pages={breadcrumbs} />}

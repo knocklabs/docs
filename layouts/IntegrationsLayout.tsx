@@ -40,9 +40,12 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
         title={`${frontMatter.title} | Knock Docs`}
         description={frontMatter.description}
       />
-      <Page.Masthead title={frontMatter.title} />
+      <Page.Masthead
+        title={frontMatter.title}
+        mobileSidebar={<Page.MobileSidebar content={INTEGRATIONS_SIDEBAR} />}
+      />
       <Page.Wrapper>
-        <Page.Sidebar content={INTEGRATIONS_SIDEBAR}></Page.Sidebar>
+        <Page.FullSidebar content={INTEGRATIONS_SIDEBAR}></Page.FullSidebar>
         <Page.Content>
           <Page.TopContainer>
             {breadcrumbs && <Page.Breadcrumbs pages={breadcrumbs} />}
