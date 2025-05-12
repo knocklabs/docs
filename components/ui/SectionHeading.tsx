@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Heading } from "@telegraph/typography";
 import { TgphComponentProps } from "@telegraph/helpers";
-import { Button } from "@telegraph/button";
-import { Tooltip } from "@telegraph/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tag } from "@telegraph/tag";
-import { Stack } from "@telegraph/layout";
+import { Box, Stack } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
 
 type HeadingProps = TgphComponentProps<typeof Heading>;
 
@@ -46,7 +45,8 @@ const SectionHeading = ({
 
   const showLink = path || id;
 
-  const onHeadingClick = async () => {
+  const onHeadingClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
     let url = "";
 
     // Handle paths for same-page routing
@@ -60,10 +60,11 @@ const SectionHeading = ({
 
     // Use the ID for regular routes
     if (id) {
-      url = window.location.href + "#" + id;
+      url = window.location.origin + window.location.pathname + "#" + id;
     }
 
     await navigator.clipboard.writeText(url);
+    window.history.pushState({}, "", url);
     setShowCopied(true);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
@@ -93,35 +94,60 @@ const SectionHeading = ({
       alignItems="center"
       mt={rest?.mt || 0}
       mb={rest?.mb || 4}
+      position="relative"
+      data-section-heading
       {...wrapperProps}
     >
-      <Button
-        variant="ghost"
-        onClick={onHeadingClick}
-        borderRadius="2"
-        px="2"
-        style={{
-          marginLeft: "-8px",
-        }}
-        tgphRef={buttonRef}
+      <Heading
+        size={size}
+        {...rest}
+        as={tag}
+        id={id}
+        mt="0"
+        mb="0"
+        position="relative"
       >
-        <Tooltip label="Copy link to section" side={tooltipSide}>
-          <Heading size={size} {...rest} as={tag} id={id} mt="0" mb="0">
-            {children}
-          </Heading>
-        </Tooltip>
-      </Button>
+        <Box
+          onClick={onHeadingClick}
+          style={{ cursor: showLink ? "pointer" : "default" }}
+          tgphRef={buttonRef}
+        >
+          {children}
+        </Box>
+      </Heading>
+      {showLink && (
+        <Text
+          data-section-heading-hash
+          as="span"
+          position="absolute"
+          top="0"
+          h="full"
+          size={size}
+          color="gray"
+          style={{
+            color: "var(--tgph-gray-9)",
+            left: "calc(var(--tgph-spacing-8) * -1)",
+          }}
+        >
+          #
+        </Text>
+      )}
       <AnimatePresence>
         {showCopied && (
           <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: -24 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
-            style={{ display: "inline-block", marginLeft: 8 }}
+            style={{
+              display: "inline-block",
+              position: "absolute",
+              top: 0,
+              left: 0,
+            }}
           >
             <Tag size="1" color="green">
-              Copied link to clipboard!
+              Copied!
             </Tag>
           </motion.div>
         )}
