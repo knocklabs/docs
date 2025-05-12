@@ -64,22 +64,27 @@ const debouncedScrollIntoView = debounce((element: HTMLElement) => {
   });
 }, 250);
 
-let viewportWidth: number;
-
 // Load the nav elements into memory so we don't have to query the DOM every time
 let allNavElements: HTMLAnchorElement[];
+let lastPage: string;
+let screenSizeSavedOn: number;
 
 export const updateNavStyles = (resourceUrl: string) => {
-  if (!viewportWidth) {
-    viewportWidth = window.innerWidth;
-  }
-
+  const viewportWidth = window.innerWidth;
   const targetMobileNav = viewportWidth < 768;
   const targetNav = targetMobileNav
     ? "[data-mobile-sidebar]"
     : "[data-sidebar-wrapper]";
 
-  if (!allNavElements) {
+  // Loads the current page's nav elements into memory so we don't have to query the DOM every time
+  const currentPage = window.location.pathname.split("/")[1];
+  if (
+    currentPage !== lastPage ||
+    !allNavElements ||
+    screenSizeSavedOn !== viewportWidth
+  ) {
+    screenSizeSavedOn = viewportWidth;
+    lastPage = currentPage;
     allNavElements = Array.from(
       document.querySelectorAll(`${targetNav} a[data-resource-path]`),
     );

@@ -177,14 +177,8 @@ const Item = ({
 
   const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> =
     depth === 0
-      ? {
-          // Moves it over to align with the Tab text above
-          style: {
-            marginLeft: "-4px",
-          },
-        }
+      ? {}
       : {
-          // py: "4",
           pl: "1",
           color: "gray",
         };
@@ -238,7 +232,7 @@ const Section = ({ section }: { section: SidebarSection }) => {
   );
 };
 
-const FullLayout = ({ children }: SidebarProps) => {
+const FullLayout = ({ children, scrollerRef }: SidebarProps) => {
   return (
     <Box h="full" w="full" className="md-hidden">
       <Box
@@ -247,15 +241,24 @@ const FullLayout = ({ children }: SidebarProps) => {
         width="64"
         position="fixed"
         bottom="0"
-        p="4"
-        pt="8"
+        pr="4"
+        pl="3"
+        pt="6"
         pb="0"
         style={{
-          minHeight: "90vh",
-          height: "calc(100vh - var(--header-height) - var(--tgph-spacing-4))",
+          height: "calc(100vh - var(--header-height))",
+          top: "var(--header-height)",
         }}
         h="full"
       >
+        <ScrollerBottomGradient
+          scrollerRef={scrollerRef}
+          managePadding={false}
+          gradientProps={{
+            px: "4",
+            height: "48",
+          }}
+        />
         {children}
       </Box>
     </Box>
@@ -265,9 +268,9 @@ const FullLayout = ({ children }: SidebarProps) => {
 const ScrollContainer = ({
   children,
   gradientHeight = "48",
+  scrollerRef,
   ...props
 }: SidebarProps) => {
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const basePath = router.asPath.split("#")[0];
 
@@ -287,14 +290,6 @@ const ScrollContainer = ({
       {...props}
       style={{ overflowY: "auto", ...props?.style }}
     >
-      {/* Have to revisit this to make it work in more situations
-      <ScrollerBottomGradient
-        scrollerRef={scrollerRef}
-        managePadding={false}
-        gradientProps={{
-          height: gradientHeight,
-        }}
-      /> */}
       {children}
     </Stack>
   );

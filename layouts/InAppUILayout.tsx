@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { Page } from "@/components/ui/Page";
 import { Sidebar, SidebarContext } from "@/components/ui/Page/Sidebar";
@@ -141,6 +141,7 @@ const InAppSidebar = ({
 const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
   const paths = slugToPaths(router.query.slug);
+  const scrollerRef = useRef<HTMLDivElement>(null);
 
   const [selectedSdk, setSelectedSdk] = useState<Language>(() => {
     const sdk = paths[1];
@@ -196,8 +197,8 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
       />
       <Page.Wrapper>
         <SidebarContext.Provider value={{ samePageRouting: false }}>
-          <Sidebar.FullLayout>
-            <Sidebar.ScrollContainer>
+          <Sidebar.FullLayout scrollerRef={scrollerRef}>
+            <Sidebar.ScrollContainer scrollerRef={scrollerRef}>
               <Stack direction="column" gap="2">
                 <InAppSidebar
                   selectedSdk={selectedSdk}

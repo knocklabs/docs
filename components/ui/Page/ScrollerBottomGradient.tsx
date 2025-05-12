@@ -89,40 +89,33 @@ export const ScrollerBottomGradient = ({
   useOnRefReady(scrollerRef, (node) => setScroller(node));
   useOnRefReady(gradientRef, (node) => setGradient(node));
 
-  const setGradientOpacity = useCallback(
-    debounce(() => {
-      if (!scroller || !gradient) return;
+  const setGradientOpacity = useCallback(() => {
+    if (!scroller || !gradient) return;
 
-      const position = scroller.getBoundingClientRect();
-      gradient.style.top = `${position.height}px`;
-      gradient.style.width = `${position.width}px`;
-
-      // If content height is less than or equal to scroller height, hide gradient
-      if (scroller.scrollHeight <= scroller.clientHeight) {
-        gradient.style.opacity = "0";
-        if (managePadding) {
-          // Pull it off the bottom of the scroller
-          scroller.style.paddingBottom = "var(--tgph-spacing-4)";
-        }
-        return; // Add return here to avoid further logic
+    // If content height is less than or equal to scroller height, hide gradient
+    if (scroller.scrollHeight <= scroller.clientHeight) {
+      gradient.style.opacity = "0";
+      if (managePadding) {
+        // Pull it off the bottom of the scroller
+        scroller.style.paddingBottom = "var(--tgph-spacing-4)";
       }
+      return; // Add return here to avoid further logic
+    }
 
-      const scrollableHeight = scroller.scrollHeight - scroller.clientHeight;
-      const scrolledAmount = scroller.scrollTop;
-      const scrollPercentage = scrolledAmount / scrollableHeight;
+    const scrollableHeight = scroller.scrollHeight - scroller.clientHeight;
+    const scrolledAmount = scroller.scrollTop;
+    const scrollPercentage = scrolledAmount / scrollableHeight;
 
-      // Only start fading in the bottom 10%
-      const fadeStart = 0.9; // 90%
-      if (scrollPercentage < fadeStart) {
-        gradient.style.opacity = "1";
-      } else {
-        // Fade out from 1 to 0 as we scroll from 90% to 100%
-        const fadeProgress = (scrollPercentage - fadeStart) / (1 - fadeStart);
-        gradient.style.opacity = String(1 - Math.min(fadeProgress, 1));
-      }
-    }, 50),
-    [scroller, gradient, managePadding],
-  );
+    // Only start fading in the bottom 10%
+    const fadeStart = 0.9; // 90%
+    if (scrollPercentage < fadeStart) {
+      gradient.style.opacity = "1";
+    } else {
+      // Fade out from 1 to 0 as we scroll from 90% to 100%
+      const fadeProgress = (scrollPercentage - fadeStart) / (1 - fadeStart);
+      gradient.style.opacity = String(1 - Math.min(fadeProgress, 1));
+    }
+  }, [scroller, gradient, managePadding]);
 
   // Watch for scroller height changes
   useMutationObserver(scrollerRef, setGradientOpacity);
@@ -150,6 +143,7 @@ export const ScrollerBottomGradient = ({
       bottom="0"
       right="0"
       height="32"
+      top="auto"
       tgphRef={gradientRef}
       {...gradientProps}
       style={{

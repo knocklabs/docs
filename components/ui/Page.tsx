@@ -10,8 +10,9 @@ import { ContentActions } from "./ContentActions";
 
 import "../../styles/global.css";
 import "../../styles/responsive.css";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useRef, useState } from "react";
 import { MobileSidebar } from "./Page/MobileSidebar";
+import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
 
 export const MAX_WIDTH = "1400px";
 
@@ -142,17 +143,20 @@ const DefaultFullSidebar = ({
   content,
   samePageRouting = false,
   contentProps = {},
-}) => (
-  <Sidebar.FullLayout>
+}) => {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  return (
     <SidebarContext.Provider value={{ samePageRouting }}>
-      <Sidebar.ScrollContainer {...contentProps}>
-        {content.map((section) => (
-          <Sidebar.Section key={section.slug} section={section} />
-        ))}
-      </Sidebar.ScrollContainer>
+      <Sidebar.FullLayout scrollerRef={scrollerRef}>
+        <Sidebar.ScrollContainer {...contentProps} scrollerRef={scrollerRef}>
+          {content.map((section) => (
+            <Sidebar.Section key={section.slug} section={section} />
+          ))}
+        </Sidebar.ScrollContainer>
+      </Sidebar.FullLayout>
     </SidebarContext.Provider>
-  </Sidebar.FullLayout>
-);
+  );
+};
 
 const DefaultMobileSidebar = ({ content, samePageRouting = false }) => (
   <MobileSidebar>
