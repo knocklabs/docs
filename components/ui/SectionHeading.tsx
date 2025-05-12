@@ -26,7 +26,6 @@ const SectionHeading = ({
   wrapperProps,
   ...rest
 }: Props) => {
-  const buttonRef = useRef<HTMLButtonElement>(null);
   const size: HeadingProps["size"] =
     tag === "h1"
       ? "6"
@@ -68,8 +67,6 @@ const SectionHeading = ({
     setShowCopied(true);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      // Remove styling from the cliked heading
-      buttonRef.current?.blur();
       setShowCopied(false);
     }, 2000);
   };
@@ -96,7 +93,12 @@ const SectionHeading = ({
       mb={rest?.mb || 4}
       position="relative"
       data-section-heading
+      onClick={onHeadingClick}
       {...wrapperProps}
+      style={{
+        cursor: showLink ? "pointer" : "default",
+        ...wrapperProps?.style,
+      }}
     >
       <Heading
         size={size}
@@ -107,13 +109,7 @@ const SectionHeading = ({
         mb="0"
         position="relative"
       >
-        <Box
-          onClick={onHeadingClick}
-          style={{ cursor: showLink ? "pointer" : "default" }}
-          tgphRef={buttonRef}
-        >
-          {children}
-        </Box>
+        {children}
       </Heading>
       {showLink && (
         <Text
@@ -124,6 +120,7 @@ const SectionHeading = ({
           h="full"
           size={size}
           color="gray"
+          className="sm-hidden"
           style={{
             color: "var(--tgph-gray-9)",
             left: "calc(var(--tgph-spacing-8) * -1)",
