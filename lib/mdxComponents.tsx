@@ -36,13 +36,14 @@ import {
 } from "../components/ui/OverviewContent/Blocks";
 import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
+import SectionHeading from "@/components/ui/SectionHeading";
 import { ContentActions } from "@/components/ui/ContentActions";
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
-  h2: (props) => <Heading as="h2" size="6" mb="3" mt="8" {...props} />,
-  h3: (props) => <Heading as="h3" size="4" mb="2" mt="8" {...props} />,
-  h4: (props) => <Heading as="h4" size="3" mb="1" mt="8" {...props} />,
+  h2: (props) => <SectionHeading tag="h2" mb="3" mt="8" {...props} />,
+  h3: (props) => <SectionHeading tag="h3" mb="2" mt="8" {...props} />,
+  h4: (props) => <SectionHeading tag="h4" mb="1" mt="8" {...props} />,
   code: (props) => (
     <Code as="code" backgroundColor="gray-2" data-tgph-code {...props}>
       {props.children}
