@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box } from "@telegraph/layout";
 import { TgphComponentProps } from "@telegraph/helpers";
+import { debounce } from "@/lib/debounce";
 
 export function useOnRefReady<T extends HTMLElement>(
   ref: React.RefObject<T>,
@@ -142,6 +143,7 @@ export const ScrollerBottomGradient = ({
       bottom="0"
       right="0"
       height="32"
+      top="auto"
       tgphRef={gradientRef}
       {...gradientProps}
       style={{

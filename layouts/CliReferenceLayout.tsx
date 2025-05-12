@@ -29,9 +29,14 @@ export const CliReferenceLayout = ({ frontMatter, children }) => {
         description={frontMatter.description}
         canonical="/cli"
       />
-      <Page.Masthead title={frontMatter.title} />
+      <Page.Masthead
+        title={frontMatter.title}
+        mobileSidebar={
+          <Page.MobileSidebar content={CLI_SIDEBAR} samePageRouting />
+        }
+      />
       <Page.Wrapper>
-        <Page.Sidebar content={CLI_SIDEBAR} samePageRouting />
+        <Page.FullSidebar content={CLI_SIDEBAR} samePageRouting />
         <Page.Content fullWidth>
           <Page.ContentHeader
             title={frontMatter.title}

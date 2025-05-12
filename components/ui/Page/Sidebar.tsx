@@ -25,6 +25,7 @@ import {
 import { Tag } from "@telegraph/tag";
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
 import { usePageContext } from "../Page";
+import { TgphComponentProps } from "@telegraph/helpers";
 
 interface SidebarContextType {
   samePageRouting: boolean;
@@ -41,7 +42,8 @@ export const useSidebar = () => {
 type SidebarProps = {
   content: SidebarSection[];
   children?: React.ReactNode;
-};
+  gradientHeight?: TgphComponentProps<typeof Box>["height"];
+} & TgphComponentProps<typeof Stack>;
 
 function getOpenState(section: SidebarSection, slug: string, path: string) {
   return section.pages.some((page) => {
@@ -174,14 +176,8 @@ const Item = ({
 
   const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> =
     depth === 0
-      ? {
-          // Moves it over to align with the Tab text above
-          style: {
-            marginLeft: "-4px",
-          },
-        }
+      ? {}
       : {
-          // py: "4",
           pl: "1",
           color: "gray",
         };
@@ -209,10 +205,7 @@ const Item = ({
         const isActive = isPathTheSame(href, router.asPath);
 
         return (
-          <Box
-            // Tuck in the nested menus a little more
-            key={index + page.slug}
-          >
+          <Box key={index + page.slug}>
             <NavItem href={href} isActive={isActive}>
               {page.title}
               {page.isBeta && (
@@ -238,8 +231,45 @@ const Section = ({ section }: { section: SidebarSection }) => {
   );
 };
 
-const Wrapper = ({ children }: SidebarProps) => {
-  const scrollerRef = useRef<HTMLDivElement>(null);
+const FullLayout = ({ children, scrollerRef }: SidebarProps) => {
+  return (
+    <Box h="full" w="full" className="md-hidden">
+      <Box
+        data-sidebar-wrapper
+        as="aside"
+        width="64"
+        position="fixed"
+        bottom="0"
+        pr="4"
+        pl="3"
+        pt="6"
+        pb="0"
+        style={{
+          height: "calc(100vh - var(--header-height))",
+          top: "var(--header-height)",
+        }}
+        h="full"
+      >
+        <ScrollerBottomGradient
+          scrollerRef={scrollerRef}
+          managePadding={false}
+          gradientProps={{
+            px: "4",
+            height: "48",
+          }}
+        />
+        {children}
+      </Box>
+    </Box>
+  );
+};
+
+const ScrollContainer = ({
+  children,
+  gradientHeight = "48",
+  scrollerRef,
+  ...props
+}: SidebarProps) => {
   const router = useRouter();
   const basePath = router.asPath.split("#")[0];
 
@@ -249,42 +279,25 @@ const Wrapper = ({ children }: SidebarProps) => {
   }, [basePath]);
 
   return (
-    <Box className="md-hidden">
-      <Box
-        data-sidebar-wrapper
-        as="aside"
-        width="64"
-        position="fixed"
-        bottom="0"
-        top="24"
-        style={{ minHeight: "90vh" }}
-      >
-        <ScrollerBottomGradient
-          scrollerRef={scrollerRef}
-          managePadding={false}
-          gradientProps={{
-            height: "48",
-          }}
-        />
-        <Stack
-          direction="column"
-          h="full"
-          pt="2"
-          px="4"
-          pb="12"
-          style={{ overflowY: "auto" }}
-          tgphRef={scrollerRef}
-        >
-          {children}
-        </Stack>
-      </Box>
-    </Box>
+    <Stack
+      flexDirection="column"
+      data-sidebar-content
+      h="full"
+      tgphRef={scrollerRef}
+      pb="12"
+      px="0"
+      {...props}
+      style={{ overflowY: "auto", ...props?.style }}
+    >
+      {children}
+    </Stack>
   );
 };
 
 const Sidebar = Object.assign({
   Section,
-  Wrapper,
+  FullLayout,
+  ScrollContainer,
 });
 
 export { Sidebar };

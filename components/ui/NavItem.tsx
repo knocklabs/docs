@@ -8,6 +8,7 @@ import {
 } from "./Page/helpers";
 import { Stack } from "@telegraph/layout";
 import { useSidebar } from "./Page/Sidebar";
+import { useMobileSidebar } from "./Page/MobileSidebar";
 
 type NavItemProps = {
   href: string;
@@ -19,6 +20,9 @@ type NavItemProps = {
 
 const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
   const { samePageRouting } = useSidebar();
+  const { isOpen: isMobileSidebarOpen, closeSidebar: closeMobileSidebar } =
+    useMobileSidebar();
+
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (samePageRouting) {
       e.preventDefault();
@@ -26,11 +30,18 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
     } else {
       updateNavStyles(href);
     }
+    if (isMobileSidebarOpen) {
+      closeMobileSidebar();
+    }
   };
+
+  // Next.js is really annoying if you have prefetch={true} so let's just NOT
+  const prefetchProps = samePageRouting ? { prefetch: false } : {};
 
   return (
     <Stack
       as={Link}
+      {...prefetchProps}
       href={stripTrailingSlash(href)}
       onClick={onClick}
       display="inline-flex"

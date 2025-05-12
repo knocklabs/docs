@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { Page } from "@/components/ui/Page";
 import { Sidebar, SidebarContext } from "@/components/ui/Page/Sidebar";
@@ -22,6 +22,10 @@ import { Stack } from "@telegraph/layout";
 import { Select } from "@telegraph/select";
 import { Text } from "@telegraph/typography";
 import { icons } from "@/components/ui/SdkCard";
+import {
+  MobileSidebar,
+  useMobileSidebar,
+} from "@/components/ui/Page/MobileSidebar";
 
 const languageMap = {
   react: {
@@ -74,9 +78,70 @@ const languageMap = {
   },
 };
 
+const InAppSidebar = ({
+  selectedSdk,
+  selectedSdkContent,
+  handleSdkChange,
+}: {
+  selectedSdk: Language;
+  selectedSdkContent: SdkSpecificContent;
+  handleSdkChange: (value: Language) => void;
+}) => {
+  const { isOpen: isMobileSidebarOpen, closeSidebar: closeMobileSidebar } =
+    useMobileSidebar();
+
+  const onSdkChange = (value) => {
+    handleSdkChange(value as Language);
+    if (isMobileSidebarOpen) {
+      closeMobileSidebar();
+    }
+  };
+
+  return (
+    <>
+      {IN_APP_UI_SIDEBAR.map((section) => (
+        <Sidebar.Section key={section.slug} section={section} />
+      ))}
+      <Text
+        as="span"
+        weight="medium"
+        color="default"
+        style={{ fontSize: "13px" }}
+        ml="2"
+      >
+        Select your SDK
+      </Text>
+      <Box>
+        <Select.Root
+          placeholder="Select an option"
+          value={selectedSdk}
+          onValueChange={onSdkChange}
+          size="2"
+        >
+          {Object.keys(languageMap).map((language) => {
+            const sdk: SdkSpecificContent = languageMap[language];
+            return (
+              <Select.Option key={sdk.value} value={sdk.value}>
+                <Stack direction="row" gap="2" alignItems="center">
+                  {sdk.icon}
+                  {sdk.title}
+                </Stack>
+              </Select.Option>
+            );
+          })}
+        </Select.Root>
+      </Box>
+      {selectedSdkContent.items.map((section) => (
+        <Sidebar.Section key={section.slug} section={section} />
+      ))}
+    </>
+  );
+};
+
 const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
   const paths = slugToPaths(router.query.slug);
+  const scrollerRef = useRef<HTMLDivElement>(null);
 
   const [selectedSdk, setSelectedSdk] = useState<Language>(() => {
     const sdk = paths[1];
@@ -118,50 +183,31 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
         title={`${frontMatter.title} | Knock Docs`}
         description={frontMatter.description}
       />
-      <Page.Masthead title={frontMatter.title} />
+      <Page.Masthead
+        title={frontMatter.title}
+        mobileSidebar={
+          <MobileSidebar>
+            <InAppSidebar
+              selectedSdk={selectedSdk}
+              selectedSdkContent={selectedSdkContent}
+              handleSdkChange={handleSdkChange}
+            />
+          </MobileSidebar>
+        }
+      />
       <Page.Wrapper>
         <SidebarContext.Provider value={{ samePageRouting: false }}>
-          <Sidebar.Wrapper>
-            <Stack direction="column" gap="2">
-              {IN_APP_UI_SIDEBAR.map((section) => (
-                <Sidebar.Section key={section.slug} section={section} />
-              ))}
-              <Text
-                as="span"
-                weight="medium"
-                color="default"
-                style={{ fontSize: "13px" }}
-                ml="2"
-              >
-                Select your SDK
-              </Text>
-              <Box>
-                <Select.Root
-                  placeholder="Select an option"
-                  value={selectedSdk}
-                  onValueChange={(value) => {
-                    handleSdkChange(value as Language);
-                  }}
-                  size="2"
-                >
-                  {Object.keys(languageMap).map((language) => {
-                    const sdk: SdkSpecificContent = languageMap[language];
-                    return (
-                      <Select.Option key={sdk.value} value={sdk.value}>
-                        <Stack direction="row" gap="2" alignItems="center">
-                          {sdk.icon}
-                          {sdk.title}
-                        </Stack>
-                      </Select.Option>
-                    );
-                  })}
-                </Select.Root>
-              </Box>
-              {selectedSdkContent.items.map((section) => (
-                <Sidebar.Section key={section.slug} section={section} />
-              ))}
-            </Stack>
-          </Sidebar.Wrapper>
+          <Sidebar.FullLayout scrollerRef={scrollerRef}>
+            <Sidebar.ScrollContainer scrollerRef={scrollerRef}>
+              <Stack direction="column" gap="2">
+                <InAppSidebar
+                  selectedSdk={selectedSdk}
+                  selectedSdkContent={selectedSdkContent}
+                  handleSdkChange={handleSdkChange}
+                />
+              </Stack>
+            </Sidebar.ScrollContainer>
+          </Sidebar.FullLayout>
         </SidebarContext.Provider>
         <Page.Content>
           <Page.TopContainer>

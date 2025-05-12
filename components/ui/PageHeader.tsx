@@ -6,9 +6,11 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { MAX_WIDTH } from "./Page";
 import Autocomplete from "@/components/ui/Autocomplete";
+import { MobileSidebar } from "./Page/MobileSidebar";
 
 type PageHeaderProps = {
   title: string;
+  mobileSidebar?: React.ReactNode;
 };
 
 function selectedTab(pathname: string) {
@@ -36,7 +38,7 @@ function selectedTab(pathname: string) {
   return "platform";
 }
 
-const PageHeader = ({ title }: PageHeaderProps) => {
+const PageHeader = ({ title, mobileSidebar }: PageHeaderProps) => {
   const { asPath } = useRouter();
 
   return (
@@ -50,8 +52,16 @@ const PageHeader = ({ title }: PageHeaderProps) => {
       zIndex="sticky"
     >
       <Box style={{ maxWidth: MAX_WIDTH, margin: "0 auto" }}>
-        <Stack w="full" pt="4" pb="2" px="4" alignItems="center">
-          <Stack direction="row" alignItems="flex-end">
+        <Stack
+          w="full"
+          pt="4"
+          pb="2"
+          px="4"
+          alignItems="center"
+          justifyContent="space-between"
+          gap="1"
+        >
+          <Stack direction="row" alignItems="flex-end" style={{ minWidth: 0 }}>
             <Stack direction="row" alignItems="flex-end" pb="1">
               <Link href="/" style={{ display: "block" }}>
                 <svg
@@ -108,6 +118,7 @@ const PageHeader = ({ title }: PageHeaderProps) => {
               Get started
             </Button>
           </Stack>
+          {mobileSidebar && mobileSidebar}
         </Stack>
         <Tabs
           value={selectedTab(asPath)}
