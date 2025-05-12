@@ -65,6 +65,9 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
               "aria-hidden": true,
             }}
             py="4"
+            style={{
+              borderRadius: "var(--tgph-radius-2) var(--tgph-radius-2) 0 0",
+            }}
           >
             {isCopied ? "Copied!" : "Copy as Markdown"}
           </MenuItem>
@@ -78,6 +81,9 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             py="4"
+            style={{
+              borderRadius: "0 0 var(--tgph-radius-2) var(--tgph-radius-2)",
+            }}
           >
             View as Markdown
           </MenuItem>
