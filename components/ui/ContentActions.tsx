@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Popover } from "@telegraph/popover";
-import { SidebarPage } from "@/data/types";
-import { SidebarSection } from "@/data/types";
 import { Box } from "@telegraph/layout";
 import { Button } from "@telegraph/button";
 import { Lucide } from "@telegraph/icon";
@@ -68,7 +66,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
             }}
             py="4"
           >
-            {isCopied ? "Copied!" : "Copy as markdown"}
+            {isCopied ? "Copied!" : "Copy as Markdown"}
           </MenuItem>
           <MenuItem
             as={Link}
