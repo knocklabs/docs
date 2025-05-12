@@ -218,12 +218,12 @@ const nextConfig = {
       {
         source: "/send-and-manage-data/outbound-webhooks",
         destination: "/developer-tools/outbound-webhooks",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/vercel",
         destination: "/integrations/extensions/vercel",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/angular",
@@ -238,12 +238,12 @@ const nextConfig = {
       {
         source: "/send-and-manage-data/:slug*",
         destination: "/concepts/:slug*",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-notifications/setting-preferences",
         destination: "/managing-recipients/setting-preferences",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/managing-recipients/setting-preferences",
@@ -281,6 +281,11 @@ const nextConfig = {
         permanent: true,
       },
       // Reference redirects
+      {
+        source: "/sdks/:sdk",
+        destination: "/in-app-ui/:sdk/sdk/overview",
+        permanent: true,
+      },
       {
         source: "/sdks/:sdk/reference",
         destination: "/in-app-ui/:sdk/sdk/reference",
@@ -437,17 +442,42 @@ const nextConfig = {
       },
       {
         source: "/sdks",
-        destination: "/sdks/overview",
+        destination: "/developer-tools/sdks",
+        permanent: true,
+      },
+      {
+        source: "/sdks/overview",
+        destination: "/developer-tools/sdks",
+        permanent: true,
+      },
+      {
+        source: "/sdks/:sdk/overview",
+        destination: "/in-app-ui/:sdk/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/messaging-components",
+        destination: "/in-app-ui/react/feed",
         permanent: true,
       },
       {
         source: "/agent-toolkit",
         destination: "/developer-tools/agent-toolkit/overview",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/filtering-in-app-feeds",
         destination: "/in-app-ui/feeds/filtering-in-app-feeds",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/filtering-in-app-feeds",
+        destination: "/in-app-ui/feeds/filtering-in-app-feeds",
+        permanent: true,
+      },
+      {
+        source: "/reference",
+        destination: "/api-reference",
         permanent: true,
       },
     ];

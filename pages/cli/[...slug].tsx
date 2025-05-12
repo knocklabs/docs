@@ -13,23 +13,28 @@ import newRelicDashboardJson from "../../content/integrations/extensions/new_rel
 import AiChatButton from "../../components/AiChatButton";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 
-import { cliContent as cliSidebarContent } from "@/data/sidebar";
+import { CLI_SIDEBAR } from "@/data/sidebars/cliSidebar";
 
-export default function ContentPage({ source, sourcePath }) {
-  return (
-    <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
-      <MDXRemote
-        {...source}
-        components={MDX_COMPONENTS}
-        scope={{
-          datadogDashboardJson,
-          newRelicDashboardJson,
-          eventPayload,
-        }}
-      />
-      <AiChatButton />
-    </MDXLayout>
-  );
+let cachedCliPageComponent;
+
+function CachedCliPageComponent({ source, sourcePath }) {
+  if (!cachedCliPageComponent) {
+    cachedCliPageComponent = (
+      <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
+        <MDXRemote
+          {...source}
+          components={MDX_COMPONENTS}
+          scope={{
+            datadogDashboardJson,
+            newRelicDashboardJson,
+            eventPayload,
+          }}
+        />
+        <AiChatButton />
+      </MDXLayout>
+    );
+  }
+  return cachedCliPageComponent;
 }
 
 // Get the props for a single path
@@ -52,7 +57,7 @@ export async function getStaticProps() {
 
 export async function getStaticPaths() {
   const paths: { params: { slug: string[] } }[] = [];
-  const pages: SidebarSection[] = cliSidebarContent;
+  const pages: SidebarSection[] = CLI_SIDEBAR;
 
   for (const page of pages) {
     const slug = page.slug.split("/").pop() as string;
@@ -84,3 +89,5 @@ export async function getStaticPaths() {
     fallback: false,
   };
 }
+
+export default CachedCliPageComponent;

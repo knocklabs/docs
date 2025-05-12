@@ -9,7 +9,6 @@ import {
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
 import {
-  useLayoutEffect,
   useState,
   useMemo,
   useEffect,
@@ -112,7 +111,7 @@ const Item = ({
     [isSearchOpen], // Empty dependency array means this is only created once
   );
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // Don't need all the logic if its not a same page routing
     if (!samePageRouting) return;
 

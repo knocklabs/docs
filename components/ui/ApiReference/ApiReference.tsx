@@ -3,7 +3,6 @@
 import { ApiReferenceProvider } from "./ApiReferenceContext";
 import { ApiReferenceSection } from ".";
 import { Page as TelegraphPage } from "../Page";
-import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { StainlessConfig } from "../../../lib/openApiSpec";
 import { OpenAPIV3 } from "@scalar/openapi-types";
@@ -11,6 +10,7 @@ import { getSidebarContent } from "./helpers";
 import { SidebarSection } from "../../../data/types";
 import Meta from "../../Meta";
 import { useInitialScrollState } from "../Page/helpers";
+import { ContentActions } from "../ContentActions";
 
 type Props = {
   name: string;
@@ -38,6 +38,7 @@ function ApiReference({
       <Meta
         title={`${name} | Knock Docs`}
         description={`Complete reference documentation for the Knock ${name}.`}
+        canonical={`/${basePath}`}
       />
       <TelegraphPage.Masthead title={name} />
       <ApiReferenceProvider
@@ -59,6 +60,10 @@ function ApiReference({
             <TelegraphPage.ContentHeader
               title={name}
               description={`Complete reference documentation for the Knock ${name}.`}
+              bottomContent={
+                // Optically align with content above
+                <ContentActions showOnMobile style={{ marginLeft: "-6px" }} />
+              }
             />
             <TelegraphPage.ContentBody>
               {preContent}

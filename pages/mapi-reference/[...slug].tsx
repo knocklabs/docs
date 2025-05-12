@@ -11,7 +11,10 @@ import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import fs from "fs";
 import { MDXRemote } from "next-mdx-remote";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
-import { RESOURCE_ORDER, PRE_SIDEBAR_CONTENT } from "./index";
+import {
+  MAPI_REFERENCE_OVERVIEW_CONTENT,
+  RESOURCE_ORDER,
+} from "../../data/sidebars/mapiOverviewSidebar";
 
 function ManagementApiReferencePage({
   openApiSpec,
@@ -25,7 +28,7 @@ function ManagementApiReferencePage({
       stainlessSpec={stainlessSpec}
       preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
       resourceOrder={RESOURCE_ORDER}
-      preSidebarContent={PRE_SIDEBAR_CONTENT}
+      preSidebarContent={MAPI_REFERENCE_OVERVIEW_CONTENT}
     />
   );
 }
@@ -40,7 +43,7 @@ export async function getStaticPaths() {
     stainlessSpec,
     RESOURCE_ORDER,
     "/mapi-reference",
-    PRE_SIDEBAR_CONTENT,
+    MAPI_REFERENCE_OVERVIEW_CONTENT,
   );
 
   for (const page of pages) {
@@ -72,23 +75,40 @@ export async function getStaticPaths() {
   };
 }
 
+// At the top of the file (outside the function)
+let cachedOpenApiSpecMapi: any = null;
+let cachedStainlessSpecMapi: any = null;
+let cachedPreContentMdxMapi: any = null;
+
 export async function getStaticProps() {
-  const openApiSpec = await readOpenApiSpec("mapi");
-  const stainlessSpec = await readStainlessSpec("mapi");
+  if (!cachedOpenApiSpecMapi) {
+    cachedOpenApiSpecMapi = await readOpenApiSpec("mapi");
+  }
+  if (!cachedStainlessSpecMapi) {
+    cachedStainlessSpecMapi = await readStainlessSpec("mapi");
+  }
 
   const preContent = fs.readFileSync(
     `${CONTENT_DIR}/__mapi-reference/content.mdx`,
   );
 
-  const preContentMdx = await serialize(preContent, {
-    parseFrontmatter: true,
-    mdxOptions: {
-      remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeMdxCodeProps] as any,
-    },
-  });
+  if (!cachedPreContentMdxMapi) {
+    cachedPreContentMdxMapi = await serialize(preContent, {
+      parseFrontmatter: true,
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [rehypeMdxCodeProps] as any,
+      },
+    });
+  }
 
-  return { props: { openApiSpec, stainlessSpec, preContentMdx } };
+  return {
+    props: {
+      openApiSpec: cachedOpenApiSpecMapi,
+      stainlessSpec: cachedStainlessSpecMapi,
+      preContentMdx: cachedPreContentMdxMapi,
+    },
+  };
 }
 
 export default ManagementApiReferencePage;
