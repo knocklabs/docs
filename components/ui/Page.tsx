@@ -114,15 +114,14 @@ type PageNeighbor = {
 };
 
 const ContentFooter = ({
-  children,
   nextPage,
   previousPage,
 }: {
-  children: React.ReactNode;
   nextPage: PageNeighbor;
   previousPage: PageNeighbor;
 }) => (
   <Stack
+    as="nav"
     direction="row"
     borderTop="px"
     borderColor="gray-4"
