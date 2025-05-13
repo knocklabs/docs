@@ -230,7 +230,7 @@ const FullLayout = ({ children, scrollerRef }: SidebarProps) => {
         data-sidebar-wrapper
         as="aside"
         width="64"
-        position="sticky"
+        position="fixed"
         bottom="0"
         pr="4"
         pl="3"
