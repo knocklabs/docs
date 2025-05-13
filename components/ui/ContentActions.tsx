@@ -20,7 +20,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
   const pathname = router.asPath;
-  const basePath = pathname.split("?")[0].substring(1);
+  const basePath = pathname.split("?")[0].split("#")[0].substring(1);
   const mdPath = `/${basePath}.md`;
 
   const copyAsMarkdown = async () => {
