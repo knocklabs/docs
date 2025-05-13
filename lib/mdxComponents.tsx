@@ -5,7 +5,7 @@ import MultiLangCodeBlock from "../components/ui/MultiLangCodeBlock";
 import LocaleTable from "../components/ui/LocaleTable";
 import { Attributes, Attribute } from "../components/ui/Attributes";
 import Table from "../components/ui/Table";
-import CopyableText from "../components/CopyableText";
+import { CopyableText } from "../components/ui/CopyableText";
 import { Card, CardGroup } from "../components/ui/Card";
 import { SdkCard, SdkCardGroup } from "../components/ui/SdkCard";
 import { Endpoints, Endpoint } from "../components/ui/Endpoints";
@@ -18,7 +18,7 @@ import {
   ExampleColumn,
 } from "../components/ui/ApiSections";
 import RateLimit from "../components/ui/RateLimit";
-import { Heading, Code, Text } from "@telegraph/typography";
+import { Code, Text } from "@telegraph/typography";
 import {
   TableElement,
   ThElement,

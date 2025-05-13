@@ -2,9 +2,8 @@ import { SidebarPage } from "@/data/types";
 import { SidebarSection } from "@/data/types";
 import { Icon } from "@telegraph/icon";
 import { Lucide } from "@telegraph/icon";
-import { Box, Stack } from "@telegraph/layout";
+import { Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
-import Link from "next/link";
 
 type BreadcrumbsProps = {
   pages: (SidebarPage | SidebarSection)[];

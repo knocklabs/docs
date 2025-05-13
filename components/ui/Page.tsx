@@ -12,7 +12,9 @@ import "../../styles/global.css";
 import "../../styles/responsive.css";
 import { createContext, useContext, useRef, useState } from "react";
 import { MobileSidebar } from "./Page/MobileSidebar";
-import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
+import { Button } from "@telegraph/button";
+import Link from "next/link";
+import { Icon, Lucide } from "@telegraph/icon";
 
 export const MAX_WIDTH = "1400px";
 
@@ -81,24 +83,18 @@ const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
   </Stack>
 );
 
-const Masthead = ({
-  title,
-  mobileSidebar,
-}: {
-  title: string;
-  mobileSidebar?: React.ReactNode;
-}) => {
-  return <PageHeader title={title} mobileSidebar={mobileSidebar} />;
+const Masthead = ({ mobileSidebar }: { mobileSidebar?: React.ReactNode }) => {
+  return <PageHeader mobileSidebar={mobileSidebar} />;
 };
 
 const Content = ({ children, fullWidth = false }) => (
   <Box
     py="8"
     width="full"
-    pl="24"
-    pr="12"
+    pl="20"
+    pr="4"
     minWidth="0"
-    style={{ maxWidth: fullWidth ? "initial" : "920px" }}
+    style={{ maxWidth: fullWidth ? "initial" : "800px" }}
     className="lg-wrapper-padding"
   >
     <Box>{children}</Box>
@@ -109,6 +105,136 @@ const ContentBody = ({ children }) => (
   <Box mb="6" className="tgraph-content" data-content-body>
     {children}
   </Box>
+);
+
+type PageNeighbor = {
+  title: string;
+  path: string;
+  slug: string;
+};
+
+const ContentFooter = ({
+  nextPage,
+  previousPage,
+}: {
+  nextPage: PageNeighbor;
+  previousPage: PageNeighbor;
+}) => (
+  <Stack
+    as="nav"
+    direction="row"
+    borderTop="px"
+    borderColor="gray-4"
+    py="12"
+    gap="2"
+    data-content-footer
+    w="full"
+    justifyContent="space-between"
+    style={{
+      display: "grid",
+      gridTemplateColumns: "49% 49%",
+    }}
+  >
+    {previousPage ? (
+      <Button.Root
+        as={Link}
+        href={previousPage.path}
+        variant="ghost"
+        leadingIcon={{
+          icon: Lucide.ChevronLeft,
+          "aria-hidden": true,
+          flexShrink: 0,
+        }}
+        pr="4"
+        pl="0"
+        py="8"
+        w="full"
+        justifyContent="flex-start"
+        overflow="hidden"
+        minWidth="0"
+      >
+        <Stack alignItems="center" gap="2" minW="0">
+          <Icon
+            icon={Lucide.ChevronLeft}
+            size="2"
+            color="gray"
+            aria-hidden
+            style={{
+              marginLeft: "-3px",
+            }}
+          />
+          <Stack direction="column" w="full" style={{ minWidth: 0 }}>
+            <Text as="span" size="1" weight="medium" color="gray" mb="1">
+              Previous
+            </Text>
+            <Text
+              as="span"
+              size="3"
+              weight="medium"
+              textOverflow="ellipsis"
+              w="full"
+              style={{
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {previousPage.title}
+            </Text>
+          </Stack>
+        </Stack>
+      </Button.Root>
+    ) : (
+      <Box w="full" />
+    )}
+    {nextPage ? (
+      <Button.Root
+        as={Link}
+        href={nextPage.path}
+        variant="ghost"
+        px="4"
+        pr="0"
+        py="8"
+        w="full"
+        justifyContent="flex-end"
+        trailingIcon={{
+          icon: Lucide.ChevronRight,
+          "aria-hidden": true,
+        }}
+      >
+        <Stack alignItems="center" gap="2" minW="0">
+          <Stack direction="column" w="full" style={{ minWidth: 0 }}>
+            <Text as="span" size="1" weight="medium" color="gray" mb="1">
+              Next
+            </Text>
+            <Text
+              as="span"
+              size="3"
+              weight="medium"
+              textOverflow="ellipsis"
+              w="full"
+              style={{
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {nextPage.title}
+            </Text>
+          </Stack>
+          <Icon
+            icon={Lucide.ChevronRight}
+            size="2"
+            color="gray"
+            aria-hidden
+            style={{
+              marginRight: "-3px",
+            }}
+          />
+        </Stack>
+      </Button.Root>
+    ) : (
+      <Box w="full" />
+    )}
+  </Stack>
 );
 
 interface ContentHeaderProps {
@@ -179,6 +305,7 @@ const Page = Object.assign({
   Content,
   ContentBody,
   ContentHeader,
+  ContentFooter,
   OnThisPage,
   Wrapper,
 });

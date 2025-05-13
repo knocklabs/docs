@@ -1,7 +1,7 @@
 import { Box, Stack } from "@telegraph/layout";
 import { TgphComponentProps } from "@telegraph/helpers";
-import { Heading, Text } from "@telegraph/typography";
-import { Icon, Lucide } from "@telegraph/icon";
+import { Heading } from "@telegraph/typography";
+import { Lucide } from "@telegraph/icon";
 import Link from "next/link";
 import { Button } from "@telegraph/button";
 

@@ -8,14 +8,7 @@ import {
   CollapsibleNavItem,
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
-import {
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
-  createContext,
-  useContext,
-} from "react";
+import { useState, useMemo, useEffect, createContext, useContext } from "react";
 import {
   isPathTheSame,
   highlightResource,
@@ -42,7 +35,6 @@ export const useSidebar = () => {
 type SidebarProps = {
   content: SidebarSection[];
   children?: React.ReactNode;
-  gradientHeight?: TgphComponentProps<typeof Box>["height"];
 } & TgphComponentProps<typeof Stack>;
 
 function getOpenState(section: SidebarSection, slug: string, path: string) {
@@ -238,7 +230,7 @@ const FullLayout = ({ children, scrollerRef }: SidebarProps) => {
         data-sidebar-wrapper
         as="aside"
         width="64"
-        position="fixed"
+        position="sticky"
         bottom="0"
         pr="4"
         pl="3"

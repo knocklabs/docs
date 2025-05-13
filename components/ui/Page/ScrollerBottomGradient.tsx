@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box } from "@telegraph/layout";
 import { TgphComponentProps } from "@telegraph/helpers";
-import { debounce } from "@/lib/debounce";
 
 export function useOnRefReady<T extends HTMLElement>(
   ref: React.RefObject<T>,

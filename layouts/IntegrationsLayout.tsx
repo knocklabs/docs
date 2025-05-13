@@ -41,7 +41,6 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
         description={frontMatter.description}
       />
       <Page.Masthead
-        title={frontMatter.title}
         mobileSidebar={<Page.MobileSidebar content={INTEGRATIONS_SIDEBAR} />}
       />
       <Page.Wrapper>

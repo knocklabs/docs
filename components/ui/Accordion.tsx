@@ -15,12 +15,18 @@ const AccordionGroup = ({ children }) => (
 );
 
 type AccordionProps = {
+  children: React.ReactNode;
   title: string;
   description?: string;
   defaultOpen?: boolean;
 };
 
-const Accordion = ({ children, title, description, defaultOpen = false }) => {
+const Accordion = ({
+  children,
+  title,
+  description,
+  defaultOpen = false,
+}: AccordionProps) => {
   const [open, setOpen] = useState<boolean>(defaultOpen);
 
   return (

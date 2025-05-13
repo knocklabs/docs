@@ -37,7 +37,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
   }
 
   const parameters = method.parameters || [];
-  const responses = method.responses || {};
+  // const responses = method.responses || {};
 
   const pathParameters = parameters.filter(
     (p) => p.in === "path",

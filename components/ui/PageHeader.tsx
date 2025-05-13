@@ -6,10 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { MAX_WIDTH } from "./Page";
 import Autocomplete from "@/components/ui/Autocomplete";
-import { MobileSidebar } from "./Page/MobileSidebar";
 
 type PageHeaderProps = {
-  title: string;
   mobileSidebar?: React.ReactNode;
 };
 
@@ -38,7 +36,7 @@ function selectedTab(pathname: string) {
   return "platform";
 }
 
-const PageHeader = ({ title, mobileSidebar }: PageHeaderProps) => {
+const PageHeader = ({ mobileSidebar }: PageHeaderProps) => {
   const { asPath } = useRouter();
 
   return (
