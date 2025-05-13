@@ -25,7 +25,6 @@ export const DEVELOPER_TOOLS_SIDEBAR: SidebarSection[] = [
           { slug: "/event-types", title: "Event types" },
         ],
       },
-      { slug: "/validating-trigger-data", title: "Validating trigger data" },
       {
         slug: "/migration-guides",
         title: "Migration guides",
