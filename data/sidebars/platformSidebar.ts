@@ -80,6 +80,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
           },
         ],
       },
+      { slug: "/validating-trigger-data", title: "Validating trigger data" },
     ],
   },
   {

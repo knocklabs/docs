@@ -480,6 +480,11 @@ const nextConfig = {
         destination: "/api-reference",
         permanent: true,
       },
+      {
+        source: "/developer-tools/validating-trigger-data",
+        destination: "/designing-workflows/validating-trigger-data",
+        permanent: true,
+      },
     ];
   },
 };
