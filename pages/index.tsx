@@ -14,6 +14,7 @@ import {
   BuildingBlock,
 } from "@/components/ui/OverviewContent/Blocks";
 import { Section } from "@/components/ui/OverviewContent/Section";
+import { SidebarContext, Sidebar } from "@/components/ui/Page/Sidebar";
 
 const contentForDiscovery = PLATFORM_SIDEBAR.filter((s) => s.desc);
 
@@ -45,9 +46,10 @@ export default function Home() {
       <Page.Masthead
         title="Documentation"
         description="Knock is infrastructure for sending product and customer messaging. Learn more."
+        mobileSidebar={<Page.MobileSidebar content={PLATFORM_SIDEBAR} />}
       />
       <Page.Wrapper>
-        <Page.Sidebar content={PLATFORM_SIDEBAR} />
+        <Page.FullSidebar content={PLATFORM_SIDEBAR} />
         <Page.Content>
           <Page.ContentHeader
             title="Documentation"
@@ -79,27 +81,18 @@ export default function Home() {
               description="Integrate Knock with your backend web app and send your first notification."
               href="/getting-started/quick-start"
               icon={Lucide.Rabbit}
-              style={{
-                justifySelf: "left",
-              }}
             />
             <ContentCard
               title="In-app UI"
               description="Ship your first notification feed, banners, modals, or cards using pre-built UI components."
               href="/in-app-ui/overview"
               icon={Lucide.SquareCode}
-              style={{
-                justifySelf: "center",
-              }}
             />
             <ContentCard
               title="API & SDKs"
-              description="Integrate a complete notification engine to your product with a REST-ful API."
+              description="Integrate a complete notification engine to your product with a REST&#8209;ful API."
               href="/developer-tools/sdks"
               icon={Lucide.Package}
-              style={{
-                justifySelf: "right",
-              }}
             />
           </Stack>
           <Section.Container>

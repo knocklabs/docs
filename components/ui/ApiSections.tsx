@@ -1,5 +1,5 @@
 import cn from "classnames";
-import SectionHeading from "./SectionHeading";
+import SectionHeading from "@/components/ui/SectionHeading";
 import { Box, Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { highlightResource } from "./Page/helpers";
@@ -8,14 +8,12 @@ import Link from "next/link";
 export const Section = ({
   title,
   children,
-  headingClassName = "",
   isIdempotent = false,
   isRetentionSubject = false,
   path = undefined,
 }: {
   title?: string;
   children: React.ReactNode;
-  headingClassName?: string;
   isIdempotent?: boolean;
   isRetentionSubject?: boolean;
   path?: string;
@@ -43,17 +41,13 @@ export const Section = ({
       data-resource-path={path}
     >
       {title && (
-        <SectionHeading
-          tag="h2"
-          className={cn([headingClassName, "mb-6"])}
-          path={path}
-        >
+        <>
           {isIdempotent && (
             <Box mb="2">
               <Text
                 as="span"
-                size="1"
-                bg="yellow-4"
+                size="0"
+                bg="yellow-3"
                 py="1"
                 px="3"
                 color="black"
@@ -73,8 +67,8 @@ export const Section = ({
             <Box mb="2">
               <Text
                 as="span"
-                size="1"
-                bg="yellow-4"
+                size="0"
+                bg="yellow-3"
                 py="1"
                 px="3"
                 color="black"
@@ -90,8 +84,10 @@ export const Section = ({
               </Text>
             </Box>
           )}
-          {title}
-        </SectionHeading>
+          <SectionHeading tag="h2" path={path} mb="6">
+            {title}
+          </SectionHeading>
+        </>
       )}
       <Stack
         w="full"

@@ -10,8 +10,9 @@ import { ContentActions } from "./ContentActions";
 
 import "../../styles/global.css";
 import "../../styles/responsive.css";
-import { createContext, useContext, useState } from "react";
-import { TgphComponentProps } from "@telegraph/helpers";
+import { createContext, useContext, useRef, useState } from "react";
+import { MobileSidebar } from "./Page/MobileSidebar";
+import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
 
 export const MAX_WIDTH = "1400px";
 
@@ -80,7 +81,15 @@ const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
   </Stack>
 );
 
-const Masthead = ({ title }) => <PageHeader title={title} />;
+const Masthead = ({
+  title,
+  mobileSidebar,
+}: {
+  title: string;
+  mobileSidebar?: React.ReactNode;
+}) => {
+  return <PageHeader title={title} mobileSidebar={mobileSidebar} />;
+};
 
 const Content = ({ children, fullWidth = false }) => (
   <Box
@@ -129,18 +138,34 @@ const ContentHeader = ({
   </Box>
 );
 
-const DefaultSidebar = ({ content, samePageRouting = false }) => (
-  <SidebarContext.Provider value={{ samePageRouting }}>
-    <Sidebar.Wrapper>
+// Default sidebar wrapper that positions the sidebar fixed to the left of the page.
+const DefaultFullSidebar = ({
+  content,
+  samePageRouting = false,
+  contentProps = {},
+}) => {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  return (
+    <SidebarContext.Provider value={{ samePageRouting }}>
+      <Sidebar.FullLayout scrollerRef={scrollerRef}>
+        <Sidebar.ScrollContainer {...contentProps} scrollerRef={scrollerRef}>
+          {content.map((section) => (
+            <Sidebar.Section key={section.slug} section={section} />
+          ))}
+        </Sidebar.ScrollContainer>
+      </Sidebar.FullLayout>
+    </SidebarContext.Provider>
+  );
+};
+
+const DefaultMobileSidebar = ({ content, samePageRouting = false }) => (
+  <MobileSidebar>
+    <SidebarContext.Provider value={{ samePageRouting }}>
       {content.map((section) => (
-        <Sidebar.Section
-          key={section.slug}
-          section={section}
-          samePageRouting={samePageRouting}
-        />
+        <Sidebar.Section key={section.slug} section={section} />
       ))}
-    </Sidebar.Wrapper>
-  </SidebarContext.Provider>
+    </SidebarContext.Provider>
+  </MobileSidebar>
 );
 
 const Page = Object.assign({
@@ -149,7 +174,8 @@ const Page = Object.assign({
   ContentActions,
   Container,
   Masthead,
-  Sidebar: DefaultSidebar,
+  FullSidebar: DefaultFullSidebar,
+  MobileSidebar: DefaultMobileSidebar,
   Content,
   ContentBody,
   ContentHeader,

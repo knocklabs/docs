@@ -75,32 +75,58 @@ const debouncedScrollIntoView = debounce((element: HTMLElement) => {
   });
 }, 250);
 
+// Load the nav elements into memory so we don't have to query the DOM every time
+let allNavElements: HTMLAnchorElement[];
+let lastPage: string;
+let screenSizeSavedOn: number;
+
 export const updateNavStyles = (resourceUrl: string) => {
+  const viewportWidth = window.innerWidth;
+  const targetMobileNav = viewportWidth < 768;
+  const targetNav = targetMobileNav
+    ? "[data-mobile-sidebar]"
+    : "[data-sidebar-wrapper]";
+
+  // Loads the current page's nav elements into memory so we don't have to query the DOM every time
+  const currentPage = window.location.pathname.split("/")[1];
+  if (
+    currentPage !== lastPage ||
+    !allNavElements ||
+    screenSizeSavedOn !== viewportWidth
+  ) {
+    screenSizeSavedOn = viewportWidth;
+    lastPage = currentPage;
+    allNavElements = Array.from(
+      document.querySelectorAll(`${targetNav} a[data-resource-path]`),
+    );
+  }
+
   // Scroll the nav item into view
-  const newActiveNavElement: HTMLAnchorElement | null = document.querySelector(
-    `[data-sidebar-wrapper] [data-resource-path='${resourceUrl}']`,
+  const navElements: HTMLAnchorElement[] = allNavElements.filter(
+    (element) => element.dataset.resourcePath === resourceUrl,
   );
 
-  if (newActiveNavElement) {
-    newActiveNavElement.dataset.active = "true";
+  if (navElements.length > 0) {
+    navElements.forEach((element) => {
+      element.dataset.active = "true";
 
-    // Use the debounced function
-    debouncedScrollIntoView(newActiveNavElement);
+      // Use the debounced function
+      debouncedScrollIntoView(element);
 
-    if (document.activeElement != newActiveNavElement) {
-      (document.activeElement as HTMLElement)?.blur();
-    }
+      if (document.activeElement != element) {
+        (document.activeElement as HTMLElement)?.blur();
+      }
 
-    // Annoying we have to do this by hand, but have to do it
-    if (newActiveNavElement.firstChild) {
-      (newActiveNavElement.firstChild as HTMLElement).style.color =
-        "var(--tgph-gray-12)";
-    }
+      // Annoying we have to do this by hand, but have to do it
+      if (element.firstChild) {
+        (element.firstChild as HTMLElement).style.color = "var(--tgph-gray-12)";
+      }
+    });
   }
 
   // Remove the styling from any previous active nav items
   const activeElements: HTMLAnchorElement[] = Array.from(
-    document.querySelectorAll(`[data-sidebar-wrapper] [data-active='true']`),
+    document.querySelectorAll(`${targetNav} [data-active='true']`),
   );
 
   // Remove the styling from any previous active nav items
