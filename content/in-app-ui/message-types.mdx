@@ -319,13 +319,13 @@ You draft template previews using HTML, CSS, and Liquid.
 
 You can reference variables from your schema to customize the preview, like this:
 
-```js title="Using a variable"
+```liquid title="Using a variable"
 <div class="modal__body">{{ body }}</div>
 ```
 
 You can also reference variant keys to customize the preview based on the variant that is selected in the template editor, like this:
 
-```js title="Using a variant"
+```liquid title="Using a variant"
 {% if variant == "single-action" or variant == "multi-action" %}
 <div class="modal__footer">
   <button class="modal__btn">{{ primary_button.text }}</button>
@@ -379,13 +379,13 @@ An in-app message schema has the following structure:
 
 ### Variants
 
-Your schema must have one or more variants. You can name your variants anything you would like, but the variant key must be unique.
-
-Each variant must have:
+Your schema must have one or more variants. Each of these variants must have:
 
 - A `key` uniquely identifying the variant for the message type
 - A `name` to display in the message template editor to select the variant
 - One or more `fields` (see below)
+
+Every schema must define a variant with the key `"default"`. You can name your variants anything you would like, but the variant key must be unique.
 
 ### Fields
 
@@ -403,8 +403,8 @@ A plain text, single line text field.
 
 **Settings**
 
-- `required` (boolean): indicates this field is required
-- `description` (string): an optional friendly description
+- `required` (boolean): Indicates this field is required
+- `description` (string): An optional friendly description
 - `default` (string): The default value to display
 - `minLength` (integer): The minimum length to validate
 - `maxLength` (integer): The maximum length to validate against
@@ -431,8 +431,8 @@ A markdown editor for creating rich text. Will always be rendered as HTML.
 
 **Settings**
 
-- `required` (boolean): indicates this field is required
-- `description` (string): an optional friendly description
+- `required` (boolean): Indicates this field is required
+- `description` (string): An optional friendly description
 - `default` (string): The default value to display
 
 ```json
@@ -452,8 +452,8 @@ A multi-line plain text area
 
 **Settings**
 
-- `required` (boolean): indicates this field is required
-- `description` (string): an optional friendly description
+- `required` (boolean): Indicates this field is required
+- `description` (string): An optional friendly description
 - `default` (string): The default value to display
 - `minLength` (integer): The minimum length to validate
 - `maxLength` (integer): The maximum length to validate against
@@ -477,8 +477,8 @@ A multi-line plain text area
 
 **Settings**
 
-- `required` (boolean): indicates this field is required
-- `description` (string): an optional friendly description
+- `required` (boolean): Indicates this field is required
+- `description` (string): An optional friendly description
 - `default` (boolean): The default value to set
 
 **Example**
@@ -501,7 +501,7 @@ A multi-line plain text area
     **Settings**
 
     - `options` (object[]): A list of option objects that must include a `label` and a `value`
-    - `required` (boolean): indicates this field is required
+    - `required` (boolean): Indicates this field is required
     - `default` (string): The value of the default option to set
 
     **Example**
@@ -512,9 +512,21 @@ A multi-line plain text area
       "key": "icon",
       "label": "Icon",
       "settings": {
-        "options": [{ "label": "Skull", "value": "skull" }]
+        "options": [
+          { "label": "Skull", "value": "skull-icon.svg" },
+          { "label": "Heart", "value": "heart-icon.svg" }
+        ],
+        "default": "skull-icon.svg"
       }
     }
+    ```
+
+    In your template preview, you can access the `value` of the selected option using the field's `key`. For example:
+
+    ```liquid title="Accessing the selected value"
+    <div>
+      <img src="{{ icon }}" alt="" />
+    </div>
     ```
 
   </Accordion>
@@ -524,7 +536,7 @@ A multi-line plain text area
     **Settings**
 
     - `options` (object[]): A list of option objects that must include a `label` and a `value`
-    - `required` (boolean): indicates this field is required
+    - `required` (boolean): Indicates this field is required
     - `default` (string[]): The values of the default options to set
 
       **Example**
@@ -536,12 +548,23 @@ A multi-line plain text area
       "label": "Icons",
       "settings": {
         "options": [
-          { "label": "Skull", "value": "skull" },
-          { "label": "Heart", "value": "heart" }
+          { "label": "Skull", "value": "skull-icon.svg" },
+          { "label": "Heart", "value": "heart-icon.svg" },
+          { "label": "Star", "value": "star-icon.svg" }
         ],
-        "default": ["skull"]
+        "default": ["skull-icon.svg", "heart-icon.svg"]
       }
     }
+    ```
+
+    In your template preview, you can access the selected values using the field's `key`. For example:
+
+    ```liquid title="Accessing the selected values"
+    <div>
+      {% for icon in icons %}
+        <img src="{{ icon }}" alt="" />
+      {% endfor %}
+    </div>
     ```
 
   </Accordion>
@@ -555,8 +578,8 @@ A multi-line plain text area
 
     **Settings**
 
-    - `required` (boolean): indicates this field is required
-    - `description` (string): an optional friendly description
+    - `required` (boolean): Indicates this field is required
+    - `description` (string): An optional friendly description
 
     **Example**
 
@@ -593,8 +616,8 @@ A multi-line plain text area
   <Accordion title="URL">
     **Settings**
 
-    - `required` (boolean): indicates this field is required
-    - `description` (string): an optional friendly description
+    - `required` (boolean): Indicates this field is required
+    - `description` (string): An optional friendly description
     - `default` (string): The default URL to display
 
     **Example**
@@ -623,8 +646,8 @@ A multi-line plain text area
 
     **Settings**
 
-    - `required` (boolean): indicates this field is required
-    - `description` (string): an optional friendly description
+    - `required` (boolean): Indicates this field is required
+    - `description` (string): An optional friendly description
 
     **Example**
 
