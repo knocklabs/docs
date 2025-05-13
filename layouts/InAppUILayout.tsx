@@ -154,17 +154,8 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const selectedSdkContent = languageMap[selectedSdk];
   const allSidebarContent = [...IN_APP_UI_SIDEBAR, ...selectedSdkContent.items];
 
-  useEffect(() => {
-    const content = document.querySelector(".main-content");
-
-    // Right now we need this hack to ensure that we scroll the main content to
-    // the top of the view when navigating.
-    if (content) {
-      content.scrollTop = 0;
-    }
-  }, [paths]);
-
-  const { breadcrumbs } = useMemo(
+  // @ts-expect-error we do get these, need to come back to breadcrumbs
+  const { breadcrumbs, nextPage, prevPage } = useMemo(
     () => getInAppSidebar(paths, allSidebarContent, selectedSdkContent),
     [paths, allSidebarContent, selectedSdkContent],
   );
@@ -219,6 +210,7 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
             description={frontMatter.description}
           />
           <Page.ContentBody>{children}</Page.ContentBody>
+          <Page.ContentFooter nextPage={nextPage} previousPage={prevPage} />
         </Page.Content>
         {frontMatter.showNav !== false && (
           <Page.OnThisPage title={frontMatter.title} sourcePath={sourcePath} />

@@ -3,7 +3,7 @@ import { Heading } from "@telegraph/typography";
 import { TgphComponentProps } from "@telegraph/helpers";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tag } from "@telegraph/tag";
-import { Box, Stack } from "@telegraph/layout";
+import { Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 
 type HeadingProps = TgphComponentProps<typeof Heading>;
@@ -13,7 +13,6 @@ type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 type Props = {
   tag: HeadingTag;
   path?: string;
-  tooltipSide?: "top" | "bottom" | "left" | "right";
   wrapperProps?: TgphComponentProps<typeof Stack>;
 } & Omit<HeadingProps, "as">;
 
@@ -22,7 +21,6 @@ const SectionHeading = ({
   tag,
   children,
   path,
-  tooltipSide = "top",
   wrapperProps,
   ...rest
 }: Props) => {

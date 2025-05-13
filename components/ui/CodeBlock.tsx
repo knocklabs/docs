@@ -14,7 +14,7 @@ import yaml from "react-syntax-highlighter/dist/cjs/languages/hljs/yaml";
 import kotlin from "react-syntax-highlighter/dist/cjs/languages/hljs/kotlin";
 import swift from "react-syntax-highlighter/dist/cjs/languages/hljs/swift";
 import bash from "react-syntax-highlighter/dist/cjs/languages/hljs/bash";
-import useClipboard from "react-use-clipboard";
+import { useClipboard } from "@/hooks/useClipboard";
 
 import { lightCodeTheme, darkCodeTheme } from "../../styles/codeThemes";
 import { normalize } from "../../lib/normalizeCode";

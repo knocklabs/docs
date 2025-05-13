@@ -14,7 +14,6 @@ import {
   BuildingBlock,
 } from "@/components/ui/OverviewContent/Blocks";
 import { Section } from "@/components/ui/OverviewContent/Section";
-import { SidebarContext, Sidebar } from "@/components/ui/Page/Sidebar";
 
 const contentForDiscovery = PLATFORM_SIDEBAR.filter((s) => s.desc);
 

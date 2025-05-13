@@ -41,7 +41,6 @@ function ApiReference({
         canonical={`/${basePath}`}
       />
       <TelegraphPage.Masthead
-        title={name}
         mobileSidebar={
           <TelegraphPage.MobileSidebar
             samePageRouting
