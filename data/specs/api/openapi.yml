@@ -132,12 +132,16 @@ components:
         inserted_at: "2021-01-01T00:00:00Z"
         object:
           __typename: Object
-          classification: Theropod
           collection: assets
           created_at: null
           id: specimen_25
-          name: Velociraptor
-          status: contained
+          properties:
+            classification: Theropod
+            config:
+              biz: baz
+              foo: bar
+            name: Velociraptor
+            status: contained
           updated_at: "2024-05-22T12:00:00Z"
         recipient:
           __typename: User
@@ -480,13 +484,21 @@ components:
       x-validate: null
     InlineChannelDataRequest:
       additionalProperties:
-        $ref: '#/components/schemas/ChannelDataRequest'
+        description: Channel data for a given channel type.
+        nullable: false
+        oneOf:
+          - $ref: '#/components/schemas/PushChannelData'
+          - $ref: '#/components/schemas/OneSignalChannelData'
+          - $ref: '#/components/schemas/SlackChannelData'
+          - $ref: '#/components/schemas/MsTeamsChannelData'
+          - $ref: '#/components/schemas/DiscordChannelData'
+        x-struct: null
+        x-validate: null
       description: A request to set channel data for a type of channel inline.
       example:
         97c5837d-c65c-4d54-aa39-080eeb81c69d:
-          data:
-            tokens:
-              - push_token_xxx
+          tokens:
+            - push_token_xxx
       title: InlineChannelDataRequest
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.InlineChannelDataRequest
@@ -1144,12 +1156,16 @@ components:
             inserted_at: "2021-01-01T00:00:00Z"
             object:
               __typename: Object
-              classification: Theropod
               collection: assets
               created_at: null
               id: specimen_25
-              name: Velociraptor
-              status: contained
+              properties:
+                classification: Theropod
+                config:
+                  biz: baz
+                  foo: bar
+                name: Velociraptor
+                status: contained
               updated_at: "2024-05-22T12:00:00Z"
             recipient:
               __typename: User
@@ -1331,9 +1347,8 @@ components:
       example:
         channel_data:
           97c5837d-c65c-4d54-aa39-080eeb81c69d:
-            data:
-              tokens:
-                - push_token_123
+            tokens:
+              - push_token_123
         description: My product description
         locale: en-US
         name: My product
@@ -2011,7 +2026,7 @@ components:
           x-struct: null
           x-validate: null
         recipients:
-          description: The recipients to trigger the workflow for. Can inline identify users, objects, or use a list of user IDs. Limited to 1,000 recipients.
+          description: The recipients to set the schedule for. Limited to 100 recipients per request.
           items:
             $ref: '#/components/schemas/RecipientRequest'
           type: array
@@ -2135,12 +2150,16 @@ components:
       example:
         entries:
           - __typename: Object
-            classification: Theropod
             collection: assets
             created_at: null
             id: specimen_25
-            name: Velociraptor
-            status: contained
+            properties:
+              classification: Theropod
+              config:
+                biz: baz
+                foo: bar
+              name: Velociraptor
+              status: contained
             updated_at: "2024-05-22T12:00:00Z"
         page_info:
           __typename: PageInfo
@@ -3051,9 +3070,8 @@ components:
       example:
         channel_data:
           97c5837d-c65c-4d54-aa39-080eeb81c69d:
-            data:
-              tokens:
-                - push_token_123
+            tokens:
+              - push_token_123
         email: ian.malcolm@chaos.theory
         name: Dr. Ian Malcolm
         preferences:
@@ -3233,16 +3251,19 @@ components:
       x-struct: Elixir.SwitchboardWeb.V1.Specs.DeleteSchedulesRequest
       x-validate: null
     Object:
-      additionalProperties: true
       description: A custom [Object](/concepts/objects) entity which belongs to a collection.
       example:
         __typename: Object
-        classification: Theropod
         collection: assets
         created_at: null
         id: specimen_25
-        name: Velociraptor
-        status: contained
+        properties:
+          classification: Theropod
+          config:
+            biz: baz
+            foo: bar
+          name: Velociraptor
+          status: contained
         updated_at: "2024-05-22T12:00:00Z"
       properties:
         __typename:
@@ -3266,6 +3287,12 @@ components:
         id:
           description: Unique identifier for the object.
           type: string
+          x-struct: null
+          x-validate: null
+        properties:
+          additionalProperties: true
+          description: The custom properties associated with the object.
+          type: object
           x-struct: null
           x-validate: null
         updated_at:
@@ -4090,9 +4117,8 @@ components:
       example:
         channel_data:
           97c5837d-c65c-4d54-aa39-080eeb81c69d:
-            data:
-              tokens:
-                - push_token_123
+            tokens:
+              - push_token_123
         email: jane@ingen.net
         id: user_1
         name: Jane Doe
@@ -4106,6 +4132,12 @@ components:
                   email: true
         timezone: America/New_York
       properties:
+        avatar:
+          description: URL to the user's avatar image.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
         channel_data:
           allOf:
             - $ref: '#/components/schemas/InlineChannelDataRequest'
@@ -4132,8 +4164,20 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        locale:
+          description: The locale of the user. Used for [message localization](/concepts/translations).
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
         name:
           description: Display name of the user.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        phone_number:
+          description: The [E.164](https://www.twilio.com/docs/glossary/what-e164) phone number of the user (required for SMS channels).
           nullable: true
           type: string
           x-struct: null
@@ -5558,12 +5602,16 @@ components:
           inserted_at: "2021-01-01T00:00:00Z"
           object:
             __typename: Object
-            classification: Theropod
             collection: assets
             created_at: null
             id: specimen_25
-            name: Velociraptor
-            status: contained
+            properties:
+              classification: Theropod
+              config:
+                biz: baz
+                foo: bar
+              name: Velociraptor
+              status: contained
             updated_at: "2024-05-22T12:00:00Z"
           recipient:
             __typename: User
@@ -7195,9 +7243,8 @@ paths:
             example:
               channel_data:
                 97c5837d-c65c-4d54-aa39-080eeb81c69d:
-                  data:
-                    tokens:
-                      - push_token_123
+                  tokens:
+                    - push_token_123
               email: ian.malcolm@chaos.theory
               name: Dr. Ian Malcolm
               preferences:
@@ -7234,7 +7281,7 @@ paths:
 
           async function main() {
             const user = await client.users.update('user_id', {
-              channel_data: { '97c5837d-c65c-4d54-aa39-080eeb81c69d': { data: { tokens: ['push_token_123'] } } },
+              channel_data: { '97c5837d-c65c-4d54-aa39-080eeb81c69d': { tokens: ['push_token_123'] } },
               email: 'ian.malcolm@chaos.theory',
               name: 'Dr. Ian Malcolm',
               preferences: {
@@ -7261,9 +7308,7 @@ paths:
               user_id="user_id",
               channel_data={
                   "97c5837d-c65c-4d54-aa39-080eeb81c69d": {
-                      "data": {
-                          "tokens": ["push_token_123"]
-                      }
+                      "tokens": ["push_token_123"]
                   }
               },
               email="ian.malcolm@chaos.theory",
@@ -13054,9 +13099,8 @@ paths:
             example:
               channel_data:
                 97c5837d-c65c-4d54-aa39-080eeb81c69d:
-                  data:
-                    tokens:
-                      - push_token_123
+                  tokens:
+                    - push_token_123
               description: My product description
               locale: en-US
               name: My product
@@ -13095,7 +13139,7 @@ paths:
 
           async function main() {
             const object = await client.objects.set('collection', 'id', {
-              channel_data: { '97c5837d-c65c-4d54-aa39-080eeb81c69d': { data: { tokens: ['push_token_123'] } } },
+              channel_data: { '97c5837d-c65c-4d54-aa39-080eeb81c69d': { tokens: ['push_token_123'] } },
               locale: 'en-US',
               preferences: {
                 default: {
@@ -13122,9 +13166,7 @@ paths:
               id="id",
               channel_data={
                   "97c5837d-c65c-4d54-aa39-080eeb81c69d": {
-                      "data": {
-                          "tokens": ["push_token_123"]
-                      }
+                      "tokens": ["push_token_123"]
                   }
               },
               locale="en-US",
@@ -13167,10 +13209,8 @@ paths:
               "id",
               knock.ObjectSetParams{
                 ChannelData: knock.F(knock.InlineChannelDataRequestParam{
-                "97c5837d-c65c-4d54-aa39-080eeb81c69d": knock.ChannelDataRequestParam{
-                  Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.PushChannelDataParam{
-                    Tokens: knock.F([]string{"push_token_123"}),
-                  }),
+                "97c5837d-c65c-4d54-aa39-080eeb81c69d": knock.PushChannelDataParam{
+                  Tokens: knock.F([]string{"push_token_123"}),
                 },
                 }),
                 Locale: knock.F("en-US"),
