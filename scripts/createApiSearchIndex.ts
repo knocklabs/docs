@@ -208,6 +208,13 @@ async function indexApi(name: "api" | "mapi") {
       if (!algoliaAdminApiKey) missing.push("ALGOLIA_ADMIN_API_KEY");
       if (!algoliaIndexName) missing.push("NEXT_PUBLIC_ALGOLIA_INDEX_NAME");
       if (!ENDPOINT_INDEX_NAME) missing.push("ENDPOINT_INDEX_NAME");
+      if (process.env.NODE_ENV != "production") {
+        console.warn(
+          "Missing Algolia environment variables in non-production environment. Skipping API indexing.\n\nMissing: " +
+            missing.join(", "),
+        );
+        return;
+      }
       throw new Error(
         `Algolia app ID, admin API key, index name, and endpoint index name must be set.\n\nMissing: ${missing.join(
           ", ",
