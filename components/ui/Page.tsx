@@ -15,6 +15,7 @@ import { MobileSidebar } from "./Page/MobileSidebar";
 import { Button } from "@telegraph/button";
 import Link from "next/link";
 import { Icon, Lucide } from "@telegraph/icon";
+import { Feedback } from "./Feedback";
 
 export const MAX_WIDTH = "1400px";
 
@@ -120,121 +121,122 @@ const ContentFooter = ({
   nextPage: PageNeighbor;
   previousPage: PageNeighbor;
 }) => (
-  <Stack
-    as="nav"
-    direction="row"
-    borderTop="px"
-    borderColor="gray-4"
-    py="12"
-    gap="2"
-    data-content-footer
-    w="full"
-    justifyContent="space-between"
-    style={{
-      display: "grid",
-      gridTemplateColumns: "49% 49%",
-    }}
-  >
-    {previousPage ? (
-      <Button.Root
-        as={Link}
-        href={previousPage.path}
-        variant="ghost"
-        leadingIcon={{
-          icon: Lucide.ChevronLeft,
-          "aria-hidden": true,
-          flexShrink: 0,
-        }}
-        pr="4"
-        pl="0"
-        py="8"
-        w="full"
-        justifyContent="flex-start"
-        overflow="hidden"
-        minWidth="0"
-      >
-        <Stack alignItems="center" gap="2" minW="0">
-          <Icon
-            icon={Lucide.ChevronLeft}
-            size="2"
-            color="gray"
-            aria-hidden
-            style={{
-              marginLeft: "-3px",
-            }}
-          />
-          <Stack direction="column" w="full" style={{ minWidth: 0 }}>
-            <Text as="span" size="1" weight="medium" color="gray" mb="1">
-              Previous
-            </Text>
-            <Text
-              as="span"
-              size="3"
-              weight="medium"
-              textOverflow="ellipsis"
-              w="full"
+  <Box borderTop="px" borderColor="gray-4" py="4" data-content-footer w="full">
+    <Stack justifyContent="center" py="1">
+      <Feedback />
+    </Stack>
+    <Stack
+      as="nav"
+      direction="row"
+      gap="2"
+      justifyContent="space-between"
+      w="full"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "49% 49%",
+      }}
+    >
+      {previousPage ? (
+        <Button.Root
+          as={Link}
+          href={previousPage.path}
+          variant="ghost"
+          leadingIcon={{
+            icon: Lucide.ChevronLeft,
+            "aria-hidden": true,
+            flexShrink: 0,
+          }}
+          pr="4"
+          pl="0"
+          py="8"
+          w="full"
+          justifyContent="flex-start"
+          overflow="hidden"
+          minWidth="0"
+        >
+          <Stack alignItems="center" gap="2" minW="0">
+            <Icon
+              icon={Lucide.ChevronLeft}
+              size="2"
+              color="gray"
+              aria-hidden
               style={{
-                overflow: "hidden",
-                whiteSpace: "nowrap",
+                marginLeft: "-3px",
               }}
-            >
-              {previousPage.title}
-            </Text>
+            />
+            <Stack direction="column" w="full" style={{ minWidth: 0 }}>
+              <Text as="span" size="1" weight="medium" color="gray" mb="1">
+                Previous
+              </Text>
+              <Text
+                as="span"
+                size="3"
+                weight="medium"
+                textOverflow="ellipsis"
+                w="full"
+                style={{
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {previousPage.title}
+              </Text>
+            </Stack>
           </Stack>
-        </Stack>
-      </Button.Root>
-    ) : (
-      <Box w="full" />
-    )}
-    {nextPage ? (
-      <Button.Root
-        as={Link}
-        href={nextPage.path}
-        variant="ghost"
-        px="4"
-        pr="0"
-        py="8"
-        w="full"
-        justifyContent="flex-end"
-        trailingIcon={{
-          icon: Lucide.ChevronRight,
-          "aria-hidden": true,
-        }}
-      >
-        <Stack alignItems="center" gap="2" minW="0">
-          <Stack direction="column" w="full" style={{ minWidth: 0 }}>
-            <Text as="span" size="1" weight="medium" color="gray" mb="1">
-              Next
-            </Text>
-            <Text
-              as="span"
-              size="3"
-              weight="medium"
-              textOverflow="ellipsis"
-              w="full"
+        </Button.Root>
+      ) : (
+        <Box w="full" />
+      )}
+      {nextPage ? (
+        <Button.Root
+          as={Link}
+          href={nextPage.path}
+          variant="ghost"
+          px="4"
+          pr="0"
+          py="8"
+          w="full"
+          justifyContent="flex-end"
+          trailingIcon={{
+            icon: Lucide.ChevronRight,
+            "aria-hidden": true,
+          }}
+        >
+          <Stack alignItems="center" gap="2" minW="0">
+            <Stack direction="column" w="full" style={{ minWidth: 0 }}>
+              <Text as="span" size="1" weight="medium" color="gray" mb="1">
+                Next
+              </Text>
+              <Text
+                as="span"
+                size="3"
+                weight="medium"
+                textOverflow="ellipsis"
+                w="full"
+                style={{
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {nextPage.title}
+              </Text>
+            </Stack>
+            <Icon
+              icon={Lucide.ChevronRight}
+              size="2"
+              color="gray"
+              aria-hidden
               style={{
-                overflow: "hidden",
-                whiteSpace: "nowrap",
+                marginRight: "-3px",
               }}
-            >
-              {nextPage.title}
-            </Text>
+            />
           </Stack>
-          <Icon
-            icon={Lucide.ChevronRight}
-            size="2"
-            color="gray"
-            aria-hidden
-            style={{
-              marginRight: "-3px",
-            }}
-          />
-        </Stack>
-      </Button.Root>
-    ) : (
-      <Box w="full" />
-    )}
-  </Stack>
+        </Button.Root>
+      ) : (
+        <Box w="full" />
+      )}
+    </Stack>
+  </Box>
 );
 
 interface ContentHeaderProps {
