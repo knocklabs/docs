@@ -59,6 +59,10 @@ const highlightingStyles = {
   background: "transparent",
 };
 
+// These are the number of hits we want to show for each section
+const NUM_DOCS_HITS = 8;
+const NUM_ENDPOINT_HITS = 5;
+
 interface ResultItem extends BaseItem {
   objectID: string;
   path: string;
@@ -280,14 +284,14 @@ const Autocomplete = () => {
                       indexName: algoliaIndex,
                       query,
                       params: {
-                        hitsPerPage: 8,
+                        hitsPerPage: NUM_DOCS_HITS,
                       },
                     },
                     {
                       indexName: algoliaEndpointIndex,
                       query,
                       params: {
-                        hitsPerPage: 5,
+                        hitsPerPage: NUM_ENDPOINT_HITS,
                       },
                     },
                   ],
@@ -483,6 +487,7 @@ const Autocomplete = () => {
             left: "clamp(5%, auto, 5%)",
           }}
         >
+          {/* Adds a white shadow to the bottom of the autocomplete when items below scroll */}
           <ScrollerBottomGradient
             scrollerRef={scrollerRef}
             gradientProps={{
@@ -565,11 +570,12 @@ const Autocomplete = () => {
                           </Stack>
                         </MenuItem>
                         {items.map((item, index) => {
-                          if (index === 0) return null; // Skip the first item, it's rendered above
+                          // Skip the first item, it's rendered above
+                          if (index === 0) return null;
                           const isEndpoint = !!(item as ResultItem)?.method;
-                          const prevIsEndpoint = !!(
-                            items[index - 1] as ResultItem
-                          )?.method;
+                          const previousItem = items[index - 1] as ResultItem;
+                          const prevIsEndpoint = !!previousItem?.method;
+                          // Show divider after the first AskAI item and between endpoints and docs sections
                           const showDivider =
                             index === 1 || (!isEndpoint && prevIsEndpoint);
                           const key = (item as ResultItem).objectID;
@@ -580,6 +586,7 @@ const Autocomplete = () => {
                                   borderTop="px"
                                   borderColor="gray-4"
                                   marginY="2"
+                                  w="full"
                                 />
                               )}
                               <MenuItem
