@@ -43,6 +43,7 @@ import { Text, Code } from "@telegraph/typography";
 import { MenuItem } from "@telegraph/menu";
 import { usePageContext } from "./Page";
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
+import { Button } from "@telegraph/button";
 
 // This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
@@ -434,6 +435,8 @@ const Autocomplete = () => {
     placeholder: "Search the docs...",
   });
 
+  console.log(autocompleteState);
+
   return (
     <Box
       {...autocomplete.getRootProps()}
@@ -463,27 +466,57 @@ const Autocomplete = () => {
             size="1"
             style={{ outline: "none" }}
           />
-          <Stack
-            bg="gray-1"
-            borderRadius="1"
-            border="px"
-            borderColor="gray-3"
-            justifyContent="center"
-            alignItems="center"
-            width="5"
-            height="5"
-            className="md-hidden"
-          >
-            <Text
-              as="span"
+          {autocompleteState?.query ? (
+            <Button
+              variant="ghost"
               size="1"
-              color="black"
-              weight="medium"
-              style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+              weight="regular"
+              bg="gray-1"
+              color="gray"
+              icon={{
+                icon: Lucide.X,
+                "aria-hidden": true,
+                color: "black",
+              }}
+              onClick={() => {
+                autocomplete.setQuery("");
+                if (inputRef.current) {
+                  (inputRef.current as HTMLInputElement).focus();
+                }
+              }}
+              border="px"
+              borderColor="gray-3"
+              py="2"
+              px="1"
+              style={{
+                height: "20px",
+              }}
             >
-              /
-            </Text>
-          </Stack>
+              Clear
+            </Button>
+          ) : (
+            <Stack
+              bg="gray-1"
+              borderRadius="1"
+              border="px"
+              borderColor="gray-3"
+              justifyContent="center"
+              alignItems="center"
+              width="5"
+              height="5"
+              className="md-hidden"
+            >
+              <Text
+                as="span"
+                size="1"
+                color="black"
+                weight="medium"
+                style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+              >
+                /
+              </Text>
+            </Stack>
+          )}
         </Stack>
       </Box>
 
@@ -499,7 +532,6 @@ const Autocomplete = () => {
           shadow="1"
           borderRadius="2"
           p="2"
-          pb="0"
           style={{
             overscrollBehavior: "none",
             zIndex: 50,
@@ -515,6 +547,7 @@ const Autocomplete = () => {
             gradientProps={{
               height: "20",
             }}
+            managePadding={false}
           />
           <Box
             w="full"
@@ -522,8 +555,8 @@ const Autocomplete = () => {
             style={{
               overflowY: "auto",
               maxHeight: "80vh",
+              paddingBottom: "0",
             }}
-            pb="2"
             tgphRef={scrollerRef}
           >
             {autocompleteState?.collections.map((collection, index) => {
@@ -536,6 +569,7 @@ const Autocomplete = () => {
                       <Box
                         as="ul"
                         className="aa-List"
+                        pb={items.length > 1 ? "2" : "0"}
                         {...autocomplete.getListProps()}
                       >
                         <MenuItem
