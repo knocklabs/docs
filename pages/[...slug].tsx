@@ -76,7 +76,7 @@ export async function getStaticProps({ params: { slug } }) {
   mdxSource.frontmatter.id = makeIdFromPath(slug.join(sep));
 
   // Index page in algolia
-  await generateAlgoliaIndex(source.toString(), mdxSource.frontmatter);
+  await generateAlgoliaIndex(mdxSource.frontmatter);
 
   return { props: { source: mdxSource, sourcePath } };
 }
