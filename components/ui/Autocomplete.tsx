@@ -522,7 +522,6 @@ const Autocomplete = () => {
             style={{
               overflowY: "auto",
               maxHeight: "80vh",
-              height: "700px",
             }}
             pb="2"
             tgphRef={scrollerRef}
