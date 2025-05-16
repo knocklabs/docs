@@ -48,6 +48,6 @@ export type DocsSearchItem = {
 export type EndpointSearchItem = DocsSearchItem & {
   method: string;
   endpoint: string;
-  // Will always be contentType: "endpoint"
+  // Will always be contentType: "api-reference"
   contentType: "api-reference";
 };
