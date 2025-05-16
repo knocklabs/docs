@@ -61,8 +61,8 @@ const highlightingStyles = {
 };
 
 // These are the number of hits we want to show for each section
-const NUM_DOCS_HITS = 10;
-const NUM_ENDPOINT_HITS = 5;
+const NUM_DOCS_HITS = 12;
+const NUM_ENDPOINT_HITS = 7;
 
 type ResultItem = (DocsSearchItem & BaseItem) | (EndpointSearchItem & BaseItem);
 
@@ -331,8 +331,6 @@ const Autocomplete = () => {
                       return 0;
                     });
 
-                    console.log("Sorted docs hits", sortedDocsHits);
-
                     return [askAiItem, ...endpointHits, ...sortedDocsHits];
                   },
                 });
@@ -502,7 +500,7 @@ const Autocomplete = () => {
           <ScrollerBottomGradient
             scrollerRef={scrollerRef}
             gradientProps={{
-              height: "16",
+              height: "20",
             }}
           />
           <Box
@@ -510,7 +508,8 @@ const Autocomplete = () => {
             h="full"
             style={{
               overflowY: "auto",
-              maxHeight: "500px",
+              maxHeight: "80vh",
+              height: "700px",
             }}
             pb="2"
             tgphRef={scrollerRef}
