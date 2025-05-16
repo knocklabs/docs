@@ -316,7 +316,7 @@ const Autocomplete = () => {
                     const docsHits =
                       filteredHits.length > 0 ? filteredHits[0] : [];
 
-                    // Sort docs hits to put endpoints at the back
+                    // Sort docs hits to put endpoints at the back of the results
                     const sortedDocsHits = docsHits.sort((a, b) => {
                       if (
                         a.contentType === "api-reference" &&
@@ -328,6 +328,19 @@ const Autocomplete = () => {
                         b.contentType === "api-reference"
                       )
                         return -1;
+                      return 0;
+                    });
+
+                    // Quick hack to lift items in the "Concepts" section to the top of results
+                    docsHits.sort((a, b) => {
+                      const aIsConcepts =
+                        a.section && a.section.toLowerCase() === "concepts";
+                      const bIsConcepts =
+                        b.section && b.section.toLowerCase() === "concepts";
+
+                      if (aIsConcepts && !bIsConcepts) return -1;
+                      if (!aIsConcepts && bIsConcepts) return 1;
+
                       return 0;
                     });
 
