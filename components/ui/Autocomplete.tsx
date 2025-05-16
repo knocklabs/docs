@@ -435,8 +435,6 @@ const Autocomplete = () => {
     placeholder: "Search the docs...",
   });
 
-  console.log(autocompleteState);
-
   return (
     <Box
       {...autocomplete.getRootProps()}
