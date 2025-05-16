@@ -1,4 +1,8 @@
-import { readOpenApiSpec, readStainlessSpec } from "@/lib/openApiSpec";
+import {
+  StainlessResource,
+  readOpenApiSpec,
+  readStainlessSpec,
+} from "@/lib/openApiSpec";
 import { RESOURCE_ORDER as API_RESOURCE_ORDER } from "@/data/sidebars/apiOverviewSidebar";
 import { RESOURCE_ORDER as MAPI_RESOURCE_ORDER } from "@/data/sidebars/mapiOverviewSidebar";
 import algoliasearch from "algoliasearch";
@@ -6,16 +10,35 @@ import { resolveEndpointFromMethod } from "@/components/ui/ApiReference/helpers"
 import JSONPointer from "jsonpointer";
 import { loadEnvConfig } from "@next/env";
 
+type DocsSaveEntry = {
+  objectID: string;
+  path: string;
+  title: string;
+  section: string;
+  tags: string[];
+};
+
+type EndpointSaveEntry = DocsSaveEntry & {
+  method: string;
+  endpoint: string;
+};
+
 // Load Next.js environment variables
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
 
 const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID ?? "";
 const algoliaAdminApiKey = process.env.ALGOLIA_ADMIN_API_KEY ?? "";
-const algoliaIndexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME ?? "";
-
 const client = algoliasearch(algoliaAppId, algoliaAdminApiKey);
+
+// Docs index
+const algoliaIndexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME ?? "";
 const index = client.initIndex(algoliaIndexName);
+
+// Endpoints index
+const ENDPOINT_INDEX_NAME =
+  process.env.NEXT_PUBLIC_ALGOLIA_ENDPOINT_INDEX_NAME ?? "";
+const endpointIndex = client.initIndex(ENDPOINT_INDEX_NAME);
 
 let indexCount = 0;
 let endpointCount = 0;
@@ -30,22 +53,19 @@ function resourceNameToPath(resourceName: string) {
 // 1000 is the maximum for a bulk operation
 // So we're pretty good for now and can either expand that limit or
 // save objects in chunks. This works for now!
-let objectsToSave: any[] = [];
+let objectsToSave: DocsSaveEntry[] = [];
 
 // Endpoints will be a separate index to show in search results
-let endpointsToSave: any[] = [];
-const ENDPOINT_INDEX_NAME =
-  process.env.NEXT_PUBLIC_ALGOLIA_ENDPOINT_INDEX_NAME ?? "";
-const endpointIndex = client.initIndex(ENDPOINT_INDEX_NAME);
+let endpointsToSave: EndpointSaveEntry[] = [];
 
 // Saves an object to Algolia
-async function queueObject(object: any) {
+async function queueObject(object: DocsSaveEntry) {
   indexCount++;
   objectsToSave.push(object);
   return;
 }
 
-async function queueEndpoint(object: any) {
+async function queueEndpoint(object: EndpointSaveEntry) {
   endpointCount++;
   endpointsToSave.push(object);
   return;
@@ -59,8 +79,10 @@ async function indexResource({
   section = "API Reference",
 }: {
   openApiSpec: any;
-  resource: any;
+  resource: StainlessResource;
+  // Pulls the static name from the order array as a fallback
   staticName?: string;
+  // The prefix for the path to the resource, important for building URLs as we recurse
   pathPrefix: string;
   section?: string;
 }) {
@@ -85,7 +107,7 @@ async function indexResource({
 
   const sectionName = section + " > " + resourceName;
 
-  const resourceObject = {
+  const resourceObject: DocsSaveEntry = {
     // The path to the page will be the identifier in Algolia.
     objectID: `${slugifiedResourceName}-${basePath}`,
     path: basePath,
@@ -104,7 +126,7 @@ async function indexResource({
     const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
     const title = openApiOperation?.summary;
     const methodUrl = `${basePath}/${methodName}`;
-    const methodObject = {
+    const methodObject: DocsSaveEntry = {
       objectID: `${slugifiedResourceName}-${methodUrl}`,
       title,
       path: methodUrl,
@@ -126,7 +148,7 @@ async function indexResource({
     const modelUrl = `${basePath}/schemas/${modelName}`;
     const schema = JSONPointer.get(openApiSpec, modelRef.replace("#", ""));
     const title = schema?.title ?? modelName;
-    const modelObject = {
+    const modelObject: DocsSaveEntry = {
       objectID: `${slugifiedResourceName}-${modelUrl}`,
       title,
       path: modelUrl,
@@ -138,6 +160,7 @@ async function indexResource({
 
   // Subresources like BulkOperations
   Object.keys(resource.subresources ?? {}).forEach(async (subresourceName) => {
+    if (!resource.subresources) return;
     const subresource = resource.subresources[subresourceName];
 
     // Recursively index the subresource
@@ -180,8 +203,15 @@ async function indexApi(name: "api" | "mapi") {
       !algoliaIndexName ||
       !ENDPOINT_INDEX_NAME
     ) {
+      const missing: string[] = [];
+      if (!algoliaAppId) missing.push("NEXT_PUBLIC_ALGOLIA_APP_ID");
+      if (!algoliaAdminApiKey) missing.push("ALGOLIA_ADMIN_API_KEY");
+      if (!algoliaIndexName) missing.push("NEXT_PUBLIC_ALGOLIA_INDEX_NAME");
+      if (!ENDPOINT_INDEX_NAME) missing.push("ENDPOINT_INDEX_NAME");
       throw new Error(
-        "Algolia app ID, admin API key, index name, and endpoint index name must be set",
+        `Algolia app ID, admin API key, index name, and endpoint index name must be set.\n\nMissing: ${missing.join(
+          ", ",
+        )}`,
       );
     }
     await indexApi("api");
