@@ -43,7 +43,6 @@ export async function generateAlgoliaIndex(frontmatter: FrontMatter) {
     const client = algoliasearch(algoliaAppId, algoliaAdminApiKey);
     const index = client.initIndex(algoliaIndexName);
 
-    console.log(index, "index");
     try {
       // Notes:
       // Algolia recommends saving objects in batches because of efficiency.
@@ -62,7 +61,7 @@ export async function generateAlgoliaIndex(frontmatter: FrontMatter) {
         // will be updated with them, so we can enhance the search experience
         tags: frontmatter.tags || [],
         // Saving a content page, not an API endpoint
-        contentType: "page",
+        contentType: "document",
         // Saving to the pages index
         index: "pages",
       };

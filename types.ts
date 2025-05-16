@@ -36,9 +36,12 @@ export type DocsSearchItem = {
   title: string;
   section: string;
   tags: string[];
-  // Whether the item is a static page or an endpoint resource
-  // We index the endpoints as pages too, but we want to weight them lower than the rest
-  contentType: "page" | "api-reference";
+  // Whether the item is a static page or part of an endpoint resource
+  // This field is used for sorting the results in the autocomplete
+  // Currently, we sort "page" values higher than "api-reference" values when querying "pages" index
+  // We can refine this even further if we want to
+  contentType: "document" | "api-reference";
+  // Helps us delineate between the two types of search items
   index: "pages" | "endpoints";
 };
 

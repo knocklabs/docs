@@ -225,7 +225,6 @@ let skipIndexing = false;
     if (!skipIndexing) {
       const client = algoliasearch(algoliaAppId, algoliaAdminApiKey);
       const pageIndex = client.initIndex(algoliaPagesIndexName);
-      console.log(endpointsToSave);
       const endpointIndex = client.initIndex(algoliaEndpointIndexName);
       await pageIndex.saveObjects(pagesToSave);
       await endpointIndex.saveObjects(endpointsToSave);
