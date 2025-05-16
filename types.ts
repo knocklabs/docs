@@ -29,3 +29,22 @@ declare global {
     };
   }
 }
+
+export type DocsSearchItem = {
+  objectID: string;
+  path: string;
+  title: string;
+  section: string;
+  tags: string[];
+  // Whether the item is a static page or an endpoint resource
+  // We index the endpoints as pages too, but we want to weight them lower than the rest
+  contentType: "page" | "api-reference";
+  index: "pages" | "endpoints";
+};
+
+export type EndpointSearchItem = DocsSearchItem & {
+  method: string;
+  endpoint: string;
+  // Will always be contentType: "endpoint"
+  contentType: "api-reference";
+};

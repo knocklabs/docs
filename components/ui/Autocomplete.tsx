@@ -42,6 +42,7 @@ import { Icon, Lucide } from "@telegraph/icon";
 import { Text, Code } from "@telegraph/typography";
 import { MenuItem } from "@telegraph/menu";
 import { usePageContext } from "./Page";
+import { DocsSearchItem, EndpointSearchItem } from "@/types";
 
 // This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
@@ -60,17 +61,10 @@ const highlightingStyles = {
 };
 
 // These are the number of hits we want to show for each section
-const NUM_DOCS_HITS = 8;
+const NUM_DOCS_HITS = 10;
 const NUM_ENDPOINT_HITS = 5;
 
-interface ResultItem extends BaseItem {
-  objectID: string;
-  path: string;
-  title: string;
-  section: string;
-  method?: string;
-  endpoint?: string;
-}
+type ResultItem = (DocsSearchItem & BaseItem) | (EndpointSearchItem & BaseItem);
 
 const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || "";
 const algoliaSearchApiKey =
@@ -147,7 +141,7 @@ const DocsSearchResult = ({ item }: { item: ResultItem }) => {
   );
 };
 
-const EndpointSearchResult = ({ item }: { item: ResultItem }) => {
+const EndpointSearchResult = ({ item }: { item: EndpointSearchItem }) => {
   const colors = {
     get: "blue",
     post: "green",
@@ -295,7 +289,11 @@ const Autocomplete = () => {
                       },
                     },
                   ],
-                  transformResponse({ hits }) {
+                  transformResponse({ hits: hitsArray }) {
+                    const hits = hitsArray as (
+                      | DocsSearchItem[]
+                      | EndpointSearchItem[]
+                    )[];
                     // Add the "Ask AI" item at the top of the results
                     // Filter out any items that don't have required properties or have invalid paths
                     const filteredHits = hits.map((hitsArr) =>
@@ -313,16 +311,29 @@ const Autocomplete = () => {
                       }),
                     );
 
-                    const endpointItems = filteredHits[1].filter(
-                      (item) => (item as ResultItem).method,
-                    );
-                    const docsItems = filteredHits[0].filter(
-                      (item) =>
-                        !(item as ResultItem).method &&
-                        !(item as ResultItem).__isAskAiItem,
-                    );
+                    const endpointHits =
+                      filteredHits.length > 1 ? filteredHits[1] : [];
+                    const docsHits =
+                      filteredHits.length > 0 ? filteredHits[0] : [];
 
-                    return [askAiItem, ...endpointItems, ...docsItems];
+                    // Sort docs hits to put endpoints at the back
+                    const sortedDocsHits = docsHits.sort((a, b) => {
+                      if (
+                        a.contentType === "api-reference" &&
+                        b.contentType !== "api-reference"
+                      )
+                        return 1;
+                      if (
+                        a.contentType !== "api-reference" &&
+                        b.contentType === "api-reference"
+                      )
+                        return -1;
+                      return 0;
+                    });
+
+                    console.log("Sorted docs hits", sortedDocsHits);
+
+                    return [askAiItem, ...endpointHits, ...sortedDocsHits];
                   },
                 });
               },
@@ -572,9 +583,11 @@ const Autocomplete = () => {
                         {items.map((item, index) => {
                           // Skip the first item, it's rendered above
                           if (index === 0) return null;
-                          const isEndpoint = !!(item as ResultItem)?.method;
+                          const isEndpoint =
+                            (item as ResultItem).index === "endpoints";
                           const previousItem = items[index - 1] as ResultItem;
-                          const prevIsEndpoint = !!previousItem?.method;
+                          const prevIsEndpoint =
+                            previousItem?.index === "endpoints";
                           // Show divider after the first AskAI item and between endpoints and docs sections
                           const showDivider =
                             index === 1 || (!isEndpoint && prevIsEndpoint);
@@ -607,10 +620,12 @@ const Autocomplete = () => {
                               >
                                 {isEndpoint ? (
                                   <EndpointSearchResult
-                                    item={item as ResultItem}
+                                    item={item as EndpointSearchItem}
                                   />
                                 ) : (
-                                  <DocsSearchResult item={item as ResultItem} />
+                                  <DocsSearchResult
+                                    item={item as DocsSearchItem}
+                                  />
                                 )}
                               </MenuItem>
                             </React.Fragment>
