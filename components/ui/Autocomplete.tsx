@@ -8,6 +8,7 @@ import {
   parseAlgoliaHitHighlight,
 } from "@algolia/autocomplete-preset-algolia";
 import algoliasearch from "algoliasearch/lite";
+import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
 
 import React, {
   useMemo,
@@ -26,6 +27,7 @@ import "@algolia/autocomplete-theme-classic";
 import { AIChatFunctions } from "@inkeep/widgets";
 import { Box, Stack } from "@telegraph/layout";
 import { Input } from "@telegraph/input";
+import { Tag } from "@telegraph/tag";
 
 const InKeepTrigger = dynamic(
   () => import("@inkeep/widgets").then((mod) => mod.InkeepCustomTrigger),
@@ -37,7 +39,7 @@ const InKeepTrigger = dynamic(
 import useInkeepSettings from "../../hooks/useInKeepSettings";
 import dynamic from "next/dynamic";
 import { Icon, Lucide } from "@telegraph/icon";
-import { Text } from "@telegraph/typography";
+import { Text, Code } from "@telegraph/typography";
 import { MenuItem } from "@telegraph/menu";
 import { usePageContext } from "./Page";
 
@@ -57,32 +59,21 @@ const highlightingStyles = {
   background: "transparent",
 };
 
-const Highlight = ({ hit, attribute }) => (
-  <p>
-    {parseAlgoliaHitHighlight({ hit, attribute }).map((x, index) => {
-      if (x.isHighlighted) {
-        return (
-          <mark key={index} style={highlightingStyles}>
-            {x.value}
-          </mark>
-        );
-      }
-      return x.value;
-    })}
-  </p>
-);
-
 interface ResultItem extends BaseItem {
   objectID: string;
   path: string;
   title: string;
   section: string;
+  method?: string;
+  endpoint?: string;
 }
 
 const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || "";
 const algoliaSearchApiKey =
   process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY || "";
 const algoliaIndex = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || "";
+const algoliaEndpointIndex =
+  process.env.NEXT_PUBLIC_ALGOLIA_ENDPOINT_INDEX_NAME || "";
 
 // We do some delayed rendering below to avoid hydration errors
 // Instead of returning null when the component isn't ready, we return a static version
@@ -125,10 +116,86 @@ const StaticSearch = () => {
   );
 };
 
+const DocsSearchResult = ({ item }: { item: ResultItem }) => {
+  return (
+    <Link href={`/${item.path}`} passHref>
+      <Box w="full" h="full" px="2" py="2">
+        <Text as="p" size="2" color="black" weight="regular">
+          {/* @ts-expect-error not sure about these algolia types */}
+          {parseAlgoliaHitHighlight({ hit: item, attribute: "title" }).map(
+            (x, index) => {
+              if (x.isHighlighted) {
+                return (
+                  <mark key={index} style={highlightingStyles}>
+                    {x.value}
+                  </mark>
+                );
+              }
+              return x.value;
+            },
+          )}
+        </Text>
+        <Text as="span" size="1" color="gray" weight="regular">
+          {item.section}
+        </Text>
+      </Box>
+    </Link>
+  );
+};
+
+const EndpointSearchResult = ({ item }: { item: ResultItem }) => {
+  const colors = {
+    get: "blue",
+    post: "green",
+    put: "yellow",
+    delete: "red",
+    patch: "purple",
+  } as const;
+  return (
+    <Link href={`/${item.path}`} passHref>
+      <Stack w="full" h="full" px="1" py="2" gap="2" alignItems="center">
+        <Tag size="0" color={colors[item.method as keyof typeof colors]}>
+          {item.method?.toUpperCase()}
+        </Tag>
+        <Code as="p" size="1" color="black" weight="regular">
+          {/* @ts-expect-error not sure about these algolia types */}
+          {parseAlgoliaHitHighlight({ hit: item, attribute: "endpoint" }).map(
+            (x, index) => {
+              if (x.isHighlighted) {
+                return (
+                  <mark key={index} style={highlightingStyles}>
+                    {x.value}
+                  </mark>
+                );
+              }
+              return x.value;
+            },
+          )}
+        </Code>
+        <Text
+          as="span"
+          size="1"
+          color="gray"
+          weight="regular"
+          style={{
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            maxWidth: "100%",
+          }}
+        >
+          {item.title}
+        </Text>
+      </Stack>
+    </Link>
+  );
+};
+
 const Autocomplete = () => {
   const { setIsSearchOpen } = usePageContext();
   const [autocompleteState, setAutocompleteState] =
     useState<AutocompleteState<BaseItem> | null>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
 
   // Add state for the AI chat
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
@@ -216,24 +283,42 @@ const Autocomplete = () => {
                         hitsPerPage: 8,
                       },
                     },
+                    {
+                      indexName: algoliaEndpointIndex,
+                      query,
+                      params: {
+                        hitsPerPage: 5,
+                      },
+                    },
                   ],
                   transformResponse({ hits }) {
                     // Add the "Ask AI" item at the top of the results
                     // Filter out any items that don't have required properties or have invalid paths
-                    const filteredHits = hits[0].filter((hit) => {
-                      if (!hit?.objectID || !hit?.path) return false;
+                    const filteredHits = hits.map((hitsArr) =>
+                      hitsArr.filter((hit) => {
+                        if (!hit?.objectID || !hit?.path) return false;
 
-                      // Ensure the path is not empty and doesn't contain any malformed segments
-                      const path = hit.path as string;
-                      return (
-                        path.length > 0 &&
-                        !path.includes("//") &&
-                        !path.startsWith("/") &&
-                        !path.endsWith("/")
-                      );
-                    });
+                        // Ensure the path is not empty and doesn't contain any malformed segments
+                        const path = hit.path as string;
+                        return (
+                          path.length > 0 &&
+                          !path.includes("//") &&
+                          !path.startsWith("/") &&
+                          !path.endsWith("/")
+                        );
+                      }),
+                    );
 
-                    return [askAiItem, ...filteredHits];
+                    const endpointItems = filteredHits[1].filter(
+                      (item) => (item as ResultItem).method,
+                    );
+                    const docsItems = filteredHits[0].filter(
+                      (item) =>
+                        !(item as ResultItem).method &&
+                        !(item as ResultItem).__isAskAiItem,
+                    );
+
+                    return [askAiItem, ...endpointItems, ...docsItems];
                   },
                 });
               },
@@ -378,16 +463,17 @@ const Autocomplete = () => {
 
       {autocompleteState?.isOpen && (
         <Box
-          borderRadius="2"
-          w="96"
-          bg="white"
-          p="2"
+          data-search-results-container
           position="absolute"
+          bg="white"
+          w="96"
           border="px"
           borderColor="gray-6"
           mt="2"
           shadow="1"
-          data-search-results-container
+          borderRadius="2"
+          p="2"
+          pb="0"
           style={{
             overscrollBehavior: "none",
             zIndex: 50,
@@ -397,136 +483,157 @@ const Autocomplete = () => {
             left: "clamp(5%, auto, 5%)",
           }}
         >
-          {autocompleteState?.collections.map((collection, index) => {
-            const { source, items } = collection;
+          <ScrollerBottomGradient
+            scrollerRef={scrollerRef}
+            gradientProps={{
+              height: "16",
+            }}
+          />
+          <Box
+            w="full"
+            h="full"
+            style={{
+              overflowY: "auto",
+              maxHeight: "500px",
+            }}
+            pb="2"
+            tgphRef={scrollerRef}
+          >
+            {autocompleteState?.collections.map((collection, index) => {
+              const { source, items } = collection;
 
-            return (
-              <Box key={`source-${index}`}>
-                {items.length > 0 ? (
-                  <Box
-                    as="ul"
-                    className="aa-List"
-                    {...autocomplete.getListProps()}
-                  >
-                    {items.map((item) => {
-                      // Check if this is our custom "Ask AI" item
-                      if ((item as any).__isAskAiItem) {
-                        return (
-                          <MenuItem
-                            as="li"
-                            className="aa-Item"
-                            w="full"
-                            h="full"
-                            key={(item as ResultItem).objectID}
-                            style={{
-                              cursor: "pointer",
-                              transition: "all 0.15s ease-in-out",
-                              gridTemplateColumns: "1fr",
-                            }}
-                            {...(autocomplete.getItemProps({
-                              item,
-                              source,
-                            }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
-                            color="default"
-                            onClick={() => {
-                              const searchTerm = (inputProps as any).value;
-                              handleOpenAiChat(searchTerm);
-                            }}
-                          >
-                            <Stack
-                              py="4"
-                              px="2"
-                              justifyContent="space-between"
-                              alignItems="center"
-                              w="full"
-                            >
-                              <Box>
-                                <Text
-                                  as="p"
-                                  size="2"
-                                  color="black"
-                                  weight="regular"
-                                >
-                                  {(item as ResultItem).title}
-                                </Text>
-                                <Text
-                                  as="span"
-                                  size="1"
-                                  color="gray"
-                                  weight="regular"
-                                >
-                                  {(item as ResultItem).section}
-                                </Text>
-                              </Box>
-                              <Icon
-                                icon={Lucide.Sparkles}
-                                alt="Sparkles"
-                                color="black"
-                                size="4"
-                              />
-                            </Stack>
-                          </MenuItem>
-                        );
-                      }
-
-                      // Regular search result item
-                      return (
+              return (
+                <Box key={`source-${index}`}>
+                  {items.length > 0 ? (
+                    <Box>
+                      <Box
+                        as="ul"
+                        className="aa-List"
+                        {...autocomplete.getListProps()}
+                      >
                         <MenuItem
                           as="li"
+                          className="aa-Item"
                           w="full"
                           h="full"
-                          className="aa-Item"
-                          key={(item as ResultItem).objectID}
+                          key={(items[0] as ResultItem).objectID}
                           style={{
                             cursor: "pointer",
                             transition: "all 0.15s ease-in-out",
                             gridTemplateColumns: "1fr",
                           }}
                           {...(autocomplete.getItemProps({
-                            item,
+                            item: items[0],
                             source,
                           }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
                           color="default"
+                          onClick={() =>
+                            handleOpenAiChat((inputProps as any).value)
+                          }
                         >
-                          <Link href={`/${item.path}`} passHref>
-                            <Box w="full" h="full" px="2" py="4">
-                              <Highlight hit={item} attribute="title" />
+                          <Stack
+                            py="3"
+                            px="2"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            w="full"
+                          >
+                            <Box>
+                              <Text
+                                as="p"
+                                size="2"
+                                color="black"
+                                weight="regular"
+                              >
+                                {(items[0] as ResultItem).title}
+                              </Text>
                               <Text
                                 as="span"
                                 size="1"
                                 color="gray"
                                 weight="regular"
                               >
-                                {(item as ResultItem).section}
+                                {(items[0] as ResultItem).section}
                               </Text>
                             </Box>
-                          </Link>
+                            <Icon
+                              icon={Lucide.Sparkles}
+                              alt="Sparkles"
+                              color="black"
+                              size="4"
+                            />
+                          </Stack>
                         </MenuItem>
-                      );
-                    })}
-                  </Box>
-                ) : (
-                  <Box
-                    p="4"
-                    className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium "
-                  >
-                    <Text as="span" size="1" color="gray" weight="regular">
-                      No matching results.
-                    </Text>{" "}
-                    <Link
-                      href="javascript:void(0)"
-                      className="text-brand"
-                      onClick={() =>
-                        handleOpenAiChat((inputProps as any).value)
-                      }
+                        {items.map((item, index) => {
+                          if (index === 0) return null; // Skip the first item, it's rendered above
+                          const isEndpoint = !!(item as ResultItem)?.method;
+                          const prevIsEndpoint = !!(
+                            items[index - 1] as ResultItem
+                          )?.method;
+                          const showDivider =
+                            index === 1 || (!isEndpoint && prevIsEndpoint);
+                          const key = (item as ResultItem).objectID;
+                          return (
+                            <React.Fragment key={key}>
+                              {showDivider && (
+                                <Box
+                                  borderTop="px"
+                                  borderColor="gray-4"
+                                  marginY="2"
+                                />
+                              )}
+                              <MenuItem
+                                as="li"
+                                w="full"
+                                h="full"
+                                className="aa-Item"
+                                style={{
+                                  cursor: "pointer",
+                                  transition: "all 0.15s ease-in-out",
+                                  gridTemplateColumns: "1fr",
+                                }}
+                                {...(autocomplete.getItemProps({
+                                  item,
+                                  source,
+                                }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
+                                color="default"
+                              >
+                                {isEndpoint ? (
+                                  <EndpointSearchResult
+                                    item={item as ResultItem}
+                                  />
+                                ) : (
+                                  <DocsSearchResult item={item as ResultItem} />
+                                )}
+                              </MenuItem>
+                            </React.Fragment>
+                          );
+                        })}
+                      </Box>
+                    </Box>
+                  ) : (
+                    <Box
+                      p="4"
+                      className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium "
                     >
-                      Ask AI ✨
-                    </Link>
-                  </Box>
-                )}
-              </Box>
-            );
-          })}
+                      <Text as="span" size="1" color="gray" weight="regular">
+                        No matching results.
+                      </Text>{" "}
+                      <Link
+                        href="javascript:void(0)"
+                        className="text-brand"
+                        onClick={() =>
+                          handleOpenAiChat((inputProps as any).value)
+                        }
+                      >
+                        Ask AI ✨
+                      </Link>
+                    </Box>
+                  )}
+                </Box>
+              );
+            })}
+          </Box>
         </Box>
       )}
 
