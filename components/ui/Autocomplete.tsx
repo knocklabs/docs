@@ -439,7 +439,6 @@ const Autocomplete = () => {
     <Box
       {...autocomplete.getRootProps()}
       w="full"
-      style={{ flexShrink: 0 }}
       tgphRef={rootRef}
       id="docs-search"
     >
@@ -452,7 +451,13 @@ const Autocomplete = () => {
         {...(formProps as FormProps)}
       >
         <Stack alignItems="center" p="1">
-          <Icon icon={Lucide.Search} alt="Search" color="gray" mr="2" />
+          <Icon
+            icon={Lucide.Search}
+            alt="Search"
+            color="gray"
+            mr="2"
+            style={{ flexShrink: 0 }}
+          />
           <Input
             tgphRef={inputRef}
             placeholder="Search the docs..."
@@ -462,7 +467,10 @@ const Autocomplete = () => {
               HTMLInputElement
             >)}
             size="1"
-            style={{ outline: "none" }}
+            style={{
+              outline: "none",
+            }}
+            w="full"
           />
           {autocompleteState?.query ? (
             <Button
@@ -486,6 +494,7 @@ const Autocomplete = () => {
               borderColor="gray-3"
               py="2"
               px="1"
+              ml="2"
               style={{
                 height: "20px",
               }}
@@ -493,27 +502,35 @@ const Autocomplete = () => {
               Clear
             </Button>
           ) : (
-            <Stack
-              bg="gray-1"
-              borderRadius="1"
-              border="px"
-              borderColor="gray-3"
-              justifyContent="center"
-              alignItems="center"
-              width="5"
-              height="5"
-              className="md-hidden"
-            >
-              <Text
-                as="span"
-                size="1"
-                color="black"
-                weight="medium"
-                style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+            <>
+              <Stack
+                bg="gray-1"
+                borderRadius="1"
+                border="px"
+                borderColor="gray-3"
+                justifyContent="center"
+                alignItems="center"
+                width="5"
+                height="5"
+                className="md-hidden"
               >
-                /
-              </Text>
-            </Stack>
+                <Text
+                  as="span"
+                  size="1"
+                  color="black"
+                  weight="medium"
+                  style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+                >
+                  /
+                </Text>
+              </Stack>
+              <Box
+                borderRadius="1"
+                width="5"
+                height="5"
+                className="md-visible"
+              ></Box>
+            </>
           )}
         </Stack>
       </Box>
