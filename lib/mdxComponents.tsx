@@ -50,7 +50,7 @@ export const MDX_COMPONENTS = {
     </Code>
   ),
   li: (props) => (
-    <Text as="li" size="2" {...props} ml="4" mb="2" data-tgph-list-item>
+    <Text as="li" size="2" {...props} ml="8" mb="4" data-tgph-list-item>
       {props.children}
     </Text>
   ),
