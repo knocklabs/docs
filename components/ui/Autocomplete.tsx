@@ -63,7 +63,7 @@ const highlightingStyles = {
 
 // These are the number of hits we want to show for each section
 const NUM_DOCS_HITS = 12;
-const NUM_ENDPOINT_HITS = 7;
+const NUM_ENDPOINT_HITS = 5;
 
 type ResultItem = (DocsSearchItem & BaseItem) | (EndpointSearchItem & BaseItem);
 
@@ -569,7 +569,7 @@ const Autocomplete = () => {
             h="full"
             style={{
               overflowY: "auto",
-              maxHeight: "80vh",
+              maxHeight: "80dvh",
               paddingBottom: "0",
             }}
             tgphRef={scrollerRef}
