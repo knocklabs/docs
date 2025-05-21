@@ -35,7 +35,7 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
         title: "Guides",
         slug: "/guides",
         pages: [
-          { slug: "/overview", title: "Overview" },
+          { slug: "/overview", title: "Overview", isBeta: true },
           {
             slug: "/create-guides",
             title: "Creating guides",
