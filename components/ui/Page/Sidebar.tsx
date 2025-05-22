@@ -178,7 +178,7 @@ const Item = ({
     <CollapsibleNavItem
       {...depthAdjustedCollapsibleNavItemProps}
       label={section.title ?? section.slug}
-      isBeta={section.isBeta}
+      isBeta={section?.isBeta}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
     >
