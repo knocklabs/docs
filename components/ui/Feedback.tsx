@@ -98,7 +98,7 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
           </Button>
         </Popover.Trigger>
         <Popover.Content style={{ padding: "0" }}>
-          <Box style={{ width: "500px" }}>
+          <Box style={{ width: "500px", maxWidth: "95vw" }}>
             <Box p="4" position="relative">
               <Button
                 position="absolute"
