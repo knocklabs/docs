@@ -485,6 +485,16 @@ const nextConfig = {
         destination: "/designing-workflows/validating-trigger-data",
         permanent: true,
       },
+      {
+        source: "/sdks/android/deep-links",
+        destination: "/in-app-ui/android/sdk/deep-links",
+        permanent: true,
+      },
+      {
+        source: "/sdks/ios/deep-links",
+        destination: "/in-app-ui/ios/sdk/deep-links",
+        permanent: true,
+      },
     ];
   },
 };
