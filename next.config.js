@@ -504,7 +504,7 @@ const nextConfig = {
         source: "/sdks/ios/deep-links",
         destination: "/in-app-ui/ios/sdk/deep-links",
         permanent: true,
-      },      
+      },
     ];
   },
 };
