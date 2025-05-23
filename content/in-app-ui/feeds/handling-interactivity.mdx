@@ -1,0 +1,105 @@
+---
+title: "Handling interactivity"
+description: How to handle routing, clicking, and other interactions with your in-app feed.
+section: Building in-app UI > Feeds
+tags: ["interactivity", "routing", "clicking", "interaction"]
+---
+
+Knock enables you to build engaging in-app feed experiences with a rich set of interactivity features across all supported platforms (Web, iOS, Android, and React Native). This guide covers the various ways you can handle user interactions with your feed components.
+
+<Callout
+  emoji="💡"
+  title="Note."
+  text="All Knock feed components support real-time updates through websocket connections, ensuring your feed stays up-to-date as users interact with notifications."
+/>
+
+## Common interaction patterns
+
+### Clicking and tapping
+
+All Knock feed components support handling user interactions through click/tap events:
+
+#### Web (React)
+
+```jsx title="Handling notification interactions in React"
+<NotificationFeed
+  onNotificationClick={(item) => {
+    // Handle notification cell click
+  }}
+  onNotificationButtonClick={(item, button) => {
+    // Handle button click within notification
+  }}
+/>
+```
+
+#### iOS
+
+```swift title="Handling notification interactions in iOS"
+KnockInAppFeedView()
+    .onReceive(viewModel.didTapFeedItemButtonPublisher) { actionString in
+        // Handle button tap
+    }
+    .onReceive(viewModel.didTapFeedItemRowPublisher) { item in
+        // Handle row tap
+    }
+```
+
+#### Android
+
+```kotlin title="Handling notification interactions in Android"
+feedViewModel.didTapFeedItemRowPublisher
+    .onEach { feedItem ->
+        // Handle feed item row tap
+    }
+    .launchIn(this)
+
+feedViewModel.didTapFeedItemButtonPublisher
+    .onEach { feedItemButtonEvent ->
+        // Handle button tap
+    }
+    .launchIn(this)
+```
+
+#### React Native
+
+```jsx title="Handling notification interactions in React Native"
+<NotificationFeed
+  onRowTap={(item) => {
+    // Handle row tap
+  }}
+  onCellActionButtonTap={({ button, item }) => {
+    // Handle button tap
+  }}
+/>
+```
+
+### URL handling
+
+Knock supports automatic URL handling for notifications:
+
+1. **Action URLs.** You can specify an `action_url` in your notification template, and Knock will automatically handle redirects when users interact with the notification.
+
+2. **Custom URL handling.** You can implement custom URL handling logic in your click handlers to control navigation behavior.
+
+### State management
+
+Knock provides built-in state management for notification interactions:
+
+1. **Mark as read.** Notifications can be automatically marked as read when:
+
+   - The feed is opened
+   - A notification is clicked
+   - A button within a notification is clicked
+
+2. **Mark as seen.** Notifications are automatically marked as seen when they appear in the feed viewport.
+
+3. **Archiving.** Users can archive notifications through swipe actions or dedicated buttons.
+
+## Learn more
+
+For more detailed information about implementing interactivity in your specific platform, refer to the platform-specific docs:
+
+- [Web (React) feed docs](/in-app-ui/react/feed#handling-interactivity)
+- [iOS customization](/in-app-ui/ios/customization)
+- [Android customization](/in-app-ui/android/customization)
+- [React Native customization](/in-app-ui/react-native/customization)
