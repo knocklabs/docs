@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { debounce } from "@/lib/debounce";
 
 export const stripPrefix = (path: string) => {
@@ -113,10 +113,6 @@ export const updateNavStyles = (resourceUrl: string) => {
       // Use the debounced function
       debouncedScrollIntoView(element);
 
-      if (document.activeElement != element) {
-        (document.activeElement as HTMLElement)?.blur();
-      }
-
       // Annoying we have to do this by hand, but have to do it
       if (element.firstChild) {
         (element.firstChild as HTMLElement).style.color = "var(--tgph-gray-12)";
@@ -161,7 +157,7 @@ export const useInitialScrollState = () => {
   const router = useRouter();
   const basePath = router.pathname.split("/")[1];
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // This setTimeout is a trick to make sure the scroll position is accurate
     const timeout = setTimeout(() => {
       const path = router.asPath;
