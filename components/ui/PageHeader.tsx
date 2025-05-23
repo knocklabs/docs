@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { MAX_WIDTH } from "./Page";
 import Autocomplete from "@/components/ui/Autocomplete";
+import { Feedback } from "./Feedback";
 
 type PageHeaderProps = {
   mobileSidebar?: React.ReactNode;
@@ -89,15 +90,7 @@ const PageHeader = ({ mobileSidebar }: PageHeaderProps) => {
             </Box>
           </Stack>
           <Stack marginLeft="auto" gap="2" className="md-hidden">
-            <Button
-              as={Link}
-              href="mailto:support@knock.app?subject=Support%20request"
-              size="1"
-              variant="ghost"
-              color="gray"
-            >
-              Contact support
-            </Button>
+            <Feedback text="Contact support" />
             <Button
               as={Link}
               href="https://dashboard.knock.app/login"

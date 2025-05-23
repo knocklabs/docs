@@ -28,9 +28,10 @@ const FEEDBACK_CATEGORIES = new Map([
 type Props = {
   currentUser?: User | undefined;
   currentAccount?: Account | undefined;
+  text?: string;
 };
 
-export const Feedback = ({ currentUser, currentAccount }: Props) => {
+export const Feedback = ({ currentUser, currentAccount, text = "Send feedback" }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [feedbackBody, setFeedbackBody] = useState<string>("");
@@ -94,7 +95,7 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
             }}
             size="1"
           >
-            Send feedback
+            {text}
           </Button>
         </Popover.Trigger>
         <Popover.Content style={{ padding: "0" }}>
