@@ -495,6 +495,16 @@ const nextConfig = {
         destination: "/in-app-ui/react/feed#css-customization",
         permanent: true,
       },
+      {
+        source: "/sdks/android/deep-links",
+        destination: "/in-app-ui/android/sdk/deep-links",
+        permanent: true,
+      },
+      {
+        source: "/sdks/ios/deep-links",
+        destination: "/in-app-ui/ios/sdk/deep-links",
+        permanent: true,
+      },      
     ];
   },
 };

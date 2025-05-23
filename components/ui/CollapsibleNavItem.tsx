@@ -4,6 +4,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { type TgphComponentProps } from "@telegraph/helpers";
 import { Icon, Lucide } from "@telegraph/icon";
+import { Tag } from "@telegraph/tag";
 
 export type CollapsibleNavItemProps = TgphComponentProps<typeof MenuItem> & {
   label: string;
@@ -12,6 +13,7 @@ export type CollapsibleNavItemProps = TgphComponentProps<typeof MenuItem> & {
   setIsOpen?: (isOpen: boolean) => void;
   className?: string;
   color?: "default" | "gray";
+  isBeta?: boolean;
 };
 
 export const CollapsibleNavItem = ({
@@ -21,6 +23,7 @@ export const CollapsibleNavItem = ({
   setIsOpen = () => {},
   color = "default",
   className = "",
+  isBeta = false,
   ...props
 }: CollapsibleNavItemProps) => {
   return (
@@ -43,6 +46,11 @@ export const CollapsibleNavItem = ({
           >
             {label}
           </Text>
+          {isBeta && (
+            <Tag size="0" color="blue" ml="2">
+              Beta
+            </Tag>
+          )}
           <Icon
             icon={Lucide.ChevronRight}
             size="1"
