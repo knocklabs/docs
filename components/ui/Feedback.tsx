@@ -31,7 +31,11 @@ type Props = {
   text?: string;
 };
 
-export const Feedback = ({ currentUser, currentAccount, text = "Send feedback" }: Props) => {
+export const Feedback = ({
+  currentUser,
+  currentAccount,
+  text = "Send feedback",
+}: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [feedbackBody, setFeedbackBody] = useState<string>("");
