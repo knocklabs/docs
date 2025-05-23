@@ -26,8 +26,24 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
         pages: [
           { slug: "/overview", title: "Overview" },
           {
+            slug: "/styling",
+            title: "Styling",
+          },
+          {
+            slug: "/custom-ui",
+            title: "Custom UI (headless)",
+          },
+          {
+            slug: "/handling-interactivity",
+            title: "Handling interactivity",
+          },
+          {
             slug: "/filtering-in-app-feeds",
             title: "Filtering feeds",
+          },
+          {
+            slug: "/socket-behavior",
+            title: "Socket behavior overrides",
           },
         ],
       },
@@ -112,20 +128,12 @@ export const REACT_SIDEBAR: SidebarSection[] = [
     desc: "Use the Knock in-app experiences APIs and components to build rich notifications experiences inside of your product.",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/feed", title: "Notification feed" },
-      { slug: "/toasts", title: "Toasts" },
-      { slug: "/inbox", title: "Notification inbox" },
-      {
-        slug: "/custom-notifications-ui",
-        title: "Custom feed UI (headless)",
-      },
+      { slug: "/feed", title: "Feed" },
+      { slug: "/toasts", title: "Toast" },
+      { slug: "/inbox", title: "Inbox" },
       { slug: "/preferences", title: "Preferences" },
       { slug: "/slack-kit", title: "SlackKit" },
       { slug: "/teams-kit", title: "TeamsKit" },
-      {
-        slug: "/customizing-feed-components",
-        title: "Customizing feed components",
-      },
       {
         slug: "/migrating-from-react-notification-feed",
         title: "Migrating from @knocklabs/react-notification-feed",
