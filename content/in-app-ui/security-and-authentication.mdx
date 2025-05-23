@@ -130,12 +130,15 @@ app.use(async (req, res, next) => {
     return next();
   }
 
-  // Assuming you have set KNOCK_SIGNING_KEY in your environment
-
   res.locals({
-    // `signUserToken` can take a second argument to set the expiry of the token
-    // and/or specify the signing key to use
-    knockToken: await Knock.signUserToken(req.user.id),
+    // `signUserToken` takes an options object as the second parameter
+    // and returns a Promise that must be awaited
+    knockToken: await Knock.signUserToken(req.user.id, {
+      // Optionally override the signing key (defaults to KNOCK_SIGNING_KEY env var)
+      signingKey: knockSigningKey,
+      // Optionally set custom expiration (defaults to 3600 seconds)
+      expiresInSeconds: 7200,
+    }),
   });
 
   next();
