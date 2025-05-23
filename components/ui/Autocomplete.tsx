@@ -367,6 +367,11 @@ const Autocomplete = () => {
             }
             // Handle regular navigation
             router.push(`/${itemUrl}`);
+
+            // Clear the query when navigating
+            if (state.query) {
+              autocomplete.setQuery("");
+            }
           },
         },
       }),

@@ -10,6 +10,8 @@ import { resolveEndpointFromMethod } from "@/components/ui/ApiReference/helpers"
 import JSONPointer from "jsonpointer";
 import { loadEnvConfig } from "@next/env";
 import type { DocsSearchItem, EndpointSearchItem } from "@/types";
+import { readFile } from "fs/promises";
+import path from "path";
 
 // Load Next.js environment variables
 const projectDir = process.cwd();
@@ -27,10 +29,14 @@ const algoliaEndpointIndexName =
 let indexCount = 0;
 let endpointCount = 0;
 
-// Formats the name for URL paths
-// Bulk operations -> bulk_operations
-function resourceNameToPath(resourceName: string) {
-  return resourceName.trim().toLowerCase().replace(/\s+/g, "_");
+async function validateSearchObject(
+  object: DocsSearchItem | EndpointSearchItem,
+) {
+  if (object.path.startsWith("/")) {
+    return Promise.reject(
+      `\n\nEndpoint path may not start with "/". Violating path: ${object.path}\n\n`,
+    );
+  }
 }
 
 /**
@@ -41,12 +47,19 @@ function resourceNameToPath(resourceName: string) {
  */
 let pagesToSave: DocsSearchItem[] = [];
 async function queuePage(object: DocsSearchItem) {
+  await validateSearchObject(object);
+  // Keep this in for logging purposes
+  console.log("Indexing page:", object.title, object.path);
   indexCount++;
   pagesToSave.push(object);
   return;
 }
+
 let endpointsToSave: EndpointSearchItem[] = [];
 async function queueEndpoint(object: EndpointSearchItem) {
+  await validateSearchObject(object);
+  // Keep this in for logging purposes
+  console.log("Indexing endpoint:", object.title, object.path);
   endpointCount++;
   endpointsToSave.push(object);
   return;
@@ -79,11 +92,7 @@ async function indexResource({
     return;
   }
 
-  // Keep this in for logging purposes
-  console.log("Indexing resource:", resourceName);
-
-  const slugifiedResourceName = resourceNameToPath(resourceName);
-  const basePath = `${pathPrefix}/${slugifiedResourceName}`;
+  const basePath = `${pathPrefix}/${staticName}`;
 
   const methods = resource.methods || {};
   const models = resource.models || {};
@@ -92,7 +101,7 @@ async function indexResource({
 
   const resourceObject: DocsSearchItem = {
     // The path to the page will be the identifier in Algolia.
-    objectID: `${slugifiedResourceName}-${basePath}`,
+    objectID: `page-${staticName}-${basePath}`,
     path: basePath,
     title: resourceName,
     section,
@@ -110,7 +119,7 @@ async function indexResource({
     const title = openApiOperation?.summary;
     const methodUrl = `${basePath}/${methodName}`;
     const docsSearchItem: DocsSearchItem = {
-      objectID: `page-${slugifiedResourceName}-${methodUrl}`,
+      objectID: `page-${staticName}-${methodUrl}`,
       title,
       path: methodUrl,
       section: sectionName,
@@ -123,7 +132,7 @@ async function indexResource({
     const formattedApiName = apiName === "api" ? "API" : "mAPI";
     const endpointSearchItem: EndpointSearchItem = {
       ...docsSearchItem,
-      objectID: `endpoint-${slugifiedResourceName}-${methodUrl}`,
+      objectID: `endpoint-${staticName}-${methodUrl}`,
       title: `${formattedApiName} - ${title}`,
       method: methodType,
       endpoint,
@@ -140,7 +149,7 @@ async function indexResource({
     const schema = JSONPointer.get(openApiSpec, modelRef.replace("#", ""));
     const title = schema?.title ?? modelName;
     const modelObject: DocsSearchItem = {
-      objectID: `${slugifiedResourceName}-${modelUrl}`,
+      objectID: `page-${staticName}-${modelUrl}`,
       title,
       path: modelUrl,
       section: sectionName + " > " + "Object definitions",
@@ -155,7 +164,6 @@ async function indexResource({
   Object.keys(resource.subresources ?? {}).forEach(async (subresourceName) => {
     if (!resource.subresources) return;
     const subresource = resource.subresources[subresourceName];
-
     // Recursively index the subresource
     await indexResource({
       apiName,
@@ -174,6 +182,8 @@ async function indexApi(name: "api" | "mapi") {
 
   const ORDER = name === "api" ? API_RESOURCE_ORDER : MAPI_RESOURCE_ORDER;
 
+  await indexStaticContent(name);
+
   return Promise.all(
     ORDER.map((resourceName) => {
       const resource = stainlessSpec.resources[resourceName];
@@ -187,6 +197,55 @@ async function indexApi(name: "api" | "mapi") {
       });
     }),
   );
+}
+
+// This is additional content that we write ourselves in the content directory
+// Pulls content from __mapi-reference and __api-reference
+async function indexStaticContent(name: "api" | "mapi") {
+  const staticContent = await readFile(
+    path.join(projectDir, `content/__${name}-reference/content.mdx`),
+    "utf8",
+  );
+
+  // Find all sections in the static content and index them
+  function extractSectionInfo(content: string) {
+    const sections: Array<{ title?: string; path?: string }> = [];
+    const parser = new RegExp(/<Section\s+(.*?)\s*>/g);
+    const attributeParser = /(\w+)="([^"]*)"/g;
+
+    let match;
+    while ((match = parser.exec(content)) !== null) {
+      const attributes = match[1];
+      const sectionInfo: { title?: string; path?: string } = {};
+
+      let attrMatch;
+      while ((attrMatch = attributeParser.exec(attributes)) !== null) {
+        const [_, name, value] = attrMatch;
+        if (name === "title") sectionInfo.title = value;
+        if (name === "path") sectionInfo.path = value;
+      }
+
+      sections.push(sectionInfo);
+    }
+
+    return sections;
+  }
+  const sections = extractSectionInfo(staticContent);
+  for (const section of sections) {
+    const { title, path } = section;
+    if (!title || !path) continue;
+    const sectionObject: DocsSearchItem = {
+      objectID: `page-section-${name}-reference${path}`,
+      path: `${name}-reference${path}`,
+      title,
+      section: name === "api" ? "API Reference" : "mAPI Reference",
+      tags: [],
+      contentType: "api-reference",
+      index: "pages",
+    };
+    await queuePage(sectionObject);
+  }
+  return staticContent;
 }
 
 let skipIndexing = false;
