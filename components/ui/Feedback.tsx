@@ -159,11 +159,12 @@ export const Feedback = ({
                 <Stack w="full" gap="4" flexDirection="column">
                   <Box>
                     <Text as="label" size="1" mb="2">
-                      Email (if you'd like to hear back from the team)
+                      Email (required)
                     </Text>
                     <Input
                       placeholder="youremail@example.com"
                       onChange={(e) => setUserEmail(e.target.value)}
+                      required
                     />
                   </Box>
                   <Box>

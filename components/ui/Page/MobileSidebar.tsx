@@ -7,6 +7,7 @@ import { Button } from "@telegraph/button";
 import { Stack } from "@telegraph/layout";
 import Link from "next/link";
 import { Sidebar } from "./Sidebar";
+import { Feedback } from "../Feedback";
 
 interface MobileSidebarContextType {
   isOpen: boolean;
@@ -148,15 +149,7 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
             >
               Log in
             </Button>
-            <Button
-              as={Link}
-              href="mailto:support@knock.app?subject=Support%20request"
-              size="2"
-              variant="ghost"
-              color="gray"
-            >
-              Contact support
-            </Button>
+            <Feedback text="Contact support" />
           </Stack>
         </Box>
       </motion.div>
