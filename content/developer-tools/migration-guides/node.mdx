@@ -90,17 +90,12 @@ const client = new Knock({
 2. Client initialization accepts an options object instead of just the API key
 3. Some parameter names have changed to match the API (e.g., `cancellationKey` → `cancellation_key`)
 4. Error handling has been completely revamped with typed errors
-5. The `signUserToken` method is now async and has updated usage (see [full details below](/developer-tools/migration-guides/node#signing-user-tokens))
-   - Must use `await`: returns `Promise<string>` instead of `string`
-   - Options object: Uses single options object instead of positional arguments
-   - Parameter rename: `expiresInSec` is now `expiresInSeconds`
-   - Default TTL: Tokens now explicitly expire after 3600 seconds by default
-6. Method naming convention changes:
+5. Method naming convention changes:
    - `users.getPreferences()` now requires a preference set ID parameter
    - `users.bulkIdentify()` is now `users.bulk.identify()`
    - `users.bulkDelete()` is now `users.bulk.delete()`
    - `users.bulkSetPreferences()` is now `users.bulk.setPreferences()`
-7. Parameter style changes:
+6. Parameter style changes:
 
    - All parameters are now in camelCase in the method signature but use snake_case in the request body
    - Query parameters are now passed as a separate object in most list methods
@@ -113,7 +108,7 @@ const client = new Knock({
    await client.users.list({ page: 2, page_size: 50 });
    ```
 
-8. Response handling:
+7. Response handling:
    - The new SDK returns the data directly in most cases rather than wrapped in a `data` property
    - Pagination is handled differently with cursor-based pagination
 
@@ -168,52 +163,6 @@ await client.users.identify("jhammond", {
 await client.users.update("jhammond", {
   name: "John Hammond",
   email: "jhammond@ingen.net",
-});
-```
-
-### Signing User Tokens
-
-**Old version:**
-
-```javascript
-import Knock, { signUserToken } from "@knocklabs/node";
-
-// Synchronous operation with positional arguments
-const token = signUserToken("user-1");
-
-// With optional parameters (signing key and expiry)
-const tokenWithExpiry = signUserToken(
-  "user-1",
-  knockSigningKey,
-  3600 // expires in 1 hour
-);
-```
-
-**1.x release:**
-
-```javascript
-import Knock from "@knocklabs/node";
-
-// Now async and requires options object
-const token = await Knock.signUserToken("user-1", {
-  signingKey: knockSigningKey, // Required if not set via KNOCK_SIGNING_KEY env variable
-});
-
-// With optional parameters using new naming
-const tokenWithExpiry = await Knock.signUserToken("user-1", {
-  signingKey: knockSigningKey,
-  expiresInSeconds: 3600, // Note: expiresInSeconds instead of expiresInSec
-});
-
-// With token grants
-import { buildUserTokenGrant, Grants } from "@knocklabs/node/lib/tokenSigner";
-
-const tokenWithGrants = await Knock.signUserToken("user-1", {
-  grants: [
-    buildUserTokenGrant({ type: "tenant", id: "org_123" }, [
-      Grants.SlackChannelsRead,
-    ]),
-  ],
 });
 ```
 
