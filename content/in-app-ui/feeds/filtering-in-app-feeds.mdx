@@ -1,33 +1,39 @@
 ---
-title: Filtering in-app feeds
+title: Filtering feeds
 description: Learn how to use Knock's feed filtering to scope in-app feeds to display information relevant to a particular tenant, resource, or individual workflow.
 section: Building in-app UI > Feeds
+tags: ["filtering", "tenant", "source", "data"]
 ---
 
-When building an in-app notifications UI, you may wish to filter the notifications a user has received to increase the relevancy of the notifications displayed. This can be useful to power per-tenant notifications in a multi-tenant SaaS application or per-resource notifications to show contextual notifications inside your product.
+When building an in-app notifications UI, you can filter notifications to increase their relevancy for your users. This is particularly useful for:
 
-In this guide, we walk through how to do this by filtering the feed API using the `defaultFeedOptions` which will filter all of the results returned, including the real-time updates sent to the in-app feed and the badge count for unseen or unread notifications.
+- A multi-tenant SaaS application where users need to see tenant-specific notifications
+- Applications that need to show contextual notifications for specific resources
+- Separating notifications by engagement status (unread, read, seen, archived)
+- Separating notifications by a custom property (e.g. `priority: "high"`, `status: "incomplete"`)
+
+In this guide, we'll explore how to filter the feed API using `defaultFeedOptions`. These filters apply to all feed results, including real-time updates and badge counts for unseen or unread notifications.
 
 <Callout
   emoji="💡"
-  title="Note:"
+  title="Note."
   text={
     <>
-      the feed client accepts default options, which will be applied in the
-      initial feed fetch and to scope real-time updates. This guide shows
-      examples of setting those defaults. Default values can also be overridden
-      when calling the <code>fetch</code> function as well.
+      The feed client accepts default options that apply to both the initial
+      feed fetch and real-time updates. This guide demonstrates how to set these
+      defaults. You can also override these values when calling the{" "}
+      <code>fetch</code> function.
     </>
   }
 />
 
 ## Filtering by tenant
 
-In a multi-tenant SaaS application, individual users might belong to one or more tenants, meaning the notifications they see should be scoped to the tenant they are currently viewing.
+In a multi-tenant SaaS application, users often belong to one or more tenants, and their notifications should be scoped to the tenant they're currently viewing.
 
-For example, imagine we have a user `jane` in a document editing app. Jane's user profile is connected to multiple workspaces; `acme-inc` and `superior-products`. When Jane is active in the `acme-inc` workspace, she should only see notifications that are relevant for that workspace.
+For example, consider a user named `jane` in a document editing app. Jane's profile is connected to two workspaces: `acme-inc` and `superior-products`. When Jane is active in the `acme-inc` workspace, she should only see notifications relevant to that workspace.
 
-We include this concept in Knock as [Tenancy](/concepts/tenants), where workflow triggers can be “tagged” with a particular tenant identifier, which can be used to apply tenant overrides and to scope in-app notifications by the tenant. Let's see how this works in practice.
+Knock implements this concept through [Tenancy](/concepts/tenants), where workflow triggers can be "tagged" with a tenant identifier. This identifier can be used to apply tenant overrides and scope in-app notifications. Here's how it works:
 
 ```js title="Triggering our workflow with a tenant"
 await knock.workflows.trigger("new-comment", {
@@ -40,7 +46,7 @@ await knock.workflows.trigger("new-comment", {
 });
 ```
 
-Now when we render our in-app feed we can scope the feed by the tenant that our user is currently active in:
+To scope the in-app feed by the user's current tenant:
 
 ```javascript title="Rendering our feed with the tenant filter"
 // Passed to our component
@@ -55,13 +61,20 @@ useNotifications(knockClient, process.env.KNOCK_FEED_CHANNEL_ID, {
 });
 ```
 
-By default, filtering by a tenant will include all notifications on the feed that include that tenant or any notifications sent without a tenant identifier. If you need different behavior here, you can pass `has_tenant: true` which, when combined with the `tenant` filter, will return only notifications for that tenant.
+By default, filtering by tenant includes all notifications that either:
+
+- Include the specified tenant
+- Were sent without a tenant identifier
+
+If you need to show only notifications for a specific tenant, you can add `has_tenant: true` to your filter:
+
+```javascript
+defaultFeedOptions={{ tenant: "acme-inc", has_tenant: true }}
+```
 
 ## Filtering by workflow
 
-Sometimes you might want to only show an individual workflow's notifications within an in-app feed for a user. You can use the `source` filter to achieve this. Let's look at an example.
-
-In our document collaboration application, we only want to return all notifications produced by the `new-comment` workflow. To do so, we can set the `defaultFeedOptions` source to be `new-comment`:
+To show notifications from a specific workflow in your in-app feed, use the `source` filter. For example, in a document collaboration application, you might want to show only notifications from the `new-comment` workflow:
 
 ```js title="Filtering our in-app feed by source"
 // Passed to our component
@@ -76,13 +89,11 @@ useNotifications(knockClient, process.env.KNOCK_FEED_CHANNEL_ID, {
 });
 ```
 
-It's important to note here that at this time, we don't support filtering by multiple sources.
+Note: Currently, filtering by multiple sources is not supported.
 
 ## Filtering by `data`
 
-You can filter the feed by properties in the `data` payload to your trigger step. This is a powerful and flexible way to query the feed data you can use to match against entities in your system. Let's look at an example.
-
-Imagine that we want to show all of the comment notifications the current user has received for a given `page` in our document editing app. In our workflow trigger, we might send the internal identifier from our system as `pageId` in the `data` payload:
+You can filter the feed using properties from the `data` payload in your trigger step. This provides a flexible way to query feed data based on your system's entities. For example, to show comment notifications for a specific page in your document editing app:
 
 ```js title="Triggering a workflow with data"
 await knock.workflows.trigger("new-comment", {
@@ -94,7 +105,7 @@ await knock.workflows.trigger("new-comment", {
 });
 ```
 
-Now when we're filtering the feed to be rendered in our application, we can pass the `trigger_data` filter to `defaultFeedOptions`.
+To filter the feed by this data:
 
 ```js title="Filtering our in-app feed by trigger data"
 // Passed to our component
@@ -109,11 +120,14 @@ useNotifications(knockClient, process.env.KNOCK_FEED_CHANNEL_ID, {
 });
 ```
 
-This approach also has some caveats you should be aware of:
+Important limitations to be aware of when filtering by data:
 
-- You can only filter by top-level keys and values in your data payload, meaning it's not possible to query `data.foo.bar` but is possible to query `data.foo`
-- You can only match absolute values for the keys (e.g. no partial matches or other comparison operators are supported)
+1. You can only filter by top-level keys in your data payload (e.g., `data.foo` is supported, but `data.foo.bar` is not)
+2. Only exact value matching is supported (partial matches and comparison operators are not available)
 
 ## Learn more about feed filtering
 
-You can see all of the filtering options that the feed takes in the [API reference](/api-reference/users/feeds/list_items). These are exposed directly to the feed via the `FeedClientOptions` type that's supported in the constructor for the feed to apply defaults, or in each individual fetch function if you need to override the defaults on an individual fetch basis.
+For a complete list of filtering options, refer to the [API reference](/api-reference/users/feeds/list_items). These options are available through the `FeedClientOptions` type, which you can use to:
+
+- Set default filters in the feed constructor
+- Override defaults for individual fetch operations
