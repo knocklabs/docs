@@ -59,6 +59,18 @@ export async function getStaticProps({ params: { slug } }) {
     }
   }
 
+  // These are not content pages, should not render here
+  // the __mapi-reference or __api-reference sections of content
+  // also skips indexing in algolia search
+  const isApiPage =
+    sourcePath.includes("content/__mapi-reference") ||
+    sourcePath.includes("content/__api-reference");
+  if (isApiPage) {
+    return {
+      notFound: true,
+    };
+  }
+
   if (!source) {
     throw new Error("Unable to read page content.");
   }

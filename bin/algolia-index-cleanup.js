@@ -20,9 +20,14 @@ const algoliasearch = require("algoliasearch");
     }
 
     const client = algoliasearch(algoliaAppId, algoliaAdminApiKey);
-    const index = client.initIndex(algoliaIndexName);
+    const pagesIndex = client.initIndex(algoliaIndexName);
+    const apiIndex = client.initIndex(
+      process.env.NEXT_PUBLIC_ALGOLIA_ENDPOINT_INDEX_NAME,
+    );
 
-    await index.clearObjects();
+    await pagesIndex.clearObjects();
+    await apiIndex.clearObjects();
+
     console.log("✅ Algolia index cleared!");
     console.log("Restart the server to rebuild the index.");
     process.exit(0);

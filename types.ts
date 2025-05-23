@@ -38,7 +38,7 @@ export type DocsSearchItem = {
   tags: string[];
   // Whether the item is a static page or part of an endpoint resource
   // This field is used for sorting the results in the autocomplete
-  // Currently, we sort "page" values higher than "api-reference" values when querying "pages" index
+  // Currently, we sort "document" values higher than "api-reference" values when querying "pages" index
   // We can refine this even further if we want to
   contentType: "document" | "api-reference";
   // Helps us delineate between the two types of search items
