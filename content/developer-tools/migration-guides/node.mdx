@@ -90,12 +90,30 @@ const client = new Knock({
 2. Client initialization accepts an options object instead of just the API key
 3. Some parameter names have changed to match the API (e.g., `cancellationKey` → `cancellation_key`)
 4. Error handling has been completely revamped with typed errors
-5. Method naming convention changes:
+5. The `signUserToken` method should now be imported from `@knocklabs/node/lib/tokenSigner` if referenced directly.
+
+   ```javascript
+   import {
+     signUserToken,
+     buildUserTokenGrant,
+     Grants,
+   } from "@knocklabs/node/lib/tokenSigner";
+
+   const token = await signUserToken("user-1", {
+     grants: [
+       buildUserTokenGrant({ type: "tenant", id: "org_3sh72ds78" }, [
+         Grants.MsTeamsChannelsRead,
+       ]),
+     ],
+   });
+   ```
+
+6. Method naming convention changes:
    - `users.getPreferences()` now requires a preference set ID parameter
    - `users.bulkIdentify()` is now `users.bulk.identify()`
    - `users.bulkDelete()` is now `users.bulk.delete()`
    - `users.bulkSetPreferences()` is now `users.bulk.setPreferences()`
-6. Parameter style changes:
+7. Parameter style changes:
 
    - All parameters are now in camelCase in the method signature but use snake_case in the request body
    - Query parameters are now passed as a separate object in most list methods
@@ -108,7 +126,7 @@ const client = new Knock({
    await client.users.list({ page: 2, page_size: 50 });
    ```
 
-7. Response handling:
+8. Response handling:
    - The new SDK returns the data directly in most cases rather than wrapped in a `data` property
    - Pagination is handled differently with cursor-based pagination
 
