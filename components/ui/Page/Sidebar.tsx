@@ -241,6 +241,7 @@ const Item = ({ section, preSlug = "", depth = 0, defaultOpen }: ItemProps) => {
       isActive={isPathTheSame(slug, router.asPath)}
       containerProps={{ px: "3" }}
       style={{ color: "var(--tgph-gray-12)" }}
+      className="nav-item--top-level"
     >
       {section.title}
       {section.isBeta && (

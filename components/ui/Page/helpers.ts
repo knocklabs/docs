@@ -130,6 +130,14 @@ export const updateNavStyles = (resourceUrl: string) => {
     if (element.dataset.resourcePath !== resourceUrl) {
       element.setAttribute("data-active", "false");
     }
+
+    // For some reason, the color persists and we have to set it back to default by hand
+    if (
+      element.firstChild &&
+      !element.classList.contains("nav-item--top-level")
+    ) {
+      (element.firstChild as HTMLElement).style.color = "var(--tgph-gray-11)";
+    }
   });
 };
 

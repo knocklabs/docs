@@ -18,6 +18,7 @@ type NavItemProps = {
   children: React.ReactNode;
   samePageRouting?: boolean;
   containerProps?: TgphComponentProps<typeof Stack>;
+  className?: string;
 } & Omit<TgphComponentProps<typeof Text<"span">>, "as">;
 
 const NavItem = ({
@@ -26,6 +27,7 @@ const NavItem = ({
   icon,
   children,
   containerProps = {},
+  className,
   ...textProps
 }: NavItemProps) => {
   const { samePageRouting } = useSidebar();
@@ -63,7 +65,7 @@ const NavItem = ({
       gap="2"
       px="1"
       py="1"
-      className="nav-item"
+      className={`nav-item ${className ?? ""}`}
       style={{
         textDecoration: "none",
         display: "block",
