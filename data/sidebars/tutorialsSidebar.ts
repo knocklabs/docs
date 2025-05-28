@@ -1,36 +1,36 @@
-import { SidebarSection } from "../types";
+import { SidebarContent } from "../types";
 
-export const TUTORIALS_SIDEBAR: SidebarSection[] = [
+const baseSlug = "/tutorials";
+
+export const parentSection = {
+  slug: baseSlug,
+  title: "Tutorials",
+};
+
+export const TUTORIALS_SIDEBAR: SidebarContent[] = [
   {
-    title: "Tutorials",
-    slug: "/tutorials",
-    sidebarMenuDefaultOpen: true,
-    pages: [
-      {
-        slug: "/overview",
-        title: "Overview",
-      },
-      {
-        slug: "/implementation-guide",
-        title: "Knock implementation guide",
-      },
-      {
-        slug: "/alerting",
-        title: "Alerting",
-      },
-      {
-        slug: "/customer-webhooks",
-        title: "Customer-facing webhooks",
-      },
-      {
-        slug: "/building-recurring-digests",
-        title: "Recurring digests",
-      },
-      { slug: "/migrate-from-courier", title: "Migrate from Courier" },
-      {
-        slug: "/modeling-users-objects-and-tenants",
-        title: "Modeling Users, Objects, and Tenants",
-      },
-    ],
+    slug: `${baseSlug}/overview`,
+    title: "Overview",
+  },
+  {
+    slug: `${baseSlug}/implementation-guide`,
+    title: "Knock implementation guide",
+  },
+  {
+    slug: `${baseSlug}/alerting`,
+    title: "Alerting",
+  },
+  {
+    slug: `${baseSlug}/customer-webhooks`,
+    title: "Customer-facing webhooks",
+  },
+  {
+    slug: `${baseSlug}/building-recurring-digests`,
+    title: "Recurring digests",
+  },
+  { slug: `${baseSlug}/migrate-from-courier`, title: "Migrate from Courier" },
+  {
+    slug: `${baseSlug}/modeling-users-objects-and-tenants`,
+    title: "Modeling Users, Objects, and Tenants",
   },
 ];

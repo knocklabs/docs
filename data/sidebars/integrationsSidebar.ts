@@ -1,10 +1,14 @@
-import { SidebarSection } from "../types";
+import { SidebarContent } from "../types";
 
-export const INTEGRATIONS_SIDEBAR: SidebarSection[] = [
+export const parentSection = {
+  slug: "/integrations",
+  title: "Integrations",
+};
+
+export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
   {
-    title: "Integrations",
-    slug: "/integrations",
-    pages: [{ slug: "/overview", title: "Overview" }],
+    title: "Overview",
+    slug: "/integrations/overview",
   },
   {
     title: "Sources",

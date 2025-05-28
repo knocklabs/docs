@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import { INTEGRATIONS_SIDEBAR } from "../data/sidebars/integrationsSidebar";
+import {
+  INTEGRATIONS_SIDEBAR,
+  parentSection,
+} from "../data/sidebars/integrationsSidebar";
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
 import { Page } from "@/components/ui/Page";
@@ -31,7 +34,7 @@ const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
       sidebarPaths = [`${paths[0]}/${paths[1]}`, ...paths.slice(2)];
     }
 
-    return getSidebarInfo(sidebarPaths, INTEGRATIONS_SIDEBAR);
+    return getSidebarInfo(sidebarPaths, INTEGRATIONS_SIDEBAR, parentSection);
   }, [paths]);
 
   return (

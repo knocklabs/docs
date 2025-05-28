@@ -112,11 +112,6 @@ export const updateNavStyles = (resourceUrl: string) => {
 
       // Use the debounced function
       debouncedScrollIntoView(element);
-
-      // Annoying we have to do this by hand, but have to do it
-      if (element.firstChild) {
-        (element.firstChild as HTMLElement).style.color = "var(--tgph-gray-12)";
-      }
     });
   }
 
@@ -128,11 +123,7 @@ export const updateNavStyles = (resourceUrl: string) => {
   // Remove the styling from any previous active nav items
   activeElements.forEach((element) => {
     if (element.dataset.resourcePath !== resourceUrl) {
-      element.setAttribute("data-active", "false");
-      // For some reason, the color persists and we have to set it back to default by hand
-      if (element.firstChild) {
-        (element.firstChild as HTMLElement).style.color = "var(--tgph-gray-11)";
-      }
+      element.dataset.active = "false";
     }
   });
 };

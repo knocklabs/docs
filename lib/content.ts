@@ -1,5 +1,5 @@
 import { SdkSpecificContent } from "@/data/sidebars/inAppSidebar";
-import { SidebarPage, SidebarSection } from "../data/types";
+import { SidebarContent, SidebarPage, SidebarSection } from "../data/types";
 
 // Converts a Next.js router slug to a paths array
 export const slugToPaths = (slug: string | string[] | undefined): string[] => {
@@ -107,7 +107,8 @@ export function depthFirstSidebarInfo(
 // Returns the breadcrumbs and adjacent pages in the sidebar given a path
 export const getSidebarInfo = (
   paths: string[],
-  fullSidebarContent: SidebarSection[],
+  fullSidebarContent: SidebarSection[] | SidebarContent[],
+  parentSection?: SidebarContent,
 ) => {
   // Set up return data
   let breadcrumbs: SidebarPage[] = [];
@@ -115,8 +116,18 @@ export const getSidebarInfo = (
   let nextPage: SidebarPage | undefined = undefined;
 
   // Set up temporary data for the search
-  let sidebarContent: (SidebarSection | SidebarPage)[] = fullSidebarContent;
+  let sidebarContent: (SidebarSection | SidebarPage | SidebarContent)[] =
+    fullSidebarContent;
   let path = "";
+
+  //If there is a parent section, add it to the breadcrumbs as the first item
+  if (parentSection) {
+    breadcrumbs.push({
+      slug: parentSection.slug,
+      title: parentSection.title,
+      path: parentSection.slug,
+    });
+  }
 
   // Iterate over each path segment and traverse the sidebar
   // by finding the correct sections and pages
@@ -124,23 +135,30 @@ export const getSidebarInfo = (
     const slug = paths[i];
 
     // Traverse sidebar to find section or page
-    const index = sidebarContent.findIndex((s) => s.slug === `/${slug}`);
-    const section = sidebarContent[index];
-
     let breadcrumbPath = path + `/${slug}`;
+
+    // Match the full path to handle sidebar content that's not nested
+    const section = sidebarContent.find(
+      (s) => s.slug === breadcrumbPath || s.slug === `/${slug}`,
+    );
+
     // If the current breadcrumb is a section (e.g. 'Getting Started'), add the first page to the path
     if (section && "pages" in section && section?.pages) {
       breadcrumbPath += section.pages[0].slug;
     }
 
-    breadcrumbs.push({
-      slug,
-      title: section?.title ?? "",
-      path: breadcrumbPath,
-    });
+    if (section) {
+      breadcrumbs.push({
+        slug,
+        title: section?.title ?? "",
+        path: breadcrumbPath,
+      });
+    }
 
     // Update temporary variables for the next segment search
-    sidebarContent = section && "pages" in section ? section.pages || [] : [];
+    sidebarContent =
+      section && "pages" in section ? section.pages ?? [] : sidebarContent;
+
     path += `/${slug}`;
   }
 
@@ -165,11 +183,23 @@ export const getSidebarInfo = (
   };
 };
 
-const flattenSidebar = (sidebarContent: SidebarSection[]): SidebarPage[] => {
+const flattenSidebar = (
+  sidebarContent: SidebarSection[] | SidebarContent[],
+): SidebarPage[] => {
   let flatSidebar: SidebarPage[] = [];
 
   for (const section of sidebarContent) {
-    flatSidebar = flatSidebar.concat(flattenPages(section.pages, section.slug));
+    if ("pages" in section) {
+      flatSidebar = flatSidebar.concat(
+        flattenPages(section.pages ?? [], section.slug),
+      );
+    } else {
+      flatSidebar.push({
+        title: section.title,
+        slug: section.slug,
+        path: section.slug,
+      });
+    }
   }
 
   return flatSidebar;
@@ -181,7 +211,7 @@ const flattenPages = (
 ): SidebarPage[] => {
   let flatPages: SidebarPage[] = [];
 
-  for (const page of pages) {
+  for (const page of pages ?? []) {
     if ("pages" in page && page.pages) {
       flatPages = flatPages.concat(flattenPages(page.pages, path + page.slug));
     } else {
