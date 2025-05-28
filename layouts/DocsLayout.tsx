@@ -11,10 +11,10 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
   const paths = slugToPaths(router.query.slug);
 
-  const sidebarContent = useSidebarContent();
+  const { content: sidebarContent, parentSection } = useSidebarContent();
 
   const { breadcrumbs, nextPage, prevPage } = useMemo(
-    () => getSidebarInfo(paths, sidebarContent),
+    () => getSidebarInfo(paths, sidebarContent, parentSection),
     [paths, sidebarContent],
   );
 

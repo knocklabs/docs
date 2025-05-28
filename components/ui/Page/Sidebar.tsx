@@ -1,4 +1,4 @@
-import { SidebarSection } from "@/data/types";
+import { SidebarContent, SidebarSection } from "@/data/types";
 import { Box } from "@telegraph/layout";
 import { Stack } from "@telegraph/layout";
 import { NavItem } from "../NavItem";
@@ -28,17 +28,21 @@ export const SidebarContext = createContext<SidebarContextType>({
   samePageRouting: false,
 });
 
-export const useSidebar = () => {
-  return useContext(SidebarContext);
-};
+export const useSidebar = () => useContext(SidebarContext);
+
+type SidebarSectionOrContent = SidebarSection | SidebarContent;
 
 type SidebarProps = {
-  content: SidebarSection[];
+  content: SidebarSectionOrContent[];
   children?: React.ReactNode;
 } & TgphComponentProps<typeof Stack>;
 
-function getOpenState(section: SidebarSection, slug: string, path: string) {
-  return section.pages.some((page) => {
+function getOpenState(
+  section: SidebarSectionOrContent,
+  slug: string,
+  path: string,
+) {
+  return (section.pages ?? []).some((page) => {
     if (isPathTheSame(`${slug}${page.slug}`, path)) {
       return true;
     }
@@ -53,17 +57,19 @@ function getOpenState(section: SidebarSection, slug: string, path: string) {
   });
 }
 
-const Item = ({
+type ItemProps = {
+  section: SidebarSectionOrContent;
+  preSlug?: string;
+  depth?: number;
+  defaultOpen?: boolean;
+};
+
+const ItemWithSubpages = ({
   section,
   preSlug = "",
   depth = 0,
   defaultOpen,
-}: {
-  section: SidebarSection;
-  preSlug?: string;
-  depth?: number;
-  defaultOpen?: boolean;
-}) => {
+}: ItemProps) => {
   const router = useRouter();
   const basePath = router.asPath.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
@@ -182,7 +188,7 @@ const Item = ({
       isOpen={isOpen}
       setIsOpen={setIsOpen}
     >
-      {section.pages.map((page, index) => {
+      {(section.pages ?? []).map((page, index) => {
         if (page?.pages?.length > 0) {
           return (
             <Item
@@ -214,7 +220,39 @@ const Item = ({
   );
 };
 
-const Section = ({ section }: { section: SidebarSection }) => {
+const Item = ({ section, preSlug = "", depth = 0, defaultOpen }: ItemProps) => {
+  const router = useRouter();
+  const slug = `${preSlug}${section.slug}`;
+
+  if ("pages" in section) {
+    return (
+      <ItemWithSubpages
+        section={section}
+        preSlug={preSlug}
+        depth={depth}
+        defaultOpen={defaultOpen}
+      />
+    );
+  }
+
+  return (
+    <NavItem
+      href={slug}
+      isActive={isPathTheSame(slug, router.asPath)}
+      containerProps={{ px: "3" }}
+      style={{ color: "var(--tgph-gray-12)" }}
+    >
+      {section.title}
+      {section.isBeta && (
+        <Tag color="blue" ml="2" size="0">
+          Beta
+        </Tag>
+      )}
+    </NavItem>
+  );
+};
+
+const Section = ({ section }: { section: SidebarSectionOrContent }) => {
   return (
     <Stack direction="column" key={section.slug} mb="1" data-sidebar-section>
       <Box>

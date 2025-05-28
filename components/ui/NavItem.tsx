@@ -9,6 +9,7 @@ import {
 import { Stack } from "@telegraph/layout";
 import { useSidebar } from "./Page/Sidebar";
 import { useMobileSidebar } from "./Page/MobileSidebar";
+import { TgphComponentProps } from "@telegraph/helpers";
 
 type NavItemProps = {
   href: string;
@@ -16,9 +17,17 @@ type NavItemProps = {
   icon?: LucideIcon;
   children: React.ReactNode;
   samePageRouting?: boolean;
-};
+  containerProps?: TgphComponentProps<typeof Stack>;
+} & Omit<TgphComponentProps<typeof Text<"span">>, "as">;
 
-const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
+const NavItem = ({
+  href,
+  isActive,
+  icon,
+  children,
+  containerProps = {},
+  ...textProps
+}: NavItemProps) => {
   const { samePageRouting } = useSidebar();
   const { isOpen: isMobileSidebarOpen, closeSidebar: closeMobileSidebar } =
     useMobileSidebar();
@@ -38,6 +47,9 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
   // Next.js is really annoying if you have prefetch={true} so let's just NOT
   const prefetchProps = samePageRouting ? { prefetch: false } : {};
 
+  const textPropsWithoutStyle = { ...textProps };
+  delete textPropsWithoutStyle.style;
+
   return (
     <Stack
       as={Link}
@@ -52,7 +64,6 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
       px="1"
       py="1"
       className="nav-item"
-      color={isActive ? "default" : "gray"}
       style={{
         textDecoration: "none",
         display: "block",
@@ -63,6 +74,7 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
       data-active={isActive}
       data-resource-path={stripTrailingSlash(href)}
       icon={icon ? { icon: icon, "aria-hidden": true } : undefined}
+      {...containerProps}
     >
       <Text
         as="span"
@@ -74,7 +86,10 @@ const NavItem = ({ href, isActive, icon, children }: NavItemProps) => {
           textWrap: "nowrap",
           // Easy way to vertically align the text
           verticalAlign: "text-bottom",
+          color: isActive ? "var(--tgph-gray-12)" : "var(--tgph-gray-11)",
+          ...(textProps.style || {}),
         }}
+        {...textPropsWithoutStyle}
       >
         {children}
       </Text>

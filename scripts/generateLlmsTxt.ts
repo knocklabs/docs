@@ -4,10 +4,10 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkFrontmatter from "remark-frontmatter";
 import yaml from "yaml";
-import { type SidebarSection } from "../data/types";
+import { SidebarContent, type SidebarSection } from "../data/types";
 
 import { TUTORIALS_SIDEBAR } from "../data/sidebars/tutorialsSidebar";
-import { DEVELOPER_TOOLS_SIDEBAR } from "../data/sidebars/developerToolsSidebar";
+import { DEVELOPER_TOOLS_SIDEBAR_CONTENT } from "../data/sidebars/developerToolsSidebar";
 import { CLI_SIDEBAR } from "../data/sidebars/cliSidebar";
 import { PLATFORM_SIDEBAR } from "../data/sidebars/platformSidebar";
 import { INTEGRATIONS_SIDEBAR } from "../data/sidebars/integrationsSidebar";
@@ -211,8 +211,10 @@ async function processPages(
   }
 }
 
+type SidebarSectionOrContent = SidebarSection | SidebarContent;
+
 async function processSections(
-  sections: SidebarSection[],
+  sections: SidebarSectionOrContent[],
   indexContent,
   fullContent,
   hrefOverride?: string | null,
@@ -221,14 +223,14 @@ async function processSections(
     totalSections += 1;
     // Add section to index
     indexContent.push(`## ${section.title}`);
-    if (section.desc) {
+    if ("desc" in section && section.desc) {
       indexContent.push(section.desc);
     }
     indexContent.push("");
 
     // Add section to full content
     fullContent.push(`# ${section.title}`);
-    if (section.desc) {
+    if ("desc" in section && section.desc) {
       fullContent.push(section.desc);
     }
     fullContent.push("");
@@ -354,7 +356,11 @@ async function generateAllLlmsFiles() {
     fullContent.push("---\n");
 
     // DEVELOPER TOOLS
-    await processSections(DEVELOPER_TOOLS_SIDEBAR, indexContent, fullContent);
+    await processSections(
+      DEVELOPER_TOOLS_SIDEBAR_CONTENT,
+      indexContent,
+      fullContent,
+    );
 
     // DIVIDER
     indexContent.push("---\n");
