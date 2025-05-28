@@ -240,7 +240,8 @@ const Item = ({ section, preSlug = "", depth = 0, defaultOpen }: ItemProps) => {
       href={slug}
       isActive={isPathTheSame(slug, router.asPath)}
       containerProps={{ px: "3" }}
-      style={{ color: "var(--tgph-gray-12)" }}
+      // @ts-expect-error --color is a valid CSS variable
+      style={{ "--color": "var(--tgph-gray-12)" }}
       className="nav-item--top-level"
     >
       {section.title}
