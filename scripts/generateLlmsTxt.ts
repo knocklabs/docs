@@ -164,6 +164,10 @@ async function processPages(
   indentLevel = 0,
   hrefOverride: string | null = null,
 ) {
+  if (!pages) {
+    return;
+  }
+
   for (const page of pages) {
     totalPages += 1;
     let fullHref = `${parentSlug}${page.slug}`;
