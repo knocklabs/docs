@@ -51,94 +51,61 @@ npm install @knocklabs/react-native
 
       For more information, visit <a href="/in-app-ui/security-and-authentication">the security & authentication guide</a>
       for client-side applications.
-    </>
+    </>}
 
-}
 />
 
-### Using the `KnockProvider` and `KnockFeedProvider`
-
 ```jsx
-import { useEffect } from "react";
-import { KnockProvider, KnockFeedProvider, useKnockFeed } from "@knocklabs/react-native";
+import {
+  KnockFeedProvider,
+  KnockProvider,
+  NotificationIconButton,
+  NotificationFeed,
+  FilterStatus,
+} from "@knocklabs/react-native";
+import React, { useCallback, useState } from "react";
+import { StyleSheet, View, StatusBar } from "react-native";
 
-const YourApp = () => {
-  const currentUser = useCurrentUser();
+const App: React.FC = () => {
+  const [isNotificationFeedOpen, setIsNotificationFeedOpen] = useState(false);
+  const onTopActionButtonTap = useCallback(() => {
+    setIsNotificationFeedOpen(!isNotificationFeedOpen);
+  }, [isNotificationFeedOpen]);
 
   return (
     <KnockProvider
       apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-      userId={currentUser.id}
-      // In production, you must pass a signed userToken
-      // and enable enhanced security mode in your Knock dashboard
-      // userToken={currentUser.knockUserToken}
+      host={process.env.KNOCK_HOST}
+      userId={process.env.KNOCK_USER_ID}
+      logLevel="debug"
     >
       <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
-        <NotificationFeed />
+        <View style={styles.container}>
+          <StatusBar />
+          {!isNotificationFeedOpen && (
+            <NotificationIconButton
+              onClick={onTopActionButtonTap}
+              badgeCountType={"unread"}
+            />
+          )}
+          {isNotificationFeedOpen && (
+            <NotificationFeed
+              initialFilterStatus={FilterStatus.Unread}
+              onCellActionButtonTap={({ button, item }) => {
+                console.log("Action button tapped", button, item);
+              }}
+              onRowTap={(item) => {
+                console.log("Row tapped", item);
+              }}
+            />
+          )}
+        </View>
       </KnockFeedProvider>
     </KnockProvider>
   );
 };
 
-const NotificationFeed = () => {
-  const { useFeedStore, feedClient } = useKnockFeed();
-  const { items, metadata } = useFeedStore();
-
-  // Fetch the feed
-  useEffect(() => feedClient.fetch(), [feedClient]);
-
-  return (
-    <View>
-      <Text>Total unread: {metadata.unread_count}</Text>
-      {items.map(item => (
-        <View key={item.id}>
-          {/* Notification cell goes here */}
-        </View>
-      )}
-    </View>
-  )
-};
-```
-
-### Using the `useNotifications` hook
-
-```jsx
-import {
-  useAuthenticatedKnockClient,
-  useNotifications,
-  useNotificationStore
-} from "@knocklabs/react-native";
-
-const MyNotificationsFeed = () => {
-  const knock = useAuthenticatedKnockClient(
-    process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
-    user.knockToken,
-  );
-
-  const notificationFeed = useNotifications(
-    knock,
-    process.env.KNOCK_FEED_CHANNEL_ID,
-  );
-
-  const { metadata, items } = useNotificationStore(notificationFeed);
-
-  // Fetch the feed contents
-  useEffect(() => {
-    notificationFeed.fetch();
-  }, [notificationFeed]);
-
-  return (
-    <View>
-      <Text>Total unread: {metadata.unread_count}</Text>
-      {items.map(item => (
-        <View key={item.id}>
-          {/* Notification cell goes here */}
-        </View>
-      )}
-    </View>
-  );
-};
+export default App;
 ```
 
 ## Common feed recipes

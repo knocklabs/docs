@@ -53,13 +53,13 @@ const languageMap = {
     items: REACT_NATIVE_SIDEBAR,
   },
   ios: {
-    title: "Swift",
+    title: "Swift (iOS)",
     value: "ios",
     icon: icons.swift,
     items: SWIFT_SIDEBAR,
   },
   android: {
-    title: "Android (Kotlin)",
+    title: "Kotlin (Android)",
     value: "android",
     icon: icons.kotlin,
     items: ANDROID_SIDEBAR,

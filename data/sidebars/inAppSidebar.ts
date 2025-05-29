@@ -134,11 +134,13 @@ export const REACT_SIDEBAR: SidebarSection[] = [
       { slug: "/preferences", title: "Preferences" },
       { slug: "/slack-kit", title: "SlackKit" },
       { slug: "/teams-kit", title: "TeamsKit" },
-      {
-        slug: "/migrating-from-react-notification-feed",
-        title: "Migrating from @knocklabs/react-notification-feed",
-      },
     ],
+    sidebarMenuDefaultOpen: true,
+  },
+  {
+    title: "Headless UI",
+    slug: "/in-app-ui/react/headless",
+    pages: [{ slug: "/feed", title: "Feed" }],
     sidebarMenuDefaultOpen: true,
   },
   {
@@ -147,6 +149,10 @@ export const REACT_SIDEBAR: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/reference", title: "Reference" },
+      {
+        slug: "/migrating-from-react-notification-feed",
+        title: "Migrating from @knocklabs/react-notification-feed",
+      },
     ],
     sidebarMenuDefaultOpen: true,
   },
@@ -186,13 +192,16 @@ export const REACT_NATIVE_SIDEBAR: SidebarSection[] = [
     slug: "/in-app-ui/react-native",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/feed", title: "Feed" },
       { slug: "/components", title: "Components" },
       { slug: "/customization", title: "Customization" },
-      {
-        slug: "/notification-feeds",
-        title: "Custom notifications UI (headless)",
-      },
     ],
+    sidebarMenuDefaultOpen: true,
+  },
+  {
+    title: "Headless UI",
+    slug: "/in-app-ui/react-native/headless",
+    pages: [{ slug: "/feed", title: "Feed" }],
     sidebarMenuDefaultOpen: true,
   },
   {

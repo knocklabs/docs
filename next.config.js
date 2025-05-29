@@ -497,7 +497,12 @@ const nextConfig = {
       },
       {
         source: "/in-app-ui/react/custom-notifications-ui",
-        destination: "/in-app-ui/feeds/custom-ui",
+        destination: "/in-app-ui/react/headless/feed",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react-native/notification-feeds",
+        destination: "/in-app-ui/react-native/headless/feed",
         permanent: true,
       },
       {
