@@ -26,8 +26,24 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
         pages: [
           { slug: "/overview", title: "Overview" },
           {
+            slug: "/styling",
+            title: "Styling",
+          },
+          {
+            slug: "/custom-ui",
+            title: "Custom UI (headless)",
+          },
+          {
+            slug: "/handling-interactivity",
+            title: "Handling interactivity",
+          },
+          {
             slug: "/filtering-in-app-feeds",
             title: "Filtering feeds",
+          },
+          {
+            slug: "/socket-behavior",
+            title: "Socket behavior overrides",
           },
         ],
       },
@@ -112,25 +128,19 @@ export const REACT_SIDEBAR: SidebarSection[] = [
     desc: "Use the Knock in-app experiences APIs and components to build rich notifications experiences inside of your product.",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/feed", title: "Notification feed" },
-      { slug: "/toasts", title: "Toasts" },
-      { slug: "/inbox", title: "Notification inbox" },
-      {
-        slug: "/custom-notifications-ui",
-        title: "Custom feed UI (headless)",
-      },
+      { slug: "/feed", title: "Feed" },
+      { slug: "/toasts", title: "Toast" },
+      { slug: "/inbox", title: "Inbox" },
       { slug: "/preferences", title: "Preferences" },
       { slug: "/slack-kit", title: "SlackKit" },
       { slug: "/teams-kit", title: "TeamsKit" },
-      {
-        slug: "/customizing-feed-components",
-        title: "Customizing feed components",
-      },
-      {
-        slug: "/migrating-from-react-notification-feed",
-        title: "Migrating from @knocklabs/react-notification-feed",
-      },
     ],
+    sidebarMenuDefaultOpen: true,
+  },
+  {
+    title: "Headless UI",
+    slug: "/in-app-ui/react/headless",
+    pages: [{ slug: "/feed", title: "Feed" }],
     sidebarMenuDefaultOpen: true,
   },
   {
@@ -139,6 +149,10 @@ export const REACT_SIDEBAR: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/reference", title: "Reference" },
+      {
+        slug: "/migrating-from-react-notification-feed",
+        title: "Migrating from @knocklabs/react-notification-feed",
+      },
     ],
     sidebarMenuDefaultOpen: true,
   },
@@ -178,13 +192,16 @@ export const REACT_NATIVE_SIDEBAR: SidebarSection[] = [
     slug: "/in-app-ui/react-native",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/feed", title: "Feed" },
       { slug: "/components", title: "Components" },
       { slug: "/customization", title: "Customization" },
-      {
-        slug: "/notification-feeds",
-        title: "Custom notifications UI (headless)",
-      },
     ],
+    sidebarMenuDefaultOpen: true,
+  },
+  {
+    title: "Headless UI",
+    slug: "/in-app-ui/react-native/headless",
+    pages: [{ slug: "/feed", title: "Feed" }],
     sidebarMenuDefaultOpen: true,
   },
   {
