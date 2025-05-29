@@ -113,7 +113,7 @@ const nextConfig = {
       },
       {
         source: "/notification-feeds/bring-your-own-ui",
-        destination: "/in-app-ui/react/custom-notifications-ui",
+        destination: "/in-app-ui/feeds/custom-ui",
         permanent: true,
       },
       {
@@ -493,6 +493,16 @@ const nextConfig = {
       {
         source: "/sdks/ios/deep-links",
         destination: "/in-app-ui/ios/sdk/deep-links",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/custom-notifications-ui",
+        destination: "/in-app-ui/feeds/custom-ui",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/customizing-feed-components",
+        destination: "/in-app-ui/react/feed#css-customization",
         permanent: true,
       },
     ];
