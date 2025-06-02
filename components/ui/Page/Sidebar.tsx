@@ -14,6 +14,7 @@ import {
   highlightResource,
   stripPrefix,
   updateNavStyles,
+  useIsPageReady,
 } from "./helpers";
 import { Tag } from "@telegraph/tag";
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
@@ -38,20 +39,16 @@ type SidebarProps = {
 } & TgphComponentProps<typeof Stack>;
 
 function getOpenState(
-  section: SidebarSectionOrContent,
+  pages: SidebarSectionOrContent[],
   slug: string,
   path: string,
 ) {
-  return (section.pages ?? []).some((page) => {
+  return pages.some((page) => {
     if (isPathTheSame(`${slug}${page.slug}`, path)) {
       return true;
     }
     if ("pages" in page) {
-      if (page.pages) {
-        return page?.pages.some((subPage) =>
-          isPathTheSame(`${slug}${page.slug}${subPage.slug}`, path),
-        );
-      }
+      return getOpenState(page.pages ?? [], `${slug}${page.slug}`, path);
     }
     return false;
   });
@@ -78,9 +75,10 @@ const ItemWithSubpages = ({
   const [initializedOnPath, setInitializedOnPath] = useState(pathNoHash);
   const { samePageRouting } = useSidebar();
   const { isSearchOpen } = usePageContext();
+  const isPageReady = useIsPageReady();
 
   const [isOpen, setIsOpen] = useState(
-    defaultOpen ?? getOpenState(section, slug, pathNoHash),
+    defaultOpen ?? getOpenState(section.pages ?? [], slug, pathNoHash),
   );
 
   // Update isOpen when the path changes
@@ -89,7 +87,11 @@ const ItemWithSubpages = ({
     if (pathNoHash !== initializedOnPath) {
       setInitializedOnPath(pathNoHash);
       if (!isOpen) {
-        const isDeterminedOpen = getOpenState(section, slug, pathNoHash);
+        const isDeterminedOpen = getOpenState(
+          section.pages ?? [],
+          slug,
+          pathNoHash,
+        );
         setIsOpen(defaultOpen ?? isDeterminedOpen);
       }
     }
@@ -114,6 +116,7 @@ const ItemWithSubpages = ({
   useEffect(() => {
     // Don't need all the logic if its not a same page routing
     if (!samePageRouting) return;
+    if (!isPageReady) return;
 
     let observer: IntersectionObserver | null = null;
 
@@ -163,14 +166,21 @@ const ItemWithSubpages = ({
     };
 
     // Begin observing after a short delay to allow the page to arrive at its initial state
-    const readyTimeout = setTimeout(addListeners, 2500);
+    // This is to prevent the sidebar from being too eager to scroll to the active item
+    const readyTimeout = setTimeout(addListeners, 1500);
 
     // Cleanup observer on unmount
     return () => {
       observer?.disconnect();
       clearTimeout(readyTimeout);
     };
-  }, [basePath, resourceSection, debouncedHighlight, samePageRouting]);
+  }, [
+    basePath,
+    resourceSection,
+    debouncedHighlight,
+    samePageRouting,
+    isPageReady,
+  ]);
 
   const depthAdjustedCollapsibleNavItemProps: Partial<CollapsibleNavItemProps> =
     depth === 0
