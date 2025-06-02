@@ -11,6 +11,7 @@ export const RESOURCE_ORDER = [
   "variables",
   "templates",
   "message_types",
+  "api_keys",
 ];
 
 export const MAPI_REFERENCE_OVERVIEW_CONTENT: SidebarSection[] = [
