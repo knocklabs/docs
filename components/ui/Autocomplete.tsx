@@ -44,6 +44,7 @@ import { MenuItem } from "@telegraph/menu";
 import { usePageContext } from "./Page";
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { Button } from "@telegraph/button";
+import { highlightResource } from "./Page/helpers";
 
 // This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
@@ -365,8 +366,23 @@ const Autocomplete = () => {
               handleOpenAiChat(state.query);
               return;
             }
-            // Handle regular navigation
-            router.push(`/${itemUrl}`);
+
+            const pathname = router.asPath;
+            const isMapiReference =
+              itemUrl.startsWith("mapi-reference") &&
+              pathname.startsWith("/mapi-reference");
+            const isApiReference =
+              itemUrl.startsWith("api-reference") &&
+              pathname.startsWith("/api-reference");
+            const isSamePageReferenceResult = isMapiReference || isApiReference;
+
+            // If the item is in the same reference, highlight the item, don't navigate
+            if (isSamePageReferenceResult) {
+              highlightResource(`/${itemUrl}`, { moveToItem: true });
+            } else {
+              // Handle regular navigation
+              router.push(`/${itemUrl}`);
+            }
 
             // Clear the query when navigating
             if (state.query) {
