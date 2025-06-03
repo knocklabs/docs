@@ -99,26 +99,21 @@ const ItemWithSubpages = ({
 
   // Create the debounced function once when component mounts
   // This helps produce a smoother experience when scrolling fast
-  const debouncedHighlight = useMemo(
-    () =>
-      debounce((path: string) => {
-        setIsOpen(true);
-        // This can get triggered when the page moves, but moving the page can highlight a new
-        // item and focus it, which breaks keyboard navigation of search.
-        // So when the search is open, we skip the focus.
-        if (!isSearchOpen) {
-          highlightResource(path);
-        }
-      }, 300), // The lower the number here, the quicker the highlight, but can get laggy if too low
-    [isSearchOpen], // Empty dependency array means this is only created once
-  );
+  const debouncedHighlight = debounce((path: string) => {
+    // Open the collapsible nav item
+    setIsOpen(true);
+    // This can get triggered when the page moves, but moving the page can highlight a new
+    // item and focus it, which breaks keyboard navigation of search.
+    // So when the search is open, we skip the focus.
+    if (!isSearchOpen) {
+      highlightResource(path);
+    }
+  }, 300); // The lower the number here, the quicker the highlight, but can get laggy if too low
 
   useEffect(() => {
     // Don't need all the logic if its not a same page routing
     if (!samePageRouting) return;
     if (!isPageReady) return;
-
-    let observer: IntersectionObserver | null = null;
 
     function getObserver() {
       return new IntersectionObserver(
@@ -132,47 +127,22 @@ const ItemWithSubpages = ({
           });
         },
         {
-          threshold: 0.3,
-          rootMargin: "0px 0px 0px 0px",
+          threshold: 0.5,
+          rootMargin: "100px 0px 100px 0px",
         },
       );
     }
 
-    const addListeners = () => {
-      observer = getObserver();
-
-      // Wait for initial scroll before observing
-      let initialScrollY: number | null = null;
-
-      // Add a scroll buffer to only start observing after the user scrolls through the page a bit
-      const scrollBuffer = () => {
-        if (initialScrollY === null) {
-          initialScrollY = window.scrollY;
-        }
-        const scrollDelta = Math.abs(window.scrollY - initialScrollY);
-        // Only start observing after a certain scroll delta
-        if (scrollDelta < 500) return;
-
-        observer = getObserver();
-
-        document
-          .querySelectorAll(`[data-resource-path^="${resourceSection}"]`)
-          .forEach((element) => {
-            observer?.observe(element);
-          });
-        window.removeEventListener("scroll", scrollBuffer);
-      };
-      window.addEventListener("scroll", scrollBuffer);
-    };
-
-    // Begin observing after a short delay to allow the page to arrive at its initial state
-    // This is to prevent the sidebar from being too eager to scroll to the active item
-    const readyTimeout = setTimeout(addListeners, 1500);
+    const observer: IntersectionObserver | null = getObserver();
+    document
+      .querySelectorAll(`section[data-resource-path^="${resourceSection}"]`)
+      .forEach((element) => {
+        observer?.observe(element);
+      });
 
     // Cleanup observer on unmount
     return () => {
       observer?.disconnect();
-      clearTimeout(readyTimeout);
     };
   }, [
     basePath,

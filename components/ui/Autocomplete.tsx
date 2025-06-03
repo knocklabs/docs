@@ -116,9 +116,45 @@ const StaticSearch = () => {
   );
 };
 
-const DocsSearchResult = ({ item }: { item: ResultItem }) => {
+const handleSearchNavigation = (
+  e: React.MouseEvent<HTMLAnchorElement>,
+  router,
+  itemUrl: string,
+  clearSearch: () => void,
+) => {
+  e.preventDefault();
+  const pathname = router.asPath;
+  const isMapiReference =
+    itemUrl.startsWith("mapi-reference") &&
+    pathname.startsWith("/mapi-reference");
+  const isApiReference =
+    itemUrl.startsWith("api-reference") &&
+    pathname.startsWith("/api-reference");
+  const isSamePageReferenceResult = isMapiReference || isApiReference;
+
+  // If the item is in the same reference, highlight the item, don't navigate
+  if (isSamePageReferenceResult) {
+    highlightResource(`/${itemUrl}`, { moveToItem: true });
+  } else {
+    // Handle regular navigation
+    router.push(`/${itemUrl}`);
+  }
+  clearSearch();
+};
+
+const DocsSearchResult = ({
+  item,
+  clearSearch,
+}: {
+  item: ResultItem;
+  clearSearch: () => void;
+}) => {
+  const router = useRouter();
   return (
-    <Link href={`/${item.path}`} passHref>
+    <Link
+      href={`/${item.path}`}
+      onClick={(e) => handleSearchNavigation(e, router, item.path, clearSearch)}
+    >
       <Box w="full" h="full" px="2" py="2">
         <Text as="p" size="2" color="black" weight="regular">
           {/* @ts-expect-error not sure about these algolia types */}
@@ -143,7 +179,14 @@ const DocsSearchResult = ({ item }: { item: ResultItem }) => {
   );
 };
 
-const EndpointSearchResult = ({ item }: { item: EndpointSearchItem }) => {
+const EndpointSearchResult = ({
+  item,
+  clearSearch,
+}: {
+  item: EndpointSearchItem;
+  clearSearch: () => void;
+}) => {
+  const router = useRouter();
   const colors = {
     get: "blue",
     post: "green",
@@ -152,7 +195,10 @@ const EndpointSearchResult = ({ item }: { item: EndpointSearchItem }) => {
     patch: "purple",
   } as const;
   return (
-    <Link href={`/${item.path}`} passHref>
+    <Link
+      href={`/${item.path}`}
+      onClick={(e) => handleSearchNavigation(e, router, item.path, clearSearch)}
+    >
       <Stack w="full" h="full" px="1" py="2" gap="2" alignItems="center">
         <Tag size="0" color={colors[item.method as keyof typeof colors]}>
           {item.method?.toUpperCase()}
@@ -367,22 +413,8 @@ const Autocomplete = () => {
               return;
             }
 
-            const pathname = router.asPath;
-            const isMapiReference =
-              itemUrl.startsWith("mapi-reference") &&
-              pathname.startsWith("/mapi-reference");
-            const isApiReference =
-              itemUrl.startsWith("api-reference") &&
-              pathname.startsWith("/api-reference");
-            const isSamePageReferenceResult = isMapiReference || isApiReference;
-
-            // If the item is in the same reference, highlight the item, don't navigate
-            if (isSamePageReferenceResult) {
-              highlightResource(`/${itemUrl}`, { moveToItem: true });
-            } else {
-              // Handle regular navigation
-              router.push(`/${itemUrl}`);
-            }
+            // Handle regular navigation
+            router.push(`/${itemUrl}`);
 
             // Clear the query when navigating
             if (state.query) {
@@ -702,10 +734,16 @@ const Autocomplete = () => {
                                 {isEndpoint ? (
                                   <EndpointSearchResult
                                     item={item as EndpointSearchItem}
+                                    clearSearch={() =>
+                                      autocomplete.setQuery("")
+                                    }
                                   />
                                 ) : (
                                   <DocsSearchResult
                                     item={item as DocsSearchItem}
+                                    clearSearch={() =>
+                                      autocomplete.setQuery("")
+                                    }
                                   />
                                 )}
                               </MenuItem>

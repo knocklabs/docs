@@ -21,10 +21,8 @@ export const highlightResource = (
   resourceUrl: string,
   {
     moveToItem = false,
-    replaceUrl,
   }: {
     moveToItem?: boolean;
-    replaceUrl?: string;
   } = {},
 ) => {
   const resourceUrlNoTrailingSlash = stripTrailingSlash(resourceUrl);
@@ -41,21 +39,7 @@ export const highlightResource = (
 
     // Scroll to the content on the page
     if (newActiveItem) {
-      // Get the desired padding from the CSS variable
-      const topPadding =
-        parseInt(
-          getComputedStyle(document.documentElement).getPropertyValue(
-            "--top-padding",
-          ),
-          10,
-        ) || 0;
-      const elementRect = newActiveItem.getBoundingClientRect();
-      const targetScrollY = window.scrollY + elementRect.top - topPadding;
-
-      window.scrollTo({
-        top: targetScrollY,
-        behavior: "instant",
-      });
+      scrollToElementWithPadding(document, newActiveItem);
 
       newActiveItem.focus();
     }
@@ -63,7 +47,7 @@ export const highlightResource = (
 
   // Update URL state
   if (resourceUrl) {
-    window.history.replaceState(null, "", replaceUrl || resourceUrl);
+    window.history.replaceState(null, "", resourceUrl);
   }
 };
 
@@ -128,7 +112,12 @@ export const updateNavStyles = (resourceUrl: string) => {
   });
 };
 
-const scrollToElementWithPadding = (document: Document, element: Element) => {
+// Jiggle is an option that jiggles the scroll a little to trigger the sidebar to open
+const scrollToElementWithPadding = (
+  document: Document,
+  element: Element,
+  { jiggle = true }: { jiggle?: boolean } = {},
+) => {
   const topPadding =
     parseInt(
       getComputedStyle(document.documentElement).getPropertyValue(
@@ -140,8 +129,18 @@ const scrollToElementWithPadding = (document: Document, element: Element) => {
   // Calculate scroll position relative to the current scroll, adjusted for padding.
   const targetScrollY = window.pageYOffset + elementRect.top - topPadding;
 
-  // Use 'auto' for immediate jump on load, respecting user agent settings for motion if any.
-  window.scrollTo({ top: targetScrollY, behavior: "auto" });
+  // Use 'instant' for immediate jump on load, respecting user agent settings for motion if any.
+  // Prevents any interruption with the Sidebar scroll events
+  window.scrollTo({ top: targetScrollY, behavior: "instant" });
+
+  console.log("jiggle", jiggle);
+
+  // Hack to jiggle the scroll a little with smooth scroll to trigger the sidebar to open
+  if (jiggle) {
+    setTimeout(() => {
+      window.scrollTo({ top: targetScrollY + 1, behavior: "smooth" });
+    }, 10);
+  }
 };
 
 /**
@@ -194,7 +193,7 @@ export const useInitialScrollState = () => {
       `[data-resource-path="${resourcePath}"]`,
     );
     if (element) {
-      scrollToElementWithPadding(document, element);
+      scrollToElementWithPadding(document, element, { jiggle: false });
     } else {
       window.scrollTo(0, 0);
     }
