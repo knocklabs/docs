@@ -8,7 +8,7 @@ import {
   CollapsibleNavItem,
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
-import { useState, useMemo, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import {
   isPathTheSame,
   highlightResource,
