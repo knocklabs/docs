@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { debounce } from "@/lib/debounce";
 
 export const stripPrefix = (path: string) => {
@@ -21,10 +21,8 @@ export const highlightResource = (
   resourceUrl: string,
   {
     moveToItem = false,
-    replaceUrl,
   }: {
     moveToItem?: boolean;
-    replaceUrl?: string;
   } = {},
 ) => {
   const resourceUrlNoTrailingSlash = stripTrailingSlash(resourceUrl);
@@ -41,21 +39,7 @@ export const highlightResource = (
 
     // Scroll to the content on the page
     if (newActiveItem) {
-      // Get the desired padding from the CSS variable
-      const topPadding =
-        parseInt(
-          getComputedStyle(document.documentElement).getPropertyValue(
-            "--top-padding",
-          ),
-          10,
-        ) || 0;
-      const elementRect = newActiveItem.getBoundingClientRect();
-      const targetScrollY = window.scrollY + elementRect.top - topPadding;
-
-      window.scrollTo({
-        top: targetScrollY,
-        behavior: "instant",
-      });
+      scrollToElementWithPadding(document, newActiveItem);
 
       newActiveItem.focus();
     }
@@ -63,7 +47,7 @@ export const highlightResource = (
 
   // Update URL state
   if (resourceUrl) {
-    window.history.replaceState(null, "", replaceUrl || resourceUrl);
+    window.history.replaceState(null, "", resourceUrl);
   }
 };
 
@@ -128,7 +112,12 @@ export const updateNavStyles = (resourceUrl: string) => {
   });
 };
 
-const scrollToElementWithPadding = (document: Document, element: Element) => {
+// Jiggle is an option that jiggles the scroll a little to trigger the sidebar to open
+const scrollToElementWithPadding = (
+  document: Document,
+  element: Element,
+  { jiggle = true }: { jiggle?: boolean } = {},
+) => {
   const topPadding =
     parseInt(
       getComputedStyle(document.documentElement).getPropertyValue(
@@ -140,32 +129,70 @@ const scrollToElementWithPadding = (document: Document, element: Element) => {
   // Calculate scroll position relative to the current scroll, adjusted for padding.
   const targetScrollY = window.pageYOffset + elementRect.top - topPadding;
 
-  // Use 'auto' for immediate jump on load, respecting user agent settings for motion if any.
-  window.scrollTo({ top: targetScrollY, behavior: "auto" });
+  // Use 'instant' for immediate jump on load, respecting user agent settings for motion if any.
+  // Prevents any interruption with the Sidebar scroll events
+  window.scrollTo({ top: targetScrollY, behavior: "instant" });
+
+  // Hack to jiggle the scroll a little with smooth scroll to trigger the sidebar to open
+  if (jiggle) {
+    setTimeout(() => {
+      window.scrollTo({ top: targetScrollY + 1, behavior: "smooth" });
+    }, 10);
+  }
 };
 
-export const useInitialScrollState = () => {
+/**
+ * Our API reference pages are HUGE, like 5mb of content
+ * They take a significant amount of time to load
+ * This hook waits until the page height is stable before returning true
+ * This allows other functions to wait for the page to be ready before running
+ */
+export const useIsPageReady = () => {
+  const [isReady, setIsReady] = useState(false);
   const router = useRouter();
   const basePath = router.pathname.split("/")[1];
 
   useLayoutEffect(() => {
-    // This setTimeout is a trick to make sure the scroll position is accurate
-    const timeout = setTimeout(() => {
-      const path = router.asPath;
-
-      const resourcePath = path.replace(`/${basePath}`, "");
-      const element = document.querySelector(
-        `[data-resource-path="${resourcePath}"]`,
-      );
-
-      if (element) {
-        scrollToElementWithPadding(document, element);
+    let prevHeight = document.body.scrollHeight;
+    let stableCount = 0;
+    const maxStableChecks = 3; // Require 3 consecutive stable measurements
+    const interval = setInterval(() => {
+      const currentHeight = document.body.scrollHeight;
+      if (currentHeight === prevHeight) {
+        stableCount += 1;
+        if (stableCount >= maxStableChecks) {
+          clearInterval(interval);
+          setIsReady(true);
+        }
       } else {
-        // Fallback or default scroll behavior if element not found initially
-        window.scrollTo(0, 0);
+        stableCount = 0;
+        prevHeight = currentHeight;
       }
-    }, 250);
+    }, 50);
 
-    return () => clearTimeout(timeout);
+    // Cleanup on unmount or dependency change
+    return () => clearInterval(interval);
   }, [router.asPath, basePath]);
+
+  return isReady;
+};
+
+export const useInitialScrollState = () => {
+  const router = useRouter();
+  const isReady = useIsPageReady();
+  const basePath = router.pathname.split("/")[1];
+
+  useLayoutEffect(() => {
+    if (!isReady) return;
+    const path = router.asPath;
+    const resourcePath = path.replace(`/${basePath}`, "");
+    const element = document.querySelector(
+      `[data-resource-path="${resourcePath}"]`,
+    );
+    if (element) {
+      scrollToElementWithPadding(document, element, { jiggle: false });
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [router.asPath, basePath, isReady]);
 };
