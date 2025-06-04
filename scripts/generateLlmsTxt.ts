@@ -147,10 +147,13 @@ async function getMarkdownContent(slug) {
         return { description: "", fullContent: "" };
       }
 
-      throw new Error(`Warning: Could not load content for ${slug}`);
+      throw new Error(
+        `Error: Could not load content for ${slug}. This page is likely a 404 on the site - please double check that the path exists and is accessible.`,
+      );
     }
   } catch (error) {
-    console.warn(error);
+    console.error(error);
+    throw error;
   }
   return { description: "", fullContent: "" };
 }

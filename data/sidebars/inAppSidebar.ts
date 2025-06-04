@@ -211,7 +211,7 @@ export const REACT_NATIVE_SIDEBAR: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/push-notifications", title: "Push notifications" },
-      { slug: "/notification-feeds", title: "Notification feeds" },
+
       { slug: "/reference", title: "Reference" },
     ],
     sidebarMenuDefaultOpen: true,
