@@ -2011,6 +2011,16 @@ components:
         tenant: acme_corp
         workflow: comment-created
       properties:
+        actor:
+          description: A map of properties describing a user or an object to identify in Knock and mark as who or what performed the action.
+          oneOf:
+            - $ref: '#/components/schemas/RecipientRequest'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
         data:
           additionalProperties: true
           description: An optional map of data to pass into the workflow execution. There is a 1024 byte limit on the size of any single string value (with the exception of [email attachments](/integrations/email/attachments)), and a 10MB limit on the size of the full `data` payload.
@@ -2063,7 +2073,6 @@ components:
           x-validate: null
       required:
         - workflow
-        - repeats
         - recipients
       title: CreateSchedulesRequest
       type: object
@@ -11844,6 +11853,8 @@ paths:
 
           const schedules = await client.schedules.create({
             recipients: ['user_123'],
+            workflow: 'comment-created',
+            data: { key: 'value' },
             repeats: [
               {
                 __typename: 'ScheduleRepeat',
@@ -11855,8 +11866,6 @@ paths:
                 minutes: null,
               },
             ],
-            workflow: 'comment-created',
-            data: { key: 'value' },
             tenant: 'acme_corp',
           });
 
@@ -11870,6 +11879,10 @@ paths:
           )
           schedules = client.schedules.create(
               recipients=["user_123"],
+              workflow="comment-created",
+              data={
+                  "key": "value"
+              },
               repeats=[{
                   "_typename": "ScheduleRepeat",
                   "day_of_month": None,
@@ -11879,10 +11892,6 @@ paths:
                   "interval": 1,
                   "minutes": None,
               }],
-              workflow="comment-created",
-              data={
-                  "key": "value"
-              },
               tenant="acme_corp",
           )
           print(schedules)
@@ -11904,6 +11913,10 @@ paths:
             )
             schedules, err := client.Schedules.New(context.TODO(), knock.ScheduleNewParams{
               Recipients: knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("user_123")}),
+              Workflow: knock.F("comment-created"),
+              Data: knock.F(map[string]interface{}{
+              "key": "value",
+              }),
               Repeats: knock.F([]knock.ScheduleRepeatRuleParam{knock.ScheduleRepeatRuleParam{
                 Typename: knock.F("ScheduleRepeat"),
                 DayOfMonth: knock.Null[int64](),
@@ -11913,10 +11926,6 @@ paths:
                 Interval: knock.F(int64(1)),
                 Minutes: knock.Null[int64](),
               }}),
-              Workflow: knock.F("comment-created"),
-              Data: knock.F(map[string]interface{}{
-              "key": "value",
-              }),
               Tenant: knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("acme_corp")),
             })
             if err != nil {
@@ -11931,7 +11940,6 @@ paths:
           import app.knock.api.client.okhttp.KnockOkHttpClient;
           import app.knock.api.models.schedules.Schedule;
           import app.knock.api.models.schedules.ScheduleCreateParams;
-          import app.knock.api.models.schedules.ScheduleRepeatRule;
 
           public final class Main {
               private Main() {}
@@ -11942,10 +11950,6 @@ paths:
 
                   ScheduleCreateParams params = ScheduleCreateParams.builder()
                       .addRecipient("user_123")
-                      .addRepeat(ScheduleRepeatRule.builder()
-                          ._typename("ScheduleRepeat")
-                          .frequency(ScheduleRepeatRule.Frequency.DAILY)
-                          .build())
                       .workflow("comment-created")
                       .build();
                   List<Schedule> schedules = client.schedules().create(params);
@@ -11958,11 +11962,7 @@ paths:
             api_key: ENV["KNOCK_API_KEY"] # This is the default and can be omitted
           )
 
-          schedules = knock.schedules.create(
-            recipients: ["user_123"],
-            repeats: [{__typename: "ScheduleRepeat", frequency: :daily}],
-            workflow: "comment-created"
-          )
+          schedules = knock.schedules.create(recipients: ["user_123"], workflow: "comment-created")
 
           puts(schedules)
     put:
