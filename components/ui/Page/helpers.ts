@@ -156,8 +156,7 @@ export const useIsPageReady = () => {
     let prevHeight = document.body.scrollHeight;
     let stableCount = 0;
     const maxStableChecks = 3; // Require 3 consecutive stable measurements
-    let interval: NodeJS.Timeout;
-    interval = setInterval(() => {
+    const interval = setInterval(() => {
       const currentHeight = document.body.scrollHeight;
       if (currentHeight === prevHeight) {
         stableCount += 1;
