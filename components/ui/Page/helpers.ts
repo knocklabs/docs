@@ -133,8 +133,6 @@ const scrollToElementWithPadding = (
   // Prevents any interruption with the Sidebar scroll events
   window.scrollTo({ top: targetScrollY, behavior: "instant" });
 
-  console.log("jiggle", jiggle);
-
   // Hack to jiggle the scroll a little with smooth scroll to trigger the sidebar to open
   if (jiggle) {
     setTimeout(() => {

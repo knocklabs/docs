@@ -119,8 +119,8 @@ const StaticSearch = () => {
 const handleSearchNavigation = (
   e: React.MouseEvent<HTMLAnchorElement>,
   router,
-  itemUrl: string,
-  clearSearch: () => void,
+  itemUrl,
+  onSearch: () => void,
 ) => {
   e.preventDefault();
   const pathname = router.asPath;
@@ -139,21 +139,21 @@ const handleSearchNavigation = (
     // Handle regular navigation
     router.push(`/${itemUrl}`);
   }
-  clearSearch();
+  onSearch();
 };
 
 const DocsSearchResult = ({
   item,
-  clearSearch,
+  onClick,
 }: {
   item: ResultItem;
-  clearSearch: () => void;
+  onClick: () => void;
 }) => {
   const router = useRouter();
   return (
     <Link
       href={`/${item.path}`}
-      onClick={(e) => handleSearchNavigation(e, router, item.path, clearSearch)}
+      onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
     >
       <Box w="full" h="full" px="2" py="2">
         <Text as="p" size="2" color="black" weight="regular">
@@ -181,10 +181,10 @@ const DocsSearchResult = ({
 
 const EndpointSearchResult = ({
   item,
-  clearSearch,
+  onClick,
 }: {
   item: EndpointSearchItem;
-  clearSearch: () => void;
+  onClick: () => void;
 }) => {
   const router = useRouter();
   const colors = {
@@ -197,7 +197,7 @@ const EndpointSearchResult = ({
   return (
     <Link
       href={`/${item.path}`}
-      onClick={(e) => handleSearchNavigation(e, router, item.path, clearSearch)}
+      onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
     >
       <Stack w="full" h="full" px="1" py="2" gap="2" alignItems="center">
         <Tag size="0" color={colors[item.method as keyof typeof colors]}>
@@ -734,16 +734,12 @@ const Autocomplete = () => {
                                 {isEndpoint ? (
                                   <EndpointSearchResult
                                     item={item as EndpointSearchItem}
-                                    clearSearch={() =>
-                                      autocomplete.setQuery("")
-                                    }
+                                    onClick={() => autocomplete.setQuery("")}
                                   />
                                 ) : (
                                   <DocsSearchResult
                                     item={item as DocsSearchItem}
-                                    clearSearch={() =>
-                                      autocomplete.setQuery("")
-                                    }
+                                    onClick={() => autocomplete.setQuery("")}
                                   />
                                 )}
                               </MenuItem>
