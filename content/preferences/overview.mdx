@@ -257,3 +257,73 @@ You can update the preferences of up to 1000 users in a single batch by using th
 - [Preference conditions](/preferences/preference-conditions). You can build advanced conditions and store them on Knock’s preference model to power use cases such as per-resource muting (example: mute notifications about this task) or threshold alerts (example: only notify me if my account balance is below $5).
 - Workflow overrides. If you need to override a recipient's notification preferences to send notifications like a password reset email, you can override the preferences model. To do this, go to your workflow, click "Manage workflow," and enable "Override recipient preferences." You will need to commit this change for it to take effect. When enabled, the workflow will send to all of its channels, regardless of the recipient's preferences.
 - [Commercial unsubscribe](/preferences/commercial-unsubscribe). You can configure 1-click unsubscribe links to help users opt-out of commercial or promotional notifications and comply with CAN-SPAM requirements.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I update a single preference rather than replacing a recipient's entire preference set?">
+    While our preferences API endpoints will always overwrite the
+    existing `PreferenceSet` with the new preferences provided, it's possible to
+    update a single preference by using any of our [recipient identification
+    methods](/managing-recipients/identifying-recipients), including while triggering a workflow (as seen in the example below). 
+    This will perform a deep merge of the provided preferences into any
+    existing preferences, just like any other [properties stored on the
+    recipient](/concepts/users#storing-user-properties). 
+    
+    Note that the syntax for providing the `id` of the preference set on an [`InlinePreferenceSetRequest`](/api-reference/recipients/preferences/schemas/inline_preference_set_request)
+    is slightly different than the way that our preferences endpoints handles them; you'll simply provide a key-value pair where the key is the `id` of the preference set and the value is the `PreferenceSet` you'd like to merge.
+   
+    Here's what this looks like in practice. If a user has these existing `default` preferences:
+    ```json title="An existing default preference set"
+    {
+      "categories": {
+        "collaboration": {
+          "channel_types": {
+            "email": true,
+            "in_app_feed": true
+          }
+        }
+      }
+    }
+    ```
+    and they would like to update their email preference for the `collaboration` category to `false`, you can do so by providing the following `InlinePreferenceSetRequest` while triggering a workflow:
+    ```javascript title="Triggering a workflow with inline preferences using the Node SDK"
+    import Knock from "@knocklabs/node";
+    const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+
+    await knock.workflows.trigger("new-comment", {
+      data: { project_name: "My Project" },
+      recipients: [
+        {
+          id: "1",
+          preferences: {
+            default: {
+              categories: {
+                collaboration: {
+                  channel_types: {
+                    email: false
+                  }
+                }
+              }
+            }
+          }
+        },
+      ],
+    });
+    ```
+    This will result in the following `PreferenceSet` being set on the recipient prior to the workflow being triggered:
+    ```json title="The resulting default preference set"
+    {
+      "categories": {
+        "collaboration": {
+          "channel_types": {
+            "email": false,
+            "in_app_feed": true
+          }
+        }
+      }
+    }
+    ```
+
+  </Accordion>
+</AccordionGroup>
