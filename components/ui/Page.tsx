@@ -8,8 +8,6 @@ import { Sidebar, SidebarContext } from "./Page/Sidebar";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ContentActions } from "./ContentActions";
 
-import "../../styles/global.css";
-import "../../styles/responsive.css";
 import { createContext, useContext, useRef, useState } from "react";
 import { MobileSidebar } from "./Page/MobileSidebar";
 import { Button } from "@telegraph/button";
@@ -84,8 +82,16 @@ const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
   </Stack>
 );
 
-const Masthead = ({ mobileSidebar }: { mobileSidebar?: React.ReactNode }) => {
-  return <PageHeader mobileSidebar={mobileSidebar} />;
+const Masthead = ({
+  skipHighlight,
+  mobileSidebar,
+}: {
+  skipHighlight?: boolean;
+  mobileSidebar?: React.ReactNode;
+}) => {
+  return (
+    <PageHeader skipHighlight={skipHighlight} mobileSidebar={mobileSidebar} />
+  );
 };
 
 const Content = ({ children, fullWidth = false }) => (
