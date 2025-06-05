@@ -66,6 +66,7 @@ export default function NotFound() {
         mobileSidebar={<Page.MobileSidebar content={PLATFORM_SIDEBAR} />}
       />
       <Page.Wrapper>
+        {/* This is usually where the sidebar goes. This is the only place we don't have one. This makes sure the CSS grid has an item here. */}
         <Box />
         <Page.Content>
           <Box>
