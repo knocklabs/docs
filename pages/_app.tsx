@@ -14,6 +14,8 @@ import { useRemoteRefresh } from "next-remote-refresh/hook";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 import "../styles/index.css";
+import "../styles/global.css";
+import "../styles/responsive.css";
 
 function App({ Component, pageProps }) {
   const router = useRouter();

@@ -9,6 +9,7 @@ import Autocomplete from "@/components/ui/Autocomplete";
 
 type PageHeaderProps = {
   mobileSidebar?: React.ReactNode;
+  skipHighlight?: boolean;
 };
 
 function selectedTab(pathname: string) {
@@ -36,7 +37,7 @@ function selectedTab(pathname: string) {
   return "platform";
 }
 
-const PageHeader = ({ mobileSidebar }: PageHeaderProps) => {
+const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
   const { asPath } = useRouter();
 
   return (
@@ -119,7 +120,7 @@ const PageHeader = ({ mobileSidebar }: PageHeaderProps) => {
           {mobileSidebar && mobileSidebar}
         </Stack>
         <Tabs
-          value={selectedTab(asPath)}
+          value={skipHighlight ? "" : selectedTab(asPath)}
           className="main-header-tabs"
           style={{ overflowX: "auto" }}
         >
