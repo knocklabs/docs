@@ -11,7 +11,7 @@ import { PLATFORM_SIDEBAR } from "@/data/sidebars/platformSidebar";
 
 /**
  * Not seeing 404 page in development? Please read!
- * First, this works when you build. This is only a development issue.
+ * First, the 404 page does load when you build. This is only a local development issue.
  * If you want to tinker, you can change the name of /app to /apps temporarily
  * to serve the 404 page (this one).
  *
