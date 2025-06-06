@@ -1978,7 +1978,6 @@ components:
           x-struct: null
           x-validate: null
       required:
-        - __typename
         - frequency
       title: ScheduleRepeatRule
       type: object
@@ -3220,14 +3219,13 @@ components:
       description: A request to set objects in bulk.
       example:
         objects:
-          - collection: projects
-            id: project_1
+          - id: project_1
             name: My project
       properties:
         objects:
           description: A list of objects.
           items:
-            $ref: '#/components/schemas/InlineIdentifyObjectRequest'
+            $ref: '#/components/schemas/BulkSetObjectRequest'
           type: array
           x-struct: null
           x-validate: null
@@ -3614,6 +3612,50 @@ components:
       title: User
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.User
+      x-validate: null
+    BulkSetObjectRequest:
+      additionalProperties: true
+      description: A custom [Object](/concepts/objects) entity which belongs to a collection.
+      example:
+        id: project_1
+        name: My project
+      properties:
+        channel_data:
+          description: An optional set of [channel data](/managing-recipients/setting-channel-data) for the object. This is a list of `ChannelData` objects.
+          oneOf:
+            - $ref: '#/components/schemas/InlineChannelDataRequest'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: Timestamp when the resource was created.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: Unique identifier for the object.
+          nullable: false
+          type: string
+          x-struct: null
+          x-validate: null
+        preferences:
+          description: An optional set of [preferences](/concepts/preferences) for the object.
+          oneOf:
+            - $ref: '#/components/schemas/InlinePreferenceSetRequest'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+      title: BulkSetObjectRequest
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.BulkSetObjectRequest
       x-validate: null
     UpdateSchedulesRequest:
       description: A request to update a schedule.
@@ -4942,15 +4984,6 @@ components:
               x-struct: null
               x-validate: null
             - $ref: '#/components/schemas/InlineChannelDataRequest'
-          x-struct: null
-          x-validate: null
-        preferences:
-          description: The preferences for the tenant.
-          oneOf:
-            - nullable: true
-              x-struct: null
-              x-validate: null
-            - $ref: '#/components/schemas/InlinePreferenceSetRequest'
           x-struct: null
           x-validate: null
         settings:
@@ -6875,16 +6908,13 @@ paths:
             type: array
             x-struct: null
             x-validate: null
-        - description: Only returns subscriptions for the specified object GIDs.
+        - description: Only returns subscriptions for the specified object references.
           in: query
           name: objects[]
           required: false
           schema:
             items:
-              description: Object GID in the format `gid://Object/collection/id`.
-              type: string
-              x-struct: null
-              x-validate: null
+              $ref: '#/components/schemas/RecipientReference'
             type: array
             x-struct: null
             x-validate: null
@@ -11662,16 +11692,14 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: Filter by recipient IDs.
+        - description: Filter by recipient references.
           in: query
           name: recipients[]
           required: false
           schema:
-            description: A list of recipient IDs to filter by.
+            description: A list of recipient references to filter by.
             items:
-              type: string
-              x-struct: null
-              x-validate: null
+              $ref: '#/components/schemas/RecipientReference'
             type: array
             x-struct: null
             x-validate: null
@@ -19357,8 +19385,7 @@ paths:
           application/json:
             example:
               objects:
-                - collection: projects
-                  id: project_1
+                - id: project_1
                   name: My project
             schema:
               $ref: '#/components/schemas/BulkSetObjectsRequest'
@@ -19387,7 +19414,6 @@ paths:
           const bulkOperation = await client.objects.bulk.set('collection', {
             objects: [
               {
-                collection: 'projects',
                 id: 'project_1',
                 name: {
                   '0': 'M',
@@ -19416,7 +19442,6 @@ paths:
           bulk_operation = client.objects.bulk.set(
               collection="collection",
               objects=[{
-                  "collection": "projects",
                   "id": "project_1",
                   "name": {
                       "0": "M",
@@ -19452,8 +19477,7 @@ paths:
               context.TODO(),
               "collection",
               knock.ObjectBulkSetParams{
-                Objects: knock.F([]knock.InlineObjectRequestParam{knock.InlineObjectRequestParam{
-                  Collection: knock.F("projects"),
+                Objects: knock.F([]knock.ObjectBulkSetParamsObject{knock.ObjectBulkSetParamsObject{
                   ID: knock.F("project_1"),
                 }}),
               },
@@ -19469,7 +19493,6 @@ paths:
           import app.knock.api.client.KnockClient;
           import app.knock.api.client.okhttp.KnockOkHttpClient;
           import app.knock.api.models.bulkoperations.BulkOperation;
-          import app.knock.api.models.objects.InlineObjectRequest;
           import app.knock.api.models.objects.bulk.BulkSetParams;
 
           public final class Main {
@@ -19481,9 +19504,8 @@ paths:
 
                   BulkSetParams params = BulkSetParams.builder()
                       .collection("collection")
-                      .addObject(InlineObjectRequest.builder()
+                      .addObject(BulkSetParams.Object.builder()
                           .id("project_1")
-                          .collection("projects")
                           .build())
                       .build();
                   BulkOperation bulkOperation = client.objects().bulk().set(params);
@@ -19496,7 +19518,7 @@ paths:
             api_key: ENV["KNOCK_API_KEY"] # This is the default and can be omitted
           )
 
-          bulk_operation = knock.objects.bulk.set("collection", objects: [{id: "project_1", collection: "projects"}])
+          bulk_operation = knock.objects.bulk.set("collection", objects: [{id: "project_1"}])
 
           puts(bulk_operation)
 security:
