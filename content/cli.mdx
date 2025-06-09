@@ -457,6 +457,62 @@ knock workflow activate my-workflow \
 </ExampleColumn>
 </Section>
 
+<Section title="knock workflow generate-types [flags]" path="/workflow/generate-types">
+<ContentColumn>
+
+Generate type definitions for workflow trigger data from your workflow schemas. This command fetches workflows with trigger data schemas and generates type-safe definitions for TypeScript, Python, Ruby, and Go.
+
+The generated types enable compile-time safety when triggering workflows in your application code, helping catch integration errors before runtime. The target language is inferred from the output file extension.
+
+Learn more about [type safety with workflows](/developer-tools/type-safety).
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to fetch workflows from. Defaults to development."
+  />
+  <Attribute
+    name="--output-file"
+    type="string"
+    description="Specifies the file to generate types into. The language is inferred from the file suffix."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Generate TypeScript types"
+knock workflow generate-types \
+  --output-file=./types/knock-workflows.ts
+```
+
+```bash title="Generate Python types"
+knock workflow generate-types \
+  --output-file=./types/knock_workflows.py
+```
+
+```bash title="Generate Ruby types"
+knock workflow generate-types \
+  --output-file=./types/knock_workflows.rb
+```
+
+```bash title="Generate Go types"
+knock workflow generate-types \
+  --output-file=./types/knock_workflows.go
+```
+
+```bash title="Generate from production environment"
+knock workflow generate-types \
+  --environment=production \
+  --output-file=./types/knock-workflows.ts
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="knock layout list [flags]" path="/email-layout/list">
 <ContentColumn>
 
@@ -629,7 +685,7 @@ See how layout files are structured in your system [here](/integrations/email/la
 <ExampleColumn>
 
 ```bash title="Push a single email layout"
-knock layout push
+knock layout push my-layout
 ```
 
 ```bash title="Push all email layouts"
@@ -1296,8 +1352,8 @@ You can promote one change to the subsequent environment, or all changes across 
 
 Note:
 
-- For example, if you have three environments “development”, “staging”, and “production” (in that order), setting the `--to` flag to `production` will promote all new changes from the staging environment to the production environment
-- Following the same example, promoting one single commit from staging using the `--only` flag, will result in that commit being promoted to production.
+- For example, if you have three environments "development", "staging", and "production" (in that order), setting the `--to` flag to `production` will promote all new changes from the staging environment to the production environment.
+- Promoting one single commit from staging using the `--only` flag, will result in that commit being promoted to production.
 - The `--to` environment must be a non-development environment.
 - The `--to` and `--only` flags can't be used together.
 

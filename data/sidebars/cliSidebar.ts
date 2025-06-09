@@ -23,6 +23,7 @@ export const CLI_SIDEBAR: SidebarSection[] = [
       { slug: "/run", title: "Run workflow" },
       { slug: "/validate", title: "Validate workflow" },
       { slug: "/activate", title: "Activate workflow" },
+      { slug: "/generate-types", title: "Generate types" },
     ],
   },
 
