@@ -194,11 +194,11 @@ const PermissionsMatrix = ({
                         )}
                         {hasPermission(permission, role) && (
                           <div
-                            className="w-4 h-4 rounded-full flex items-center justify-center mx-auto"
+                            className="w-3.5 h-3.5 rounded-full flex items-center justify-center mx-auto"
                             style={{ backgroundColor: "#E95744" }}
                           >
                             <Lucide.CheckIcon
-                              className="w-3 h-3 text-white"
+                              className="w-2.5 h-2.5 text-white"
                               strokeWidth={3.5}
                             />
                           </div>
