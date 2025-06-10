@@ -29,27 +29,39 @@ Some examples of where you might reach for a schedule:
 
 Knock will preemptively schedule workflow runs for the recipient(s) that you've provided, and execute those runs at the scheduled time. At the end of the workflow run (and in case of using a recurring schedule), a future scheduled workflow will be enqueued based on the recipient's next schedule.
 
+<Callout
+  emoji="🚨"
+  title="Note:"
+  bgColor="red"
+  text={
+    <>
+      Breaking changes to Schedules methods were introduced in the v1.0 release of the Knock SDKs. Learn more in the{" "}
+      <a href="/developer-tools/migration-guides/node">SDK migration guides</a>.
+    </>
+  }
+/>
+
 ## Scheduling workflows with recurring schedules for recipients
 
 To schedule a workflow for a recipient using recurring schedules, you must first have a valid, committed workflow in your environment. We can then set a schedule with `repeats` for one or more recipients (up to 100 at a time).
 
 ```typescript
 import Knock from "@knocklabs/node";
-const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const schedules = await knock.workflows.createSchedules("park-alert", {
+const schedules = await client.schedules.create({
   recipients: ["jhammond", "esattler", "dnedry"],
+  workflow: "park-alert",
+  data: { type: "dinosaurs-loose" },
   repeats: [
-    // Repeat daily at 9.30am only on weekdays
     {
+      days: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
       frequency: "daily",
-      days: "weekdays",
       hours: 9,
+      interval: 1,
       minutes: 30,
     },
   ],
-  ending_at: "2024-01-02T10:00:00Z", // Schedule will stop after this date
-  data: { type: "dinosaurs-loose" },
   tenant: "jpark",
 });
 ```
@@ -60,12 +72,13 @@ To schedule a workflow for a recipient using a non-recurring schedule, you must 
 
 ```typescript
 import Knock from "@knocklabs/node";
-const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const schedules = await knock.workflows.createSchedules("park-alert", {
+const schedules = await client.schedules.create({
   recipients: ["jhammond", "esattler", "dnedry"],
   scheduled_at: "2023-12-22T17:45:00Z",
   ending_at: "2023-12-31T23:59:59Z", // Schedule will not execute after this time
+  workflow: "park-alert",
   data: { type: "dinosaurs-loose" },
   tenant: "jpark",
 });
@@ -180,7 +193,7 @@ To illustrate how to model a repeat rule, here are some common examples:
 {
   "frequency": "weekly",
   "interval": 2,
-  "days": ["mon", "tues", "fri"],
+  "days": ["mon", "tue", "fri"],
   "hours": 18,
   "minutes": 00
 }
@@ -192,9 +205,9 @@ Up to 100 recipient schedules can be updated in a single call. Keep in mind that
 
 ```typescript title="Updating schedules"
 import Knock from "@knocklabs/node";
-const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const schedules = await knock.workflows.updateSchedules({
+const schedules = await client.schedules.update({
   schedule_ids: workflowScheduleIds,
   ending_at: "2024-06-01T00:00:00Z", // Update when the schedule should end
   data: { foo: "bar" },
@@ -207,11 +220,11 @@ Up to 100 schedules can be deleted at a time, causing any already enqueued sched
 
 ```typescript title="Removing schedules"
 import Knock from "@knocklabs/node";
-const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const schedules = await knock.workflows.deleteSchedules({
-  schedule_ids: workflowScheduleIds,
-});
+const schedules = await client.schedules.delete({ 
+    schedule_ids: workflowScheduleIds 
+  });
 ```
 
 ## Listing scheduled workflows
@@ -220,20 +233,24 @@ Schedules can be listed per recipient (for a user or an object), or for an indiv
 
 ```typescript title="Listing schedules for a user"
 import Knock from "@knocklabs/node";
-const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const { entries: schedules } = await knock.users.getSchedules("sam");
+// Automatically fetches more pages as needed.
+for await (const schedule of client.users.listSchedules('user_id')) {
+  console.log(schedule.id);
+}
 ```
 
 <br />
 
 ```typescript title="Listing schedules for a specific workflow"
 import Knock from "@knocklabs/node";
-const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const { entries: schedules } = await knock.workflows.listSchedules(
-  "workflow-key",
-);
+// Automatically fetches more pages as needed.
+for await (const schedule of client.schedules.list({ workflow: 'workflow-key' })) {
+  console.log(schedule.id);
+}
 ```
 
 Schedules include a `next_occurrence_at` property which computes the **next time that a schedule will be executed**.
