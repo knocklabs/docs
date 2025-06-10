@@ -1,0 +1,365 @@
+---
+title: Type safety
+description: Learn more about issuing type safe workflow triggers using the Knock CLI and TypeScript SDK.
+section: Developer tools
+---
+
+Using Knock you can get type safety between your codebase and the workflows that you trigger on Knock. By defining trigger data schemas for your workflows and generating types from them, you can catch integration errors at compile time and ensure your workflow triggers always include the correct data.
+
+## Setting up a workflow trigger schema
+
+Before you can generate types for your workflow triggers, you need to define a [JSON schema](https://json-schema.org/) that describes the expected structure of the data passed to your workflow, which we call a [trigger data schema](/designing-workflows/validating-trigger-data). This schema serves as the source of truth for type generation.
+
+You can set up trigger data validation in two ways:
+
+**Via the Workflow Builder:**
+
+1. Navigate to the "Trigger step" in the workflow builder
+2. Under the "API params" section, click "Edit schema"
+3. Supply a valid JSON schema that describes your trigger data
+4. Commit your changes for the schema to take effect
+
+**Via the Management API or CLI:**
+
+- Use the `trigger_data_json_schema` field when creating or updating a workflow
+
+Here's an example schema for a comment notification workflow:
+
+```json title="Comment workflow trigger schema"
+{
+  "type": "object",
+  "properties": {
+    "comment_id": {
+      "type": "string",
+      "description": "The unique identifier for the comment"
+    },
+    "comment_text": {
+      "type": "string",
+      "description": "The text content of the comment"
+    },
+    "document_id": {
+      "type": "string",
+      "description": "The ID of the document being commented on"
+    },
+    "document_name": {
+      "type": "string",
+      "description": "The name of the document being commented on"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "The priority level of the notification"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "version": { "type": "number" }
+      },
+      "required": ["source"]
+    }
+  },
+  "required": ["comment_id", "comment_text", "document_id", "document_name"]
+}
+```
+
+## Generating types for your workflow triggers
+
+Once you have trigger data schemas defined for your workflows, you can use the [Knock CLI](/cli) to generate type definitions for TypeScript, Python, Ruby, and Go.
+
+### Basic usage
+
+```bash title="Generate TypeScript types"
+knock workflow generate-types --output-file=./knock-workflows.ts
+```
+
+This command will:
+
+1. Fetch all workflows from your development environment that have trigger data schemas
+2. Generate type definitions based on those schemas
+3. Output the types to the specified file with the language inferred from the file extension
+
+### Language support
+
+The target language is automatically determined by the file extension you specify:
+
+- `.ts` - Generates TypeScript interface definitions
+- `.py` - Generates Python class definitions using Pydantic
+- `.rb` - Generates Ruby class definitions using dry-types
+- `.go` - Generates Go struct definitions
+
+### Command options
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to fetch workflows from. Defaults to development."
+  />
+  <Attribute
+    name="--output-file"
+    type="string"
+    description="Specifies the file to generate types into. The language is inferred from the file suffix."
+  />
+</Attributes>
+
+### Examples
+
+```bash title="Generate TypeScript types"
+knock workflow generate-types --output-file=./src/types/knock-workflows.ts
+```
+
+```bash title="Generate Python types"
+knock workflow generate-types --output-file=./src/types/knock_workflows.py
+```
+
+```bash title="Generate Ruby types"
+knock workflow generate-types --output-file=./lib/knock_workflows.rb
+```
+
+```bash title="Generate Go types"
+knock workflow generate-types --output-file=./types/knock_workflows.go
+```
+
+```bash title="Generate types from production environment"
+knock workflow generate-types \
+  --environment=production \
+  --output-file=./types/knock-workflows.ts
+```
+
+## Using the generated types
+
+The generated types provide compile-time safety when triggering workflows in your application code. Here's how to use them in each supported language:
+
+### TypeScript
+
+Generated TypeScript interfaces can be imported and used with the Knock TypeScript SDK:
+
+```typescript title="Generated TypeScript types"
+// Generated in knock-workflow-types.ts
+export interface CommentCreatedData {
+  comment_id: string;
+  comment_text: string;
+  document_id: string;
+  document_name: string;
+  priority: "low" | "medium" | "high";
+  metadata: {
+    source: string;
+    version?: number;
+  };
+}
+
+export interface UserInvitedData {
+  user_email: string;
+  workspace_name: string;
+  role: "admin" | "member" | "viewer";
+}
+```
+
+```typescript title="Using the generated types"
+import { Knock } from "@knocklabs/node";
+import { CommentCreatedData } from "./knock-workflow-types";
+
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+
+// Type-safe workflow trigger
+const triggerData: CommentCreatedData = {
+  comment_id: "comment_123",
+  comment_text: "Great work on this!",
+  document_id: "doc_456",
+  document_name: "Project Proposal",
+  priority: "medium",
+  metadata: {
+    source: "web_app",
+    version: 1,
+  },
+};
+
+await knock.workflows.trigger("comment-created", {
+  recipients: ["user_789"],
+  data: triggerData, // ✅ Type-safe!
+});
+```
+
+### Python
+
+Generated Python classes use Pydantic for validation:
+
+```python title="Generated Python types"
+# Generated in knock_workflow_types.py
+from pydantic import BaseModel
+from typing import Literal, Optional
+from enum import Enum
+
+class Priority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+class CommentCreatedMetadata(BaseModel):
+    source: str
+    version: Optional[float] = None
+
+class CommentCreatedData(BaseModel):
+    comment_id: str
+    comment_text: str
+    document_id: str
+    document_name: str
+    priority: Priority
+    metadata: CommentCreatedMetadata
+```
+
+```python title="Using the generated types"
+from knockapi import Knock
+from knock_workflow_types import CommentCreatedData, Priority, CommentCreatedMetadata
+
+client = Knock(api_key="sk_12345")
+
+# Type-safe workflow trigger
+trigger_data = CommentCreatedData(
+    comment_id="comment_123",
+    comment_text="Great work on this!",
+    document_id="doc_456",
+    document_name="Project Proposal",
+    priority=Priority.MEDIUM,
+    metadata=CommentCreatedMetadata(
+        source="web_app",
+        version=1
+    )
+)
+
+client.workflows.trigger(
+    key="comment-created",
+    recipients=["user_789"],
+    data=trigger_data.dict()  # ✅ Type-safe!
+)
+```
+
+### Ruby
+
+Generated Ruby classes use dry-types for type safety:
+
+```ruby title="Generated Ruby types"
+# Generated in knock_workflow_types.rb
+require 'dry-types'
+require 'dry-struct'
+
+module KnockWorkflowTypes
+  module Types
+    include Dry.Types()
+  end
+
+  class CommentCreatedMetadata < Dry::Struct
+    attribute :source, Types::String
+    attribute :version, Types::Float.optional
+  end
+
+  class CommentCreatedData < Dry::Struct
+    attribute :comment_id, Types::String
+    attribute :comment_text, Types::String
+    attribute :document_id, Types::String
+    attribute :document_name, Types::String
+    attribute :priority, Types::String.enum('low', 'medium', 'high')
+    attribute :metadata, CommentCreatedMetadata
+  end
+end
+```
+
+```ruby title="Using the generated types"
+require 'knockapi'
+require_relative 'knock_workflow_types'
+
+knock = Knockapi::Client.new(api_key: "sk_12345")
+
+# Type-safe workflow trigger
+trigger_data = KnockWorkflowTypes::CommentCreatedData.new(
+  comment_id: "comment_123",
+  comment_text: "Great work on this!",
+  document_id: "doc_456",
+  document_name: "Project Proposal",
+  priority: "medium",
+  metadata: KnockWorkflowTypes::CommentCreatedMetadata.new(
+    source: "web_app",
+    version: 1
+  )
+)
+
+knock.workflows.trigger("comment-created",
+  recipients: ["user_789"],
+  data: trigger_data.to_h  # ✅ Type-safe!
+)
+```
+
+### Go
+
+Generated Go structs include JSON tags for serialization:
+
+```go title="Generated Go types"
+// Generated in knock_workflow_types.go
+package main
+
+import "encoding/json"
+
+type Priority string
+
+const (
+    PriorityLow    Priority = "low"
+    PriorityMedium Priority = "medium"
+    PriorityHigh   Priority = "high"
+)
+
+type CommentCreatedMetadata struct {
+    Source  string   `json:"source"`
+    Version *float64 `json:"version,omitempty"`
+}
+
+type CommentCreatedData struct {
+    CommentID    string                  `json:"comment_id"`
+    CommentText  string                  `json:"comment_text"`
+    DocumentID   string                  `json:"document_id"`
+    DocumentName string                  `json:"document_name"`
+    Priority     Priority                `json:"priority"`
+    Metadata     CommentCreatedMetadata  `json:"metadata"`
+}
+```
+
+```go title="Using the generated types"
+package main
+
+import (
+    "context"
+    "github.com/knocklabs/knock-go"
+    "github.com/knocklabs/knock-go/option"
+)
+
+func main() {
+    client := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+    // Type-safe workflow trigger
+    triggerData := CommentCreatedData{
+        CommentID:    "comment_123",
+        CommentText:  "Great work on this!",
+        DocumentID:   "doc_456",
+        DocumentName: "Project Proposal",
+        Priority:     PriorityMedium,
+        Metadata: CommentCreatedMetadata{
+            Source:  "web_app",
+            Version: &[]float64{1}[0],
+        },
+    }
+
+    // Convert to map for the API call
+    data := map[string]interface{}{}
+    jsonData, _ := json.Marshal(triggerData)
+    json.Unmarshal(jsonData, &data)
+
+    _, err := client.Workflows.Trigger(context.Background(), "comment-created", knock.WorkflowTriggerParams{
+        Recipients: []knock.WorkflowTriggerParamsRecipientUnion{
+            knock.WorkflowTriggerParamsRecipientUnion{
+                OfString: knock.String("user_789"),
+            },
+        },
+        Data: data, // ✅ Type-safe!
+    })
+}
+```

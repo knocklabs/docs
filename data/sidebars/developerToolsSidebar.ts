@@ -17,6 +17,7 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
   { slug: `${baseSlug}/api-logs`, title: "API logs" },
   { slug: `${baseSlug}/knock-and-postman`, title: "Knock and Postman" },
   { slug: `${baseSlug}/security`, title: "Security" },
+  { slug: `${baseSlug}/type-safety`, title: "Type safety" },
   {
     slug: `${baseSlug}/integrating-into-cicd`,
     title: "Integrating into CI/CD",
