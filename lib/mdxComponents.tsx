@@ -38,6 +38,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { ContentActions } from "@/components/ui/ContentActions";
+import PermissionsMatrix from "@/components/ui/PermissionsMatrix";
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
@@ -99,4 +100,5 @@ export const MDX_COMPONENTS = {
   Stack: Stack,
   Tag,
   ContentActions,
+  PermissionsMatrix,
 };
