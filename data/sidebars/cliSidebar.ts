@@ -73,4 +73,13 @@ export const CLI_SIDEBAR: SidebarSection[] = [
       { slug: "/promote", title: "Promote changes" },
     ],
   },
+
+  {
+    title: "Misc.",
+    slug: "/cli",
+    pages: [
+      { slug: "/pull", title: "Pull all resources" },
+      { slug: "/push", title: "Push all resources" },
+    ],
+  },
 ];
