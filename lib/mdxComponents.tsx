@@ -102,5 +102,5 @@ export const MDX_COMPONENTS = {
   Tag,
   ContentActions,
   PermissionsMatrix,
-  PreTextDiagram
+  PreTextDiagram,
 };
