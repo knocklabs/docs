@@ -1,6 +1,6 @@
-import { SidebarSection } from "../types";
+import { SidebarContent } from "../types";
 
-export const CLI_SIDEBAR: SidebarSection[] = [
+export const CLI_SIDEBAR: SidebarContent[] = [
   {
     title: "Getting started",
     slug: "/cli/overview",
@@ -12,6 +12,17 @@ export const CLI_SIDEBAR: SidebarSection[] = [
     ],
     sidebarMenuDefaultOpen: true,
   },
+
+  {
+    title: "Pull all resources",
+    slug: "/cli/pull",
+  },
+
+  {
+    title: "Push all resources",
+    slug: "/cli/push",
+  },
+
   {
     title: "Workflows",
     slug: "/cli/workflow",
@@ -71,15 +82,6 @@ export const CLI_SIDEBAR: SidebarSection[] = [
       { slug: "/get", title: "Get commits" },
       { slug: "/all", title: "Commit changes" },
       { slug: "/promote", title: "Promote changes" },
-    ],
-  },
-
-  {
-    title: "Misc.",
-    slug: "/cli",
-    pages: [
-      { slug: "/pull", title: "Pull all resources" },
-      { slug: "/push", title: "Push all resources" },
     ],
   },
 ];

@@ -1,17 +1,17 @@
 import fs from "fs";
-import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
-import remarkGfm from "remark-gfm";
+import { serialize } from "next-mdx-remote/serialize";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
+import remarkGfm from "remark-gfm";
 
-import { SidebarSection } from "@/data/types";
-import MDXLayout from "../../layouts/MDXLayout";
-import { CONTENT_DIR } from "../../lib/content.server";
-import eventPayload from "../../data/code/sources/eventPayload";
+import { SidebarContent } from "@/data/types";
+import { MDX_COMPONENTS } from "@/lib/mdxComponents";
+import AiChatButton from "../../components/AiChatButton";
 import datadogDashboardJson from "../../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../../content/integrations/extensions/new_relic_dashboard.json";
-import AiChatButton from "../../components/AiChatButton";
-import { MDX_COMPONENTS } from "@/lib/mdxComponents";
+import eventPayload from "../../data/code/sources/eventPayload";
+import MDXLayout from "../../layouts/MDXLayout";
+import { CONTENT_DIR } from "../../lib/content.server";
 
 import { CLI_SIDEBAR } from "@/data/sidebars/cliSidebar";
 
@@ -57,13 +57,13 @@ export async function getStaticProps() {
 
 export async function getStaticPaths() {
   const paths: { params: { slug: string[] } }[] = [];
-  const pages: SidebarSection[] = CLI_SIDEBAR;
+  const pages: SidebarContent[] = CLI_SIDEBAR;
 
   for (const page of pages) {
     const slug = page.slug.split("/").pop() as string;
     paths.push({ params: { slug: [slug] } });
 
-    for (const subPage of page.pages) {
+    for (const subPage of page.pages ?? []) {
       paths.push({
         params: { slug: [slug, subPage.slug.replace("/", "")] },
       });
