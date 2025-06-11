@@ -1,3 +1,4 @@
+import { Code } from "@telegraph/typography";
 import { ReactNode } from "react";
 
 type Props = {
@@ -7,20 +8,16 @@ type Props = {
 
 const PreTextDiagram = ({ children, description }: Props) => {
   return (
-    <pre
+    <Code
+      as="pre"
       role="img"
       aria-label={description}
-      style={{
-        marginLeft: "16px",
-        marginRight: "16px",
-        marginBottom: "16px",
-        whiteSpace: "pre",
-        fontSize: "14px",
-        lineHeight: "18px",
-      }}
+      mx="4"
+      mb="4"
+      leading="1"
     >
       {children}
-    </pre>
+    </Code>
   );
 };
 
