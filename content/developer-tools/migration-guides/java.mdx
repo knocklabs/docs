@@ -1,14 +1,16 @@
 ---
 title: Java SDK upgrade (v0.x to v1.0)
-description: This guide will help you upgrade from the previous Knock Java SDK to the new v1.0 Java SDK.
+description: Learn how to upgrade to v1.0 of the Knock Java SDK.
 section: Developer tools
 ---
 
-## Basic Changes
+## Basic changes
 
-### Client Initialization
+### Client initialization
 
-```java
+Initialize your client using environment variables or explicit configuration:
+
+```java title="Initializing the Knock client"
 import app.knock.api.client.KnockClient;
 import app.knock.api.client.okhttp.KnockOkHttpClient;
 
@@ -22,119 +24,131 @@ KnockClient client = KnockOkHttpClient.builder()
     .build();
 ```
 
-## New Features in v1.0
+## What's new in v1.0
 
-1. **Asynchronous Execution**: Easily switch to asynchronous operations
+The v1.0 SDK introduces significant improvements for Java developers, including async support, immutable objects, and better error handling.
 
-   ```java
-   // Perform operations asynchronously
-   CompletableFuture<User> userFuture = client.async().users().get(
-       UserGetParams.builder().userId("jhammond").build()
-   );
+### Asynchronous execution
 
-   // Or create an async client from the beginning
-   KnockClientAsync asyncClient = KnockOkHttpClientAsync.fromEnv();
-   ```
+Switch to asynchronous operations when needed:
 
-2. **Immutable Objects**: All objects are immutable for thread safety
+```java title="Using asynchronous client operations"
+// Perform operations asynchronously
+CompletableFuture<User> userFuture = client.async().users().get(
+    UserGetParams.builder().userId("jhammond").build()
+);
 
-   ```java
-   // Each class is immutable once constructed and has a toBuilder() method
-   // for creating modified copies if needed
-   UserUpdateParams params = UserUpdateParams.builder()
-       .userId("jhammond")
-       .name("John Hammond")
-       .build();
+// Or create an async client from the beginning
+KnockClientAsync asyncClient = KnockOkHttpClientAsync.fromEnv();
+```
 
-   // Create a modified copy
-   UserUpdateParams updatedParams = params.toBuilder()
-       .email("john@ingen.com")
-       .build();
-   ```
+### Immutable objects
 
-3. **Pagination Helpers**: Easily work with paginated resources
+All objects are immutable for thread safety:
 
-   ```java
-   // Auto-pagination for iterating through all results
-   UserListPage page = client.users().list(params);
-   for (User user : page.autoPager()) {
-       System.out.println(user);
-   }
+```java title="Working with immutable parameter objects"
+// Each class is immutable once constructed and has a toBuilder() method
+// for creating modified copies if needed
+UserUpdateParams params = UserUpdateParams.builder()
+    .userId("jhammond")
+    .name("John Hammond")
+    .build();
 
-   // Or as a Stream
-   client.users().list(params).autoPager().stream()
-       .limit(50)
-       .forEach(user -> System.out.println(user));
-   ```
+// Create a modified copy
+UserUpdateParams updatedParams = params.toBuilder()
+    .email("john@ingen.com")
+    .build();
+```
 
-4. **Raw Response Access**: Work with raw HTTP responses when needed
+### Pagination helpers
 
-   ```java
-   // Access the raw HTTP response
-   HttpResponseFor<User> userResponse = client.users().withRawResponse().get(
-       UserGetParams.builder().userId("jhammond").build()
-   );
+Work with paginated resources more easily:
 
-   int statusCode = userResponse.statusCode();
-   Headers headers = userResponse.headers();
-   User user = userResponse.parse();
-   ```
+```java title="Auto-pagination through user list"
+// Auto-pagination for iterating through all results
+UserListPage page = client.users().list(params);
+for (User user : page.autoPager()) {
+    System.out.println(user);
+}
 
-5. **Enhanced Error Handling**: Better error types with detailed information
+// Or as a Stream
+client.users().list(params).autoPager().stream()
+    .limit(50)
+    .forEach(user -> System.out.println(user));
+```
 
-   ```java
-   try {
-       client.users().get(UserGetParams.builder().userId("nonexistent").build());
-   } catch (NotFoundException e) {
-       // Handle 404 error
-   } catch (KnockServiceException e) {
-       // Handle other API errors
-   } catch (KnockException e) {
-       // Handle generic errors
-   }
-   ```
+### Raw response access
 
-6. **Additional Properties**: Add undocumented parameters when needed
-   ```java
-   WorkflowTriggerParams params = WorkflowTriggerParams.builder()
-       .putAdditionalHeader("Secret-Header", "42")
-       .putAdditionalQueryParam("secret_query_param", "42")
-       .putAdditionalBodyProperty("secretProperty", JsonValue.from("42"))
-       .build();
-   ```
+Access raw HTTP responses when needed:
 
-## Breaking Changes
+```java title="Accessing raw HTTP response data"
+// Access the raw HTTP response
+HttpResponseFor<User> userResponse = client.users().withRawResponse().get(
+    UserGetParams.builder().userId("jhammond").build()
+);
 
-1. **Request Parameter Style**:
+int statusCode = userResponse.statusCode();
+Headers headers = userResponse.headers();
+User user = userResponse.parse();
+```
 
-   - The new SDK uses builder patterns for all request parameters
-   - Parameters are grouped into structured objects rather than flat lists
+### Enhanced error handling
 
-2. **Method Signatures**:
+Handle errors more efficiently with more detailed error information:
 
-   - Most methods now take parameter objects instead of individual parameters
-   - The new SDK uses a more consistent naming convention across all methods
+```java title="Handling different types of API errors"
+try {
+    client.users().get(UserGetParams.builder().userId("nonexistent").build());
+} catch (NotFoundException e) {
+    // Handle 404 error
+} catch (KnockServiceException e) {
+    // Handle other API errors
+} catch (KnockException e) {
+    // Handle generic errors
+}
+```
 
-3. **Type System**:
+### Additional properties
 
-   - The new SDK uses `JsonValue` and typed fields for better type safety
-   - Field access methods have changed to accommodate the new type system
+Add undocumented parameters when needed:
 
-4. **Error Handling**:
+```java title="Adding custom headers and properties"
+WorkflowTriggerParams params = WorkflowTriggerParams.builder()
+    .putAdditionalHeader("Secret-Header", "42")
+    .putAdditionalQueryParam("secret_query_param", "42")
+    .putAdditionalBodyProperty("secretProperty", JsonValue.from("42"))
+    .build();
+```
 
-   - The new SDK provides more detailed and structured error information
+## Breaking changes
 
-5. **API Key Configuration**:
+### Request parameter style
 
-   - API key is now passed as a bearer token instead of a dedicated API key parameter
+The new SDK uses builder patterns for all request parameters. Parameters are grouped into structured objects rather than flat lists.
 
-## Common Operations
+### Method signatures
 
-### Triggering Workflows
+Most methods now take parameter objects instead of individual parameters. The new SDK uses a more consistent naming convention across all methods.
+
+### Type system
+
+The new SDK uses `JsonValue` and typed fields for better type safety. Field access methods have changed to accommodate the new type system.
+
+### Error handling
+
+The new SDK provides more detailed and structured error information.
+
+### API key configuration
+
+API key is now passed as a bearer token instead of a dedicated API key parameter.
+
+## Common operations
+
+### Triggering workflows
 
 **Old SDK:**
 
-```java
+```java title="Triggering workflows with the old SDK"
 WorkflowTrigger workflowTrigger = WorkflowTrigger.builder()
   .key("dinosaurs-loose")
   .actor("dnedry")
@@ -148,7 +162,7 @@ WorkflowTriggerResult result = client.workflows().trigger(workflowTrigger);
 
 **New SDK:**
 
-```java
+```java title="Triggering workflows with the new SDK"
 import app.knock.api.core.JsonValue;
 import app.knock.api.models.workflows.WorkflowTriggerParams;
 import app.knock.api.models.workflows.WorkflowTriggerResponse;
@@ -166,14 +180,14 @@ WorkflowTriggerParams params = WorkflowTriggerParams.builder()
         .build())
     .build();
 
-WorkflowTriggerResponse response = client.workflows().trigger(params);`
+WorkflowTriggerResponse response = client.workflows().trigger(params);
 ```
 
-### User Preferences
+### User preferences
 
 **Old SDK:**
 
-```java
+```java title="Setting user preferences with the old SDK"
 // Set preference set for user
 PreferenceSetRequest request = PreferenceSetRequest.builder()
     .channelTypes(
@@ -203,7 +217,7 @@ PreferenceSet specificPrefs = client.users().getPreferencesById("jhammond", "oth
 
 **New SDK:**
 
-```java
+```java title="Setting user preferences with the new SDK"
 import app.knock.api.core.JsonValue;
 import app.knock.api.models.recipients.preferences.PreferenceSetRequest;
 import app.knock.api.models.users.UserSetPreferencesParams;
@@ -265,11 +279,11 @@ var specificPrefs = client.users().getPreferences(
 );
 ```
 
-### Identifying Users
+### Identifying users
 
 **Old SDK:**
 
-```java
+```java title="Identifying users with the old SDK"
 UserIdentity userIdentity = UserIdentity.builder()
         .id("jhammond")
         .name("John Hammond")
@@ -282,7 +296,7 @@ client.users().identify(userIdentity);
 
 **New SDK:**
 
-```java
+```java title="Identifying users with the new SDK"
 import app.knock.api.core.JsonValue;
 import app.knock.api.models.users.UserUpdateParams;
 
@@ -296,11 +310,11 @@ client.users().update(
 );
 ```
 
-### Setting Channel Data
+### Setting channel data
 
 **Old SDK:**
 
-```java
+```java title="Setting channel data with the old SDK"
 String channelId = "114a928a-5b35-4e1b-9069-ac873ee972d3";
 ChannelData channelData = client.users().setChannelData(
     "jhammond",
@@ -317,7 +331,7 @@ client.users().unsetUserChannelData("jhammond", channelId);
 
 **New SDK:**
 
-```java
+```java title="Setting channel data with the new SDK"
 import app.knock.api.core.JsonValue;
 import app.knock.api.models.users.UserSetChannelDataParams;
 import app.knock.api.models.users.UserGetChannelDataParams;
@@ -353,6 +367,6 @@ client.users().unsetChannelData(
 );
 ```
 
-## Support
+## Need help?
 
-If you encounter any issues during migration, please [reach out to our support team](mailto:support@knock.app) or open an issue on [GitHub](https://github.com/knocklabs/knock-java/issues).
+If you run into any issues during your migration, reach out to our [support team](mailto:support@knock.app) or open an issue on [GitHub](https://github.com/knocklabs/knock-java/issues).
