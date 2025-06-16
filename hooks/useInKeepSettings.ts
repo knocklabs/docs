@@ -22,9 +22,7 @@ const useInkeepSettings = (): InkeepSharedSettings => {
     },
   };
 
-  const modalSettings: InkeepModalSettings = {
-    // defaultView: "AI_CHAT",
-  };
+  const modalSettings: InkeepModalSettings = {};
 
   const searchSettings: InkeepSearchSettings = {};
 
