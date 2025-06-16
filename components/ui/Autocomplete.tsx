@@ -780,6 +780,7 @@ const Autocomplete = () => {
 
       {/* Add the InKeep trigger component directly in the Autocomplete component */}
       <InKeepTrigger
+        defaultView="chat"
         baseSettings={baseSettings}
         aiChatSettings={{
           ...aiChatSettings,
