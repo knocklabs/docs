@@ -24,13 +24,13 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import "@algolia/autocomplete-theme-classic";
 
-import { AIChatFunctions } from "@inkeep/widgets";
+import { AIChatFunctions } from "@inkeep/uikit";
 import { Box, Stack } from "@telegraph/layout";
 import { Input } from "@telegraph/input";
 import { Tag } from "@telegraph/tag";
 
 const InKeepTrigger = dynamic(
-  () => import("@inkeep/widgets").then((mod) => mod.InkeepCustomTrigger),
+  () => import("@inkeep/uikit").then((mod) => mod.InkeepCustomTrigger),
   {
     ssr: false,
   },

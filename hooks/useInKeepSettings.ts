@@ -1,19 +1,19 @@
 import type {
   InkeepAIChatSettings,
-  InkeepSearchSettings,
-  InkeepWidgetBaseSettings,
+  InkeepBaseSettings,
   InkeepModalSettings,
-} from "@inkeep/widgets";
+  InkeepSearchSettings,
+} from "@inkeep/uikit";
 
 type InkeepSharedSettings = {
-  baseSettings: InkeepWidgetBaseSettings;
+  baseSettings: InkeepBaseSettings;
   aiChatSettings: InkeepAIChatSettings;
   searchSettings: InkeepSearchSettings;
   modalSettings: InkeepModalSettings;
 };
 
 const useInkeepSettings = (): InkeepSharedSettings => {
-  const baseSettings: InkeepWidgetBaseSettings = {
+  const baseSettings: InkeepBaseSettings = {
     apiKey: process.env.NEXT_PUBLIC_INKEEP_API_KEY || "",
     integrationId: process.env.NEXT_PUBLIC_INKEEP_INTEGRATION_ID || "",
     organizationId: process.env.NEXT_PUBLIC_INKEEP_ORGANIZATION_ID || "",

@@ -1,10 +1,10 @@
+import { InkeepChatButtonProps } from "@inkeep/uikit";
 import dynamic from "next/dynamic";
-import { InkeepChatButtonProps } from "@inkeep/widgets";
 
 import useInkeepSettings from "../hooks/useInKeepSettings";
 
 const ChatButton = dynamic(
-  () => import("@inkeep/widgets").then((mod) => mod.InkeepChatButton),
+  () => import("@inkeep/uikit").then((mod) => mod.InkeepChatButton),
   {
     ssr: false,
   },
@@ -15,13 +15,18 @@ function AiChatButton() {
     useInkeepSettings();
 
   const chatButtonProps: InkeepChatButtonProps = {
-    baseSettings,
+    baseSettings: {
+      ...baseSettings,
+      theme: {
+        stylesheetUrls: ["/inkeep.css"],
+      },
+    },
     aiChatSettings,
     searchSettings,
     modalSettings,
   };
 
-  return <ChatButton {...chatButtonProps} stylesheetUrls={["/inkeep.css"]} />;
+  return <ChatButton {...chatButtonProps} />;
 }
 
 export default AiChatButton;
