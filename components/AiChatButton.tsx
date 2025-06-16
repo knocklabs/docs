@@ -1,4 +1,7 @@
-import { InkeepChatButtonProps } from "@inkeep/cxkit-react";
+import {
+  InkeepChatButtonProps,
+  type InkeepChatButton,
+} from "@inkeep/cxkit-react";
 import dynamic from "next/dynamic";
 
 import useInkeepSettings from "../hooks/useInKeepSettings";
@@ -8,7 +11,7 @@ const ChatButton = dynamic(
   {
     ssr: false,
   },
-) as any;
+) as typeof InkeepChatButton;
 
 function AiChatButton() {
   const { baseSettings, aiChatSettings, searchSettings, modalSettings } =

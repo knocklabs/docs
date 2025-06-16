@@ -24,7 +24,10 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import "@algolia/autocomplete-theme-classic";
 
-import { AIChatFunctions } from "@inkeep/cxkit-react";
+import {
+  AIChatFunctions,
+  type InkeepModalSearchAndChat,
+} from "@inkeep/cxkit-react";
 import { Input } from "@telegraph/input";
 import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
@@ -35,7 +38,7 @@ const InKeepTrigger = dynamic(
   {
     ssr: false,
   },
-) as any;
+) as typeof InkeepModalSearchAndChat;
 
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { Button } from "@telegraph/button";
@@ -777,20 +780,25 @@ const Autocomplete = () => {
 
       {/* Add the InKeep trigger component directly in the Autocomplete component */}
       <InKeepTrigger
-        isOpen={isAiChatOpen}
-        onClose={handleCloseAiChat}
         baseSettings={baseSettings}
         aiChatSettings={{
           ...aiChatSettings,
           chatFunctionsRef,
           placeholder: "Ask a question...",
         }}
-        modalSettings={modalSettings}
+        modalSettings={{
+          ...modalSettings,
+          isOpen: isAiChatOpen,
+          onOpenChange: (open) => {
+            if (!open) {
+              handleCloseAiChat();
+            }
+          },
+        }}
         searchSettings={{
           ...searchSettings,
-          prefilledQuery: aiSearchTerm,
+          defaultQuery: aiSearchTerm,
         }}
-        canToggleView={true}
       />
     </Box>
   );
