@@ -781,7 +781,24 @@ const Autocomplete = () => {
       {/* Add the InKeep trigger component directly in the Autocomplete component */}
       <InKeepTrigger
         defaultView="chat"
-        baseSettings={baseSettings}
+        baseSettings={{
+          ...baseSettings,
+          theme: {
+            styles: [
+              {
+                key: "knock-autocomplete-style",
+                type: "style",
+                // InkeepModalSearchAndChat does not accept a canToggleView prop,
+                // so we apply a custom style to hide the header
+                value: `
+                .ikp-ai-chat-header {
+                  display: none;
+                }
+                `,
+              },
+            ],
+          },
+        }}
         aiChatSettings={{
           ...aiChatSettings,
           chatFunctionsRef,
