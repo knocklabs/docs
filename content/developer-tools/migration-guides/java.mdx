@@ -144,8 +144,8 @@ API key is now passed as a bearer token instead of a dedicated API key parameter
 
 ## Common operations
 
-### Triggering workflows
-
+<AccordionGroup>
+  <Accordion title="Triggering workflows">
 **Old SDK:**
 
 ```java title="Triggering workflows with the old SDK"
@@ -183,9 +183,40 @@ WorkflowTriggerParams params = WorkflowTriggerParams.builder()
 WorkflowTriggerResponse response = client.workflows().trigger(params);
 ```
 
-### User preferences
+  </Accordion>
+  <Accordion title="Identifying users">
+    **Old SDK:**
 
-**Old SDK:**
+```java title="Identifying users with the old SDK"
+UserIdentity userIdentity = UserIdentity.builder()
+        .id("jhammond")
+        .name("John Hammond")
+        .email("jhammond@ingen.com")
+        .property("expenses_spared", "none")
+        .build();
+
+client.users().identify(userIdentity);
+```
+
+**New SDK:**
+
+```java title="Identifying users with the new SDK"
+import app.knock.api.core.JsonValue;
+import app.knock.api.models.users.UserUpdateParams;
+
+client.users().update(
+    UserUpdateParams.builder()
+        .userId("jhammond")
+        .name("John Hammond")
+        .email("jhammond@ingen.com")
+        .putAdditionalBodyProperty("expenses_spared", JsonValue.from("none"))
+        .build()
+);
+```
+
+  </Accordion>
+  <Accordion title="Working with preferences">
+    **Old SDK:**
 
 ```java title="Setting user preferences with the old SDK"
 // Set preference set for user
@@ -279,40 +310,9 @@ var specificPrefs = client.users().getPreferences(
 );
 ```
 
-### Identifying users
-
-**Old SDK:**
-
-```java title="Identifying users with the old SDK"
-UserIdentity userIdentity = UserIdentity.builder()
-        .id("jhammond")
-        .name("John Hammond")
-        .email("jhammond@ingen.com")
-        .property("expenses_spared", "none")
-        .build();
-
-client.users().identify(userIdentity);
-```
-
-**New SDK:**
-
-```java title="Identifying users with the new SDK"
-import app.knock.api.core.JsonValue;
-import app.knock.api.models.users.UserUpdateParams;
-
-client.users().update(
-    UserUpdateParams.builder()
-        .userId("jhammond")
-        .name("John Hammond")
-        .email("jhammond@ingen.com")
-        .putAdditionalBodyProperty("expenses_spared", JsonValue.from("none"))
-        .build()
-);
-```
-
-### Setting channel data
-
-**Old SDK:**
+  </Accordion>
+  <Accordion title="Setting channel data">
+  **Old SDK:**
 
 ```java title="Setting channel data with the old SDK"
 String channelId = "114a928a-5b35-4e1b-9069-ac873ee972d3";
@@ -366,6 +366,9 @@ client.users().unsetChannelData(
         .build()
 );
 ```
+
+  </Accordion>
+</AccordionGroup>
 
 ## Need help?
 
