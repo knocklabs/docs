@@ -37,7 +37,7 @@ function AiChatButton() {
     aiChatSettings,
     searchSettings,
     modalSettings,
-    canToggleView: true,
+    canToggleView: false,
   };
 
   return <ChatButton {...chatButtonProps} />;
