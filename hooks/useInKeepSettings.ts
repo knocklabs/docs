@@ -3,7 +3,7 @@ import type {
   InkeepBaseSettings,
   InkeepModalSettings,
   InkeepSearchSettings,
-} from "@inkeep/uikit";
+} from "@inkeep/cxkit-react";
 
 type InkeepSharedSettings = {
   baseSettings: InkeepBaseSettings;
@@ -15,8 +15,6 @@ type InkeepSharedSettings = {
 const useInkeepSettings = (): InkeepSharedSettings => {
   const baseSettings: InkeepBaseSettings = {
     apiKey: process.env.NEXT_PUBLIC_INKEEP_API_KEY || "",
-    integrationId: process.env.NEXT_PUBLIC_INKEEP_INTEGRATION_ID || "",
-    organizationId: process.env.NEXT_PUBLIC_INKEEP_ORGANIZATION_ID || "",
     primaryBrandColor: "#262626",
     organizationDisplayName: "Knock",
     colorMode: {
@@ -25,32 +23,39 @@ const useInkeepSettings = (): InkeepSharedSettings => {
   };
 
   const modalSettings: InkeepModalSettings = {
-    isModeSwitchingEnabled: false,
-    defaultView: "AI_CHAT",
+    // defaultView: "AI_CHAT",
   };
 
   const searchSettings: InkeepSearchSettings = {};
 
   const aiChatSettings: InkeepAIChatSettings = {
-    botAvatarSrcUrl: "https://knock.app/favicon/favicon.svg",
-    botAvatarDarkSrcUrl: "https://knock.app/favicon/favicon-dark.svg",
-    getHelpCallToActions: [
+    aiAssistantAvatar: {
+      light: "https://knock.app/favicon/favicon.svg",
+      dark: "https://knock.app/favicon/favicon-dark.svg",
+    },
+    getHelpOptions: [
       {
         name: "Contact Us",
-        url: "mailto:hello@knock.app",
+        action: {
+          type: "open_link",
+          url: "mailto:hello@knock.app",
+        },
         icon: {
           builtIn: "IoChatbubblesOutline",
         },
       },
       {
         name: "Ask on Slack",
-        url: "https://knock.app/join-slack",
+        action: {
+          type: "open_link",
+          url: "https://knock.app/join-slack",
+        },
         icon: {
           builtIn: "FaSlack",
         },
       },
     ],
-    quickQuestions: [
+    exampleQuestions: [
       "How do I manage user notification preferences?",
       "How would I schedule two notifications to be 1 hour apart?",
       "How can I monitor the delivery of a notification?",

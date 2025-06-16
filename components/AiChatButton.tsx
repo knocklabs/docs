@@ -1,10 +1,10 @@
-import { InkeepChatButtonProps } from "@inkeep/uikit";
+import { InkeepChatButtonProps } from "@inkeep/cxkit-react";
 import dynamic from "next/dynamic";
 
 import useInkeepSettings from "../hooks/useInKeepSettings";
 
 const ChatButton = dynamic(
-  () => import("@inkeep/uikit").then((mod) => mod.InkeepChatButton),
+  () => import("@inkeep/cxkit-react").then((mod) => mod.InkeepChatButton),
   {
     ssr: false,
   },
@@ -18,12 +18,23 @@ function AiChatButton() {
     baseSettings: {
       ...baseSettings,
       theme: {
-        stylesheetUrls: ["/inkeep.css"],
+        styles: [
+          {
+            key: "knock-ai-chat-style",
+            type: "style",
+            value: `
+              .ikp-chat-button__button {
+                background-color: #262626;
+              }
+          `,
+          },
+        ],
       },
     },
     aiChatSettings,
     searchSettings,
     modalSettings,
+    canToggleView: true,
   };
 
   return <ChatButton {...chatButtonProps} />;
