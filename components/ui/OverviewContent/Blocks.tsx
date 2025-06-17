@@ -8,17 +8,32 @@ import React from "react";
 import Image from "next/image";
 import { TgphComponentProps } from "@telegraph/helpers";
 
+type IconComponent = () => JSX.Element;
+
+function getIcon(
+  icon?: string | LucideIcon | IconComponent,
+): IconComponent | LucideIcon {
+  if (typeof icon === "function") {
+    return icon as IconComponent;
+  }
+  if (Icons[icon as keyof typeof Icons]) {
+    return Icons[icon as keyof typeof Icons] as () => JSX.Element;
+  }
+  return icon?.toString().toLowerCase() as LucideIcon;
+}
+
 export const Tool = ({
   icon,
   title,
   description,
   href,
 }: {
-  icon: string | LucideIcon | React.ReactNode;
+  icon: string | LucideIcon | IconComponent;
   title: string;
   description: string;
   href: string;
 }) => {
+  const _icon = getIcon(icon);
   return (
     <MenuItem
       as={Link}
@@ -36,15 +51,13 @@ export const Tool = ({
         justifyContent="center"
         alignItems="center"
       >
-        {React.isValidElement(icon) ? (
-          icon
+        {typeof _icon === "function" ? (
+          <Box w="8" h="8" bg="black" color="white" p="2" borderRadius="2">
+            {_icon()}
+          </Box>
         ) : (
           <Icon
-            icon={
-              typeof icon === "string"
-                ? (Icons[icon as keyof typeof Lucide] as LucideIcon)
-                : (icon as LucideIcon)
-            }
+            icon={_icon as LucideIcon}
             aria-hidden={true}
             w="8"
             h="8"
@@ -89,6 +102,7 @@ export const ContentCard = ({
   style?: React.CSSProperties;
   newTab?: boolean;
 }) => {
+  const _icon = getIcon(icon);
   return (
     <Box borderRadius="2" style={style} shadow="1" data-content-card>
       <Stack
@@ -105,19 +119,21 @@ export const ContentCard = ({
         p="3"
         data-content-card-inner
       >
-        <Icon
-          icon={
-            typeof icon === "string"
-              ? (Icons[icon as keyof typeof Lucide] as LucideIcon)
-              : (icon as LucideIcon)
-          }
-          aria-hidden={true}
-          w="10"
-          h="10"
-          bg="gray-2"
-          p="2"
-          borderRadius="2"
-        />
+        {typeof _icon === "function" ? (
+          <Box w="10" h="10" bg="gray-2" p="2" borderRadius="2">
+            {_icon()}
+          </Box>
+        ) : (
+          <Icon
+            icon={_icon as LucideIcon}
+            aria-hidden={true}
+            w="10"
+            h="10"
+            bg="gray-2"
+            p="2"
+            borderRadius="2"
+          />
+        )}
         <Heading as="span" size="3" weight="medium" mb="0">
           {title}
         </Heading>
@@ -194,6 +210,7 @@ export const BuildingBlock = ({
   icon: string | LucideIcon;
   href: string;
 }) => {
+  const _icon = getIcon(icon);
   return (
     <MenuItem
       as={Link}
@@ -205,11 +222,7 @@ export const BuildingBlock = ({
     >
       <Stack w="full" h="full">
         <Icon
-          icon={
-            typeof icon === "string"
-              ? (Icons[icon as keyof typeof Lucide] as LucideIcon)
-              : (icon as LucideIcon)
-          }
+          icon={_icon as LucideIcon}
           aria-hidden={true}
           w="10"
           h="10"
