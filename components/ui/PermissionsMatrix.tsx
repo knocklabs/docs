@@ -1,4 +1,5 @@
-import { Lucide } from "@telegraph/icon";
+import { Icon, Lucide } from "@telegraph/icon";
+import { Stack } from "@telegraph/layout";
 
 interface Permission {
   name: string;
@@ -193,15 +194,30 @@ const PermissionsMatrix = ({
                           <div className="absolute top-0 -left-px right-0 h-0.5 bg-gray-400 z-1"></div>
                         )}
                         {hasPermission(permission, role) && (
-                          <div
-                            className="w-3.5 h-3.5 rounded-full flex items-center justify-center mx-auto"
-                            style={{ backgroundColor: "#E95744" }}
+                          <Stack
+                            w="3"
+                            h="3"
+                            rounded="full"
+                            alignItems="center"
+                            justifyContent="center"
+                            mx="auto"
+                            style={{
+                              backgroundColor: "var(--tgph-accent-9)",
+                            }}
                           >
-                            <Lucide.CheckIcon
-                              className="w-2.5 h-2.5 text-white"
-                              strokeWidth={3.5}
+                            <Icon
+                              icon={Lucide.Check}
+                              color="white"
+                              size="0"
+                              aria-hidden={false}
+                              alt="Check"
+                              style={{
+                                width: "90%",
+                                height: "90%",
+                                transform: "translateY(0.5px)",
+                              }}
                             />
-                          </div>
+                          </Stack>
                         )}
                       </td>
                     );
