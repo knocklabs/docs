@@ -64,15 +64,11 @@ Click this button to add the Knock MCP server to Cursor (version 1.0 or higher i
 {
   "knock": {
     "command": "npx",
-    "args": [
-      "-y",
-      "@knocklabs/agent-toolkit",
-      "-p",
-      "local-mcp",
-      "--service-token",
-      "YOUR-SERVICE-TOKEN"
-    ],
-    "name": "Knock MCP Server"
+    "args": ["-y", "@knocklabs/agent-toolkit", "-p", "local-mcp"],
+    "name": "Knock MCP Server",
+    "env": {
+      "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
+    }
   }
 }
 ```
@@ -89,14 +85,10 @@ Click this button to add the Knock MCP server to Cursor (version 1.0 or higher i
   "mcpServers": {
     "knock": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@knocklabs/agent-toolkit",
-        "-p",
-        "local-mcp",
-        "--service-token",
-        "YOUR-SERVICE-TOKEN"
-      ]
+      "args": ["-y", "@knocklabs/agent-toolkit", "-p", "local-mcp"],
+      "env": {
+        "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
+      }
     }
   }
 }
@@ -106,11 +98,39 @@ Click this button to add the Knock MCP server to Cursor (version 1.0 or higher i
 
 It's not recommended to expose all tools that the Knock MCP server has to the LLM. Instead, you should expose only the tools that are required to complete the task at hand. You can configure the available tools by passing in the `--tools` flag when starting the MCP server.
 
+The `--tools` flag accepts a list of tools, where the tools are referenced in a `category.tool` format. For example, to expose all user tools, you would pass `--tools users.*`. To expose all workflow tools, you would pass `--tools workflows.*`.
+
+The name of the tool is the name of the tool as it appears in the [tools reference](/developer-tools/agent-toolkit/tools-reference), which will be a camel-cased version like `createOrUpdateUser` or `listEnvironments`.
+
 Here are some examples of how you can configure the available tools:
 
 - Expose all tools: `--tools *`
-- Expose all user tools: `--tools users.*`
-- Expose only the `users.create` tool: `--tools users.create`
+- Expose all `users` tools: `--tools users.*`
+- Expose only the `createOrUpdateUser` tool: `--tools users.createOrUpdateUser`
+- Expose all `users` and `workflows` tools: `--tools users.* workflows.*`
+
+Here's a full example of how you pass tool configurations to the MCP server in Cursor:
+
+```json title="mcp-with-tools.json"
+{
+  "knock": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@knocklabs/agent-toolkit",
+      "-p",
+      "local-mcp",
+      "--tools",
+      "users.createOrUpdateUser",
+      "workflows.*"
+    ],
+    "name": "Knock MCP Server",
+    "env": {
+      "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
+    }
+  }
+}
+```
 
 ## Workflows-as-tools
 
@@ -120,8 +140,8 @@ By default, the MCP server will **not** expose any workflows-as-tools. To opt in
 
 By default, passing the `--workflows` flag will expose **all** workflows in your Knock account as tools. If you want to control the exact workflows that are exposed as tools, you can pass a list of workflow keys to the `--workflows` flag. For example:
 
-```bash
---workflows "workflow-key-1,workflow-key-2"
+```bash title="Passing a list of workflow keys"
+--workflows workflow-key-1 workflow-key-2
 ```
 
 ## What tools are available?
