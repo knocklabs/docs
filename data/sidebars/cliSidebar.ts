@@ -1,6 +1,6 @@
-import { SidebarSection } from "../types";
+import { SidebarContent } from "../types";
 
-export const CLI_SIDEBAR: SidebarSection[] = [
+export const CLI_SIDEBAR: SidebarContent[] = [
   {
     title: "Getting started",
     slug: "/cli/overview",
@@ -12,6 +12,17 @@ export const CLI_SIDEBAR: SidebarSection[] = [
     ],
     sidebarMenuDefaultOpen: true,
   },
+
+  {
+    title: "Pull all resources",
+    slug: "/cli/pull",
+  },
+
+  {
+    title: "Push all resources",
+    slug: "/cli/push",
+  },
+
   {
     title: "Workflows",
     slug: "/cli/workflow",
