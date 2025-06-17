@@ -1,7 +1,7 @@
 import {
-  createAutocomplete,
-  BaseItem,
   AutocompleteState,
+  BaseItem,
+  createAutocomplete,
 } from "@algolia/autocomplete-core";
 import {
   getAlgoliaResults,
@@ -10,40 +10,44 @@ import {
 import algoliasearch from "algoliasearch/lite";
 import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
 
-import React, {
-  useMemo,
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-} from "react";
-import { useRouter } from "next/router";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useHotkeys } from "react-hotkeys-hook";
 
 import "@algolia/autocomplete-theme-classic";
 
-import { AIChatFunctions } from "@inkeep/widgets";
-import { Box, Stack } from "@telegraph/layout";
+import {
+  AIChatFunctions,
+  type InkeepModalSearchAndChat,
+} from "@inkeep/cxkit-react";
 import { Input } from "@telegraph/input";
+import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
 
 const InKeepTrigger = dynamic(
-  () => import("@inkeep/widgets").then((mod) => mod.InkeepCustomTrigger),
+  () =>
+    import("@inkeep/cxkit-react").then((mod) => mod.InkeepModalSearchAndChat),
   {
     ssr: false,
   },
-) as any;
+) as typeof InkeepModalSearchAndChat;
 
-import useInkeepSettings from "../../hooks/useInKeepSettings";
-import dynamic from "next/dynamic";
-import { Icon, Lucide } from "@telegraph/icon";
-import { Text, Code } from "@telegraph/typography";
-import { MenuItem } from "@telegraph/menu";
-import { usePageContext } from "./Page";
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { Button } from "@telegraph/button";
+import { Icon, Lucide } from "@telegraph/icon";
+import { MenuItem } from "@telegraph/menu";
+import { Code, Text } from "@telegraph/typography";
+import dynamic from "next/dynamic";
+import useInkeepSettings from "../../hooks/useInKeepSettings";
+import { usePageContext } from "./Page";
 import { highlightResource } from "./Page/helpers";
 
 // This Autocomplete component was created following:
@@ -278,7 +282,7 @@ const Autocomplete = () => {
       // Use a small timeout to ensure the chat is fully loaded before submitting
       setTimeout(() => {
         if (chatFunctionsRef.current) {
-          chatFunctionsRef.current.submitCurrentInputMessage();
+          chatFunctionsRef.current.submitMessage();
         }
       }, 500);
     }
@@ -776,18 +780,44 @@ const Autocomplete = () => {
 
       {/* Add the InKeep trigger component directly in the Autocomplete component */}
       <InKeepTrigger
-        isOpen={isAiChatOpen}
-        onClose={handleCloseAiChat}
-        baseSettings={baseSettings}
+        defaultView="chat"
+        baseSettings={{
+          ...baseSettings,
+          theme: {
+            styles: [
+              {
+                key: "knock-autocomplete-style",
+                type: "style",
+                // InkeepModalSearchAndChat does not accept a canToggleView prop,
+                // so we apply a custom style to hide the header. Without this style,
+                // the AI chat displays a header that allows the user to toggle between
+                // a normal search and an AI chat.
+                value: `
+                .ikp-ai-chat-header {
+                  display: none;
+                }
+                `,
+              },
+            ],
+          },
+        }}
         aiChatSettings={{
           ...aiChatSettings,
           chatFunctionsRef,
           placeholder: "Ask a question...",
         }}
-        modalSettings={modalSettings}
+        modalSettings={{
+          ...modalSettings,
+          isOpen: isAiChatOpen,
+          onOpenChange: (open) => {
+            if (!open) {
+              handleCloseAiChat();
+            }
+          },
+        }}
         searchSettings={{
           ...searchSettings,
-          prefilledQuery: aiSearchTerm,
+          defaultQuery: aiSearchTerm,
         }}
       />
     </Box>
