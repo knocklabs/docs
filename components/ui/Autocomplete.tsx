@@ -789,7 +789,9 @@ const Autocomplete = () => {
                 key: "knock-autocomplete-style",
                 type: "style",
                 // InkeepModalSearchAndChat does not accept a canToggleView prop,
-                // so we apply a custom style to hide the header
+                // so we apply a custom style to hide the header. Without this style,
+                // the AI chat displays a header that allows the user to toggle between
+                // a normal search and an AI chat.
                 value: `
                 .ikp-ai-chat-header {
                   display: none;
