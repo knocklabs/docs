@@ -220,39 +220,113 @@ async function processPages(
 
 type SidebarSectionOrContent = SidebarSection | SidebarContent;
 
+/**
+ * Processes a flat content item (SidebarContent without nested pages).
+ * These are individual pages that should be treated as standalone content.
+ * Used for the new flat sidebar format introduced in developer tools.
+ */
+async function processFlatContentItem(
+  section: SidebarContent,
+  indexContent: string[],
+  fullContent: string[],
+  hrefOverride?: string | null,
+) {
+  totalPages += 1;
+  const fullHref = section.slug;
+
+  const { description, fullContent: pageContent } = await getMarkdownContent(
+    fullHref,
+  );
+
+  const betaTag = section.isBeta ? " (Beta)" : "";
+  const descriptionText = description ? `: ${description}` : "";
+
+  // Add to index content with .md extension for "Copy as markdown" functionality
+  const markdownLink = `[${section.title}${betaTag}](${
+    hrefOverride || fullHref
+  }.md)${descriptionText}`;
+  indexContent.push(`- ${markdownLink}`);
+
+  // Add to full content
+  fullContent.push(`# ${section.title}${betaTag}`);
+  if (description) fullContent.push(description);
+  if (pageContent) {
+    fullContent.push(pageContent);
+    // Write to public directory so .md URLs work
+    await writePublicMarkdown(fullHref, pageContent);
+  }
+  fullContent.push(""); // Empty line for spacing
+}
+
+/**
+ * Processes a nested section (SidebarSection with pages property).
+ * These are sections that contain multiple pages organized hierarchically.
+ * Used for the traditional nested sidebar format.
+ */
+async function processNestedSection(
+  section: SidebarSection,
+  indexContent: string[],
+  fullContent: string[],
+  hrefOverride?: string | null,
+) {
+  // Add section header to index
+  indexContent.push(`## ${section.title}`);
+  if (section.desc) {
+    indexContent.push(section.desc);
+  }
+  indexContent.push("");
+
+  // Add section header to full content
+  fullContent.push(`# ${section.title}`);
+  if (section.desc) {
+    fullContent.push(section.desc);
+  }
+  fullContent.push("");
+
+  // Process all pages within this section
+  await processPages(
+    section.pages,
+    section.slug,
+    indexContent,
+    fullContent,
+    0,
+    hrefOverride,
+  );
+
+  // Add spacing between sections
+  indexContent.push("");
+  fullContent.push("");
+}
+
+/**
+ * Determines if a sidebar item is a flat content item or nested section,
+ * then processes it accordingly. This handles both the old nested format
+ * (SidebarSection[]) and the new flat format (SidebarContent[]).
+ */
 async function processSections(
   sections: SidebarSectionOrContent[],
-  indexContent,
-  fullContent,
+  indexContent: string[],
+  fullContent: string[],
   hrefOverride?: string | null,
 ) {
   for (const section of sections) {
     totalSections += 1;
-    // Add section to index
-    indexContent.push(`## ${section.title}`);
-    if ("desc" in section && section.desc) {
-      indexContent.push(section.desc);
-    }
-    indexContent.push("");
 
-    // Add section to full content
-    fullContent.push(`# ${section.title}`);
-    if ("desc" in section && section.desc) {
-      fullContent.push(section.desc);
+    if (!section.pages) {
+      await processFlatContentItem(
+        section as SidebarContent,
+        indexContent,
+        fullContent,
+        hrefOverride,
+      );
+    } else {
+      await processNestedSection(
+        section as SidebarSection,
+        indexContent,
+        fullContent,
+        hrefOverride,
+      );
     }
-    fullContent.push("");
-
-    // Process all pages in the section
-    await processPages(
-      section.pages,
-      section.slug,
-      indexContent,
-      fullContent,
-      0,
-      hrefOverride,
-    );
-    indexContent.push(""); // Extra newline between sections
-    fullContent.push(""); // Extra newline between sections
   }
 }
 
