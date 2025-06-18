@@ -228,31 +228,60 @@ async function processSections(
 ) {
   for (const section of sections) {
     totalSections += 1;
-    // Add section to index
-    indexContent.push(`## ${section.title}`);
-    if ("desc" in section && section.desc) {
-      indexContent.push(section.desc);
-    }
-    indexContent.push("");
 
-    // Add section to full content
-    fullContent.push(`# ${section.title}`);
-    if ("desc" in section && section.desc) {
-      fullContent.push(section.desc);
-    }
-    fullContent.push("");
+    if (!section.pages) {
+      totalPages += 1;
+      let fullHref = section.slug;
 
-    // Process all pages in the section
-    await processPages(
-      section.pages,
-      section.slug,
-      indexContent,
-      fullContent,
-      0,
-      hrefOverride,
-    );
-    indexContent.push(""); // Extra newline between sections
-    fullContent.push(""); // Extra newline between sections
+      const { description, fullContent: pageContent } =
+        await getMarkdownContent(fullHref);
+
+      const betaTag = section.isBeta ? " (Beta)" : "";
+      const descriptionText = description ? `: ${description}` : "";
+
+      // Add to index content with .md extension
+      const markdownLink = `[${section.title}${betaTag}](${
+        hrefOverride || fullHref
+      }.md)${descriptionText}`;
+
+      indexContent.push(`- ${markdownLink}`);
+
+      // Add to full content
+      fullContent.push(`# ${section.title}${betaTag}`);
+      if (description) fullContent.push(description);
+      if (pageContent) {
+        fullContent.push(pageContent);
+        // Write to public directory if we have content
+        await writePublicMarkdown(fullHref, pageContent);
+      }
+      fullContent.push(""); // Empty line for spacing
+    } else {
+      // Add section to index
+      indexContent.push(`## ${section.title}`);
+      if ("desc" in section && section.desc) {
+        indexContent.push(section.desc);
+      }
+      indexContent.push("");
+
+      // Add section to full content
+      fullContent.push(`# ${section.title}`);
+      if ("desc" in section && section.desc) {
+        fullContent.push(section.desc);
+      }
+      fullContent.push("");
+
+      // Process all pages in the section
+      await processPages(
+        section.pages,
+        section.slug,
+        indexContent,
+        fullContent,
+        0,
+        hrefOverride,
+      );
+      indexContent.push(""); // Extra newline between sections
+      fullContent.push(""); // Extra newline between sections
+    }
   }
 }
 
