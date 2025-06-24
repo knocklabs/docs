@@ -1135,7 +1135,7 @@ components:
         user_ids:
           description: A list of user IDs.
           items:
-            description: The ID for the user that you set when identifying them in Knock.
+            description: The unique identifier of the user.
             type: string
             x-struct: null
             x-validate: null
@@ -1564,7 +1564,7 @@ components:
         user_ids:
           description: A list of user IDs.
           items:
-            description: The ID for the user that you set when identifying them in Knock.
+            description: The unique identifier of the user.
             type: string
             x-struct: null
             x-validate: null
@@ -1716,7 +1716,7 @@ components:
       x-struct: Elixir.SwitchboardWeb.V1.Specs.MessageInAppFeedContent.ButtonSetBlock
       x-validate: null
     PushChannelData:
-      description: The content of a push notification.
+      description: Push channel data.
       example:
         tokens:
           - push_token_1
@@ -1760,7 +1760,7 @@ components:
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Guides.Responses.GuideActionResponse
       x-validate: null
     MessagePushContent:
-      description: The content of a push notification.
+      description: Push channel data.
       example:
         __typename: MessagePushContent
         body: Multiple assets out of containment in Sector 5. Take shelter immediately!
@@ -2882,7 +2882,7 @@ components:
           x-struct: null
           x-validate: null
         page_size:
-          description: The number of items per page.
+          description: The number of items per page (defaults to 50).
           type: integer
           x-struct: null
           x-validate: null
@@ -3093,7 +3093,7 @@ components:
         timezone: America/New_York
       properties:
         avatar:
-          description: URL to the user's avatar image.
+          description: A URL for the avatar of the user.
           nullable: true
           type: string
           x-struct: null
@@ -3558,7 +3558,7 @@ components:
           x-struct: null
           x-validate: null
         avatar:
-          description: URL to the user's avatar image.
+          description: A URL for the avatar of the user.
           nullable: true
           type: string
           x-struct: null
@@ -3577,7 +3577,7 @@ components:
           x-struct: null
           x-validate: null
         id:
-          description: The ID for the user that you set when identifying them in Knock.
+          description: The unique identifier of the user.
           type: string
           x-struct: null
           x-validate: null
@@ -3785,7 +3785,7 @@ components:
         user:
           $ref: '#/components/schemas/User'
         user_id:
-          description: The ID for the user that you set when identifying them in Knock.
+          description: The unique identifier of the user.
           example: user_123
           type: string
           x-struct: null
@@ -3858,7 +3858,7 @@ components:
       x-struct: null
       x-validate: null
     SlackChannelData:
-      description: Slack channel data
+      description: Slack channel data.
       example:
         connections:
           - access_token: xoxb-1234567890
@@ -4184,7 +4184,7 @@ components:
         timezone: America/New_York
       properties:
         avatar:
-          description: URL to the user's avatar image.
+          description: A URL for the avatar of the user.
           nullable: true
           type: string
           x-struct: null
@@ -4210,7 +4210,7 @@ components:
           x-struct: null
           x-validate: null
         id:
-          description: The ID for the user that you set when identifying them in Knock.
+          description: The unique identifier of the user.
           nullable: false
           type: string
           x-struct: null
@@ -4253,7 +4253,7 @@ components:
       x-struct: Elixir.SwitchboardWeb.V1.Specs.InlineIdentifyUserRequest
       x-validate: null
     MsTeamsChannelData:
-      description: Microsoft Teams channel connection.
+      description: Microsoft Teams channel data.
       example:
         connections:
           - ms_teams_channel_id: 123e4567-e89b-12d3-a456-426614174000
@@ -4929,7 +4929,7 @@ components:
           description: An object containing the user's ID.
           properties:
             id:
-              description: The ID for the user that you set when identifying them in Knock.
+              description: The unique identifier of the user.
               example: dr_sattler
               type: string
               x-struct: null
@@ -6279,10 +6279,17 @@ paths:
   /v1/users/{user_id}/feeds/{id}:
     get:
       callbacks: {}
-      description: Returns a paginated list of feed items for a user, including metadata about the feed.
+      description: |
+        Returns a paginated list of feed items for a user in reverse chronological order, including metadata about the feed. If the user has not yet been identified within Knock, an empty feed will be returned.
+
+        You can customize the response using [response filters](/integrations/in-app/knock#customizing-api-response-content) to exclude or only include specific properties on your resources.
+
+        **Notes:**
+        * When making this call from a client-side environment, use your publishable key along with a user token.
+        * This endpoint’s rate limit is always scoped per-user and per-environment. This is true even for requests made without a signed user token.
       operationId: listUserInAppFeedItems
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -6314,7 +6321,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The source of the feed items.
+        - description: The workflow key associated with the message in the feed.
           example: my_source
           in: query
           name: source
@@ -6393,7 +6400,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -6505,7 +6512,7 @@ paths:
       description: Returns the feed settings for a user.
       operationId: getUserInAppFeedSettings
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -6934,7 +6941,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -7228,7 +7235,7 @@ paths:
       description: Create or update a user with the provided identification data. When you identify an existing user, the system merges the properties you specific with what is currently set on the user, updating only the fields included in your requests.
       operationId: identifyUser
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -7417,7 +7424,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -7538,7 +7545,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -7879,7 +7886,7 @@ paths:
       description: Records that a guide has been seen by a user, triggering any associated seen events.
       operationId: markUserGuideAsSeen
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -8418,7 +8425,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -9320,7 +9327,7 @@ paths:
       description: Deletes channel data for a specific user and channel ID.
       operationId: unsetUserChannelData
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -9431,7 +9438,7 @@ paths:
       description: Retrieves the channel data for a specific user and channel ID.
       operationId: getUserChannelData
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -9543,7 +9550,7 @@ paths:
       description: Updates or creates channel data for a specific user and channel ID. If no user exists in the current environment for the given `user_id`, Knock will create the user entry as part of this request.
       operationId: setUserChannelData
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -9716,7 +9723,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -9972,7 +9979,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -10552,7 +10559,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -11445,7 +11452,7 @@ paths:
       description: Returns a list of eligible in-app guides for a specific user and channel.
       operationId: listUserGuides
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -11727,7 +11734,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -13252,7 +13259,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -13564,7 +13571,7 @@ paths:
       description: Records that a user has interacted with a guide, triggering any associated interacted events.
       operationId: markUserGuideAsInteracted
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -15122,7 +15129,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -15248,7 +15255,7 @@ paths:
       description: Retrieves a list of all preference sets for a specific user.
       operationId: listUserPreferenceSets
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -15407,7 +15414,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -15512,7 +15519,7 @@ paths:
       description: Records that a guide has been archived by a user, triggering any associated archived events.
       operationId: markUserGuideAsArchived
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -16094,7 +16101,7 @@ paths:
   /v1/users/{user_id}/messages:
     get:
       callbacks: {}
-      description: Returns a paginated list of messages for a specific user. Allows filtering by message status and provides various sorting options. Messages outside the account's retention window will not be included in the results.
+      description: Returns a paginated list of messages for a specific user. Messages are sorted with the most recent ones appearing first. Messages outside the account's retention window will not be included in the results.
       operationId: listMessagesForUser
       parameters:
         - description: The cursor to fetch entries after.
@@ -16113,7 +16120,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -16816,7 +16823,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -16875,7 +16882,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
@@ -18423,7 +18430,7 @@ paths:
       description: Retrieves a specific preference set for a user identified by the preference set ID.
       operationId: getUserPreferenceSet
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -18547,7 +18554,7 @@ paths:
       description: Updates a complete preference set for a user. This is a destructive operation that will replace the existing preference set for the user.
       operationId: updateUserPreferenceSet
       parameters:
-        - description: The ID for the user that you set when identifying them in Knock.
+        - description: The unique identifier of the user.
           in: path
           name: user_id
           required: true
@@ -18917,7 +18924,7 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The number of items per page.
+        - description: The number of items per page (defaults to 50).
           in: query
           name: page_size
           required: false
