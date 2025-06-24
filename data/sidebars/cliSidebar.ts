@@ -84,4 +84,17 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/promote", title: "Promote changes" },
     ],
   },
+  {
+    title: "Guides",
+    slug: "/cli/guides",
+    isBeta: true,
+    pages: [
+      { slug: "/list", title: "List guides" },
+      { slug: "/get", title: "Get guides" },
+      { slug: "/pull", title: "Pull guides" },
+      { slug: "/push", title: "Push guides" },
+      { slug: "/validate", title: "Validate guide" },
+      { slug: "/activate", title: "Activate guide" },
+    ],
+  },
 ];

@@ -1476,3 +1476,306 @@ knock commit promote --only=69cdde18-830a-42e0-ad4b-a230943bdc90
 
 </ExampleColumn>
 </Section>
+
+<Section title="knock guides list [flags]" path="/guides/list">
+<ContentColumn>
+
+You can see all your existing guides in a given environment with the guides list command.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+**Note:** Guides are currently in beta.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock guides list
+```
+
+```bash title="Pagination example"
+knock guides list --after=xxx
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock guides get [flags]" path="/guides/get">
+<ContentColumn>
+
+You can show more details about a given guide with the `guides get` command, followed by the target guide key.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+**Note:** Guides are currently in beta.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock guides get my-guide
+```
+
+```bash title="Get guide in a different environment"
+knock guides get my-guide --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock guides pull [flags]" path="/guides/pull">
+<ContentColumn>
+
+You can pull and download guides from Knock to a local file system with the `guides pull` command. Knock CLI will create a new guide directory or update the existing guide directory in the local file system.
+
+Note: if pulling the target guide for the first time (or all guides), Knock CLI will ask to confirm before writing to the local file system.
+
+**Note:** Guides are currently in beta.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={
+      <>
+        <p>
+          Whether to pull all guides from the specified environment into the
+          target directory path set by `--guides-dir`. Defaults to false.
+        </p>
+        <p>
+          When used, all contents in the target directory will be erased and
+          replaced with all guides from the specified environment.
+        </p>
+      </>
+    }
+  />
+  <Attribute
+    name="--guides-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all guides into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock guides pull my-guide
+```
+
+```bash title="Pulling a guide in a different environment"
+knock guides pull my-guide --environment=production
+```
+
+```bash title="Pulling all guides into ./guides directory"
+knock guides pull --all --guides-dir=./guides
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock guides push [flags]" path="/guides/push">
+<ContentColumn>
+
+You can push and upload a guide directory to Knock with the `guides push` command. Knock will update an existing guide by the matching guide key, or create a new guide if it does not exist yet.
+
+Note:
+
+- The `guides push` command only pushes guides into the `development` environment.
+- You must be directly above the target guide directory when running the `guides push` command, so the CLI can locate the `guide.json` file.
+- You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
+
+**Note:** Guides are currently in beta.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit the guide(s) at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all guides from the target directory path set by `--guides-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--guides-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all guides from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock guides push my-guide
+```
+
+```bash title="Pushing a guide and committing with a message"
+knock guides push my-guide \
+  --commit \
+  -m "Commit message"
+```
+
+```bash title="Pushing all guides from ./guides directory"
+knock guides push --all --guides-dir=./guides
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock guides validate [flags]" path="/guides/validate">
+<ContentColumn>
+
+You can validate a new or updated guide directory with the `guides validate` command. Knock will validate the given guide payload in the same way as it would with the `guides push` command, except without persisting those changes.
+
+Note: Validating a guide is only done against the `development` environment.
+
+**Note:** Guides are currently in beta.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all guides from the target directory path set by `--guides-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--guides-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all guides from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock guides validate my-guide
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock guides activate [flags]" path="/guides/activate">
+<ContentColumn>
+
+You can activate or deactivate a guide in a given environment with the `guides activate` command.
+
+Note:
+
+- This immediately enables or disables a guide in a given environment without needing to go through environment promotion.
+- By default, this command activates a given guide. Pass in the `--status` flag with `false` in order to deactivate it.
+
+**Note:** Guides are currently in beta.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    isRequired
+    description="The environment to activate the guide in."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+  <Attribute
+    name="--status"
+    type="boolean"
+    description="The status to set. Defaults to `true`."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock guides activate my-guide \
+  --environment=development
+```
+
+```bash title="Deactivating a guide"
+knock guides activate my-guide \
+  --environment=development \
+  --status=false
+```
+
+</ExampleColumn>
+</Section>
