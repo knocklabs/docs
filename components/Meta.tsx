@@ -45,7 +45,9 @@ export default function Meta(props) {
     return {
       title: props.title ?? DEFAULT_META.title,
       description: props.description ?? DEFAULT_META.description,
-      canonical: `${SITE_ORIGIN}${router.asPath.split("?")[0]}`,
+      canonical: props.canonical
+        ? `${SITE_ORIGIN}${props.canonical}`
+        : `${SITE_ORIGIN}${router.asPath.split("?")[0]}`,
       openGraph: {
         type: "website",
         images: [
@@ -65,7 +67,7 @@ export default function Meta(props) {
       },
       noindex: props.noIndex,
     };
-  }, [props, router.pathname]);
+  }, [props, router.asPath]);
 
   return (
     <>
@@ -102,6 +104,11 @@ export default function Meta(props) {
         />
         <meta name="theme-color" content="#000" />
         <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
+        {/* Prevent iOS zooming */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
       </Head>
     </>
   );

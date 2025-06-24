@@ -1,0 +1,235 @@
+---
+title: Node.js SDK upgrade (v0.x to v1.0)
+description: Learn how to upgrade to v1.0 of the Knock Node.js SDK.
+section: Developer tools
+---
+
+## Basic changes
+
+### Import style
+
+Import the SDK using the standard ES6 import syntax:
+
+```javascript title="Importing the Knock SDK"
+import Knock from "@knocklabs/node";
+```
+
+### Client initialization
+
+Initialize your client with an options object:
+
+```javascript title="Initializing the Knock client"
+const client = new Knock({
+  apiKey: process.env["KNOCK_API_KEY"], // This is the default and can be omitted
+});
+```
+
+## What's new in v1.0
+
+The v1.0 SDK brings complete TypeScript support, improved error handling, and new resources to the Node.js ecosystem.
+
+### Fully typed API
+
+Complete TypeScript definitions for all requests and responses:
+
+```typescript title="Using TypeScript definitions"
+const user: Knock.User = await client.users.get("dnedry");
+```
+
+### Enhanced error handling
+
+Typed errors with better context:
+
+```typescript title="Handling API errors with types"
+try {
+  await client.users.get("dnedry");
+} catch (err) {
+  if (err instanceof Knock.APIError) {
+    console.log(err.status, err.name, err.headers);
+  }
+}
+```
+
+### Auto-pagination
+
+Iterate through paginated resources automatically:
+
+```typescript title="Auto-pagination through user list"
+// Automatically fetches all pages
+const allUsers = [];
+for await (const user of client.users.list()) {
+  allUsers.push(user);
+}
+```
+
+### Request/response access
+
+Get more control over raw responses:
+
+```typescript title="Accessing raw response data"
+const { data: user, response } = await client.users
+  .get("dnedry")
+  .withResponse();
+console.log(response.headers.get("X-My-Header"));
+```
+
+### Configurable logging
+
+Better debugging capabilities:
+
+```typescript title="Configuring client logging"
+const client = new Knock({
+  logLevel: "debug", // Show all log messages
+});
+```
+
+### Configurable timeouts and retries
+
+Fine-tune request behavior:
+
+```typescript title="Configuring timeouts and retries"
+const client = new Knock({
+  timeout: 20 * 1000, // 20 seconds
+  maxRetries: 3,
+});
+```
+
+### New resources
+
+Additional resources like Audiences, Channels, and Integrations:
+
+```typescript title="Working with audience resources"
+// Working with audiences
+await client.audiences.addMembers("audience-id", {
+  members: ["user-1", "user-2"],
+});
+```
+
+## Breaking changes
+
+### Client initialization
+
+[Client initialization](/developer-tools/migration-guides/node#client-initialization) accepts an options object instead of just the API key.
+
+### Parameter changes
+
+Some parameter names have changed to match the API (e.g., `cancellationKey` is now `cancellation_key`).
+
+### Error handling
+
+Error handling has been completely revamped with typed errors.
+
+### Token signing
+
+The `signUserToken` method should now be imported from `@knocklabs/node/lib/tokenSigner` if referenced directly:
+
+```javascript title="Importing token signing utilities"
+import {
+  signUserToken,
+  buildUserTokenGrant,
+  Grants,
+} from "@knocklabs/node/lib/tokenSigner";
+
+const token = await signUserToken("user-1", {
+  grants: [
+    buildUserTokenGrant({ type: "tenant", id: "org_3sh72ds78" }, [
+      Grants.MsTeamsChannelsRead,
+    ]),
+  ],
+});
+```
+
+### Method changes
+
+Several method names have changed:
+
+- `notify()` is now `workflows.trigger()`
+- `users.getSchedules()` is now `users.listSchedules()`
+- `workflows.createSchedules()` is now `schedules.create()`
+- `workflows.listSchedules()` is now `schedules.list()`
+- `workflows.updateSchedules()` is now `schedules.update()`
+- `workflows.deleteSchedules()` is now `schedules.delete()`
+
+### Bulk operations
+
+Bulk operations are now organized in their own namespaces: `users.bulk.*`, `objects.bulk.*`, `schedules.bulk.*`, etc.
+
+### Parameter changes
+
+A `PreferenceSet` ID parameter is now required for `users.getPreferences()`.
+
+All parameters are now in camelCase in the method signature but use snake_case in the request body. Query parameters are now passed as a separate object in most list methods:
+
+```javascript title="Parameter style comparison"
+// Old SDK
+await knockClient.users.list({ page: 2, pageSize: 50 });
+
+// New SDK
+await client.users.list({ page: 2, page_size: 50 });
+```
+
+### Response handling
+
+The new SDK returns the data directly in most cases rather than wrapped in a `data` property. Pagination is handled differently with cursor-based pagination.
+
+## Common operations
+
+<AccordionGroup>
+  <Accordion title="Triggering workflows">
+  **Old version:**
+
+```javascript title="Triggering workflows with the old SDK"
+await knockClient.notify("dinosaurs-loose", {
+  actor: "dnedry",
+  recipients: ["jhammond", "agrant"],
+  data: {
+    type: "trex",
+    priority: 1,
+  },
+  tenant: "jurassic-park",
+  cancellationKey: triggerAlert.id,
+});
+```
+
+**New version:**
+
+```javascript title="Triggering workflows with the new SDK"
+await client.workflows.trigger("dinosaurs-loose", {
+  actor: "dnedry",
+  recipients: ["jhammond", "agrant"],
+  data: {
+    type: "trex",
+    priority: 1,
+  },
+  tenant: "jurassic-park",
+  cancellation_key: triggerAlert.id,
+});
+```
+
+  </Accordion>
+  <Accordion title="Identifying users">
+  **Old version:**
+
+```javascript title="Identifying users with the old SDK"
+await client.users.identify("jhammond", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net",
+});
+```
+
+**New version:**
+
+```javascript title="Identifying users with the new SDK"
+await client.users.update("jhammond", {
+  name: "John Hammond",
+  email: "jhammond@ingen.net",
+});
+```
+
+  </Accordion>
+
+</AccordionGroup>
+
+## Need help?
+
+If you run into any issues during your migration, reach out to our [support team](mailto:support@knock.app) or open an issue on [GitHub](https://github.com/knocklabs/knock-node/issues).

@@ -12,7 +12,7 @@ The trigger API endpoint executes workflows for your recipients. When you call t
   title="Trigger a Knock workflow"
 />
 
-Learn more about triggering workflows in [our API reference](/reference#workflows).
+Learn more about triggering workflows in [our API reference](/api-reference/workflows).
 
 ## Trigger payload
 
@@ -47,19 +47,21 @@ Triggering a workflow will always return a unique UUID v4 representing the workf
 
 <Callout
   emoji="💡"
+  title="Note:"
+  style={{ marginTop: "0" }}
   text={
     <>
-      Note: a workflow run ID is a unique identifier that represents the
-      workflow run for all recipients of the workflow. Each individual in the
-      workflow run will have a unique workflow recipient run ID, which is
-      derived from the workflow run id.
+      a workflow run ID is a unique identifier that represents the workflow run
+      for all recipients of the workflow. Each individual in the workflow run
+      will have a unique workflow recipient run ID, which is derived from the
+      workflow run id.
     </>
   }
 />
 
 ## Passing data to your trigger
 
-Pass schema data required by the workflow in your `trigger` call. The payload must be a valid JSON object.
+Pass schema data required by the workflow in your `trigger` call. The payload must be a valid JSON object. There is a 1024 byte limit on the size of any single string value (with the exception of [email attachments](/integrations/email/attachments)), and a 10MB limit on the size of the full `data` payload.
 
 The workflow builder determines which data keys are required.
 
@@ -68,7 +70,7 @@ The workflow builder determines which data keys are required.
   text={
     <>
       For more information on validating trigger data and working with JSON
-      schemas, see our guide on{" "}
+      schemas, see our tutorial on{" "}
       <a href="/developer-tools/validating-trigger-data">
         validating trigger data
       </a>
@@ -97,13 +99,19 @@ Calling a workflow trigger with an actor:
 
 Include a `cancellation_key` in your `trigger` call to enable workflow cancellation.
 
-You can read more about canceling workflows [in our guide](/send-notifications/canceling-workflows).
+You can read more about canceling workflows [in our tutorial](/send-notifications/canceling-workflows).
 
 The key should uniquely identify the workflow run you want to cancel. We recommend using:
 
 - A UUID v4
 - A hash of relevant workflow data
 - A timestamp combined with recipient and workflow identifiers
+
+## Deduplicating workflow runs
+
+You can include an optional `Idempotency-Key` header in your trigger call to safely retry requests without creating duplicate workflow runs. This helps prevent users from receiving duplicate messages if the same trigger is accidentally sent more than once. If a request is retried with the same idempotency key within 24 hours, Knock will return the same response as the original request.
+
+You can read more about how Knock handles idempotent requests in [our API reference](/api-reference/overview/idempotent-requests).
 
 ## Identifying recipients inline
 
@@ -166,7 +174,7 @@ You can optionally pass a `tenant` to your `trigger` call. If you are a product 
 you'll want to pass a `tenant` to Knock in your trigger calls so that you can make sure a given user's in-app feed is scoped to the
 tenants to which they belong in your product.
 
-You can read more about [supporting multi-tenancy in our guide](/concepts/tenants).
+You can read more about [supporting multi-tenancy in our tutorial](/concepts/tenants).
 
 ## Frequently asked questions
 
@@ -223,5 +231,8 @@ You can read more about [supporting multi-tenancy in our guide](/concepts/tenant
   <Accordion title="Can I validate the data I'm passing to a workflow trigger?">
     Yes, you can [validate the data you're passing to a workflow trigger](/developer-tools/validating-trigger-data) by
     providing a JSON schema in your workflow trigger step.
+  </Accordion>
+  <Accordion title="Can I generate types for my workflow triggers?">
+    Yes, you can [generate types for your workflow triggers](/developer-tools/type-safety) by providing a trigger data schema in your workflow trigger step.
   </Accordion>
 </AccordionGroup>

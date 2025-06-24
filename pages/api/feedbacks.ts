@@ -21,6 +21,12 @@ const handler = async (req, res) => {
     return res.status(400).json({ error: "Source URL is required." });
   }
 
+  // Trigger data should be null or a valid email
+  // An empty string will cause a Knock validation error
+  if (req.body.user_email === "") {
+    req.body.user_email = null;
+  }
+
   try {
     const response = await fetch(
       `https://api.knock.app/v1/workflows/docs-feedback/trigger`,

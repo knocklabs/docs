@@ -1,5 +1,5 @@
 ---
-title: Security & authentication
+title: Security and authentication
 description: Learn more about how to secure your client-side applications as they integrate with Knock.
 section: Building in-app UI
 tags:
@@ -14,16 +14,16 @@ tags:
 
 <Callout
   emoji="👉"
+  title="Note:"
   text={
     <>
-      <span className="font-bold">Note:</span> This integration guide references
-      examples from our{" "}
+      This integration guide references examples from our{" "}
       <a href="https://github.com/knocklabs/javascript/tree/main/packages/client">
         client-side JS SDK
       </a>
       . You only need to add the authentication outlined in this guide if you're
-      integrating Knock on the client side of your applications to use the Knock
-      in-app feed or the Knock preferences model.
+      integrating Knock on the client-side of your applications to use Knock feeds
+      and guides, or the Knock preferences model.
     </>
   }
 />
@@ -31,7 +31,7 @@ tags:
 Access to Knock's API is protected using a secret API key for your backend application, and a public API key for your client application.
 By default, the public API key can read in-app feeds and manage user preferences for any of your users. While this is convenient for testing and development, this is not suitable for production environments.
 
-Production environments should enable **enhanced security mode**, which requires clients to send both the public API key and a signed user token that identifies the user that is performing the request. Enhanced security mode trades convenience for security, and we recommend that you enable it [when going to production](/guides/implementation-guide#going-to-production).
+Production environments should enable **enhanced security mode**, which requires clients to send both the public API key and a signed user token that identifies the user that is performing the request. Enhanced security mode trades convenience for security, and we recommend that you enable it [when going to production](/tutorials/implementation-guide#going-to-production).
 
 ## API endpoints that can be called with a public API key
 
@@ -51,11 +51,12 @@ not reject requests that do not include a signed user token.
 
 <Callout
   emoji="🚨"
+  bgColor="red"
+  title="Note:"
   text={
     <>
-      <span className="font-bold">Note:</span> This approach is convenient for
-      development and testing, but should not be used in a production
-      environment with real user data.
+      This approach is convenient for development and testing, but should not be
+      used in a production environment with real user data.
     </>
   }
 />
@@ -122,19 +123,21 @@ Your JWT will need to be signed against your **private signing key** using an **
 To sign your JWT as middleware in a NodeJS express like app:
 
 ```js
-import { Knock } from "@knocklabs/node";
+import { signUserToken } from "@knocklabs/node/lib/tokenSigner";
 
 app.use(async (req, res, next) => {
   if (!req.user) {
     return next();
   }
 
-  // Assuming you have set KNOCK_SIGNING_KEY in your environment
-
   res.locals({
-    // `signUserToken` can take a second argument to set the expiry of the token
-    // and/or specify the signing key to use
-    knockToken: await Knock.signUserToken(req.user.id),
+    // `signUserToken` can take an options object as the second parameter
+    knockToken: await signUserToken(req.user.id, {
+      // Optionally override the signing key (defaults to KNOCK_SIGNING_KEY env var)
+      signingKey: knockSigningKey,
+      // Optionally set custom expiration (defaults to 3600 seconds)
+      expiresInSeconds: 7200,
+    }),
   });
 
   next();

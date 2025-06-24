@@ -1,9 +1,9 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
+import Knock from "@knocklabs/node";
 import fs from "fs";
 
-const knock = new Knock(process.env.KNOCK_API_KEY);
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 const fileContent = fs
   .readFileSync(\`${__dirname}/attachment.pdf\`)
@@ -27,32 +27,32 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
-  key="invoice-paid",
-  recipients=recipient_ids,
-  data={
-    "attachments": [
-      {
-        "name": "Invoice.pdf",
-        "content_type": "application/pdf",
-        "content": file_contents,
-      }
-    ]
-  }
+    key="invoice-paid",
+    recipients=recipient_ids,
+    data={
+        "attachments": [
+            {
+                "name": "Invoice.pdf",
+                "content_type": "application/pdf",
+                "content": file_contents
+            }
+        ]
+    }
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "invoice-paid",
+knock = Knockapi::Client.new(api_key: "sk_12345")
+
+knock.workflows.trigger("invoice-paid",
   recipients: recipient_ids,
   data: {
     attachments: [
       {
         name: "Invoice.pdf",
         content_type: "application/pdf",
-        content: file_contents,
+        content: file_contents
       }
     ]
   }
@@ -80,7 +80,7 @@ var workflowTriggerOpts = new TriggerWorkflow {
 var result = await knockClient.Workflows.Trigger("invoice-paid", workflowTriggerOpts)
 `,
   elixir: `
-knock_client = MyApp.Knock.client()  
+knock_client = MyApp.Knock.client()
 
 Knock.Workflows.trigger("invoice-paid", %{
   data: %{
@@ -112,13 +112,19 @@ $client->workflows()->trigger('invoice-paid', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "invoice-paid",
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{
-    "attachments": []map[string]interface{
+    "attachments": []map[string]interface{}{
       {
         "name": "Invoice.pdf",
         "content": fileContents,
@@ -126,36 +132,42 @@ request := &knock.TriggerWorkflowRequest{
       }
     },
   },
+  Recipients: make([]knock.RecipientRequestUnionParam, len(recipientIds)),
 }
 
-for _, r := range recipientIds {
-  request.AddRecipientByID(r)
+for i, r := range recipientIds {
+  params.Recipients[i] = r
 }
 
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
-
+result, _ := knockClient.Workflows.Trigger(ctx, "invoice-paid", params)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import java.util.List;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("invoice-paid")
-    .recipients(recipientIds)
-    .data("attachments", List.of(
-      Map.of(
-        "name", "Invoice.pdf",
-        "content", fileContents,
-        "content_type", "application/pdf"
-      )
-    ))
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("invoice-paid")
+        .recipients(recipientIds)
+        .data(data -> {
+            data.put("attachments", List.of(
+                Map.of(
+                    "name", "Invoice.pdf",
+                    "content", fileContents,
+                    "content_type", "application/pdf"
+                )
+            ));
+            return data;
+        })
+        .build()
+);
 `,
 };
 

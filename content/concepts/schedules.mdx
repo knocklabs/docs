@@ -29,27 +29,41 @@ Some examples of where you might reach for a schedule:
 
 Knock will preemptively schedule workflow runs for the recipient(s) that you've provided, and execute those runs at the scheduled time. At the end of the workflow run (and in case of using a recurring schedule), a future scheduled workflow will be enqueued based on the recipient's next schedule.
 
+<Callout
+  emoji="⚠️"
+  title="Note:"
+  bgColor="red"
+  text={
+    <>
+      Breaking changes to Schedules methods were introduced in the v1.0 release
+      of the Knock SDKs. Learn more about the new syntax in the{" "}
+      <a href="/developer-tools/migration-guides/node">SDK migration guides</a>.
+    </>
+  }
+/>
+
 ## Scheduling workflows with recurring schedules for recipients
 
 To schedule a workflow for a recipient using recurring schedules, you must first have a valid, committed workflow in your environment. We can then set a schedule with `repeats` for one or more recipients (up to 100 at a time).
 
-```typescript
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
+```typescript title="Creating a recurring schedule for multiple recipients"
+import Knock from "@knocklabs/node";
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const schedules = await knock.workflows.createSchedules("park-alert", {
+const schedules = await client.schedules.create({
   recipients: ["jhammond", "esattler", "dnedry"],
+  workflow: "park-alert",
+  data: { type: "dinosaurs-loose" },
   repeats: [
-    // Repeat daily at 9.30am only on weekdays
     {
+      days: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
       frequency: "daily",
-      days: "weekdays",
       hours: 9,
+      interval: 1,
       minutes: 30,
     },
   ],
-  ending_at: "2024-01-02T10:00:00Z", // Schedule will stop after this date
-  data: { type: "dinosaurs-loose" },
+  ending_at: "2026-01-02T10:00:00Z", // Schedule will stop after this date
   tenant: "jpark",
 });
 ```
@@ -58,14 +72,14 @@ const schedules = await knock.workflows.createSchedules("park-alert", {
 
 To schedule a workflow for a recipient using a non-recurring schedule, you must also have a valid and committed workflow in your environment. We can then set a schedule with the `scheduled_at` property, specifying the moment when this workflow should be executed.
 
-```typescript
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
+```typescript title="Creating a one-off schedule for a specific date and time"
+import Knock from "@knocklabs/node";
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const schedules = await knock.workflows.createSchedules("park-alert", {
+const schedules = await client.schedules.create({
   recipients: ["jhammond", "esattler", "dnedry"],
-  scheduled_at: "2023-12-22T17:45:00Z",
-  ending_at: "2023-12-31T23:59:59Z", // Schedule will not execute after this time
+  scheduled_at: "2025-12-22T17:45:00Z",
+  workflow: "park-alert",
   data: { type: "dinosaurs-loose" },
   tenant: "jpark",
 });
@@ -86,14 +100,15 @@ const schedules = await knock.workflows.createSchedules("park-alert", {
 
 <Callout
   emoji="🚨"
+  title="Note:"
+  bgColor="red"
   text={
     <>
-      <span className="font-bold">Note:</span> when using an Object as a
-      recipient for a scheduled workflow, only the object itself will receive
-      the notification. Subscribers to that object will not be included. If you
-      want to schedule workflows for subscribers of an object, you must add each
-      subscriber individually as a recipient when creating the workflow
-      schedule.
+      when using an Object as a recipient for a scheduled workflow, only the
+      object itself will receive the notification. Subscribers to that object
+      will not be included. If you want to schedule workflows for subscribers of
+      an object, you must add each subscriber individually as a recipient when
+      creating the workflow schedule.
     </>
   }
 />
@@ -120,7 +135,7 @@ Every recurring schedule accepts one or more repeat rules, which allow you to ex
 
 A schedule repeat has the following type structure:
 
-```typescript
+```typescript title="ScheduleRepeat type definitions"
 enum DaysOfWeek {
   Mon = "mon",
   Tue = "tue",
@@ -154,7 +169,7 @@ To illustrate how to model a repeat rule, here are some common examples:
 
 **Every Monday at 9am**
 
-```
+```json title="Schedule repeat for every Monday at 9am"
 {
   "frequency": "weekly",
   "days": ["mon"],
@@ -164,7 +179,7 @@ To illustrate how to model a repeat rule, here are some common examples:
 
 **Every weekday at 10.30am**
 
-```
+```json title="Schedule repeat for every weekday at 10:30am"
 {
   "frequency": "weekly",
   "days": "weekdays",
@@ -175,11 +190,11 @@ To illustrate how to model a repeat rule, here are some common examples:
 
 **Every other Monday, Tuesday, and Friday at 6pm**
 
-```
+```json title="Schedule repeat for every other week on specific days"
 {
   "frequency": "weekly",
   "interval": 2,
-  "days": ["mon", "tues", "fri"],
+  "days": ["mon", "tue", "fri"],
   "hours": 18,
   "minutes": 00
 }
@@ -189,11 +204,11 @@ To illustrate how to model a repeat rule, here are some common examples:
 
 Up to 100 recipient schedules can be updated in a single call. Keep in mind that the properties passed in will be applied to all schedules.
 
-```typescript title="Updating schedules"
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
+```typescript title="Updating existing schedules"
+import Knock from "@knocklabs/node";
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const schedules = await knock.workflows.updateSchedules({
+const schedules = await client.schedules.update({
   schedule_ids: workflowScheduleIds,
   ending_at: "2024-06-01T00:00:00Z", // Update when the schedule should end
   data: { foo: "bar" },
@@ -204,11 +219,11 @@ const schedules = await knock.workflows.updateSchedules({
 
 Up to 100 schedules can be deleted at a time, causing any already enqueued schedules to be cancelled for a recipient.
 
-```typescript title="Removing schedules"
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
+```typescript title="Deleting schedules"
+import Knock from "@knocklabs/node";
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const schedules = await knock.workflows.deleteSchedules({
+const schedules = await client.schedules.delete({
   schedule_ids: workflowScheduleIds,
 });
 ```
@@ -218,21 +233,27 @@ const schedules = await knock.workflows.deleteSchedules({
 Schedules can be listed per recipient (for a user or an object), or for an individual workflow:
 
 ```typescript title="Listing schedules for a user"
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const { entries: schedules } = await knock.users.getSchedules("sam");
+// Automatically fetches more pages as needed.
+for await (const schedule of client.users.listSchedules("user_id")) {
+  console.log(schedule.id);
+}
 ```
 
 <br />
 
 ```typescript title="Listing schedules for a specific workflow"
-const { Knock } = require("@knocklabs/node");
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const client = new Knock({ apiKey: process.env["KNOCK_API_KEY"] });
 
-const { entries: schedules } = await knock.workflows.listSchedules(
-  "workflow-key",
-);
+// Automatically fetches more pages as needed.
+for await (const schedule of client.schedules.list({
+  workflow: "workflow-key",
+})) {
+  console.log(schedule.id);
+}
 ```
 
 Schedules include a `next_occurrence_at` property which computes the **next time that a schedule will be executed**.
@@ -255,10 +276,10 @@ Knock supports a `timezone` property on the recipient that automatically makes a
 
 <Callout
   emoji="💡"
+  title="Note:"
   text={
     <>
-      <span className="font-bold">Note</span>: executing schedules in recipient
-      timezones is currently only supported by{" "}
+      executing schedules in recipient timezones is currently only supported by{" "}
       <a href="/designing-workflows/step-conditions">recurring schedules</a>.
     </>
   }

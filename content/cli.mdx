@@ -8,7 +8,7 @@ Section: CLI
 
 <a id="overview" className="absolute -top-8 invisible" />
 
-<Section title="Knock CLI reference" slug="overview">
+<Section path="/overview">
 <ContentColumn>
 
 This reference documents every command and flag available in Knock's command-line interface.
@@ -24,12 +24,12 @@ With the CLI, you can:
 </ContentColumn>
 </Section>
 
-<Section title="Install the CLI" slug="installation">
+<Section title="Install the CLI" path="/overview/installation">
 <ContentColumn>
 
-### Install with homebrew
+### Install with Homebrew
 
-For macOS, you can install the Knock CLI using [homebrew](https://brew.sh/). Once the CLI is installed you can call it by using the `knock` command in your terminal.
+For macOS, you can install the Knock CLI using [Homebrew](https://brew.sh/). Once the CLI is installed you can call it by using the `knock` command in your terminal.
 
 ### Install with npm
 
@@ -60,7 +60,7 @@ npm install -g @knocklabs/cli
 </ExampleColumn>
 </Section>
 
-<Section title="Authentication" slug="authentication">
+<Section title="Authentication" path="/overview/authentication">
 <ContentColumn>
 
 The Knock CLI relies on a [service token](/developer-tools/service-tokens) to authenticate and make requests to your Knock account. You can specify a service token in all CLI calls, or you can optionally use a configuration file to authenticate all requests.
@@ -91,7 +91,7 @@ knock whoami --service-token=XXX
 </ExampleColumn>
 </Section>
 
-<Section title="knock {cmd} <arguments> [flags]" slug="global-flags" headingClassName="font-mono">
+<Section title="knock {cmd} <arguments> [flags]" path="/overview/global-flags">
 <ContentColumn>
 
 The following flags are supported for every command.
@@ -109,7 +109,93 @@ The following flags are supported for every command.
 </ContentColumn>
 </Section>
 
-<Section title="knock workflow list [flags]" slug="workflow-list" headingClassName="font-mono">
+<Section title="knock pull [flags]" path="/pull">
+<ContentColumn>
+
+Pulls the contents of all Knock resources (workflows, partials, email layouts, and translations) from Knock into your local file system.
+
+Resources will be grouped by resource type within subdirectories of the target directory path set by the `--knock-dir` flag. For example, invoking `knock pull --knock-dir=./knock` will create the following directory structure:
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Directory structure created by the knock pull command">
+{`./knock/
+├── layouts/
+├── partials/
+├── translations/
+└── workflows/`}
+</PreTextDiagram>
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--knock-dir"
+    type="directory"
+    description="The target directory path to pull all resources into."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Pull all resources"
+knock pull --knock-dir=./knock
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock push [flags]" path="/push">
+<ContentColumn>
+
+Pushes all local resource files (workflows, partials, email layouts, and translations) back to Knock and upserts them. This command expects the directory structure to be the same as the one created by the `knock pull` command.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--knock-dir"
+    type="directory"
+    description="The target directory path to push all resources from."
+  />
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+</Attributes>
+</ContentColumn>
+
+<ExampleColumn>
+
+```bash title="Push all resources"
+knock push --knock-dir=./knock
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow list [flags]" path="/workflow/list">
 <ContentColumn>
 
 You can see all your existing workflows in a given environment with the workflow list command.
@@ -161,7 +247,7 @@ knock workflow list --after=xxx
 </ExampleColumn>
 </Section>
 
-<Section title="knock workflow get [flags]" slug="workflow-get" headingClassName="font-mono">
+<Section title="knock workflow get [flags]" path="/workflow/get">
 <ContentColumn>
 
 You can show more details about a given workflow with the `workflow get` command, followed by the target workflow key.
@@ -198,7 +284,7 @@ knock workflow get my-workflow --environment=production
 </ExampleColumn>
 </Section>
 
-<Section title="knock workflow pull [flags]" slug="workflow-pull" headingClassName="font-mono">
+<Section title="knock workflow pull [flags]" path="/workflow/pull">
 <ContentColumn>
 
 You can pull and download workflows with its message templates from Knock to a local file system with the `workflow pull` command. Knock CLI will create a new workflow directory or update the existing workflow directory in the local file system.
@@ -266,7 +352,7 @@ knock workflow pull --all --workflows-dir=./workflows
 </ExampleColumn>
 </Section>
 
-<Section title="knock workflow push [flags]" slug="workflow-push" headingClassName="font-mono">
+<Section title="knock workflow push [flags]" path="/workflow/push">
 <ContentColumn>
 
 You can push and upload a workflow directory to Knock with the `workflow push` command. Knock will update an existing workflow by the matching workflow key, or create a new workflow if it does not exist yet.
@@ -324,7 +410,7 @@ knock workflow push --all --workflows-dir=./workflows
 </ExampleColumn>
 </Section>
 
-<Section title="knock workflow run <workflow_key> [flags]" slug="workflow-run" headingClassName="font-mono">
+<Section title="knock workflow run <workflow_key> [flags]" path="/workflow/run">
 <ContentColumn>
 
 You can run a workflow with the `workflow run` command. Knock will execute a run for the latest saved version of the workflow it finds with the given key and parameters you send it.
@@ -377,7 +463,7 @@ knock workflow run my-workflow \
 </ExampleColumn>
 </Section>
 
-<Section title="knock workflow validate <workflow_key> [flags]" slug="workflow-validate" headingClassName="font-mono">
+<Section title="knock workflow validate <workflow_key> [flags]" path="/workflow/validate">
 <ContentColumn>
 
 You can validate a new or updated workflow directory with the `workflow validate` command. Knock will validate the given workflow payload in the same way as it would with the `workflow push` command, except without persisting those changes.
@@ -409,7 +495,7 @@ knock workflow validate my-workflow
 </ExampleColumn>
 </Section>
 
-<Section title="knock workflow activate [flags]" slug="workflow-activate" headingClassName="font-mono">
+<Section title="knock workflow activate [flags]" path="/workflow/activate">
 <ContentColumn>
 
 You can activate or deactivate a workflow in a given environment with the `workflow activate` command.
@@ -424,7 +510,8 @@ Note:
 <Attributes>
   <Attribute
     name="--environment"
-    type="string (required)"
+    type="string"
+    isRequired
     description="The environment to activate the workflow in."
   />
   <Attribute
@@ -447,7 +534,7 @@ knock workflow activate my-workflow \
   --environment=development
 ```
 
-```bash Deactivating a workflow
+```bash title="Deactivating a workflow"
 knock workflow activate my-workflow \
   --environment=development \
   --status=false
@@ -456,7 +543,63 @@ knock workflow activate my-workflow \
 </ExampleColumn>
 </Section>
 
-<Section title="knock layout list [flags]" slug="email-layout-list" headingClassName="font-mono">
+<Section title="knock workflow generate-types [flags]" path="/workflow/generate-types">
+<ContentColumn>
+
+Generate type definitions for workflow trigger data from your workflow schemas. This command fetches workflows with trigger data schemas and generates type-safe definitions for TypeScript, Python, Ruby, and Go.
+
+The generated types enable compile-time safety when triggering workflows in your application code, helping catch integration errors before runtime. The target language is inferred from the output file extension.
+
+Learn more about [type safety with workflows](/developer-tools/type-safety).
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to fetch workflows from. Defaults to development."
+  />
+  <Attribute
+    name="--output-file"
+    type="string"
+    description="Specifies the file to generate types into. The language is inferred from the file suffix."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Generate TypeScript types"
+knock workflow generate-types \
+  --output-file=./types/knock-workflows.ts
+```
+
+```bash title="Generate Python types"
+knock workflow generate-types \
+  --output-file=./types/knock_workflows.py
+```
+
+```bash title="Generate Ruby types"
+knock workflow generate-types \
+  --output-file=./types/knock_workflows.rb
+```
+
+```bash title="Generate Go types"
+knock workflow generate-types \
+  --output-file=./types/knock_workflows.go
+```
+
+```bash title="Generate from production environment"
+knock workflow generate-types \
+  --environment=production \
+  --output-file=./types/knock-workflows.ts
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock layout list [flags]" path="/email-layout/list">
 <ContentColumn>
 
 List all email layouts in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
@@ -502,7 +645,7 @@ knock layout list
 </ExampleColumn>
 </Section>
 
-<Section title="knock layout get <layout_key> [flags]" slug="email-layout-get" headingClassName="font-mono">
+<Section title="knock layout get <layout_key> [flags]" path="/email-layout/get">
 <ContentColumn>
 
 Fetches a single email layout, using the `key` of the email layout.
@@ -528,18 +671,18 @@ Use an `--environment` flag to specify the target environment; if omitted, the K
 </ContentColumn>
 <ExampleColumn>
 
-```bash Get layout
+```bash title="Get layout"
 knock layout get default
 ```
 
-```bash Get layout in a different environment
+```bash title="Get layout in a different environment"
 knock layout get default --environment=production
 ```
 
 </ExampleColumn>
 </Section>
 
-<Section title="knock layout pull <layout_key> [flags]" slug="email-layout-pull" headingClassName="font-mono">
+<Section title="knock layout pull <layout_key> [flags]" path="/email-layout/pull">
 <ContentColumn>
 
 Pulls the contents of one or all email layouts from Knock into your local file system. Using `<layout_key>` you can pull a single email layout specified by the key, or use the `--all` flag to pull all email layouts from Knock at once.
@@ -581,18 +724,18 @@ See how layout files are structured in your system [here](/integrations/email/la
 </ContentColumn>
 <ExampleColumn>
 
-```bash Pull a single email layout
+```bash title="Pull a single email layout"
 knock layout pull default
 ```
 
-```bash Pull all email layouts
+```bash title="Pull all email layouts"
 knock layout pull --all
 ```
 
 </ExampleColumn>
 </Section>
 
-<Section title="knock layout push <layout_key> [flags]" slug="email-layout-push" headingClassName="font-mono">
+<Section title="knock layout push <layout_key> [flags]" path="/email-layout/push">
 <ContentColumn>
 
 Pushes local email layouts back to Knock and upserts them. Using `<layout_key>` you can push a single email layout specified by the key, or use the `--all` flag to push all email layouts from Knock at once.
@@ -627,18 +770,18 @@ See how layout files are structured in your system [here](/integrations/email/la
 </ContentColumn>
 <ExampleColumn>
 
-```bash Push a single email layout
-knock layout push
+```bash title="Push a single email layout"
+knock layout push my-layout
 ```
 
-```bash Push all email layouts
+```bash title="Push all email layouts"
 knock layout push --all
 ```
 
 </ExampleColumn>
 </Section>
 
-<Section title="knock layout validate <layout_key> [flags]" slug="email-layout-validate" headingClassName="font-mono">
+<Section title="knock layout validate <layout_key> [flags]" path="/email-layout/validate">
 <ContentColumn>
 
 Validates one or more email layouts. Useful for checking if the layout is valid before running the `email_layout push` command.
@@ -676,7 +819,7 @@ knock layout validate default
 </ExampleColumn>
 </Section>
 
-<Section title="knock translation list [flags]" slug="translation-list" headingClassName="font-mono">
+<Section title="knock translation list [flags]" path="/translation/list">
 <ContentColumn>
 
 List all translations in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
@@ -722,7 +865,7 @@ knock translation list
 </ExampleColumn>
 </Section>
 
-<Section title="knock translation get <translation_ref> [flags]" slug="translation-get" headingClassName="font-mono">
+<Section title="knock translation get <translation_ref> [flags]" path="/translation/get">
 <ContentColumn>
 
 You can show the content of a given translation with the `translation get` command, followed by the target translation ref.
@@ -770,7 +913,7 @@ knock translation get en --environment=production
 </ExampleColumn>
 </Section>
 
-<Section title="knock translation pull <translation_ref> [flags]" slug="translation-pull" headingClassName="font-mono">
+<Section title="knock translation pull <translation_ref> [flags]" path="/translation/pull">
 <ContentColumn>
 
 You can pull and download translation files from Knock to a local file system with the `translation pull` command. Knock CLI will create a new translation file or update the existing file in the local file system.
@@ -848,7 +991,7 @@ knock translation pull --all --format=po
 </ExampleColumn>
 </Section>
 
-<Section title="knock translation push <translation_ref> [flags]" slug="translation-push" headingClassName="font-mono">
+<Section title="knock translation push <translation_ref> [flags]" path="/translation/push">
 <ContentColumn>
 
 Pushes local translation files back to Knock and upserts them.
@@ -906,7 +1049,7 @@ knock translation push --all
 </ExampleColumn>
 </Section>
 
-<Section title="knock translation validate <translation_ref> [flags]" slug="translation-validate" headingClassName="font-mono">
+<Section title="knock translation validate <translation_ref> [flags]" path="/translation/validate">
 <ContentColumn>
 
 Validates one or more translation files. Useful for checking if the file is valid before running the `translation push` method.
@@ -948,7 +1091,7 @@ knock translation validate en --all
 </ExampleColumn>
 </Section>
 
-<Section title="knock partial list [flags]" slug="partial-list" headingClassName="font-mono">
+<Section title="knock partial list [flags]" path="/partial/list">
 <ContentColumn>
 
 List all partials in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
@@ -994,7 +1137,7 @@ knock partial list
 </ExampleColumn>
 </Section>
 
-<Section title="knock partial get <partial_key> [flags]" slug="partial-get" headingClassName="font-mono">
+<Section title="knock partial get <partial_key> [flags]" path="/partial/get">
 <ContentColumn>
 
 You can show more details about a given partial with the `partial get` command, followed by the target partial key.
@@ -1031,7 +1174,7 @@ knock partial get my-partial --environment=production
 </ExampleColumn>
 </Section>
 
-<Section title="knock partial pull <partial_key> [flags]" slug="partial-pull" headingClassName="font-mono">
+<Section title="knock partial pull <partial_key> [flags]" path="/partial/pull">
 <ContentColumn>
 
 You can pull and download partial files from Knock to a local file system with the `partial pull` command. Knock CLI will create a new partial directory or update the existing partial directory in the local file system.
@@ -1095,7 +1238,7 @@ knock partial pull --all
 </ExampleColumn>
 </Section>
 
-<Section title="knock partial push <partial_key> [flags]" slug="partial-push" headingClassName="font-mono">
+<Section title="knock partial push <partial_key> [flags]" path="/partial/push">
 <ContentColumn>
 
 You can push and upload a partial directory to Knock with the `partial push` command. Knock will update an existing partial by the matching partial key, or create a new partial if it does not exist yet.
@@ -1151,7 +1294,7 @@ knock partial push --all --partials-dir=./partials
 </ExampleColumn>
 </Section>
 
-<Section title="knock partial validate <partial_key> [flags]" slug="partial-validate" headingClassName="font-mono">
+<Section title="knock partial validate <partial_key> [flags]" path="/partial/validate">
 <ContentColumn>
 
 Validates one or more partial files. Useful for checking if the file is valid before running the `partial push` method.
@@ -1187,7 +1330,7 @@ knock partial validate my-partial
 </ExampleColumn>
 </Section>
 
-<Section title="knock commit list [flags]" slug="commit-list" headingClassName="font-mono">
+<Section title="knock commit list [flags]" path="/commit/list">
 <ContentColumn>
 
 List all commits in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
@@ -1237,7 +1380,7 @@ knock commit list --no-promoted --environment=staging
 </ExampleColumn>
 </Section>
 
-<Section title="knock commit get <commit_id> [flags]" slug="commit-get" headingClassName="font-mono">
+<Section title="knock commit get <commit_id> [flags]" path="/commit/get">
 <ContentColumn>
 
 Shows the details of a given commit, using the `id` of the commit.
@@ -1258,7 +1401,7 @@ knock commit get 69cdde18-830a-42e0-ad4b-a230943bdc90
 </ExampleColumn>
 </Section>
 
-<Section title="knock commit [flags]" slug="commit-all" headingClassName="font-mono">
+<Section title="knock commit [flags]" path="/commit/all">
 <ContentColumn>
 
 You can commit all changes across all resources in the development environment with the commit command.
@@ -1288,15 +1431,15 @@ knock commit -m "Commit message"
 </ExampleColumn>
 </Section>
 
-<Section title="knock commit promote [flags]" slug="commit-promote" headingClassName="font-mono">
+<Section title="knock commit promote [flags]" path="/commit/promote">
 <ContentColumn>
 
 You can promote one change to the subsequent environment, or all changes across all resources to the target environment from its directly preceding environment, using the `commit promote` command.
 
 Note:
 
-- For example, if you have three environments “development”, “staging”, and “production” (in that order), setting the `--to` flag to `production` will promote all new changes from the staging environment to the production environment
-- Following the same example, promoting one single commit from staging using the `--only` flag, will result in that commit being promoted to production.
+- For example, if you have three environments "development", "staging", and "production" (in that order), setting the `--to` flag to `production` will promote all new changes from the staging environment to the production environment.
+- Promoting one single commit from staging using the `--only` flag, will result in that commit being promoted to production.
 - The `--to` environment must be a non-development environment.
 - The `--to` and `--only` flags can't be used together.
 

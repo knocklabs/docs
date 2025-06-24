@@ -52,7 +52,6 @@ async function readStainlessSpec(specName: string): Promise<StainlessConfig> {
   const customizations = await readSpecCustomizations(specName);
   const spec = await readFile(`./data/specs/${specName}/stainless.yml`, "utf8");
   const stainlessSpec = parse(spec);
-
   return deepmerge(stainlessSpec, customizations);
 }
 
@@ -67,4 +66,4 @@ async function readSpecCustomizations(specName: string) {
 }
 
 export type { StainlessResource, StainlessConfig };
-export { readOpenApiSpec, readStainlessSpec, readSpecCustomizations };
+export { readOpenApiSpec, readStainlessSpec };

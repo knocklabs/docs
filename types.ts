@@ -5,7 +5,7 @@ export interface FrontMatter {
   tags: string[];
   section: string;
   showNav?: boolean;
-  layout?: "docs" | "api" | "mapi" | "integrations" | "cli";
+  layout?: "docs" | "api" | "mapi" | "integrations" | "cli" | "sdks";
 }
 
 export type ISidebarContent = ISidebarSection[];
@@ -29,3 +29,25 @@ declare global {
     };
   }
 }
+
+export type DocsSearchItem = {
+  objectID: string;
+  path: string;
+  title: string;
+  section: string;
+  tags: string[];
+  // Whether the item is a static page or part of an endpoint resource
+  // This field is used for sorting the results in the autocomplete
+  // Currently, we sort "document" values higher than "api-reference" values when querying "pages" index
+  // We can refine this even further if we want to
+  contentType: "document" | "api-reference";
+  // Helps us delineate between the two types of search items
+  index: "pages" | "endpoints";
+};
+
+export type EndpointSearchItem = DocsSearchItem & {
+  method: string;
+  endpoint: string;
+  // Will always be contentType: "api-reference"
+  contentType: "api-reference";
+};

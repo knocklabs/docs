@@ -8,12 +8,14 @@ curl -X POST https://api.knock.app/v1/objects/projects/bulk/delete \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock("sk_example_12345679");
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
 const objectIds = ["project-1", "project-2"];
 
-await knock.objects.bulkDelete("projects", objectIds);
+await knock.objects.bulk.delete("projects", objectIds);
 `,
   elixir: `
 knock_client = MyApp.Knock.client()
@@ -22,21 +24,20 @@ Knock.Objects.bulk_delete(knock_client, "projects", object_ids)
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
-client.objects.bulk_delete(
-  collection="projects",
-  object_ids=object_ids 
-)
+client.objects.bulk.delete(collection="projects", object_ids=["project-1", "project-2"])
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
+
+client = Knockapi::Client.new(api_key: "sk_12345")
 
 Knock::Objects.bulk_delete(
   collection: "projects",
   object_ids: object_ids
-)  
+)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -55,16 +56,27 @@ await knockClient.Objects.BulkDelete("projects", options);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->objects()->bulkDelete('projects', ['project-1', 'project-2']);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-// The Go SDK doesn't currently support this example
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+objectIDs := []string{"project-1", "project-2"}
+
+bulkOp, _ := knockClient.Objects.Bulk.Delete(ctx, "projects", &knock.ObjectBulkDeleteParams{
+  ObjectIDs: objectIDs,
+})
 `,
   java: `
 import app.knock.api.KnockClient;
@@ -74,7 +86,12 @@ KnockClient client = KnockClient.builder()
     .apiKey("sk_12345")
     .build();
 
-client.objects().bulkDeleteInCollection("projects", List.of("project-1", "project-2"));
+ObjectBulkDeleteParams params = ObjectBulkDeleteParams.builder()
+    .collection("projects")
+    .objectIds(Arrays.asList("project-1", "project-2"))
+    .build();
+
+BulkOperation result = client.objects().bulk().delete(params);
 `,
 };
 

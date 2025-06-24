@@ -4,14 +4,16 @@ curl -X GET https://api.knock.app/v1/messages/3mY9N4p7DcmL9j1K44qmrdO6t7W/events
   -H "Authorization: Bearer sk_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-await knock.messages.getEvents(message.id);
+await knock.messages.listEvents(message.id);
 
 // supports pagination parameters
 
-await knock.messages.getEvents(
+await knock.messages.listEvents(
   message.id,
   {
     page_size: 10
@@ -29,23 +31,24 @@ Knock.Messages.get_events(knock_client, message.id, page_size: 10)
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
-client.messages.get_events(message.id)
+client.messages.list_events(message.id)
 
 # supports pagination parameters
-
-Knock.Messages.get_events(message.id, {'page_size': 10})
+client.messages.list_events(message.id, page_size=10)
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Messages.get_events(id: message.id)
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.messages.list_events(message.id)
 
 # supports pagination parameters
 
-Knock::Messages.get_events(id: message.id, options: {page_size: 10})
+client.messages.list_events(message.id, page_size: 10)
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -63,7 +66,7 @@ await knockClient.Messages.GetEvents(message.id, params);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
-    
+
 $client = new Client('sk_12345');
 
 $client->messages()->getEvents($message->id(), [
@@ -71,26 +74,56 @@ $client->messages()->getEvents($message->id(), [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-result, _ := knockClient.Messages.GetEvents(ctx, &knock.GetMessageEventsRequest{
-  ID: message.ID,
-  PageSize: 10,
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+// List events with pagination
+events, _ := knockClient.Messages.ListEvents(ctx, message.ID, knock.MessageListEventsParams{
+	PageSize: param.New(10),
 })
+
+// Auto-paging version
+eventsPager := knockClient.Messages.ListEventsAutoPaging(ctx, message.ID, knock.MessageListEventsParams{
+	PageSize: param.New(10),
+})
+
+// Iterate through events
+for eventsPager.Next() {
+	event := eventsPager.Current()
+	// Process event...
+}
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.messages.MessageListEventsParams;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-MessagesResource.QueryParams queryParams = new MessagesResource.QueryParams();
-queryParams.pageSize(10);
+// Basic request
+var events = client.messages().listEvents(
+    MessageListEventsParams.builder()
+        .messageId(messageId)
+        .build()
+);
 
-CursorResult<KnockMessageEvent> eventResult = client.messages().events(messageId, queryParams);
+// With pagination
+var eventsWithPagination = client.messages().listEvents(
+    MessageListEventsParams.builder()
+        .messageId(messageId)
+        .pageSize(10)
+        .build()
+);
   `,
 };
 

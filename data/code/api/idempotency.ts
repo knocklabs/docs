@@ -15,8 +15,8 @@ curl -X POST https://api.knock.app/v1/workflows/new-comment/trigger \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   recipients: ["1", "2"],
@@ -34,26 +34,25 @@ await knock.workflows.trigger("new-comment", {
 `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
     key="new-comment",
-    recipients=["1", "2"]
-
-    # optional
-    data={ "project_name": "My Project" },
+    recipients=["1", "2"],
+    data={"project_name": "My Project"},
     actor="3",
     cancellation_key="cancel_123",
-    tenant="jurassic_world_employees"
-
-    idempotency_key="123"
+    tenant="jurassic_world_employees",
+    extra_headers={"Idempotency-Key": "123"}
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.workflows.trigger(
   key: "new-comment",
   recipients: ["1", "2"],
 
@@ -120,47 +119,53 @@ $client->workflows()->trigger('new-comment', [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-result, _ := knockClient.Workflows.Trigger(ctx, &knock.TriggerWorkflowRequest{
-  Workflow:   "new-comment",
-  Recipients: []interface{}{"1", "2"},
-
-  // optional
-  Data:            map[string]interface{}{"project_name": "My Project"},
-  Actor:           "3",
-  CancellationKey: "cancel_123",
-  Tenant:          "jurassic_world_employees",
-},
-&knock.MethodOptions{
-  IdempotencyKey: "123",
-})
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", knock.WorkflowTriggerParams{
+	Recipients: param.New([]string{"1", "2"}),
+	Data: param.New(map[string]interface{}{
+		"project_name": "My Project",
+	}),
+	Actor:           param.New("3"),
+	CancellationKey: param.New("cancel_123"),
+	Tenant:          param.New("jurassic_world_employees"),
+}, option.WithIdempotencyKey("123"))
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.core.RequestOptions;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("new-comment")
-    .recipients(List.of("1", "2"))
-
-    // optional
-    .data("project_name", "My project")
-    .actor("3")
-    .cancellationKey("cancel_123")
-    .tenant("jurassic_world_employees")
+RequestOptions requestOptions = RequestOptions.builder()
+    .putAdditionalHeader("Idempotency-Key", "123")
     .build();
 
-MethodOptions methodOptions = MethodOptions.builder()
-    .idempotencyKey("123")
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger, methodOptions);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .addRecipient("1")
+        .addRecipient("2")
+        .data(data -> data.put("project_name", "My Project"))
+        .actor("3")
+        .cancellationKey("cancel_123")
+        .tenant("jurassic_world_employees")
+        .build(),
+    requestOptions
+);
 `,
 };
 

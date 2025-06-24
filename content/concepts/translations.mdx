@@ -17,14 +17,16 @@ tags:
 section: Concepts
 ---
 
-[Translations](/mapi#translations-overview) localize the notifications you send with Knock.
+[Translations](/mapi-reference/translations) localize the notifications you send with Knock.
 
 <Callout
   emoji="✨"
+  title="Enterprise plan feature."
+  bgColor="accent"
+  style={{ alignItems: "center" }}
   text={
     <>
-      <span className="font-bold">Enterprise plan feature.</span> Translations
-      are only available on our{" "}
+      Translations are only available on our{" "}
       <a href="https://knock.app/pricing">Enterprise plan</a>.
     </>
   }
@@ -40,7 +42,7 @@ Once you've set your default `locale`, you should see a new “Translations” p
 
 ## Basic usage
 
-[Translations](/mapi#translations-overview) are JSON objects that contain the text for your messages in various locales. For example, let’s say you have a customer order notification that you want to localize for French and English users.
+[Translations](/mapi-reference/translations/schemas/translation) are JSON objects that contain the text for your messages in various locales. For example, let’s say you have a customer order notification that you want to localize for French and English users.
 
 ```json title="en translation"
 {
@@ -64,7 +66,7 @@ Once you have those translations created for the `en` and `fr` locales, you can 
 <p> {{ "OrderReady" | t }} </p>
 ```
 
-Your users must have a `locale` property set for the helper to find translations in their locale, otherwise Knock will use the default locale. You can set a user's `locale` with the [identify endpoint](/reference#identify-user).
+Your users must have a `locale` property set for the helper to find translations in their locale, otherwise Knock will use the default locale. You can set a user's `locale` with the [identify endpoint](/api-reference/users/update).
 
 ## Translation methods: filter vs. tag
 
@@ -179,7 +181,7 @@ To access the contents of the `shipping` translation in your message template yo
 <p> {{ "shipping:canceled" | t }} </p>
 ```
 
-This can be helpful if you use the `canceled` key else where in your translations so that there isn’t a collision. For example, if you had a `payments` translation like this:
+This can be helpful if you use the `canceled` key elsewhere in your translations so that there isn’t a collision. For example, if you had a `payments` translation like this:
 
 ```json title="en:payments translation"
 {
@@ -249,8 +251,8 @@ Knock also provides an editor-friendly `t` tag which you can use to write templa
 
   </Step>
   <Step title="Commit your workflow">
-    After you commit your workflow, Knock will look for changes to your message templates and update a system translation file. Translation keys will be automatically generated based off of the content of the <code>t</code> tag. 
-    
+    After you commit your workflow, Knock will look for changes to your message templates and update a system translation file. Translation keys will be automatically generated based off of the content of the <code>t</code> tag.
+
     A Knock bot will commit these changes to your account with a message indicating which workflow generated the new translations.
 
     ```json title="System translation file"
@@ -271,11 +273,11 @@ Translations follow the same version control flow in Knock as workflows and layo
 
 <Callout
   emoji="🚨"
+  title="Remember:"
   text={
     <>
-      <span className="font-bold">Remember:</span> in order to see translation
-      updates in your template previews, you'll need to commit them to your
-      development environment first.
+      in order to see translation updates in your template previews, you'll need
+      to commit them to your development environment first.
     </>
   }
 />
@@ -304,17 +306,18 @@ The Knock CLI can also be used to commit changes and promote them to production,
 
 When translations are pulled from Knock, they are stored in directories named by their locale codes. Their filename will be their locale code. Any namespaced translations will prepend the namespace to the filename, with `.` used as a separator.
 
-```txt title="Local translation files structure"
-translations/
+{/* prettier-ignore */}
+<PreTextDiagram description="Local translation files structure">
+{`translations/
 ├── en/
 │  ├── en.json
 │  └── admin.en.json
 └── en-GB/
    ├── en-GB.json
-   └── tasks.en-GB.json
-```
+   └── tasks.en-GB.json`}
+</PreTextDiagram>
 
-If you're migrating your local translation files into Knock, you can arrange them using the file structure above and then push them into Knock with a single command using [`knock translation push --all`](/cli#translation-push). Each `<locale>.json` or `<namespace>.<locale>.json` file should follow the structure defined [here](/mapi#translations-object).
+If you're migrating your local translation files into Knock, you can arrange them using the file structure above and then push them into Knock with a single command using [`knock translation push --all`](/cli#translation-push). Each `<locale>.json` or `<namespace>.<locale>.json` file should follow the structure defined [here](/mapi-reference/translations/schemas/translation).
 
 You can learn more about automating translation management in the [Knock CLI reference](/cli). Feel free to <a href="mailto:support@knock.app">contact us</a> if you have questions.
 

@@ -1,7 +1,7 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   data: { project_name: "My Project" },
@@ -25,11 +25,9 @@ await knock.workflows.trigger("new-comment", {
 from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
-apns_push_token = "apns-push-token"
-
 client.workflows.trigger(
     key="new-comment",
-    data={ "project_name": "My Project" },
+    data={"project_name": "My Project"},
     recipients=[
         {
             "id": "1",
@@ -37,29 +35,27 @@ client.workflows.trigger(
             "preferences": {
                 "default": {
                     "channel_types": {
-                        "email": true,
-                        "sms": true
+                        "email": True,
+                        "sms": True
                     }
                 },
                 "{{ tenant.id }}": {
                     "channel_types": {
-                        "email": true,
-                        "sms": true
+                        "email": False,
+                        "sms": False
                     }
                 }
-              }
             }
         }
     ]
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-apns_push_token = "apns-push-token"
+client = Knockapi::Client.new(api_key: "sk_12345")
 
-Knock::Workflows.trigger(
+client.workflows.trigger(
   key: "new-comment",
   data: { project_name: "My Project" },
   recipients: [
@@ -71,13 +67,13 @@ Knock::Workflows.trigger(
           channel_types: {
             email: true,
             sms: true,
-          } 
+          }
         },
         "{{ tenant.id }}": {
           channel_types: {
             email: false,
             sms: false,
-          } 
+          }
         }
       }
     }
@@ -162,63 +158,81 @@ $client->workflows()->trigger('new-comment', [
 ]);
 `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "new-comment",
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{"project_name": "My Project"},
-}
-
-request.AddRecipientByEntity(map[string]interface{}{
-  "id": "1",
-  "email": "jhammond@ingen.net",
-  "preferences": map[string]map{
-    "default": map[string]map {
-      "channel_types": map[string]boolean {
-        "email": true,
-        "sms": true
+  Recipients: []knock.RecipientRequestUnionParam{
+    map[string]interface{}{
+      "id": "1",
+      "email": "jhammond@ingen.net",
+      "preferences": map[string]interface{}{
+        "default": map[string]interface{}{
+          "channel_types": map[string]bool{
+            "email": true,
+            "sms": true,
+          },
+        },
+        "{{ tenant.id }}": map[string]interface{}{
+          "channel_types": map[string]bool{
+            "email": false,
+            "sms": false,
+          },
+        },
       },
     },
-    "{{ tenant.id }}": map[string]map {
-      "channel_types": map[string]boolean {
-        "email": false,
-        "sms": false
-      },
-    }
   },
-})
+}
 
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import java.util.List;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("new-comment")
-    .data("project_name", "My project")
-    .addRecipient(
-      Map.of(
-        "id", "1",
-        "email", "jhammond@ingen.net",
-        "preferences", Map.of(
-          "default", Map.of(
-            "channel_types", Map.of(
-              "email", true,
-              "sms", true
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .data(data -> {
+            data.put("project_name", "My Project");
+            return data;
+        })
+        .recipients(List.of(
+            Map.of(
+                "id", "1",
+                "email", "jhammond@ingen.net",
+                "preferences", Map.of(
+                    "default", Map.of(
+                        "channel_types", Map.of(
+                            "email", true,
+                            "sms", true
+                        )
+                    ),
+                    "{{ tenant.id }}", Map.of(
+                        "channel_types", Map.of(
+                            "email", false,
+                            "sms", false
+                        )
+                    )
+                )
             )
-          )
-        )
-      )
-    )
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+        ))
+        .build()
+);
 `,
 };
 

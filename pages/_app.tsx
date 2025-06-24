@@ -1,6 +1,5 @@
 import React, { useRouter } from "next/router";
 import { Inter } from "next/font/google";
-import { ThemeProvider } from "next-themes";
 import { useEffect } from "react";
 import * as analytics from "../lib/analytics";
 import {
@@ -15,6 +14,8 @@ import { useRemoteRefresh } from "next-remote-refresh/hook";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 import "../styles/index.css";
+import "../styles/global.css";
+import "../styles/responsive.css";
 
 function App({ Component, pageProps }) {
   const router = useRouter();
@@ -38,18 +39,10 @@ function App({ Component, pageProps }) {
 
   return (
     <main className={inter.className}>
-      <ThemeProvider
-        defaultTheme="light"
-        enableSystem={false}
-        forcedTheme={Component.forcedTheme}
-        attribute="class"
-        disableTransitionOnChange
-      >
-        <EventEmitterContext.Provider value={eventEmitter}>
-          <Component {...pageProps} />
-        </EventEmitterContext.Provider>
-        {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
-      </ThemeProvider>
+      <EventEmitterContext.Provider value={eventEmitter}>
+        <Component {...pageProps} />
+      </EventEmitterContext.Provider>
+      {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
     </main>
   );
 }

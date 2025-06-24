@@ -113,7 +113,7 @@ const nextConfig = {
       },
       {
         source: "/notification-feeds/bring-your-own-ui",
-        destination: "/in-app-ui/react/custom-notifications-ui",
+        destination: "/in-app-ui/feeds/custom-ui",
         permanent: true,
       },
       {
@@ -218,12 +218,12 @@ const nextConfig = {
       {
         source: "/send-and-manage-data/outbound-webhooks",
         destination: "/developer-tools/outbound-webhooks",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/integrations/vercel",
         destination: "/integrations/extensions/vercel",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/in-app-ui/angular",
@@ -238,12 +238,12 @@ const nextConfig = {
       {
         source: "/send-and-manage-data/:slug*",
         destination: "/concepts/:slug*",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/send-notifications/setting-preferences",
         destination: "/managing-recipients/setting-preferences",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/managing-recipients/setting-preferences",
@@ -282,13 +282,18 @@ const nextConfig = {
       },
       // Reference redirects
       {
-        source: "/in-app-ui/:sdk/reference",
-        destination: "/sdks/:sdk/reference",
-        permanent: false,
+        source: "/sdks/:sdk",
+        destination: "/in-app-ui/:sdk/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/sdks/:sdk/reference",
+        destination: "/in-app-ui/:sdk/sdk/reference",
+        permanent: true,
       },
       {
         source: "/getting-started/going-to-production",
-        destination: "/guides/implementation-guide#going-to-production",
+        destination: "/tutorials/implementation-guide#going-to-production",
         permanent: true,
       },
       {
@@ -318,22 +323,22 @@ const nextConfig = {
       },
       {
         source: "/in-app-ui/javascript/quick-start",
-        destination: "/sdks/javascript/quick-start",
+        destination: "/in-app-ui/javascript/sdk/quick-start",
         permanent: true,
       },
       {
         source: "/in-app-ui/android/quick-start",
-        destination: "/sdks/android/quick-start",
+        destination: "/in-app-ui/android/sdk/quick-start",
         permanent: true,
       },
       {
         source: "/in-app-ui/flutter",
-        destination: "/in-app-ui/flutter/overview",
+        destination: "/in-app-ui/flutter/sdk/overview",
         permanent: true,
       },
       {
         source: "/guides/going-to-production",
-        destination: "/guides/implementation-guide#going-to-production",
+        destination: "/tutorials/implementation-guide#going-to-production",
         permanent: true,
       },
       //SlackKit redirects
@@ -408,6 +413,101 @@ const nextConfig = {
       {
         source: "/mapi",
         destination: "/mapi-reference",
+        permanent: true,
+      },
+      {
+        source: "/developer-tools",
+        destination: "/developer-tools/overview",
+        permanent: true,
+      },
+      {
+        source: "/tutorials",
+        destination: "/tutorials/overview",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui",
+        destination: "/in-app-ui/overview",
+        permanent: true,
+      },
+      {
+        source: "/guides",
+        destination: "/tutorials/overview",
+        permanent: true,
+      },
+      {
+        source: "/guides/:guide",
+        destination: "/tutorials/:guide",
+        permanent: true,
+      },
+      {
+        source: "/sdks",
+        destination: "/developer-tools/sdks",
+        permanent: true,
+      },
+      {
+        source: "/sdks/overview",
+        destination: "/developer-tools/sdks",
+        permanent: true,
+      },
+      {
+        source: "/sdks/:sdk/overview",
+        destination: "/in-app-ui/:sdk/sdk/overview",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/messaging-components",
+        destination: "/in-app-ui/react/feed",
+        permanent: true,
+      },
+      {
+        source: "/agent-toolkit",
+        destination: "/developer-tools/agent-toolkit/overview",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/filtering-in-app-feeds",
+        destination: "/in-app-ui/feeds/filtering-in-app-feeds",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/filtering-in-app-feeds",
+        destination: "/in-app-ui/feeds/filtering-in-app-feeds",
+        permanent: true,
+      },
+      {
+        source: "/reference",
+        destination: "/api-reference",
+        permanent: true,
+      },
+      {
+        source: "/developer-tools/validating-trigger-data",
+        destination: "/designing-workflows/validating-trigger-data",
+        permanent: true,
+      },
+      {
+        source: "/sdks/android/deep-links",
+        destination: "/in-app-ui/android/sdk/deep-links",
+        permanent: true,
+      },
+      {
+        source: "/sdks/ios/deep-links",
+        destination: "/in-app-ui/ios/sdk/deep-links",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/custom-notifications-ui",
+        destination: "/in-app-ui/react/headless/feed",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react-native/notification-feeds",
+        destination: "/in-app-ui/react-native/headless/feed",
+        permanent: true,
+      },
+      {
+        source: "/in-app-ui/react/customizing-feed-components",
+        destination: "/in-app-ui/react/feed#css-customization",
         permanent: true,
       },
     ];

@@ -2,13 +2,11 @@ import fs from "fs";
 import { join, sep } from "path";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
-import Image from "next/image";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import remarkGfm from "remark-gfm";
 import remarkSlug from "remark-slug";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 
-import { CodeBlock } from "../components/CodeBlock";
 import MDXLayout from "../layouts/MDXLayout";
 import {
   getAllFilesInDir,
@@ -17,61 +15,13 @@ import {
   makeIdFromPath,
   generateAlgoliaIndex,
 } from "../lib/content.server";
-import Callout from "../components/Callout";
-import MultiLangCodeBlock from "../components/MultiLangCodeBlock";
-import SectionHeading from "../components/SectionHeading";
 import eventPayload from "../data/code/sources/eventPayload";
-import LocaleTable from "../components/LocaleTable";
-import { Attributes, Attribute } from "../components/Attributes";
-import Table from "../components/Table";
-import CopyableText from "../components/CopyableText";
-import { Card, CardGroup } from "../components/Card";
-import { SdkCard, SdkCardGroup } from "../components/SdkCard";
-import { Endpoints, Endpoint } from "../components/Endpoints";
-import { AccordionGroup, Accordion } from "../components/Accordion";
-import { Steps, Step } from "../components/Step";
 import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../content/integrations/extensions/new_relic_dashboard.json";
 import AiChatButton from "../components/AiChatButton";
 
-import {
-  Section,
-  ContentColumn,
-  ErrorExample,
-  ExampleColumn,
-} from "../components/ApiSections";
-import RateLimit from "../components/RateLimit";
 import { FrontMatter } from "../types";
-
-export const MDX_COMPONENTS = {
-  pre: CodeBlock,
-  h2: (props) => <SectionHeading tag="h2" {...props} />,
-  h3: (props) => <SectionHeading tag="h3" {...props} />,
-  h4: (props) => <SectionHeading tag="h4" {...props} />,
-  Callout,
-  Image,
-  MultiLangCodeBlock,
-  LocaleTable,
-  Attributes,
-  Attribute,
-  Table,
-  CopyableText,
-  RateLimit,
-  Section,
-  ContentColumn,
-  ErrorExample,
-  ExampleColumn,
-  Endpoints,
-  Endpoint,
-  Card,
-  CardGroup,
-  SdkCard,
-  SdkCardGroup,
-  AccordionGroup,
-  Accordion,
-  Steps,
-  Step,
-};
+import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 
 export default function ContentPage({ source, sourcePath }) {
   return (
@@ -109,6 +59,18 @@ export async function getStaticProps({ params: { slug } }) {
     }
   }
 
+  // These are not content pages, should not render here
+  // the __mapi-reference or __api-reference sections of content
+  // also skips indexing in algolia search
+  const isApiPage =
+    sourcePath.includes("content/__mapi-reference") ||
+    sourcePath.includes("content/__api-reference");
+  if (isApiPage) {
+    return {
+      notFound: true,
+    };
+  }
+
   if (!source) {
     throw new Error("Unable to read page content.");
   }
@@ -126,7 +88,7 @@ export async function getStaticProps({ params: { slug } }) {
   mdxSource.frontmatter.id = makeIdFromPath(slug.join(sep));
 
   // Index page in algolia
-  await generateAlgoliaIndex(source.toString(), mdxSource.frontmatter);
+  await generateAlgoliaIndex(mdxSource.frontmatter);
 
   return { props: { source: mdxSource, sourcePath } };
 }

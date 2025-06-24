@@ -17,11 +17,11 @@ In this guide we discuss each of these methods.
 
 <Callout
   emoji="🌠"
+  title="Note:"
   text={
     <>
-      <strong>Note</strong>: all identification methods in Knock use an upsert
-      approach. This means any existing data for a recipient is merged during
-      the upsert operation.
+      all identification methods in Knock use an upsert approach. This means any
+      existing data for a recipient is merged during the upsert operation.
     </>
   }
 />
@@ -34,7 +34,7 @@ You can use the individual identification API to upsert a single recipient's dat
 
 <MultiLangCodeBlock snippet="users.identify" title="Identify a user" />
 
-[API reference ->](/reference/#identify-user)
+[API reference ->](/api-reference/users/update)
 
 ### Bulk identifying recipients
 
@@ -42,7 +42,7 @@ While identifying individual recipients is useful, you may also need to identify
 
 <MultiLangCodeBlock snippet="users.bulkIdentify" title="Bulk identify users" />
 
-[API reference ->](/reference/#bulk-identify-users)
+[API reference ->](/api-reference/users/bulk)
 
 ## Inline identifying recipients
 
@@ -52,16 +52,16 @@ You can also inline identify actors in the same way.
 
 Inline identification works with any endpoint that accepts a list of recipients:
 
-- [Workflow triggers](/reference#trigger-workflow)
-- [Subscriptions](/reference#add-subscriptions)
-- [Schedules](/reference#create-schedules)
+- [Workflow triggers](/api-reference/workflows/trigger)
+- [Subscriptions](/api-reference/objects/add_subscriptions)
+- [Schedules](/api-reference/schedules/create)
 
 <MultiLangCodeBlock
   snippet="workflows.trigger-with-user-identification"
   title="Trigger your workflow"
 />
 
-[API reference ->](/reference#trigger-workflow-inline-identify)
+[API reference ->](/api-reference/workflows/trigger)
 
 ### How inline identification works
 
@@ -73,11 +73,12 @@ When identifying recipients you pass a set of properties for the recipient that 
 
 <Callout
   emoji="🙈"
+  title="Note:"
   text={
     <>
-      <strong>Note:</strong> Although an <code>id</code> is the only required
-      recipient property, triggering a workflow for a recipient which has only
-      an <code>id</code> and no other properties can result in{" "}
+      Although an <code>id</code> is the only required recipient property,
+      triggering a workflow for a recipient which has only an <code>id</code>{" "}
+      and no other properties can result in{" "}
       <a href="/designing-workflows/channel-step">channel steps</a> other than
       an In-app feed being skipped. This occurs when Knock does not have the
       necessary recipient data to deliver a notification.
@@ -94,6 +95,19 @@ There are some reserved property names for recipients that have special meaning:
 - `created_at`: An ISO-8601 datetime of when the recipient was created
 
 A recipient also accepts any number of custom properties, which are key-value pairs that you define. It's useful to store custom properties on your recipients so that you can reference these attributes when sending notifications, or for use in message templates.
+
+<Callout
+  emoji="⚠️"
+  title="Recipient custom properties cannot exceed 256 kB in size."
+  bgColor="yellow"
+  text={
+    <>
+      When directly identifying your recipients, an update that would result in
+      a total custom properties size exceeding this limit will result in a{" "}
+      <code>422</code> response.
+    </>
+  }
+/>
 
 ### Setting preferences and channel data
 
@@ -144,7 +158,7 @@ Once you've migrated your current recipients into Knock, you'll want to continue
 
 One common approach is to make subsequent calls to the Knock's user identify API following such events. For example, you could do this via a deferred job in your backend systems.
 
-Another option is to offload these updates to your workflow trigger calls via inline identification. If you always send Knock the full set of data for your recipients [via workflow trigger calls](/reference#trigger-workflow-inline-identify), you can keep your user data up to date in Knock without any additional handling on your end.
+Another option is to offload these updates to your workflow trigger calls via inline identification. If you always send Knock the full set of data for your recipients [via workflow trigger calls](/api-reference/workflows/trigger), you can keep your user data up to date in Knock without any additional handling on your end.
 
 ## Frequently asked questions
 
@@ -156,12 +170,15 @@ Another option is to offload these updates to your workflow trigger calls via in
 
     <Callout
       emoji="🚨"
+      bgColor="red"
+      title="Please note:"
       text={
         <>
-          <strong>Please note:</strong> setting preferences inline will always
-          upsert the preference set, meaning that changes will override any existing
-          preferences. We generally recommend against using inline preferences to
-          ensure the integrity of your data.
+          unlike our preferences endpoints, which will overwrite any existing preferences with the preferences provided,
+          setting preferences inline will perform a deep merge of the provided preferences into any existing preferences
+          (just like any other <a href="/concepts/users#storing-user-properties">properties stored on the recipient</a>).
+          Unless you intend to leverage this behavior for a specific use case, we generally recommend against using
+          inline preferences to ensure the integrity of your data.
         </>
       }
     />

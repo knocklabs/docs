@@ -1,0 +1,120 @@
+---
+title: Agent Toolkit
+description: Use Knock's Agent Toolkit to give your AI agents the ability to send cross-channel messaging and power rich human-in-the-loop flows.
+section: Developer tools
+---
+
+Knock Agent Toolkit exposes a set of tools that your AI agent applications can use to interact with Knock via function calling. Using Agent Toolkit, you can:
+
+- Give your AI agent applications the ability to [send cross-channel notifications](/developer-tools/agent-toolkit/workflows-as-tools) to your users.
+- Power rich [human-in-the-loop flows](/developer-tools/agent-toolkit/human-in-the-loop-flows) that allow your agents to solicit structured input from users, or require human approval of actions taken by your agents.
+- Let your agents create and manage resources within your Knock account.
+
+<Callout
+  emoji="💡"
+  text={
+    <>
+      Agent Toolkit is currently in beta as a TypeScript package only. We're
+      considering adding support for Python too. If you're interested in using
+      Agent Toolkit in another language, please let us know at{" "}
+      <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
+
+## Getting started
+
+To get started with the Knock agent toolkit, you must have:
+
+- A [Knock account](https://dashboard.knock.app/signup)
+- A [service token](/developer-tools/service-tokens) for your Knock account
+
+Once you have a Knock account and a service token, you can install the Knock agent toolkit using your preferred package manager.
+
+```bash
+npm install @knocklabs/agent-toolkit
+```
+
+You can then set environment variables for your Knock service token.
+
+```bash
+export KNOCK_SERVICE_TOKEN=<your-service-token>
+```
+
+Depending on which AI/Agent framework you're using, you can then initialize the agent toolkit and use it to power your agent.
+
+```typescript
+import { createAgentToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+const toolkit = await createAgentToolkit();
+```
+
+Read more about [getting started with the Knock agent toolkit](/developer-tools/agent-toolkit/getting-started).
+
+## Workflows-as-tools
+
+By default Agent Toolkit will expose each of your workflows as a tool that your agents can invoke to power cross-channel messaging. If you have a workflow (`comment-created`) within your Knock account, Agent Toolkit will expose a `trigger_comment_created_workflow` tool that your agents can invoke to send a notification.
+
+Each tool describes the parameters that are required to trigger the workflow, where the parameters for the data payload are read from the [workflow's trigger data JSON schema](/developer-tools/validating-trigger-data). Adding the JSON schema for your workflow trigger data allows the LLM to understand the exact shape and definition of the data payload for the workflow.
+
+If the workflow does not specify a trigger data JSON schema, the tool will define a generic data payload for the AI agent to fill in.
+
+You can control this behavior by specifying a list of workflow keys that are allowed to be exposed to the agent (`workflows.trigger = ["comment-created"]`). By default, no workflows are exposed as tools.
+
+Read more about [exposing workflows as tools](/developer-tools/agent-toolkit/workflows-as-tools).
+
+## Human-in-the-loop flows
+
+You can use Agent Toolkit to power rich human-in-the-loop interactions.
+
+For example, you can use Agent Toolkit to create a workflow that allows a person to approve or reject the agent's work, where the approval is an actionable notification sent by Knock.
+
+The toolkit exposes wrappers for requiring asynchronous human input. When wrapped, your tools will first delegate to Knock to trigger a workflow that you define, then asynchronously continue tool execution once you have received a response from a human.
+
+```typescript title="Wrapping a tool as requiring human input"
+import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+
+const toolkit = createToolkit();
+
+const classifyToolRequiringInput = toolkit.requireHumanInput(classifyWork, {
+  workflow: "approve-classification",
+  recipients: ["user_123"],
+});
+```
+
+You can read more about [powering human-in-the-loop flows in the guide](/developer-tools/agent-toolkit/human-in-the-loop-flows).
+
+## Creating Knock resources
+
+You can create Knock resources using Agent Toolkit through function calling.
+
+For example, you may want an agent to create or update a user's record in Knock as part of your agent workflow, or subscribe a user to another object so they can receive notifications later.
+
+Agent Toolkit exposes most common Knock resources as tools that your agents can invoke.
+
+You can find the list of available tools in the [tools reference](/developer-tools/agent-toolkit/tools-reference).
+
+## Security and authorization
+
+To authenticate with Agent Toolkit, you need to provide a [service token](/developer-tools/service-tokens) for your Knock account. This token should be kept secret and not exposed to the LLM. Your service token grants access to all of your Knock resources, so it's important to keep it secure.
+
+You can also customize the tools exposed to the AI Agent by specifying a set of permissions that define the resources that the agent has access to.
+
+For example, the following permissions will expose only the `users` resource to the agent, which will include the ability to read and manage users.
+
+```typescript title="Setting permissions for the agent"
+{
+  permissions: {
+    users: {
+      read: true,
+      manage: true
+    },
+  },
+};
+```
+
+## Relevant links
+
+- [Getting started with Agent Toolkit](/developer-tools/agent-toolkit/getting-started)
+- [Building with LLMs](/developer-tools/building-with-llms)
+- [Model Context Protocol (MCP) Server](/developer-tools/mcp-server)

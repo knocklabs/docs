@@ -1,0 +1,191 @@
+---
+title: Model Context Protocol (MCP) server
+description: Use the Knock MCP server to make Knock accessible to LLMs and AI agents via tool calling.
+section: Developer tools
+---
+
+<Callout
+  emoji="🚧"
+  text={
+    <>
+      <strong>Note</strong>: the Knock MCP server is currently in beta. Due to
+      the non-deterministic nature of LLMs it's recommended that you test
+      running the MCP against resources in your development environment before
+      running it in production.
+    </>
+  }
+/>
+
+Knock ships an MCP server that exposes the primitives of Knock to LLMs and AI via the <a href="https://modelcontextprotocol.io/" target="_blank">Model Context Protocol (MCP)</a> so that your AI agents can discover and use Knock via tool calling.
+
+Here are some examples of how you can use the MCP server in your workflow:
+
+- **Create workflows using natural language.** "Create a welcome email workflow for my B2B SaaS app."
+- **Trigger a specific workflow to test your integration.** "Trigger the comment-created workflow for Dennis Nedry."
+- **Create a set of test user and tenant data in your account.** "Create a user called Dennis Nedry and a tenant called acme-corp."
+
+## Get started
+
+To get started with the MCP server, you'll need to create a [service token](/developer-tools/service-tokens) to use to authenticate against your Knock account. You can do so under the **Settings** > **Service tokens** page in the Knock dashboard.
+
+Once you have your service, you can then setup the MCP Server in any MCP Client-compatible AI application. We've added the setup instructions below for both Cursor and Claude Desktop, but the same instructions apply to any other MCP Client-compatible application.
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <strong>Note</strong>: To run the local MCP server you must have Node 20
+      or higher installed and accessible globally on your system. You can test
+      this by running `node --version` in your terminal. You can download Node
+      from{" "}
+      <a href="https://nodejs.org/en/download" target="_blank">
+        the official site
+      </a>
+      .
+    </>
+  }
+/>
+### Cursor
+
+Click this button to add the Knock MCP server to Cursor (version 1.0 or higher is required).
+
+<div style={{ width: "150px" }}>
+  [![Install MCP
+  Server](https://cursor.com/deeplink/mcp-install-dark.png)](cursor://anysphere.cursor-deeplink/mcp/install?name=knock&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBrbm9ja2xhYnMvYWdlbnQtdG9vbGtpdCIsIi1wIiwibG9jYWwtbWNwIiwiLS1zZXJ2aWNlLXRva2VuIiwiWU9VUi1TRVJWSUNFLVRPS0VOIl0sIm5hbWUiOiJLbm9jayBNQ1AgU2VydmVyIn0=>)
+</div>
+
+#### Manual installation
+
+1. Go to your Cursor settings and find the "MCP" section
+2. Click "Add new global MCP server"
+3. Inside of your `mcp.json` file under the `mcpServers` key, add the following:
+
+```json
+{
+  "knock": {
+    "command": "npx",
+    "args": ["-y", "@knocklabs/agent-toolkit", "-p", "local-mcp"],
+    "name": "Knock MCP Server",
+    "env": {
+      "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
+    }
+  }
+}
+```
+
+### Claude Desktop
+
+1. Open the Claude Desktop settings and find the "Developer" section
+2. Click to "Edit Config"
+3. Open your `claude_desktop_config.json` file in your preferred text editor
+4. Add the following contents to the file (or add to the `mcpServers` section if it exists):
+
+```json
+{
+  "mcpServers": {
+    "knock": {
+      "command": "npx",
+      "args": ["-y", "@knocklabs/agent-toolkit", "-p", "local-mcp"],
+      "env": {
+        "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
+      }
+    }
+  }
+}
+```
+
+## Configuring the available tools
+
+It's not recommended to expose all tools that the Knock MCP server has to the LLM. Instead, you should expose only the tools that are required to complete the task at hand. You can configure the available tools by passing in the `--tools` flag when starting the MCP server.
+
+The `--tools` flag accepts a list of tools, where the tools are referenced in a `category.tool` format. For example, to expose all user tools, you would pass `--tools users.*`. To expose all workflow tools, you would pass `--tools workflows.*`.
+
+The name of the tool is the name of the tool as it appears in the [tools reference](/developer-tools/agent-toolkit/tools-reference), which will be a camel-cased version like `createOrUpdateUser` or `listEnvironments`.
+
+Here are some examples of how you can configure the available tools:
+
+- Expose all tools: `--tools *`
+- Expose all `users` tools: `--tools users.*`
+- Expose only the `createOrUpdateUser` tool: `--tools users.createOrUpdateUser`
+- Expose all `users` and `workflows` tools: `--tools users.* workflows.*`
+
+Here's a full example of how you pass tool configurations to the MCP server in Cursor:
+
+```json title="mcp-with-tools.json"
+{
+  "knock": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@knocklabs/agent-toolkit",
+      "-p",
+      "local-mcp",
+      "--tools",
+      "users.createOrUpdateUser",
+      "workflows.*"
+    ],
+    "name": "Knock MCP Server",
+    "env": {
+      "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
+    }
+  }
+}
+```
+
+## Workflows-as-tools
+
+The Knock MCP server also supports exposing your workflows as individual tools. This allows you to provide a specific and precise interface to the LLM for invoking workflow triggers, including describing the data trigger requirements for your workflows.
+
+By default, the MCP server will **not** expose any workflows-as-tools. To opt into this behavior, you can pass in the `--workflows` flag when starting the MCP server.
+
+By default, passing the `--workflows` flag will expose **all** workflows in your Knock account as tools. If you want to control the exact workflows that are exposed as tools, you can pass a list of workflow keys to the `--workflows` flag. For example:
+
+```bash title="Passing a list of workflow keys"
+--workflows workflow-key-1 workflow-key-2
+```
+
+## What tools are available?
+
+The MCP server ships with tools to interact with all Knock resources. You can find the full list of available tools in the [tools reference](/developer-tools/agent-toolkit/tools-reference) of the Knock Agent Toolkit, which the MCP server is built on top of.
+
+Please note that at this time, the MCP server **does not** ship with any tools to delete resources. This is intentional to prevent the accidental deletion of resources in your Knock account.
+
+### Workflow-specific tools
+
+The Knock MCP server exposes a full suite of tools for creating and managing workflows. Using the MCP server you can:
+
+- Create a workflow with natural language: "create a workflow that sends a welcome email to new users"
+- Create a delay or batch step within your workflow: "delay for 3 days" or "batch for 10 minutes"
+- Create an email step within your workflow: "create a credit card expiring email with a link back to the dashboard"
+- Create an SMS, push, or in-app feed step within your workflow
+
+Using these tools you can create a complex prompt that describes one or more workflows that you'd like to create with natural language.
+
+## Related links
+
+- [Building with LLMs](/developer-tools/building-with-llms)
+- [Knock Agent Toolkit](/developer-tools/agent-toolkit/overview)
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Do you support a remote MCP server?">
+    No, currently we support a local MCP server only. We are working
+    on a remote MCP server so that an individual Knock account can be
+    authenticated.
+  </Accordion>
+   <Accordion title="Why do I see a warning about having too many tools?">
+    Some MCP clients will warn you about having more than 50 tools. By default, Knock ships with 30 tools, but when using workflows-as-tools, this number can grow quickly.
+
+    To address this, you should opt into only using the tools you need. For
+    example, if you only use the `users.create` tool, you can expose only that
+    tool by passing in the `--tools` flag.
+
+  </Accordion>
+  <Accordion title="Why do I see an error in Claude about the Knock MCP server disconnecting?">
+    The local MCP server requires Node 20 or higher and Claude may be defaulting to an older Node version if you have multiple versions installed. Try uninstalling older versions of Node and then restarting Claude to resolve the issue.
+  </Accordion>
+  <Accordion title="Why do I receive an error in Cursor when I try to use one of the available MCP tools?">
+    If you see an error like _"The model returned an error. Try disabling MCP servers, or switch models,"_ check which model is selected for the Cursor agent. Make sure it's explicitly set to a supported model like `claude-4-sonnet` rather than relying on automatic model selection.
+  </Accordion>
+</AccordionGroup>

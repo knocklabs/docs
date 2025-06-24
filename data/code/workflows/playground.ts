@@ -15,10 +15,11 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.workflows.trigger(
   key: "new-comment",
   recipients: ["1", "2"],
 
@@ -64,8 +65,8 @@ curl -X POST 'https://api.knock.app/v1/workflows/new-comment/trigger' \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   recipients: ["1", "2"],
@@ -73,14 +74,14 @@ await knock.workflows.trigger("new-comment", {
   // optional
   data: { "project_name": "My Project" },
   actor: "3",
-  cancellationKey: "cancel_123",
+  cancellation_key: "cancel_123",
   tenant: "jurassic_world_employees"
 });
 `,
   javascript: `
 // You can use "javascript" when you don't want to make your JS example Node-specific
 
-const knock = new Knock(process.env.KNOCK_API_KEY);
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   recipients: ["1", "2"],
@@ -88,9 +89,56 @@ await knock.workflows.trigger("new-comment", {
   // optional
   data: { "project_name": "My Project" },
   actor: "3",
-  cancellationKey: "cancel_123",
+  cancellation_key: "cancel_123",
   tenant: "jurassic_world_employees"
 });
+`,
+  java: `
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import java.util.Map;
+import java.util.Arrays;
+
+KnockClient client = KnockOkHttpClient.builder()
+    .apiKey("sk_12345")
+    .build();
+
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .addRecipient("1")
+        .addRecipient("2")
+        .data(data -> {
+            data.put("project_name", "My Project");
+            return data;
+        })
+        .actor("3")
+        .cancellationKey("cancel_123")
+        .tenant("jurassic_world_employees")
+        .build()
+);
+`,
+  go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+params := knock.WorkflowTriggerParams{
+  Recipients: []knock.RecipientRequestUnionParam{"1", "2"},
+  Data: map[string]interface{}{"project_name": "My Project"},
+  Actor: "3",
+  CancellationKey: "cancel_123",
+  Tenant: "jurassic_world_employees",
+}
+
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
 `,
 };
 

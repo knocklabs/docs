@@ -5,7 +5,7 @@ tags: ["categories", "archive", "archived"]
 section: Concepts
 ---
 
-In Knock, all notifications are sent via a workflow. Each workflow acts as a container for the logic and templates that are associated with a kind of notification in your system.
+Workflows are triggered journeys that send notifications to your recipients.
 
 Workflows are represented as a set of steps, which are either function or channel steps. Functions apply logic to your workflow run, like batching to collapse multiple calls into single notifications or delays to pause the execution of a workflow for some duration. Channel steps produce a notification that will be delivered via a [configured channel](/concepts/channels). All steps can also have conditions to determine if and when they should run.
 
@@ -27,11 +27,12 @@ As an example, if we're building a document collaboration app where users can co
 
 <Callout
   emoji="💡"
+  title="Note:"
+  style={{ alignItems: "center" }}
   text={
     <>
-      <span className="font-bold">Note:</span> if you're looking to send a
-      one-time message to a set of recipients, you should use a
-      <a href="/concepts/broadcasts">broadcast</a> instead.
+      if you're looking to send a one-time message to a set of recipients, you
+      should use a <a href="/concepts/broadcasts">broadcast</a> instead.
     </>
   }
 />
@@ -46,14 +47,15 @@ The templates associated with a channel step **only** exist in the context of th
 
 ## Managing workflows
 
-Knock workflows can be managed either via the Knock Dashboard or programmatically via the [Management API](/mapi). The [Knock CLI](/cli) offers a convenient way to work with the management API locally to make updates to workflows and their templates.
+Knock workflows can be managed either via the Knock Dashboard or programmatically via the [Management API](/mapi-reference). The [Knock CLI](/cli) offers a convenient way to work with the management API locally to make updates to workflows and their templates.
 
 <Callout
   emoji="💡"
+  title="Note:"
   text={
     <>
-      <span className="font-bold">Note:</span> remember that workflows and other
-      resources in Knock can only ever be edited in the development environment.{" "}
+      remember that workflows and other resources in Knock can only ever be
+      edited in the development environment.{" "}
       <a href="/concepts/commits">Learn more about versioning</a> and{" "}
       <a href="/concepts/environments">environments</a>.
     </>
@@ -68,10 +70,11 @@ To set a `category` for a given workflow, go to that workflow's page in the dash
 
 <Callout
   emoji="💡"
+  title="Note:"
+  style={{ alignItems: "center" }}
   text={
     <>
-      <span className="font-bold">Note:</span> workflow categories are{" "}
-      <strong>case sensitive</strong>.
+      workflow categories are <strong>case sensitive</strong>.
     </>
   }
 />
@@ -86,7 +89,7 @@ Read more about [environments](/concepts/environments) and [versioning](/concept
 
 Each workflow has an `Active`/`Inactive` status that is displayed in your dashboard's **Workflows** section. The status defaults to `Active` and can be set by clicking on the workflow and using the "Status" selector.
 
-This is your kill switch for a given workflow should you need it; any attempt to trigger an `Inactive` workflow will result in a `workflow_inactive` [error](/reference#error-codes). The status setting operates independently from the commit model so that you can immediately enable or disable a workflow in any environment without needing to go through environment promotion. **It is environment-specific and will only be applied to the current environment.**
+This is your kill switch for a given workflow should you need it; any attempt to trigger an `Inactive` workflow will result in a `workflow_inactive` [error](/api-reference/overview/errors). The status setting operates independently from the commit model so that you can immediately enable or disable a workflow in any environment without needing to go through environment promotion. **It is environment-specific and will only be applied to the current environment.**
 
 ### Archiving workflows
 
@@ -98,12 +101,13 @@ Workflows defined in Knock are executed via trigger, which starts a workflow run
 
 <Callout
   emoji="💡"
+  title="Note:"
   text={
     <>
-      <span className="font-bold">Note:</span> it's important to know that in
-      Knock a workflow run is <strong>always</strong> executed against a single
-      recipient. Workflows can always be invoked for multiple recipients, but
-      each <em>run</em> will only be for a single recipient.
+      it's important to know that in Knock a workflow run is{" "}
+      <strong>always</strong> executed against a single recipient. Workflows can
+      always be invoked for multiple recipients, but each <em>run</em> will only
+      be for a single recipient.
     </>
   }
 />
@@ -148,8 +152,9 @@ The Knock CLI can also be used to commit changes and promote them to production,
 
 When workflows are pulled from Knock, they are stored in directories named by their workflow key. In addition to a `workflow.json` file that describes all of a given workflow's steps, each workflow directory also contains individual folders for each of the [channel steps](/designing-workflows/channel-step) in the workflow that hold additional content and formatting data.
 
-```txt title="Local workflow files structure"
-workflows/
+{/* prettier-ignore */}
+<PreTextDiagram description="Local workflow files structure">
+{`workflows/
 └── my-workflow/
     ├── email_1/
     │   ├── visual_blocks/
@@ -157,10 +162,10 @@ workflows/
     │   └── visual_blocks.json
     ├── in_app_feed_1/
     │   └── markdown_body.md
-    └── workflow.json
-```
+    └── workflow.json`}
+</PreTextDiagram>
 
-If you're migrating your local workflow files into Knock, you can arrange them using the example file structure above and then push them into Knock with a single command using [`knock workflow push --all`](/cli#workflow-push). Each `workflow.json` file should follow the structure defined [here](/mapi#workflows-object).
+If you're migrating your local workflow files into Knock, you can arrange them using the example file structure above and then push them into Knock with a single command using [`knock workflow push --all`](/cli#workflow-push). Each `workflow.json` file should follow the structure defined [here](/mapi-reference/workflows/schemas/workflow).
 
 You can learn more about automating workflow management in the [Knock CLI reference](/cli). Feel free to <a href="mailto:support@knock.app">contact us</a> if you have questions.
 

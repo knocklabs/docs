@@ -12,10 +12,12 @@ curl -X PUT https://api.knock.app/v1/objects/projects/project-1 \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knockClient = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
-knockClient.objects.set("projects", "project-1", {
+await knock.objects.set("projects", "project-1", {
   name: "My project",
   total_assets: 10,
   tags: ["cool", "fun", "project"],
@@ -36,35 +38,33 @@ Knock.Objects.set(knock_client, "projects", "project-1", %{
   `,
   python: `
 from knockapi import Knock
+
 client = Knock(api_key="sk_12345")
 
-client.objects.set_object(
-  collection="projects",
-  id="project-1",
-  data={
-    "name": "My project",
-    "total_assets": 10,
-    "tags": ["cool", "fun", "project"],
-    "locale": "en-US",
-    "timezone": "America/New_York"
-  }
+client.objects.set(
+    collection="projects",
+    id="project-1",
+    channel_data={
+        "name": "My project",
+        "total_assets": 10,
+        "tags": ["cool", "fun", "project"],
+        "locale": "en-US",
+        "timezone": "America/New_York"
+    }
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Objects.set(
-  collection: "projects",
-  id: "project-1",
-  properties: {
-    name: "My project",
-    total_assets: 10,
-    tags: ["cool", "fun", "project"],
-    locale: "en-US",
-    timezone: "America/New_York"
-  }
-)
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.objects.set("projects", "project-1", {
+  name: "My project",
+  total_assets: 10,
+  tags: ["cool", "fun", "project"],
+  locale: "en-US",
+  timezone: "America/New_York"
+})
 `,
   csharp: `
 var knockClient = new KnockClient(
@@ -96,36 +96,50 @@ $client->objects()->set('projects', 'project-1', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-object, _ := knockClient.Objects.Set(ctx, &knock.SetObjectRequest{
-  Collection: "projects",
-  ID:         "project-1",
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+object, _ := knockClient.Objects.Set(ctx, "projects", "project-1", &knock.ObjectSetParams{
   Properties: map[string]interface{}{
     "name":         "My project",
     "total_assets": 10,
     "tags":         []string{"cool", "fun", "project"},
     "locale":       "en-US",
-    "timezone":     "America/New_York"
-  }
+    "timezone":     "America/New_York",
+  },
 })
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.objects.ObjectSetParams;
+import app.knock.api.models.objects.Object;
+import app.knock.api.core.JsonValue;
+import java.util.Arrays;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-KnockObject object = client.objects().set("projects", "project-1", Map.of(
-  "name", "Project one",
-  "total_assets", 10,
-  "tags", List.of("cool", "fun", "project"),
-  "locale", "en-US",
-  "timezone", "America/New_York"
-));
+ObjectSetParams params = ObjectSetParams.builder()
+    .collection("projects")
+    .objectId("project-1")
+    .properties(ObjectSetParams.Properties.builder()
+        .putAdditionalProperty("name", JsonValue.from("My project"))
+        .putAdditionalProperty("total_assets", JsonValue.from(10))
+        .putAdditionalProperty("tags", JsonValue.from(Arrays.asList("cool", "fun", "project")))
+        .putAdditionalProperty("locale", JsonValue.from("en-US"))
+        .putAdditionalProperty("timezone", JsonValue.from("America/New_York"))
+        .build())
+    .build();
+Object object = client.objects().set(params);
 `,
 };
 

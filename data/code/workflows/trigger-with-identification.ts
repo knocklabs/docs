@@ -29,8 +29,8 @@ curl -X POST https://api.knock.app/v1/workflows/new-comment/trigger \\
       }'
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   data: { project_name: "My Project" },
@@ -61,7 +61,7 @@ client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
     key="new-comment",
-    data={ "project_name": "My Project" },
+    data={"project_name": "My Project"},
     actor={
         "id": "1",
         "name": "John Hammond",
@@ -73,7 +73,7 @@ client.workflows.trigger(
             "collection": "projects",
             "name": "My project",
             "total_assets": 10,
-            "tags": ["cool", "fun", "project"],
+            "tags": ["cool", "fun", "project"]
         },
         {
             "id": "2",
@@ -84,11 +84,11 @@ client.workflows.trigger(
 )
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "new-comment",
+knock = Knockapi::Client.new(api_key: "sk_12345")
+
+knock.workflows.trigger("new-comment",
   data: { project_name: "My Project" },
   actor: {
     id: "1",
@@ -198,78 +198,79 @@ $client->workflows()->trigger('new-comment', [
 ]);
 `,
   go: `
-ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+import (
+	"context"
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "new-comment",
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+)
+ctx := context.Background()
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
+
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{"project_name": "My Project"},
   Actor: map[string]interface{}{
     "id": "1",
     "name": "John Hammond",
     "email": "jhammond@ingen.net"
   },
-  Recipients: []map[string]interface{}{
-  }
+  Recipients: []knock.RecipientRequestUnionParam{
+    map[string]interface{}{
+      "id": "project-1",
+      "collection": "projects",
+      "name": "My project",
+      "total_assets": 10,
+      "tags": []string{"cool", "fun", "project"},
+    },
+    map[string]interface{}{
+      "id": "2",
+      "name": "Ellie Sattler",
+      "email": "esattler@ingen.net",
+    },
+  },
 }
 
-request.AddRecipientByEntity(
-  map[string]interface{}{
-    "id": "project-1",
-    "collection": "projects",
-    "name": "My project",
-    "total_assets": 10,
-    "tags": []string{"cool", "fun", "project"},
-  }
-)
-
-request.AddRecipientByEntity(
-  map[string]interface{}{
-    "id": "2",
-    "name": "Ellie Sattler",
-    "email": "esattler@ingen.net",
-  }
-)
-
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
+import java.util.List;
+import java.util.Map;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-    .key("new-comment")
-    .data("project_name", "My project")
-    .actor(
-      Map.of(
-        "id", "1",
-        "name", "John Hammond",
-        "email", "jhammond@ingen.net"
-      )
-    )
-    .addRecipient(
-      Map.of(
-        "id", "project-1",
-        "collection", "projects",
-        "name", "My project",
-        "total_assets", 10,
-        "tags", List.of("cool", "fun", "project")
-      )
-    )
-    .addRecipient(
-      Map.of(
-        "id", "2",
-        "name", "Ellie Sattler",
-        "email", "esattler@ingen.net"
-      )
-    )
-    .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("new-comment")
+        .data(data -> {
+            data.put("project_name", "My Project");
+            return data;
+        })
+        .actor(Map.of(
+            "id", "1",
+            "name", "John Hammond",
+            "email", "jhammond@ingen.net"
+        ))
+        .recipients(List.of(
+            Map.of(
+                "id", "project-1",
+                "collection", "projects",
+                "name", "My project",
+                "total_assets", 10,
+                "tags", List.of("cool", "fun", "project")
+            ),
+            Map.of(
+                "id", "2",
+                "name", "Ellie Sattler",
+                "email", "esattler@ingen.net"
+            )
+        ))
+        .build()
+);
 `,
 };
 

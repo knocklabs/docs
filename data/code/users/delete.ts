@@ -4,8 +4,10 @@ curl -X DELETE https://api.knock.app/v1/users/1 \\
   -H "Authorization: Bearer sk_test_12345"
 `,
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY
+});
 
 await knock.users.delete(user.id);
 `,
@@ -21,16 +23,17 @@ client = Knock(api_key="sk_12345")
 client.users.delete(user.id)
 `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Users.delete(id: user.id)  
+client = Knockapi::Client.new(api_key: "sk_12345")
+
+client.users.delete(user.id)
 `,
   csharp: `
 var knockClient = new KnockClient(
   new KnockOptions { ApiKey = "sk_12345" });
 
-await knockClient.Users.Delete(user.Id);  
+await knockClient.Users.Delete(user.Id);
 `,
   php: `
 use Knock\\KnockSdk\\Client;
@@ -43,19 +46,20 @@ $client->users()->delete($user->id());
 ctx := context.Background()
 knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
 
-result, _ := knockClient.Users.Delete(ctx, &knock.DeleteUserRequest{
-  ID: user.ID,
-})
+result, _ := knockClient.Users.Delete(ctx, user.ID)
 `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.users.UserDeleteParams;
 
-KnockClient client = KnockClient.builder()
+KnockClient client = KnockOkHttpClient.builder()
     .apiKey("sk_12345")
     .build();
 
-client.users().delete(user.getId());
+client.users().delete(UserDeleteParams.builder()
+    .userId(user.getId())
+    .build());
 `,
 };
 

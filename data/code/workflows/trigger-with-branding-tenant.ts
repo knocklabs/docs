@@ -1,7 +1,7 @@
 const languages = {
   node: `
-import { Knock } from "@knocklabs/node";
-const knock = new Knock(process.env.KNOCK_API_KEY);
+import Knock from "@knocklabs/node";
+const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 await knock.workflows.trigger("reservation-reminder-email", {
   data: {
@@ -16,23 +16,23 @@ from knockapi import Knock
 client = Knock(api_key="sk_12345")
 
 client.workflows.trigger(
-  key="reservation-reminder-email",
-  data={
-      "reservation_id": reservation.id
-  },
-  recipients=reservation_guest_ids,
-  tenant="black-lodge"
+    key="reservation-reminder-email",
+    data={
+        "reservation_id": reservation.id
+    },
+    recipients=reservation_guest_ids,
+    tenant="black-lodge"
 )
   `,
   ruby: `
-require "knock"
-Knock.key = "sk_12345"
+require "knockapi"
 
-Knock::Workflows.trigger(
-  key: "reservation-reminder-email",
+knock = Knockapi::Client.new(api_key: "sk_12345")
+
+knock.workflows.trigger("reservation-reminder-email",
   recipients: reservation_guest_ids,
   data: {
-    "reservation_id": reservation.id
+    reservation_id: reservation.id
   },
   tenant: "black-lodge"
 )
@@ -76,39 +76,50 @@ $client->workflows()->trigger('reservation-reminder-email', [
 ]);
   `,
   go: `
+import (
+	"context"
+
+	"github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/param"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-request := &knock.TriggerWorkflowRequest{
-  Workflow:   "reservation-reminder-email",
+params := knock.WorkflowTriggerParams{
   Data: map[string]interface{}{
-      "reservation_id": reservation.ID
+    "reservation_id": reservation.ID
   },
-  Tenant: "black-lodge"
+  Tenant: "black-lodge",
+  Recipients: make([]knock.RecipientRequestUnionParam, len(reservationGuestIds)),
 }
 
-for _, r := range reservationGuestIds {
-  request.AddRecipientByID(r)
+for i, r := range reservationGuestIds {
+  params.Recipients[i] = r
 }
 
-result, _ := knockClient.Workflows.Trigger(ctx, request, nil)
+result, _ := knockClient.Workflows.Trigger(ctx, "reservation-reminder-email", params)
   `,
   java: `
-import app.knock.api.KnockClient;
-import app.knock.api.model.*;
+import app.knock.api.client.KnockClient;
+import app.knock.api.client.okhttp.KnockOkHttpClient;
+import app.knock.api.models.workflows.WorkflowTriggerParams;
 
-KnockClient client = KnockClient.builder()
-  .apiKey("sk_12345")
-  .build();
+KnockClient client = KnockOkHttpClient.builder()
+    .apiKey("sk_12345")
+    .build();
 
-WorkflowTriggerRequest workflowTrigger = WorkflowTriggerRequest.builder()
-  .key("reservation-reminder-email")
-  .recipients(reservationGuestIds)
-  .data("reservation_id", reservation.getId())
-  .tenant("black-lodge")
-  .build();
-
-WorkflowTriggerResponse result = client.workflows().trigger(workflowTrigger);
+var result = client.workflows().trigger(
+    WorkflowTriggerParams.builder()
+        .key("reservation-reminder-email")
+        .recipients(reservationGuestIds)
+        .data(data -> {
+            data.put("reservation_id", reservation.getId());
+            return data;
+        })
+        .tenant("black-lodge")
+        .build()
+);
   `,
 };
 

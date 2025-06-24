@@ -1,0 +1,248 @@
+---
+title: Go SDK upgrade (v0.x to v1.0)
+description: Learn how to upgrade to v1.0 of the Knock Go SDK.
+section: Developer tools
+---
+
+## Basic changes
+
+### Client initialization
+
+The new SDK uses updated configuration methods:
+
+```go title="Initializing the Knock client"
+import (
+    "context"
+    "os"
+
+    "github.com/knocklabs/knock-go"
+	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/shared"
+)
+
+ctx := context.Background()
+
+// Create a new Knock API client (uses KNOCK_API_KEY env var by default)
+client := knock.NewClient(
+    option.WithApiKey(os.Getenv("KNOCK_API_KEY")),
+)
+```
+
+## What's new in v1.0
+
+The v1.0 SDK brings significant improvements to type safety, error handling, and developer experience.
+
+### Strong type system
+
+The new SDK uses field wrappers to distinguish between zero values and unset fields:
+
+```go title="Using field wrappers for type safety"
+// Set a field
+knock.F("value")
+
+// Explicitly set to null
+knock.Null[string]()
+
+// Send a value of a different type than the field's type
+knock.Raw[string](123)
+```
+
+### Auto-pagination
+
+Iterate through paginated resources without manual page management:
+
+```go title="Auto-pagination through user list"
+// Automatically fetches more pages as needed
+iter := client.Users.ListAutoPaging(ctx, knock.UserListParams{})
+for iter.Next() {
+  user := iter.Current()
+  fmt.Printf("%+v\n", user)
+}
+if err := iter.Err(); err != nil {
+  panic(err.Error())
+}
+```
+
+### Enhanced error handling
+
+Get detailed error information with better debugging utilities:
+
+```go title="Handling errors with detailed debugging"
+_, err := client.Users.Get(ctx, "dnedry")
+if err != nil {
+    var apiErr *knock.Error
+    if errors.As(err, &apiErr) {
+        fmt.Println(string(apiErr.DumpRequest(true)))  // Print the serialized HTTP request
+        fmt.Println(string(apiErr.DumpResponse(true))) // Print the serialized HTTP response
+    }
+}
+```
+
+### Request options
+
+Configure requests with flexible per-request options:
+
+```go title="Configuring per-request options"
+// Configure per-request options
+client.Users.Get(
+    ctx,
+    "dnedry",
+    option.WithHeader("X-Custom-Header", "custom_value"),
+    option.WithRequestTimeout(20*time.Second),
+)
+```
+
+### Raw JSON access
+
+Access raw JSON data for advanced use cases:
+
+```go title="Accessing raw JSON response data"
+user, _ := client.Users.Get(ctx, "jhammond")
+
+// Check if a field is null or missing
+if user.Name == "" {
+    if user.JSON.Name.IsNull() {
+        fmt.Println("Name is explicitly null")
+    }
+    if user.JSON.Name.IsMissing() {
+        fmt.Println("Name field was not present in the response")
+    }
+}
+
+// Access extra fields not defined in the struct
+extraField := user.JSON.ExtraFields["custom_field"].Raw()
+```
+
+## Breaking changes
+
+### Request parameter style
+
+The new SDK wraps all request parameters with `param.Field` using helpers like `knock.F()` to distinguish between zero values and unset fields.
+
+### Method signatures
+
+Most methods now take IDs as positional parameters, followed by a params struct. The new SDK spreads parameters across the method signature for better readability.
+
+### Type system
+
+The new SDK uses a strong type system with special wrapper types. Field values need to be wrapped with `knock.F()` to be included in requests. Union types are used for parameters that can have multiple types.
+
+### Error handling
+
+Error types and handling mechanisms have changed significantly. The new SDK provides more detailed error information and better debugging utilities.
+
+### Pagination
+
+The new SDK introduces cursor-based pagination with auto-pagination helpers.
+
+## Common operations
+
+<AccordionGroup>
+  <Accordion title="Triggering workflows">
+    **Old SDK:**
+
+```go title="Triggering workflows with the old SDK"
+req := &knock.TriggerWorkflowRequest{
+    Workflow: "dinosaurs-loose",
+    Data: map[string]interface{}{
+        "type": "trex",
+        "priority": 1,
+    },
+}
+req.AddRecipientByID("jhammond")
+req.AddRecipientByID("agrant")
+
+// Trigger workflow with idempotency key
+workflow, _ := client.Workflows.Trigger(ctx, req, &knock.MethodOptions{
+    IdempotencyKey: "an-idempotency-key",
+})
+```
+
+**New SDK:**
+
+```go title="Triggering workflows with the new SDK"
+response, err := client.Workflows.Trigger(
+    ctx,
+    "dinosaurs-loose",
+    knock.WorkflowTriggerParams{
+        Recipients: knock.F([]knock.RecipientRequestUnionParam{
+            knock.RecipientRequestUnionParamString("jhammond"),
+            knock.RecipientRequestUnionParamString("agrant"),
+        }),
+        Data: knock.F(map[string]interface{}{
+            "type": "trex",
+            "priority": 1,
+        }),
+        CancellationKey: knock.F("an-idempotency-key"),
+    },
+)
+```
+
+  </Accordion>
+  <Accordion title="Identifying users">
+  **Old SDK:**
+
+```go title="Identifying users with the old SDK"
+user, _ := client.Users.Identify(ctx, &knock.IdentifyUserRequest{
+    ID:   "jhammond",
+    Name: "John Hammond",
+    CustomProperties: map[string]interface{}{
+        "welcome": "to jurassic park",
+    },
+})
+```
+
+**New SDK:**
+
+```go title="Identifying users with the new SDK"
+user, err := client.Users.Update(
+    ctx,
+    "jhammond",
+    knock.UserUpdateParams{
+        IdentifyUserRequest: knock.IdentifyUserRequestParam{
+            Name: knock.F("John Hammond"),
+            ExtraFields: map[string]interface{}{
+                "welcome": "to jurassic park",
+            },
+        },
+    },
+)
+```
+
+  </Accordion>
+  <Accordion title="Working with objects">
+**Old SDK:**
+
+```go title="Setting object properties with the old SDK"
+object, _ := client.Objects.Set(ctx, &knock.SetObjectRequest{
+    Collection: "dinosaurs",
+    ID:         "trex1",
+    Properties: map[string]interface{}{
+        "name":    "Rexy",
+        "species": "Tyrannosaurus rex",
+    },
+})
+```
+
+**New SDK:**
+
+```go title="Setting object properties with the new SDK"
+object, err := client.Objects.Set(
+    ctx,
+    "dinosaurs",
+    "trex1",
+    knock.ObjectSetParams{
+        ExtraFields: map[string]interface{}{
+            "name":    "Rexy",
+            "species": "Tyrannosaurus rex",
+        },
+    },
+)
+```
+
+  </Accordion>
+</AccordionGroup>
+
+## Need help?
+
+If you run into any issues during your migration, reach out to our [support team](mailto:support@knock.app) or open an issue on [GitHub](https://github.com/knocklabs/knock-go/issues).

@@ -1,0 +1,454 @@
+# yaml-language-server: $schema=https://app.stainlessapi.com/config.schema.json
+
+organization:
+  name: knock
+  docs: https://docs.knock.app
+  contact: support@knock.app
+  security_contact: security@knock.app
+  github_org: knocklabs
+  upload_spec: true
+resources:
+  shared:
+    models:
+      condition: '#/components/schemas/Condition'
+      page_info: '#/components/schemas/PageInfo'
+  recipients:
+    models:
+      recipient: '#/components/schemas/Recipient'
+      recipient_request: '#/components/schemas/RecipientRequest'
+      recipient_reference: '#/components/schemas/RecipientReference'
+    subresources:
+      subscriptions:
+        models:
+          subscription: '#/components/schemas/Subscription'
+      preferences:
+        models:
+          preference_set: '#/components/schemas/PreferenceSet'
+          preference_set_request: '#/components/schemas/PreferenceSetRequest'
+          inline_preference_set_request: '#/components/schemas/InlinePreferenceSetRequest'
+          preference_set_channel_types: '#/components/schemas/PreferenceSetChannelTypes'
+          preference_set_channel_type_setting: '#/components/schemas/PreferenceSetChannelTypeSetting'
+      channel_data:
+        models:
+          channel_data: '#/components/schemas/ChannelData'
+          channel_data_request: '#/components/schemas/ChannelDataRequest'
+          push_channel_data: '#/components/schemas/PushChannelData'
+          slack_channel_data: '#/components/schemas/SlackChannelData'
+          ms_teams_channel_data: '#/components/schemas/MsTeamsChannelData'
+          discord_channel_data: '#/components/schemas/DiscordChannelData'
+          one_signal_channel_data: '#/components/schemas/OneSignalChannelData'
+          inline_channel_data_request: '#/components/schemas/InlineChannelDataRequest'
+  users:
+    models:
+      user: '#/components/schemas/User'
+      identify_user_request: '#/components/schemas/IdentifyUserRequest'
+      inline_identify_user_request: '#/components/schemas/InlineIdentifyUserRequest'
+    methods:
+      get: get /v1/users/{user_id}
+      list:
+        endpoint: get /v1/users
+      update: put /v1/users/{user_id}
+      merge: post /v1/users/{user_id}/merge
+      delete: delete /v1/users/{user_id}
+      list_messages:
+        endpoint: get /v1/users/{user_id}/messages
+      list_schedules:
+        endpoint: get /v1/users/{user_id}/schedules
+      list_subscriptions:
+        endpoint: get /v1/users/{user_id}/subscriptions
+      list_preferences:
+        endpoint: get /v1/users/{user_id}/preferences
+        paginated: false
+      get_preferences:
+        type: http
+        endpoint: get /v1/users/{user_id}/preferences/{id}
+        positional_params: [ user_id, id ]
+      set_preferences:
+        type: http
+        endpoint: put /v1/users/{user_id}/preferences/{id}
+        positional_params: [ user_id, id ]
+      get_channel_data:
+        type: http
+        endpoint: get /v1/users/{user_id}/channel_data/{channel_id}
+        positional_params: [ user_id, channel_id ]
+      set_channel_data:
+        type: http
+        endpoint: put /v1/users/{user_id}/channel_data/{channel_id}
+        positional_params: [ user_id, channel_id ]
+      unset_channel_data:
+        type: http
+        endpoint: delete /v1/users/{user_id}/channel_data/{channel_id}
+        positional_params: [ user_id, channel_id ]
+    subresources:
+      feeds:
+        methods:
+          list_items:
+            type: http
+            endpoint: get /v1/users/{user_id}/feeds/{id}
+            positional_params: [ user_id, id ]
+          get_settings:
+            type: http
+            endpoint: get /v1/users/{user_id}/feeds/{id}/settings
+            positional_params: [ user_id, id ]
+      guides:
+        methods:
+          get_channel:
+            type: http
+            endpoint: get /v1/users/{user_id}/guides/{channel_id}
+            positional_params: [ user_id, channel_id ]
+          mark_message_as_seen:
+            type: http
+            endpoint: put /v1/users/{user_id}/guides/messages/{message_id}/seen
+            positional_params: [ user_id, message_id ]
+          mark_message_as_interacted:
+            type: http
+            endpoint: put /v1/users/{user_id}/guides/messages/{message_id}/interacted
+            positional_params: [ user_id, message_id ]
+          mark_message_as_archived:
+            type: http
+            endpoint: put /v1/users/{user_id}/guides/messages/{message_id}/archived
+            positional_params: [ user_id, message_id ]
+      bulk:
+        methods:
+          identify: post /v1/users/bulk/identify
+          set_preferences: post /v1/users/bulk/preferences
+          delete: post /v1/users/bulk/delete
+  objects:
+    models:
+      object: '#/components/schemas/Object'
+      inline_object_request: '#/components/schemas/InlineIdentifyObjectRequest'
+    methods:
+      set:
+        type: http
+        endpoint: put /v1/objects/{collection}/{id}
+        positional_params: [ collection, id ]
+      get:
+        type: http
+        endpoint: get /v1/objects/{collection}/{id}
+        positional_params: [ collection, id ]
+      list: get /v1/objects/{collection}
+      delete:
+        type: http
+        endpoint: delete /v1/objects/{collection}/{id}
+        positional_params: [ collection, id ]
+      list_preferences:
+        type: http
+        endpoint: get /v1/objects/{collection}/{object_id}/preferences
+        positional_params: [ collection, object_id ]
+      get_preferences:
+        type: http
+        endpoint: get /v1/objects/{collection}/{object_id}/preferences/{id}
+        positional_params: [ collection, object_id, id ]
+      set_preferences:
+        type: http
+        endpoint: put /v1/objects/{collection}/{object_id}/preferences/{id}
+        positional_params: [ collection, object_id, id ]
+      list_schedules:
+        type: http
+        endpoint: get /v1/objects/{collection}/{id}/schedules
+        positional_params: [ collection, id ]
+      list_messages:
+        type: http
+        endpoint: get /v1/objects/{collection}/{id}/messages
+        positional_params: [ collection, id ]
+      get_channel_data:
+        type: http
+        endpoint: get /v1/objects/{collection}/{object_id}/channel_data/{channel_id}
+        positional_params: [ collection, object_id, channel_id ]
+      set_channel_data:
+        type: http
+        endpoint: put /v1/objects/{collection}/{object_id}/channel_data/{channel_id}
+        positional_params: [ collection, object_id, channel_id ]
+      unset_channel_data:
+        type: http
+        endpoint: delete /v1/objects/{collection}/{object_id}/channel_data/{channel_id}
+        positional_params: [ collection, object_id, channel_id ]
+      list_subscriptions:
+        type: http
+        endpoint: get /v1/objects/{collection}/{object_id}/subscriptions
+        positional_params: [ collection, object_id ]
+      add_subscriptions:
+        type: http
+        endpoint: post /v1/objects/{collection}/{object_id}/subscriptions
+        positional_params: [ collection, object_id ]
+      delete_subscriptions:
+        type: http
+        endpoint: delete /v1/objects/{collection}/{object_id}/subscriptions
+        positional_params: [ collection, object_id ]
+    subresources:
+      bulk:
+        methods:
+          set: post /v1/objects/{collection}/bulk/set
+          add_subscriptions: post /v1/objects/{collection}/bulk/subscriptions/add
+          delete: post /v1/objects/{collection}/bulk/delete
+  tenants:
+    models:
+      tenant: '#/components/schemas/Tenant'
+      tenant_request: '#/components/schemas/TenantRequest'
+      inline_tenant_request: '#/components/schemas/InlineTenantRequest'
+    methods:
+      delete: delete /v1/tenants/{id}
+      get: get /v1/tenants/{id}
+      set: put /v1/tenants/{id}
+      list: get /v1/tenants
+    subresources:
+      bulk:
+        methods:
+          delete: post /v1/tenants/bulk/delete
+          set: post /v1/tenants/bulk/set
+  bulk_operations:
+    models:
+      bulk_operation: '#/components/schemas/BulkOperation'
+    methods:
+      get: get /v1/bulk_operations/{id}
+  messages:
+    models:
+      message: '#/components/schemas/Message'
+      activity: '#/components/schemas/Activity'
+      message_delivery_log: '#/components/schemas/MessageDeliveryLog'
+      message_event: '#/components/schemas/MessageEvent'
+    methods:
+      get: get /v1/messages/{message_id}
+      get_content: get /v1/messages/{message_id}/content
+      list:
+        endpoint: get /v1/messages
+      list_events:
+        endpoint: get /v1/messages/{message_id}/events
+      list_delivery_logs:
+        endpoint: get /v1/messages/{message_id}/delivery_logs
+      list_activities:
+        endpoint: get /v1/messages/{message_id}/activities
+      mark_as_seen: put /v1/messages/{message_id}/seen
+      mark_as_unseen: delete /v1/messages/{message_id}/seen
+      mark_as_read: put /v1/messages/{message_id}/read
+      mark_as_unread: delete /v1/messages/{message_id}/read
+      mark_as_interacted: put /v1/messages/{message_id}/interacted
+      archive: put /v1/messages/{message_id}/archived
+      unarchive: delete /v1/messages/{message_id}/archived
+    subresources:
+      batch:
+        methods:
+          get_content: get /v1/messages/batch/content
+          mark_as_seen: post /v1/messages/batch/seen
+          mark_as_unseen: post /v1/messages/batch/unseen
+          mark_as_read: post /v1/messages/batch/read
+          mark_as_unread: post /v1/messages/batch/unread
+          mark_as_interacted: post /v1/messages/batch/interacted
+          archive: post /v1/messages/batch/archived
+          unarchive: post /v1/messages/batch/unarchived
+  providers:
+    subresources:
+      slack:
+        methods:
+          list_channels:
+            endpoint: get /v1/providers/slack/{channel_id}/channels
+            paginated: slack_channels_cursor
+          check_auth: get /v1/providers/slack/{channel_id}/auth_check
+          revoke_access: put /v1/providers/slack/{channel_id}/revoke_access
+      ms_teams:
+        methods:
+          list_channels:
+            endpoint: get /v1/providers/ms-teams/{channel_id}/channels
+            paginated: false
+          list_teams:
+            endpoint: get /v1/providers/ms-teams/{channel_id}/teams
+            paginated: ms_teams_pagination
+          check_auth: get /v1/providers/ms-teams/{channel_id}/auth_check
+          revoke_access: put /v1/providers/ms-teams/{channel_id}/revoke_access
+  integrations:
+    subresources:
+      census:
+        methods:
+          custom_destination: post /v1/integrations/census/custom-destination
+      hightouch:
+        methods:
+          embedded_destination: post /v1/integrations/hightouch/embedded-destination
+  workflows:
+    methods:
+      trigger: post /v1/workflows/{key}/trigger
+      cancel: post /v1/workflows/{key}/cancel
+  schedules:
+    models:
+      schedule: '#/components/schemas/Schedule'
+      schedule_repeat_rule: '#/components/schemas/ScheduleRepeatRule'
+    methods:
+      create: post /v1/schedules
+      list: get /v1/schedules
+      update: put /v1/schedules
+      delete: delete /v1/schedules
+    subresources:
+      bulk:
+        methods:
+          create: post /v1/schedules/bulk/create
+  channels:
+    subresources:
+      bulk:
+        methods:
+          update_message_status:
+            type: http
+            endpoint: post /v1/channels/{channel_id}/messages/bulk/{action}
+            positional_params: [ channel_id, action ]
+  audiences:
+    models:
+      audience_member: '#/components/schemas/AudienceMember'
+    methods:
+      add_members: post /v1/audiences/{key}/members
+      list_members: get /v1/audiences/{key}/members
+      remove_members: delete /v1/audiences/{key}/members
+
+targets:
+  typescript:
+    package_name: "@knocklabs/node"
+    production_repo: knocklabs/knock-node
+    publish:
+      npm: true
+    skip: false
+  go:
+    package_name: knock
+    production_repo: knocklabs/knock-go
+    skip: false
+  python:
+    package_name: knockapi
+    production_repo: knocklabs/knock-python
+    publish:
+      pypi: true
+    skip: false
+    project_name: knockapi
+  java:
+    reverse_domain: app.knock.api
+    production_repo: knocklabs/knock-java
+    publish:
+      maven:
+        sonatype_platform: portal
+    skip: false
+  ruby:
+    gem_name: knockapi
+    production_repo: knocklabs/knock-ruby
+    publish:
+      rubygems: false
+settings:
+  license: Apache-2.0
+client_settings:
+  opts:
+    api_key:
+      type: string
+      read_env: KNOCK_API_KEY
+      auth: { security_scheme: BearerAuth }
+environments:
+  production: https://api.knock.app
+openapi:
+  code_samples:
+    stainless: true
+query_settings:
+  nested_format: brackets
+  array_format: brackets
+pagination:
+  - name: entries_cursor
+    type: cursor
+    request:
+      after:
+        type: string
+        x-stainless-pagination-property:
+          purpose: next_cursor_param
+      before:
+        type: string
+        x-stainless-pagination-property:
+          purpose: previous_cursor_param
+      page_size:
+        type: integer
+    response:
+      entries:
+        type: array
+        items:
+          type: object
+          additionalProperties: true
+      page_info:
+        type: object
+        properties:
+          after:
+            type: string
+            x-stainless-pagination-property:
+              purpose: next_cursor_field
+  - name: items_cursor
+    type: cursor
+    request:
+      after:
+        type: string
+        x-stainless-pagination-property:
+          purpose: next_cursor_param
+      before:
+        type: string
+        x-stainless-pagination-property:
+          purpose: previous_cursor_param
+      page_size:
+        type: integer
+    response:
+      items:
+        type: array
+        items:
+          type: object
+          additionalProperties: true
+      page_info:
+        type: object
+        properties:
+          after:
+            type: string
+            x-stainless-pagination-property:
+              purpose: next_cursor_field
+  - name: slack_channels_cursor
+    type: cursor
+    request:
+      "query_options.cursor":
+        type: string
+        x-stainless-pagination-property:
+          purpose: next_cursor_param
+      "query_options.limit":
+        type: integer
+    response:
+      next_cursor:
+        type: string
+        x-stainless-pagination-property:
+          purpose: next_cursor_field
+      slack_channels:
+        type: array
+        items:
+          type: object
+          additionalProperties: true
+  - name: ms_teams_pagination
+    type: cursor
+    request:
+      "query_options.$skiptoken":
+        type: string
+        x-stainless-pagination-property:
+          purpose: next_cursor_param
+      "query_options.$top":
+        type: integer
+    response:
+      skip_token:
+        type: string
+        x-stainless-pagination-property:
+          purpose: next_cursor_field
+      ms_teams_teams:
+        type: array
+        items:
+          type: object
+          additionalProperties: true
+readme:
+  example_requests:
+    default:
+      type: request
+      endpoint: get /v1/users/{user_id}
+      params:
+        user_id: dnedry
+    headline:
+      type: request
+      endpoint: post /v1/workflows/{key}/trigger
+      params:
+        key: dinosaurs-loose
+        recipients: [ 'dnedry' ]
+        data:
+          dinosaur: triceratops
+    pagination:
+      type: request
+      endpoint: get /v1/users
+      params: {}

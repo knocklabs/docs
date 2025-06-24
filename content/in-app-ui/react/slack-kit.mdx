@@ -17,7 +17,7 @@ Depending on your use case, you can follow one of these guides for step-by-step 
 
 ## Using SlackKit components
 
-Once you've provided access to the necessary data, you can drop Knock's pre-built components into your React application to immediately set up Slack authorization and channel selection for your users. [See the reference](/sdks/react/reference#slack-components) for full documentation of these components.
+Once you've provided access to the necessary data, you can drop Knock's pre-built components into your React application to immediately set up Slack authorization and channel selection for your users. [See the reference](/in-app-ui/react/sdk/reference#slack-components) for full documentation of these components.
 
 ### Add the providers
 
@@ -112,9 +112,9 @@ Add your combobox to your application where you'd like the user to select channe
 <br />
 <Callout
   emoji="💡"
+  title="Limitations"
   text={
     <>
-      <strong>Limitations</strong>
       <ul>
         <li>
           The combobox will only show channels for Slack workspaces with fewer
@@ -222,7 +222,7 @@ SlackKit exposes three levels of support: React hooks, client functions, and API
 
 ### Hooks
 
-You can use the [Slack React hooks](/sdks/react/reference#slack-hooks) under the hood to access and set Slack integration data with your own components. All of them are available from the `@knocklabs/react-core` package. All of them must still be nested under the `KnockSlackProvider` to work.
+You can use the [Slack React hooks](/in-app-ui/react/sdk/reference#slack-hooks) under the hood to access and set Slack integration data with your own components. All of them are available from the `@knocklabs/react-core` package. All of them must still be nested under the `KnockSlackProvider` to work.
 
 To use a hook in your component, all you need to to is import it and pass it the necessary params, and then you can use the data and functions returned in each to pass to your own component UI.
 
@@ -291,11 +291,11 @@ If you want more fine grain control of your data, you can skip the hooks and sim
 
 Lastly, you can interact directly with the API endpoints for all of the above functionality. Here are the endpoints used in SlackKit that you would need to support an implementation of the managed UI:
 
-- [Slack auth check](/reference#slack-auth-check): status of Slack authorization
-- [Slack channels](/reference#slack-channels): list of Slack channels for the given workspace
-- [Slack revoke token](/reference#slack-revoke-access): revoke Slack app token access and remove from tenant
-- [Get channel data](/reference#get-object-channel-data): get channel data for your recipient object, which gives you access to the connected slack channels
-- [Set channel data](/reference#set-object-channel-data): set channel data for your recipient object, which allows you to set connected slack channels
+- [Slack auth check](/api-reference/providers/slack/check_auth): status of Slack authorization
+- [Slack channels](/api-reference/providers/slack/list_channels): list of Slack channels for the given workspace
+- [Slack revoke token](/api-reference/providers/slack/revoke_access): revoke Slack app token access and remove from tenant
+- [Get channel data](/api-reference/objects/get_channel_data): get channel data for your recipient object, which gives you access to the connected slack channels
+- [Set channel data](/api-reference/objects/set_channel_data): set channel data for your recipient object, which allows you to set connected slack channels
 
 ## Resources access grants
 
@@ -316,19 +316,22 @@ Example:
 Using the above example, you can quickly generate a token with the [Node SDK](https://github.com/knocklabs/knock-node#signing-jwts).
 
 ```javascript
-import { Knock } from "@knocklabs/node";
-import { Grants } from "@knocklabs/node/dist/src/common/userTokens";
+import {
+  signUserToken,
+  buildUserTokenGrant,
+  Grants,
+} from "@knocklabs/node/lib/tokenSigner";
 
-await Knock.signUserToken("user-1", {
+await signUserToken("user-1", {
   grants: [
-    Knock.buildUserTokenGrant({ type: "tenant", id: "jurassic-park" }, [
+    buildUserTokenGrant({ type: "tenant", id: "jurassic-park" }, [
       Grants.SlackChannelsRead,
     ]),
-    Knock.buildUserTokenGrant(
+    buildUserTokenGrant(
       { type: "object", id: "dinosaurs-loose", collection: "videos" },
       [Grants.ChannelDataRead, Grants.ChannelDataWrite],
     ),
-    Knock.buildUserTokenGrant(
+    buildUserTokenGrant(
       { type: "object", id: "raptor-feeding-guide", collection: "videos" },
       [Grants.ChannelDataRead, Grants.ChannelDataWrite],
     ),

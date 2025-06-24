@@ -113,12 +113,13 @@ Here's an example of setting channel data on an `Object` in Knock.
 
 <Callout
   emoji="🚨"
+  style={{ marginTop: "0" }}
+  title="Potential confusion alert."
   text={
     <>
-      <span className="font-bold">Potential confusion alert.</span> In the
-      example above, the <code>KNOCK_TEAMS_CHANNEL_ID</code> variable is the id
-      of the Knock channel you've created to represent your Microsoft Teams
-      integration within the Knock dashboard. You can find it by going to{" "}
+      In the example above, the <code>KNOCK_TEAMS_CHANNEL_ID</code> variable is
+      the id of the Knock channel you've created to represent your Microsoft
+      Teams integration within the Knock dashboard. You can find it by going to{" "}
       <span className="font-bold">Integrations</span> {">"}{" "}
       <span className="font-bold">Channels</span> in the Knock dashboard and
       then copying the ID of your Microsoft Teams channel.
@@ -181,13 +182,13 @@ Depending on the Microsoft Teams integration you build into your product, you'll
 
 <AccordionGroup>
   <Accordion title="Users" description="For notifying users via direct message">
-    If your integration involves a user opting in to receive direct messages from your Microsoft Teams integration, you’ll be storing the channel data [on that user](/reference#set-user-channel-data) in Knock. When you want to notify this user, you'll include them as a recipient in a Knock workflow trigger.
+    If your integration involves a user opting in to receive direct messages from your Microsoft Teams integration, you’ll be storing the channel data [on that user](/api-reference/users/set_channel_data) in Knock. When you want to notify this user, you'll include them as a recipient in a Knock workflow trigger.
 
     For this integration, you'll store a user's Microsoft Teams `ms_teams_user_id` in the `MsTeamsConnection` object.
 
   </Accordion>
   <Accordion title="Objects" description="For notifying Microsoft Teams channels about non-user resources">
-    If your integration involves a customer connecting a _non-user resource_ in their product (such as a project or a page) to a Microsoft Teams channel, you’ll want to store that channel data [on an object](/reference#set-object-channel-data) in Knock, as it’s not specific to any single user.
+    If your integration involves a customer connecting a _non-user resource_ in their product (such as a project or a page) to a Microsoft Teams channel, you’ll want to store that channel data [on an object](/api-reference/objects/set_channel_data) in Knock, as it’s not specific to any single user.
 
     For this integration, you'll store a Microsoft Teams `ms_teams_channel_id` in the `MsTeamsConnection` object. The [`MsTeamsChannelCombobox`](/in-app-ui/react/teams-kit#msteamschannelcombobox) component of Knock's TeamsKit can help you with this.
 
@@ -202,20 +203,42 @@ By default, we provide a basic markdown editor that you can use for sending simp
 
 ### Advanced Teams notifications
 
-If you find yourself wanting to send notifications that include more advanced formatting and interactivity, such as buttons, data layouts, and so on, you'll need to use Microsoft's <a href="https://adaptivecards.microsoft.com/" target="_blank">adaptive card format</a> to build your notification templates in Knock. This is essentially a JSON block language you use to lay out your Teams message.
+If you find yourself wanting to send notifications that include more advanced formatting and interactivity, such as buttons, data layouts, and so on, you'll need to use Microsoft's <a href="https://adaptivecards.microsoft.com/" target="_blank">Adaptive Card format</a> to build your notification templates in Knock. This is essentially a JSON block language you use to lay out your Microsoft Teams message.
 
-To switch to the JSON editor in the Knock template designer, look for the "Switch to JSON editor" button at the bottom of the template editor page. When you're in JSON editing mode, you can provide adaptive card JSON and we'll pass it to Teams on your behalf.
+To switch to the JSON editor in the Knock template designer, look for the "Switch to JSON editor" button at the bottom of the template editor page. When you're in JSON editing mode, you can provide adaptive card JSON and we'll pass it to Microsoft Teams on your behalf.
+
+Here's an example of the JSON you'll need to provide. Note that you must include your Adaptive Card JSON within the `attachments` array and set the `contentType` to `application/vnd.microsoft.card.adaptive`.
+
+```json title="Example JSON for sending an Adaptive Card to Microsoft Teams"
+{
+  "attachments": [
+    {
+      "content": {
+        "type": "AdaptiveCard",
+        "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+        "version": "1.5",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "Lorem ipsum dolor sit"
+          }
+        ],
+        "speak": "Lorem ipsum dolor sit"
+      },
+      "contentType": "application/vnd.microsoft.card.adaptive",
+      "contentUrl": null
+    }
+  ],
+  "type": "message"
+}
+```
+
+<br />
 
 <Callout
   emoji="⚠️"
-  text={
-    <>
-      <strong>Note:</strong> We do not support adaptive card previews in Knock
-      at this time.
-    </>
-  }
+  bgColor="yellow"
+  style={{ marginTop: "0", alignItems: "center" }}
+  title="Note:"
+  text={<>We do not support adaptive card previews in Knock at this time.</>}
 />
-
----
-
-What did you think of this guide? Did we miss any key steps? Did you run into a blocker? Let us know using the feedback component at the top of this page. 🙏
