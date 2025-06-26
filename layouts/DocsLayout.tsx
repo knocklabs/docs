@@ -107,8 +107,8 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
             />
           )}
         </Page.Wrapper>
-        <InkeepSidebarChatWrapper />
       </Page.Container>
+      <InkeepSidebarChatWrapper />
     </InkeepSidebarProvider>
   );
 };
