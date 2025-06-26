@@ -14,8 +14,7 @@ const ChatButton = dynamic(
 ) as typeof InkeepChatButton;
 
 function AiChatButton() {
-  const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
-    useInkeepSettings();
+  const { baseSettings, aiChatSettings, searchSettings } = useInkeepSettings();
 
   const chatButtonProps: InkeepChatButtonProps = {
     baseSettings: {
@@ -36,7 +35,6 @@ function AiChatButton() {
     },
     aiChatSettings,
     searchSettings,
-    modalSettings,
     canToggleView: false,
   };
 
