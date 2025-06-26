@@ -663,6 +663,7 @@ const Autocomplete = () => {
                           onClick={() =>
                             handleOpenAiChat((inputProps as any).value)
                           }
+                          data-inkeep-sidebar-chat-trigger=""
                         >
                           <Stack
                             py="3"
@@ -766,6 +767,7 @@ const Autocomplete = () => {
                         onClick={() =>
                           handleOpenAiChat((inputProps as any).value)
                         }
+                        data-inkeep-sidebar-chat-trigger=""
                       >
                         Ask AI ✨
                       </Link>
@@ -779,33 +781,39 @@ const Autocomplete = () => {
       )}
 
       {/* Add the InKeep sidebar chat component */}
-      {isAiChatOpen && (
-        <div className="sidebar">
-          <InKeepTrigger
-            baseSettings={{
-              ...baseSettings,
-              theme: {
-                styles: [
-                  {
-                    key: "knock-autocomplete-style",
-                    type: "style",
-                    value: `
-                    .ikp-ai-chat-header {
-                      display: none;
-                    }
-                    `,
-                  },
-                ],
+      <InKeepTrigger
+        baseSettings={{
+          ...baseSettings,
+          theme: {
+            styles: [
+              {
+                key: "knock-autocomplete-style",
+                type: "style",
+                value: `
+                .ikp-ai-chat-header {
+                  display: none;
+                }
+                `,
               },
-            }}
-            aiChatSettings={{
-              ...aiChatSettings,
-              chatFunctionsRef,
-              placeholder: "Ask a question...",
-            }}
-          />
-        </div>
-      )}
+            ],
+          },
+        }}
+        aiChatSettings={{
+          ...aiChatSettings,
+          chatFunctionsRef,
+          placeholder: "Ask a question...",
+        }}
+        isOpen={isAiChatOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseAiChat();
+          }
+        }}
+        position="right"
+        defaultWidth={420}
+        minWidth={250}
+        maxWidth={600}
+      />
     </Box>
   );
 };
