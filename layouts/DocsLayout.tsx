@@ -3,7 +3,10 @@ import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import { Page } from "../components/ui/Page";
 import { useSidebarContent } from "../hooks/useSidebarContent";
-import { InkeepSidebarProvider, useInkeepSidebar } from "../contexts/InkeepSidebarContext";
+import {
+  InkeepSidebarProvider,
+  useInkeepSidebar,
+} from "../contexts/InkeepSidebarContext";
 import useInkeepSettings from "../hooks/useInKeepSettings";
 import { type InkeepSidebarChat } from "@inkeep/cxkit-react";
 
@@ -19,7 +22,8 @@ const InkeepSidebarChatComponent = dynamic(
 ) as typeof InkeepSidebarChat;
 
 const InkeepSidebarChatWrapper = () => {
-  const { isAiChatOpen, aiSearchTerm, chatFunctionsRef, handleCloseAiChat } = useInkeepSidebar();
+  const { isAiChatOpen, aiSearchTerm, chatFunctionsRef, handleCloseAiChat } =
+    useInkeepSidebar();
   const { baseSettings, aiChatSettings } = useInkeepSettings();
 
   return (
@@ -97,7 +101,10 @@ const DocsLayout = ({ frontMatter, sourcePath, children }) => {
             <Page.ContentFooter nextPage={nextPage} previousPage={prevPage} />
           </Page.Content>
           {frontMatter.showNav !== false && (
-            <Page.OnThisPage title={frontMatter.title} sourcePath={sourcePath} />
+            <Page.OnThisPage
+              title={frontMatter.title}
+              sourcePath={sourcePath}
+            />
           )}
         </Page.Wrapper>
         <InkeepSidebarChatWrapper />

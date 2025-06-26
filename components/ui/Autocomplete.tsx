@@ -24,13 +24,10 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import "@algolia/autocomplete-theme-classic";
 
-import {
-  AIChatFunctions,
-} from "@inkeep/cxkit-react";
+import { AIChatFunctions } from "@inkeep/cxkit-react";
 import { Input } from "@telegraph/input";
 import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
-
 
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { Button } from "@telegraph/button";

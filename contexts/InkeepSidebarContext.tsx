@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useRef } from 'react';
-import { AIChatFunctions } from '@inkeep/cxkit-react';
+import React, { createContext, useContext, useState, useRef } from "react";
+import { AIChatFunctions } from "@inkeep/cxkit-react";
 
 interface InkeepSidebarContextType {
   isAiChatOpen: boolean;
@@ -9,17 +9,23 @@ interface InkeepSidebarContextType {
   handleCloseAiChat: () => void;
 }
 
-const InkeepSidebarContext = createContext<InkeepSidebarContextType | undefined>(undefined);
+const InkeepSidebarContext = createContext<
+  InkeepSidebarContextType | undefined
+>(undefined);
 
 export const useInkeepSidebar = () => {
   const context = useContext(InkeepSidebarContext);
   if (!context) {
-    throw new Error('useInkeepSidebar must be used within InkeepSidebarProvider');
+    throw new Error(
+      "useInkeepSidebar must be used within InkeepSidebarProvider",
+    );
   }
   return context;
 };
 
-export const InkeepSidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const InkeepSidebarProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   const [aiSearchTerm, setAiSearchTerm] = useState("");
   const chatFunctionsRef = useRef<AIChatFunctions | null>(null);
