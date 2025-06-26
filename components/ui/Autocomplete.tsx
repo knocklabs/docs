@@ -26,19 +26,19 @@ import "@algolia/autocomplete-theme-classic";
 
 import {
   AIChatFunctions,
-  type InkeepModalSearchAndChat,
+  type InkeepSidebarChat,
+  type InkeepSidebarChatProps,
 } from "@inkeep/cxkit-react";
 import { Input } from "@telegraph/input";
 import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
 
 const InKeepTrigger = dynamic(
-  () =>
-    import("@inkeep/cxkit-react").then((mod) => mod.InkeepModalSearchAndChat),
+  () => import("@inkeep/cxkit-react").then((mod) => mod.InkeepSidebarChat),
   {
     ssr: false,
   },
-) as typeof InkeepModalSearchAndChat;
+) as typeof InkeepSidebarChat;
 
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { Button } from "@telegraph/button";
@@ -778,48 +778,34 @@ const Autocomplete = () => {
         </Box>
       )}
 
-      {/* Add the InKeep trigger component directly in the Autocomplete component */}
-      <InKeepTrigger
-        defaultView="chat"
-        baseSettings={{
-          ...baseSettings,
-          theme: {
-            styles: [
-              {
-                key: "knock-autocomplete-style",
-                type: "style",
-                // InkeepModalSearchAndChat does not accept a canToggleView prop,
-                // so we apply a custom style to hide the header. Without this style,
-                // the AI chat displays a header that allows the user to toggle between
-                // a normal search and an AI chat.
-                value: `
-                .ikp-ai-chat-header {
-                  display: none;
-                }
-                `,
+      {/* Add the InKeep sidebar chat component */}
+      {isAiChatOpen && (
+        <div className="sidebar">
+          <InKeepTrigger
+            baseSettings={{
+              ...baseSettings,
+              theme: {
+                styles: [
+                  {
+                    key: "knock-autocomplete-style",
+                    type: "style",
+                    value: `
+                    .ikp-ai-chat-header {
+                      display: none;
+                    }
+                    `,
+                  },
+                ],
               },
-            ],
-          },
-        }}
-        aiChatSettings={{
-          ...aiChatSettings,
-          chatFunctionsRef,
-          placeholder: "Ask a question...",
-        }}
-        modalSettings={{
-          ...modalSettings,
-          isOpen: isAiChatOpen,
-          onOpenChange: (open) => {
-            if (!open) {
-              handleCloseAiChat();
-            }
-          },
-        }}
-        searchSettings={{
-          ...searchSettings,
-          defaultQuery: aiSearchTerm,
-        }}
-      />
+            }}
+            aiChatSettings={{
+              ...aiChatSettings,
+              chatFunctionsRef,
+              placeholder: "Ask a question...",
+            }}
+          />
+        </div>
+      )}
     </Box>
   );
 };
