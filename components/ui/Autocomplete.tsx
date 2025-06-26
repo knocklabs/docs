@@ -780,7 +780,7 @@ const Autocomplete = () => {
         </Box>
       )}
 
-      {/* Add the InKeep sidebar chat component */}
+      {/* Always render the InKeep sidebar chat component */}
       <InKeepTrigger
         baseSettings={{
           ...baseSettings,
