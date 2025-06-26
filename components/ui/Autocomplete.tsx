@@ -252,7 +252,7 @@ const Autocomplete = () => {
   const [aiSearchTerm, setAiSearchTerm] = useState("");
   const chatFunctionsRef = useRef<AIChatFunctions | null>(null);
 
-  const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
+  const { baseSettings, aiChatSettings, searchSettings } =
     useInkeepSettings();
 
   const inputRef = useRef(null);

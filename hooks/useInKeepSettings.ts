@@ -1,7 +1,6 @@
 import type {
   InkeepAIChatSettings,
   InkeepBaseSettings,
-  InkeepModalSettings,
   InkeepSearchSettings,
 } from "@inkeep/cxkit-react";
 
@@ -9,7 +8,6 @@ type InkeepSharedSettings = {
   baseSettings: InkeepBaseSettings;
   aiChatSettings: InkeepAIChatSettings;
   searchSettings: InkeepSearchSettings;
-  modalSettings: InkeepModalSettings;
 };
 
 const useInkeepSettings = (): InkeepSharedSettings => {
@@ -21,8 +19,6 @@ const useInkeepSettings = (): InkeepSharedSettings => {
       forcedColorMode: "light",
     },
   };
-
-  const modalSettings: InkeepModalSettings = {};
 
   const searchSettings: InkeepSearchSettings = {};
 
@@ -60,7 +56,7 @@ const useInkeepSettings = (): InkeepSharedSettings => {
     ],
   };
 
-  return { baseSettings, aiChatSettings, searchSettings, modalSettings };
+  return { baseSettings, aiChatSettings, searchSettings };
 };
 
 export default useInkeepSettings;
