@@ -26,23 +26,16 @@ import "@algolia/autocomplete-theme-classic";
 
 import {
   AIChatFunctions,
-  type InkeepSidebarChat,
-  type InkeepSidebarChatProps,
 } from "@inkeep/cxkit-react";
 import { Input } from "@telegraph/input";
 import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
 
-const InKeepTrigger = dynamic(
-  () => import("@inkeep/cxkit-react").then((mod) => mod.InkeepSidebarChat),
-  {
-    ssr: false,
-  },
-) as typeof InkeepSidebarChat;
 
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { Button } from "@telegraph/button";
 import { Icon, Lucide } from "@telegraph/icon";
+import { useInkeepSidebar } from "../../contexts/InkeepSidebarContext";
 import { MenuItem } from "@telegraph/menu";
 import { Code, Text } from "@telegraph/typography";
 import dynamic from "next/dynamic";
@@ -247,12 +240,7 @@ const Autocomplete = () => {
     useState<AutocompleteState<BaseItem> | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
-  // Add state for the AI chat
-  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
-  const [aiSearchTerm, setAiSearchTerm] = useState("");
-  const chatFunctionsRef = useRef<AIChatFunctions | null>(null);
-
-  const { baseSettings, aiChatSettings, searchSettings } = useInkeepSettings();
+  const { handleOpenAiChat } = useInkeepSidebar();
 
   const inputRef = useRef(null);
   const router = useRouter();
@@ -260,32 +248,6 @@ const Autocomplete = () => {
     () => algoliasearch(algoliaAppId, algoliaSearchApiKey),
     [],
   );
-
-  // Function to handle opening the AI chat
-  const handleOpenAiChat = useCallback((searchTerm: string) => {
-    setAiSearchTerm(searchTerm);
-    setIsAiChatOpen(true);
-  }, []);
-
-  // Function to handle closing the AI chat
-  const handleCloseAiChat = useCallback(() => {
-    setIsAiChatOpen(false);
-  }, []);
-
-  // Add this effect to update the chat input when aiSearchTerm changes
-  useEffect(() => {
-    if (isAiChatOpen && chatFunctionsRef.current && aiSearchTerm) {
-      // Update the input message with the search term
-      chatFunctionsRef.current.updateInputMessage(aiSearchTerm);
-
-      // Use a small timeout to ensure the chat is fully loaded before submitting
-      setTimeout(() => {
-        if (chatFunctionsRef.current) {
-          chatFunctionsRef.current.submitMessage();
-        }
-      }, 500);
-    }
-  }, [isAiChatOpen, aiSearchTerm]);
 
   const autocomplete = useMemo(
     () =>
@@ -778,41 +740,6 @@ const Autocomplete = () => {
           </Box>
         </Box>
       )}
-
-      {/* Always render the InKeep sidebar chat component */}
-      <InKeepTrigger
-        baseSettings={{
-          ...baseSettings,
-          theme: {
-            styles: [
-              {
-                key: "knock-autocomplete-style",
-                type: "style",
-                value: `
-                .ikp-ai-chat-header {
-                  display: none;
-                }
-                `,
-              },
-            ],
-          },
-        }}
-        aiChatSettings={{
-          ...aiChatSettings,
-          chatFunctionsRef,
-          placeholder: "Ask a question...",
-        }}
-        isOpen={isAiChatOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            handleCloseAiChat();
-          }
-        }}
-        position="right"
-        defaultWidth={420}
-        minWidth={250}
-        maxWidth={600}
-      />
     </Box>
   );
 };
