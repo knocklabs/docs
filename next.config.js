@@ -8,6 +8,15 @@ const withRemoteRefresh = require("next-remote-refresh")({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.m?js/,
+      resolve: {
+        fullySpecified: false,
+      },
+    });
+    return config;
+  },
   async redirects() {
     return [
       {
