@@ -73,8 +73,8 @@ var result = await knockClient.Workflows.Trigger("new-comment", workflowTriggerO
   elixir: `
 knock_client = MyApp.Knock.client()
 
-Knock.Workflows.trigger("new-comment", %{
-  recipients: ["1", "2"]
+Knock.Workflows.trigger(knock_client, "new-comment", %{
+  recipients: ["1", "2"],
 
   # optional
   data: %{project_name: "My Project"},
