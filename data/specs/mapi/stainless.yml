@@ -1,15 +1,20 @@
 # yaml-language-server: $schema=https://app.stainless.com/config.schema.json
 
 organization:
-  name: knock
+  name: knock mgmt
   docs: https://docs.knock.app/mapi
   contact: support@knock.app
 targets:
   typescript:
     package_name: "@knocklabs/mgmt"
-    production_repo: null
+    production_repo: knocklabs/knock-mgmt-node
     publish:
-      npm: false
+      npm: true
+  python:
+    package_name: knock_mapi
+    production_repo: knocklabs/knock-mgmt-python
+    publish:
+      pypi: false
 environments:
   production: https://control.knock.app
 resources:
@@ -29,10 +34,14 @@ resources:
     models:
       email_layout: "#/components/schemas/EmailLayout"
     methods:
-      list: get /v1/email_layouts
-      retrieve: get /v1/email_layouts/{email_layout_key}
-      upsert: put /v1/email_layouts/{email_layout_key}
-      validate: put /v1/email_layouts/{email_layout_key}/validate
+      list:
+        endpoint: get /v1/email_layouts
+      retrieve:
+        endpoint: get /v1/email_layouts/{email_layout_key}
+      upsert:
+        endpoint: put /v1/email_layouts/{email_layout_key}
+      validate:
+        endpoint: put /v1/email_layouts/{email_layout_key}/validate
   commits:
     models:
       commit: "#/components/schemas/Commit"
@@ -46,18 +55,26 @@ resources:
     models:
       partial: "#/components/schemas/Partial"
     methods:
-      list: get /v1/partials
-      retrieve: get /v1/partials/{partial_key}
-      upsert: put /v1/partials/{partial_key}
-      validate: put /v1/partials/{partial_key}/validate
+      list:
+        endpoint: get /v1/partials
+      retrieve:
+        endpoint: get /v1/partials/{partial_key}
+      upsert:
+        endpoint: put /v1/partials/{partial_key}
+      validate:
+        endpoint: put /v1/partials/{partial_key}/validate
   translations:
     models:
       translation: "#/components/schemas/Translation"
     methods:
-      list: get /v1/translations
-      retrieve: get /v1/translations/{locale_code}
-      upsert: put /v1/translations/{locale_code}
-      validate: put /v1/translations/{locale_code}/validate
+      list:
+        endpoint: get /v1/translations
+      retrieve:
+        endpoint: get /v1/translations/{locale_code}
+      upsert:
+        endpoint: put /v1/translations/{locale_code}
+      validate:
+        endpoint: put /v1/translations/{locale_code}/validate
   workflows:
     models:
       condition: "#/components/schemas/Condition"
@@ -74,26 +91,37 @@ resources:
       workflow_throttle_step: "#/components/schemas/WorkflowThrottleStep"
       workflow_trigger_workflow_step: "#/components/schemas/WorkflowTriggerWorkflowStep"
     methods:
-      list: get /v1/workflows
-      retrieve: get /v1/workflows/{workflow_key}
-      upsert: put /v1/workflows/{workflow_key}
-      activate: put /v1/workflows/{workflow_key}/activate
-      run: put /v1/workflows/{workflow_key}/run
-      validate: put /v1/workflows/{workflow_key}/validate
+      list:
+        endpoint: get /v1/workflows
+      retrieve:
+        endpoint: get /v1/workflows/{workflow_key}
+      upsert:
+        endpoint: put /v1/workflows/{workflow_key}
+      activate:
+        endpoint: put /v1/workflows/{workflow_key}/activate
+      run:
+        endpoint: put /v1/workflows/{workflow_key}/run
+      validate:
+        endpoint: put /v1/workflows/{workflow_key}/validate
     subresources:
       steps:
         methods:
-          preview_template: post /v1/workflows/{workflow_key}/steps/{step_ref}/preview_template
+          preview_template:
+            endpoint: post /v1/workflows/{workflow_key}/steps/{step_ref}/preview_template
   message_types:
     models:
       message_type: "#/components/schemas/MessageType"
       message_type_variant: "#/components/schemas/MessageTypeVariant"
       message_type_text_field: "#/components/schemas/MessageTypeTextField"
     methods:
-      list: get /v1/message_types
-      retrieve: get /v1/message_types/{message_type_key}
-      upsert: put /v1/message_types/{message_type_key}
-      validate: put /v1/message_types/{message_type_key}/validate
+      list:
+        endpoint: get /v1/message_types
+      retrieve:
+        endpoint: get /v1/message_types/{message_type_key}
+      upsert:
+        endpoint: put /v1/message_types/{message_type_key}
+      validate:
+        endpoint: put /v1/message_types/{message_type_key}/validate
   auth:
     methods:
       verify: get /v1/whoami
@@ -127,6 +155,22 @@ resources:
       variable: "#/components/schemas/Variable"
     methods:
       list: get /v1/variables
+  guides:
+    models:
+      guide: "#/components/schemas/Guide"
+      guide_step: "#/components/schemas/GuideStep"
+      guide_activation_location_rule: "#/components/schemas/GuideActivationLocationRule"
+    methods:
+      list:
+        endpoint: get /v1/guides
+      retrieve:
+        endpoint: get /v1/guides/{guide_key}
+      upsert:
+        endpoint: put /v1/guides/{guide_key}
+      validate:
+        endpoint: put /v1/guides/{guide_key}/validate
+      activate:
+        endpoint: put /v1/guides/{guide_key}/activate
 settings:
   disable_mock_tests: true
   license: Apache-2.0
