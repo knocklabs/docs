@@ -21,7 +21,15 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
   const router = useRouter();
   const pathname = router.asPath;
   const basePath = pathname.split("?")[0].split("#")[0].substring(1);
-  const mdPath = `/${basePath}.md`;
+
+  let mdPath: string;
+  if (basePath.startsWith("api-reference")) {
+    mdPath = "/api-reference.md";
+  } else if (basePath.startsWith("mapi-reference")) {
+    mdPath = "/mapi-reference.md";
+  } else {
+    mdPath = `/${basePath}.md`;
+  }
 
   const copyAsMarkdown = async () => {
     try {
