@@ -86,37 +86,37 @@ const algoliaEndpointIndex =
 // Prevents loading jank
 const StaticSearch = () => {
   return (
-    <Box as="form" border="px" borderColor="gray-4" borderRadius="2">
-      <Stack style={{ flexShrink: 0 }} alignItems="center" p="1">
-        <Icon icon={Search} alt="Search" color="gray" mr="2" />
-        <Input
-          placeholder="Search the docs..."
-          size="1"
-          color="gray-10"
-          className="aa-Input"
-          style={{ outline: "none" }}
-        />
-        <Stack
-          bg="gray-1"
-          borderRadius="1"
-          border="px"
-          borderColor="gray-3"
-          justifyContent="center"
-          alignItems="center"
-          width="5"
-          height="5"
-        >
-          <Text
-            as="span"
-            size="1"
-            color="black"
-            weight="medium"
-            style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+    <Box as="form">
+      <Input
+        placeholder="Search the docs..."
+        size="2"
+        className="aa-Input"
+        LeadingComponent={
+          <Icon icon={Search} alt="Search" color="gray" mr="2" />
+        }
+        TrailingComponent={
+          <Stack
+            bg="gray-1"
+            borderRadius="1"
+            border="px"
+            borderColor="gray-3"
+            justifyContent="center"
+            alignItems="center"
+            width="5"
+            height="5"
           >
-            /
-          </Text>
-        </Stack>
-      </Stack>
+            <Text
+              as="span"
+              size="1"
+              color="black"
+              weight="medium"
+              style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+            >
+              /
+            </Text>
+          </Stack>
+        }
+      />
     </Box>
   );
 };
@@ -494,103 +494,87 @@ const Autocomplete = () => {
   });
 
   return (
-    <Box
-      {...autocomplete.getRootProps()}
-      w="full"
-      tgphRef={rootRef}
-      id="docs-search"
-    >
-      <Box
-        as="form"
-        border="px"
-        borderColor="gray-4"
-        borderRadius="2"
-        className="aa-Form"
-        {...(formProps as FormProps)}
-      >
-        <Stack alignItems="center" p="1">
-          <Icon
-            icon={Search}
-            alt="Search"
-            color="gray"
-            mr="2"
-            style={{ flexShrink: 0 }}
-          />
-          <Input
-            tgphRef={inputRef}
-            placeholder="Search the docs..."
-            className="aa-Input"
-            {...(inputProps as React.DetailedHTMLProps<
-              React.InputHTMLAttributes<HTMLInputElement>,
-              HTMLInputElement
-            >)}
-            size="1"
-            style={{
-              outline: "none",
-            }}
-            w="full"
-          />
-          {autocompleteState?.query ? (
-            <Button
-              variant="ghost"
-              size="1"
-              weight="regular"
-              bg="gray-1"
-              color="gray"
-              icon={{
-                icon: X,
-                "aria-hidden": true,
-                color: "black",
-              }}
-              onClick={() => {
-                autocomplete.setQuery("");
-                if (inputRef.current) {
-                  (inputRef.current as HTMLInputElement).focus();
-                }
-              }}
-              border="px"
-              borderColor="gray-3"
-              py="2"
-              px="1"
-              ml="2"
-              style={{
-                height: "20px",
-              }}
-            >
-              Clear
-            </Button>
-          ) : (
+    <Box {...autocomplete.getRootProps()} w="full" tgphRef={rootRef}>
+      <Box as="form" className="aa-Form" {...(formProps as FormProps)}>
+        <Input
+          tgphRef={inputRef}
+          placeholder="Search the docs.."
+          className="aa-Input"
+          {...(inputProps as React.DetailedHTMLProps<
+            React.InputHTMLAttributes<HTMLInputElement>,
+            HTMLInputElement
+          >)}
+          size="2"
+          w="full"
+          LeadingComponent={
+            <Icon icon={Search} alt="Search" color="gray" size="1" mr="2" />
+          }
+          TrailingComponent={
             <>
-              <Stack
-                bg="gray-1"
-                borderRadius="1"
-                border="px"
-                borderColor="gray-3"
-                justifyContent="center"
-                alignItems="center"
-                width="5"
-                height="5"
-                className="md-hidden"
-              >
-                <Text
-                  as="span"
+              {autocompleteState?.query ? (
+                <Button
+                  variant="outline"
                   size="1"
-                  color="black"
-                  weight="medium"
-                  style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+                  weight="regular"
+                  bg="gray-1"
+                  color="gray"
+                  icon={{
+                    icon: X,
+                    "aria-hidden": true,
+                    color: "black",
+                  }}
+                  onClick={() => {
+                    autocomplete.setQuery("");
+                    if (inputRef.current) {
+                      (inputRef.current as HTMLInputElement).focus();
+                    }
+                  }}
+                  py="2"
+                  px="1"
+                  ml="2"
+                  style={{
+                    height: "20px",
+                  }}
                 >
-                  /
-                </Text>
-              </Stack>
-              <Box
-                borderRadius="1"
-                width="5"
-                height="5"
-                className="md-visible"
-              ></Box>
+                  Clear
+                </Button>
+              ) : (
+                <>
+                  <Stack
+                    bg="gray-1"
+                    borderRadius="1"
+                    border="px"
+                    borderColor="gray-3"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="5"
+                    height="5"
+                    className="md-hidden"
+                  >
+                    <Text
+                      as="span"
+                      size="1"
+                      color="black"
+                      weight="medium"
+                      style={{
+                        lineHeight: "1",
+                        transform: "translateY(-1px)",
+                      }}
+                    >
+                      /
+                    </Text>
+                  </Stack>
+                  <Box
+                    borderRadius="1"
+                    width="5"
+                    height="5"
+                    className="md-visible"
+                  ></Box>
+                </>
+              )}
             </>
-          )}
-        </Stack>
+          }
+        />
       </Box>
 
       {autocompleteState?.isOpen && (
