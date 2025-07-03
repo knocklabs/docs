@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { Lucide } from "@telegraph/icon";
 import { Popover } from "@telegraph/popover";
 import { SegmentedControl } from "@telegraph/segmented-control";
 import { Button } from "@telegraph/button";
@@ -7,6 +6,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { Heading, Text } from "@telegraph/typography";
 import { TextArea } from "@telegraph/textarea";
 import { Input } from "@telegraph/input";
+import { MessageCircleMore, X } from "lucide-react";
 
 interface Account {
   id: string;
@@ -89,7 +89,7 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
             onClick={() => setIsOpen(true)}
             color="gray"
             icon={{
-              icon: Lucide.MessageCircleMore,
+              icon: MessageCircleMore,
               "aria-hidden": true,
             }}
             size="1"
@@ -106,7 +106,7 @@ export const Feedback = ({ currentUser, currentAccount }: Props) => {
                 right="0"
                 variant="ghost"
                 icon={{
-                  icon: Lucide.X,
+                  icon: X,
                   "aria-hidden": false,
                   alt: "Close feedback menu",
                 }}

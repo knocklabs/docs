@@ -1,4 +1,25 @@
-import { Lucide } from "@telegraph/icon";
+import {
+  BookUp,
+  CodeXml,
+  CircleHelp,
+  Rows3,
+  PackageOpen,
+  Rabbit,
+  Layers,
+  UsersRound,
+  BellDot,
+  ListTodo,
+  Slack,
+  Sprout,
+  DatabaseZap,
+  Terminal,
+  Landmark,
+  Infinity,
+  Unplug,
+  Code,
+  ChevronsLeftRightEllipsis,
+  Package,
+} from "lucide-react";
 import {
   FaNodeJs,
   FaPython,
@@ -15,7 +36,7 @@ import { RiJavascriptFill } from "react-icons/ri";
 // Combine all the icons into a single object
 // This is mostly for MDX so we can enable our components to accept a string
 // and then we can do "icons[iconName]" and pass that to render in the component
-export const Icons = {
+const PascalCaseIcons = {
   Logo: () => (
     <svg viewBox="0 0 584 584" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -100,5 +121,32 @@ export const Icons = {
   Angular: () => <FaAngular style={{ width: "100%", height: "100%" }} />,
   Ios: () => <FaApple style={{ width: "100%", height: "100%" }} />,
   Android: () => <FaAndroid style={{ width: "100%", height: "100%" }} />,
-  ...Lucide,
+  BookUp,
+  CodeXml,
+  CircleHelp,
+  Rows3,
+  PackageOpen,
+  Rabbit,
+  Layers,
+  UsersRound,
+  BellDot,
+  ListTodo,
+  Slack,
+  Sprout,
+  DatabaseZap,
+  Terminal,
+  Landmark,
+  Infinity,
+  Unplug,
+  Code,
+  ChevronsLeftRightEllipsis,
+  Package,
 };
+
+export const Icons = Object.entries(PascalCaseIcons).reduce(
+  (acc, [key, value]) => {
+    Object.assign(acc, { [key.toLowerCase()]: value });
+    return acc;
+  },
+  {} as Record<Lowercase<keyof typeof PascalCaseIcons>, () => React.ReactNode>,
+);

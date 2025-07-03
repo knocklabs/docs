@@ -2,24 +2,37 @@ import { MenuItem } from "@telegraph/menu";
 import Link from "next/link";
 import { Heading, Text } from "@telegraph/typography";
 import { Stack, Box } from "@telegraph/layout";
-import { Icon, Lucide, type LucideIcon } from "@telegraph/icon";
+import { Icon, type LucideIcon } from "@telegraph/icon";
 import { Icons } from "../Icons";
 import React from "react";
 import Image from "next/image";
 import { TgphComponentProps } from "@telegraph/helpers";
 
 type IconComponent = () => JSX.Element;
+type IconType = keyof typeof Icons | LucideIcon | IconComponent;
 
-function getIcon(
-  icon?: string | LucideIcon | IconComponent,
-): IconComponent | LucideIcon {
+function getIcon(icon?: IconType): IconComponent | React.ReactNode {
   if (typeof icon === "function") {
     return icon as IconComponent;
   }
-  if (Icons[icon as keyof typeof Icons]) {
-    return Icons[icon as keyof typeof Icons] as () => JSX.Element;
+
+  if (typeof icon === "string") {
+    // Lowercase the string in case it comes in as
+    // the wrong format from an MDX file as these
+    // can't be properly type checked.
+    const lowercasedIcon = icon.toLowerCase();
+    if (Icons[lowercasedIcon as keyof typeof Icons]) {
+      return Icons[lowercasedIcon as keyof typeof Icons] as () => JSX.Element;
+    }
+
+    // We throw an error here so that a build can't complete if there is an icon that
+    // is not found in the Icons object.
+    throw new Error(
+      `Icon ${icon} not found, please add it to the Icons object in the Icons.tsx file`,
+    );
   }
-  return icon?.toString().toLowerCase() as LucideIcon;
+
+  return icon as React.ReactNode;
 }
 
 export const Tool = ({
@@ -28,7 +41,7 @@ export const Tool = ({
   description,
   href,
 }: {
-  icon: string | LucideIcon | IconComponent;
+  icon: IconType;
   title: string;
   description: string;
   href: string;
@@ -98,7 +111,7 @@ export const ContentCard = ({
   title: string;
   description: string;
   href: string;
-  icon: string | LucideIcon;
+  icon: IconType;
   style?: React.CSSProperties;
   newTab?: boolean;
 }) => {
@@ -207,7 +220,7 @@ export const BuildingBlock = ({
 }: {
   title: string;
   description: string;
-  icon: string | LucideIcon;
+  icon: IconType;
   href: string;
 }) => {
   const _icon = getIcon(icon);

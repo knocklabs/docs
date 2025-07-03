@@ -1,9 +1,9 @@
 import { Box, Stack } from "@telegraph/layout";
 import { TgphComponentProps } from "@telegraph/helpers";
 import { Heading } from "@telegraph/typography";
-import { Lucide } from "@telegraph/icon";
 import Link from "next/link";
 import { Button } from "@telegraph/button";
+import { ChevronRight } from "lucide-react";
 
 type SectionContentProps = { nudgePadding?: number } & TgphComponentProps<
   typeof Stack
@@ -53,7 +53,7 @@ const SectionHeader = ({
           <Button
             variant="ghost"
             size="1"
-            trailingIcon={{ icon: Lucide.ChevronRight, "aria-hidden": true }}
+            trailingIcon={{ icon: ChevronRight, "aria-hidden": true }}
           >
             View all
           </Button>

@@ -1,9 +1,9 @@
 import { SidebarPage } from "@/data/types";
 import { SidebarSection } from "@/data/types";
 import { Icon } from "@telegraph/icon";
-import { Lucide } from "@telegraph/icon";
 import { Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
+import { ChevronRight } from "lucide-react";
 
 type BreadcrumbsProps = {
   pages: (SidebarPage | SidebarSection)[];
@@ -42,7 +42,7 @@ const Breadcrumbs = ({ pages }: BreadcrumbsProps) => {
           )}
           {index !== pages.length - 1 && (
             <Icon
-              icon={Lucide.ChevronRight}
+              icon={ChevronRight}
               aria-hidden
               size="1"
               color="gray"

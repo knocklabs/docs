@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Box, Stack } from "@telegraph/layout";
+import { Text as TextIcon } from "lucide-react";
 import { Text } from "@telegraph/typography";
-import { Icon, Lucide } from "@telegraph/icon";
+import { Icon } from "@telegraph/icon";
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
 export interface Props {
   title: string;
@@ -138,7 +139,7 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
         style={{ height: "calc(100vh - 15rem)" }}
       >
         <Stack direction="row" align="center" gap="1" mb="2">
-          <Icon icon={Lucide.Text} size="2" color="default" aria-hidden />
+          <Icon icon={TextIcon} size="2" color="default" aria-hidden />
           <Text as="span" size="2" weight="medium" color="default">
             On this page
           </Text>

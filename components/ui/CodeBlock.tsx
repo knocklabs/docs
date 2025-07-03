@@ -22,7 +22,7 @@ import { useIsMounted } from "../../hooks/useIsMounted";
 import { Box, Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
-import { Lucide } from "@telegraph/icon";
+import { Check, Copy } from "lucide-react";
 
 SyntaxHighlighter.registerLanguage("node", javascript);
 SyntaxHighlighter.registerLanguage("javascript", javascript);
@@ -214,7 +214,7 @@ export const CodeBlock: React.FC<Props> = ({
             onClick={setCopied}
             px="1"
             icon={{
-              icon: isCopied ? Lucide.Check : Lucide.Copy,
+              icon: isCopied ? Check : Copy,
               "aria-hidden": true,
             }}
           />
