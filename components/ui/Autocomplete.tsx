@@ -92,7 +92,7 @@ const StaticSearch = () => {
         size="2"
         className="aa-Input"
         LeadingComponent={
-          <Icon icon={Search} alt="Search" color="gray" ml="2" />
+          <Icon icon={Search} alt="Search" color="gray" mr="2" />
         }
         TrailingComponent={
           <Stack
