@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@telegraph/button";
-import { Lucide } from "@telegraph/icon";
 import { useClipboard } from "@/hooks/useClipboard";
+import { Check, Copy } from "lucide-react";
 
 export const CopyableText = ({ content, label }) => {
   const [isCopied, copy] = useClipboard(content);
@@ -13,7 +13,7 @@ export const CopyableText = ({ content, label }) => {
       color="accent"
       onClick={copy}
       icon={{
-        icon: isCopied ? Lucide.Check : Lucide.Copy,
+        icon: isCopied ? Check : Copy,
         "aria-hidden": true,
       }}
       size="2"

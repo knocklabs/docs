@@ -3,8 +3,9 @@ import { MenuItem } from "@telegraph/menu";
 import { Box, Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { type TgphComponentProps } from "@telegraph/helpers";
-import { Icon, Lucide } from "@telegraph/icon";
+import { Icon } from "@telegraph/icon";
 import { Tag } from "@telegraph/tag";
+import { ChevronRight } from "lucide-react";
 
 export type CollapsibleNavItemProps = TgphComponentProps<typeof MenuItem> & {
   label: string;
@@ -52,7 +53,7 @@ export const CollapsibleNavItem = ({
             </Tag>
           )}
           <Icon
-            icon={Lucide.ChevronRight}
+            icon={ChevronRight}
             size="1"
             ml="4"
             color="disabled"

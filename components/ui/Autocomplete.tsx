@@ -31,6 +31,7 @@ import {
 import { Input } from "@telegraph/input";
 import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
+import { Search, Sparkles, X } from "lucide-react";
 
 const InKeepTrigger = dynamic(
   () =>
@@ -42,7 +43,7 @@ const InKeepTrigger = dynamic(
 
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { Button } from "@telegraph/button";
-import { Icon, Lucide } from "@telegraph/icon";
+import { Icon } from "@telegraph/icon";
 import { MenuItem } from "@telegraph/menu";
 import { Code, Text } from "@telegraph/typography";
 import dynamic from "next/dynamic";
@@ -87,7 +88,7 @@ const StaticSearch = () => {
   return (
     <Box as="form" border="px" borderColor="gray-4" borderRadius="2">
       <Stack style={{ flexShrink: 0 }} alignItems="center" p="1">
-        <Icon icon={Lucide.Search} alt="Search" color="gray" mr="2" />
+        <Icon icon={Search} alt="Search" color="gray" mr="2" />
         <Input
           placeholder="Search the docs..."
           size="1"
@@ -509,7 +510,7 @@ const Autocomplete = () => {
       >
         <Stack alignItems="center" p="1">
           <Icon
-            icon={Lucide.Search}
+            icon={Search}
             alt="Search"
             color="gray"
             mr="2"
@@ -537,7 +538,7 @@ const Autocomplete = () => {
               bg="gray-1"
               color="gray"
               icon={{
-                icon: Lucide.X,
+                icon: X,
                 "aria-hidden": true,
                 color: "black",
               }}
@@ -690,7 +691,7 @@ const Autocomplete = () => {
                               </Text>
                             </Box>
                             <Icon
-                              icon={Lucide.Sparkles}
+                              icon={Sparkles}
                               alt="Sparkles"
                               color="black"
                               size="4"

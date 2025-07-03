@@ -1,9 +1,10 @@
 import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
-import { Lucide, Icon } from "@telegraph/icon";
+import { Icon } from "@telegraph/icon";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { Text } from "@telegraph/typography";
+import { ChevronRight } from "lucide-react";
 
 const AccordionGroup = ({ children }) => (
   <div
@@ -44,7 +45,7 @@ const Accordion = ({
       >
         <Stack alignItems="center">
           <Icon
-            icon={Lucide.ChevronRight}
+            icon={ChevronRight}
             aria-hidden={true}
             mr="2"
             style={{

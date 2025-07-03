@@ -12,8 +12,9 @@ import { createContext, useContext, useRef, useState } from "react";
 import { MobileSidebar } from "./Page/MobileSidebar";
 import { Button } from "@telegraph/button";
 import Link from "next/link";
-import { Icon, Lucide } from "@telegraph/icon";
+import { Icon } from "@telegraph/icon";
 import { Feedback } from "./Feedback";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export const MAX_WIDTH = "1400px";
 
@@ -148,7 +149,7 @@ const ContentFooter = ({
           href={previousPage.path}
           variant="ghost"
           leadingIcon={{
-            icon: Lucide.ChevronLeft,
+            icon: ChevronLeft,
             "aria-hidden": true,
             flexShrink: 0,
           }}
@@ -162,7 +163,7 @@ const ContentFooter = ({
         >
           <Stack alignItems="center" gap="2" minW="0">
             <Icon
-              icon={Lucide.ChevronLeft}
+              icon={ChevronLeft}
               size="2"
               color="gray"
               aria-hidden
@@ -204,7 +205,7 @@ const ContentFooter = ({
           w="full"
           justifyContent="flex-end"
           trailingIcon={{
-            icon: Lucide.ChevronRight,
+            icon: ChevronRight,
             "aria-hidden": true,
           }}
         >
@@ -228,7 +229,7 @@ const ContentFooter = ({
               </Text>
             </Stack>
             <Icon
-              icon={Lucide.ChevronRight}
+              icon={ChevronRight}
               size="2"
               color="gray"
               aria-hidden

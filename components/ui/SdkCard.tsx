@@ -1,4 +1,4 @@
-import { Icon, Lucide } from "@telegraph/icon";
+import { Icon } from "@telegraph/icon";
 import { RiJavascriptFill } from "react-icons/ri";
 import {
   FaNodeJs,
@@ -18,6 +18,7 @@ import { TbBrandKotlin, TbBrandReactNative } from "react-icons/tb";
 import { Card } from "./Card";
 import { Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
+import { Square } from "lucide-react";
 
 export type SupportedIcon =
   | "default"
@@ -41,7 +42,7 @@ export type SupportedIcon =
   | "expo";
 
 export const icons: Record<SupportedIcon, React.ReactNode> = {
-  default: <Icon icon={Lucide.Square} aria-hidden={true} />,
+  default: <Icon icon={Square} aria-hidden={true} />,
   node: <FaNodeJs />,
   python: <FaPython />,
   ruby: <DiRuby />,
