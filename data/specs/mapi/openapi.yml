@@ -499,6 +499,34 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    GuideScheduledActivationParams:
+      description: A request to schedule the activation of a guide. At least one of from or until must be provided.
+      example:
+        from: "2024-03-20T10:00:00Z"
+        until: "2024-03-21T10:00:00Z"
+      properties:
+        from:
+          description: >-
+            When to activate the guide. If provided, the guide will be scheduled to activate at this time.
+            Must be in ISO 8601 UTC format.
+          example: "2024-03-20T10:00:00Z"
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        until:
+          description: >-
+            When to deactivate the guide. If provided, the guide will be scheduled to deactivate at this time.
+            Must be in ISO 8601 UTC format.
+          example: "2024-03-21T10:00:00Z"
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      title: GuideScheduledActivationParams
+      type: object
+      x-struct: null
+      x-validate: null
     WrappedPartialResponse:
       description: Wraps the Partial response under the `partial` key.
       example:
@@ -1653,18 +1681,24 @@ components:
         id: project_1
       oneOf:
         - description: A user ID.
+          example: user_1
           nullable: false
           title: UserRecipientReference
           type: string
           x-struct: null
           x-validate: null
         - description: An object reference.
+          example:
+            collection: projects
+            id: project_1
           properties:
             collection:
+              description: The collection of the object.
               type: string
               x-struct: null
               x-validate: null
             id:
+              description: The ID of the object.
               type: string
               x-struct: null
               x-validate: null
@@ -1821,6 +1855,23 @@ components:
       title: MessageTypeTextField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.TextField
+      x-validate: null
+    GuideBooleanActivationParams:
+      description: A request to activate or deactivate a guide.
+      example:
+        status: true
+      properties:
+        status:
+          description: Whether to activate or deactivate the guide.
+          example: true
+          type: boolean
+          x-struct: null
+          x-validate: null
+      required:
+        - status
+      title: GuideBooleanActivationParams
+      type: object
+      x-struct: null
       x-validate: null
     EmailTemplate:
       description: An email message template.
@@ -2927,12 +2978,17 @@ components:
       x-validate: null
     ObjectRecipientReference:
       description: An object reference.
+      example:
+        collection: projects
+        id: project_1
       properties:
         collection:
+          description: The collection of the object.
           type: string
           x-struct: null
           x-validate: null
         id:
+          description: The ID of the object.
           type: string
           x-struct: null
           x-validate: null
@@ -3935,7 +3991,7 @@ components:
           x-struct: null
           x-validate: null
         target_audience_id:
-          description: The ID of the target audience for the guide.
+          description: The ID of the target audience for the guide. When not set, will default to targeting all users.
           nullable: true
           type: string
           x-struct: null
@@ -3953,7 +4009,7 @@ components:
           x-struct: null
           x-validate: null
         type:
-          description: The type of the guide.
+          description: The type of the guide. This is derived from the message type of the guide steps.
           type: string
           x-struct: null
           x-validate: null
@@ -4664,11 +4720,6 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        semver:
-          description: The semver of the guide.
-          type: string
-          x-struct: null
-          x-validate: null
         steps:
           description: A list of guide step objects in the guide.
           items:
@@ -4677,7 +4728,7 @@ components:
           x-struct: null
           x-validate: null
         target_audience_id:
-          description: The ID of the target audience for the guide.
+          description: The ID of the target audience for the guide. When not set, will default to targeting all users.
           nullable: true
           type: string
           x-struct: null
@@ -4692,11 +4743,6 @@ components:
             A conditions object that describes one or more conditions to be met for the guide to be shown to
             an audience member.
           type: object
-          x-struct: null
-          x-validate: null
-        type:
-          description: The type of the guide.
-          type: string
           x-struct: null
           x-validate: null
       required:
@@ -4735,6 +4781,58 @@ components:
       title: TranslationRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.TranslationRequest
+      x-validate: null
+    GuideActivationParams:
+      description: A request to activate or schedule the activation of a guide.
+      example:
+        active: true
+      oneOf:
+        - description: A request to activate or deactivate a guide.
+          example:
+            status: true
+          properties:
+            status:
+              description: Whether to activate or deactivate the guide.
+              example: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+          required:
+            - status
+          title: GuideBooleanActivationParams
+          type: object
+          x-struct: null
+          x-validate: null
+        - description: A request to schedule the activation of a guide. At least one of from or until must be provided.
+          example:
+            from: "2024-03-20T10:00:00Z"
+            until: "2024-03-21T10:00:00Z"
+          properties:
+            from:
+              description: >-
+                When to activate the guide. If provided, the guide will be scheduled to activate at this time.
+                Must be in ISO 8601 UTC format.
+              example: "2024-03-20T10:00:00Z"
+              format: date-time
+              type: string
+              x-struct: null
+              x-validate: null
+            until:
+              description: >-
+                When to deactivate the guide. If provided, the guide will be scheduled to deactivate at this
+                time. Must be in ISO 8601 UTC format.
+              example: "2024-03-21T10:00:00Z"
+              format: date-time
+              type: string
+              x-struct: null
+              x-validate: null
+          title: GuideScheduledActivationParams
+          type: object
+          x-struct: null
+          x-validate: null
+      title: GuideActivationParams
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.GuideActivationRequest
       x-validate: null
     PaginatedMessageTypeResponse:
       description: A paginated list of MessageType. Contains a list of entries and page information.
@@ -5265,6 +5363,7 @@ components:
       x-validate: null
     UserRecipientReference:
       description: A user ID.
+      example: user_1
       nullable: false
       title: UserRecipientReference
       type: string
@@ -7063,47 +7162,7 @@ paths:
         content:
           application/json:
             schema:
-              example:
-                active: true
-              oneOf:
-                - properties:
-                    status:
-                      description: Whether to activate or deactivate the guide.
-                      example: true
-                      type: boolean
-                      x-struct: null
-                      x-validate: null
-                  required:
-                    - status
-                  type: object
-                  x-struct: null
-                  x-validate: null
-                - description: At least one of from or until must be provided
-                  properties:
-                    from:
-                      description: >-
-                        When to activate the guide. If provided, the guide will be scheduled to activate at
-                        this time. Must be in ISO 8601 UTC format.
-                      example: "2024-03-20T10:00:00Z"
-                      format: date-time
-                      type: string
-                      x-struct: null
-                      x-validate: null
-                    until:
-                      description: >-
-                        When to deactivate the guide. If provided, the guide will be scheduled to deactivate
-                        at this time. Must be in ISO 8601 UTC format.
-                      example: "2024-03-21T10:00:00Z"
-                      format: date-time
-                      type: string
-                      x-struct: null
-                      x-validate: null
-                  type: object
-                  x-struct: null
-                  x-validate: null
-              type: object
-              x-struct: null
-              x-validate: null
+              $ref: "#/components/schemas/GuideActivationParams"
         description: Params
         required: false
       responses:
