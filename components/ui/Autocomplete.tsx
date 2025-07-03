@@ -513,7 +513,7 @@ const Autocomplete = () => {
             <>
               {autocompleteState?.query ? (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="1"
                   weight="regular"
                   bg="gray-1"
@@ -529,8 +529,6 @@ const Autocomplete = () => {
                       (inputRef.current as HTMLInputElement).focus();
                     }
                   }}
-                  border="px"
-                  borderColor="gray-3"
                   py="2"
                   px="1"
                   ml="2"
