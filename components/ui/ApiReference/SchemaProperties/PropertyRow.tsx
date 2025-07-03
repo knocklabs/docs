@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Box, Stack } from "@telegraph/layout";
 import { Code, Text } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { highlightResource } from "@/components/ui/Page/helpers";
 
 const Header = ({ children }) => (
@@ -134,7 +134,7 @@ const ExpandableButton = ({ children, isOpen, onClick }) => (
       marginLeft: "calc(var(--tgph-spacing-1) * -1)",
     }}
     icon={{
-      icon: ChevronRight,
+      icon: ArrowRight,
       "aria-hidden": true,
       style: {
         transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
