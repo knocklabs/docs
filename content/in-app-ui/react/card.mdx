@@ -4,3 +4,404 @@ description: How to ship an inline card using our pre-built guides component.
 tags: ["card", "guides"]
 section: Building in-app UI
 ---
+
+Our `@knocklabs/react` library comes with a pre-built card component you can drop into your application.
+
+The card component enables you to display contextual information, tips, or interactive content inline within your application's content flow, providing users with relevant guidance without disrupting their current task.
+
+<Image
+  src="/images/in-app-ui/Docs_CardHero.png"
+  alt="CardComponent"
+  width={1356}
+  height={1000}
+  className="mx-auto border border-gray-200"
+  style={{ borderRadius: "var(--tgph-rounded-5)" }}
+/>
+
+<Callout
+  emoji="🚧"
+  bgColor="blue"
+  text={
+    <>
+      Guides are currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Guides%20beta%20access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+## Getting started
+
+To use the card component, you'll need:
+
+- [An account on Knock](https://dashboard.knock.app)
+- A guide channel set up in your Knock dashboard
+- A guide created using the "Card" [message type](/in-app-ui/message-types)
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> You must be on @knocklabs/react
+      version 0.7.0 or higher to use Knock guides.
+    </>
+  }
+/>
+
+### Installing dependencies
+
+```bash title="Installing dependencies"
+npm install @knocklabs/react
+```
+
+## Basic usage
+
+<Steps titleSize="h3">
+  <Step title="Setup the KnockGuideProvider">
+    
+    First, wrap your application with the `KnockProvider` and `KnockGuideProvider`. The `KnockGuideProvider` requires a `channelId`. You can find your guide channel ID on the integrations page in the dashboard under "Channels".
+
+    ```tsx title="Setup the KnockGuideProvider within your product."
+    import { KnockProvider, KnockGuideProvider } from "@knocklabs/react";
+    import { useCurrentUser } from "@/lib/hooks";
+
+    const MyApplication = () => {
+      // Get your authenticated current user
+      const currentUser = useCurrentUser();
+
+      return (
+        <KnockProvider
+          apiKey={process.env.NEXT_PUBLIC_KNOCK_API_KEY}
+          userId={currentUser.id}
+        >
+          <KnockGuideProvider
+            channelId={process.env.NEXT_PUBLIC_KNOCK_GUIDE_CHANNEL_ID}
+          >
+            <MyLayout>
+              {/* Rest of your app */}
+            </MyLayout>
+          </KnockGuideProvider>
+        </KnockProvider>
+      );
+    };
+    ```
+
+  </Step>
+  <Step title="Add the Card component">
+    
+    Import Knock's pre-built `Card` component and place it inside the `KnockGuideProvider` wherever you want contextual guidance to appear. The `<Card/>` component is most effective when positioned inline within your content where it can provide relevant information at the right moment.
+
+    ```tsx title="Add the card within your page content."
+    import { Card } from "@knocklabs/react";
+
+    const Sidebar = () => {
+      return (
+        <aside>
+          <h2>Your project</h2>
+          <Card />
+        </aside>
+      );
+    };
+
+    const MyPage = () => {
+      return (
+        <div>
+          <h1>Welcome to Dashboard</h1>
+          <div>
+            <Sidebar />
+            <main>
+              {/* Your page content */}
+            </main>
+          </div>
+        </div>
+      );
+    };
+    ```
+
+  </Step>
+  <Step title="Mount the component">
+    
+    The `Card` component will mount automatically when a user becomes eligible for a guide created using the `card` message type.
+
+    Remember, for a user to be eligible, they must match the targeting rules of the guide, and they must be in a page in your application that matches the activation rules of the guide.
+
+    You can learn more about guide targeting and activation rules in the [creating guides](/in-app-ui/guides/create-guides) page.
+
+  </Step>
+</Steps>
+
+## Working with card variants
+
+The pre-built card message type supports three variants for different use cases:
+
+- **Default.** A simple card with content and optional dismiss functionality.
+- **Interactive.** A card with action buttons for user interaction.
+- **Compact.** A smaller card variant for less prominent guidance.
+
+<Image
+  src="/images/in-app-ui/Docs_CardVariants.png"
+  alt="CardVariants"
+  width={1506}
+  height={466}
+  className="mx-auto border border-gray-200 w-full"
+  style={{ borderRadius: "var(--tgph-rounded-5)" }}
+/>
+
+## Handling user engagement
+
+The card component handles user engagement tracking automatically. Here's an overview of what user behavior maps to which engagement statuses tracked in Knock.
+
+- **Seen.** The card has been rendered to (seen by) the user.
+- **Interacted.** The user has interacted with (clicked) the card or its action buttons. Dismissing the card does not count as an interaction.
+- **Archived.** The card has been archived (dismissed) by the user.
+
+## Styling your card
+
+Knock provides multiple levels of customization for the card component, from simple theming to complete custom implementations. Choose the approach that best fits your needs:
+
+### CSS variable theming
+
+The easiest way to customize the card's appearance is by overriding CSS variables. Knock provides CSS variables prefixed with `--knock-guide-` that are specifically designed for theming all of Knock's pre-built guide components.
+
+```css title="Theme your card with CSS variables"
+:root {
+  --knock-guide-accent: #your-brand-color;
+  --knock-guide-background: #your-background-color;
+  --knock-guide-text: #your-text-color;
+  --knock-guide-border: #your-border-color;
+  --knock-guide-border-radius: 8px;
+  --knock-guide-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+```
+
+This approach enables you to quickly match your brand colors and basic styling without diving into complex CSS overrides. The `--knock-guide-accent` variable is particularly useful for theming buttons and interactive elements.
+
+### CSS class overrides
+
+For more granular control, you can override the specific CSS classes used by the card component. All Knock guide components use classes that start with prefixes specific to the component type:
+
+```css title="Override card CSS classes"
+/* Card container */
+.knock-card-container {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 16px 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.knock-card-container:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Card content areas */
+.knock-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.knock-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.knock-card-body {
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.knock-card-footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Buttons */
+.knock-card-button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.knock-card-button-primary {
+  background: var(--knock-guide-accent, #3182ce);
+  color: white;
+}
+
+.knock-card-button-primary:hover {
+  background: var(--knock-guide-accent-hover, #2c5aa0);
+}
+
+.knock-card-button-secondary {
+  background: transparent;
+  color: var(--knock-guide-accent, #3182ce);
+  border: 1px solid var(--knock-guide-accent, #3182ce);
+}
+
+.knock-card-close-button {
+  background: transparent;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 4px;
+}
+```
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> The exact class names depend on
+      the specific implementation in the Knock SDK. Check the browser developer
+      tools or SDK source code for the current class names used in your version.
+    </>
+  }
+/>
+
+### Individual subcomponents
+
+For maximum flexibility while still leveraging Knock's functionality, you can use the individual subcomponents to compose your own card. This approach gives you full control over the layout and styling while maintaining the guide behavior:
+
+```tsx title="Compose your own card with subcomponents"
+import {
+  useGuide,
+  CardContainer,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  CardFooter,
+  CardButton,
+  CardCloseButton,
+} from "@knocklabs/react";
+
+const CustomCard = () => {
+  const { step } = useGuide({ type: "card" });
+
+  if (!step) return null;
+
+  return (
+    <CardContainer
+      style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        borderRadius: "16px",
+        padding: "24px",
+        margin: "16px 0",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+      }}
+    >
+      <CardHeader>
+        <CardTitle style={{ color: "white", fontSize: "20px" }}>
+          {step.content.title}
+        </CardTitle>
+        <CardCloseButton
+          onClick={() => step.markAsArchived()}
+          style={{ color: "rgba(255, 255, 255, 0.8)" }}
+        />
+      </CardHeader>
+
+      <CardBody style={{ color: "rgba(255, 255, 255, 0.9)" }}>
+        <p>{step.content.body}</p>
+      </CardBody>
+
+      <CardFooter>
+        {step.content.actions?.map((action, index) => (
+          <CardButton
+            key={index}
+            onClick={() => {
+              step.markAsInteracted();
+              // Handle action
+            }}
+            style={{
+              background: "rgba(255, 255, 255, 0.2)",
+              color: "white",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              borderRadius: "8px",
+              padding: "10px 20px",
+            }}
+          >
+            {action.label}
+          </CardButton>
+        ))}
+      </CardFooter>
+    </CardContainer>
+  );
+};
+```
+
+This approach is ideal when you want to maintain Knock's guide functionality but need complete control over the visual presentation.
+
+## Building your own component
+
+For complete control over both functionality and appearance, you can build your own card component using the `useGuide` hook. This approach gives you the most flexibility but requires implementing all the card behavior yourself:
+
+```tsx title="Building your own card component"
+import { useEffect } from "react";
+import { useGuide } from "@knocklabs/react";
+
+const CustomCard = () => {
+  const { step } = useGuide({ type: "card" });
+
+  useEffect(() => {
+    if (step) step.markAsSeen();
+  }, [step]);
+
+  if (!step) return null;
+
+  return (
+    <div
+      style={{
+        background: "white",
+        border: "1px solid #e2e8f0",
+        borderRadius: "12px",
+        padding: "20px",
+        margin: "16px 0",
+        boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
+      }}
+      onClick={() => step.markAsInteracted()}
+    >
+      <h3 style={{ margin: 0, marginBottom: "12px", color: "#1a202c" }}>
+        {step.content.title}
+      </h3>
+      <p style={{ margin: 0, color: "#4a5568", lineHeight: 1.6 }}>
+        {step.content.body}
+      </p>
+    </div>
+  );
+};
+```
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> If your custom card component
+      needs any fields not included in our pre-built card message type and its
+      variants, you'll need to archive the pre-built card message type and
+      create your own.
+    </>
+  }
+/>
+
+## Related links
+
+- [Creating guides](/in-app-ui/guides/create-guides)
+- [Rendering guides](/in-app-ui/guides/render-guides)
+- [Message types](/in-app-ui/message-types)
+- [React SDK reference](/in-app-ui/react/sdk/reference)

@@ -4,3 +4,354 @@ description: How to ship an in-app notification banner using our pre-built guide
 tags: ["banner", "guides", "alert"]
 section: Building in-app UI
 ---
+
+Our `@knocklabs/react` library comes with a pre-built banner component you can drop into your application.
+
+The banner component enables you to display important notifications, alerts, or announcements in a prominent position at the top of your application's content area, ensuring users see critical information without interrupting their workflow.
+
+<Image
+  src="/images/in-app-ui/Docs_BannerHero.png"
+  alt="BannerComponent"
+  width={1356}
+  height={1000}
+  className="mx-auto border border-gray-200"
+  style={{ borderRadius: "var(--tgph-rounded-5)" }}
+/>
+
+<Callout
+  emoji="🚧"
+  bgColor="blue"
+  text={
+    <>
+      Guides are currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Guides%20beta%20access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+## Getting started
+
+To use the banner component, you'll need:
+
+- [An account on Knock](https://dashboard.knock.app)
+- A guide channel set up in your Knock dashboard
+- A guide created using the "Banner" [message type](/in-app-ui/message-types)
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> You must be on @knocklabs/react
+      version 0.7.0 or higher to use Knock guides.
+    </>
+  }
+/>
+
+### Installing dependencies
+
+```bash title="Installing dependencies"
+npm install @knocklabs/react
+```
+
+## Basic usage
+
+<Steps titleSize="h3">
+  <Step title="Setup the KnockGuideProvider">
+    
+    First, wrap your application with the `KnockProvider` and `KnockGuideProvider`. The `KnockGuideProvider` requires a `channelId`. You can find your guide channel ID on the integrations page in the dashboard under "Channels".
+
+    ```tsx title="Setup the KnockGuideProvider within your product."
+    import { KnockProvider, KnockGuideProvider } from "@knocklabs/react";
+    import { useCurrentUser } from "@/lib/hooks";
+
+    const MyApplication = () => {
+      // Get your authenticated current user
+      const currentUser = useCurrentUser();
+
+      return (
+        <KnockProvider
+          apiKey={process.env.NEXT_PUBLIC_KNOCK_API_KEY}
+          userId={currentUser.id}
+        >
+          <KnockGuideProvider
+            channelId={process.env.NEXT_PUBLIC_KNOCK_GUIDE_CHANNEL_ID}
+          >
+            <MyLayout>
+              {/* Rest of your app */}
+            </MyLayout>
+          </KnockGuideProvider>
+        </KnockProvider>
+      );
+    };
+    ```
+
+  </Step>
+  <Step title="Add the Banner component">
+    
+    Import Knock's pre-built `Banner` component and place it inside the `KnockGuideProvider` at the top of your page or layout. The `<Banner/>` component is most effective when positioned prominently at the top of the content area where users will naturally notice it.
+
+    ```tsx title="Add the banner at the top of your page or layout."
+    import { Banner } from "@knocklabs/react";
+
+    const MyLayout = ({children}) => {
+      return (
+        <div>
+          <header>My App Header</header>
+          <Banner />
+          <main>
+            {children}
+          </main>
+        </div>
+      );
+    };
+    ```
+
+  </Step>
+  <Step title="Mount the component">
+    
+    The `Banner` component will mount automatically when a user becomes eligible for a guide created using the `banner` message type.
+
+    Remember, for a user to be eligible, they must match the targeting rules of the guide, and they must be in a page in your application that matches the activation rules of the guide.
+
+    You can learn more about guide targeting and activation rules in the [creating guides](/in-app-ui/guides/create-guides) page.
+
+  </Step>
+</Steps>
+
+## Working with banner variants
+
+The pre-built banner message type supports three variants for different use cases:
+
+- **Default.** A banner with just text content.
+- **Single action.** A banner with a single action button.
+- **Multi action.** A banner with multiple action buttons.
+
+<Image
+  src="/images/in-app-ui/Docs_BannerVariants.png"
+  alt="BannerVariants"
+  width={1506}
+  height={466}
+  className="mx-auto border border-gray-200 w-full"
+  style={{ borderRadius: "var(--tgph-rounded-5)" }}
+/>
+
+## Handling user engagement
+
+The banner component handles user engagement tracking automatically. Here's an overview of what user behavior maps to which engagement statuses tracked in Knock.
+
+- **Seen.** The banner has been rendered to (seen by) the user.
+- **Interacted.** The user has interacted with (clicked) the banner or its action buttons. Dismissing the banner does not count as an interaction.
+- **Archived.** The banner has been archived (dismissed) by the user.
+
+## Styling your banner
+
+Knock provides multiple levels of customization for the banner component, from simple theming to complete custom implementations. Choose the approach that best fits your needs.
+
+### CSS variable theming
+
+The easiest way to customize the banner's appearance is by overriding CSS variables. Knock provides CSS variables prefixed with `--knock-guide-` that are specifically designed for theming all of Knock's pre-built guide components.
+
+```css title="Theme your banner with CSS variables"
+:root {
+  --knock-guide-accent: #your-brand-color;
+  --knock-guide-background: #your-background-color;
+  --knock-guide-text: #your-text-color;
+  --knock-guide-border: #your-border-color;
+  --knock-guide-border-radius: 8px;
+  --knock-guide-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+```
+
+This approach enables you to quickly match your brand colors and basic styling without diving into complex CSS overrides. The `--knock-guide-accent` variable is particularly useful for theming buttons and interactive elements.
+
+### CSS class overrides
+
+For more granular control, you can override the specific CSS classes used by the banner component. All Knock guide components use classes that start with prefixes specific to the component type:
+
+```css title="Override banner CSS classes"
+/* Banner container */
+.knock-banner-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* Banner content areas */
+.knock-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.knock-banner-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.knock-banner-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Buttons */
+.knock-banner-button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.knock-banner-button-primary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.knock-banner-button-dismiss {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 4px;
+}
+```
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> The exact class names depend on
+      the specific implementation in the Knock SDK. Check the browser developer
+      tools or SDK source code for the current class names used in your version.
+    </>
+  }
+/>
+
+### Individual subcomponents
+
+For maximum flexibility while still leveraging Knock's functionality, you can use the individual subcomponents to compose your own banner. This approach gives you full control over the layout and styling while maintaining the guide behavior:
+
+```tsx title="Compose your own banner with subcomponents"
+import {
+  useGuide,
+  BannerContainer,
+  BannerContent,
+  BannerText,
+  BannerActions,
+  BannerButton,
+  BannerCloseButton,
+} from "@knocklabs/react";
+
+const CustomBanner = () => {
+  const { step } = useGuide({ type: "banner" });
+
+  if (!step) return null;
+
+  return (
+    <BannerContainer
+      style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        padding: "16px 24px",
+        borderRadius: "8px",
+        marginBottom: "16px",
+      }}
+    >
+      <BannerContent>
+        <BannerText>
+          <strong>{step.content.title}</strong>
+          {step.content.body && ` ${step.content.body}`}
+        </BannerText>
+
+        <BannerActions>
+          {step.content.actions?.map((action, index) => (
+            <BannerButton
+              key={index}
+              onClick={() => {
+                step.markAsInteracted();
+                // Handle action
+              }}
+              style={{
+                background: "rgba(255, 255, 255, 0.2)",
+                color: "white",
+                padding: "6px 12px",
+                borderRadius: "4px",
+                border: "none",
+              }}
+            >
+              {action.label}
+            </BannerButton>
+          ))}
+
+          <BannerCloseButton
+            onClick={() => step.markAsArchived()}
+            style={{
+              background: "transparent",
+              color: "rgba(255, 255, 255, 0.8)",
+              border: "none",
+              padding: "4px",
+            }}
+          >
+            ×
+          </BannerCloseButton>
+        </BannerActions>
+      </BannerContent>
+    </BannerContainer>
+  );
+};
+```
+
+This approach is ideal when you want to maintain Knock's guide functionality but need complete control over the visual presentation.
+
+## Building your own component
+
+For complete control over both functionality and appearance, you can build your own banner component using the `useGuide` hook. This approach gives you the most flexibility but requires implementing all the banner behavior yourself:
+
+```tsx title="Building your own banner component"
+import { useEffect } from "react";
+import { useGuide } from "@knocklabs/react";
+
+const CustomBanner = () => {
+  const { step } = useGuide({ type: "banner" });
+
+  useEffect(() => {
+    if (step) step.markAsSeen();
+  }, [step]);
+
+  if (!step) return null;
+
+  return (
+    <div onClick={() => step.markAsInteracted()}>
+      <h4 style={{ margin: 0, marginBottom: "8px" }}>{step.content.title}</h4>
+      <p style={{ margin: 0 }}>{step.content.body}</p>
+    </div>
+  );
+};
+```
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> If your custom banner component
+      needs any fields not included in our pre-built banner message type and its
+      variants, you'll need to archive the pre-built banner message type and
+      create your own.
+    </>
+  }
+/>
+
+## Related links
+
+- [Creating guides](/in-app-ui/guides/create-guides)
+- [Rendering guides](/in-app-ui/guides/render-guides)
+- [Message types](/in-app-ui/message-types)
+- [React SDK reference](/in-app-ui/react/sdk/reference)
