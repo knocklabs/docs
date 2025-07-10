@@ -1,0 +1,378 @@
+---
+title: "Modal"
+description: How to ship an in-app notification modal using our pre-built guides component.
+tags: ["modal", "guides"]
+section: Building in-app UI
+---
+
+Our `@knocklabs/react` library comes with a pre-built modal component you can drop into your application.
+
+The modal component enables you to display important notifications, announcements, or interactive content in a focused overlay that appears above your application's main content.
+
+<Image
+  src="/images/in-app-ui/Docs_ModalHero.png"
+  alt="ModalComponent"
+  width={1356}
+  height={1000}
+  className="mx-auto border border-gray-200"
+  style={{ borderRadius: "var(--tgph-rounded-5)" }}
+/>
+
+<Callout
+  emoji="🚧"
+  bgColor="blue"
+  text={
+    <>
+      Guides are currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Guides%20beta%20access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+## Getting started
+
+To use the modal component, you'll need:
+
+- [An account on Knock](https://dashboard.knock.app)
+- A guide channel set up in your Knock dashboard
+- A guide created using the "Modal" [message type](/in-app-ui/message-types)
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> You must be on @knocklabs/react
+      version 0.7.0 or higher to use Knock guides.
+    </>
+  }
+/>
+
+### Installing dependencies
+
+```bash title="Installing dependencies"
+npm install @knocklabs/react
+```
+
+## Basic usage
+
+<Steps titleSize="h3">
+  <Step title="Setup the KnockGuideProvider">
+    
+    First, wrap your application with the `KnockProvider` and `KnockGuideProvider`. The `KnockGuideProvider` requires a `channelId`. You can find your guide channel ID on the integrations page in the dashboard under "Channels".
+
+    ```tsx title="Setup the KnockGuideProvider within your product."
+    import { KnockProvider, KnockGuideProvider } from "@knocklabs/react";
+    import { useCurrentUser } from "@/lib/hooks";
+
+    const MyApplication = () => {
+      // Get your authenticated current user
+      const currentUser = useCurrentUser();
+
+      return (
+        <KnockProvider
+          apiKey={process.env.NEXT_PUBLIC_KNOCK_API_KEY}
+          userId={currentUser.id}
+        >
+          <KnockGuideProvider
+            channelId={process.env.NEXT_PUBLIC_KNOCK_GUIDE_CHANNEL_ID}
+          >
+            <MyLayout>
+              {/* Rest of your app */}
+            </MyLayout>
+          </KnockGuideProvider>
+        </KnockProvider>
+      );
+    };
+    ```
+
+  </Step>
+  <Step title="Add the Modal component">
+    
+    Import Knock's pre-built `Modal` component and place it inside the `KnockGuideProvider` near the top of your application's component tree. The `<Modal/>` component is most effective when placed in the root layout of your application as it ensures your modal is available to render on every page of your application.
+
+    ```tsx title="Add the modal near the top of your application."
+    import { Modal } from "@knocklabs/react";
+
+    const MyLayout = ({children}) => {
+      return (
+        <div>
+          <header>My App Header</header>
+          <main>
+            {children}
+          </main>
+          <Modal />
+        </div>
+      );
+    };
+    ```
+
+  </Step>
+  <Step title="Mount the component">
+    
+    The `Modal` component will mount automatically when a user becomes eligible for a guide created using the `modal` message type.
+
+    Remember, for a user to be eligible, they must match the targeting rules of the guide, and they must be in a page in your application that matches the activation rules of the guide.
+
+    You can learn more about guide targeting and activation rules in the [creating guides](/in-app-ui/guides/create-guides) page.
+
+  </Step>
+</Steps>
+
+## Working with modal variants
+
+The pre-built modal message type supports three variants for different use cases:
+
+- **Default.** A dismissible modal with no action buttons.
+- **Single action.** A dismissible modal with a single action button.
+- **Multi-action.** A dismissible modal with two action buttons.
+
+<Image
+  src="/images/in-app-ui/Docs_ModalVariants.png"
+  alt="ModalVariants"
+  width={1506}
+  height={466}
+  className="mx-auto border border-gray-200 w-full"
+  style={{ borderRadius: "var(--tgph-rounded-5)" }}
+/>
+
+## Handling user engagement
+
+The modal component handles user engagement tracking automatically. Here's an overview of what user behavior maps to which engagement statuses tracked in Knock.
+
+- **Seen.** The modal has been rendered to (seen by) the user.
+- **Interacted.** The user has interacted with (clicked) the modal. Dismissing the modal does not count as an interaction.
+- **Archived.** The modal has been archived (dismissed) by the user.
+
+## Styling your modal
+
+Knock provides multiple levels of customization for the modal component, from simple theming to complete custom implementations. Choose the approach that best fits your needs:
+
+### CSS variable theming
+
+The easiest way to customize the modal's appearance is by overriding CSS variables. Knock provides CSS variables prefixed with `--knock-guide-` that are specifically designed for theming all of Knock's pre-built guide components.
+
+```css title="Theme your modal with CSS variables"
+:root {
+  --knock-guide-accent: #your-brand-color;
+  --knock-guide-background: #your-background-color;
+  --knock-guide-text: #your-text-color;
+  --knock-guide-border: #your-border-color;
+  --knock-guide-border-radius: 8px;
+  --knock-guide-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+```
+
+This approach enables you to quickly match your brand colors and basic styling without diving into complex CSS overrides. The `--knock-guide-accent` variable is particularly useful for theming buttons and interactive elements.
+
+### CSS class overrides
+
+For more granular control, you can override the specific CSS classes used by the modal component. All Knock guide components use classes that start with prefixes specific to the component type.
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> You may need to add{" "}
+      <code>!important</code> to your CSS overrides to ensure they take
+      precedence over the component's default styles.
+    </>
+  }
+/>
+
+```css title="Override modal CSS classes"
+/* Modal overlay */
+.knock-guide-modal__overlay {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+/* Modal container */
+.knock-guide-modal {
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+}
+
+/* Modal content areas */
+.knock-guide-modal__header {
+  border-bottom: 1px solid var(--knock-guide-border);
+  padding-bottom: 16px;
+}
+
+.knock-guide-modal__title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--knock-guide-title-color);
+}
+
+.knock-guide-modal__body {
+  padding: 24px 0;
+  line-height: 1.6;
+  color: var(--knock-guide-body-color);
+}
+
+.knock-guide-modal__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Action buttons */
+.knock-guide-modal__action {
+  background: var(--knock-guide-accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.knock-guide-modal__action--secondary {
+  background: transparent;
+  color: var(--knock-guide-accent);
+  border: 2px solid var(--knock-guide-accent);
+}
+
+/* Close button */
+.knock-guide-modal__close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--knock-guide-text-muted);
+}
+
+/* Image styling */
+.knock-guide-modal__img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+```
+
+### Individual subcomponents
+
+For maximum flexibility while still leveraging Knock's functionality, you can use the individual subcomponents to compose your own modal. This approach gives you full control over the layout and styling while maintaining the guide behavior:
+
+```tsx title="Compose your own modal with subcomponents"
+import {
+  useGuide,
+  ModalOverlay,
+  ModalContainer,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+} from "@knocklabs/react";
+import { useEffect } from "react";
+
+const CustomModal = () => {
+  const { step } = useGuide({ type: "modal" });
+
+  useEffect(() => {
+    if (step) step.markAsSeen();
+  }, [step]);
+
+  if (!step) return null;
+
+  return (
+    <ModalOverlay onClick={() => step.markAsArchived()}>
+      <ModalContainer
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          borderRadius: "16px",
+        }}
+      >
+        <ModalHeader>
+          <h2>{step.content.title}</h2>
+          <ModalCloseButton onClick={() => step.markAsArchived()} />
+        </ModalHeader>
+
+        <ModalBody>
+          <p>{step.content.body}</p>
+        </ModalBody>
+
+        <ModalFooter>
+          {step.content.actions?.map((action, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                step.markAsInteracted();
+                // Handle action
+              }}
+              style={{
+                background: "rgba(255, 255, 255, 0.2)",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+                borderRadius: "8px",
+                color: "white",
+                padding: "8px 16px",
+              }}
+            >
+              {action.label}
+            </button>
+          ))}
+        </ModalFooter>
+      </ModalContainer>
+    </ModalOverlay>
+  );
+};
+```
+
+This approach is ideal when you want to customize a piece of the pre-built component or change its structure.
+
+## Building your own component
+
+For complete control over both functionality and appearance, you can build your own modal component using the `useGuide` hook. This approach gives you the most flexibility but requires implementing all the modal behavior yourself:
+
+```tsx title="Building your own modal component"
+import { useEffect } from "react";
+import { useGuide } from "@knocklabs/react";
+
+const CustomModal = () => {
+  const { step } = useGuide({ type: "modal" });
+
+  useEffect(() => {
+    if (step) step.markAsSeen();
+  }, [step]);
+
+  if (!step) return null;
+
+  return (
+    <div>
+      <h3>{step.content.title}</h3>
+      <p>{step.content.body}</p>
+      {step.content.primary_button && (
+        <button onClick={() => step.markAsInteracted()}>
+          {step.content.primary_button.text}
+        </button>
+      )}
+    </div>
+  );
+};
+```
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      <span className="font-bold">Note:</span> If your custom modal component
+      needs any fields not included in our pre-built modal message type and its
+      variants, you'll need to archive the pre-built modal message type and
+      create your own.
+    </>
+  }
+/>
+
+## Related links
+
+- [Creating guides](/in-app-ui/guides/create-guides)
+- [Rendering guides](/in-app-ui/guides/render-guides)
+- [Message types](/in-app-ui/message-types)
+- [React SDK reference](/in-app-ui/react/sdk/reference)
