@@ -26,9 +26,9 @@ Accepts `KnockProviderProps`
     description="The public API key for the environment"
   />
   <Attribute
-    name="userId*"
-    type="string"
-    description="The ID of the user for which to retrieve a feed"
+    name="user"
+    type="UserIdentificationOptions"
+    description="User identification data."
   />
   <Attribute
     name="userToken"
@@ -114,7 +114,7 @@ import { KnockProvider, useKnock } from "@knocklabs/react";
 const App = ({ authenticatedUser }) => (
   <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    userId={authenticatedUser.id}
+    user={{ id: authenticatedUser.id }}
   >
     <MyComponent />
   </KnockProvider>
@@ -178,7 +178,7 @@ import {
 const App = ({ authenticatedUser }) => (
   <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    userId={authenticatedUser.id}
+    user={{ id: authenticatedUser.id }}
   >
     <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
       <MyFeedComponent />
@@ -214,7 +214,7 @@ import { useAuthenticatedKnockClient } from "@knocklabs/react-native";
 const MyComponent = () => {
   const knock = useAuthenticatedKnockClient(
     process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
+    { id: user.id },
     user.knockToken,
   );
 
@@ -240,7 +240,7 @@ import {
 const MyComponent = () => {
   const knock = useAuthenticatedKnockClient(
     process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
+    { id: user.id },
     user.knockToken,
   );
 
@@ -337,6 +337,19 @@ const MyComponent = () => {
 ```
 
 ## Types
+
+### UserIdentificationOptions
+
+User identification data to pass through to the `authenticate` method.
+
+<Attributes>
+  <Attribute name="id" type="string*" description="The `id` for the user." />
+  <Attribute
+    name="[attribute_name]"
+    type="any"
+    description="Attribute to attach to the user on identification."
+  />
+</Attributes>
 
 ### `I18nContent`
 
