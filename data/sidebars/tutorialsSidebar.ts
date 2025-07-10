@@ -33,4 +33,8 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     slug: `${baseSlug}/modeling-users-objects-and-tenants`,
     title: "Modeling Users, Objects, and Tenants",
   },
+  {
+    slug: `${baseSlug}/launchdarkly-experiments`,
+    title: "LaunchDarkly experiments",
+  },
 ];
