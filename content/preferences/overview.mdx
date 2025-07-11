@@ -207,6 +207,32 @@ There are four steps to building a preference center with Knock:
 
 When a default `PreferenceSet` exists for an environment or tenant, Knock will merge all applicable preferences for a recipient when evaluating whether or not to send a notification. Any preferences set at the recipient level will take precedence in the merge, according to the hierarchy outlined below.
 
+### Merge hierarchy
+
+The following hierarchies are used when merging preferences. Each item in the list takes precedence over the ones that follow.
+
+<AccordionGroup>
+  <Accordion title="When no tenant is applied to the workflow trigger" defaultOpen={true}>
+    - A recipient's `default` preference set
+    - The environment-level default preference set
+  </Accordion>
+  <Accordion title="When a tenant is applied to the workflow trigger">
+    - A recipient's tenant-specific preference set
+    - The tenant's default preference set
+    - The environment-level default preference set
+
+    <Callout
+      emoji="💡"
+      title="Note:"
+      text={
+        <>
+          If a <code>tenant</code> is applied to the workflow trigger but there are no tenant-specific preferences set on the tenant or the recipient, the recipient's <code>default</code> preference set will be evaluated as if no <code>tenant</code> were applied.
+        </>
+      }
+    />
+  </Accordion>
+</AccordionGroup>
+
 ## Preference evaluation rules
 
 When a workflow is triggered, Knock will evaluate the preferences for each `recipient` of the workflow and send notifications for each channel step in the workflow based on that evaluation. There are some important rules and caveats to consider:
@@ -215,22 +241,6 @@ When a workflow is triggered, Knock will evaluate the preferences for each `reci
   <Accordion title="General preference rules">
     - If you do not set a preference for a given channel, workflow, or workflow category, Knock defaults them to `true`.
     - When a recipient clicks an unsubscribe link, their `default` preference set will be updated, marking `commercial_unsubscribe` as `true`. They will be opted-out of commercial messages, and they will continue to receive transactional messages based on their other preferences. Read more about commercial unsubscribe [here](/preferences/commercial-unsubscribe).
-  </Accordion>
-  <Accordion title="Merge hierarchy">
-    The following hierarchies are used when merging preferences (in order of highest precedence to lowest):
-
-    **When no `tenant` is applied to the workflow trigger:**
-    - A recipient's `default` preference set
-    - The environment-level default preference set
-    <br />
-    **When a `tenant` is applied to the workflow trigger:**
-    - A recipient's tenant-specific preference set
-    - The `tenant`'s default preference set
-    - The recipient's `default` preference set (only evaluated if neither of the above exist)
-    - The environment-level default preference set
-    <br />
-    See the [Frequently asked questions](#frequently-asked-questions) section below for more information on overriding this hierarchy.
-
   </Accordion>
   <Accordion title="Resolving preference conflicts">
     Knock only sends a notification if all preference combinations that exist on the recipient evaluate to `true`.
