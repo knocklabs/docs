@@ -114,13 +114,13 @@ There are four steps to building a preference center with Knock:
     The default preference set is environment-specific for testing purposes. You can copy the default preference set from one environment to another to keep your environments in sync.
     <Callout
       emoji="💡"
-      title="A note on merging preferences"
+      title="A note on merging preferences."
       text={
         <>
-          If you create either a environment or tenant default{" "}
+          If you create either an environment or tenant default{" "}
           <code>PreferenceSet</code> those preferences will be merged with changes
     a user makes in the UI, with the user-specified changes taking
-          precedence.
+          precedence. See <a href="#merging-preferences">Merging preferences</a> for more information.
         </>
       }
     />
@@ -209,12 +209,46 @@ When a default `PreferenceSet` exists for an environment or tenant, Knock will m
 
 ### Merge hierarchy
 
-The following hierarchies are used when merging preferences. Each item in the list takes precedence over the ones that follow.
+The following hierarchies are used when merging preferences. Each item in the list takes precedence over the ones that follow it.
 
 <AccordionGroup>
-  <Accordion title="When no tenant is applied to the workflow trigger" defaultOpen={true}>
+  <Accordion title="When no tenant is applied to the workflow trigger">
     - A recipient's `default` preference set
     - The environment-level default preference set
+
+    Let's take a look at an example to visualize this merge hierarchy. Suppose that you have the following preference sets:
+    {/* add example images */}
+
+    <Image
+      src="/images/concepts/preferences/standard-prefs-start.png"
+      alt="A visual of the environment default and recipient default preference sets prior to merging"
+      width={500}
+      height={900}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+    <br />
+
+    To visualize the resulting merged preferences, we'll start at the bottom of the hierarchy and work our way up, adding any preferences from the environment default preference set that are not already present in the recipient's `default` preference set. Any preferences that are set in both places will keep the value from the recipient's `default` preference set:
+
+    <Image
+      src="/images/concepts/preferences/standard-prefs-merge.png"
+      alt="A visual of the environment default preferences merging into the recipient's default preferences"
+      width={500}
+      height={1004}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+    <br />
+
+    The resulting merged preferences will look like this:
+
+    <Image
+      src="/images/concepts/preferences/standard-prefs-result.png"
+      alt="A visual of the combined environment default and recipient default preference sets after merging"
+      width={500}
+      height={498}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
   </Accordion>
   <Accordion title="When a tenant is applied to the workflow trigger">
     - A recipient's tenant-specific preference set
@@ -230,6 +264,7 @@ The following hierarchies are used when merging preferences. Each item in the li
         </>
       }
     />
+
   </Accordion>
 </AccordionGroup>
 
