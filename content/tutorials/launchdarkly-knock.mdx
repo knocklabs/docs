@@ -1,0 +1,289 @@
+---
+title: Using LaunchDarkly with Knock to A/B test messaging
+description: Learn how to use LaunchDarkly with Knock to A/B test messaging workflows and templates.
+tags: ["launchdarkly", "experiments", "ab-testing"]
+section: Tutorials
+---
+
+In this tutorial we'll walk through how to use LaunchDarkly segments and experiments to power A/B testing across Knock's cross-channel messaging.
+
+## Overview
+
+A/B testing your messaging can improve engagement rates, conversion, and user experience. By testing different message variants, channels, timing, and targeting, you can optimize your notification strategy based on real user behavior data.
+
+This tutorial shows you how to combine LaunchDarkly's feature flags and experimentation platform with Knock's notification infrastructure to run A/B tests on your workflow messaging.
+
+What you'll learn:
+
+- How to use LaunchDarkly flags to control message variants
+- How to leverage LaunchDarkly segments for targeted messaging experiments
+- How to implement A/B testing logic in Knock workflows using branch steps
+- How to measure and analyze messaging experiment results
+- Best practices for messaging experimentation
+
+<Callout
+  emoji="💡"
+  bgColor="blue"
+  text={
+    <>
+      If you're interested in using LaunchDarkly with Knock guides or
+      broadcasts, please reach out at{" "}
+      <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
+
+## Integration architecture
+
+The LaunchDarkly + Knock integration follows this flow:
+
+1. **LaunchDarkly** defines your experiment parameters (flags, segments, variations.)
+2. **Your application** evaluates flags and passes results to Knock via trigger data.
+3. **Knock workflows** use branch steps to deliver different messaging experiences.
+4. **Knock tracking** captures engagement metrics (opens, clicks, conversions.)
+5. **Knock warehouse extension** combines Knock engagement data with LaunchDarkly experiment results.
+
+With Knock and LaunchDarkly you can test message content, channels, and timing, target specific user segments with different strategies, measure the impact of messaging changes on business metrics, and make data-driven decisions about your notification strategy.
+
+## LaunchDarkly concepts and setup
+
+### Flags
+
+LaunchDarkly Flags serve as the control mechanism for your messaging experiments. They determine which message variant each user receives.
+
+We'll be using the example flag below in our tutorial. You could also create multi-variant flags to run more complex experiments with different message content, channels, and timing.
+
+Simple A/B test flag:
+
+- Key: `messaging-AB-test`
+- Variations: `control`, `treatment`
+- Default: `control`
+
+### Segments
+
+LaunchDarkly Segments enable you to define test populations and ensure consistent user experiences across multiple flags.
+
+```markdown title='Example LaunchDarkly user segments'
+premium-users: user.tier == "premium"
+free-users: user.tier == "free"
+trial-users: user.tier == "trial"
+```
+
+### Experiments
+
+LaunchDarkly experiments connect your messaging flags to business metrics, enabling you to measure the effectiveness of different messaging strategies.
+
+```markdown title='Example LaunchDarkly experiment'
+Experiment: "Welcome Email Optimization"
+Flag: messaging-AB-test
+Metric: signup_completion_rate
+Allocation: 50% control, 50% treatment
+Duration: 2 weeks
+Sample size: 10,000 users
+```
+
+## Using LaunchDarkly with Knock workflows
+
+You can use LaunchDarkly with Knock workflows to orchestrate different cross-channel messaging experiences based on the flags and experiments you've defined in LaunchDarkly. We'll cover two methods for using LaunchDarkly with Knock workflows: flag-controlled workflow selection and branch-based message variants.
+
+### Method 1: Flag-controlled workflow selection
+
+This approach uses LaunchDarkly flags to determine which Knock workflow to trigger, enabling you to test different notification strategies. You can use this approach to test different messaging approaches, compare email vs. SMS vs. push notification strategies, or test different workflow timing and sequences.
+
+<Steps>
+<Step title="Evaluate flag in your application">
+First, evaluate the LaunchDarkly flag in your application.
+
+```javascript title="LaunchDarkly flag evaluation"
+const messagingVariant = await ldClient.variation(
+  "messaging-AB-test",
+  user,
+  "control",
+);
+```
+
+</Step>
+<Step title="Trigger appropriate workflow">
+Next, trigger the appropriate Knock workflow based on the flag value.
+
+```javascript title="Trigger Knock workflow"
+const workflowKey =
+  messagingVariant === "treatment"
+    ? "messaging-AB-test-treatment"
+    : "messaging-AB-test-control";
+
+await knock.workflows.trigger(workflowKey, {
+  recipients: [user.id],
+  data: {
+    user_name: user.name,
+    variant: messagingVariant,
+  },
+});
+```
+
+</Step>
+</Steps>
+
+### Method 2: Branch-based message variants
+
+This approach uses a single workflow with branch steps to deliver different messaging experiences based on LaunchDarkly data passed via trigger data. You can use this approach to A/B test different templates within the same workflow, personalize message content based on user segments, or run other kinds of flag-based experiments.
+
+<Steps>
+<Step title="Evaluate flags and pass to Knock">
+
+First, evaluate the LaunchDarkly flags in your application and pass the results to Knock via trigger data.
+
+```javascript title="Evaluate multiple flags and pass to Knock"
+const variation = await ldClient.variation(
+  "messaging-AB-test",
+  user,
+  "control",
+);
+
+await knock.workflows.trigger("onboarding-sequence", {
+  recipients: [user.id],
+  data: {
+    user_name: user.name,
+    user_ab_test_variation: variation,
+    user_segment: user.tier,
+  },
+});
+```
+
+</Step>
+<Step title="Configure branch step in Knock workflow">
+
+In your Knock workflow, add a branch step with these conditions:
+
+- **Control branch**: `data.user_ab_test_variation == "control"`
+- **Treatment branch**: `data.user_ab_test_variation == "treatment"`
+- **Default branch**: Fallback for any unmatched conditions
+
+</Step>
+</Steps>
+
+## Analytics and analyzing results
+
+Knock automatically tracks engagement metrics across all channels, providing the data you need to measure experiment success. Learn more about Knock [engagement status](/send-notifications/message-statuses) and [link/open tracking](/send-notifications/tracking).
+
+You can evaluate this data in Knock's dashboard, or bring it into your stack for analysis using Knock's [warehouse extension](/warehouse-extension/overview) or [outbound webhooks](/outbound-webhooks/overview).
+
+## Implementation example: welcome email A/B test
+
+This example shows a complete implementation of A/B testing welcome emails with different messaging styles.
+
+<Steps>
+<Step title="LaunchDarkly setup">
+
+First, create the flag and experiment in LaunchDarkly.
+
+**Create flag in LaunchDarkly:**
+
+```json title="Create flag in LaunchDarkly"
+{
+  "key": "welcome-email-style",
+  "name": "Welcome Email Style Test",
+  "variations": [
+    { "value": "friendly", "name": "Friendly" },
+    { "value": "professional", "name": "Professional" },
+    { "value": "casual", "name": "Casual" }
+  ],
+  "defaultVariation": "friendly"
+}
+```
+
+**Set up experiment:**
+
+```json title="Set up experiment in LaunchDarkly"
+{
+  "name": "Welcome Email Optimization",
+  "flagKey": "welcome-email-style",
+  "primaryMetric": "email_click_rate",
+  "allocation": {
+    "friendly": 34,
+    "professional": 33,
+    "casual": 33
+  }
+}
+```
+
+</Step>
+<Step title="Application integration">
+
+Integrate the LaunchDarkly flag evaluation into your user registration flow.
+
+```javascript title="User registration flow with LaunchDarkly integration"
+// In your user registration flow
+async function sendWelcomeEmail(user) {
+  // Evaluate LaunchDarkly flag
+  const emailStyle = await ldClient.variation(
+    "welcome-email-style",
+    user,
+    "friendly",
+  );
+
+  // Trigger Knock workflow
+  await knock.workflows.trigger("welcome-sequence", {
+    recipients: [user.id],
+    data: {
+      user_name: user.name,
+      email_style: emailStyle,
+      user_signup_date: user.created_at,
+      experiment_name: "welcome-email-optimization",
+    },
+  });
+
+  // Track experiment participation
+  await ldClient.track("experiment-participation", {
+    user: { key: user.id },
+    data: {
+      experiment_name: "welcome-email-optimization",
+      variant: emailStyle,
+    },
+  });
+}
+```
+
+</Step>
+<Step title="Knock workflow configuration">
+
+Create a workflow with branch steps and configure email templates for each variant.
+
+**Create workflow with branch step:**
+
+- Workflow key: `welcome-sequence`
+- Add branch step with conditions:
+  - **Friendly branch**: `data.email_style == "friendly"`
+  - **Professional branch**: `data.email_style == "professional"`
+  - **Casual branch**: `data.email_style == "casual"`
+
+Configure email templates for each variant.
+
+</Step>
+<Step title="Tracking and analytics">
+
+Set up conversion tracking and monitor experiment results.
+
+**Set up conversion tracking:**
+
+```javascript title="Conversion tracking setup"
+// Track when users complete onboarding
+app.post("/onboarding-complete", async (req, res) => {
+  const { user_id, style } = req.body;
+
+  // Track conversion in LaunchDarkly
+  await ldClient.track("onboarding-completion", {
+    user: { key: user_id },
+    data: {
+      experiment_name: "welcome-email-optimization",
+      variant: style,
+      conversion_value: 1,
+    },
+  });
+
+  res.status(200).send("OK");
+});
+```
+
+</Step>
+</Steps>

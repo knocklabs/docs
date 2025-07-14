@@ -34,7 +34,7 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     title: "Modeling Users, Objects, and Tenants",
   },
   {
-    slug: `${baseSlug}/launchdarkly-experiments`,
-    title: "LaunchDarkly experiments",
+    slug: `${baseSlug}/launchdarkly-knock`,
+    title: "Using LaunchDarkly with Knock to A/B test messaging",
   },
 ];
