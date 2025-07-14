@@ -93,16 +93,19 @@ We always use sentence case, even for titles. This means that a header should al
 When creating numbered or bulleted lists with bold introductory text, apply sentence case to all content:
 
 ✅ Correct:
+
 1. **Simple A/B test flag**
 2. **User tier segments**
 3. **Engagement metrics**
 
 ❌ Incorrect:
+
 1. **Simple A/B Test Flag**
 2. **User Tier Segments**
 3. **Engagement Metrics**
 
 This applies to all list contexts, including:
+
 - Numbered lists with bold descriptions
 - Sub-bullet points with bold labels
 - Step-by-step procedures with bold headings
@@ -112,12 +115,14 @@ This applies to all list contexts, including:
 Technical terms, feature names, and descriptive phrases should follow sentence case rules:
 
 ✅ Correct:
+
 - **Email template configuration**
 - **Branch step logic**
 - **Webhook configuration**
 - **Statistical significance**
 
 ❌ Incorrect:
+
 - **Email Template Configuration**
 - **Branch Step Logic**
 - **Webhook Configuration**
@@ -216,7 +221,6 @@ When using lists with bold introductory text, use a period after the bold text i
 1. **Mark as read**: Notifications can be automatically marked as read when:
    - The feed is opened
    - A notification is clicked
-
 
 ## Active voice
 
