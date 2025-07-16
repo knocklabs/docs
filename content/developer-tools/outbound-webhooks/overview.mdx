@@ -113,6 +113,7 @@ Here's an example to follow:
 ```javascript title="Validating a webhook payload with your secret key"
 // This example uses Express to receive webhooks
 const express = require("express");
+const crypto = require("crypto");
 
 const app = express();
 
@@ -129,8 +130,8 @@ app.post(
     // Extract the timestamp and signature from the header and remove the identifiers
     const timestamp = sig.split(",")[0].substring(2);
     const originalSignature = sig.split(",")[1].substring(2);
-    // Construct the value to be encoded
-    const value = `${timestamp}.${request.body}`;
+    // Construct the value to be encoded (stringify the body)
+    const value = `${timestamp}.${JSON.stringify(request.body)}`;
 
     // Generate the signature with a HMAC using the SHA256 algorithm
     const reconstructedSignature = crypto
@@ -140,15 +141,15 @@ app.post(
 
     // Compare the signature from the header with your reconstructed signature to validate
     const isValid = crypto.timingSafeEqual(
-      originalSignature,
-      reconstructedSignature,
+      Buffer.from(originalSignature, 'utf-8'),
+      Buffer.from(reconstructedSignature, 'utf-8'),
     );
 
     // For additional security, validate that the timestamp is within your
     // tolerance for proximity to the current time (example shown within 5 minutes)
     const date = new Date(timestamp);
-    const now = new Date.now();
-    const isWithinFiveMinutes = now - date < 60000;
+    const now = Date.now();
+    const isWithinFiveMinutes = Math.abs(now - date.getTime()) < 300000;
 
     if (isValid && isWithinFiveMinutes) {
       response.json({ received: true });
