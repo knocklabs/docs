@@ -17,6 +17,10 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     title: "Knock implementation guide",
   },
   {
+    slug: `${baseSlug}/migrate-email-with-mcp-server`,
+    title: "Migrate email templates using Knock's MCP server",
+  },
+  {
     slug: `${baseSlug}/alerting`,
     title: "Alerting",
   },
