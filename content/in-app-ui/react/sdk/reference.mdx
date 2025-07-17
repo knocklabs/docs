@@ -697,6 +697,108 @@ Exposed under `KnockI18nProvider` child components.
   />
 </Attributes>
 
+### `usePreferences`
+
+Fetches and manages user notification preferences with SWR caching. This hook enables you to build custom preference interfaces while maintaining real-time state management.
+
+#### Params
+
+<Attributes>
+  <Attribute
+    name="options"
+    type="GetPreferencesOptions"
+    description="Optional configuration for fetching preferences"
+  />
+  <Attribute
+    name="options.preferenceSet"
+    type="string"
+    description="The specific preference set to fetch. If not provided, fetches the default preference set."
+  />
+  <Attribute
+    name="options.tenant"
+    type="string"
+    description="The tenant ID to fetch preferences for in multi-tenant applications"
+  />
+</Attributes>
+
+#### Returns
+
+<Attributes>
+  <Attribute
+    name="preferences"
+    type="PreferenceSet | undefined"
+    description="The user's preference data, including workflows, categories, and channel types"
+  />
+  <Attribute
+    name="setPreferences"
+    type="(properties: SetPreferencesProperties) => void"
+    description="Function to update user preferences. Optimistically updates the cache and persists changes to Knock."
+  />
+  <Attribute
+    name="getAllPreferences"
+    type="() => Promise<PreferenceSet[]>"
+    description="Function to fetch all preference sets for the authenticated user"
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="Whether the initial preferences are being loaded"
+  />
+  <Attribute
+    name="isValidating"
+    type="boolean"
+    description="Whether preferences are being revalidated or updated"
+  />
+</Attributes>
+
+#### Example
+
+```jsx
+import { usePreferences } from "@knocklabs/react";
+
+const PreferencesPage = () => {
+  const { 
+    preferences, 
+    setPreferences, 
+    isLoading, 
+    isValidating 
+  } = usePreferences({
+    preferenceSet: "marketing",
+  });
+
+  const handleWorkflowToggle = (workflowKey, enabled) => {
+    setPreferences({
+      workflows: {
+        ...preferences?.workflows,
+        [workflowKey]: enabled,
+      },
+      categories: preferences?.categories || {},
+      channel_types: preferences?.channel_types || {},
+    });
+  };
+
+  if (isLoading) return <div>Loading preferences...</div>;
+
+  return (
+    <div>
+      <h1>Notification preferences</h1>
+      {isValidating && <div>Saving...</div>}
+      
+      {Object.entries(preferences?.workflows || {}).map(([key, enabled]) => (
+        <label key={key}>
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={(e) => handleWorkflowToggle(key, e.target.checked)}
+          />
+          {key}
+        </label>
+      ))}
+    </div>
+  );
+};
+```
+
 ## Feed hooks
 
 ### `useNotifications`

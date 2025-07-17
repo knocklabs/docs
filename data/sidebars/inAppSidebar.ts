@@ -143,7 +143,10 @@ export const REACT_SIDEBAR: SidebarSection[] = [
   {
     title: "Headless UI",
     slug: "/in-app-ui/react/headless",
-    pages: [{ slug: "/feed", title: "Feed" }],
+    pages: [
+      { slug: "/feed", title: "Feed" },
+      { slug: "/preferences", title: "Preferences" },
+    ],
     sidebarMenuDefaultOpen: true,
   },
   {

@@ -1,0 +1,451 @@
+---
+title: "Build your own preferences UI (headless)"
+description: How to build custom notification preference interfaces using our React usePreferences hook.
+section: Building in-app UI > Preferences
+tags: ["hooks", "headless", "usePreferences", "preferences"]
+---
+
+Using our `@knocklabs/react` library, you can create fully custom notification preference UIs that are backed by Knock's preferences API. The `usePreferences` hook enables you to fetch and update user preferences with real-time caching, making it easy to build responsive preference centers.
+
+In this guide, we'll walk through creating a completely custom preferences UI in our application using the `usePreferences` hook.
+
+## Getting started
+
+To use this example, you'll need [an account on Knock](https://dashboard.knock.app) and you'll need to have [identified a user](/concepts/users). You'll also need:
+
+- A public API key for the Knock environment (set as `KNOCK_PUBLIC_API_KEY`)
+- A default preference set configured in your Knock dashboard
+
+<Callout
+  emoji="🌠"
+  title="Learn about preferences."
+  text={
+    <>
+      Before building custom preference UIs, we recommend reading the{" "}
+      <a href="/preferences/overview">preferences overview</a> to understand
+      how Knock's preference system works, including preference sets, workflows,
+      and channel types.
+    </>
+  }
+/>
+
+## Installing dependencies
+
+```bash title="Installing dependencies"
+npm install @knocklabs/react
+```
+
+## Implement `KnockProvider`
+
+First, we'll need to implement the `KnockProvider` component somewhere in your component tree and authenticate against the Knock API using a user id and API key.
+
+```jsx title="Implement KnockProvider in your app"
+import { KnockProvider } from "@knocklabs/react";
+
+const App = ({ user }) => (
+  <KnockProvider
+    apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+    user={{ id: user.id }}
+  >
+    <PreferencesPage />
+  </KnockProvider>
+);
+```
+
+## Setup the usePreferences hook
+
+Next, we'll use the `usePreferences` hook to fetch and manage user preferences. The hook provides preferences data along with functions to update preferences and loading states.
+
+```jsx title="Access preferences using usePreferences hook"
+import { usePreferences } from "@knocklabs/react";
+
+const PreferencesPage = () => {
+  const { preferences, setPreferences, isLoading } = usePreferences();
+
+  if (isLoading) {
+    return <div>Loading preferences...</div>;
+  }
+
+  return (
+    <div>
+      <h1>Notification preferences</h1>
+      {/* We'll build the UI here */}
+    </div>
+  );
+};
+```
+
+## Working with preference sets
+
+You can specify which preference set to fetch by passing options to the hook. This is useful when you have multiple preference sets for different contexts or user types.
+
+```jsx title="Fetch preferences for a specific preference set"
+import { usePreferences } from "@knocklabs/react";
+
+const MarketingPreferences = () => {
+  const { preferences, setPreferences, isLoading } = usePreferences({
+    preferenceSet: "marketing",
+  });
+
+  // Component implementation
+};
+
+const ProductPreferences = () => {
+  const { preferences, setPreferences, isLoading } = usePreferences({
+    preferenceSet: "product-updates",
+  });
+
+  // Component implementation
+};
+```
+
+## Building workflow preferences
+
+Workflow preferences control whether users receive notifications for specific workflows. Here's how to build a UI for workflow preferences:
+
+```jsx title="Build workflow preferences interface"
+import { usePreferences } from "@knocklabs/react";
+
+const WorkflowPreferences = () => {
+  const { preferences, setPreferences, isLoading } = usePreferences();
+
+  const handleWorkflowToggle = (workflowKey, enabled) => {
+    setPreferences({
+      workflows: {
+        ...preferences?.workflows,
+        [workflowKey]: enabled,
+      },
+      categories: preferences?.categories || {},
+      channel_types: preferences?.channel_types || {},
+    });
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div className="workflow-preferences">
+      <h2>Workflow notifications</h2>
+      {Object.entries(preferences?.workflows || {}).map(([workflowKey, setting]) => {
+        // Handle simple boolean preferences
+        if (typeof setting === "boolean") {
+          return (
+            <div key={workflowKey} className="preference-item">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={setting}
+                  onChange={(e) => handleWorkflowToggle(workflowKey, e.target.checked)}
+                />
+                {workflowKey.replace(/-/g, " ")}
+              </label>
+            </div>
+          );
+        }
+
+        // Handle workflow preferences with channel type settings
+        if (typeof setting === "object" && setting?.channel_types) {
+          return (
+            <div key={workflowKey} className="workflow-with-channels">
+              <h3>{workflowKey.replace(/-/g, " ")}</h3>
+              {Object.entries(setting.channel_types).map(([channelType, channelEnabled]) => (
+                <div key={channelType} className="channel-preference">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={channelEnabled}
+                      onChange={(e) => {
+                        setPreferences({
+                          workflows: {
+                            ...preferences?.workflows,
+                            [workflowKey]: {
+                              ...setting,
+                              channel_types: {
+                                ...setting.channel_types,
+                                [channelType]: e.target.checked,
+                              },
+                            },
+                          },
+                          categories: preferences?.categories || {},
+                          channel_types: preferences?.channel_types || {},
+                        });
+                      }}
+                    />
+                    {channelType} notifications
+                  </label>
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        return null;
+      })}
+    </div>
+  );
+};
+```
+
+## Building category preferences
+
+Category preferences let users control notifications for groups of related workflows. Here's how to build a category preferences interface:
+
+```jsx title="Build category preferences interface"
+import { usePreferences } from "@knocklabs/react";
+
+const CategoryPreferences = () => {
+  const { preferences, setPreferences, isLoading } = usePreferences();
+
+  const handleCategoryChannelToggle = (categoryKey, channelType, enabled) => {
+    const currentCategory = preferences?.categories?.[categoryKey] || { channel_types: {} };
+    
+    setPreferences({
+      workflows: preferences?.workflows || {},
+      categories: {
+        ...preferences?.categories,
+        [categoryKey]: {
+          ...currentCategory,
+          channel_types: {
+            ...currentCategory.channel_types,
+            [channelType]: enabled,
+          },
+        },
+      },
+      channel_types: preferences?.channel_types || {},
+    });
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div className="category-preferences">
+      <h2>Category preferences</h2>
+      {Object.entries(preferences?.categories || {}).map(([categoryKey, category]) => (
+        <div key={categoryKey} className="category-section">
+          <h3>{categoryKey.replace(/-/g, " ")}</h3>
+          <div className="channel-types">
+            {Object.entries(category.channel_types || {}).map(([channelType, enabled]) => (
+              <div key={channelType} className="channel-preference">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={(e) => 
+                      handleCategoryChannelToggle(categoryKey, channelType, e.target.checked)
+                    }
+                  />
+                  {channelType} notifications
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+## Building a complete preference center
+
+Here's how to combine different preference types into a complete preference center:
+
+```jsx title="Complete preference center implementation"
+import { usePreferences } from "@knocklabs/react";
+import { useState } from "react";
+
+const PreferenceCenter = () => {
+  const { preferences, setPreferences, isLoading, isValidating } = usePreferences();
+  const [activeTab, setActiveTab] = useState("workflows");
+
+  const handleBulkChannelTypeToggle = (channelType, enabled) => {
+    setPreferences({
+      workflows: preferences?.workflows || {},
+      categories: preferences?.categories || {},
+      channel_types: {
+        ...preferences?.channel_types,
+        [channelType]: enabled,
+      },
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="preference-center">
+        <div className="loading">Loading your preferences...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="preference-center">
+      <header className="preference-header">
+        <h1>Notification preferences</h1>
+        {isValidating && <div className="saving-indicator">Saving...</div>}
+      </header>
+
+      <nav className="preference-tabs">
+        <button
+          className={activeTab === "workflows" ? "active" : ""}
+          onClick={() => setActiveTab("workflows")}
+        >
+          Workflows
+        </button>
+        <button
+          className={activeTab === "categories" ? "active" : ""}
+          onClick={() => setActiveTab("categories")}
+        >
+          Categories
+        </button>
+        <button
+          className={activeTab === "channels" ? "active" : ""}
+          onClick={() => setActiveTab("channels")}
+        >
+          Channels
+        </button>
+      </nav>
+
+      <div className="preference-content">
+        {activeTab === "workflows" && (
+          <WorkflowPreferences 
+            preferences={preferences} 
+            setPreferences={setPreferences} 
+          />
+        )}
+        
+        {activeTab === "categories" && (
+          <CategoryPreferences 
+            preferences={preferences} 
+            setPreferences={setPreferences} 
+          />
+        )}
+        
+        {activeTab === "channels" && (
+          <div className="channel-preferences">
+            <h2>Channel preferences</h2>
+            <p>Control which types of channels you receive notifications through.</p>
+            {Object.entries(preferences?.channel_types || {}).map(([channelType, enabled]) => (
+              <div key={channelType} className="channel-toggle">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={(e) => 
+                      handleBulkChannelTypeToggle(channelType, e.target.checked)
+                    }
+                  />
+                  Enable {channelType} notifications
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+```
+
+## Working with tenants
+
+If you're using Knock's multi-tenancy features, you can fetch and update preferences for specific tenants:
+
+```jsx title="Working with tenant-specific preferences"
+import { usePreferences } from "@knocklabs/react";
+
+const TenantPreferences = ({ tenantId }) => {
+  const { preferences, setPreferences, isLoading } = usePreferences({
+    tenant: tenantId,
+  });
+
+  // Component implementation for tenant-specific preferences
+};
+```
+
+## Fetching all preference sets
+
+The hook also provides access to all preference sets for advanced use cases:
+
+```jsx title="Fetching all preference sets"
+import { usePreferences } from "@knocklabs/react";
+
+const AdvancedPreferences = () => {
+  const { getAllPreferences } = usePreferences();
+
+  const handleExportPreferences = async () => {
+    try {
+      const allPreferences = await getAllPreferences();
+      console.log("All user preferences:", allPreferences);
+      // Handle the full preferences data
+    } catch (error) {
+      console.error("Failed to fetch all preferences:", error);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleExportPreferences}>
+        Export all preferences
+      </button>
+    </div>
+  );
+};
+```
+
+## Error handling and loading states
+
+The hook provides loading and validation states to help you build better user experiences:
+
+```jsx title="Handling loading and error states"
+import { usePreferences } from "@knocklabs/react";
+
+const PreferencesWithStates = () => {
+  const { 
+    preferences, 
+    setPreferences, 
+    isLoading, 
+    isValidating 
+  } = usePreferences();
+
+  // Show loading spinner on initial load
+  if (isLoading) {
+    return (
+      <div className="preference-loading">
+        <div className="spinner" />
+        <p>Loading your preferences...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="preferences-container">
+      {/* Show saving indicator when updating */}
+      {isValidating && (
+        <div className="saving-banner">
+          Saving your preferences...
+        </div>
+      )}
+      
+      {/* Preferences UI */}
+      <div className="preferences-content">
+        {/* Your preference controls here */}
+      </div>
+    </div>
+  );
+};
+```
+
+## Next steps
+
+You now have the building blocks to create sophisticated preference UIs with Knock. Consider:
+
+- Adding search and filtering functionality for large preference sets
+- Implementing bulk actions for managing multiple preferences at once
+- Creating preset configurations that users can quickly apply
+- Adding preference history and audit trails
+- Building role-based preference management for team accounts
+
+## Related links
+
+- [Preferences overview](/preferences/overview)
+- [Preferences API reference](/api-reference/recipients/preferences)
+- [React SDK reference](/in-app-ui/react/sdk/reference)
