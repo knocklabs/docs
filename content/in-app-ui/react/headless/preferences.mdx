@@ -22,9 +22,9 @@ To use this example, you'll need [an account on Knock](https://dashboard.knock.a
   text={
     <>
       Before building custom preference interfaces, we recommend reading the{" "}
-      <a href="/preferences/overview">preferences overview</a> to understand
-      how Knock's preference system works, including preference sets, workflows,
-      and channel types.
+      <a href="/preferences/overview">preferences overview</a> to understand how
+      Knock's preference system works, including preference sets, workflows, and
+      channel types.
     </>
   }
 />
@@ -84,8 +84,8 @@ You can specify which preference set to fetch by passing options to the hook. Th
   title="Preference updates made simple."
   text={
     <>
-      When updating preferences, you can use the spread operator to merge changes
-      with existing preferences. This approach is cleaner than manually
+      When updating preferences, you can use the spread operator to merge
+      changes with existing preferences. This approach is cleaner than manually
       specifying each preference type (workflows, categories, channel_types).
     </>
   }
@@ -136,60 +136,66 @@ const WorkflowPreferences = () => {
   return (
     <div className="workflow-preferences">
       <h2>Workflow notifications</h2>
-      {Object.entries(preferences?.workflows || {}).map(([workflowKey, setting]) => {
-        // Handle simple boolean preferences
-        if (typeof setting === "boolean") {
-          return (
-            <div key={workflowKey} className="preference-item">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={setting}
-                  onChange={(e) => handleWorkflowToggle(workflowKey, e.target.checked)}
-                />
-                {workflowKey.replace(/-/g, " ")}
-              </label>
-            </div>
-          );
-        }
+      {Object.entries(preferences?.workflows || {}).map(
+        ([workflowKey, setting]) => {
+          // Handle simple boolean preferences
+          if (typeof setting === "boolean") {
+            return (
+              <div key={workflowKey} className="preference-item">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={setting}
+                    onChange={(e) =>
+                      handleWorkflowToggle(workflowKey, e.target.checked)
+                    }
+                  />
+                  {workflowKey.replace(/-/g, " ")}
+                </label>
+              </div>
+            );
+          }
 
-        // Handle workflow preferences with channel type settings
-        if (typeof setting === "object" && setting?.channel_types) {
-          return (
-            <div key={workflowKey} className="workflow-with-channels">
-              <h3>{workflowKey.replace(/-/g, " ")}</h3>
-              {Object.entries(setting.channel_types).map(([channelType, channelEnabled]) => (
-                <div key={channelType} className="channel-preference">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={channelEnabled}
-                      onChange={(e) => {
-                        setPreferences({
-                          ...preferences,
-                          workflows: {
-                            ...preferences?.workflows,
-                            [workflowKey]: {
-                              ...setting,
-                              channel_types: {
-                                ...setting.channel_types,
-                                [channelType]: e.target.checked,
+          // Handle workflow preferences with channel type settings
+          if (typeof setting === "object" && setting?.channel_types) {
+            return (
+              <div key={workflowKey} className="workflow-with-channels">
+                <h3>{workflowKey.replace(/-/g, " ")}</h3>
+                {Object.entries(setting.channel_types).map(
+                  ([channelType, channelEnabled]) => (
+                    <div key={channelType} className="channel-preference">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={channelEnabled}
+                          onChange={(e) => {
+                            setPreferences({
+                              ...preferences,
+                              workflows: {
+                                ...preferences?.workflows,
+                                [workflowKey]: {
+                                  ...setting,
+                                  channel_types: {
+                                    ...setting.channel_types,
+                                    [channelType]: e.target.checked,
+                                  },
+                                },
                               },
-                            },
-                          },
-                        });
-                      }}
-                    />
-                    {channelType} notifications
-                  </label>
-                </div>
-              ))}
-            </div>
-          );
-        }
+                            });
+                          }}
+                        />
+                        {channelType} notifications
+                      </label>
+                    </div>
+                  ),
+                )}
+              </div>
+            );
+          }
 
-        return null;
-      })}
+          return null;
+        },
+      )}
     </div>
   );
 };
@@ -206,7 +212,11 @@ const CategoryPreferences = () => {
   const { preferences, setPreferences, isLoading } = usePreferences();
 
   // Helper function for cleaner preference updates
-  const updateCategoryChannelPreference = (categoryKey, channelType, enabled) => {
+  const updateCategoryChannelPreference = (
+    categoryKey,
+    channelType,
+    enabled,
+  ) => {
     setPreferences({
       ...preferences,
       categories: {
@@ -227,27 +237,35 @@ const CategoryPreferences = () => {
   return (
     <div className="category-preferences">
       <h2>Category preferences</h2>
-      {Object.entries(preferences?.categories || {}).map(([categoryKey, category]) => (
-        <div key={categoryKey} className="category-section">
-          <h3>{categoryKey.replace(/-/g, " ")}</h3>
-          <div className="channel-types">
-            {Object.entries(category.channel_types || {}).map(([channelType, enabled]) => (
-              <div key={channelType} className="channel-preference">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={enabled}
-                    onChange={(e) => 
-                      updateCategoryChannelPreference(categoryKey, channelType, e.target.checked)
-                    }
-                  />
-                  {channelType} notifications
-                </label>
-              </div>
-            ))}
+      {Object.entries(preferences?.categories || {}).map(
+        ([categoryKey, category]) => (
+          <div key={categoryKey} className="category-section">
+            <h3>{categoryKey.replace(/-/g, " ")}</h3>
+            <div className="channel-types">
+              {Object.entries(category.channel_types || {}).map(
+                ([channelType, enabled]) => (
+                  <div key={channelType} className="channel-preference">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={enabled}
+                        onChange={(e) =>
+                          updateCategoryChannelPreference(
+                            categoryKey,
+                            channelType,
+                            e.target.checked,
+                          )
+                        }
+                      />
+                      {channelType} notifications
+                    </label>
+                  </div>
+                ),
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ),
+      )}
     </div>
   );
 };
@@ -262,7 +280,8 @@ import { usePreferences } from "@knocklabs/react";
 import { useState } from "react";
 
 const PreferenceCenter = () => {
-  const { preferences, setPreferences, isLoading, isValidating } = usePreferences();
+  const { preferences, setPreferences, isLoading, isValidating } =
+    usePreferences();
   const [activeTab, setActiveTab] = useState("workflows");
 
   const handleBulkChannelTypeToggle = (channelType, enabled) => {
@@ -313,37 +332,44 @@ const PreferenceCenter = () => {
 
       <div className="preference-content">
         {activeTab === "workflows" && (
-          <WorkflowPreferences 
-            preferences={preferences} 
-            setPreferences={setPreferences} 
+          <WorkflowPreferences
+            preferences={preferences}
+            setPreferences={setPreferences}
           />
         )}
-        
+
         {activeTab === "categories" && (
-          <CategoryPreferences 
-            preferences={preferences} 
-            setPreferences={setPreferences} 
+          <CategoryPreferences
+            preferences={preferences}
+            setPreferences={setPreferences}
           />
         )}
-        
+
         {activeTab === "channels" && (
           <div className="channel-preferences">
             <h2>Channel preferences</h2>
-            <p>Choose which types of channels you receive notifications through.</p>
-            {Object.entries(preferences?.channel_types || {}).map(([channelType, enabled]) => (
-              <div key={channelType} className="channel-toggle">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={enabled}
-                    onChange={(e) => 
-                      handleBulkChannelTypeToggle(channelType, e.target.checked)
-                    }
-                  />
-                  Enable {channelType} notifications
-                </label>
-              </div>
-            ))}
+            <p>
+              Choose which types of channels you receive notifications through.
+            </p>
+            {Object.entries(preferences?.channel_types || {}).map(
+              ([channelType, enabled]) => (
+                <div key={channelType} className="channel-toggle">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={enabled}
+                      onChange={(e) =>
+                        handleBulkChannelTypeToggle(
+                          channelType,
+                          e.target.checked,
+                        )
+                      }
+                    />
+                    Enable {channelType} notifications
+                  </label>
+                </div>
+              ),
+            )}
           </div>
         )}
       </div>
@@ -390,9 +416,7 @@ const AdvancedPreferences = () => {
 
   return (
     <div>
-      <button onClick={handleExportPreferences}>
-        Export all preferences
-      </button>
+      <button onClick={handleExportPreferences}>Export all preferences</button>
     </div>
   );
 };
@@ -406,12 +430,8 @@ The hook provides loading and validation states to help you build better user ex
 import { usePreferences } from "@knocklabs/react";
 
 const PreferencesWithStates = () => {
-  const { 
-    preferences, 
-    setPreferences, 
-    isLoading, 
-    isValidating 
-  } = usePreferences();
+  const { preferences, setPreferences, isLoading, isValidating } =
+    usePreferences();
 
   // Show loading spinner on initial load
   if (isLoading) {
@@ -427,11 +447,9 @@ const PreferencesWithStates = () => {
     <div className="preferences-container">
       {/* Show saving indicator when updating */}
       {isValidating && (
-        <div className="saving-banner">
-          Saving your preferences...
-        </div>
+        <div className="saving-banner">Saving your preferences...</div>
       )}
-      
+
       {/* Preferences interface */}
       <div className="preferences-content">
         {/* Your preference controls here */}
