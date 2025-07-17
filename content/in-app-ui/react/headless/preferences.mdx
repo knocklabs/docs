@@ -118,8 +118,21 @@ Workflow preferences control whether users receive notifications for specific wo
 ```jsx title="Build workflow preferences interface"
 import { usePreferences } from "@knocklabs/react";
 
-const WorkflowPreferences = () => {
-  const { preferences, setPreferences, isLoading } = usePreferences();
+const WorkflowPreferences = ({
+  preferences: externalPreferences,
+  setPreferences: externalSetPreferences,
+  isLoading: externalIsLoading,
+} = {}) => {
+  const {
+    preferences: hookPreferences,
+    setPreferences: hookSetPreferences,
+    isLoading: hookIsLoading,
+  } = usePreferences();
+
+  // Prefer externally provided props to avoid redundant API calls
+  const preferences = externalPreferences ?? hookPreferences;
+  const setPreferences = externalSetPreferences ?? hookSetPreferences;
+  const isLoading = externalIsLoading ?? hookIsLoading;
 
   const handleWorkflowToggle = (workflowKey, enabled) => {
     setPreferences({
@@ -208,8 +221,21 @@ Category preferences enable users to control notifications for groups of related
 ```jsx title="Build category preferences interface"
 import { usePreferences } from "@knocklabs/react";
 
-const CategoryPreferences = () => {
-  const { preferences, setPreferences, isLoading } = usePreferences();
+const CategoryPreferences = ({
+  preferences: externalPreferences,
+  setPreferences: externalSetPreferences,
+  isLoading: externalIsLoading,
+} = {}) => {
+  const {
+    preferences: hookPreferences,
+    setPreferences: hookSetPreferences,
+    isLoading: hookIsLoading,
+  } = usePreferences();
+
+  // Prefer externally provided props to avoid redundant API calls
+  const preferences = externalPreferences ?? hookPreferences;
+  const setPreferences = externalSetPreferences ?? hookSetPreferences;
+  const isLoading = externalIsLoading ?? hookIsLoading;
 
   // Helper function for cleaner preference updates
   const updateCategoryChannelPreference = (
