@@ -79,6 +79,18 @@ const PreferencesPage = () => {
 
 You can specify which preference set to fetch by passing options to the hook. This is useful when you have multiple preference sets for different contexts or user types.
 
+<Callout
+  emoji="💡"
+  title="Preference updates made simple."
+  text={
+    <>
+      When updating preferences, you can use the spread operator to merge changes
+      with existing preferences. This approach is cleaner than manually
+      specifying each preference type (workflows, categories, channel_types).
+    </>
+  }
+/>
+
 ```jsx title="Fetch preferences for a specific preference set"
 import { usePreferences } from "@knocklabs/react";
 
@@ -111,12 +123,11 @@ const WorkflowPreferences = () => {
 
   const handleWorkflowToggle = (workflowKey, enabled) => {
     setPreferences({
+      ...preferences,
       workflows: {
         ...preferences?.workflows,
         [workflowKey]: enabled,
       },
-      categories: preferences?.categories || {},
-      channel_types: preferences?.channel_types || {},
     });
   };
 
@@ -155,6 +166,7 @@ const WorkflowPreferences = () => {
                       checked={channelEnabled}
                       onChange={(e) => {
                         setPreferences({
+                          ...preferences,
                           workflows: {
                             ...preferences?.workflows,
                             [workflowKey]: {
@@ -165,8 +177,6 @@ const WorkflowPreferences = () => {
                               },
                             },
                           },
-                          categories: preferences?.categories || {},
-                          channel_types: preferences?.channel_types || {},
                         });
                       }}
                     />
@@ -195,22 +205,20 @@ import { usePreferences } from "@knocklabs/react";
 const CategoryPreferences = () => {
   const { preferences, setPreferences, isLoading } = usePreferences();
 
-  const handleCategoryChannelToggle = (categoryKey, channelType, enabled) => {
-    const currentCategory = preferences?.categories?.[categoryKey] || { channel_types: {} };
-    
+  // Helper function for cleaner preference updates
+  const updateCategoryChannelPreference = (categoryKey, channelType, enabled) => {
     setPreferences({
-      workflows: preferences?.workflows || {},
+      ...preferences,
       categories: {
         ...preferences?.categories,
         [categoryKey]: {
-          ...currentCategory,
+          ...preferences?.categories?.[categoryKey],
           channel_types: {
-            ...currentCategory.channel_types,
+            ...preferences?.categories?.[categoryKey]?.channel_types,
             [channelType]: enabled,
           },
         },
       },
-      channel_types: preferences?.channel_types || {},
     });
   };
 
@@ -230,7 +238,7 @@ const CategoryPreferences = () => {
                     type="checkbox"
                     checked={enabled}
                     onChange={(e) => 
-                      handleCategoryChannelToggle(categoryKey, channelType, e.target.checked)
+                      updateCategoryChannelPreference(categoryKey, channelType, e.target.checked)
                     }
                   />
                   {channelType} notifications
@@ -259,8 +267,7 @@ const PreferenceCenter = () => {
 
   const handleBulkChannelTypeToggle = (channelType, enabled) => {
     setPreferences({
-      workflows: preferences?.workflows || {},
-      categories: preferences?.categories || {},
+      ...preferences,
       channel_types: {
         ...preferences?.channel_types,
         [channelType]: enabled,
