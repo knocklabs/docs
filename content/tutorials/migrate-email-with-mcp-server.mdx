@@ -10,7 +10,7 @@ tags:
     "MJML",
     "components",
     "MCP server",
-    "React Email"
+    "React Email",
   ]
 section: Tutorials
 ---
@@ -23,17 +23,18 @@ In this guide, we'll walk you through how to leverage Knock's [MCP server](/deve
 
 Before getting started, you'll need access to the following:
 
-- Your existing email template files. Your templates will be upserted to Knock as HTML, so if you're using a format like MJML or React Email you may want to consider converting them to HTML before you begin.
 - A [Knock account](https://dashboard.knock.app/).
-- A configured [email provider](/integrations/email/overview) in your Knock account. Navigate to **Integrations** > **Channels** in your dashboard to set this up.
+- A configured [email provider](/integrations/email/overview) in your Knock account. Navigate to **Integrations** > **Channels** in your dashboard to set this up if you haven't already done so.
 - A [service token](https://docs.knock.app/developer-tools/service-tokens) for your Knock account.
-- An MCP-compatible client (e.g., Cursor, Claude Desktop). We recommend Cursor for working with a large collection of HTML files.
+- An MCP-compatible client (such as Cursor or Claude Desktop). We recommend Cursor for working with a large collection of HTML files.
+- Your existing email template files. Your templates will be upserted to Knock as HTML, so if you're using a format like MJML or React Email you may want to consider converting them to HTML before you begin.
 
 For more information on setting up the Knock MCP server, see the [Get started](/developer-tools/mcp-server#get-started) section of the MCP documentation.
 
-### Required tools
+### Required MCP tools
 
-When working with MCP servers, it's recommended to expose only the tools you need for your use case to your LLM. The steps in this guide will require access to the following tools:
+When working with MCP servers, it's recommended that you expose only the tools you need for your use case to your LLM. The steps in this guide will require access to the following tools:
+
 - `documentation.*`
 - `channels.*`
 - `commits.*`
@@ -41,12 +42,41 @@ When working with MCP servers, it's recommended to expose only the tools you nee
 - `partials.*`
 - `workflows.*`
 
-[Learn more about configuring these tools in your MCP-compatible client](/developer-tools/mcp-server#configuring-the-available-tools).
+Learn more about configuring these tools in your MCP-compatible client [here](/developer-tools/mcp-server#configuring-the-available-tools). If you're using Cursor, you can simply copy and paste the configuration below into your MCP settings.
+
+<AccordionGroup>
+  <Accordion title="Cursor MCP configuration">
+  ```json
+  {
+    "knock": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@knocklabs/agent-toolkit",
+        "-p",
+        "local-mcp",
+        "--tools",
+        "documentation.*",
+        "channels.*",
+        "commits.*",
+        "emailLayouts.*",
+        "partials.*",
+        "workflows.*"
+      ],
+      "name": "Knock MCP Server",
+      "env": {
+        "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
+      }
+    }
+  }
+  ```
+  </Accordion>
+</AccordionGroup>
 
 ## Background
 
 ## Migration steps
 
-Now that you have everything you need for your migration, you're ready to get started! 
+Now that you have everything you need for your migration, you're ready to get started!
 
 Each step below contains a prompt that you can provide to your LLM. These prompts are designed to be run one at a time in order to provide the LLM with discrete tasks, thus improving the accuracy of the results.
