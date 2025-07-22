@@ -21,13 +21,13 @@ In addition to first-party integrations with message delivery platforms, Knock a
 
 ### Users
 
-Braze uses <a href="https://www.braze.com/docs/user_guide/getting_started/users_segments/#users" target="_blank">users</a> to represent the recipients of notifications, with custom attributes and profile data associated with each user.
+Braze uses the concept of <a href="https://www.braze.com/docs/user_guide/getting_started/users_segments/#users" target="_blank">users</a> to represent the recipients of notifications, with custom attributes and profile data associated with each user.
 
-Knock uses a similar concept with [users](/concepts/users) objects on which you can store any number of custom properties related to your notifications' recipients.
+Knock uses a similar concept of [users](/concepts/users) objects on which you can store any number of custom properties related to your notifications' recipients.
 
 ### Campaigns and workflows
 
-In Braze, your transactional messaging is handled through <a href="https://www.braze.com/docs/user_guide/message_building_by_channel/email/transactional_message_api_campaign" target="_blank">transactional email campaigns</a>, <a href="https://www.braze.com/docs/user_guide/engagement_tools/campaigns/building_campaigns/delivery_types/api_triggered_delivery/" target="_blank">API-triggered campaigns</a>, and <a href="https://www.braze.com/docs/user_guide/engagement_tools/canvas/" target="_blank">canvases</a>. These campaigns contain message templates and are triggered via API calls using a `campaign_id`.
+In Braze, your transactional messaging is handled through <a href="https://www.braze.com/docs/user_guide/message_building_by_channel/email/transactional_message_api_campaign" target="_blank">transactional email campaigns</a>, <a href="https://www.braze.com/docs/user_guide/engagement_tools/campaigns/building_campaigns/delivery_types/api_triggered_delivery/" target="_blank">API-triggered campaigns</a>, and <a href="https://www.braze.com/docs/user_guide/engagement_tools/canvas/" target="_blank">Canvases</a>. These campaigns contain message templates and are triggered via API calls using a `campaign_id`.
 
 Knock combines these into a single resource called a [workflow](/concepts/workflows), which serves as a container for all of the logic and message templates associated with a given notification in your system.
 
@@ -35,30 +35,30 @@ When you’re ready to start sending notifications, you’ll do so by [triggerin
 
 ### Template management
 
-Braze uses <a href="https://www.braze.com/docs/user_guide/engagement_tools/templates_and_media/content_blocks" target="_blank">content blocks</a> for reusable content and Liquid templating for personalization within campaigns.
+Braze uses <a href="https://www.braze.com/docs/user_guide/engagement_tools/templates_and_media/content_blocks" target="_blank">Content Blocks</a> for reusable content and Liquid templating for personalization within campaigns.
 
-Knock provides similar functionality through [partials](/concepts/partials) for reusable content blocks and also supports Liquid templating for personalization within workflow templates.
+Knock provides similar functionality through [partials](/concepts/partials) for reusable content blocks and also supports [Liquid templating](/designing-workflows/template-editor/reference-liquid-helpers) for personalization within workflow [templates](/designing-workflows/template-editor/overview).
 
 ### Multi-language support and translations
 
-Braze provides <a href="https://www.braze.com/docs/user_guide/administrative/app_settings/multi_language_settings/" target="_blank">multi-language settings</a> that enable you to target users in different languages and locations with different messages within a single email campaign. Braze keeps every translation file inside the campaign (or canvas/email template) that uses it. You wrap the text in `{%translation%}` tags, export a locale CSV, fill it in, and re‑upload each time that specific campaign's copy changes.
+Braze provides <a href="https://www.braze.com/docs/user_guide/administrative/app_settings/multi_language_settings/" target="_blank">multi-language settings</a> that enable you to target users with messages in different languages within a single email campaign, based on their locale. Braze keeps every translation file inside the campaign (or Canvas/email template) that uses it. download a translation template CSV, fill it in, and re-upload each time that specific campaign's copy changes. Braze also supports managing translations via [API endpoints](https://www.braze.com/docs/api/endpoints/translations).
 
 Knock helps you to power notifications in multiple locales and languages using [translations](/concepts/translations). You can work with translations directly in your dashboard or programmatically via API, and Knock supports both `json` and `.po` file formats.
 
-When using the `t` tag [method](/concepts/translations#translation-methods-filter-vs-tag) of referencing translations in your message templates, Knock will automatically generate the associated translation files for each of your registered locales behind the scenes.
+When using the `t` tag [method](/concepts/translations#translation-methods-filter-vs-tag) of referencing translations in your message templates, Knock will automatically generate the associated translation files for each of your registered locales behind the scenes. You can then translate the default content into additional locales by manually editing your translation files or programmatically updating them using the Knock API and a translation service.
 
 ### Multi-tenancy
 
-In Braze, there isn't a direct equivalent to Knock's tenant functionality. Most Braze customers handle customer/organization segmentation through custom attributes (like `organization_id`, `account_id`, `company_name`) combined with segments built on those attributes. This approach requires manual campaign targeting, complex segmentation logic, and offers no native support for per-organization branding or scoped in-app feeds.
+In Braze, there isn't a direct equivalent to Knock's tenant functionality. Most Braze customers handle customer/organization segmentation through custom attributes (like `organization_id`, `account_id`, `company_name`) combined with segments built on those attributes. This approach requires manual campaign targeting, complex segmentation logic, and offers no native support for per-organization branding, preferences, or scoped in-app feeds.
 
-In Knock, [tenants](/concepts/tenants) provide native multi-tenancy support that eliminates these workarounds. Tenants represent segments your users belong to—what you might call "accounts," "organizations," "workspaces," or similar. Per-tenant branding attributes are stored directly on a tenant in Knock rather than requiring separate campaigns or complex attribute management. Knock tenants are applied as context to workflow triggers to automatically [apply per-tenant branding](/concepts/tenants#custom-branding), [manage per-tenant preferences](/preferences/tenant-preferences), and [scope in-app feed messages to particular tenants](/concepts/tenants#scoping-in-app-feeds).
+In Knock, [tenants](/concepts/tenants) provide native multi-tenancy support that eliminates these workarounds. Tenants represent organizations your users belong to—what you might call "accounts" or "workspaces." Per-tenant branding attributes are stored directly on a tenant in Knock rather than requiring separate campaigns or complex attribute management. Knock tenants are applied as context to workflow triggers to automatically [apply per-tenant branding](/concepts/tenants#custom-branding), [manage per-tenant preferences](/preferences/tenant-preferences), and [scope in-app feed messages to particular tenants](/concepts/tenants#scoping-in-app-feeds).
 
 Key advantages of Knock's tenant approach:
 
-- **Single workflow, multiple tenants**: One workflow can serve all organizations with tenant-specific customizations
-- **Native branding support**: Per-tenant logos, colors, and styling without template duplication
-- **Automatic feed scoping**: In-app notifications automatically filtered by tenant context
-- **Simplified preference management**: Per-user, per-tenant preferences without complex attribute juggling
+- **Single workflow, multiple tenants.** One workflow can serve all organizations with tenant-specific customizations.
+- **Native branding support.** Per-tenant logos, colors, and styling without template duplication.
+- **In-app feed scoping.** In-app notifications can be filtered by tenant context.
+- **Simplified preference management.** Per-user, per-tenant preferences without complex attribute juggling.
 
 <Callout
   emoji="✨"
@@ -79,17 +79,17 @@ Key advantages of Knock's tenant approach:
 
 ### Subscriptions and preferences
 
-Braze manages user subscription preferences through subscription groups and global subscription states (`email_subscribe` and `push_subscribe`.) Users can be subscribed, unsubscribed, or opted-in to different messaging channels and specific subscription groups.
+Braze manages user subscription preferences through [subscription groups](https://www.braze.com/docs/api/endpoints/subscription_groups) and global subscription states (`email_subscribe` and `push_subscribe`.) Users can be subscribed, unsubscribed, or opted-in to different messaging channels and specific subscription groups. See Braze's documentation on [email subscription management](https://www.braze.com/docs/user_guide/message_building_by_channel/email/managing_user_subscriptions) and [SMS subscription groups](https://www.braze.com/docs/user_guide/message_building_by_channel/sms_mms_rcs/subscription_groups) for more details.
 
 Knock provides two features that together replace Braze subscription groups:
 
 - [Preferences](/preferences/overview) handle communication opt-outs similar to Braze's marketing-focused subscription groups, with enhanced flexibility for channel-specific, category-based, or workflow-specific preferences that can be [tenant-specific](/preferences/tenant-preferences) or [conditional](/preferences/preference-conditions).
 
-- [Subscriptions](/concepts/subscriptions) express relationships between [recipients](/concepts/recipients) and [objects](/concepts/objects) in your data model, enabling you to notify large numbers of recipients by triggering workflows for the object itself rather than managing individual recipient lists.
+- [Subscriptions](/concepts/subscriptions) express relationships between [recipients](/concepts/recipients) and [objects](/concepts/objects) in your [data model](/tutorials/modeling-users-objects-and-tenants), enabling you to notify large numbers of recipients by triggering workflows for a single object recipient and letting Knock handle the recipient fanout for you rather than resolving recipient lists in your system when you trigger your notifications.
 
-At a high-level, Braze subscription groups in Knock could look like:
+At a high level, Braze subscription groups migrated to Knock could look like:
 
-- Braze global subscription states (`email_subscribe`, `push_subscribe`) → Knock channel-level preferences
+- Braze global subscription states (`email_subscribe`, `push_subscribe`) → Knock channel-type preferences
 - Braze subscription groups for communication types (newsletters, promotions) → Knock category and/or workflow-level preferences
 - Braze subscription groups for specific entities (project alerts, account updates) → Knock object subscriptions
 
@@ -133,7 +133,7 @@ We recommend migrating data into Knock in the following order to ensure that cer
 
   </Step>
   <Step title="Build workflows">
-    Next, you can begin migrating your transactional email campaigns, API-triggered campaigns, and canvases into Knock workflows.
+    Next, you can begin migrating your transactional email campaigns, API-triggered campaigns, and Canvases into Knock workflows.
     
     To export your existing Braze campaign content, you can:
         - Use the Braze export campaign details API to programmatically retrieve campaign templates and content
@@ -143,7 +143,7 @@ We recommend migrating data into Knock in the following order to ensure that cer
 
     Knock's environment model means that you'll be upserting all of your workflows and other dashboard resources to your Development environment, where you'll commit and then promote changes to higher environments (like Production). Read more [here](/concepts/environments).
 
-    You can assign one or more [categories](/concepts/workflows#workflow-categories) to your workflows. These can be used to power recipient preferences (which we will cover in more detail below) and are roughly similar to Brazes's subscription groups.
+    You can assign one or more [categories](/concepts/workflows#workflow-categories) to your workflows. These can be used to power recipient preferences (which we will cover in more detail below) and are roughly similar to Braze's subscription groups.
 
     <AccordionGroup>
       <Accordion title="Relevant endpoints">
@@ -167,13 +167,13 @@ We recommend migrating data into Knock in the following order to ensure that cer
     If you're using multi-language settings in Braze, you can extract your translation content and import it into Knock's translation system.
 
     Key considerations to remember:
-      - In Braze, translation files are stored at a campaign level.
+      - In Braze, translation files are stored at the campaign level.
       - In Knock, translations are managed globally at the environment level, and are reusable across workflows.
 
     Suggested approach:
-      1. Export a list of all Braze campaigns, canvases and email templates that include translation tags and note which locales they cover.
+      1. Export a list of all Braze campaigns, Canvases, and email templates that include translation tags and note which locales they cover.
       2. Use Braze’s bulk‑translation APIs to pull down the raw locale data for those assets.
-      3. Each Braze export comes back grouped by message variant. You will want to decide on a universal key pattern for Knock and convert the Braze JSON/CSV into locale‑key‑value maps that match this pattern. Be sure to check pluralization, as Braze sometimes stores counts as separate rows, but Knock supports [zero/one/other rules](/concepts/translations#pluralization) out‑of‑the‑box.
+      3. Each Braze export is grouped by message variant. You'll need to decide on a universal key pattern for Knock and convert the Braze JSON/CSV into locale‑key‑value maps that match this pattern. Be sure to check pluralization, as Braze sometimes stores counts as separate rows, but Knock supports `zero`/`one`/`other` [rules](/concepts/translations#pluralization) out‑of‑the‑box.
       4. For each locale, call Knock’s Management API to upsert the file into your Knock environment. Once the locale is in place, templates can reference the strings with the `t` tag.
 
 
@@ -195,7 +195,7 @@ We recommend migrating data into Knock in the following order to ensure that cer
     </AccordionGroup>
 
   </Step>
-  <Step title="Add tenants (if applicable)">
+  <Step title="Add tenants">
     If your Braze implementation uses custom attributes to segment users by organization, account, or workspace, you can migrate this data to create proper tenant structures in Knock. This migration will replace complex attribute-based segmentation with Knock's native tenant functionality.
 
     Suggested approach:
@@ -240,7 +240,7 @@ We recommend migrating data into Knock in the following order to ensure that cer
     </AccordionGroup>
 
   </Step>
-  <Step title="Object subscriptions (if applicable)">
+  <Step title="Object subscriptions">
     If applicable, you can now migrate entity-specific subscription groups where users follow particular business objects. [Subscriptions](/concepts/subscriptions) in Knock express relationships between users and objects in your data model, enabling you to trigger workflows for objects and automatically notify all subscribers.
 
     Suggested approach:
@@ -276,13 +276,13 @@ We recommend migrating data into Knock in the following order to ensure that cer
 
     Key considerations:
         - Braze's global subscription states (`email_subscribe`, `push_subscribe`) should map to Knock's channel-level preferences.
-        - Braze subscription groups should map to Knock preference categories or workflows.
+        - Braze subscription groups should map to Knock workflow categories or specific workflows.
 
     Suggested approach:
         1. Bulk extract user data from Braze using the segment export endpoint.
-        2. Map subscription groups to Knock preference categories or specific workflows.
-        3. Transform global subscription states to Knock's channel-level preferences (email, push, SMS, etc.)
-        4. Bulk import preferences using Knock's bulk preferences endpoint (1000 users per batch.)
+        2. Map subscription groups to Knock workflow categories or specific workflows.
+        3. Transform global subscription states to Knock's channel-type preferences (`email`, `push`, `SMS`, etc.)
+        4. Bulk import preferences using Knock's bulk preferences endpoint (1,000 users per batch.)
 
     <AccordionGroup>
       <Accordion title="Relevant endpoints">
