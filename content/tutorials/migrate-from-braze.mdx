@@ -135,11 +135,13 @@ We recommend migrating data into Knock in the following order to ensure that cer
   <Step title="Build workflows">
     Next, you can begin migrating your transactional email campaigns, API-triggered campaigns, and Canvases into Knock workflows.
     
-    To export your existing Braze campaign content, you can:
-        - Use the Braze export campaign details API to programmatically retrieve campaign templates and content
-        - Access your campaign content through the Braze dashboard by navigating to your campaigns
-        - Use the [Knock MCP server](/developer-tools/mcp-server) to help automate the template conversion process, including assisting in updating Braze-specific Liquid variables to Knock Liquid syntax. 
-        - Manually recreate your message content in Knock workflows
+    To export your existing Braze campaign content, you can either:
+        - Use the Braze export campaign details API to programmatically retrieve campaign templates and content.
+        - Access your campaign content through the Braze dashboard by navigating to your campaigns.
+
+    You can then upsert your message content into Knock workflows by either:
+        - Using the [Knock MCP server](/developer-tools/mcp-server) to help automate the template conversion process, including assisting in updating Braze-specific Liquid variables to Knock Liquid syntax.
+        - Manually recreating your message content in Knock workflows with the dashboard template editor.
 
     Knock's environment model means that you'll be upserting all of your workflows and other dashboard resources to your Development environment, where you'll commit and then promote changes to higher environments (like Production). Read more [here](/concepts/environments).
 
@@ -174,7 +176,7 @@ We recommend migrating data into Knock in the following order to ensure that cer
       1. Export a list of all Braze campaigns, Canvases, and email templates that include translation tags and note which locales they cover.
       2. Use Braze’s bulk‑translation APIs to pull down the raw locale data for those assets.
       3. Each Braze export is grouped by message variant. You'll need to decide on a universal key pattern for Knock and convert the Braze JSON/CSV into locale‑key‑value maps that match this pattern. Be sure to check pluralization, as Braze sometimes stores counts as separate rows, but Knock supports `zero`/`one`/`other` [rules](/concepts/translations#pluralization) out‑of‑the‑box.
-      4. For each locale, call Knock’s Management API to upsert the file into your Knock environment. Once the locale is in place, templates can reference the strings with the `t` tag.
+      4. For each locale, call Knock's Management API to upsert the translation file into your Knock environment. Once the translations are in place, templates can reference the strings using the `t` filter (e.g., `{{ "welcome_message" | t }}`) where you specify the exact translation keys you created.
 
 
     <AccordionGroup>
