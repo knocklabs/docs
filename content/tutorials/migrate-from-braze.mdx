@@ -23,7 +23,7 @@ In addition to first-party integrations with message delivery platforms, Knock a
 
 Braze uses the concept of <a href="https://www.braze.com/docs/user_guide/getting_started/users_segments/#users" target="_blank">users</a> to represent the recipients of notifications, with custom attributes and profile data associated with each user.
 
-Knock uses a similar concept of [users](/concepts/users) objects on which you can store any number of custom properties related to your notifications' recipients.
+Knock uses a similar concept of [user](/concepts/users) objects on which you can store any number of custom properties related to your notifications' recipients.
 
 ### Campaigns and workflows
 
@@ -31,7 +31,7 @@ In Braze, your transactional messaging is handled through <a href="https://www.b
 
 Knock combines these into a single resource called a [workflow](/concepts/workflows), which serves as a container for all of the logic and message templates associated with a given notification in your system.
 
-When you’re ready to start sending notifications, you’ll do so by [triggering](/send-notifications/triggering-workflows) your workflows, similar to how you trigger Braze campaigns.
+When you’re ready to start sending notifications, you’ll do so by [triggering](/send-notifications/triggering-workflows) your workflows, similarly to how you trigger Braze campaigns.
 
 ### Template management
 
@@ -79,11 +79,11 @@ Key advantages of Knock's tenant approach:
 
 ### Subscriptions and preferences
 
-Braze manages user subscription preferences through <a href="https://www.braze.com/docs/api/endpoints/subscription_groups" target="_blank">subscription groups</a> and global subscription states (`email_subscribe` and `push_subscribe`.) Users can be subscribed, unsubscribed, or opted-in to different messaging channels and specific subscription groups. See Braze's documentation on <a href="https://www.braze.com/docs/user_guide/message_building_by_channel/email/managing_user_subscriptions" target="_blank">email subscription management</a> and <a href="https://www.braze.com/docs/user_guide/message_building_by_channel/sms_mms_rcs/subscription_groups" target="_blank">SMS subscription groups</a> for more details.
+Braze manages user subscription preferences through <a href="https://www.braze.com/docs/api/endpoints/subscription_groups" target="_blank">subscription groups</a> and global subscription states (`email_subscribe` and `push_subscribe`). Users can be subscribed, unsubscribed, or opted-in to different messaging channels and specific subscription groups. See Braze's documentation on <a href="https://www.braze.com/docs/user_guide/message_building_by_channel/email/managing_user_subscriptions" target="_blank">email subscription management</a> and <a href="https://www.braze.com/docs/user_guide/message_building_by_channel/sms_mms_rcs/subscription_groups" target="_blank">SMS subscription groups</a> for more details.
 
 Knock provides two features that together replace Braze subscription groups:
 
-- [Preferences](/preferences/overview) handle communication opt-outs similar to Braze's marketing-focused subscription groups, with enhanced flexibility for channel-specific, category-based, or workflow-specific preferences that can be [tenant-specific](/preferences/tenant-preferences) or [conditional](/preferences/preference-conditions).
+- [Preferences](/preferences/overview) handle communication opt-outs similarly to Braze's marketing-focused subscription groups, but with enhanced flexibility for channel-specific, category-based, or workflow-specific preferences that can be [tenant-specific](/preferences/tenant-preferences) or [conditional](/preferences/preference-conditions).
 
 - [Subscriptions](/concepts/subscriptions) express relationships between [recipients](/concepts/recipients) and [objects](/concepts/objects) in your [data model](/tutorials/modeling-users-objects-and-tenants), enabling you to notify large numbers of recipients by triggering workflows for a single object recipient and letting Knock handle the recipient fanout for you rather than resolving recipient lists in your system when you trigger your notifications.
 
@@ -103,25 +103,6 @@ Knock offers APIs and developer tools that make a migration smooth and efficient
 - A command line interface ([Knock CLI](/developer-tools/knock-cli)) that wraps the Management API, enabling you to work with your dashboard resources from the command line.
 - [Bulk endpoints](/api-reference/overview/bulk-endpoints) that enable you to upsert large amounts of data in a single API request (more on specific endpoints below.)
 - [Knock MCP server](/developer-tools/mcp-server) that enables AI assistants to help migrate workflows and templates from other platforms.
-
-<Callout
-  emoji="🚸"
-  title="Inline recipient identification."
-  text={
-    <>
-      While the following steps outline a suggested order for migrating
-      individual resource types into Knock based on your existing Braze
-      integration, it’s helpful to note that Knock also supports{" "}
-      <a href="/managing-recipients/identifying-recipients#inline-identifying-recipients">
-        inline identification
-      </a>{" "}
-      of recipients in order to enable you to upsert recipients as you are
-      performing other actions like triggering a workflow or creating
-      subscriptions. Your approach may vary depending on your specific
-      requirements.
-    </>
-  }
-/>
 
 We recommend migrating data into Knock in the following order to ensure that certain resources which are dependencies of other resources are migrated first:
 
@@ -222,7 +203,23 @@ We recommend migrating data into Knock in the following order to ensure that cer
     Migrating your users and their data will be one of the most important parts of a transition from Braze to Knock. There are several key considerations and steps to ensure a smooth migration:
       - Braze provides <a href="https://www.braze.com/docs/api/endpoints/export/user_data/post_users_identifier" target="_blank">user export endpoints</a> for exporting user data in batches.
       - Knock uses the concept of [environments](/concepts/environments) to ensure logical separation of your data between local, staging, and production environments. This means that recipients and preferences created in one environment are never accessible to another. Your data for production users should be migrated into your Production environment in Knock.
-      - Knock offers several different ways of “identifying” user data into our systems, and the best approach for you may differ depending on your use case. You can read more about the various approaches [here](/managing-recipients/identifying-recipients).
+
+    <Callout
+      emoji="🚸"
+      title="Inline recipient identification."
+      text={
+        <>
+          While we're showing user migration as a discrete step, it’s helpful to note that Knock also supports{" "}
+          <a href="/managing-recipients/identifying-recipients#inline-identifying-recipients">
+            inline identification
+          </a>{" "}
+          of recipients in order to enable you to upsert recipients as you are
+          performing other actions like triggering a workflow or creating
+          subscriptions. Your approach may vary depending on your specific
+          requirements.
+        </>
+      }
+    />
 
     <AccordionGroup>
       <Accordion title="Relevant endpoints">
