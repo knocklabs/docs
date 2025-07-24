@@ -535,6 +535,22 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    BroadcastSendRequest:
+      description: A request to send or schedule a broadcast.
+      example:
+        send_at: "2024-03-20T10:00:00Z"
+      properties:
+        send_at:
+          description: When to send the broadcast. If provided, the broadcast will be scheduled to send at this time. Must be in ISO 8601 UTC format. If not provided, the broadcast will be sent immediately.
+          example: "2024-03-20T10:00:00Z"
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      title: BroadcastSendRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BroadcastSendRequest
+      x-validate: null
     WrappedPartialRequestRequest:
       description: Wraps the PartialRequest request under the partial key.
       example:
@@ -1502,6 +1518,136 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ConditionGroup
       x-validate: null
+    BroadcastRequest:
+      description: A broadcast request for upserting a broadcast.
+      example:
+        categories:
+          - announcement
+        description: A broadcast to all users
+        name: My Broadcast
+        settings:
+          is_commercial: true
+          override_preferences: false
+        steps:
+          - channel_key: in-app-feed
+            name: Channel 1
+            ref: channel_1
+            template:
+              action_url: '{{ vars.app_url }}'
+              markdown_body: Hello **{{ recipient.name }}**
+            type: channel
+        target_audience_key: all-users
+      properties:
+        categories:
+          description: A list of categories that the broadcast belongs to.
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a broadcast object. Useful for adding notes about the broadcast for internal purposes. Maximum of 280 characters allowed.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the broadcast. Must be at maximum 255 characters in length.
+          type: string
+          x-struct: null
+          x-validate: null
+        scheduled_at:
+          description: The timestamp of when the broadcast is scheduled to be sent.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: A map of broadcast settings.
+          properties:
+            is_commercial:
+              description: Whether the broadcast is commercial. Defaults to true.
+              example: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+            override_preferences:
+              description: Whether to ignore recipient preferences for a given type of notification. If true, will send for every channel in the workflow even if the recipient has opted out of a certain kind. Defaults to false.
+              example: false
+              type: boolean
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        steps:
+          description: A list of broadcast step objects in the broadcast. Broadcasts only support channel, branch, and delay steps.
+          items:
+            description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
+            oneOf:
+              - $ref: '#/components/schemas/WorkflowChannelStep'
+              - $ref: '#/components/schemas/WorkflowBranchStep'
+              - $ref: '#/components/schemas/WorkflowDelayStep'
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        target_audience_key:
+          description: The key of the audience to target for this broadcast.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+        - steps
+      title: BroadcastRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BroadcastRequest
+      x-validate: null
+    WrappedBroadcastResponse:
+      description: Wraps the Broadcast response under the `broadcast` key.
+      example:
+        broadcast:
+          categories:
+            - marketing
+            - promotions
+          created_at: "2022-12-16T19:07:50.027113Z"
+          description: Holiday promotion broadcast for December
+          environment: development
+          key: december-promotion
+          name: December Promotion
+          scheduled_at: null
+          sent_at: null
+          settings:
+            is_commercial: true
+            override_preferences: false
+          sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+          status: draft
+          steps:
+            - channel_key: in-app-feed
+              description: Main in-app feed
+              name: In-app step
+              ref: in_app_feed_1
+              template:
+                action_url: '{{ vars.app_url }}'
+                markdown_body: Hello **{{ recipient.name }}**
+              type: channel
+          target_audience_key: premium-users
+          updated_at: "2023-02-08T22:15:19.846681Z"
+          valid: true
+      properties:
+        broadcast:
+          $ref: '#/components/schemas/Broadcast'
+      required:
+        - broadcast
+      title: WrappedBroadcastResponse
+      type: object
+      x-struct: null
+      x-validate: null
     WorkflowRequest:
       description: A workflow request for upserting a workflow.
       example:
@@ -1683,6 +1829,35 @@ components:
       title: EmailPartialBlock
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EmailBlocks.PartialBlock
+      x-validate: null
+    WrappedBroadcastRequestRequest:
+      description: Wraps the BroadcastRequest request under the broadcast key.
+      example:
+        broadcast:
+          categories:
+            - announcement
+          description: A broadcast to all users
+          name: My Broadcast
+          settings:
+            is_commercial: true
+            override_preferences: false
+          steps:
+            - channel_key: in-app-feed
+              name: Channel 1
+              ref: channel_1
+              template:
+                action_url: '{{ vars.app_url }}'
+                markdown_body: Hello **{{ recipient.name }}**
+              type: channel
+          target_audience_key: all-users
+      properties:
+        broadcast:
+          $ref: '#/components/schemas/BroadcastRequest'
+      required:
+        - broadcast
+      title: WrappedBroadcastRequestRequest
+      type: object
+      x-struct: null
       x-validate: null
     RecipientReference:
       description: A recipient reference, used when referencing a recipient by either their ID (for a user), or by a reference for an object.
@@ -6775,6 +6950,85 @@ paths:
               },
           )
           print(response.guide)
+  /v1/broadcasts/{broadcast_key}/send:
+    put:
+      callbacks: {}
+      description: |
+        Sends a broadcast immediately or schedules it to send at a future time.
+      operationId: sendBroadcast
+      parameters:
+        - description: The key of the broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BroadcastSendRequest'
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Broadcast response under the `broadcast` key.
+                example:
+                  broadcast:
+                    categories:
+                      - marketing
+                      - promotions
+                    created_at: "2022-12-16T19:07:50.027113Z"
+                    description: Holiday promotion broadcast for December
+                    environment: development
+                    key: december-promotion
+                    name: December Promotion
+                    scheduled_at: null
+                    sent_at: null
+                    settings:
+                      is_commercial: true
+                      override_preferences: false
+                    sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+                    status: draft
+                    steps:
+                      - channel_key: in-app-feed
+                        description: Main in-app feed
+                        name: In-app step
+                        ref: in_app_feed_1
+                        template:
+                          action_url: '{{ vars.app_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**
+                        type: channel
+                    target_audience_key: premium-users
+                    updated_at: "2023-02-08T22:15:19.846681Z"
+                    valid: true
+                properties:
+                  broadcast:
+                    $ref: '#/components/schemas/Broadcast'
+                required:
+                  - broadcast
+                title: WrappedBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Send a broadcast
+      tags:
+        - Broadcasts
   /v1/guides:
     get:
       callbacks: {}
@@ -6917,6 +7171,112 @@ paths:
           )
           page = page.entries[0]
           print(page.target_audience_id)
+  /v1/broadcasts/{broadcast_key}/validate:
+    put:
+      callbacks: {}
+      description: |
+        Validates a broadcast payload without persisting it.
+      operationId: validateBroadcast
+      parameters:
+        - description: The key of the broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the BroadcastRequest request under the broadcast key.
+              example:
+                broadcast:
+                  categories:
+                    - announcement
+                  description: A broadcast to all users
+                  name: My Broadcast
+                  settings:
+                    is_commercial: true
+                    override_preferences: false
+                  steps:
+                    - channel_key: in-app-feed
+                      name: Channel 1
+                      ref: channel_1
+                      template:
+                        action_url: '{{ vars.app_url }}'
+                        markdown_body: Hello **{{ recipient.name }}**
+                      type: channel
+                  target_audience_key: all-users
+              properties:
+                broadcast:
+                  $ref: '#/components/schemas/BroadcastRequest'
+              required:
+                - broadcast
+              title: WrappedBroadcastRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Broadcast response under the `broadcast` key.
+                example:
+                  broadcast:
+                    categories:
+                      - marketing
+                      - promotions
+                    created_at: "2022-12-16T19:07:50.027113Z"
+                    description: Holiday promotion broadcast for December
+                    environment: development
+                    key: december-promotion
+                    name: December Promotion
+                    scheduled_at: null
+                    sent_at: null
+                    settings:
+                      is_commercial: true
+                      override_preferences: false
+                    sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+                    status: draft
+                    steps:
+                      - channel_key: in-app-feed
+                        description: Main in-app feed
+                        name: In-app step
+                        ref: in_app_feed_1
+                        template:
+                          action_url: '{{ vars.app_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**
+                        type: channel
+                    target_audience_key: premium-users
+                    updated_at: "2023-02-08T22:15:19.846681Z"
+                    valid: true
+                properties:
+                  broadcast:
+                    $ref: '#/components/schemas/Broadcast'
+                required:
+                  - broadcast
+                title: WrappedBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Validate a broadcast
+      tags:
+        - Broadcasts
   /v1/translations:
     get:
       callbacks: {}
@@ -10463,6 +10823,119 @@ paths:
       summary: Get a broadcast
       tags:
         - Broadcasts
+    put:
+      callbacks: {}
+      description: |
+        Updates a broadcast of a given key, or creates a new one if it does not yet exist.
+      operationId: upsertBroadcast
+      parameters:
+        - description: The key of the broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the BroadcastRequest request under the broadcast key.
+              example:
+                broadcast:
+                  categories:
+                    - announcement
+                  description: A broadcast to all users
+                  name: My Broadcast
+                  settings:
+                    is_commercial: true
+                    override_preferences: false
+                  steps:
+                    - channel_key: in-app-feed
+                      name: Channel 1
+                      ref: channel_1
+                      template:
+                        action_url: '{{ vars.app_url }}'
+                        markdown_body: Hello **{{ recipient.name }}**
+                      type: channel
+                  target_audience_key: all-users
+              properties:
+                broadcast:
+                  $ref: '#/components/schemas/BroadcastRequest'
+              required:
+                - broadcast
+              title: WrappedBroadcastRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Broadcast response under the `broadcast` key.
+                example:
+                  broadcast:
+                    categories:
+                      - marketing
+                      - promotions
+                    created_at: "2022-12-16T19:07:50.027113Z"
+                    description: Holiday promotion broadcast for December
+                    environment: development
+                    key: december-promotion
+                    name: December Promotion
+                    scheduled_at: null
+                    sent_at: null
+                    settings:
+                      is_commercial: true
+                      override_preferences: false
+                    sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+                    status: draft
+                    steps:
+                      - channel_key: in-app-feed
+                        description: Main in-app feed
+                        name: In-app step
+                        ref: in_app_feed_1
+                        template:
+                          action_url: '{{ vars.app_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**
+                        type: channel
+                    target_audience_key: premium-users
+                    updated_at: "2023-02-08T22:15:19.846681Z"
+                    valid: true
+                properties:
+                  broadcast:
+                    $ref: '#/components/schemas/Broadcast'
+                required:
+                  - broadcast
+                title: WrappedBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert a broadcast
+      tags:
+        - Broadcasts
   /v1/message_types:
     get:
       callbacks: {}
@@ -10601,6 +11074,78 @@ paths:
           )
           page = page.entries[0]
           print(page.valid)
+  /v1/broadcasts/{broadcast_key}/cancel:
+    put:
+      callbacks: {}
+      description: |
+        Cancels sending a scheduled broadcast. The broadcast will return to draft status.
+      operationId: cancelBroadcast
+      parameters:
+        - description: The key of the broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Broadcast response under the `broadcast` key.
+                example:
+                  broadcast:
+                    categories:
+                      - marketing
+                      - promotions
+                    created_at: "2022-12-16T19:07:50.027113Z"
+                    description: Holiday promotion broadcast for December
+                    environment: development
+                    key: december-promotion
+                    name: December Promotion
+                    scheduled_at: null
+                    sent_at: null
+                    settings:
+                      is_commercial: true
+                      override_preferences: false
+                    sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+                    status: draft
+                    steps:
+                      - channel_key: in-app-feed
+                        description: Main in-app feed
+                        name: In-app step
+                        ref: in_app_feed_1
+                        template:
+                          action_url: '{{ vars.app_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**
+                        type: channel
+                    target_audience_key: premium-users
+                    updated_at: "2023-02-08T22:15:19.846681Z"
+                    valid: true
+                properties:
+                  broadcast:
+                    $ref: '#/components/schemas/Broadcast'
+                required:
+                  - broadcast
+                title: WrappedBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Cancel a scheduled broadcast
+      tags:
+        - Broadcasts
 security:
   - BearerAuth: []
 servers:
