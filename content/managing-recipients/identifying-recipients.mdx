@@ -5,22 +5,21 @@ tags: ["recipients", "inline identify", "identify"]
 section: Managing recipients
 ---
 
-To send notifications to a recipient (or to reference a recipient as an actor in a notification), Knock needs the recipient's data to be stored in Knock. This process is known as **identifying** and works across user and object recipients.
+To send notifications to a recipient or reference them as an actor in a notification, their data must be stored in Knock. This process is called **identifying** and works across user and object recipients.
 
-There are three different methods to identify recipients:
+There are four different methods to identify recipients:
 
 - Individual identification
 - Bulk identification
 - Inline identification
-
-In this guide we discuss each of these methods.
+- Client-side identification
 
 <Callout
-  emoji="🌠"
+  emoji="💡"
   title="Note:"
   text={
     <>
-      all identification methods in Knock use an upsert approach. This means any
+      All identification methods in Knock use an upsert approach. This means any
       existing data for a recipient is merged during the upsert operation.
     </>
   }
@@ -28,78 +27,121 @@ In this guide we discuss each of these methods.
 
 ## Explicitly identifying recipients
 
-### Individually identifying recipients
+You can explicitly identify recipients before using them in other operations by making direct API calls to Knock's individual or bulk identification endpoints.
 
-You can use the individual identification API to upsert a single recipient's data into Knock. The individual identify API is useful to ensure that user data is updated on an ongoing basis, like when a user updates their profile information inside of your product and you need to ensure it's reflected within Knock.
+<AccordionGroup>
+  <Accordion title="Individual identification">
+    The individual identification API upserts a single recipient's data into Knock. This is useful to ensure that user data is updated on an ongoing basis, like reflecting updates a user makes to their profile information inside of your product.
 
-<MultiLangCodeBlock snippet="users.identify" title="Identify a user" />
+    <MultiLangCodeBlock snippet="users.identify" title="Identify a user" />
+    
+    [API reference ->](/api-reference/users/update)
+  </Accordion>
 
-[API reference ->](/api-reference/users/update)
+  <Accordion title="Bulk identification">
+    The bulk identification API enables you to identify multiple recipients simultaneously. This is useful when importing existing data into Knock during setup or when making large-scale updates.
 
-### Bulk identifying recipients
+    <MultiLangCodeBlock snippet="users.bulkIdentify" title="Bulk identify users" />
 
-While identifying individual recipients is useful, you may also need to identify multiple recipients at once. This can be useful when you're importing data into Knock to get started.
-
-<MultiLangCodeBlock snippet="users.bulkIdentify" title="Bulk identify users" />
-
-[API reference ->](/api-reference/users/bulk)
+    [API reference ->](/api-reference/users/bulk)
+  </Accordion>
+</AccordionGroup>
 
 ## Inline identifying recipients
 
-It's also possible to inline identify recipients while issuing calls to certain resources within Knock. Inline identifying will always upsert the recipients being passed in before executing the remainder of the request. This can be useful for ensuring that your recipients exist within Knock before executing calls that reference those recipients.
+You can also identify recipients during other operations, eliminating the need for separate identification API calls. 
 
-You can also inline identify actors in the same way.
+When using inline identification, Knock guarantees that recipients are identified before executing any other action. This enables lazy recipient creation within Knock and ensures that your recipients exist within Knock before executing calls that reference them. Inline identification is available both server-side and client-side.
 
-Inline identification works with any endpoint that accepts a list of recipients:
+Inline identification [requires a list of user objects](/api-reference/users/schemas/inline_identify_user_request) and each object must include an `id`, but may include other [user properties](/managing-recipients/identifying-recipients#setting-properties-while-identifying-recipients) to be upserted.
 
-- [Workflow triggers](/api-reference/workflows/trigger)
-- [Subscriptions](/api-reference/objects/add_subscriptions)
-- [Schedules](/api-reference/schedules/create)
 
-<MultiLangCodeBlock
-  snippet="workflows.trigger-with-user-identification"
-  title="Trigger your workflow"
-/>
 
-[API reference ->](/api-reference/workflows/trigger)
+<AccordionGroup>
+  <Accordion title="Server-side inline identification">
+    Server-side, inline identification works with any endpoint that accepts a list of recipients:
 
-### How inline identification works
+    - [Workflow triggers](/api-reference/workflows/trigger)
+    - [Schedules](/api-reference/schedules/create)
+    - [Bulk schedules](/api-reference/schedules/bulk-create)
+    - [Subscriptions](/api-reference/objects/add_subscriptions)
+    - [Bulk subscriptions](/api-reference/objects/bulk-add-subscriptions)
 
-When passing a set of recipients to be inline identified, Knock will guarantee that the recipients are identified **before** any other action is executed. That makes it possible to lazily create recipients within Knock using inline identification, only creating them when needed.
+    <MultiLangCodeBlock
+      snippet="workflows.trigger-with-user-identification"
+      title="Trigger your workflow"
+    />
+
+    [API reference ->](/api-reference/workflows/trigger)
+
+  </Accordion>
+
+  <Accordion title="Client-side inline identification">
+    For in-app UI components like [feeds](/in-app-ui/react/feed#rendering-the-component) and [guides](/in-app-ui/guides/render-guides#getting-started), you can inline identify recipients directly from the client side using Knock's React or JavaScript SDKs. This approach is particularly useful when building real-time notification experiences where recipient data is immediately required in your frontend application.
+
+    Client-side identification is handled automatically when you initialize the `KnockProvider` with user data. When mounted, the provider will identify the user in Knock by upserting the provided user information.
+
+    ```jsx title="Client-side identification with React"
+        <KnockProvider
+          apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+          user={{ id: user.id }}
+        >
+          <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
+            <>
+              <NotificationIconButton
+                ref={notifButtonRef}
+                onClick={(e) => setIsVisible(!isVisible)}
+              />
+              <NotificationFeedPopover
+                buttonRef={notifButtonRef}
+                isVisible={isVisible}
+                onClose={() => setIsVisible(false)}
+              />
+            </>
+          </KnockFeedProvider>
+        </KnockProvider>
+    ```
+
+    <Callout
+      emoji="🔒"
+      title="Security considerations"
+      text={
+        <>
+          Client-side identification should only be used with your{" "}
+          <strong>public API key</strong> and is best suited for use cases where
+          you're displaying in-app notifications. For more sensitive operations or
+          when you need to set extensive user properties, use server-side
+          identification methods.
+        </>
+      }
+    />
+  </Accordion>
+</AccordionGroup>
 
 ## Setting properties while identifying recipients
 
-When identifying recipients you pass a set of properties for the recipient that are persisted. No properties on the recipient are required except for `id`. Generally, the best practice here is to use your internal identifier for your users as the `id`.
+When identifying recipients, you pass a set of properties that are persisted. We recommend using your internal user identifier for the `id` value, which is the only required property. Although additional properties aren't required for identification, some properties such as `email` or `phone_number` are required for certain [channel steps](/designing-workflows/channel-step).
 
-<Callout
-  emoji="🙈"
-  title="Note:"
-  text={
-    <>
-      Although an <code>id</code> is the only required recipient property,
-      triggering a workflow for a recipient which has only an <code>id</code>{" "}
-      and no other properties can result in{" "}
-      <a href="/designing-workflows/channel-step">channel steps</a> other than
-      an In-app feed being skipped. This occurs when Knock does not have the
-      necessary recipient data to deliver a notification.
-    </>
-  }
-/>
+### Reserved properties
 
-There are some reserved property names for recipients that have special meaning:
+Recipients have some reserved property names:
 
-- `name`: The given name of the recipient
-- `email`: A valid email address to deliver email notifications to
-- `locale`: A locale code for the recipient, used for internationalizing content
-- `phone_number`: A E.164 compliant phone number field used when sending SMS messages
-- `created_at`: An ISO-8601 datetime of when the recipient was created
+| Property | Description |
+|----------|-------------|
+| `name` | The name of the recipient. |
+| `email` | A valid email address to deliver email notifications to. |
+| `locale` | A locale code for the recipient, used for internationalizing content. |
+| `phone_number` | An E.164 compliant phone number field used when sending SMS messages. |
+| `created_at` | An ISO-8601 datetime of when the recipient was created. |
 
-A recipient also accepts any number of custom properties, which are key-value pairs that you define. It's useful to store custom properties on your recipients so that you can reference these attributes when sending notifications, or for use in message templates.
+### Custom properties
+
+Recipients also accept any number of custom properties as key-value pairs that you define. Custom properties enable you to reference recipient attributes when sending notifications.
 
 <Callout
   emoji="⚠️"
   title="Recipient custom properties cannot exceed 256 kB in size."
-  bgColor="yellow"
+  bgColor="red"
   text={
     <>
       When directly identifying your recipients, an update that would result in
@@ -109,87 +151,91 @@ A recipient also accepts any number of custom properties, which are key-value pa
   }
 />
 
-### Setting preferences and channel data
 
-It's also possible to set preferences and channel data for a recipient during the identification process.
-
-Preferences are passed as a dictionary under the `preferences` key, where the key represents the preference set id:
-
-```json title="Setting preferences inline"
-{
-  "preferences": {
-    "default": {
-      "channel_types": { "email": true }
-    }
-  }
-}
-```
-
-Channel data is passed as a dictionary under the `channel_data` key, where the key represents the channel id:
-
-```json title="Setting channel data"
-{
-  "channel_data": {
-    "some-uuid-for-a-channel": {
-      "tokens": ["my-push-token"]
-    }
-  }
-}
-```
 
 ## When to identify recipients in Knock
 
 Knock provides a flexible set of APIs for you to manage your user data as you scale with us. Ultimately, it's up to you to decide upon the best approach for how you manage your user data with Knock.
 
-Below we discuss some common scenarios to consider.
+### Initial setup
 
-### Initial setup: inline vs. bulk identification
+When getting started with Knock, you'll likely have existing recipients to migrate into Knock:
 
-When you're first getting started with Knock, you'll likely have a number of existing recipients that you want to migrate into Knock. If you're looking to get started with Knock quickly, you can use [inline identification](#inline-identifying-recipients) to start calling your workflows without any prerequisite calls to the Knock API.
+- **Quick start**: Use [inline identification](#inline-identifying-recipients) to start calling your workflows without any prerequisite calls to the Knock API.
+- **Data import**: Use our [bulk identification](#bulk-identifying-recipients) to import all recipient data into Knock first.
 
-If you first want to get all your recipients into Knock, the easiest path forward would be via our [bulk identification flow](#bulk-identifying-recipients).
+### Ongoing recipient updates
 
-### Identifying recipients on an ongoing basis: jobs vs. inline identification
+After identifying your current recipients in Knock, you'll want to continue to update this data when:
 
-Once you've migrated your current recipients into Knock, you'll want to continue to update this data in Knock for two key cases:
+- New recipients sign up for your product.
+- Knock-relevant data (e.g., `name` or `email`) about a user changes.
 
-1. When new recipients sign up for your product.
-2. When Knock-relevant data about a user changes, like a name or an email address.
-
-One common approach is to make subsequent calls to the Knock's user identify API following such events. For example, you could do this via a deferred job in your backend systems.
+A common approach is making subsequent calls to Knock's user identify API following such events. Many customers do this via a deferred job in their backend systems.
 
 Another option is to offload these updates to your workflow trigger calls via inline identification. If you always send Knock the full set of data for your recipients [via workflow trigger calls](/api-reference/workflows/trigger), you can keep your user data up to date in Knock without any additional handling on your end.
 
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="Can I set a user's preferences while inline identifying?">
-    Preferences can be set during a workflow trigger using [inline identify](/send-notifications/triggering-workflows/api#identifying-recipients-inline). One or more preference sets (including [per-tenant preferences](/preferences/tenant-preferences)) can be upserted by passing a dictionary of [PreferenceSets](/preferences/overview), where each key in the dictionary is the preference set ID.
+  <Accordion title="Why isn't inline identification working?">
+    A common mistake when implementing inline identification is accidentally passing a list of user ID strings instead of user objects. Inline identification requires user objects (even if they only contain an `id` property), not ID strings.
 
-    Unlike the `setPreferences` [method](/preferences/overview#set-a-users-preferences), setting preferences inline requires you to explicitly provide the `default` preference set key when updating default preferences.
+    ```json title="Incorrectly passing ID strings:"
+    {
+      "recipients": ["user-123", "user-456"]
+    }
+    ```
 
-    <Callout
-      emoji="🚨"
-      bgColor="red"
-      title="Please note:"
-      text={
-        <>
-          unlike our preferences endpoints, which will overwrite any existing preferences with the preferences provided,
-          setting preferences inline will perform a deep merge of the provided preferences into any existing preferences
-          (just like any other <a href="/concepts/users#storing-user-properties">properties stored on the recipient</a>).
-          Unless you intend to leverage this behavior for a specific use case, we generally recommend against using
-          inline preferences to ensure the integrity of your data.
-        </>
+    ```json title="Correctly passing user objects:"
+    {
+      "recipients": [ { "id": "user-123" }, { "id": "user-456" } ]
+    }
+    ```
+  </Accordion>
+
+      <Accordion title="Can I set a user's preferences during identification?">
+    Yes, preferences can be set during identification, but it's important to understand the implications. Unlike our preferences endpoints, setting preferences during identification will perform a deep merge of the provided preferences into any existing preferences (just like any other <a href="/concepts/users#storing-user-properties">properties stored on the recipient</a>). Unless you intend to leverage this behavior for a specific use case, we generally recommend updating preferences directly via the preferences endpoints.
+          
+  To set preferences during identification, provide a dictionary under the `preferences` key with each key representing a preference set ID. Unlike the `setPreferences` [method](/preferences/overview#set-a-users-preferences), setting preferences during identification requires explicitly providing the `default` preference set key when updating default preferences.
+
+    ```json title="Providing preferences during identification"
+    {
+      "id": "user-123",
+      "name": "John Doe",
+      "preferences": {
+        "default": {
+          "channel_types": { "email": true, "sms": false }
+        }
       }
-    />
+    }
+    ```
 
-
-    <br />
+    For workflow triggers with [inline identify](/send-notifications/triggering-workflows/api#identifying-recipients-inline), one or more preference sets (including [per-tenant preferences](/preferences/tenant-preferences)) can be upserted by passing a dictionary of [PreferenceSets](/preferences/overview).
 
     <MultiLangCodeBlock
       title="Setting preferences during a workflow trigger"
       snippet="workflows.trigger-with-user-preferences"
     />
 
+    [API reference ->](/api-reference/workflows/trigger)
+  </Accordion>
+
+  <Accordion title="Can I set channel data during identification?">
+    Yes, channel data can be set during identification by passing a dictionary under the `channel_data` key, where each key represents the channel ID and the value contains the channel-specific data.
+
+    ```json title="Setting channel data during identification"
+    {
+      "id": "user-123",
+      "name": "John Doe",
+      "channel_data": {
+        "some-uuid-for-a-channel": {
+          "tokens": ["my-push-token"]
+        }
+      }
+    }
+    ```
+
+    This is particularly useful for setting push notification tokens, device information, or other channel-specific configuration data when identifying users.
   </Accordion>
 </AccordionGroup>
