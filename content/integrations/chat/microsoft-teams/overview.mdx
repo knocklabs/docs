@@ -20,7 +20,7 @@ Here's what we'll cover in this guide.
 Today, Knock supports sending notifications to Microsoft Teams using two different methods:
 
 - Using an incoming webhook URL. This is suitable for [internal or one-off integrations](/integrations/chat/microsoft-teams/sending-an-internal-message).
-- As a Microsoft Teams bot registered with Azure. This is suitable for multi-tenant integrations, and supports both [sending notifications to channels](/integrations/chat/microsoft-teams/sending-a-message-to-channels) and [sending direct messages to users](/integrations/chat/microsoft-teams/sending-a-direct-message).
+- As a Microsoft Teams bot registered with Azure. This is suitable for bots published to the Microsoft Teams Store, and supports both [sending notifications to channels](/integrations/chat/microsoft-teams/sending-a-message-to-channels) and [sending direct messages to users](/integrations/chat/microsoft-teams/sending-a-direct-message).
 
 How you configure your Microsoft Teams channel in Knock depends on the method you choose.
 
@@ -34,13 +34,62 @@ If you're using a Microsoft Teams bot, make sure your bot has been registered an
 
 Additionally, if you intend to use [TeamsKit](/in-app-ui/react/teams-kit) or Knock's [Microsoft Teams-related React hooks](/in-app-ui/react/teams-kit#using-teamskit-headless), you'll need to [configure your bot in the Microsoft Entra admin center](#configuring-your-bot-in-microsoft-entra).
 
+<Callout
+  emoji="💡"
+  title="Note:"
+  text={
+    <>
+      At this time, Knock only supports Microsoft Teams bots that have been
+      registered with Azure as single-tenant or multi-tenant.
+    </>
+  }
+/>
+
 ### Add Teams to Knock as a channel
 
 First you'll need to add Teams as a channel in Knock. Navigate to **Integrations** > **Channels** within your Knock dashboard and click “Create channel” to add Microsoft Teams.
 
 If you're using an incoming webhook URL, no additional environment configuration is required.
 
-If you're using a Microsoft Teams bot, click “Manage configuration”, scroll down to “Provider settings”, and enter the ID and password associated with your bot.
+If you're using a Microsoft Teams bot, follow these steps to configure your bot in the Knock dashboard.
+
+<Steps>
+  <Step title="Open the environment configuration dialog">
+    Click “Manage configuration” and scroll down to “Provider settings”.
+  </Step>
+  <Step title="Select your bot’s type">
+    If your bot is registered with Azure as a single-tenant bot, select “Single-tenant”.
+    Then, in the “Entra tenant ID” text field, enter the ID of the Microsoft
+    Entra tenant in which your bot is registered.
+    <br />
+    If your bot is registered with Azure as a multi-tenant bot, select “Multi-tenant” in the “Bot type” dropdown.
+    Entering an “Entra tenant ID” is not required for multi-tenant bots.
+    <br />
+    You can locate these values in the <a href="https://portal.azure.com/" target="_blank">Azure Portal</a> by
+    navigating to your Azure Bot resource and selecting “Settings” > “Configuration” in the sidebar to view your
+    bot’s configuration details. The “Bot Type” dropdown menu will indicate whether your bot is multi-tenant or
+    single-tenant. The “App Tenant ID” text field will display the ID of your Entra tenant.
+
+    <figure>
+      <Image
+        src="/images/integrations/chat/microsoft-teams/azure-bot-config.png"
+        className="rounded-md mx-auto border border-gray-200"
+        alt="Configuration page for an Azure Bot resource"
+        width={1310}
+        height={564}
+      />
+      <figcaption>
+        “Bot Type” and “App Tenant ID” fields on the Azure Bot resource configuration page
+      </figcaption>
+    </figure>
+
+  </Step>
+  <Step title="Enter your bot’s credentials">
+    In the “Bot ID” and “Bot password” fields, enter the ID and password
+    associated with your bot. Click the “Update settings” button to save your
+    changes.
+  </Step>
+</Steps>
 
 ### Add a Teams channel step to a workflow
 
