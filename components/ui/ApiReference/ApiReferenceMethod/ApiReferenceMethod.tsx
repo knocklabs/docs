@@ -25,7 +25,7 @@ type Props = {
   methodType: "get" | "post" | "put" | "delete";
   endpoint: string;
   path?: string;
-  mdPath?: string; // New prop for custom markdown path
+  mdPath?: string;
 };
 
 function ApiReferenceMethod({

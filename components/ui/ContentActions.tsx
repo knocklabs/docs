@@ -10,7 +10,7 @@ import { Copy, SquareArrowOutUpRight, Check } from "lucide-react";
 
 interface ContentActionsProps extends TgphComponentProps<typeof Box> {
   showOnMobile?: boolean;
-  mdPath?: string; // Optional custom markdown path
+  mdPath?: string;
 }
 
 export const ContentActions: React.FC<ContentActionsProps> = ({

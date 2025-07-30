@@ -11,7 +11,7 @@ export const Section = ({
   isIdempotent = false,
   isRetentionSubject = false,
   path = undefined,
-  mdPath, // New prop for custom markdown path
+  mdPath,
 }: {
   title?: string;
   children: React.ReactNode;
