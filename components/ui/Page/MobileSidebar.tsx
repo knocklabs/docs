@@ -1,12 +1,12 @@
 import { createContext, useContext, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Box } from "@telegraph/layout";
-import { Lucide } from "@telegraph/icon";
 import { useState } from "react";
 import { Button } from "@telegraph/button";
 import { Stack } from "@telegraph/layout";
 import Link from "next/link";
 import { Sidebar } from "./Sidebar";
+import { Menu, X } from "lucide-react";
 
 interface MobileSidebarContextType {
   isOpen: boolean;
@@ -58,7 +58,7 @@ export const MobileSidebar = ({ children }: { children: React.ReactNode }) => {
         variant="ghost"
         bg="surface-1"
         icon={{
-          icon: isOpen ? Lucide.X : Lucide.Menu,
+          icon: isOpen ? X : Menu,
           "aria-hidden": false,
           alt: `${isOpen ? "Close" : "Open"} sidebar`,
         }}

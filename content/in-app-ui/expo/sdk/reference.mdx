@@ -26,9 +26,9 @@ Accepts `KnockProviderProps`
     description="The public API key for the environment"
   />
   <Attribute
-    name="userId*"
-    type="string"
-    description="The ID of the user for which to retrieve a feed"
+    name="user"
+    type="UserIdentificationOptions"
+    description="User identification data."
   />
   <Attribute
     name="userToken"
@@ -132,7 +132,7 @@ import { KnockProvider, useKnock } from "@knocklabs/react";
 const App = ({ authenticatedUser }) => (
   <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    userId={authenticatedUser.id}
+    user={{ id: authenticatedUser.id }}
   >
     <MyComponent />
   </KnockProvider>
@@ -196,7 +196,7 @@ import {
 const App = ({ authenticatedUser }) => (
   <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    userId={authenticatedUser.id}
+    user={{ id: authenticatedUser.id }}
   >
     <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
       <MyFeedComponent />
@@ -232,7 +232,7 @@ import { useAuthenticatedKnockClient } from "@knocklabs/expo";
 const MyComponent = () => {
   const knock = useAuthenticatedKnockClient(
     process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
+    { id: user.id },
     user.knockToken,
   );
 
@@ -258,7 +258,7 @@ import {
 const MyComponent = () => {
   const knock = useAuthenticatedKnockClient(
     process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
+    { id: user.id },
     user.knockToken,
   );
 
@@ -319,12 +319,12 @@ The `KnockExpoPushNotificationProvider` exposes a `useExpoPushNotifications` hoo
   />
   <Attribute
     name="registerPushTokenToChannel"
-    type="(token: string, channelId: string) => Promise<void>"
+    type="(token: string, channelId: string) => Promise<ChannelData | void>"
     description="Registers the device's push token with a specific channel in the Knock backend."
   />
   <Attribute
     name="unregisterPushTokenFromChannel"
-    type="(token: string, channelId: string) => Promise<void>"
+    type="(token: string, channelId: string) => Promise<ChannelData | void>"
     description="Removes the device's push token from a specific channel in the Knock backend."
   />
   <Attribute
@@ -378,6 +378,34 @@ const MyComponent = () => {
 ```
 
 ## Types
+
+### UserIdentificationOptions
+
+User identification data to pass through to the `authenticate` method.
+
+<Attributes>
+  <Attribute name="id" type="string*" description="The `id` for the user." />
+  <Attribute
+    name="[attribute_name]"
+    type="any"
+    description="Attribute to attach to the user on identification."
+  />
+</Attributes>
+
+### `ChannelData`
+
+<Attributes>
+  <Attribute
+    name="channel_id"
+    type="string*"
+    description="The unique identifier for the channel."
+  />
+  <Attribute
+    name="data"
+    type="any"
+    description="Channel data for a given channel type."
+  />
+</Attributes>
 
 ### `I18nContent`
 

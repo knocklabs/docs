@@ -1,5 +1,6 @@
-import { Icon, Lucide } from "@telegraph/icon";
+import { Icon } from "@telegraph/icon";
 import { Stack } from "@telegraph/layout";
+import { Check } from "lucide-react";
 
 interface Permission {
   name: string;
@@ -206,7 +207,7 @@ const PermissionsMatrix = ({
                             }}
                           >
                             <Icon
-                              icon={Lucide.Check}
+                              icon={Check}
                               color="white"
                               size="0"
                               aria-hidden={false}

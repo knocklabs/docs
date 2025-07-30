@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { Popover } from "@telegraph/popover";
 import { Box } from "@telegraph/layout";
 import { Button } from "@telegraph/button";
-import { Lucide } from "@telegraph/icon";
 import { MenuItem } from "@telegraph/menu";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { TgphComponentProps } from "@telegraph/helpers";
+import { Copy, SquareArrowOutUpRight, Check } from "lucide-react";
 
 interface ContentActionsProps extends TgphComponentProps<typeof Box> {
   showOnMobile?: boolean;
@@ -50,7 +50,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger asChild>
           <Button
-            icon={{ icon: Lucide.Copy, "aria-hidden": true }}
+            icon={{ icon: Copy, "aria-hidden": true }}
             variant="ghost"
             size="1"
             color="gray"
@@ -65,7 +65,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
             onClick={copyAsMarkdown}
             disabled={isCopied}
             icon={{
-              icon: isCopied ? Lucide.Check : Lucide.Copy,
+              icon: isCopied ? Check : Copy,
               "aria-hidden": true,
             }}
             py="4"
@@ -78,7 +78,7 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
           <MenuItem
             as={Link}
             icon={{
-              icon: Lucide.SquareArrowOutUpRight,
+              icon: SquareArrowOutUpRight,
               "aria-hidden": true,
             }}
             href={mdPath}

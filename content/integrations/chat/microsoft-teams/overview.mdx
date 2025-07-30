@@ -20,7 +20,7 @@ Here's what we'll cover in this guide.
 Today, Knock supports sending notifications to Microsoft Teams using two different methods:
 
 - Using an incoming webhook URL. This is suitable for [internal or one-off integrations](/integrations/chat/microsoft-teams/sending-an-internal-message).
-- As a Microsoft Teams bot, via Microsoft Bot Framework. This is suitable for multi-tenant integrations, and supports both [sending notifications to channels](/integrations/chat/microsoft-teams/sending-a-message-to-channels) and [sending direct messages to users](/integrations/chat/microsoft-teams/sending-a-direct-message).
+- As a Microsoft Teams bot registered with Azure. This is suitable for bots published to the Microsoft Teams Store, and supports both [sending notifications to channels](/integrations/chat/microsoft-teams/sending-a-message-to-channels) and [sending direct messages to users](/integrations/chat/microsoft-teams/sending-a-direct-message).
 
 How you configure your Microsoft Teams channel in Knock depends on the method you choose.
 
@@ -30,17 +30,74 @@ How you configure your Microsoft Teams channel in Knock depends on the method yo
 
 If you're using an incoming webhook URL, there are no prerequisites.
 
-If you're using a Microsoft Teams bot, make sure your bot has been registered with <a href="https://dev.botframework.com/" target="_blank">Microsoft Bot Framework</a> and is deployed to Azure. Knock does not manage deploying and configuring your bot. To set up Knock to send notifications as your bot, you'll need your bot's ID and password. These are sometimes called the App ID and App Password, and were provided to you when you registered your bot with Microsoft Bot Framework.
+If you're using a Microsoft Teams bot, make sure your bot has been registered and deployed with Azure. Knock does not manage deploying and configuring your bot. To set up Knock to send notifications as your bot, you'll need your bot's ID and password. These are sometimes called the App ID and App Password, and were provided to you when you registered your bot with Azure or the <a href="https://dev.teams.microsoft.com/" target="_blank">Microsoft Teams Developer Portal</a>.
 
-Additionally, if you intend to use [TeamsKit](/in-app-ui/react/teams-kit) or Knock's [Microsoft Teams-related React hooks](/in-app-ui/react/teams-kit#using-teamskit-headless), you'll need to [configure your bot in the Microsoft Entra admin center](#configuring-your-bot-in-microsoft-entra).
+Additionally, if you intend to use [TeamsKit](/in-app-ui/react/teams-kit) or Knock's [Microsoft Teams-related React hooks](/in-app-ui/react/teams-kit#using-teamskit-headless), you'll need to [configure a Graph API-enabled application in the Microsoft Entra admin center](#configuring-a-graph-api-enabled-application-in-microsoft-entra).
+
+<Callout
+  emoji="💡"
+  title="Note:"
+  text={
+    <>
+      At this time, Knock only supports Microsoft Teams bots that have been
+      registered with Azure as single-tenant or multi-tenant.
+    </>
+  }
+/>
 
 ### Add Teams to Knock as a channel
 
-First you'll need to add Teams as a channel in Knock. Navigate to the “Channels” page within Knock and click “Create channel” to add Microsoft Teams.
+First you'll need to add Teams as a channel in Knock. Navigate to **Integrations** > **Channels** within your Knock dashboard and click “Create channel” to add Microsoft Teams.
 
 If you're using an incoming webhook URL, no additional environment configuration is required.
 
-If you're using a Microsoft Teams bot, click “Manage configuration”, scroll down to “Provider settings”, and enter the ID and password associated with your bot.
+If you're using a Microsoft Teams bot, follow these steps to configure your bot in the Knock dashboard.
+
+<Steps>
+  <Step title="Open the environment configuration dialog">
+    Click “Manage configuration” and scroll down to “Provider settings”.
+  </Step>
+  <Step title="Select your bot’s type">
+    If your bot is registered with Azure as a single-tenant bot, select “Single-tenant”.
+    Then, in the “Entra tenant ID” text field, enter the ID of the Microsoft
+    Entra tenant in which your bot is registered.
+    <br />
+    If your bot is registered with Azure as a multi-tenant bot, select “Multi-tenant” in the “Bot type” dropdown.
+    Entering an “Entra tenant ID” is not required for multi-tenant bots.
+    <br />
+    You can locate these values in the <a href="https://portal.azure.com/" target="_blank">Azure Portal</a> by
+    navigating to your Azure Bot resource and selecting “Settings” > “Configuration” in the sidebar to view your
+    bot’s configuration details. The “Bot Type” dropdown menu will indicate whether your bot is multi-tenant or
+    single-tenant. The “App Tenant ID” text field will display the ID of your Entra tenant.
+
+    <figure>
+      <Image
+        src="/images/integrations/chat/microsoft-teams/azure-bot-config.png"
+        className="rounded-md mx-auto border border-gray-200"
+        alt="Configuration page for an Azure Bot resource"
+        width={1310}
+        height={564}
+      />
+      <figcaption>
+        “Bot Type” and “App Tenant ID” fields on the Azure Bot resource configuration page
+      </figcaption>
+    </figure>
+
+  </Step>
+  <Step title="Enter your bot’s credentials">
+    In the “Bot ID” and “Bot password” fields, enter the ID and password
+    associated with your bot. Click the “Update settings” button to save your
+    changes.
+  </Step>
+  <Step title="Enter your Graph API-enabled client credentials">
+    If you intend to use TeamsKit, you'll need to enter the client ID and secret associated with a [Graph API-enabled application](#configuring-a-graph-api-enabled-application-in-microsoft-entra) registered with Microsoft Entra. If your bot has been registered with Azure as a multi-tenant bot, you can use your bot's credentials.
+
+    In the “Graph API client ID” and “Graph API client secret” fields, enter the client ID and secret associated with your application.
+
+    Click the “Update settings” button to save your changes.
+
+  </Step>
+</Steps>
 
 ### Add a Teams channel step to a workflow
 
@@ -59,16 +116,16 @@ Now you're ready to notify Teams. [Trigger the workflow](/send-notifications/tri
 
 Your Teams channel should have received a notification. If you need to debug your integration, you can view the logs page in the Knock dashboard.
 
-## Configuring your bot in Microsoft Entra
+## Configuring a Graph API-enabled application in Microsoft Entra
 
-To use TeamsKit, you'll need to configure the API permissions and OAuth redirect URL associated with your Microsoft Teams bot in the Microsoft Entra admin center.
+To use TeamsKit, you'll need to configure the API permissions and OAuth redirect URL associated with a Graph API-enabled application in the Microsoft Entra admin center. If your bot has been registered with Azure as a multi-tenant bot, you can use your bot's app registration.
 
 <Steps titleSize="h3">
-  <Step title="Find your bot in the Microsoft Entra admin center">
-    Log in to the <a href="https://entra.microsoft.com/" target="_blank">Microsoft Entra admin center</a>. In the sidebar, navigate to **Identity** > **Applications** > **App registrations**, and locate your bot.
+  <Step title="Find your application in the Microsoft Entra admin center">
+    Log in to the <a href="https://entra.microsoft.com/" target="_blank">Microsoft Entra admin center</a>. In the sidebar, navigate to **Entra ID** > **App registrations**, and locate your application.
   </Step>
-  <Step title="Add a redirect URL">
-    On your bot's app registration page, click **Authentication**. Under **Platform configurations**, click **Add a platform** and select **Web**.
+  <Step title="Configure OAuth">
+    On your app's registration page, click **Authentication**. Under **Platform configurations**, click **Add a platform** and select **Web**.
 
     Copy and paste the following URL into the **Redirect URI** text field:
 
@@ -77,9 +134,11 @@ To use TeamsKit, you'll need to configure the API permissions and OAuth redirect
       content="https://api.knock.app/providers/ms-teams/authenticate"
     />
 
-    This will allow Knock to handle the OAuth redirect on behalf of your bot, and manage connecting a Microsoft Entra tenant to a Knock tenant.
+    This will allow Knock to handle the OAuth redirect on behalf of your application, and manage connecting a Microsoft Entra tenant to a Knock tenant.
 
-    Leave the **Front-channel logout URL** text field empty. Click **Configure** to save your changes.
+    Under **Supported account types**, select **Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant)**.
+
+    Click **Configure** to save your changes.
 
   </Step>
   <Step title="Add API permissions">

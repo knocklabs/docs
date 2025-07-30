@@ -26,9 +26,9 @@ Accepts `KnockProviderProps`
     description="The public API key for the environment"
   />
   <Attribute
-    name="userId*"
-    type="string"
-    description="The ID of the user for which to retrieve a feed"
+    name="user*"
+    type="UserIdentificationOptions"
+    description="User identification data."
   />
   <Attribute
     name="userToken"
@@ -83,7 +83,7 @@ import { KnockProvider, useKnockClient } from "@knocklabs/react";
 const App = ({ authenticatedUser }) => (
   <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    userId={authenticatedUser.id}
+    user={{ id: authenticatedUser.id }}
   >
     <MyComponent />
   </KnockProvider>
@@ -164,7 +164,7 @@ import {
 const App = ({ authenticatedUser }) => (
   <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    userId={authenticatedUser.id}
+    user={{ id: authenticatedUser.id }}
   >
     <KnockFeedProvider feedId={process.env.KNOCK_FEED_CHANNEL_ID}>
       <MyFeedComponent />
@@ -279,7 +279,7 @@ import {
 const App = ({ authenticatedUser, tenant }) => (
   <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
-    userId={authenticatedUser.id}
+    user={{ id: authenticatedUser.id }}
   >
     <KnockSlackProvider knockSlackChannelId={process.env.KNOCK_SLACK_CHANNEL_ID} tenant={tenant}>
       <MySlackComponent />
@@ -587,9 +587,9 @@ Renders a notification bell icon, with a badge showing the number of unseen item
 
 <Attributes>
   <Attribute
-    name="msTeamsBotId*"
+    name="graphApiClientId*"
     type="string"
-    description="The ID of your Microsoft Teams bot."
+    description={`The client ID of your Microsoft Graph API-enabled application registered with Microsoft Entra. This should match the "Graph API client ID" setting of your Microsoft Teams channel in the Knock dashboard.`}
   />
   <Attribute
     name="redirectUrl"
@@ -642,9 +642,9 @@ Creates an authenticated Knock client.
     description="The public API key for the Knock environment"
   />
   <Attribute
-    name="userId"
-    type="string"
-    description="The userId of the user to authenticate with Knock."
+    name="user"
+    type="UserIdentificationOptions"
+    description="User identification data."
   />
   <Attribute
     name="userToken"
@@ -670,7 +670,7 @@ import { useAuthenticatedKnockClient } from "@knocklabs/react";
 const MyComponent = () => {
   const knock = useAuthenticatedKnockClient(
     process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
+    { id: user.id },
     user.knockToken,
   );
 
@@ -696,6 +696,103 @@ Exposed under `KnockI18nProvider` child components.
     description="A helper function to get the value of a translation from the current `Translations`."
   />
 </Attributes>
+
+### `usePreferences`
+
+Fetches and manages user notification preferences with SWR caching. This hook enables you to build custom preference interfaces while maintaining real-time state management.
+
+#### Params
+
+<Attributes>
+  <Attribute
+    name="options"
+    type="GetPreferencesOptions"
+    description="Optional configuration for fetching preferences"
+  />
+  <Attribute
+    name="options.preferenceSet"
+    type="string"
+    description="The specific preference set to fetch. If not provided, fetches the default preference set."
+  />
+  <Attribute
+    name="options.tenant"
+    type="string"
+    description="The tenant ID to fetch preferences for in multi-tenant applications"
+  />
+</Attributes>
+
+#### Returns
+
+<Attributes>
+  <Attribute
+    name="preferences"
+    type="PreferenceSet | undefined"
+    description="The user's preference data, including workflows, categories, and channel types"
+  />
+  <Attribute
+    name="setPreferences"
+    type="(properties: SetPreferencesProperties) => void"
+    description="Function to update user preferences. Optimistically updates the cache and persists changes to Knock."
+  />
+  <Attribute
+    name="getAllPreferences"
+    type="() => Promise<PreferenceSet[]>"
+    description="Function to fetch all preference sets for the authenticated user"
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="Whether the initial preferences are being loaded"
+  />
+  <Attribute
+    name="isValidating"
+    type="boolean"
+    description="Whether preferences are being revalidated or updated"
+  />
+</Attributes>
+
+#### Example
+
+```jsx
+import { usePreferences } from "@knocklabs/react";
+
+const PreferencesPage = () => {
+  const { preferences, setPreferences, isLoading, isValidating } =
+    usePreferences({
+      preferenceSet: "marketing",
+    });
+
+  const handleWorkflowToggle = (workflowKey, enabled) => {
+    setPreferences({
+      ...preferences,
+      workflows: {
+        ...preferences?.workflows,
+        [workflowKey]: enabled,
+      },
+    });
+  };
+
+  if (isLoading) return <div>Loading preferences...</div>;
+
+  return (
+    <div>
+      <h1>Notification preferences</h1>
+      {isValidating && <div>Saving...</div>}
+
+      {Object.entries(preferences?.workflows || {}).map(([key, enabled]) => (
+        <label key={key}>
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={(e) => handleWorkflowToggle(key, e.target.checked)}
+          />
+          {key}
+        </label>
+      ))}
+    </div>
+  );
+};
+```
 
 ## Feed hooks
 
@@ -739,7 +836,7 @@ import {
 const MyComponent = () => {
   const knock = useAuthenticatedKnockClient(
     process.env.KNOCK_PUBLIC_API_KEY,
-    user.id,
+    { id: user.id },
     user.knockToken,
   );
 
@@ -928,9 +1025,9 @@ Builds a Microsoft Teams authorization URL generator and a disconnect function.
 
 <Attributes>
   <Attribute
-    name="msTeamsBotId"
+    name="graphApiClientId"
     type="string"
-    description="The ID of your Microsoft Teams bot"
+    description={`The client ID of your Microsoft Graph API-enabled application registered with Microsoft Entra. This should match the "Graph API client ID" setting of your Microsoft Teams channel in the Knock dashboard.`}
   />
   <Attribute
     name="redirectUrl"
@@ -1072,6 +1169,19 @@ This hook returns partial data about the Microsoft Teams channels that are prese
 </Attributes>
 
 ## Types
+
+### UserIdentificationOptions
+
+User identification data to pass through to the `authenticate` method.
+
+<Attributes>
+  <Attribute name="id" type="string*" description="The `id` for the user." />
+  <Attribute
+    name="[attribute_name]"
+    type="any"
+    description="Attribute to attach to the user on identification."
+  />
+</Attributes>
 
 ### `I18nContent`
 

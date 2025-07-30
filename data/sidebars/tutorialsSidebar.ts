@@ -28,9 +28,20 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     slug: `${baseSlug}/building-recurring-digests`,
     title: "Recurring digests",
   },
-  { slug: `${baseSlug}/migrate-from-courier`, title: "Migrate from Courier" },
+  {
+    slug: `${baseSlug}/migrate-from-courier`,
+    title: "Migrate from Courier",
+  },
+  {
+    slug: `${baseSlug}/migrate-from-braze`,
+    title: "Migrate from Braze",
+  },
   {
     slug: `${baseSlug}/modeling-users-objects-and-tenants`,
     title: "Modeling Users, Objects, and Tenants",
+  },
+  {
+    slug: `${baseSlug}/launchdarkly-knock`,
+    title: "Using LaunchDarkly with Knock to A/B test messaging",
   },
 ];

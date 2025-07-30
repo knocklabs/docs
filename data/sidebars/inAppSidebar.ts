@@ -131,6 +131,9 @@ export const REACT_SIDEBAR: SidebarSection[] = [
       { slug: "/feed", title: "Feed" },
       { slug: "/toasts", title: "Toast" },
       { slug: "/inbox", title: "Inbox" },
+      { slug: "/card", title: "Card" },
+      { slug: "/banner", title: "Banner" },
+      { slug: "/modal", title: "Modal" },
       { slug: "/preferences", title: "Preferences" },
       { slug: "/slack-kit", title: "SlackKit" },
       { slug: "/teams-kit", title: "TeamsKit" },
@@ -140,7 +143,10 @@ export const REACT_SIDEBAR: SidebarSection[] = [
   {
     title: "Headless UI",
     slug: "/in-app-ui/react/headless",
-    pages: [{ slug: "/feed", title: "Feed" }],
+    pages: [
+      { slug: "/feed", title: "Feed" },
+      { slug: "/preferences", title: "Preferences" },
+    ],
     sidebarMenuDefaultOpen: true,
   },
   {

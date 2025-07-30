@@ -11,6 +11,7 @@ export const RESOURCE_ORDER = [
   "variables",
   "templates",
   "message_types",
+  "guides",
   "api_keys",
 ];
 

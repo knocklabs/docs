@@ -6,7 +6,7 @@ section: Integrations > Microsoft Teams
 layout: integrations
 ---
 
-In this guide, we'll cover how to update a multi-tenant Microsoft Teams bot to send messages to channels in Microsoft Teams using Knock. It assumes that you have already created a Microsoft Teams channel in Knock as outlined in the [Microsoft Teams integration overview](/integrations/chat/microsoft-teams/overview) guide.
+In this guide, we'll cover how to update a Microsoft Teams bot to send messages to channels in Microsoft Teams using Knock. It assumes that you have already created a Microsoft Teams channel in Knock as outlined in the [Microsoft Teams integration overview](/integrations/chat/microsoft-teams/overview) guide.
 
 In this implementation, your application's users will connect their Microsoft Entra tenant to Knock and be able to send messages to public channels. To make this easier to implement, we'll use Knock's [TeamsKit components](/in-app-ui/react/teams-kit) to facilitate the OAuth flow and channel selection process.
 
@@ -32,7 +32,7 @@ Here's what we'll cover in this guide:
 
 ## Prerequisites
 
-Make sure your bot has been registered with <a href="https://dev.botframework.com/" target="_blank">Microsoft Bot Framework</a> and is deployed to Azure. Knock does not manage deploying and configuring your bot. To set up Knock to send notifications as your bot, see [How to connect to Teams with Knock](/integrations/chat/microsoft-teams/overview#how-to-connect-to-teams-with-knock).
+Make sure your bot has been registered and deployed with Azure. Knock does not manage deploying and configuring your bot. To set up Knock to send notifications as your bot, see [How to connect to Teams with Knock](/integrations/chat/microsoft-teams/overview#how-to-connect-to-teams-with-knock).
 
 ## Key concepts
 
@@ -167,7 +167,7 @@ In order to give your components the data they need, they must be wrapped in the
 ```javascript title="Wrap your UI components in data providers"
 <KnockProvider
     apiKey="Public API key"
-    userId="User ID"
+    user={{ id: "User ID" }}
     userToken="Generated user token with resource grants"
 >
     <KnockMsTeamsProvider
@@ -196,12 +196,12 @@ The `KnockMsTeamsProvider` gives your components access to the status of the con
   </figcaption>
 </figure>
 
-Your users will give your Microsoft Teams bot access to their own Microsoft Entra tenants via the `MsTeamsAuthButton`. This button can be used on its own, or nested in the `MsTeamsAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
+Your users will connect your Microsoft Teams bot to their own Microsoft Entra tenants via the `MsTeamsAuthButton`. This button can be used on its own, or nested in the `MsTeamsAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
 
 ```javascript title="Initiate OAuth and display auth state with MsTeamsAuthButton"
 // Without container
 <MsTeamsAuthButton
-    msTeamsBotId="Microsoft Teams bot ID"
+    graphApiClientId="Microsoft Graph API client ID"
     redirectUrl="The URL of your application to return to once Microsoft Teams authorization is complete"
 />
 
@@ -209,7 +209,7 @@ Your users will give your Microsoft Teams bot access to their own Microsoft Entr
 <MsTeamsAuthContainer
     actionButton={
         <MsTeamsAuthButton
-            msTeamsBotId="Microsoft Teams bot ID"
+            graphApiClientId="Microsoft Graph API client ID"
             redirectUrl="The URL of your application to return to once Microsoft Teams authorization is complete"
         />
     }

@@ -5,7 +5,22 @@ import { Page } from "@/components/ui/Page";
 import Meta from "@/components/Meta";
 import Link from "next/link";
 import { Box, Stack } from "@telegraph/layout";
-import { Lucide } from "@telegraph/icon";
+import {
+  Rabbit,
+  SquareCode,
+  Package,
+  Layers,
+  UsersRound,
+  BellDot,
+  ListTodo,
+  Slack,
+  BellRing,
+  Sprout,
+  DatabaseZap,
+  Terminal,
+  Landmark,
+  Infinity,
+} from "lucide-react";
 import { Text } from "@telegraph/typography";
 import {
   Tool,
@@ -79,19 +94,19 @@ export default function Home() {
               title="Quick start"
               description="Integrate Knock with your backend web app and send your first notification."
               href="/getting-started/quick-start"
-              icon={Lucide.Rabbit}
+              icon={Rabbit}
             />
             <ContentCard
               title="In-app UI"
               description="Ship your first notification feed, banners, modals, or cards using pre-built UI components."
               href="/in-app-ui/overview"
-              icon={Lucide.SquareCode}
+              icon={SquareCode}
             />
             <ContentCard
               title="API & SDKs"
               description="Integrate a complete notification engine to your product with a REST&#8209;ful API."
               href="/developer-tools/sdks"
-              icon={Lucide.Package}
+              icon={Package}
             />
           </Stack>
           <Section.Container>
@@ -144,49 +159,49 @@ export default function Home() {
                 title="Design a workflow"
                 href="/designing-workflows/overview"
                 description="Create a cross-channel notification."
-                icon={Lucide.Layers}
+                icon={Layers}
               />
               <BuildingBlock
                 title="Add users to Knock"
                 href="/managing-recipients/identifying-recipients"
                 description="Identify recipients to power your notifications."
-                icon={Lucide.UsersRound}
+                icon={UsersRound}
               />
               <BuildingBlock
                 title="Add an in-app feed"
                 href="/in-app-ui/overview"
                 description="Build your in-app notifications experience."
-                icon={Lucide.BellDot}
+                icon={BellDot}
               />
               <BuildingBlock
                 title="Create a preference center"
                 href="/preferences/overview"
                 description="Enable your users to opt-out of notifications."
-                icon={Lucide.ListTodo}
+                icon={ListTodo}
               />
               <BuildingBlock
                 title="Build a Slack integration"
                 href="/integrations/chat/slack/overview"
                 description="Use Knock to send notifications to Slack."
-                icon={Lucide.Slack}
+                icon={Slack}
               />
               <BuildingBlock
                 title="Power cross-channel alerts"
                 href="/integrations/overview"
                 description="Create alerting-style workflows in Knock."
-                icon={Lucide.BellRing}
+                icon={BellRing}
               />
               <BuildingBlock
                 title="Plan your Knock implementation"
                 href="/tutorials/implementation-guide"
                 description="Migrate your notification system into Knock."
-                icon={Lucide.Sprout}
+                icon={Sprout}
               />
               <BuildingBlock
                 title="Model your data in Knock"
                 href="/tutorials/modeling-users-objects-and-tenants"
                 description="Map your application's data model into Knock."
-                icon={Lucide.DatabaseZap}
+                icon={DatabaseZap}
               />
             </Section.Content>
           </Section.Container>
@@ -216,25 +231,25 @@ export default function Home() {
             <Section.Header title="Developer tools" />
             <Section.Content gap="4" className="md-flex-column">
               <Tool
-                icon={Lucide.Terminal}
+                icon={Terminal}
                 title="CLI"
                 description="Build, test, and manage your notifications from the terminal."
                 href="/developer-tools/knock-cli"
               />
               <Tool
-                icon={Lucide.Landmark}
+                icon={Landmark}
                 title="mAPI"
                 description="Programmatically interact with Knock dashboard resources."
                 href="/developer-tools/management-api"
               />
               <Tool
-                icon={"Postman"}
+                icon="postman"
                 title="Postman"
                 description="Use our Postman collection to get familiar with the Knock API."
                 href="/developer-tools/knock-and-postman"
               />
               <Tool
-                icon={Lucide.Infinity}
+                icon={Infinity}
                 title="CI/CD"
                 description="Add Knock to your deployment pipeline with our CLI."
                 href="/developer-tools/integrating-into-cicd"

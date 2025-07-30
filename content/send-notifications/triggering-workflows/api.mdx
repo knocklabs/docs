@@ -61,7 +61,7 @@ Triggering a workflow will always return a unique UUID v4 representing the workf
 
 ## Passing data to your trigger
 
-Pass schema data required by the workflow in your `trigger` call. The payload must be a valid JSON object. There is a 1024 byte limit on the size of any single string value (with the exception of [email attachments](/integrations/email/attachments)), and a 10MB limit on the size of the full `data` payload.
+Pass schema data required by the workflow in your `trigger` call. The payload must be a valid JSON object. There is a 10MB limit on the size of the full `data` payload. Any individual string value greater than 1024 bytes in length will be [truncated](/developer-tools/api-logs#log-truncation) in your logs.
 
 The workflow builder determines which data keys are required.
 
@@ -149,22 +149,53 @@ You can pass a complete `Recipient` entity to the `recipients` or `actor` proper
 
 ## Per-recipient trigger data
 
+Per-recipient data is useful when you want to notify an array of recipients with a single trigger, but include custom data per-recipient.
+
 You can pass per-recipient data to your trigger by passing a dictionary of data under the `$trigger_data` property for each recipient. Any data provided under this property will be merged with the data passed in the `data` property to produce the final data available for the recipient's workflow run.
 
 ```json title="Example per-recipient data"
 {
   "data": {
-    "role": "Lieutenant"
+    "alert_type": "security_breach",
+    "location": "Visitor Center"
   },
   "recipients": [
     {
-      "id": "jeanluc",
-      "name": "Jean-Luc Picard",
+      "id": "jhammond",
+      "name": "John Hammond",
       "$trigger_data": {
-        "role": "Captain"
+        "role": "Park Owner",
+        "dashboard_url": "https://jurassicpark.com/dashboard/jhammond"
+      }
+    },
+    {
+      "id": "esattler",
+      "name": "Ellie Sattler",
+      "$trigger_data": {
+        "role": "Paleobotanist",
+        "dashboard_url": "https://jurassicpark.com/dashboard/esattler"
+      }
+    },
+    {
+      "id": "dnedry",
+      "name": "Dennis Nedry",
+      "$trigger_data": {
+        "role": "Systems Programmer",
+        "dashboard_url": "https://jurassicpark.com/dashboard/dnedry"
       }
     }
   ]
+}
+```
+
+For example, the final merged data available to Ellie Sattler's workflow run would be:
+
+```json title="Final merged data for esattler"
+{
+  "alert_type": "security_breach",
+  "location": "Visitor Center",
+  "role": "Paleobotanist",
+  "dashboard_url": "https://jurassicpark.com/dashboard/esattler"
 }
 ```
 
