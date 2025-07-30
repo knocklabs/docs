@@ -3,6 +3,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { highlightResource } from "./Page/helpers";
 import Link from "next/link";
+import { ContentActions } from "./ContentActions";
 
 export const Section = ({
   title,
@@ -10,12 +11,14 @@ export const Section = ({
   isIdempotent = false,
   isRetentionSubject = false,
   path = undefined,
+  mdPath, // New prop for custom markdown path
 }: {
   title?: string;
   children: React.ReactNode;
   isIdempotent?: boolean;
   isRetentionSubject?: boolean;
   path?: string;
+    mdPath?: string; // New prop type
 }) => {
   const onRetentionClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -83,9 +86,19 @@ export const Section = ({
               </Text>
             </Box>
           )}
-          <SectionHeading tag="h2" path={path} mb="6">
-            {title}
-          </SectionHeading>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            mb="6"
+          >
+            <SectionHeading tag="h2" path={path}>
+              {title}
+            </SectionHeading>
+            {mdPath && (
+              <ContentActions mdPath={mdPath} />
+            )}
+          </Stack>
         </>
       )}
       <Stack

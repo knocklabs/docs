@@ -25,9 +25,10 @@ type Props = {
   methodType: "get" | "post" | "put" | "delete";
   endpoint: string;
   path?: string;
+  mdPath?: string; // New prop for custom markdown path
 };
 
-function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
+function ApiReferenceMethod({ methodName, methodType, endpoint, path, mdPath }: Props) {
   const { openApiSpec, baseUrl, schemaReferences } = useApiReference();
   const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];
@@ -63,6 +64,7 @@ function ApiReferenceMethod({ methodName, methodType, endpoint, path }: Props) {
       isIdempotent={isIdempotent}
       isRetentionSubject={isRetentionSubject}
       path={path}
+      mdPath={mdPath}
     >
       <ContentColumn>
         <Markdown>{method.description ?? ""}</Markdown>

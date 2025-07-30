@@ -12,6 +12,7 @@ import { resolveEndpointFromMethod } from "../helpers";
 import { SchemaProperties } from "../SchemaProperties";
 import { Box } from "@telegraph/layout";
 import { Heading } from "@telegraph/typography";
+import { useRouter } from "next/router";
 
 type Props = {
   resourceName: string;
@@ -21,14 +22,25 @@ type Props = {
 
 function ApiReferenceSection({ resourceName, resource, path }: Props) {
   const { openApiSpec } = useApiReference();
+  const router = useRouter();
   const methods = resource.methods || {};
   const models = resource.models || {};
   const basePath = path ?? `/${resourceName}`;
 
+  // Detect which API surface we're on based on the current route
+  const apiSurface = router.pathname.startsWith('/mapi-reference') ? 'mapi-reference' : 'api-reference';
+
+  // Generate markdown path for the resource overview
+  const resourceMdPath = `/${apiSurface}${basePath}/index.md`;
+
   return (
     <>
       <Box data-resource-path={basePath}>
-        <Section title={resource.name} path={basePath}>
+        <Section
+          title={resource.name}
+          path={basePath}
+          mdPath={resourceMdPath}
+        >
           <ContentColumn>
             {resource.description && (
               <Markdown>{resource.description}</Markdown>
@@ -65,15 +77,17 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
           endpointOrMethodConfig,
         );
 
-        const path = `${basePath}/${methodName}`;
+        const methodPath = `${basePath}/${methodName}`;
+        const methodMdPath = `/${apiSurface}${basePath}/${methodName}.md`;
 
         return (
-          <Box key={`${methodName}-${endpoint}`} data-resource-path={path}>
+          <Box key={`${methodName}-${endpoint}`} data-resource-path={methodPath}>
             <ApiReferenceMethod
               methodName={methodName}
               methodType={methodType as "get" | "post" | "put" | "delete"}
               endpoint={endpoint}
-              path={path}
+              path={methodPath}
+              mdPath={methodMdPath}
             />
           </Box>
         );
@@ -102,11 +116,16 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
           return null;
         }
 
-        const path = `${basePath}/schemas/${modelName}`;
+        const schemaPath = `${basePath}/schemas/${modelName}`;
+        const schemaMdPath = `/${apiSurface}${basePath}/schemas/${modelName}.md`;
 
         return (
-          <Box key={modelName} data-resource-path={path}>
-            <Section title={schema.title} path={path}>
+          <Box key={modelName} data-resource-path={schemaPath}>
+            <Section
+              title={schema.title}
+              path={schemaPath}
+              mdPath={schemaMdPath}
+            >
               <ContentColumn>
                 {schema.description && (
                   <Markdown>{schema.description}</Markdown>

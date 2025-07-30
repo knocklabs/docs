@@ -10,10 +10,12 @@ import { TgphComponentProps } from "@telegraph/helpers";
 
 interface ContentActionsProps extends TgphComponentProps<typeof Box> {
   showOnMobile?: boolean;
+  mdPath?: string; // Optional custom markdown path
 }
 
 export const ContentActions: React.FC<ContentActionsProps> = ({
   showOnMobile = false,
+  mdPath: customMdPath,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +23,9 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
   const router = useRouter();
   const pathname = router.asPath;
   const basePath = pathname.split("?")[0].split("#")[0].substring(1);
-  const mdPath = `/${basePath}.md`;
+
+  // Use custom path if provided, otherwise use URL-based path
+  const mdPath = customMdPath || `/${basePath}.md`;
 
   const copyAsMarkdown = async () => {
     try {

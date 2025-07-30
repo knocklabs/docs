@@ -87,8 +87,9 @@ const SectionHeading = ({
     <Stack
       flexDirection="row"
       alignItems="center"
+      h="full"
       mt={rest?.mt || 0}
-      mb={rest?.mb || 4}
+      mb={rest?.mb || 0}
       position="relative"
       data-section-heading
       onClick={onHeadingClick}
