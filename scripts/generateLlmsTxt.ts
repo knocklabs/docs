@@ -477,16 +477,7 @@ async function generateAllLlmsFiles() {
 
 // Run if this is the main module
 if (import.meta.url === `file://${process.argv[1]}`) {
-  // Check for API reference flags
-  if (process.argv.includes("--api-reference")) {
-    generateApiReferenceMarkdownFiles("api").catch(console.error);
-  } else if (process.argv.includes("--mapi-reference")) {
-    generateApiReferenceMarkdownFiles("mapi").catch(console.error);
-  } else if (process.argv.includes("--both-api-references")) {
-    generateAllApiReferenceMarkdownFiles().catch(console.error);
-  } else {
-    generateAllLlmsFiles().catch(console.error);
-  }
+  generateAllLlmsFiles().catch(console.error);
 }
 
 // New function to generate individual API reference markdown files
