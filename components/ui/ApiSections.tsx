@@ -18,7 +18,7 @@ export const Section = ({
   isIdempotent?: boolean;
   isRetentionSubject?: boolean;
   path?: string;
-    mdPath?: string; // New prop type
+  mdPath?: string; // New prop type
 }) => {
   const onRetentionClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -95,9 +95,7 @@ export const Section = ({
             <SectionHeading tag="h2" path={path}>
               {title}
             </SectionHeading>
-            {mdPath && (
-              <ContentActions mdPath={mdPath} />
-            )}
+            {mdPath && <ContentActions mdPath={mdPath} />}
           </Stack>
         </>
       )}

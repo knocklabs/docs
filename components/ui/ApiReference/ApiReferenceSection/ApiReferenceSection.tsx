@@ -28,7 +28,9 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
   const basePath = path ?? `/${resourceName}`;
 
   // Detect which API surface we're on based on the current route
-  const apiSurface = router.pathname.startsWith('/mapi-reference') ? 'mapi-reference' : 'api-reference';
+  const apiSurface = router.pathname.startsWith("/mapi-reference")
+    ? "mapi-reference"
+    : "api-reference";
 
   // Generate markdown path for the resource overview
   const resourceMdPath = `/${apiSurface}${basePath}/index.md`;
@@ -36,11 +38,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
   return (
     <>
       <Box data-resource-path={basePath}>
-        <Section
-          title={resource.name}
-          path={basePath}
-          mdPath={resourceMdPath}
-        >
+        <Section title={resource.name} path={basePath} mdPath={resourceMdPath}>
           <ContentColumn>
             {resource.description && (
               <Markdown>{resource.description}</Markdown>
@@ -81,7 +79,10 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
         const methodMdPath = `/${apiSurface}${basePath}/${methodName}.md`;
 
         return (
-          <Box key={`${methodName}-${endpoint}`} data-resource-path={methodPath}>
+          <Box
+            key={`${methodName}-${endpoint}`}
+            data-resource-path={methodPath}
+          >
             <ApiReferenceMethod
               methodName={methodName}
               methodType={methodType as "get" | "post" | "put" | "delete"}

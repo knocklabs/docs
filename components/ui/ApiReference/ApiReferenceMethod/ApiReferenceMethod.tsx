@@ -28,7 +28,13 @@ type Props = {
   mdPath?: string; // New prop for custom markdown path
 };
 
-function ApiReferenceMethod({ methodName, methodType, endpoint, path, mdPath }: Props) {
+function ApiReferenceMethod({
+  methodName,
+  methodType,
+  endpoint,
+  path,
+  mdPath,
+}: Props) {
   const { openApiSpec, baseUrl, schemaReferences } = useApiReference();
   const [isResponseExpanded, setIsResponseExpanded] = useState(false);
   const method = openApiSpec.paths?.[endpoint]?.[methodType];

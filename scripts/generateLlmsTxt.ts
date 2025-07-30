@@ -22,7 +22,10 @@ import {
   REACT_NATIVE_SIDEBAR,
   REACT_SIDEBAR,
 } from "../data/sidebars/inAppSidebar";
-import { getSidebarContent, resolveEndpointFromMethod } from "../components/ui/ApiReference/helpers";
+import {
+  getSidebarContent,
+  resolveEndpointFromMethod,
+} from "../components/ui/ApiReference/helpers";
 import JSONPointer from "jsonpointer";
 
 import { readOpenApiSpec, readStainlessSpec } from "../lib/openApiSpec";
@@ -406,11 +409,7 @@ async function generateAllLlmsFiles() {
 
     // API REFERENCE
     const apiSidebar = await getApiSidebar();
-    await processSections(
-      apiSidebar,
-      indexContent,
-      fullContent,
-    );
+    await processSections(apiSidebar, indexContent, fullContent);
 
     // DIVIDER
     indexContent.push("---\n");
@@ -425,11 +424,7 @@ async function generateAllLlmsFiles() {
 
     // MANAGEMENT API REFERENCE
     const mapiSidebar = await getMapiSidebar();
-    await processSections(
-      mapiSidebar,
-      indexContent,
-      fullContent,
-    );
+    await processSections(mapiSidebar, indexContent, fullContent);
 
     // DIVIDER
     indexContent.push("---\n");
@@ -483,11 +478,11 @@ async function generateAllLlmsFiles() {
 // Run if this is the main module
 if (import.meta.url === `file://${process.argv[1]}`) {
   // Check for API reference flags
-  if (process.argv.includes('--api-reference')) {
-    generateApiReferenceMarkdownFiles('api').catch(console.error);
-  } else if (process.argv.includes('--mapi-reference')) {
-    generateApiReferenceMarkdownFiles('mapi').catch(console.error);
-  } else if (process.argv.includes('--both-api-references')) {
+  if (process.argv.includes("--api-reference")) {
+    generateApiReferenceMarkdownFiles("api").catch(console.error);
+  } else if (process.argv.includes("--mapi-reference")) {
+    generateApiReferenceMarkdownFiles("mapi").catch(console.error);
+  } else if (process.argv.includes("--both-api-references")) {
     generateAllApiReferenceMarkdownFiles().catch(console.error);
   } else {
     generateAllLlmsFiles().catch(console.error);
@@ -495,9 +490,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 
 // New function to generate individual API reference markdown files
-async function generateApiReferenceMarkdownFiles(apiType: 'api' | 'mapi' = 'api') {
+async function generateApiReferenceMarkdownFiles(
+  apiType: "api" | "mapi" = "api",
+) {
   try {
-    const referenceDir = apiType === 'api' ? 'api-reference' : 'mapi-reference';
+    const referenceDir = apiType === "api" ? "api-reference" : "mapi-reference";
     const apiReferenceDir = path.join(process.cwd(), "public", referenceDir);
 
     // Ensure the reference directory exists
@@ -510,19 +507,30 @@ async function generateApiReferenceMarkdownFiles(apiType: 'api' | 'mapi' = 'api'
     const stainlessSpec = await readStainlessSpec(apiType);
 
     // Get the appropriate sidebar content and resource order
-    const { overviewContent, resourceOrder } = apiType === 'api'
-      ? { overviewContent: API_REFERENCE_OVERVIEW_CONTENT, resourceOrder: API_RESOURCE_ORDER }
-      : { overviewContent: MAPI_REFERENCE_OVERVIEW_CONTENT, resourceOrder: MAPI_RESOURCE_ORDER };
+    const { overviewContent, resourceOrder } =
+      apiType === "api"
+        ? {
+            overviewContent: API_REFERENCE_OVERVIEW_CONTENT,
+            resourceOrder: API_RESOURCE_ORDER,
+          }
+        : {
+            overviewContent: MAPI_REFERENCE_OVERVIEW_CONTENT,
+            resourceOrder: MAPI_RESOURCE_ORDER,
+          };
 
     // Generate pre-sidebar content files (like overview pages)
     for (const section of overviewContent) {
       if (section.pages) {
-        const sectionDir = path.join(apiReferenceDir, section.slug.replace(`/${referenceDir}/`, ""));
+        const sectionDir = path.join(
+          apiReferenceDir,
+          section.slug.replace(`/${referenceDir}/`, ""),
+        );
         fs.mkdirSync(sectionDir, { recursive: true });
 
         for (const page of section.pages) {
           const pageSlug = `${section.slug}${page.slug}`;
-          const { description, fullContent: pageContent } = await getMarkdownContent(pageSlug);
+          const { description, fullContent: pageContent } =
+            await getMarkdownContent(pageSlug);
 
           let markdownContent = `# ${page.title}\n\n`;
           if (description) {
@@ -532,7 +540,8 @@ async function generateApiReferenceMarkdownFiles(apiType: 'api' | 'mapi' = 'api'
             markdownContent += pageContent;
           }
 
-          const fileName = page.slug === "/" ? "index.md" : `${page.slug.slice(1)}.md`;
+          const fileName =
+            page.slug === "/" ? "index.md" : `${page.slug.slice(1)}.md`;
           const filePath = path.join(sectionDir, fileName);
           fs.writeFileSync(filePath, markdownContent, "utf-8");
         }
@@ -546,7 +555,12 @@ async function generateApiReferenceMarkdownFiles(apiType: 'api' | 'mapi' = 'api'
       fs.mkdirSync(resourceDir, { recursive: true });
 
       // Generate resource overview file
-      await generateResourceOverview(resource, resourceName, resourceDir, openApiSpec);
+      await generateResourceOverview(
+        resource,
+        resourceName,
+        resourceDir,
+        openApiSpec,
+      );
 
       // Generate method files
       if (resource.methods) {
@@ -557,20 +571,22 @@ async function generateApiReferenceMarkdownFiles(apiType: 'api' | 'mapi' = 'api'
             resource,
             resourceName,
             resourceDir,
-            openApiSpec
+            openApiSpec,
           );
         }
       }
 
       // Generate subresource files
       if (resource.subresources) {
-        for (const [subresourceName, subresource] of Object.entries(resource.subresources)) {
+        for (const [subresourceName, subresource] of Object.entries(
+          resource.subresources,
+        )) {
           await generateSubresourceMarkdown(
             subresourceName,
             subresource,
             resourceName,
             resourceDir,
-            openApiSpec
+            openApiSpec,
           );
         }
       }
@@ -585,30 +601,35 @@ async function generateApiReferenceMarkdownFiles(apiType: 'api' | 'mapi' = 'api'
             modelName,
             modelRef as string,
             schemasDir,
-            openApiSpec
+            openApiSpec,
           );
         }
       }
     }
 
-    console.log(`✅ ${apiType.toUpperCase()} reference markdown files generated successfully`);
+    console.log(
+      `✅ ${apiType.toUpperCase()} reference markdown files generated successfully`,
+    );
   } catch (error) {
-    console.error(`Error generating ${apiType.toUpperCase()} reference markdown files:`, error);
+    console.error(
+      `Error generating ${apiType.toUpperCase()} reference markdown files:`,
+      error,
+    );
     throw error;
   }
 }
 
 // New function to generate both API and MAPI reference files
 async function generateAllApiReferenceMarkdownFiles() {
-  await generateApiReferenceMarkdownFiles('api');
-  await generateApiReferenceMarkdownFiles('mapi');
+  await generateApiReferenceMarkdownFiles("api");
+  await generateApiReferenceMarkdownFiles("mapi");
 }
 
 async function generateResourceOverview(
   resource: any,
   resourceName: string,
   resourceDir: string,
-  openApiSpec: any
+  openApiSpec: any,
 ) {
   let content = `# ${resource.name || resourceName}\n\n`;
 
@@ -620,13 +641,15 @@ async function generateResourceOverview(
   if (resource.methods) {
     content += `## Available endpoints\n\n`;
     for (const [methodName, method] of Object.entries(resource.methods)) {
-      const [methodType, endpoint] = resolveEndpointFromMethod(method as string | { endpoint: string });
+      const [methodType, endpoint] = resolveEndpointFromMethod(
+        method as string | { endpoint: string },
+      );
       const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
       const summary = openApiOperation?.summary || methodName;
 
       content += `- **${methodType.toUpperCase()}** \`${endpoint}\` - ${summary}\n`;
     }
-    content += '\n';
+    content += "\n";
   }
 
   const filePath = path.join(resourceDir, "index.md");
@@ -639,9 +662,11 @@ async function generateMethodMarkdown(
   resource: any,
   resourceName: string,
   resourceDir: string,
-  openApiSpec: any
+  openApiSpec: any,
 ) {
-  const [methodType, endpoint] = resolveEndpointFromMethod(method as string | { endpoint: string });
+  const [methodType, endpoint] = resolveEndpointFromMethod(
+    method as string | { endpoint: string },
+  );
   const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
 
   if (!openApiOperation) return;
@@ -669,27 +694,28 @@ async function generateMethodMarkdown(
   if (pathParams.length > 0) {
     content += `## Path parameters\n\n`;
     for (const param of pathParams) {
-      content += `- **${param.name}** (${param.schema?.type || 'string'})`;
+      content += `- **${param.name}** (${param.schema?.type || "string"})`;
       if (param.required) content += ` *required*`;
       if (param.description) content += ` - ${param.description}`;
-      content += '\n';
+      content += "\n";
     }
-    content += '\n';
+    content += "\n";
   }
 
   if (queryParams.length > 0) {
     content += `## Query parameters\n\n`;
     for (const param of queryParams) {
-      content += `- **${param.name}** (${param.schema?.type || 'string'})`;
+      content += `- **${param.name}** (${param.schema?.type || "string"})`;
       if (param.required) content += ` *required*`;
       if (param.description) content += ` - ${param.description}`;
-      content += '\n';
+      content += "\n";
     }
-    content += '\n';
+    content += "\n";
   }
 
   // Add request body if present
-  const requestBody = openApiOperation.requestBody?.content?.["application/json"]?.schema;
+  const requestBody =
+    openApiOperation.requestBody?.content?.["application/json"]?.schema;
   if (requestBody) {
     content += `## Request body\n\n`;
     if (requestBody.description) {
@@ -697,23 +723,34 @@ async function generateMethodMarkdown(
     }
     if (requestBody.example) {
       content += `### Example\n\n`;
-      content += `\`\`\`json\n${JSON.stringify(requestBody.example, null, 2)}\n\`\`\`\n\n`;
+      content += `\`\`\`json\n${JSON.stringify(
+        requestBody.example,
+        null,
+        2,
+      )}\n\`\`\`\n\n`;
     }
   }
 
   // Add response information
   if (openApiOperation.responses) {
     content += `## Responses\n\n`;
-    for (const [status, response] of Object.entries(openApiOperation.responses)) {
+    for (const [status, response] of Object.entries(
+      openApiOperation.responses,
+    )) {
       content += `### ${status}\n\n`;
       if ((response as any).description) {
         content += `${(response as any).description}\n\n`;
       }
 
-      const responseSchema = (response as any).content?.["application/json"]?.schema;
+      const responseSchema = (response as any).content?.["application/json"]
+        ?.schema;
       if (responseSchema?.example) {
         content += `#### Example\n\n`;
-        content += `\`\`\`json\n${JSON.stringify(responseSchema.example, null, 2)}\n\`\`\`\n\n`;
+        content += `\`\`\`json\n${JSON.stringify(
+          responseSchema.example,
+          null,
+          2,
+        )}\n\`\`\`\n\n`;
       }
     }
   }
@@ -727,13 +764,18 @@ async function generateSubresourceMarkdown(
   subresource: any,
   parentResourceName: string,
   parentResourceDir: string,
-  openApiSpec: any
+  openApiSpec: any,
 ) {
   const subresourceDir = path.join(parentResourceDir, subresourceName);
   fs.mkdirSync(subresourceDir, { recursive: true });
 
   // Generate subresource overview
-  await generateResourceOverview(subresource, subresourceName, subresourceDir, openApiSpec);
+  await generateResourceOverview(
+    subresource,
+    subresourceName,
+    subresourceDir,
+    openApiSpec,
+  );
 
   // Generate method files for subresource
   if (subresource.methods) {
@@ -744,7 +786,7 @@ async function generateSubresourceMarkdown(
         subresource,
         subresourceName,
         subresourceDir,
-        openApiSpec
+        openApiSpec,
       );
     }
   }
@@ -759,7 +801,7 @@ async function generateSubresourceMarkdown(
         modelName,
         modelRef as string,
         schemasDir,
-        openApiSpec
+        openApiSpec,
       );
     }
   }
@@ -769,9 +811,12 @@ async function generateSchemaMarkdown(
   modelName: string,
   modelRef: string,
   schemasDir: string,
-  openApiSpec: any
+  openApiSpec: any,
 ) {
-  const schema = JSONPointer.get(openApiSpec, (modelRef as string).replace("#", ""));
+  const schema = JSONPointer.get(
+    openApiSpec,
+    (modelRef as string).replace("#", ""),
+  );
 
   if (!schema) return;
 
@@ -787,7 +832,7 @@ async function generateSchemaMarkdown(
     for (const [propName, propSchema] of Object.entries(schema.properties)) {
       const prop = propSchema as any;
       content += `### ${propName}\n\n`;
-      content += `**Type:** ${prop.type || 'unknown'}\n\n`;
+      content += `**Type:** ${prop.type || "unknown"}\n\n`;
       if (prop.description) {
         content += `${prop.description}\n\n`;
       }
@@ -799,7 +844,11 @@ async function generateSchemaMarkdown(
 
   if (schema.example) {
     content += `## Example\n\n`;
-    content += `\`\`\`json\n${JSON.stringify(schema.example, null, 2)}\n\`\`\`\n\n`;
+    content += `\`\`\`json\n${JSON.stringify(
+      schema.example,
+      null,
+      2,
+    )}\n\`\`\`\n\n`;
   }
 
   const filePath = path.join(schemasDir, `${modelName}.md`);
@@ -807,4 +856,8 @@ async function generateSchemaMarkdown(
 }
 
 // Export the new functions
-export { generateAllLlmsFiles, generateApiReferenceMarkdownFiles, generateAllApiReferenceMarkdownFiles };
+export {
+  generateAllLlmsFiles,
+  generateApiReferenceMarkdownFiles,
+  generateAllApiReferenceMarkdownFiles,
+};
