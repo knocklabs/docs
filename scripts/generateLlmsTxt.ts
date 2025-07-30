@@ -405,19 +405,14 @@ async function generateAllLlmsFiles() {
 
     // API REFERENCE
     const apiSidebar = await getApiSidebar();
-    await processSections(
-      apiSidebar,
-      indexContent,
-      fullContent,
-      "/api-reference",
-    );
+    await processSections(apiSidebar, indexContent, fullContent);
 
     // DIVIDER
     indexContent.push("---\n");
     fullContent.push("---\n");
 
     // CLI REFERENCE
-    await processSections(CLI_SIDEBAR, indexContent, fullContent, "/cli");
+    await processSections(CLI_SIDEBAR, indexContent, fullContent);
 
     // DIVIDER
     indexContent.push("---\n");
@@ -425,12 +420,7 @@ async function generateAllLlmsFiles() {
 
     // MANAGEMENT API REFERENCE
     const mapiSidebar = await getMapiSidebar();
-    await processSections(
-      mapiSidebar,
-      indexContent,
-      fullContent,
-      "/mapi-reference",
-    );
+    await processSections(mapiSidebar, indexContent, fullContent);
 
     // DIVIDER
     indexContent.push("---\n");

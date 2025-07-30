@@ -10,10 +10,12 @@ import { Copy, SquareArrowOutUpRight, Check } from "lucide-react";
 
 interface ContentActionsProps extends TgphComponentProps<typeof Box> {
   showOnMobile?: boolean;
+  mdPath?: string;
 }
 
 export const ContentActions: React.FC<ContentActionsProps> = ({
   showOnMobile = false,
+  mdPath: customMdPath,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,14 +24,8 @@ export const ContentActions: React.FC<ContentActionsProps> = ({
   const pathname = router.asPath;
   const basePath = pathname.split("?")[0].split("#")[0].substring(1);
 
-  let mdPath: string;
-  if (basePath.startsWith("api-reference")) {
-    mdPath = "/api-reference.md";
-  } else if (basePath.startsWith("mapi-reference")) {
-    mdPath = "/mapi-reference.md";
-  } else {
-    mdPath = `/${basePath}.md`;
-  }
+  // Use custom path if provided, otherwise use URL-based path
+  const mdPath = customMdPath || `/${basePath}.md`;
 
   const copyAsMarkdown = async () => {
     try {
