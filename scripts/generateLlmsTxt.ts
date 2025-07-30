@@ -22,9 +22,7 @@ import {
   REACT_NATIVE_SIDEBAR,
   REACT_SIDEBAR,
 } from "../data/sidebars/inAppSidebar";
-import {
-  getSidebarContent,
-} from "../components/ui/ApiReference/helpers";
+import { getSidebarContent } from "../components/ui/ApiReference/helpers";
 
 import { readOpenApiSpec, readStainlessSpec } from "../lib/openApiSpec";
 import {
