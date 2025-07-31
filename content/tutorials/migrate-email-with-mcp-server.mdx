@@ -27,7 +27,7 @@ Before getting started, you'll need access to the following:
 - A configured [email provider](/integrations/email/overview) in your Knock account. Navigate to **Integrations** > **Channels** in your dashboard to set this up if you haven't already done so.
 - A [service token](https://docs.knock.app/developer-tools/service-tokens) for your Knock account.
 - An MCP-compatible client (such as Cursor or Claude Desktop). We recommend Cursor for working with a large collection of HTML files.
-- Your existing email template files. Your templates will be upserted to Knock as HTML, so if you're using a format like MJML or React Email you may want to consider converting them to HTML before you begin.
+- Your existing email template files. Your templates will be upserted to Knock as HTML, so if you're using a format like MJML or React Email, you'll want to convert them to HTML before you begin.
 
 For more information on setting up the Knock MCP server, see the [Get started](/developer-tools/mcp-server#get-started) section of the MCP documentation.
 
@@ -90,3 +90,206 @@ While not required reading, you may want to familiarize yourself with the follow
 Now that you have everything you need for your migration, you're ready to get started!
 
 Each step below contains a prompt that you can provide to your LLM. These prompts are designed to be run one at a time in order to provide the LLM with discrete tasks, thus improving the accuracy of the results.
+
+<Steps titleSize="h3">
+  <Step title="Analyze your existing email templates">
+    Before creating any resources in Knock, you'll need to analyze your existing email templates to identify patterns and shared components. Copy the prompt below and provide it to your LLM along with access to your template files.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to analyze your existing email templates"
+    I need to analyze my existing email templates to prepare for migration to Knock. I have provided access to my HTML email template files. 
+    Please examine all the templates and create a comprehensive analysis report that will be used in subsequent migration steps. Reference the Knock documentation as needed. The final migrated templates need to be pixel-perfect replicas of the original templates.
+
+    1. **Extract shared layout patterns**: Identify consistent headers, footers, and structural elements that appear across multiple templates. For each identified layout pattern:
+      - Extract the complete HTML structure including <html>, <head>, and <body> tags
+      - Mark the area where template-specific content varies (this will become {{ content }})
+      - Include all CSS styles from the <head> section
+      - List which templates will use this layout
+
+    If one particular layout is used more-often than others, it should be designated as the default layout.
+
+    2. **Extract reusable content blocks**: Find any content sections that appear identically across multiple templates. For each reusable block:
+      - Extract the exact HTML content
+      - Note which templates use this content
+      - Identify any variables within the content
+
+    3. **Document template-specific content**: For each template:
+      - Extract the unique content that differs from the shared components
+      - Document the email subject line
+      - Note which layout it should use
+      - List which partials it references
+      - Identify all variables used
+
+    4. **Variable mapping**: Create a comprehensive list of all dynamic content/variables:
+      - Original variable syntax (e.g., {{firstName}})
+      - Recommended Liquid syntax (e.g., {{ recipient.firstName }} or {{ data.firstName }})
+      - Which templates use each variable
+
+    5. **Implementation plan**: Provide a clear mapping that shows:
+      - Which shared structures become email layouts (with names)
+      - Which content blocks become partials (with suggested keys)
+      - Which layout each template should use
+      - Order of creation (partials → layouts → workflows)
+
+    Your report should include:
+    - **Layouts section**: Each identified layout with its complete HTML structure
+    - **Partials section**: Each reusable block with its exact HTML content
+    - **Templates section**: Each template with its subject, layout mapping, partials used, and unique content
+    - **Variables section**: Complete mapping of variable conversions
+    - **Summary**: Quick reference of all resources to be created
+
+    Important: Extract and document the actual HTML content, not just descriptions. This report will be referenced in all subsequent steps, so include all necessary code and content for the migration.Only suggest creating layouts and partials for content that actually exists in my templates. Do not suggest any additional components that aren't present in the original templates.
+    ```
+
+  </Step>
+  <Step title="Create partials">
+    Based on your analysis, you'll now create the identified partials. Copy the prompt below and provide it to your LLM along with access to your template files.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to create partials"
+    Using the Knock MCP server, I need to create the partials identified in my analysis report. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+
+    Please create each partial from the analysis report one by one, using:
+    1. An appropriate key using kebab-case naming based on the partial's purpose
+    2. The type set as "html"
+    3. The exact HTML content from the analysis report
+    4. Any dynamic content converted to Liquid syntax with appropriate variable names
+
+    Start with the first partial from the report. After creating it, confirm it was created successfully and provide the key used. Then proceed to the next partial. Repeat this process until all partials are created.
+
+    Once all partials are created, compare the partials in Knock to the list of partials in the analysis report. If there are any differences, update the partials in Knock to match the analysis report. Once they are complete, commit the partials to the development environment.
+    ```
+  </Step>
+  <Step title="Create email layouts">
+    Now you'll create the email layouts identified in your analysis.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to create email layouts"
+    Using the Knock MCP server, I need to create the email layouts identified in my analysis report. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+    
+    First, check if the analysis identified a layout that should be used as the default. If so:
+    1. Update the existing "default" layout in Knock with that HTML structure
+    2. Ensure {{ content }} is placed where template-specific content should appear
+    3. Preserve all original styles from the analysis
+    4. Create a text version that properly includes {{ content }}
+    
+    Then, for each additional layout in the analysis:
+    1. Use an appropriate key (use kebab-case based on its purpose)
+    2. Use the HTML structure from the analysis, replacing the template-specific content area with {{ content }}
+    3. Convert any dynamic variables to Liquid syntax
+    4. If any of the previously created partials should be used in this layout, reference them using {% render 'partial-key' %}
+    5. Include all CSS styles that were documented in the analysis
+    6. Create a text version of the layout that includes {{ content }} appropriately
+    7. Ensure the layout is a complete, valid HTML document
+
+    Important: Use the exact HTML structure from the analysis without modifications beyond what's necessary for the {{ content }} insertion.
+
+    Start with the first layout from the report. After creating it, confirm the key used and proceed to the next layout. Repeat this process until all layouts are created.
+
+    Once all layouts are created, compare the layouts in Knock to the list of layouts in the analysis report. Once they are complete, commit the layouts to the development environment.
+    ```
+  </Step>
+  <Step title="Create workflows">
+    For each email template, you'll create an email step in a workflow whose template leverages the layouts and partials you created in the previous steps.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to create templates in workflows"
+    Using the Knock MCP server, I need to create workflows for each email template identified in my analysis report. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+
+    Please create a workflow for each template from the analysis one by one:
+
+    1. Create a new workflow with a key based on the template's purpose (use kebab-case)
+    2. Add a descriptive name and description based on the template's function from the analysis
+    3. Add appropriate categories if identified in the analysis
+    4. Create an email step in the workflow with:
+      - The subject line from the analysis (convert any variables to Liquid syntax)
+      - The layout key that was mapped to this template in the analysis
+      - The template-specific content from the analysis using visual blocks:
+        * Use `markdown` blocks for text content
+        * Use `button_set` blocks for CTAs
+        * Use `divider` blocks for separators
+        * Use any partials that were identified for this template in the analysis
+    5. For any partials, reference them with the keys that we created them with
+    6. Convert all template variables to Liquid syntax as documented in the analysis
+    7. Ensure no styling is added beyond what was in the original template
+    8. Preserve all HTML structure exactly as documented in the analysis
+
+    After creating each workflow, provide:
+    - The workflow key used
+    - Confirmation that the email step was configured correctly
+
+    Start with the first template and proceed one by one through the analysis report. Repeat this process until all workflows are created. The workflows should not be committed yet.
+    ```
+  </Step>
+  <Step title="Verify the migration">
+    After creating all resources, you need to verify that the migration was successful and the templates render correctly.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to verify the migration"
+    I've completed migrating my email templates to Knock based on the analysis. Please help me verify the migration was successful:
+
+    1. **List all created resources**: Show me all the partials, layouts, and workflows that were created during this migration. Cross-reference with the analysis to ensure nothing was missed.
+
+    2. **Check resource relationships**: Based on the mappings in the analysis report, verify that:
+      - Each workflow is using the correct layout as specified
+      - Partials are properly referenced where the analysis indicated they should be used
+      - All resources are in a valid state
+
+    3. **Preview templates**: For each workflow created, preview the email with sample data to verify pixel-perfect reproduction. Use the variable mappings from the analysis to create appropriate test data.
+
+    4. **Validate completeness**: Check against the original analysis to ensure:
+      - All templates listed have corresponding workflows
+      - All partials identified were created and used correctly
+      - All layouts documented were implemented
+      - Variable conversions match the analysis recommendations
+
+    5. **Commit changes**: If everything matches the analysis and renders correctly, commit all changes in the development environment with the message "Email template migration completed - [today's date]"
+
+    Please provide a summary report showing:
+    - Comparison of analysis vs. actual implementation
+    - Any discrepancies found
+    - Confirmation that all templates are rendering as expected
+    ```
+  </Step>
+  <Step title="Prepare for production">
+    Once verification of your templates is complete, you can prepare them for production use by verifying the categories and descriptions of your workflows and triggering them with test data.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to prepare for production"
+    My email templates have been successfully migrated and verified in the development environment, based on the initial analysis report that contains the complete mapping of original templates to Knock resources.
+
+    Please help me prepare for production:
+
+    1. **Final review**: Check all workflows against the analysis report to ensure:
+      - Names and descriptions match the template purposes identified
+      - Categories align with the template types from the analysis
+      - All mapped relationships are correctly implemented
+
+    2. **Document the migration**: Using the analysis report as a base, create an implementation summary that includes:
+      - Final mapping of original template names to Knock workflow keys
+      - Complete list of trigger data variables for each workflow (based on the variable analysis)
+      - Any deviations from the original analysis and why they were necessary
+
+    3. **Create a test plan**: Based on the templates and variables identified in the analysis, generate:
+      - Sample trigger calls for each workflow with appropriate test data
+      - Test cases for each variable pattern identified
+      - Edge cases based on the template complexity noted in the analysis
+
+    4. **Promotion readiness**: Verify against the analysis that:
+      - All templates listed have been implemented
+      - All resources are committed in development
+      - The implementation matches the planned architecture
+
+    Please provide:
+    - A final migration report comparing plan vs. implementation
+    - Production-ready code examples for each workflow
+    - Any specific considerations for your template patterns
+    ```
+  </Step>
+</Steps>

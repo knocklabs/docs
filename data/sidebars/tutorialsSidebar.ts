@@ -17,10 +17,6 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     title: "Knock implementation guide",
   },
   {
-    slug: `${baseSlug}/migrate-email-with-mcp-server`,
-    title: "Migrate email templates using Knock's MCP server",
-  },
-  {
     slug: `${baseSlug}/alerting`,
     title: "Alerting",
   },
@@ -40,5 +36,9 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
   {
     slug: `${baseSlug}/launchdarkly-knock`,
     title: "Using LaunchDarkly with Knock to A/B test messaging",
+  },
+  {
+    slug: `${baseSlug}/migrate-email-with-mcp-server`,
+    title: "MCP for email template migration",
   },
 ];
