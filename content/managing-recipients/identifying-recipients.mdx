@@ -9,9 +9,9 @@ To send notifications to a recipient or reference them as an actor in a notifica
 
 There are three ways to identify recipients:
 
-- **Direct identification**. Make a single API call (`users.identify`) from your backend to upsert one recipient.
-- **Bulk identification**. Make a single API call (`users.bulkIdentify`) to upsert many recipients at once.
-- **Inline identification**. Include recipient data in other Knock API calls (e.g., `workflows.trigger`) to identify recipients.
+- **Direct identification**. Make a single server-side API request (`users.identify`) to upsert one recipient.
+- **Bulk identification**. Make a single server-side API request (`users.bulkIdentify`) to upsert many recipients at once.
+- **Inline identification**. Upsert recipients by including recipient data in other client-side or server-side API requests (e.g., `workflows.trigger`).
 
 <Callout
   emoji="💡"
@@ -26,7 +26,7 @@ There are three ways to identify recipients:
 
 ## Direct identification
 
-The `users.identify` endpoint enables you to upsert a single recipient's data into Knock. This is useful to ensure that user data is updated on an ongoing basis, like reflecting updates a user makes to their profile information inside 
+Make a server-side `users.identify` request to upsert a single recipient in Knock. This is useful to ensure that user data is updated on an ongoing basis, like reflecting updates a user makes to their profile information inside 
 of your product.
 
 <MultiLangCodeBlock snippet="users.identify" title="Directly identify a recipient" />
@@ -37,21 +37,19 @@ of your product.
 
 ## Bulk identification
 
-The `users.bulkIdentify` endpoint enables you to upsert many recipients in a single request. This is ideal for initial data imports or large-scale updates.
+The `users.bulkIdentify` endpoint enables you to upsert many recipients in a single server-side request. This is ideal for initial data imports or large-scale updates.
 
 <MultiLangCodeBlock snippet="users.bulkIdentify" title="Bulk identify recipients" />
 
 [API reference ->](/api-reference/users/bulk/identify)
 
-## Inline identification 
+## Inline identification
 
 You can also identify recipients during other operations, eliminating the need for separate identification API calls. 
 
 When using inline identification, Knock guarantees that recipients are identified before executing any other action. This enables lazy recipient creation within Knock and ensures that your recipients exist within Knock before executing calls that reference them. Inline identification is available both server-side and client-side.
 
 Inline identification [requires a list of user objects](/api-reference/users/schemas/inline_identify_user_request) and each object must include an `id`, but may include other [user properties](/managing-recipients/identifying-recipients#setting-recipient-properties) to be upserted.
-
-
 
 <AccordionGroup>
   <Accordion title="Server-side inline identification">
@@ -160,7 +158,7 @@ When getting started with Knock, you'll likely have existing recipients to migra
 - **Quick start**. Use [inline identification](#inline-identification) to start calling your workflows without any prerequisite calls to the Knock API.
 - **Data import**. Use our [bulk identification](/api-reference/users/bulk/identify) to import all recipient data into Knock first.
 
-### Ongoing recipient updates
+### Ongoing updates
 
 After identifying your current recipients in Knock, you'll want to continue to update this data when:
 
