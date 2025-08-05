@@ -14,7 +14,7 @@ In this document you'll learn how to render guides in your product using the [gu
   text={
     <>
       <span className="font-bold">Note:</span> You must be on @knocklabs/react
-      version 0.7.0 or higher in order to use our new Guides related features.
+      version 0.8.x or higher in order to use our new Guides related features.
       Older SDK versions do not have this capability.
     </>
   }
@@ -22,7 +22,7 @@ In this document you'll learn how to render guides in your product using the [gu
 
 <Steps titleSize="h3">
   <Step title="Setup the KnockGuideProvider within your product.">
-    
+
     You'll need to ensure the guide provider is a child component of the `KnockProvider`. You can find the `channelId` for your guide on the guide details page in the dashboard.
 
     ```tsx title="Setup the KnockGuideProvider within your product."
@@ -114,9 +114,25 @@ Here's how to think about when to use both of these:
 
 - `key`: If you want your component to only ever render a specific instance of a guide, like when building an embedded UI, then use the `key` selector.
 - `type`: If you want to render **any guide** that uses this message type, like when building a generic "Banner" component that could be used multiple times across many guides, but only ever shows a single banner at a time, then use the `type` selector.
-  - When multiple guides exist for a single `type`, we return the most recently created guide first. We are in-progress on a guides ordering feature where you will be able to control this behavior from the Knock dashboard and manually configure which guide should return first.
+  - When multiple guides exist for a single `type`, by default we return the earilest created guides first then the most recently created guide last. Alternatively, you can control this behavior and manually configure which guide should return first by [ordering guides](/in-app-ui/guides/render-guides) in the order of relative priority from the Knock dashboard.
 
-In the future we'll be adding a `useGuides` (plural) hook to return one or more guides that match a set of criteria. Please [let us know](mailto:support@knock.app?subject=Guides%20beta%20feedback) if you need this.
+Additionally, Knock also exposes a `useGuides` hook, which returns one or more guides in an array that match a set of filter criteria. Use the `useGuides` hook when you want to select and render multiple guides of a single type at the same time. The `useGuides` hook will return guides in the same order as the `useGuide` hook, whether by the default order or the manually configured order. Each guide in a returned `guides` array has a `getStep` helper method that can return its unarchived step.
+
+```tsx
+import { useGuides } from "@knocklabs/react";
+
+const ChangelogCards = () => {
+  const { guides } = useGuides({ type: "changelog-card" });
+
+  return (
+    <>
+      {guides.map(guide => (
+        <ChangelogCard guide={guide} step={guide.getStep()} />
+      ))}
+    </>
+  );
+};
+
 
 ## Handling engagement tracking
 
