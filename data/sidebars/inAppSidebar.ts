@@ -58,6 +58,10 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
             title: "Creating guides",
           },
           {
+            slug: "/order-guides",
+            title: "Ordering guides",
+          },
+          {
             slug: "/render-guides",
             title: "Rendering guides",
           },
