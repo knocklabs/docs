@@ -27,9 +27,18 @@ As an example, if you wanted to conditionally change the "From name" on an email
 
 ## Overriding the default `to` address
 
-By default Knock will send your emails to the `email` property stored on the `recipient` for the workflow run. If you need to override this, you can do so by setting the `to` field in your email configuration either at the channel or the template level.
+By default, Knock will send your emails to the `email` property stored on the `recipient` for the workflow run. If you need to override this, you can do so by setting the `to` field in your email configuration either at the channel or the template level.
 
 As an example, if you wanted to send all emails to a single address, you could set the `to` field at the channel level to either a static value (like `hello@example.com`) or a dynamic value (like `{{ data.email_to_override }}`).
+
+### Using multiple `to` addresses
+
+It's possible to set multiple `to` addresses via an override. However, because Knock is designed to process a unique workflow run for each `recipient` in your workflow trigger, this approach comes with some caveats and limitations:
+
+- You must always provide at least one `recipient` on your workflow trigger.
+- Although you may override the `to` email addresses to send an email to more than one address in a given workflow run, that run will reference only the original `recipient`'s properties and notification preferences.
+- Delivery and engagement metrics will also be associated with the original `recipient`, because all of the delivered emails will be related to a single `Message` record in Knock. This means that you won't be able to track per-recipient metrics for the list of email addresses in your override; they'll all be tracked by the workflow `recipient`.
+- Knock does not currently support a comma-separated list of `to` addresses in the same way as we do for `cc` and `bcc` addresses (see section below). This means that you will need to provide a [JSON payload override](#provider-json-overrides) in your workflow step's configuration in order to format the `to` list according to your provider's API requirements. Please [reach out to our support team](mailto:support@knock.app) if you need help with this.
 
 ## Setting `cc` and `bcc` addresses
 
