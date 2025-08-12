@@ -10,7 +10,7 @@ tags:
     "import users",
     "create users",
     "users",
-    "objects"
+    "objects",
   ]
 section: Managing recipients
 ---
@@ -22,7 +22,7 @@ Recipient properties enable Knock to deliver personalized notifications. Propert
 There are three ways to identify recipients:
 
 - **Direct identification**. Make a single server-side API request (`PUT /v1/users/{user_id}`) to upsert one recipient.
-- **Inline identification**. Upsert recipients by including recipient data in other client-side or server-side API requests (e.g., `POST /v1/workflows/{workflow_key}/trigger`).
+- **Inline identification**. Upsert recipients by including recipient data in other server-side API requests (e.g., `POST /v1/workflows/{workflow_key}/trigger`) or when initializing the `KnockProvider` client-side.
 - **Bulk identification**. Make a single server-side API request (`POST /v1/users/bulk/identify`) to upsert many recipients at once.
 
 <Callout
@@ -38,7 +38,7 @@ There are three ways to identify recipients:
 
 ## Direct identification
 
-Make a server-side `users.identify` request to upsert a single recipient in Knock. This is useful to ensure that user data is updated on an ongoing basis, like reflecting updates a user makes to their profile information inside of your product.
+Make a server-side API request to upsert a single recipient in Knock. This is useful to ensure that recipient data is updated on an ongoing basis, like reflecting updates to user information or changes to object properties in your system.
 
 <MultiLangCodeBlock
   snippet="users.identify"
@@ -51,9 +51,9 @@ Make a server-side `users.identify` request to upsert a single recipient in Knoc
 
 You can also identify recipients during other operations, eliminating the need for separate identification API calls.
 
-When using inline identification, Knock guarantees that recipients are identified before executing any other action. This enables lazy recipient creation within Knock and ensures that your recipients exist within Knock before executing calls that reference them. Inline identification is available both server-side and client-side.
+When using inline identification, Knock guarantees that recipients are identified before executing any other action. This enables lazy recipient creation within Knock and ensures that your recipients exist within Knock before executing calls that reference them. Inline identification is available server-side for both users and objects, and client-side for users only.
 
-Inline identification [requires a list of user objects](/api-reference/users/schemas/inline_identify_user_request) and each object must include an `id`, but may include other [user properties](/managing-recipients/identifying-recipients#setting-recipient-properties) to be upserted.
+Inline identification requires a list of [recipient objects](/api-reference/recipients/schemas/recipient_request) where each object must include an `id`, but may include other properties to be upserted.
 
 <AccordionGroup>
   <Accordion title="Server-side inline identification">
@@ -66,7 +66,7 @@ Inline identification [requires a list of user objects](/api-reference/users/sch
     - [Bulk subscriptions](/api-reference/objects/bulk/add_subscriptions)
 
     <MultiLangCodeBlock
-      snippet="workflows.trigger-with-user-identification"
+      snippet="workflows.trigger-with-identification"
       title="Trigger a workflow with inline identification"
     />
 
@@ -75,9 +75,9 @@ Inline identification [requires a list of user objects](/api-reference/users/sch
   </Accordion>
 
   <Accordion title="Client-side inline identification">
-    For in-app UI components like [feeds](/in-app-ui/react/feed#rendering-the-component) and [guides](/in-app-ui/guides/render-guides#getting-started), you can inline identify recipients directly from the client side using Knock's React or JavaScript SDKs. This approach is particularly useful when building real-time notification experiences where recipient data is immediately required in your frontend application.
-
-    Client-side identification is handled automatically when you initialize the `KnockProvider` with user data. When mounted, the provider will identify the user in Knock by upserting the provided user information.
+    Client-side identification is handled automatically when you initialize the `KnockProvider` with user data provided. When mounted, the provider will identify the user in Knock by upserting the provided user information. 
+    
+    This approach is particularly useful for in-app UI components like [feeds](/in-app-ui/react/feed#rendering-the-component) and [guides](/in-app-ui/guides/render-guides#getting-started), where user data is immediately required in your frontend application. Note that client-side identification is currently only available for users.
 
     ```jsx title="Client-side identification with KnockProvider in React"
         <KnockProvider
@@ -119,7 +119,7 @@ Inline identification [requires a list of user objects](/api-reference/users/sch
 
 ## Bulk identification
 
-The `users.bulkIdentify` endpoint enables you to upsert many recipients in a single server-side request. This is ideal for initial data imports or large-scale updates.
+The bulk identification endpoint enables you to upsert many recipients in a single server-side request. This is ideal for initial data imports or large-scale updates.
 
 <MultiLangCodeBlock
   snippet="users.bulkIdentify"
@@ -136,14 +136,14 @@ When identifying recipients, you pass a set of properties that are persisted. We
 
 Recipients have some reserved property names:
 
-| Property       | Description                                                           |
-| -------------- | --------------------------------------------------------------------- |
-| `name`         | The name of the recipient.                                            |
-| `email`        | A valid email address to deliver email notifications to.              |
-| `avatar`       | A URL for the avatar of the recipient.                               |
-| `locale`       | A locale code for the recipient, used for internationalizing content. |
-| `phone_number` | An E.164 compliant phone number field used when sending SMS messages. |
-| `timezone`     | A valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) used for [send windows](/designing-workflows/send-windows) and [schedules](/concepts/schedules). |
+| Property       | Description                                                                                                                                                                                                                         |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`         | The name of the recipient.                                                                                                                                                                                                          |
+| `email`        | A valid email address to deliver email notifications to.                                                                                                                                                                            |
+| `avatar`       | A URL for the avatar of the recipient.                                                                                                                                                                                              |
+| `locale`       | A locale code for the recipient, used for internationalizing content.                                                                                                                                                               |
+| `phone_number` | An E.164 compliant phone number field used when sending SMS messages.                                                                                                                                                               |
+| `timezone`     | A valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) used for [send windows](/designing-workflows/send-windows) and [schedules](/concepts/schedules).                               |
 | `created_at`   | An ISO-8601 datetime indicating when the recipient was created. **Note:** This is an optional property that you must explicitly set from your system - Knock does not handle this implicitly and it will be `null` unless provided. |
 
 ### Custom properties
@@ -208,8 +208,7 @@ Another option is to offload these updates to your workflow trigger calls via in
       <Accordion title="Can I set a user's preferences during identification?">
     Yes, preferences can be set during identification, but it's important to understand the implications. Unlike our preferences endpoints, setting preferences during identification will perform a deep merge of the provided preferences into any existing preferences (just like any other <a href="/concepts/users#storing-user-properties">properties stored on the recipient</a>). Unless you intend to leverage this behavior for a specific use case, we generally recommend updating preferences directly via the preferences endpoints.
 
-
-To set preferences during identification, provide a dictionary under the `preferences` key with each key representing a preference set ID. Unlike the `setPreferences` [method](/preferences/overview#set-a-users-preferences), setting preferences during identification requires explicitly providing the `default` preference set key when updating default preferences.
+To set preferences during identification, provide a dictionary under the `preferences` key with each key representing a preference set ID. Unlike the preferences [endpoints](/preferences/overview), setting preferences during identification requires explicitly providing the `default` preference set key when updating default preferences.
 
     ```json title="Providing preferences during identification"
     {
