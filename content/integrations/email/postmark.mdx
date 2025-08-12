@@ -141,3 +141,27 @@ Delivery tracking for Postmark can result in the following status updates to you
 
 - The message delivery is confirmed and Knock updates the message to `delivered`
 - The message was not delivered due to bad recipient(s) and Knock updates the message to `bounced`
+
+## Using overrides to customize notifications
+
+We provide full support for [overriding the payload](/email/settings#provider-json-overrides) of your email notifications. This enables you to customize the <a href="https://postmarkapp.com/developer/api/email-api" target="_blank">API request</a> that Knock sends to Postmark on your behalf.
+
+### Targeting a specific `MessageStream`
+
+Knock does not target a specific `MessageStream` when sending your transactional email notifications to Postmark. This means that Postmark defaults your notifications to the `"outbound"` transactional stream.
+
+For marketing use cases such as newsletters or product updates sent to large recipient lists, and particularly when leveraging Knock's [broadcasts](/concepts/broadcasts) feature, we recommend following <a href="https://postmarkapp.com/message-streams#deliverability" target="_blank">Postmark's best practices</a> for sending promotional messaging via a separate `MessageStream`.
+
+<Steps>
+  <Step title="Configure a broadcast MessageStream in Postmark">
+    Configure a `Broadcast`-type message stream in your Postmark account. Read more about the `MessageStream` API <a href="https://postmarkapp.com/developer/api/message-streams-api" target="_blank">here</a>.
+  </Step>
+  <Step title="Set a payload override in Knock">
+    Set a payload override in Knock with the ID of the `MessageStream` that you'd like to target. This can be done at either the channel configuration level or directly in the settings of your workflow's email channel step:
+    ```json title="Payload override to target a broadcast MessageStream"
+    {
+      "MessageStream": "broadcasts"
+    }
+    ```
+  </Step>
+</Steps>
