@@ -231,3 +231,47 @@ When using lists with bold introductory text, use a period after the bold text i
 > Example of active voice: "The team completed the project."
 
 > Example of passive voice: "The project was completed by the team."
+
+# Tutorial writing guidelines for /content/tutorials/*
+
+The following guidelines apply specifically to content in the `/content/tutorials/` directory:
+
+## Always link to Knock docs when possible
+
+Any time you reference a Knock API, a Knock concept, or any other concept that lives in the Knock documentation (https://docs.knock.app), link to it so the reader can learn more about the concept you're referencing. ALWAYS DOUBLE CHECK YOUR LINKS AND MAKE SURE THEY DO NOT 404.
+
+## Use of notes and asides
+
+Use asides to highlight important notes or in-development features. Clearly label these sections with icons or labels like "🚧 **Note**".
+
+## Consistent terminology
+
+Use consistent terminology for features and processes, such as "incoming replies URL" and "outbound webhook".
+
+## Configuration instructions
+
+Provide clear, step-by-step instructions for configuration tasks, including where to find necessary settings in the UI.
+
+## Payload structure
+
+When describing data structures, use tables to define properties, types, and descriptions for clarity.
+
+## Examples
+
+Include example payloads or code snippets to illustrate how features work in practice.
+
+## Debugging and troubleshooting
+
+Provide sections for debugging and troubleshooting, explaining where to find logs and how to interpret them.
+
+## FAQs
+
+Include a frequently asked questions section to address common concerns or limitations.
+
+## Limitations and future features
+
+Clearly state current limitations and potential future enhancements to manage user expectations.
+
+## Educate the user
+
+When introducing Knock concepts, make a point to educate the user about what they're doing. Don't just tell them how to do something, explain why they're doing it and what the benefits are.
