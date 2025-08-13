@@ -232,7 +232,7 @@ When using lists with bold introductory text, use a period after the bold text i
 
 > Example of passive voice: "The project was completed by the team."
 
-# Tutorial writing guidelines for /content/tutorials/*
+# Tutorial writing guidelines for /content/tutorials/\*
 
 The following guidelines apply specifically to content in the `/content/tutorials/` directory:
 
