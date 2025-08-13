@@ -120,17 +120,17 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
 We recommend the following to ensure the best results:
 
 - Leverage an LLM with a large context window. In Cursor, you should enable "MAX mode" on your agent. Note that this may have billing implications depending on your Cursor plan.
-- If you have a large number of templates, you'll likely need to break the analysis in step 1 below into smaller chunks. We recommend providing no more than 10-15 template files per prompt. The prompt is designed so that you can run it multiple times and it will add to the existing analysis report if it has already been run.
+- If you have a large number of templates, you'll likely need to break the analysis in step 1 below into smaller chunks. We recommend providing no more than 5-10 template files per prompt. The prompt is designed so that you can run it multiple times and it will add to the existing analysis report if it has already been run.
 - Start a new chat session to clear your context window if you notice that you're approaching the context window limit.
 
 <Steps titleSize="h3">
   <Step title="Analyze your existing email templates">
-    Before creating any resources in Knock, you'll need to analyze your existing email templates to identify patterns and shared components. Copy the prompt below and provide it to your LLM along with access to your template files.
+    Before creating any resources in Knock, you'll need to analyze your existing email templates to identify patterns and shared components. Copy the prompt below and provide it to your LLM along with access to your template files. After the first run, provide the template analysis report as context as well.
 
     **Prompt:**
 
     ```markdown title="LLM prompt to analyze your existing email templates"
-    I need to analyze my existing email templates to prepare for migration to Knock. I have provided access to my HTML email template files.
+    I need to analyze my existing email templates to prepare for migration to Knock. I have provided access to my HTML email template files. Only reference the files that I've explicitly provided as context.
     Please examine all the templates and either create or add to (if it already exists) a comprehensive analysis report that will be used in subsequent migration steps. The report should be called "email-template-analysis.md".
 
     Reference the Knock documentation as needed. The final migrated templates need to be pixel-perfect replicas of the original templates.
@@ -151,8 +151,11 @@ We recommend the following to ensure the best results:
       - List which templates will use this layout.
 
     3. **Document template-specific content**: For each template:
+      - Extract the unique content that differs from the shared components
+      - Document the email subject line
       - Note which layout it should use
       - List which partials it references
+      - Identify all variables used
       - Note its name and purpose
 
     4. **Implementation plan**: Provide a clear mapping that shows:
@@ -160,6 +163,7 @@ We recommend the following to ensure the best results:
       - Which content blocks become partials (with suggested keys)
       - Which layout each template should use
       - Which partials should be used in each layout and template
+      - Any template-specific HTML content that should be added to each email in Knock
 
     Your report should include:
     - **Partials section**: Each reusable block with its exact HTML content
@@ -238,6 +242,7 @@ We recommend the following to ensure the best results:
       - Any variables converted to Liquid syntax
       - The layout key that was mapped to this template in the analysis
       - Any partials that were identified for this template in the analysis, referencing them with correct keys
+      - The exact template-specific HTML content from the analysis report
     5. Ensure no styling is added beyond what was in the original template
     6. Preserve all HTML structure exactly as documented in the analysis
 
@@ -305,7 +310,7 @@ We recommend the following to ensure the best results:
 
     Please help me test the workflows one at a time. For each workflow, I want to:
 
-    1. **Trigger the workflow**: Trigger the workflow with the Knock MCP server, using the test data provided in the summary report. The recipient should be my test user with ID "FILL IN TEST USER ID".
+    1. **Trigger the workflow**: Trigger the workflow with the Knock MCP server, using the test data provided in the summary report. The recipient should be my test user with ID "FILL IN TEST USER ID HERE".
 
     2. **Wait for confirmation**: Wait for me to confirm that the workflow was triggered successfully and that the test email was received. If I have feedback on the email that I received, note it in the summary report.
 
