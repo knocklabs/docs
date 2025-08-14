@@ -240,9 +240,9 @@ The following guidelines apply specifically to content in the `/content/tutorial
 
 Any time you first reference a Knock API, a Knock concept, or any other concept that lives in the Knock documentation (https://docs.knock.app), link to it so the reader can learn more about the concept you're referencing. ALWAYS DOUBLE CHECK YOUR LINKS AND MAKE SURE THEY DO NOT 404.
 
-## Use of notes and asides
+## Use of notes and callouts
 
-Use asides to highlight important notes or in-development features. Clearly label these sections with icons or labels like "🚧 **Note**".
+Use the `Callout` component to highlight important notes or in-development features. Clearly label these sections with icons or labels like "🚧 **Note**".
 
 ## Consistent terminology
 
