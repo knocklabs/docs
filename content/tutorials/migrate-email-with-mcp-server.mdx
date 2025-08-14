@@ -117,15 +117,51 @@ Now that you have everything you need for your migration, you're ready to get st
 
 Each step below contains a prompt that you can provide to your LLM. These prompts are designed to be run one at a time in order to provide the LLM with discrete tasks, thus improving the accuracy of the output.
 
-We recommend the following to ensure the best results:
-
-- Leverage an LLM with a large context window. In Cursor, you should enable "MAX mode" on your agent. Note that this may have billing implications depending on your Cursor plan.
-- If you have a large number of templates, you'll likely need to break the analysis in step 1 below into smaller chunks. We recommend providing no more than 5-10 template files per prompt. The prompt is designed so that you can run it multiple times and it will add to the existing analysis report if it has already been run.
-- Start a new chat session to clear your context window if you notice that you're approaching the context window limit.
+<Callout
+  emoji="🚨"
+  bgColor="red"
+  title="Important considerations for best results."
+  text={
+    <>
+      <br />
+      <br />
+      <ul>
+        <li>
+          We recommend leveraging an LLM with the largest context window
+          available. In Cursor, you should enable "MAX mode" on your agent. Note
+          that this may have billing implications depending on your Cursor plan.
+        </li>
+        <li>
+          If you have a large number of templates, you will need to repeat the
+          first step below multiple times with a subset of your templates to
+          avoid exceeding the context window limit.{" "}
+          <b>
+            We recommend providing no more than 5-10 template files per prompt.
+          </b>{" "}
+          The prompt is designed so that you can run it multiple times and it
+          will add to the existing analysis report if it has already been run.
+        </li>
+        <li>
+          Cursor will sometimes show a "⚠️" icon on the files that you add to
+          chat context, with a tooltip that says "This file has been
+          significantly condensed to fit in the context limit." If you see this,
+          you should reduce the number of files you are providing as context to
+          your prompt, as proceeding will result in migrated templates that are
+          not pixel-perfect to your original templates.
+        </li>
+        <li>
+          As you work through the migration, start a new chat session to clear
+          your context window if you notice that you are approaching the context
+          window limit for the current session.
+        </li>
+      </ul>
+    </>
+  }
+/>
 
 <Steps titleSize="h3">
   <Step title="Analyze your existing email templates">
-    Before creating any resources in Knock, you'll need to analyze your existing email templates to identify patterns and shared components. Copy the prompt below and provide it to your LLM along with access to your template files. After the first run, provide the template analysis report as context as well.
+    Before creating any resources in Knock, you'll need to analyze your existing email templates to identify patterns and shared components. Copy the prompt below and provide it to your LLM along with access to your template files. We recommend limiting your prompt to 5-10 template files at a time to avoid exceeding the context window limit.
 
     **Prompt:**
 
@@ -133,7 +169,7 @@ We recommend the following to ensure the best results:
     I need to analyze my existing email templates to prepare for migration to Knock. I have provided access to my HTML email template files. Only reference the files that I've explicitly provided as context.
     Please examine all the templates and either create or add to (if it already exists) a comprehensive analysis report that will be used in subsequent migration steps. The report should be called "email-template-analysis.md".
 
-    Reference the Knock documentation as needed. The final migrated templates need to be pixel-perfect replicas of the original templates.
+    Reference the Knock documentation with the Knock MCP server as needed. The final migrated templates need to be pixel-perfect replicas of the original templates.
 
     Follow these steps to create the report, analyzing each provided template one at a time:
 
