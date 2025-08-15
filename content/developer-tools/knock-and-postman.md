@@ -7,7 +7,7 @@ section: Getting started
 
 Our Postman collection is a good way to get familiar with the Knock API. Here's how to get started.
 
-In this guide you'll fork the Knock collection into your Postman workspace and create Postman environments that map to your environments in Knock.
+In this tutorial you'll fork the Knock collection into your Postman workspace and create Postman environments that map to your environments in Knock.
 
 ## For the Knock Postman collection
 
