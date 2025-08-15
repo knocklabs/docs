@@ -1544,6 +1544,7 @@ components:
       description: A request to set preferences for a set of users in bulk.
       example:
         preferences:
+          __persistence_strategy__: merge
           categories:
             marketing: false
             transactional:
@@ -5350,6 +5351,7 @@ components:
     PreferenceSetRequest:
       description: A request to set a preference set for a recipient.
       example:
+        __persistence_strategy__: merge
         categories:
           marketing: false
           transactional:
@@ -5362,6 +5364,14 @@ components:
             channel_types:
               email: false
       properties:
+        __persistence_strategy__:
+          description: Controls how the preference set is persisted. 'replace' will completely replace the preference set, 'merge' will merge with existing preferences.
+          enum:
+            - merge
+            - replace
+          type: string
+          x-struct: null
+          x-validate: null
         categories:
           anyOf:
             - additionalProperties:
@@ -10472,6 +10482,7 @@ paths:
           application/json:
             example:
               preferences:
+                __persistence_strategy__: merge
                 categories:
                   marketing: false
                   transactional:
@@ -10512,6 +10523,7 @@ paths:
 
           const bulkOperation = await client.users.bulk.setPreferences({
             preferences: {
+              __persistence_strategy__: 'merge',
               categories: { marketing: false, transactional: { channel_types: { email: false } } },
               channel_types: { email: true },
               workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
@@ -10528,6 +10540,7 @@ paths:
           )
           bulk_operation = client.users.bulk.set_preferences(
               preferences={
+                  "_persistence_strategy": "merge",
                   "categories": {
                       "marketing": False,
                       "transactional": {
@@ -10568,6 +10581,7 @@ paths:
             )
             bulkOperation, err := client.Users.Bulk.SetPreferences(context.TODO(), knock.UserBulkSetPreferencesParams{
               Preferences: knock.F(knock.PreferenceSetRequestParam{
+                PersistenceStrategy: knock.F(knock.PreferenceSetRequest_PersistenceStrategyMerge),
                 Categories: knock.F(map[string]knock.PreferenceSetRequestCategoriesUnionParam{
                 "marketing": shared.UnionBool(false),
                 "transactional": knock.PreferenceSetRequestCategoriesPreferenceSetWorkflowCategorySettingObjectParam{
@@ -16120,7 +16134,7 @@ paths:
           puts(preference_set)
     put:
       callbacks: {}
-      description: Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given. If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request. The preference set `:id` can be either `default` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
+      description: 'Sets preferences within the given preference set. By default, this is a destructive operation and will replace any existing preferences with the preferences given. Use ''__persistence_strategy'': ''merge'' to merge with existing preferences instead. If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request. The preference set `:id` can be either `default` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).'
       operationId: updateObjectPreferenceSet
       parameters:
         - description: Unique identifier for the object.
@@ -16153,6 +16167,7 @@ paths:
         content:
           application/json:
             example:
+              __persistence_strategy__: merge
               categories:
                 marketing: false
                 transactional:
@@ -16189,6 +16204,7 @@ paths:
           });
 
           const preferenceSet = await client.objects.setPreferences('collection', 'object_id', 'default', {
+            __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
@@ -16205,6 +16221,7 @@ paths:
               collection="collection",
               object_id="object_id",
               id="default",
+              _persistence_strategy="merge",
               categories={
                   "marketing": False,
                   "transactional": {
@@ -16597,7 +16614,7 @@ paths:
           puts(preference_set)
     put:
       callbacks: {}
-      description: Updates a complete preference set for a user. This is a destructive operation that will replace the existing preference set for the user.
+      description: 'Updates a complete preference set for a user. By default, this is a destructive operation and will replace any existing preferences with the preferences given. Use ''__persistence_strategy__'': ''merge'' to merge with existing preferences instead.'
       operationId: updateUserPreferenceSet
       parameters:
         - description: The unique identifier of the user.
@@ -16622,6 +16639,7 @@ paths:
         content:
           application/json:
             example:
+              __persistence_strategy__: merge
               categories:
                 marketing: false
                 transactional:
@@ -16658,6 +16676,7 @@ paths:
           });
 
           const preferenceSet = await client.users.setPreferences('user_id', 'default', {
+            __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
@@ -16673,6 +16692,7 @@ paths:
           preference_set = client.users.set_preferences(
               user_id="user_id",
               id="default",
+              _persistence_strategy="merge",
               categories={
                   "marketing": False,
                   "transactional": {
