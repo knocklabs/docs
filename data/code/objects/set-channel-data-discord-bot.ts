@@ -28,11 +28,13 @@ await knock.objects.setChannelData(
   project.id,
   KNOCK_DISCORD_CHANNEL_ID,
   {
-    connections: [
-      {
-        channel_id: "channel-id-from-discord"
-      },
-    ],
+    data: {
+      connections: [
+        {
+          channel_id: "channel-id-from-discord"
+        },}
+      ],
+    }
   },
 );
 `,
