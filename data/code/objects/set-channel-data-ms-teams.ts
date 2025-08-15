@@ -28,11 +28,13 @@ await knock.objects.setChannelData(
   project.id,
   KNOCK_TEAMS_CHANNEL_ID,
   {
-    connections: [
-      {
-        incoming_webhook: { url: "url-from-teams" }
-      },
-    ],
+    data: {
+      connections: [
+        {
+          incoming_webhook: { url: "url-from-teams" }
+        },
+      ],
+    },
   },
 );
 `,

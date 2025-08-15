@@ -20,7 +20,7 @@ const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 const APNS_CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
 await knockClient.users.setChannelData(user.id, APNS_CHANNEL_ID, {
-  tokens: [userDeviceToken],
+  data: { tokens: [userDeviceToken] },
 });
 `,
   python: `
