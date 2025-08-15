@@ -14,7 +14,7 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
   },
   {
     slug: `${baseSlug}/implementation-guide`,
-    title: "Knock implementation guide",
+    title: "Implementing Knock",
   },
   {
     slug: `${baseSlug}/alerting`,
