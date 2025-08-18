@@ -47,6 +47,6 @@ Currently we offer support for:
 
 ## Uninstalling the integration
 
-You can manage the Knock Vercel integration under your Vercel dashboard under the **Integrations** tab. From there you can remove the specific integration installation from your Vercel account.
+You can manage the Knock Vercel integration in your Vercel dashboard under the **Integrations** tab. From there you can remove the specific integration installation from your Vercel account.
 
 **Please note**: removing an integration will delete the corresponding API keys set by Knock in your Vercel project(s).
