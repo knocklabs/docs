@@ -58,14 +58,14 @@ const Type = ({
       // Check if the href is to a different page (different base path)
       const currentPath = window.location.pathname;
       const targetPath = href;
-      const currentBasePath = currentPath.split('/')[1];
-      const targetBasePath = targetPath.split('/')[1];
-      
+      const currentBasePath = currentPath.split("/")[1];
+      const targetBasePath = targetPath.split("/")[1];
+
       // If navigating to a different base path, allow normal navigation
       if (currentBasePath !== targetBasePath) {
         return; // Don't prevent default, allow normal navigation
       }
-      
+
       // Otherwise, use the highlight resource behavior for same-page navigation
       e.preventDefault();
       highlightResource(href, { moveToItem: true });
