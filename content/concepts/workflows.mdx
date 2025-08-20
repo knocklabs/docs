@@ -89,7 +89,11 @@ Read more about [environments](/concepts/environments) and [versioning](/concept
 
 Each workflow has an `Active`/`Inactive` status that is displayed in your dashboard's **Workflows** section. The status defaults to `Active` and can be set by clicking on the workflow and using the "Status" selector.
 
-This is your kill switch for a given workflow should you need it; any attempt to trigger an `Inactive` workflow will result in a `workflow_inactive` [error](/api-reference/overview/errors). The status setting operates independently from the commit model so that you can immediately enable or disable a workflow in any environment without needing to go through environment promotion. **It is environment-specific and will only be applied to the current environment.**
+This is your kill switch for a given workflow should you need it; any attempt to trigger an `Inactive` workflow will result in a `workflow_inactive` [error](/api-reference/overview/errors) and no workflow runs will be enqueued.
+
+The status setting operates independently from the commit model so that you can immediately enable or disable a workflow in any environment without needing to go through environment promotion. **It is environment-specific and will only be applied to the current environment.**
+
+See the [frequently asked questions](#frequently-asked-questions) section below for more information on how in-progress workflow runs are affected when you set a workflow's status to `Inactive`.
 
 ### Archiving workflows
 
@@ -184,9 +188,15 @@ You can learn more about automating workflow management in the [Knock CLI refere
   </Accordion>
   <Accordion title="Is there a way to disable a workflow without archiving it?">
     Yes, you can set a workflow's [status](/concepts/workflows#workflow-status)
-    to `Inactive` to disable it.
+    to `Inactive` to disable it. While a workflow's status is set to `Inactive`,
+    any new workflow triggers will be rejected with a `workflow_inactive` error.
   </Accordion>
   <Accordion title="What happens to in-progress workflow runs when I set a workflow's status to Inactive?">
-    Any in-progress workflow runs will be immediately terminated.
+    If a workflow step attempts to process for a workflow that is currently set to `Inactive`, the workflow run will be immediately terminated.
+    
+    Workflow runs that are currently in a paused state (due to a [delay](/designing-workflows/delay-function) or [batch](/designing-workflows/batch-function) step) when you set your workflow to `Inactive` are not immediately affected; however, if the paused step completes and the workflow run progresses to the next step while the workflow remains `Inactive`, it will be terminated.
+
+    If you toggle a workflow to `Inactive` and back to `Active` while a given in-progress workflow run remains paused, that workflow run will resume at the end of the delay and continue to completion.
+
   </Accordion>
 </AccordionGroup>
