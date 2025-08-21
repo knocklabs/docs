@@ -7,7 +7,15 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     desc: "A technical and non-technical introduction to the basics of Knock, and a step-by-step guide to get you going in minutes.",
     pages: [
       { slug: "/what-is-knock", title: "What is Knock?" },
-      { slug: "/quick-start", title: "Quick start" },
+      {
+        slug: "/quick-start",
+        title: "Quick start",
+        pages: [
+          { slug: "/general", title: "General" },
+          { slug: "/nextjs", title: "Next.js" },
+          { slug: "/react", title: "React" },
+        ],
+      },
       { slug: "/example-apps", title: "Example apps" },
     ],
     sidebarMenuDefaultOpen: true,
