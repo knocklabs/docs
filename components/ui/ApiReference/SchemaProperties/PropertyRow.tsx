@@ -55,8 +55,36 @@ const Type = ({
 }) => {
   if (href) {
     const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault();
-      highlightResource(href, { moveToItem: true });
+      try {
+        const targetUrl = new URL(href, window.location.href);
+
+        // Let browser handle non-http(s) protocols (mailto:, tel:, etc.)
+        if (targetUrl.protocol !== "http:" && targetUrl.protocol !== "https:") {
+          return;
+        }
+
+        const currentUrl = new URL(window.location.href);
+
+        // Different origin → allow normal navigation
+        if (targetUrl.origin !== currentUrl.origin) {
+          return;
+        }
+
+        // Compare base path (first segment after "/")
+        const currentBasePath = currentUrl.pathname.split("/")[1] || "";
+        const targetBasePath = targetUrl.pathname.split("/")[1] || "";
+
+        if (currentBasePath !== targetBasePath) {
+          return;
+        }
+
+        // Same origin and base path → intercept and highlight
+        e.preventDefault();
+        const resource = `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`;
+        highlightResource(resource, { moveToItem: true });
+      } catch {
+        // On parse failure, fall back to default navigation
+      }
     };
     return (
       <Text as={Link} href={href} onClick={onClick}>
