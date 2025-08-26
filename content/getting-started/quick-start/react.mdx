@@ -1,29 +1,130 @@
 ---
 title: Get started with Knock
-description: Quickly get up and running with Knock.
+description: Quickly get up and running with Knock and Next.js.
 tags: ["getting started"]
 section: Getting started
 ---
 
-In this guide, you'll integrate Knock with your backend web application and send your first notification using Knock.
+In this guide, you'll integrate Knock's `NotificationFeed` component a React application and send your first notification using Knock's test runner.
 
 <Steps titleSize="h2">
   <Step title="Create a Knock account">
     First, [create a Knock account](https://dashboard.knock.app/signup) if you don't already have one and log into the [Knock dashboard](https://dashboard.knock.app).
   </Step>
-  <Step title="Add the Knock SDK to your backend">
-    We have SDKs available in [most major languages](/developer-tools/sdks). Don't see your language listed here? [Let us know](mailto:support@knock.app)!
+  <Step title="Create a new Next.js application">
+    Run the following command to [create a new Next.js application](https://nextjs.org/docs/app/getting-started/installation).
 
-    <MultiLangCodeBlock snippet="sdks.install" title="Install Knock" />
+    ```bash title="Command to create a new React app"
+    npm create vite@latest knock-react-quickstart -- --template react-ts
+    ```
+    Follow the CLI prompts and use all of the defaults selections, then run the following command to change into your project directory:
+
+    ```bash title="Command to create a new React app"
+    cd knock-react-quickstart
+    ```
 
   </Step>
-  <Step title="Set up environment variables">
-    You can find your public and secret API keys under the **Platform** section of the Knock dashboard. Since we're working on the backend here, you'll want to use the secret key.
+  <Step title="Install Knock dependencies">
+    Install the following dependencies so you can use the Knock `NotificationFeed` component in your app and trigger workflows from server actions.
 
-    As a best practice, your API key should be set as an environment variable and should not be checked into source control.
+    ```bash title="Install Knock dependencies"
+    npm install @knocklabs/react
+    ```
 
-    ```bash
-    KNOCK_API_KEY='sk_example_123456789'
+  </Step>
+    <Step title="Set your environment variables">
+    Run the following command to generate a new `env.local` file and add the following environment variables to autenticate your requests to Knock:
+    ```bash title="Create an env file"
+    touch .env.local
+    ```
+    You can find your [public and secret API keys](/developer-tools/api-keys) under the **Platform** section of the Knock dashboard.
+
+    You can find the id of your Knock in-app feed channel in **Settings** > **Integrations** > **Channels**.
+
+    ```javascript title="Add these values to .env.local"
+    VITE_KNOCK_PUBLIC_API_KEY='pk_example_123456789'
+    VITE_KNOCK_FEED_ID='f9923d96-bee5-48bd-a1ff-31b6637b7385'
+    ```
+
+  </Step>
+  <Step title="Add Knock components to your app">
+    You'll need to create a component to render the default Knock components. Run the following command to create a new component file called `inbox.tsx` inside of the `app`:
+    ```bash title="Create an inbox.tsx file"
+    mkdir ./src/components
+    touch ./src/components/inbox.tsx
+    ```
+    Since this file uses client-side React APIs, it will need to be a client component. You can add the following code to the empty `inbox.tsx` file:
+
+    ```javascript title="Add this code to inbox.tsx"
+
+import {
+  KnockProvider,
+  KnockFeedProvider,
+  NotificationFeedPopover,
+  NotificationIconButton,
+} from "@knocklabs/react";
+
+// Required CSS import, unless you're overriding the styling
+import "@knocklabs/react/dist/index.css";
+import { useRef, useState } from "react";
+
+const Inbox = () => {
+// An example of fetching the current authenticated user
+const user = {
+id: "12c23775-5902-481a-b8ea-d1704aabc769",
+};
+const [isVisible, setIsVisible] = useState(false);
+const notifButtonRef = useRef(null);
+return (
+
+<KnockProvider apiKey={process.env.KNOCK_PUBLIC_API_KEY} user={{ id: user.id }}>
+  <KnockFeedProvider
+    feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+    colorMode="dark"
+  >
+    <>
+      <NotificationIconButton
+        ref={notifButtonRef}
+        onClick={(e) => setIsVisible(!isVisible)}
+      />
+      <NotificationFeedPopover
+        buttonRef={notifButtonRef}
+        isVisible={isVisible}
+        onClose={() => setIsVisible(false)}
+      />
+    </>
+  </KnockFeedProvider>
+</KnockProvider>
+); };
+
+export default Inbox;
+
+    ```
+
+In production, you will want to colocate`KnockProvider`and`KnockFeedProvider`at a higher level in your application.
+If you pass a`user`that doesn't exist, Knock will automatically create one with the specified`id` using [client-side inline identification](/managing-recipients/identifying-recipients#inline-identification).
+
+  </Step>
+  <Step title="Render the `Inbox` component">
+    Next, replace the contents of `/app/page.tsx` with the code below to import the `Inbox` component and render it in `page.tsx`.
+
+    ```javascript title="Render the Inbox component"
+    import Inbox from "./inbox";
+
+    const Page = () => {
+      return (
+        <main className="flex flex-col items-center min-h-screen p-8">
+          <h1 className="text-3xl font-bold mb-8">Knock Inbox Test</h1>
+          <Inbox />
+        </main>
+      );
+    };
+    export default Page;
+    ```
+    Next, run your development server to render the `Inbox` component. There will be no messages, but you should be able to switch between tabs.
+
+    ```bash title="Run Next.js dev server"
+    npm run dev
     ```
 
   </Step>
@@ -35,34 +136,39 @@ In this guide, you'll integrate Knock with your backend web application and send
     Here's how to build your first workflow:
     <AccordionGroup>
       <Accordion title="Create a workflow">
-        Click the "+ Workflow" button in the top right corner of the Knock dashboard. Name it whatever you like.
+        Navigate to the **Workflows** section of the Knock dashboard. Click the "+ Workflow" button in the top right corner of the Knock dashboard. Name it `knock-quickstart` to test your integration.
+        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/create-workflow.png"/>
       </Accordion>
-      <Accordion title="Add a channel step">
+      <Accordion title="Add an in-app channel step">
         To send a notification, a workflow needs at least one [channel step](/designing-workflows/channel-step). To add this step, we'll click “edit steps” to enter the workflow canvas editor.
 
         Here we can see a number of steps available for us to add to our workflow, including functions (such as [batch](/designing-workflows/batch-function) and [delay](/designing-workflows/delay-function)) and channels.
+        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/add-inapp-step.png"/>
 
-        Choose the delivery channel you'd like to use in your workflow and drag it onto the workflow canvas.
+        Drag the 'In-app feed' step onto the workflow canvas.
       </Accordion>
       <Accordion title="Design the notification message">
-        After adding a channel step, we can configure the notification's content by clicking on "Edit template" in the channel's edit step view to see that step's [message template](/designing-workflows/template-editor/overview). The template starts with default copy, so we'll just use that for now.
-      </Accordion>
-      <Accordion title="Grab trigger payload">
-        Before we leave the workflow canvas and head back to your backend, let’s click on the trigger step to grab a payload data sample to use when we call Knock.
+        After adding your channel step, you can configure the notification's content by clicking on "Edit content" in the channel's edit step view to see that step's [message template](/designing-workflows/template-editor/overview).
+        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/edit-inapp-content.png"/>
 
-        This sample payload is auto-generated when you create a workflow within the Knock dashboard. It gives us the JSON blob we'll need to pass through as `data` in our trigger call in order to populate any of the custom properties defined in our workflow.
+        The template starts with default copy, so we'll just use that for now.
+        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/edit-content.png"/>
       </Accordion>
       <Accordion title="Commit the workflow to development">
         Knock follows a versioning model similar to Git. This means that before you can trigger your new workflow via the API, you'll need to commit it to your current environment to activate the workflow.
+        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/commit.png"/>
 
-        Click the back arrow in the top-left corner of the workflow canvas to get back to the workflow overview page, where you can commit your changes.
+        You do this using the `Commit` button  in the header of the workflow canvas.
       </Accordion>
     </AccordionGroup>
     Now we're ready to trigger our workflow via the Knock API. You can also learn more about workflows and channels in Knock via our [guide on designing workflows](/send-notifications/designing-workflows).
 
   </Step>
   <Step title="Trigger your workflow">
-    Now, you'll trigger your workflow to notify a set of users. When triggering workflows, you need to provide the following required pieces of data in your call to the Knock API:
+    Now, you'll trigger your workflow to notify a set of users. You can do that through the test runner in the workflow editor, or via API call. 
+    <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/run-test.png"/>
+    
+    When triggering workflows, you need to provide the following required pieces of data in your call to the Knock API:
 
     - `recipients` – The list of users to notify.
     - `data` – The variable data that will populate your notification templates. Here you'll use the sample data payload we grabbed in the previous step.
