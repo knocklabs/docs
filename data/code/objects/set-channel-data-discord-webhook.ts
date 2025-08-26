@@ -28,11 +28,13 @@ await knock.objects.setChannelData(
   project.id,
   KNOCK_DISCORD_CHANNEL_ID,
   {
-    connections: [
-      {
-        incoming_webhook: { url: "url-from-discord" }
-      },
-    ],
+    data: {
+      connections: [
+        {
+          incoming_webhook: { url: "url-from-discord" }
+        },
+      ],
+    },
   },
 );
 `,

@@ -91,9 +91,42 @@ Triggers are automatically enabled when you create them. If you want to stop an 
 
 ## Enabling Identify Events
 
-When RudderStack sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `id`, `email`, `phone`, `avatar`, `name`, and any other custom properties over.
+When RudderStack sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `userId` as the user's `id`, as well as `name`, `email`, `phone` (mapped as `phone_number` in Knock), `avatar`, `locale`, `timezone`, and any additional custom properties provided in the `traits` object.
 
-To enable handling of identify events, open the settings for the source in the environment. You can then enable or disable handling identify events accordingly.
+<Callout
+  emoji="⚠️"
+  title="Note:"
+  bgColor="yellow"
+  text={
+    <>
+      RudderStack's default <code>Identify</code>{" "}
+      <a
+        href="https://www.rudderstack.com/docs/event-spec/standard-events/identify/"
+        target="_blank"
+      >
+        event schema
+      </a>{" "}
+      has the <code>traits</code> object nested under a top-level{" "}
+      <code>context</code> key.{" "}
+      <a
+        href="https://www.rudderstack.com/docs/event-spec/standard-events/identify/#identify-traits"
+        target="_blank"
+      >
+        Some RudderStack SDKs
+      </a>{" "}
+      will also include a top-level <code>traits</code> object.
+      <br />
+      <br />
+      Knock expects user properties to be contained in a top-level <code>
+        traits
+      </code> object when processing an <code>Identify</code> event, so you may need
+      to apply a data transformation prior to sending these events to Knock depending
+      on which SDK you're using.
+    </>
+  }
+/>
+
+To enable handling of identify events, open the settings for the source in the relevant Knock environment. You can then enable or disable handling identify events accordingly.
 
 <Image
   src="/images/integrations/sources/rudderstack-identify.png"

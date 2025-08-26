@@ -51,7 +51,7 @@ Here is how tenant preferences work and the steps you'll take to implement them:
 
 ## Create a per-tenant default `PreferenceSet`
 
-You set the default `PreferenceSet` for a tenant via the API by calling the `tenants.set` method. The preferences should follow the format of a recipient <a href="/api-reference/recipients/preferences"><code>PreferenceSet</code></a>.
+You set the default `PreferenceSet` for a tenant via the API by calling the `tenants.set` [method](/api-reference/tenants/set). The preferences should follow the format of a recipient <a href="/api-reference/recipients/preferences/schemas/preference_set_request"><code>PreferenceSetRequest</code></a>.
 
 ```javascript title="Set the default preferences for a tenant"
 import Knock from "@knocklabs/node";
@@ -75,6 +75,12 @@ await knock.tenants.set("tenant-id", {
   },
 });
 ```
+
+### Updating the per-tenant default `PreferenceSet`
+
+You can update the per-tenant default `PreferenceSet` by calling the `tenants.set` method with the same `tenant_id` and the updated preferences that you'd like to set.
+
+The default behavior for this action is to merge the new preferences with any existing preferences. This means that any existing preferences will only have their values updated but not removed. See the [frequently asked questions](#frequently-asked-questions) section below for more information on how you can use a "replace" strategy to overwrite existing preferences instead.
 
 ## Set a per-tenant user `PreferenceSet`
 
@@ -106,7 +112,7 @@ A `PreferenceSet` has an `id`. When you [set a given user's preferences](/api-re
   }
 />
 
-<br />
+To set per-tenant preferences for a recipient, you'll use the ID of the tenant that they should be associated with as the `PreferenceSet`'s ID.
 
 ```javascript title="Set tenant preferences for a user"
 import Knock from "@knocklabs/node";
@@ -155,8 +161,121 @@ The Knock workflow engine uses that `tenant` parameter to evaluate the user's `P
 
 ## Tenant preference evaluation rules
 
-Here are a few things to keep in mind when using tenant preferences.
+Here are a few things to keep in mind when using tenant preferences. You can learn more about how preferences are merged and evaluated [here](/preferences/overview#merging-preferences).
 
 - When executing a workflow trigger, passing in a `tenant` will automatically load that tenant's default `PreferencesSet` (if one exists) for all recipients of the workflow. These tenant-level defaults will override a recipient's own `default` preferences.
-- If the recipient has any per-tenant preferences set for that `tenant.id`, they will override the tenant-level default preferences.
-- If there is no default `PreferenceSet` on the tenant AND the recipient has no per-tenant preferences set, the recipient’s `default` id `PreferenceSet` will be used. As always, the recipient's `default` preferences are [merged](/preferences/overview#preference-evaluation-rules) with the environment-level preference defaults.
+- If the recipient has any per-tenant preferences set for that `tenant.id`, they will take precedence over the tenant-level default preferences. For more information on how to override a recipient's per-tenant preferences to respect the tenant-level default preferences, see the [frequently asked questions](#frequently-asked-questions) below.
+- If there is no default `PreferenceSet` on the tenant AND the recipient has no per-tenant preferences set, the recipient’s `default` id `PreferenceSet` will be used. As always, the recipient's `default` preferences are [merged](/preferences/overview#merging-preferences) with the environment-level preference defaults.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I replace a tenant's full default preference set instead of merging my changes with any existing preferences?">
+    Yes. You can do this by setting the `__persistence_strategy__` key on your `PreferenceSet` to `"replace"` when calling the `tenants.set` method. This will overwrite any existing preferences with the new preferences provided.
+
+    ```javascript title="Replacing a per-tenant default preference set using the Node SDK"
+    import Knock from "@knocklabs/node";
+    const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+
+    const preferences = {
+      __persistence_strategy__: "replace",
+      workflows: {
+        "new-comment": {
+          channel_types: {
+            email: false,
+            sms: true,
+            chat: false,
+          },
+        },
+      },
+    };
+
+    await knock.tenants.set("tenant-id", {
+      settings: {
+        preference_set: preferences,
+      },
+    });
+    ```
+
+  </Accordion>
+  <Accordion title="How can I force a tenant's default preferences to override a user's per-tenant preferences during preference evaluation?">
+    By default, a recipient's individual preferences will always take the highest precedence in the merge when preferences are evaluated (according to the hierarchy outlined [here](/preferences/overview#merging-preferences)).
+    
+    Some applications have use cases where it's necessary for a preference that is set at the tenant level to override a user's individual preference. For example, you may want to allow a team admin to disable a certain type of notification for their entire team, regardless of whether an individual user has opted in to that notification. To achieve this, you can set the `__strategy__` key on the preference you'd like to override to a value of `"replace"`.
+
+    In the following example, although the user has specifically opted into receiving email notifications for the `collaboration` category, email notifications with that category will not send because the `tenant`'s default preference set has set the `collaboration` category to `false`. Consider the following preference sets:
+
+    ```json title="A user's tenant-specific preference set"
+    {
+      "categories": {
+        "collaboration": {
+          "channel_types": {
+            "email": true
+          }
+        },
+        "project-updates": {
+          "channel_types": {
+            "email": true
+          }
+        }
+      }
+    }
+    ```
+
+    ```json title="The tenant's default preference set"
+    {
+      "categories": {
+        "collaboration": {
+          "__strategy__": "replace",
+          "channel_types": {
+            "email": false
+          }
+        },
+        "project-updates": {
+          "channel_types": {
+            "email": false
+          }
+        }
+      }
+    }
+    ```
+    <br />
+    The merge during preference evaluation will look like this:
+
+    <Image
+      src="/images/concepts/preferences/replace-prefs-merge.png"
+      alt="A visual of the tenant's default preferences merging into the recipient's tenant-specific preferences with the replace strategy applied"
+      width={400}
+      height={1004}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+    <br />
+    The recipient's preference for the `project-updates` category is preserved in the merge, but their preference for `collaboration` notifications is overridden by the tenant's preference due to the `replace` strategy.
+
+    This `replace` strategy will also be reflected when you request the user's preferences via API. Although the user's tenant-specific preferences have explicitly been set to the above, the `__strategy__` key will be present on the `PreferenceSet` returned, indicating that their preference has been overridden by the tenant's:
+
+    ```json title="The returned user preference set"
+    {
+      "categories": {
+        "collaboration": {
+          "__strategy__": "replace",
+          "channel_types": {
+            "email": false
+          }
+        },
+        "project-updates": {
+          "channel_types": {
+            "email": true
+          }
+        }
+      }
+    }
+    ```
+    <br />
+    Here are some important thing to keep in mind when using the `replace` strategy:
+    - This strategy will only apply to the specific preference(s) where it's included; there's no way to override the entire `PreferenceSet` at the top level.
+    - The `__strategy__` key can only be used on a combined `workflows`-`channel_types` or `categories`-`channel_types` preference, as seen in the example above.
+    - When the preference with the `replace` strategy is removed, any existing preferences that were overridden by the `replace` strategy will be immediately restored to their original values. For the example above, the user will once again be opted in to `collaboration` notifications.
+
+  </Accordion>
+</AccordionGroup>

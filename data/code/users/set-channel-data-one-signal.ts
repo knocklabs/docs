@@ -6,7 +6,7 @@ const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 const CHANNEL_ID = "8209f26c-62a5-461d-95e2-a5716a26e652";
 
 await knockClient.users.setChannelData(user.id, CHANNEL_ID, {
-  player_ids: [oneSignalPlayerId]
+  data: { player_ids: [oneSignalPlayerId] }
 });
   `,
   python: `

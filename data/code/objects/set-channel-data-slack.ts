@@ -30,9 +30,11 @@ await knock.objects.setChannelData(
   project.id,
   KNOCK_SLACK_CHANNEL_ID,
   {
-    connections: [
-      {
-        incoming_webhook: { url: "url-from-slack" }
+    data: {
+      connections: [
+        {
+          incoming_webhook: { url: "url-from-slack" }
+        },
       },
     ],
   },
