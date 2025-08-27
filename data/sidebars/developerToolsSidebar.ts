@@ -32,7 +32,7 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
   },
   {
     slug: `${baseSlug}/migration-guides`,
-    title: "Migration guides",
+    title: "Migration manuals",
     pages: [
       { slug: "/node", title: "Node.js 1.0" },
       { slug: "/python", title: "Python 1.0" },
