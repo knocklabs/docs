@@ -137,28 +137,29 @@ If you pass a`user`that doesn't exist, Knock will automatically create one with 
     <AccordionGroup>
       <Accordion title="Create a workflow">
         Navigate to the **Workflows** section of the Knock dashboard. Click the "+ Workflow" button in the top right corner of the Knock dashboard. Name it `knock-quickstart` to test your integration.
-        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/create-workflow.png"/>
+        <img className="rounded-md mx-auto border border-gray-200" style={{marginBottom: "12px"}} src="/images/quick-start/create-workflow.png"/>
       </Accordion>
       <Accordion title="Add an in-app channel step">
         To send a notification, a workflow needs at least one [channel step](/designing-workflows/channel-step). To add this step, we'll click “edit steps” to enter the workflow canvas editor.
 
         Here we can see a number of steps available for us to add to our workflow, including functions (such as [batch](/designing-workflows/batch-function) and [delay](/designing-workflows/delay-function)) and channels.
-        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/add-inapp-step.png"/>
+        <img className="mx-auto border border-gray-200" style={{marginBottom: "12px"}} src="/images/quick-start/add-inapp-step.png"/>
 
         Drag the 'In-app feed' step onto the workflow canvas.
       </Accordion>
       <Accordion title="Design the notification message">
         After adding your channel step, you can configure the notification's content by clicking on "Edit content" in the channel's edit step view to see that step's [message template](/designing-workflows/template-editor/overview).
-        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/edit-inapp-content.png"/>
+        <img className="rounded-md mx-auto border border-gray-200" style={{marginBottom: "12px"}} src="/images/quick-start/edit-inapp-content.png"/>
 
         The template starts with default copy, so we'll just use that for now.
-        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/edit-content.png"/>
+        <img className="rounded-md mx-auto border border-gray-200" style={{marginBottom: "12px"}} src="/images/quick-start/edit-content.png"/>
       </Accordion>
       <Accordion title="Commit the workflow to development">
         Knock follows a versioning model similar to Git. This means that before you can trigger your new workflow via the API, you'll need to commit it to your current environment to activate the workflow.
-        <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/commit.png"/>
+        <img className="rounded-md mx-auto border border-gray-200" style={{marginBottom: "12px"}} src="/images/quick-start/commit.png"/>
 
-        You do this using the `Commit` button  in the header of the workflow canvas.
+        You do this using the `Commit` button  in the header of the workflow canvas. You can review your changes using a diff viewer and leave a meaningful commit message about what has changed.
+        <img className="rounded-md mx-auto border border-gray-200" style={{marginBottom: "12px"}} src="/images/quick-start/commit-diff.png"/>
       </Accordion>
     </AccordionGroup>
     Now we're ready to trigger our workflow via the Knock API. You can also learn more about workflows and channels in Knock via our [guide on designing workflows](/send-notifications/designing-workflows).
@@ -166,20 +167,28 @@ If you pass a`user`that doesn't exist, Knock will automatically create one with 
   </Step>
   <Step title="Trigger your workflow">
     Now, you'll trigger your workflow to notify a set of users. You can do that through the test runner in the workflow editor, or via API call. 
-    <img className="rounded-md mx-auto border border-gray-200" src="/images/quick-start/run-test.png"/>
+    <img className="rounded-md mx-auto border border-gray-200" style={{marginBottom: "12px"}} src="/images/quick-start/run-test.png"/>
     
     When triggering workflows, you need to provide the following required pieces of data in your call to the Knock API:
 
     - `recipients` – The list of users to notify.
     - `data` – The variable data that will populate your notification templates. Here you'll use the sample data payload we grabbed in the previous step.
 
-    In the example below, we trigger a new comment notification workflow for two project members, using [inline identification](/api-reference/workflows/trigger).
+    In the example below, we trigger the `knock-quickstart` workflow for the `user` we identified with the feed.
 
-    <MultiLangCodeBlock
-      snippet="workflows.trigger-with-user-identification"
-      title="Trigger your workflow"
-      mb="2"
-    />
+    ```javascript title="Add this code to trigger.action.ts"
+
+    import Knock from "@knocklabs/node";
+    const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+    const user = {
+      id: "12c23775-5902-481a-b8ea-d1704aabc769",
+    };
+
+    await knock.workflows.trigger("knock-quickstart", {
+      data: { message: "Here's a message" },
+      recipients: [user.id],
+    });
+    ```
 
     Learn more about trigger calls in our [API reference](/api-reference/workflows/trigger).
 
