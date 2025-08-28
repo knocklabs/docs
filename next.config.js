@@ -510,6 +510,11 @@ const nextConfig = {
         destination: "/in-app-ui/react/feed#css-customization",
         permanent: true,
       },
+      {
+        source: "/getting-started/quick-start",
+        destination: "/getting-started/quick-start/general",
+        permanent: false,
+      },
     ];
   },
 };
