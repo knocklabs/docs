@@ -42,9 +42,11 @@ In this guide, you'll integrate Knock's `NotificationFeed` component a React app
     You can find the id of your Knock in-app feed channel in **Settings** > **Integrations** > **Channels**.
 
     ```javascript title="Add these values to .env.local"
-    VITE_KNOCK_PUBLIC_API_KEY='pk_example_123456789'
-    VITE_KNOCK_FEED_ID='f9923d96-bee5-48bd-a1ff-31b6637b7385'
-    ```
+
+VITE_KNOCK_PUBLIC_API_KEY='pk_example_123456789'
+VITE_KNOCK_FEED_CHANNEL_ID='f9923d96-bee5-48bd-a1ff-31b6637b7385'
+
+````
 
   </Step>
   <Step title="Add Knock components to your app">
@@ -59,40 +61,35 @@ In this guide, you'll integrate Knock's `NotificationFeed` component a React app
 import {
   KnockProvider,
   KnockFeedProvider,
-  NotificationFeedPopover,
+  NotificationFeed,
   NotificationIconButton,
 } from "@knocklabs/react";
 
 // Required CSS import, unless you're overriding the styling
 import "@knocklabs/react/dist/index.css";
-import { useRef, useState } from "react";
 
 const Inbox = () => {
   // An example of fetching the current authenticated user
   const user = {
     id: "12c23775-5902-481a-b8ea-d1704aabc769",
   };
-  const [isVisible, setIsVisible] = useState(false);
-  const notifButtonRef = useRef(null);
+
   return (
     <KnockProvider
-      apiKey={process.env.KNOCK_PUBLIC_API_KEY}
+      apiKey={import.meta.env.VITE_KNOCK_PUBLIC_API_KEY}
       user={{ id: user.id }}
     >
       <KnockFeedProvider
-        feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+        feedId={import.meta.env.VITE_KNOCK_FEED_CHANNEL_ID}
         colorMode="dark"
       >
         <>
-          <NotificationIconButton
-            ref={notifButtonRef}
-            onClick={(e) => setIsVisible(!isVisible)}
-          />
-          <NotificationFeedPopover
-            buttonRef={notifButtonRef}
-            isVisible={isVisible}
-            onClose={() => setIsVisible(false)}
-          />
+          <div style={{ marginBottom: "1rem" }}>
+            <NotificationIconButton onClick={(e) => {}} />
+          </div>
+          <div style={{ width: "420px", height: "550px" }}>
+            <NotificationFeed />
+          </div>
         </>
       </KnockFeedProvider>
     </KnockProvider>
@@ -100,32 +97,34 @@ const Inbox = () => {
 };
 
 export default Inbox;
-```
+````
 
-In production, you will want to colocate`KnockProvider`and`KnockFeedProvider`at a higher level in your application.
-If you pass a`user`that doesn't exist, Knock will automatically create one with the specified`id` using [client-side inline identification](/managing-recipients/identifying-recipients#inline-identification).
+In production, you will want to colocate `KnockProvider` and `KnockFeedProvider`at a higher level in your application.
+If you pass a `user` that doesn't exist, Knock will automatically create one with the specified`id` using [client-side inline identification](/managing-recipients/identifying-recipients#inline-identification).
 
   </Step>
   <Step title="Render the `Inbox` component">
-    Next, replace the contents of `/app/page.tsx` with the code below to import the `Inbox` component and render it in `page.tsx`.
+    Next, replace the contents of `/src/App.tsx` with the code below to import the `Inbox` component and render it in your `App` component.
 
 ```javascript title="Render the Inbox component"
-import Inbox from "./inbox";
+import "./App.css";
+import Inbox from "./components/inbox";
 
-const Page = () => {
+function App() {
   return (
-    <main className="flex flex-col items-center min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-8">Knock Inbox Test</h1>
-      <Inbox />
-    </main>
+    <>
+      <h1>Knock Inbox Test</h1>
+      <Inbox></Inbox>
+    </>
   );
-};
-export default Page;
+}
+
+export default App;
 ```
 
-    Next, run your development server to render the `Inbox` component. There will be no messages, but you should be able to switch between tabs.
+    Next, run your development server to render the `Inbox` component in a browser. There will be no messages, but you should be able to switch between tabs.
 
-    ```bash title="Run Next.js dev server"
+    ```bash title="Run Vite dev server"
     npm run dev
     ```
 
@@ -178,7 +177,7 @@ export default Page;
 
     In the example below, we trigger the `knock-quickstart` workflow for the `user` we identified with the feed.
 
-```javascript title="Add this code to trigger.action.ts"
+```javascript title="Example server code to trigger workflow"
 import Knock from "@knocklabs/node";
 const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 const user = {
