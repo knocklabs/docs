@@ -108,9 +108,10 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/token-deregistration", title: "Token deregistration" },
+      { slug: "/aws-sns", title: "Amazon SNS" },
       { slug: "/apns", title: "Apple (APNS)" },
-      { slug: "/firebase", title: "Firebase (FCM)" },
       { slug: "/expo", title: "Expo (React Native)" },
+      { slug: "/firebase", title: "Firebase (FCM)" },
       { slug: "/one-signal", title: "OneSignal" },
     ],
   },
