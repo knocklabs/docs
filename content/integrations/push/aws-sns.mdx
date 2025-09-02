@@ -80,3 +80,33 @@ You can create a new Amazon SNS channel in the dashboard under the **Channels an
     Now that you have either an AWS User's credentials or an AWS IAM Role to delegate to Knock, you're ready to [configure your SNS channel](#channel-configuration) in the Knock dashboard under the **Channels and sources** page in your account settings.
   </Step>
 </Steps>
+
+## Using Amazon SNS with Knock
+
+In order to use Amazon SNS with Knock, you'll need the ARNs of the platform endpoints you created using your platform applications configured in SNS and the device tokens of your users. See <a href="https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html" target="_blank">Setting up an Amazon SNS platform endpoint for mobile notifications</a> for more details on creating platform endpoints.
+
+Once you have an endpoint ARN, you can use the Knock SDK to [set the channel data](/managing-recipients/setting-channel-data) for your recipient, passing an array of endpoint ARNs as `target_arns`.
+
+<MultiLangCodeBlock
+  snippet="users.setChannelData-aws-sns"
+  title="Set Amazon SNS channel data for a user"
+/>
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      We cannot currently track deliverability through SNS channels. This means
+      that all notifications sent through SNS will show up as "Sent" in the
+      Knock messages log, but not "Delivered".
+    </>
+  }
+/>
+
+## Channel data requirements
+
+In order to use a configured Amazon SNS channel, you must store a list of one or more platform endpoint ARNs for the user or the object that you wish to deliver a notification to. See <a href="https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html" target="_blank">Setting up an Amazon SNS platform endpoint for mobile notifications</a> for more details on creating platform endpoints.
+
+| Property      | Type     | Description                                                                                  |
+| ------------- | -------- | -------------------------------------------------------------------------------------------- |
+| target_arns\* | string[] | One or more platform endpoint ARNs associated with a platform application and a device token |

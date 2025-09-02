@@ -47,6 +47,8 @@ const snippets = {
     require("../../data/code/users/set-channel-data-push").default,
   "users.setChannelData-one-signal":
     require("../../data/code/users/set-channel-data-one-signal").default,
+  "users.setChannelData-aws-sns":
+    require("../../data/code/users/set-channel-data-aws-sns").default,
   "users.unsetChannelData": require("../../data/code/users/unset-channel-data")
     .default,
   "users.identifyChannelData":
