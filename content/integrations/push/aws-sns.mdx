@@ -6,4 +6,77 @@ section: Integrations
 layout: integrations
 ---
 
-TODO
+This page walks through how to configure an <a href="https://aws.amazon.com/sns/" target="_blank">Amazon Simple Notification Service (Amazon SNS)</a> provider in Knock to send mobile push notifications. You'll need an Amazon SNS channel in your Knock dashboard to follow along.
+
+## Getting started
+
+You can create a new Amazon SNS channel in the dashboard under the **Channels and sources** page in your account settings. From there, you'll need to take some steps in AWS before you can configure your SNS channel within Knock.
+
+<Steps titleSize="h3">
+  <Step title="Choose an AWS Authentication Scheme">
+    Knock supports two authentication schemes with Amazon SNS:
+    
+    <AccordionGroup>
+      <Accordion title="Option 1: Create an AWS IAM User with security credentials">
+        To send notifications via Amazon SNS using an IAM User, Knock requires the **access key ID** and a **secret access key** of an AWS user with SNS send permissions (you can use the `sns:AmazonSNSFullAccess` permission for this).
+
+        If you don't already have a user with send permissions, you can create an IAM user in AWS to use with the Knock API. You can learn more about creating IAM users in AWS <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-setting-up.html#create-iam-user" target="_blank">here</a>.
+
+        Once you've created your new IAM user, you'll need to provision them with the policy below.
+
+        ```json title="IAM user policy"
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": ["sns:AmazonSNSFullAccess"],
+              "Resource": "*"
+            }
+          ]
+        }
+        ```
+
+        Now that you have an AWS user created and provisioned with SNS send access, grab the **access key ID** and a **secret access key** of the user—we'll use these later when configuring the SNS channel within Knock.
+      </Accordion>
+      <Accordion title="Option 2: Create an AWS IAM Role with a trust policy for Knock">
+        To send notifications via Amazon SNS by <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_third-party.html" target="_blank">delegating an IAM Role</a> in your AWS account to Knock, <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html" target="_blank">secured with an External ID</a>:
+
+        1. Create a new AWS Role:
+
+           - For "Trusted Entity Type" choose "AWS Account."
+           - Select "Another AWS account" and put "496685847699" in the Account ID.
+           - Check "Require external ID" and enter the ID of the SNS channel you created in your Knock dashboard.
+
+        <Image
+          src="/images/integrations/sms/sns-arn-configuration.jpg"
+          width={1898}
+          height={1650}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="How Knock works diagram"
+        />
+
+        2. Attach the following permission policy to that role.
+
+           ```json title="IAM user policy"
+           {
+             "Version": "2012-10-17",
+             "Statement": [
+               {
+                 "Effect": "Allow",
+                 "Action": ["sns:AmazonSNSFullAccess"],
+                 "Resource": "*"
+               }
+             ]
+           }
+           ```
+
+        3. Use that role's ARN when configuring your Amazon SNS channel in Knock.
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+  <Step title="Configuring SNS in Knock">
+    Now that you have either an AWS User's credentials or an AWS IAM Role to delegate to Knock, you're ready to [configure your SNS channel](#channel-configuration) in the Knock dashboard under the **Channels and sources** page in your account settings.
+  </Step>
+</Steps>
