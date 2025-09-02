@@ -121,7 +121,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/settings-and-overrides", title: "Settings and overrides" },
       { slug: "/africas-talking", title: "Africa's Talking" },
-      { slug: "/aws-sns", title: "AWS SNS" },
+      { slug: "/aws-sns", title: "Amazon SNS" },
       { slug: "/mailersend", title: "MailerSend" },
       { slug: "/messagebird", title: "MessageBird" },
       { slug: "/plivo", title: "Plivo" },
