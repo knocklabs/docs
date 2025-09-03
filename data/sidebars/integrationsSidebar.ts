@@ -34,7 +34,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/settings", title: "Settings and overrides" },
       { slug: "/attachments", title: "Sending attachments" },
       { slug: "/client-previews", title: "Client previews" },
-      { slug: "/aws-ses", title: "AWS SES" },
+      { slug: "/aws-ses", title: "Amazon SES" },
       { slug: "/knock-test", title: "Knock (test)" },
       { slug: "/mailersend", title: "MailerSend" },
       { slug: "/mailgun", title: "Mailgun" },
