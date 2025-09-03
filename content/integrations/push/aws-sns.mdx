@@ -103,6 +103,98 @@ Once you have an endpoint ARN, you can use the Knock SDK to [set the channel dat
   }
 />
 
+## Managing platform endpoints and device tokens
+
+By default, Knock makes no assumptions about managing your platform endpoints and corresponding device tokens. This means you are responsible for disabling a platform endpoint when a recipient opts out of notifications on a device or when their token expires. We recommend <a href="https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html#mobile-platform-endpoint-pseudo-code" target="_blank">following Amazon's guidance on managing platform endpoints</a>.
+
+However, Knock does provide an opt-in token deregistration feature to make managing endpoint ARNs easier. When this feature is enabled on an Amazon SNS channel, and a message bounces due to a platform endpoint being disabled, Knock will automatically remove the ARNs of that platform endpoint from the recipient's channel data.
+
+You can configure token deregistration on a per-environment basis in your channel's environment configurations. See our [token deregistration documentation](/integrations/push/token-deregistration) for more details on enabling and working with this feature.
+
+## Data passed to Amazon SNS
+
+When sending a notification to Amazon SNS, we also pass through the following attributes:
+
+| Property           | Type   | Description                                            |
+| ------------------ | ------ | ------------------------------------------------------ |
+| knock_message_id\* | string | The message ID of the corresponding Knock message      |
+| data \*            | string | Any key/value data passed through in your trigger call |
+
+## Silent/background notifications
+
+We support sending Amazon SNs notifications as "silent", data-only notifications within Knock. You can enable this per push notification template by clicking the gear icon (⚙️) at the top of the template editor to open the template settings modal.
+
+When silent push is enabled, we'll no longer pass through the message payload, but all properties in the data payload described above will still be sent with your notification.
+
+<Callout
+  emoji="💡"
+  title="Note:"
+  text={
+    <>
+      When sending background notifications to APNs,{" "}
+      <a
+        href="https://docs.aws.amazon.com/sns/latest/dg/sns-send-custom-platform-specific-payloads-mobile-devices.html#mobile-push-send-message-apns-background-notification"
+        target="_blank"
+      >
+        Amazon SNS will automatically set the appropriate APNs header values
+      </a>
+      . If you need more control, you can specify customer APNs headers by setting
+      overrides on your channel step.
+    </>
+  }
+/>
+
+## Using overrides to customize notifications
+
+We have full support for overriding the payload sent to Amazon SNS for adding things like badge counts, extra data properties, and sound files. To set push overrides, click the gear icon (⚙️) at the top of the template editor to open the template settings modal. Push overrides support Liquid for injecting `data` properties and referencing attributes on your recipients.
+
+```json
+{
+  "Message": {
+    "APNS": {
+      "aps": {
+        "badge": 9,
+        "sound": "bingbong.aiff"
+      }
+    },
+    "APNS_SANDBOX": {
+      "aps": {
+        "badge": 9,
+        "sound": "bingbong.aiff"
+      }
+    }
+  }
+}
+```
+
+By default, overrides are merged into the notification payload sent to <a href="https://docs.aws.amazon.com/sns/latest/api/API_Publish.html" target="_blank">Amazon SNS's `Publish` API</a>. If you want to fully replace the payload rather than merge additional properties, you'll also need to set a replace `__strategy__`:
+
+```json
+{
+  "__strategy__": "replace",
+  "Message": {
+    "APNS": {
+      "aps": {
+        "alert": {
+          "title": "Game Request",
+          "subtitle": "Five Card Draw",
+          "body": "Bob wants to play poker"
+        }
+      }
+    },
+    "APNS_SANDBOX": {
+      "aps": {
+        "alert": {
+          "title": "Game Request",
+          "subtitle": "Five Card Draw",
+          "body": "Bob wants to play poker"
+        }
+      }
+    }
+  }
+}
+```
+
 ## Channel data requirements
 
 In order to use a configured Amazon SNS channel, you must store a list of one or more platform endpoint ARNs for the user or the object that you wish to deliver a notification to. See <a href="https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html" target="_blank">Setting up an Amazon SNS platform endpoint for mobile notifications</a> for more details on creating platform endpoints.
