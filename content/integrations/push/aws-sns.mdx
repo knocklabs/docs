@@ -148,19 +148,16 @@ When silent push is enabled, we'll no longer pass through the message payload, b
 
 We have full support for overriding the payload sent to Amazon SNS for adding things like badge counts, extra data properties, and sound files. To set push overrides, click the gear icon (⚙️) at the top of the template editor to open the template settings modal. Push overrides support Liquid for injecting `data` properties and referencing attributes on your recipients.
 
-```json
+```json title="Setting overrides for FCM"
 {
   "Message": {
-    "APNS": {
-      "aps": {
-        "badge": 9,
-        "sound": "bingbong.aiff"
-      }
-    },
-    "APNS_SANDBOX": {
-      "aps": {
-        "badge": 9,
-        "sound": "bingbong.aiff"
+    "GCM": {
+      "fcmV1Message": {
+        "message": {
+          "android": {
+            "color": "#FF0000"
+          }
+        }
       }
     }
   }
@@ -169,31 +166,78 @@ We have full support for overriding the payload sent to Amazon SNS for adding th
 
 By default, overrides are merged into the notification payload sent to <a href="https://docs.aws.amazon.com/sns/latest/api/API_Publish.html" target="_blank">Amazon SNS's `Publish` API</a>. If you want to fully replace the payload rather than merge additional properties, you'll also need to set a replace `__strategy__`:
 
-```json
+```json title="Setting overrides with the replace strategy"
 {
   "__strategy__": "replace",
   "Message": {
-    "APNS": {
-      "aps": {
-        "alert": {
-          "title": "Game Request",
-          "subtitle": "Five Card Draw",
-          "body": "Bob wants to play poker"
-        }
-      }
-    },
-    "APNS_SANDBOX": {
-      "aps": {
-        "alert": {
-          "title": "Game Request",
-          "subtitle": "Five Card Draw",
-          "body": "Bob wants to play poker"
+    "GCM": {
+      "fcmV1Message": {
+        "message": {
+          "notification": {
+            "title": "New email",
+            "body": "New message from {{ actor.name }}"
+          }
         }
       }
     }
   }
 }
 ```
+
+When testing with a sandbox/development APNs environment, you'll need to include both `APNS` and `APNS_SANDBOX` keys in your overrides:
+
+```json title="Setting overrides for APNs"
+{
+  "Message": {
+    "APNS": {
+      "aps": {
+        "badge": 9,
+        "sound": "bingbong.aiff"
+      }
+    },
+    "APNS_SANDBOX": {
+      "aps": {
+        "badge": 9,
+        "sound": "bingbong.aiff"
+      }
+    }
+  }
+}
+```
+
+If you wish to add custom APNs headers, you can do so by overriding the `MessageAttributes` property:
+
+```json title="Setting custom APNs headers using payload overrides"
+{
+  "MessageAttributes": {
+    "entry": [
+      {
+        "Name": "AWS.SNS.MOBILE.APNS.TOPIC",
+        "Value": {
+          "DataType": "String",
+          "StringValue": "com.example.MyApp"
+        }
+      },
+      {
+        "Name": "AWS.SNS.MOBILE.APNS.PUSH_TYPE",
+        "Value": {
+          "DataType": "String",
+          "StringValue": "background"
+        }
+      },
+      {
+        "Name": "AWS.SNS.MOBILE.APNS.PRIORITY",
+        "Value": {
+          "DataType": "String",
+          "StringValue": "5"
+        }
+      }
+    ]
+  }
+}
+```
+
+See <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-message-attributes.html#sns-attrib-mobile-reserved" target="_blank">the Amazon SNS docs for a full list of valid message attributes</a>.
 
 ## Channel data requirements
 
