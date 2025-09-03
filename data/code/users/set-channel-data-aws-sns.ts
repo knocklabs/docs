@@ -54,7 +54,7 @@ use Knock\\KnockSdk\\Client;
 
 $client = new Client('sk_12345');
 
-$client->users()->setChannelData($user->id(), '5a88728a-3ecb-400d-ba6f-9c0956ab252f', [
+$client->users()->setChannelData($user->id(), '8209f26c-62a5-461d-95e2-a5716a26e652', [
   'target_arns' => [$snsEndpointArn]
 ]);
   `,
@@ -69,7 +69,7 @@ import (
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-channelData, _ := knockClient.Users.SetChannelData(ctx, user.ID, "5a88728a-3ecb-400d-ba6f-9c0956ab252f", knock.UserSetChannelDataParams{
+channelData, _ := knockClient.Users.SetChannelData(ctx, user.ID, "8209f26c-62a5-461d-95e2-a5716a26e652", knock.UserSetChannelDataParams{
   ChannelDataRequest: knock.ChannelDataRequestParam{
     Data: param.Raw(map[string]interface{}{
       "target_arns": []string{snsEndpointArn},
@@ -91,7 +91,7 @@ KnockClient client = KnockOkHttpClient.builder()
 
 UserSetChannelDataParams params = UserSetChannelDataParams.builder()
     .userId(user.getId())
-    .channelId("5a88728a-3ecb-400d-ba6f-9c0956ab252f")
+    .channelId("8209f26c-62a5-461d-95e2-a5716a26e652")
     .data(UserSetChannelDataParams.Data.builder()
         .putAdditionalProperty("target_arns", JsonValue.from(List.of(snsEndpointArn)))
         .build())
