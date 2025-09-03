@@ -1,0 +1,152 @@
+---
+title: Send email with Knock's built-in test channel
+description: Get started with Knock's built-in email channel to start sending email notifications.
+section: Integrations > Email
+layout: integrations
+---
+
+Knock comes with a built-in email channel to send email notifications to your users. This is a great way to get started with email notifications without needing to integrate with an external email provider.
+
+<Callout
+  emoji="⚠️"
+  bgColor="yellow"
+  title="Note:"
+  text={
+    <>
+      This provider is for testing purposes only and is not intended for
+      production use. For production use, please configure a different provider.
+    </>
+  }
+/>
+
+## Features
+
+- 100 emails per month
+- Attachments support
+- Delivery tracking
+- Bounce support
+- Knock link and open tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+You'll find the Knock test channel under the **Channels and sources** page in your account settings. By default, all new Knock accounts will have the channel enabled and ready to use across all environments with no additional configuration required.
+
+## Channel configuration
+
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Channels and sources** in your dashboard account settings, select your [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+
+<AccordionGroup>
+  <Accordion title="Settings">
+    Fields marked with an `*` are required.
+    
+    **Knock settings**
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your channel. When enabled, no emails will be sent to your recipients."
+      />
+      <Attribute
+        name="Knock open tracking"
+        nameSlug="/send-notifications/tracking#email-open-tracking"
+        type="boolean"
+        description="Whether to enable Knock email-open tracking."
+      />
+      <Attribute
+        name="Knock link tracking"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        type="boolean"
+        description="Whether to enable Knock link-click tracking."
+      />
+    </Attributes>
+
+    **Provider settings**
+    <Attributes>
+      <Attribute
+        name="From email address"
+        type="string | liquid*"
+        description="The default sender email address (can use Liquid tags)."
+      />
+      <Attribute
+        name="From name"
+        type="string | liquid"
+        description="The default sender name (can use Liquid tags)."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Overrides">
+    When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. Learn more about email channel overrides [here](/integrations/email/settings).
+    
+    <Attributes>
+      <Attribute
+        name="To"
+        type="string | liquid"
+        description="The To email address that email notifications will be sent to (can use Liquid tags). This value will override the designated recipient's email address."
+      />
+      <Attribute
+        name="Cc"
+        type="string | liquid"
+        description="The CC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Bcc"
+        type="string | liquid"
+        description="The BCC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Reply-to"
+        type="string | liquid"
+        description="The reply-to email address that will be included on email notifications (can use Liquid tags)."
+      />
+      <Attribute
+        name="Payload overrides"
+        nameSlug="/integrations/email/settings#provider-json-overrides"
+        type="JSON (string) | liquid"
+        description="Provide a JSON object to merge into the API payload that is sent to the downstream provider. "
+      />
+    </Attributes>
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
+## Recipient data requirements
+
+To send an email notification you'll need a valid `email` property set on your recipient.
+
+## Delivery tracking
+
+Delivery tracking can result in the following status updates to your message:
+
+- The message delivery is confirmed and Knock updates the message to `delivered`
+- The message was not delivered due to a bounce and Knock updates the message to `bounced`
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="What is the limit on the number of emails I can send?">
+    You can send up to 100 emails per month for free.
+  </Accordion>
+  <Accordion title="What happens when I exceed the limit?">
+    If you exceed the monthly limit, your emails will be marked as `undelivered`
+    and will not be sent to the recipient. You will be able to send emails again
+    at the start of the next month.
+  </Accordion>
+  <Accordion title="How do I use the Knock test channel?">
+    You can use the Knock test channel to send email notifications to your
+    users. To do this, you'll need to create a new workflow or broadcast and add
+    a step that uses the Knock test channel.
+  </Accordion>
+  <Accordion title="Can I use this provider for production use?">
+    No, this provider is for testing purposes only and is not intended for
+    production use. For production use, please configure a different provider.
+
+    Once you've setup a production email channel, you can change the channel on each of your existing email steps in your workflows to use the new provider. You'll need to commit and promote those changes in order for them to take effect.
+
+  </Accordion>
+</AccordionGroup>
