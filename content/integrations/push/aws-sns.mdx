@@ -1,0 +1,310 @@
+---
+title: How to send push notifications to Amazon SNS
+description: How to send push notifications with Amazon SNS and Knock.
+tags: ["amazon", "aws", "sns", "push", "android", "ios", "silent push"]
+section: Integrations
+layout: integrations
+---
+
+This page walks through how to configure an <a href="https://aws.amazon.com/sns/" target="_blank">Amazon Simple Notification Service (Amazon SNS)</a> provider in Knock to send mobile push notifications. You'll need an Amazon SNS channel in your Knock dashboard to follow along.
+
+## Getting started
+
+You can create a new Amazon SNS channel in the dashboard under the **Channels and sources** page in your account settings. From there, you'll need to take some steps in AWS before you can configure your SNS channel within Knock.
+
+<Steps titleSize="h3">
+  <Step title="Choose an AWS Authentication Scheme">
+    Knock supports two authentication schemes with Amazon SNS:
+    
+    <AccordionGroup>
+      <Accordion title="Option 1: Create an AWS IAM User with security credentials">
+        To send notifications via Amazon SNS using an IAM User, Knock requires the **access key ID** and a **secret access key** of an AWS user with SNS send permissions (you can use the `sns:AmazonSNSFullAccess` permission for this).
+
+        If you don't already have a user with send permissions, you can create an IAM user in AWS to use with the Knock API. You can learn more about creating IAM users in AWS <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-setting-up.html#create-iam-user" target="_blank">here</a>.
+
+        Once you've created your new IAM user, you'll need to provision them with the policy below.
+
+        ```json title="IAM user policy"
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": ["sns:AmazonSNSFullAccess"],
+              "Resource": "*"
+            }
+          ]
+        }
+        ```
+
+        Now that you have an AWS user created and provisioned with SNS send access, grab the **access key ID** and a **secret access key** of the user—we'll use these later when configuring the SNS channel within Knock.
+      </Accordion>
+      <Accordion title="Option 2: Create an AWS IAM Role with a trust policy for Knock">
+        To send notifications via Amazon SNS by <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_third-party.html" target="_blank">delegating an IAM Role</a> in your AWS account to Knock, <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html" target="_blank">secured with an External ID</a>:
+
+        1. Create a new AWS Role:
+
+           - For "Trusted Entity Type" choose "AWS Account."
+           - Select "Another AWS account" and put "496685847699" in the Account ID.
+           - Check "Require external ID" and enter the ID of the SNS channel you created in your Knock dashboard.
+
+        <Image
+          src="/images/integrations/sms/sns-arn-configuration.jpg"
+          width={1898}
+          height={1650}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Configuring a new AWS role with an external ID"
+        />
+        <br />
+
+        2. Attach the following permission policy to that role.
+
+           ```json title="IAM user policy"
+           {
+             "Version": "2012-10-17",
+             "Statement": [
+               {
+                 "Effect": "Allow",
+                 "Action": ["sns:AmazonSNSFullAccess"],
+                 "Resource": "*"
+               }
+             ]
+           }
+           ```
+
+        3. Use that role's ARN when configuring your Amazon SNS channel in Knock.
+      </Accordion>
+    </AccordionGroup>
+
+  </Step>
+  <Step title="Configuring SNS in Knock">
+    Now that you have either an AWS User's credentials or an AWS IAM Role to delegate to Knock, you're ready to [configure your SNS channel](#channel-configuration) in the Knock dashboard under the **Channels and sources** page in your account settings.
+  </Step>
+</Steps>
+
+## Channel configuration
+
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Channels and sources** in your dashboard account settings, select your Amazon SNS [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+
+<AccordionGroup>
+  <Accordion title="Settings">
+    Fields marked with an `*` are required.
+    
+    **Knock settings**
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your Amazon SNS channel."
+      />
+      <Attribute
+        name="Knock token deregistration"
+        type="boolean"
+        nameSlug="/integrations/push/token-deregistration"
+        description="Whether to enable Knock token deregistration."
+      />
+    </Attributes>
+
+    **Provider settings for Amazon SNS**
+    <Attributes>
+      <Attribute
+        name="Authentication scheme"
+        type="enum*"
+        description="The authentication scheme (Access Key or External ID) to use for your SNS channel."
+      />
+      <Attribute
+        name="Access key ID"
+        type="string*"
+        description="The access key ID from your AWS account. Required when using Access Key authentication."
+      />
+      <Attribute
+        name="Secret access key"
+        type="string*"
+        description="The secret access key from your AWS account. Required when using Access Key authentication."
+      />
+      <Attribute
+        name="AWS IAM Role ARN to assume"
+        type="string*"
+        description="The ARN of the role in your AWS Account that this channel will use. Required when using External ID authentication."
+      />
+      <Attribute
+        name="External ID"
+        type="string*"
+        description="The external ID for your AWS IAM Role. Required when using External ID authentication."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
+## Using Amazon SNS with Knock
+
+In order to use Amazon SNS with Knock, you'll need the ARNs of the platform endpoints you created using your platform applications configured in SNS and the device tokens of your users. See <a href="https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html" target="_blank">Setting up an Amazon SNS platform endpoint for mobile notifications</a> for more details on creating platform endpoints.
+
+Once you have an endpoint ARN, you can use the Knock SDK to [set the channel data](/managing-recipients/setting-channel-data) for your recipient, passing an array of endpoint ARNs as `target_arns`.
+
+<MultiLangCodeBlock
+  snippet="users.setChannelData-aws-sns"
+  title="Set Amazon SNS channel data for a user"
+/>
+
+<Callout
+  emoji="⚠️"
+  text={
+    <>
+      We cannot currently track deliverability through SNS channels. This means
+      that all notifications sent through SNS will show up as "Sent" in the
+      Knock messages log, but not "Delivered".
+    </>
+  }
+/>
+
+## Managing platform endpoints and device tokens
+
+By default, Knock makes no assumptions about managing your platform endpoints and corresponding device tokens. This means you are responsible for disabling a platform endpoint when a recipient opts out of notifications on a device or when their token expires. We recommend <a href="https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html#mobile-platform-endpoint-pseudo-code" target="_blank">following Amazon's guidance on managing platform endpoints</a>.
+
+However, Knock does provide an opt-in token deregistration feature to make managing endpoint ARNs easier. When this feature is enabled on an Amazon SNS channel and a message bounces due to a platform endpoint being disabled, Knock will automatically remove the ARN of that platform endpoint from the recipient's channel data.
+
+You can configure token deregistration on a per-environment basis in your channel's environment configurations. See our [token deregistration documentation](/integrations/push/token-deregistration) for more details on enabling and working with this feature.
+
+## Data passed to Amazon SNS
+
+When sending a notification to Amazon SNS, we also pass through the following attributes:
+
+| Property           | Type   | Description                                            |
+| ------------------ | ------ | ------------------------------------------------------ |
+| knock_message_id\* | string | The message ID of the corresponding Knock message      |
+| data \*            | string | Any key/value data passed through in your trigger call |
+
+## Silent/background notifications
+
+We support sending Amazon SNS notifications as "silent", data-only notifications within Knock. You can enable this per push notification template by clicking the gear icon (⚙️) at the top of the template editor to open the template settings modal.
+
+When silent push is enabled, we'll no longer pass through the message payload, but all properties in the data payload described above will still be sent with your notification.
+
+<Callout
+  emoji="💡"
+  title="Note:"
+  text={
+    <>
+      When sending background notifications to APNs,{" "}
+      <a
+        href="https://docs.aws.amazon.com/sns/latest/dg/sns-send-custom-platform-specific-payloads-mobile-devices.html#mobile-push-send-message-apns-background-notification"
+        target="_blank"
+      >
+        Amazon SNS will automatically set the appropriate APNs header values
+      </a>
+      . If you need more control, you can specify custom APNs headers by setting
+      overrides on your channel step.
+    </>
+  }
+/>
+
+## Using overrides to customize notifications
+
+We have full support for overriding the payload sent to Amazon SNS for adding things like badge counts, extra data properties, and sound files. To set push overrides, click the gear icon (⚙️) at the top of the template editor to open the template settings modal. Push overrides support Liquid for injecting `data` properties and referencing attributes on your recipients.
+
+```json title="Setting overrides for FCM when sending via Amazon SNS"
+{
+  "Message": {
+    "GCM": {
+      "fcmV1Message": {
+        "message": {
+          "android": {
+            "notification": {
+              "color": "#0000FF"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+By default, overrides are merged into the notification payload sent to <a href="https://docs.aws.amazon.com/sns/latest/api/API_Publish.html" target="_blank">Amazon SNS's `Publish` API</a>. If you want to fully replace the payload rather than merge additional properties, you'll also need to set a replace `__strategy__`:
+
+```json title="Setting overrides with the replace strategy"
+{
+  "__strategy__": "replace",
+  "Message": {
+    "GCM": {
+      "fcmV1Message": {
+        "message": {
+          "notification": {
+            "title": "New email",
+            "body": "New message from {{ actor.name }}"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+When testing with a sandbox/development APNs environment, you'll need to include both `APNS` and `APNS_SANDBOX` keys in your overrides:
+
+```json title="Setting overrides for APNs when sending via Amazon SNS"
+{
+  "Message": {
+    "APNS": {
+      "aps": {
+        "badge": 9,
+        "sound": "bingbong.aiff"
+      }
+    },
+    "APNS_SANDBOX": {
+      "aps": {
+        "badge": 9,
+        "sound": "bingbong.aiff"
+      }
+    }
+  }
+}
+```
+
+If you wish to add custom APNs headers, you can do so by overriding the `MessageAttributes` property:
+
+```json title="Setting custom APNs headers using payload overrides"
+{
+  "MessageAttributes": {
+    "entry": [
+      {
+        "Name": "AWS.SNS.MOBILE.APNS.TOPIC",
+        "Value": {
+          "DataType": "String",
+          "StringValue": "com.example.MyApp"
+        }
+      },
+      {
+        "Name": "AWS.SNS.MOBILE.APNS.PUSH_TYPE",
+        "Value": {
+          "DataType": "String",
+          "StringValue": "background"
+        }
+      },
+      {
+        "Name": "AWS.SNS.MOBILE.APNS.PRIORITY",
+        "Value": {
+          "DataType": "String",
+          "StringValue": "5"
+        }
+      }
+    ]
+  }
+}
+```
+
+See <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-message-attributes.html#sns-attrib-mobile-reserved" target="_blank">the Amazon SNS docs for a full list of valid message attributes</a>.
+
+## Channel data requirements
+
+In order to use a configured Amazon SNS channel, you must store a list of one or more platform endpoint ARNs for the user or the object that you wish to deliver a notification to. See <a href="https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html" target="_blank">Setting up an Amazon SNS platform endpoint for mobile notifications</a> for more details on creating platform endpoints.
+
+| Property      | Type     | Description                                                                                  |
+| ------------- | -------- | -------------------------------------------------------------------------------------------- |
+| target_arns\* | string[] | One or more platform endpoint ARNs associated with a platform application and a device token |
