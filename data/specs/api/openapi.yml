@@ -59,6 +59,7 @@ components:
             - $ref: '#/components/schemas/MsTeamsChannelData'
             - $ref: '#/components/schemas/DiscordChannelData'
             - $ref: '#/components/schemas/OneSignalChannelData'
+            - $ref: '#/components/schemas/AwsSnsPushChannelData'
           type: object
           x-struct: null
           x-validate: null
@@ -67,6 +68,7 @@ components:
           enum:
             - push_fcm
             - push_apns
+            - push_aws_sns
             - push_expo
             - push_one_signal
             - chat_slack
@@ -124,6 +126,32 @@ components:
       title: TriggerWorkflowResponse
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.TriggerWorkflowResponse
+      x-validate: null
+    AwsSnsPushChannelData:
+      description: AWS SNS push channel data.
+      example:
+        target_arns:
+          - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+      properties:
+        target_arns:
+          description: A list of platform endpoint ARNs. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+          example:
+            - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+          items:
+            description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+            nullable: false
+            type: string
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - target_arns
+      title: AwsSnsPushChannelData
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.AwsSnsPushChannelData
       x-validate: null
     Subscription:
       description: A subscription object.
@@ -489,6 +517,7 @@ components:
         oneOf:
           - $ref: '#/components/schemas/PushChannelData'
           - $ref: '#/components/schemas/OneSignalChannelData'
+          - $ref: '#/components/schemas/AwsSnsPushChannelData'
           - $ref: '#/components/schemas/SlackChannelData'
           - $ref: '#/components/schemas/MsTeamsChannelData'
           - $ref: '#/components/schemas/DiscordChannelData'
@@ -5864,6 +5893,7 @@ components:
           oneOf:
             - $ref: '#/components/schemas/PushChannelData'
             - $ref: '#/components/schemas/OneSignalChannelData'
+            - $ref: '#/components/schemas/AwsSnsPushChannelData'
             - $ref: '#/components/schemas/SlackChannelData'
             - $ref: '#/components/schemas/MsTeamsChannelData'
             - $ref: '#/components/schemas/DiscordChannelData'
