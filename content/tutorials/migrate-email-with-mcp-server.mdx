@@ -102,7 +102,7 @@ Learn more about configuring these tools in your MCP-compatible client [here](/d
 
 ## Background
 
-While not required reading, you may want to familiarize yourself with the following Knock concepts before beginning your migration so that you can understand more about the prompts you'll be providing to your LLM:
+While not required reading, you may want to familiarize yourself with the following Knock concepts before beginning your migration so that you can understand more about the prompts you'll be providing to your LLM and the resources that you'll be creating:
 
 - [Workflows](/concepts/workflows)
 - [Channel steps](/designing-workflows/channel-step)
@@ -128,8 +128,9 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
       <ul>
         <li>
           We recommend leveraging an LLM with the largest context window
-          available. In Cursor, you should enable "MAX mode" on your agent. Note
-          that this may have billing implications depending on your Cursor plan.
+          available. In Cursor, you'll likely have the best results if you
+          enable "MAX mode" on your agent. Note that this may have billing
+          implications depending on your Cursor plan.
         </li>
         <li>
           If you have a large number of templates, you will need to repeat the
@@ -139,7 +140,7 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
             We recommend providing no more than 5-10 template files per prompt.
           </b>{" "}
           The prompt is designed so that you can run it multiple times and it
-          will add to the existing analysis report if it has already been run.
+          will add to the existing template analysis if it has already been run.
         </li>
         <li>
           Cursor will sometimes show a "⚠️" icon on the files that you add to
@@ -161,83 +162,71 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
 
 <Steps titleSize="h3">
   <Step title="Analyze your existing email templates">
-    Before creating any resources in Knock, you'll need to analyze your existing email templates to identify patterns and shared components. Copy the prompt below and provide it to your LLM along with access to your template files. We recommend limiting your prompt to 5-10 template files at a time to avoid exceeding the context window limit.
+    Before creating any resources in Knock, you'll need to analyze your existing email templates to extract layouts and shared components. Copy the prompt below and provide it to your LLM along with access to your template files. We recommend limiting your prompt to 5-10 template files at a time to avoid exceeding the context window limit.
 
     **Prompt:**
 
     ```markdown title="LLM prompt to analyze your existing email templates"
-    I need to analyze my existing email templates to prepare for migration to Knock. I have provided access to my HTML email template files. Only reference the files that I've explicitly provided as context.
-    Please examine all the templates and either create or add to (if it already exists) a comprehensive analysis report that will be used in subsequent migration steps. The report should be called "email-template-analysis.md".
+    I need to analyze my existing email templates to prepare for migration to Knock. The final migrated templates need to be pixel-perfect replicas of the original templates.
+    
+    I have provided access to my HTML email template files. Only reference the files that I've explicitly provided as context. Examine each template one at a time and complete the following steps. Reference the Knock documentation with the Knock MCP server as needed. 
 
-    Reference the Knock documentation with the Knock MCP server as needed. The final migrated templates need to be pixel-perfect replicas of the original templates.
-
-    Follow these steps to create the report, analyzing each provided template one at a time:
-
-    1. **Extract reusable content blocks for partials**: Find any content sections that might be appropriately mapped to a Knock partial, which is a reusable block of HTML content that can be used in multiple templates. For each reusable block:
-      - Check whether the partial is already noted in the analysis report. If it is, simply add a note to the analysis report indicating which template uses this content.
-      - If the content is not already in the report, extract the exact HTML content (including any inline styles) and add it to the list of partials in the analysis report with a unique key.
-      - Note which templates use this content.
-      - Identify any variables within the content.
-
-    2. **Extract shared email layout patterns**: Identify consistent headers, footers, and structural elements that appear across multiple templates. For each identified layout pattern:
-      - Check whether the layout is already noted in the analysis report. If it is, simply add a note to the analysis report indicating which template uses this layout.
-      - If the layout is not already in the report, extract the complete HTML structure including <html>, <head>, and <body> tags and add it to the list of layouts in the analysis report with a unique key.
-      - Mark the area where template-specific content varies (this will become {{ content }})
+    1. **Extract the email layout**: Identify header, footer, and structural elements that appear in the template. For each identified layout pattern:
+      - Extract the exact HTML structure including <html>, <head>, and <body> tags.
       - Include all CSS styles from the <head> section
-      - List which templates will use this layout.
+      - Mark the area where template-specific content will be injected with {{ content }}
+      - Add the layout to a "layouts.md" file in the root of the project, noting which template uses this layout.
+      - Note a key for the layout (use kebab-case based on its purpose)
+    
+    2. **Extract reusable content blocks for partials**: From the remaining content in the template, identify any content sections that might be appropriately mapped to a Knock partial, which is a reusable block of HTML content that can be used in multiple templates. For each reusable block identified:
+      - Extract the exact HTML content (including any inline styles) and add it to a "partials.md" file in the root of the project, noting which template uses this partial.
+      - Identify any variables within the content that should be converted to Liquid syntax.
+      - Note the key of the partial (use kebab-case based on its purpose)
 
-    3. **Document template-specific content**: For each template:
-      - Extract the unique content that differs from the shared components
+    3. **Extract template-specific content**: 
+      - Extract the exact HTML content (including any inline styles) of the template's remaining content and add it to a "templates.md" file in the root of the project, noting which template uses this content. If any partials were identified in step 2, reference them with Knock's Liquid syntax (i.e. {% render 'partial-key' %}) in the extracted content rather than copying the partial's HTML content directly.
       - Document the email subject line
-      - Note which layout it should use
-      - List which partials it references
+      - Note the key of the layout it should use (from step 1)
+      - List which partials it references (from step 2)
       - Identify all variables used
       - Note its name and purpose
 
-    4. **Implementation plan**: Provide a clear mapping that shows:
-      - Which shared structures become email layouts (with suggested keys)
-      - Which content blocks become partials (with suggested keys)
-      - Which layout each template should use
-      - Which partials should be used in each layout and template
-      - Any template-specific HTML content that should be added to each email in Knock
-
-    Your report should include:
-    - **Partials section**: Each reusable block with its exact HTML content
-    - **Layouts section**: Each identified layout with its complete HTML structure
-    - **Templates section**: Each template with its layout mapping and partials used
-    - **Summary**: Quick reference of all resources to be created
-
-    Important: Extract and document the actual HTML content, not just descriptions. This report will be referenced in all subsequent steps, so include all necessary code and content for the migration. Only suggest creating layouts and partials for content that actually exists in my templates. Do not suggest any additional components that aren't present in the original templates.
+    Important: Extract and document the actual HTML content, not just descriptions. Only suggest creating layouts and partials for content that actually exists in my templates. Do not suggest any additional components that aren't present in the original templates.
     ```
 
   </Step>
   <Step title="Create partials">
-    Based on your analysis, you'll now create the identified partials. Copy the prompt below and provide it to your LLM along with access to the analysis report that was generated in the previous step.
+    Based on your analysis, you'll now create the identified partials. Copy the prompt below and provide it to your LLM along with access to the `partials.md` file generated in the previous step.
 
     **Prompt:**
 
     ```markdown title="LLM prompt to create partials"
-    Using the Knock MCP server, I need to create the partials identified in my analysis report. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+    Using the Knock MCP server, I need to create the partials identified in my "partials.md" file. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
 
-    Please create each partial from the analysis report one by one, using:
-    1. An appropriate key using kebab-case naming based on the partial's purpose
+    Please create each partial from the file one by one, using:
+    1. The key from the file
     2. The type set as "html"
-    3. The exact HTML content from the analysis report
+    3. The exact HTML content
     4. Any dynamic content converted to Liquid syntax with appropriate variable names
 
-    Start with the first partial from the report. After creating it, confirm it was created successfully and provide the key used (updating the report with the key used if necessary). Then proceed to the next partial. Repeat this process until all partials are created.
-
-    Once all partials are created, compare the partials in Knock to the list of partials in the analysis report. If there are any differences, update the partials in Knock to match the analysis report. Once they are complete, commit the partials to the development environment.
+    Once all partials are created, compare the partials in Knock to the list of partials in the "partials.md" file. If there are any differences, update the partials in Knock to match the file. Once they are complete, commit the partials to the development environment.
     ```
 
   </Step>
   <Step title="Create email layouts">
-    Now you'll create the email layouts identified in your analysis. Copy the prompt below and provide it to your LLM along with access to the analysis report.
+    Now you'll create the email layouts identified in your analysis. We'll do this in two parts; first we'll identify any duplicated layouts and determine which of the layouts should be used as your account's "default" layout, then we'll create all of the layouts in Knock. Provide the prompts below to your LLM one at a time, along with access to the `layouts.md` file generated in step 1.
 
     **Prompt:**
 
+    ```markdown title="LLM prompt to identify duplicate and default layouts"
+    I need to identify any duplicate layouts in my "layouts.md" file and determine which of the layouts should be used as my account's "default" layout. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+
+    1. Identify any layouts that are identical to each other in the file. For any identical layouts, consolidate them into a single layout and update the list of email templates that use this layout.
+    2. Determine which layout should be used as the "default" layout. The default layout is the one that is used most often in the file. Update its key to "default".
+    ```
+
     ```markdown title="LLM prompt to create email layouts"
-    Using the Knock MCP server, I need to create the email layouts identified in my analysis report. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+    Using the Knock MCP server, I need to create the email layouts identified in my "layouts.md" file. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
 
     First, check if the analysis identified a single layout that is used more often than others. If so:
     1. Update the existing "default" layout in Knock with that HTML structure, replacing the template-specific content area with {{ content }}
