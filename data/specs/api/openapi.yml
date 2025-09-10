@@ -59,6 +59,7 @@ components:
             - $ref: '#/components/schemas/MsTeamsChannelData'
             - $ref: '#/components/schemas/DiscordChannelData'
             - $ref: '#/components/schemas/OneSignalChannelData'
+            - $ref: '#/components/schemas/AwsSnsPushChannelData'
           type: object
           x-struct: null
           x-validate: null
@@ -67,6 +68,7 @@ components:
           enum:
             - push_fcm
             - push_apns
+            - push_aws_sns
             - push_expo
             - push_one_signal
             - chat_slack
@@ -124,6 +126,32 @@ components:
       title: TriggerWorkflowResponse
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.TriggerWorkflowResponse
+      x-validate: null
+    AwsSnsPushChannelData:
+      description: AWS SNS push channel data.
+      example:
+        target_arns:
+          - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+      properties:
+        target_arns:
+          description: A list of platform endpoint ARNs. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+          example:
+            - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+          items:
+            description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+            nullable: false
+            type: string
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - target_arns
+      title: AwsSnsPushChannelData
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.AwsSnsPushChannelData
       x-validate: null
     Subscription:
       description: A subscription object.
@@ -489,6 +517,7 @@ components:
         oneOf:
           - $ref: '#/components/schemas/PushChannelData'
           - $ref: '#/components/schemas/OneSignalChannelData'
+          - $ref: '#/components/schemas/AwsSnsPushChannelData'
           - $ref: '#/components/schemas/SlackChannelData'
           - $ref: '#/components/schemas/MsTeamsChannelData'
           - $ref: '#/components/schemas/DiscordChannelData'
@@ -2751,7 +2780,6 @@ components:
       x-validate: null
     Recipient:
       description: A recipient of a notification, which is either a user or an object.
-      discriminator: __typename
       example:
         __typename: User
         avatar: null
@@ -3322,10 +3350,12 @@ components:
       description: A response for a list of guides.
       example:
         guides:
-          - content: New prehistoric specimens added to the visitor center display.
+          - active: true
+            content: New prehistoric specimens added to the visitor center display.
             id: f47ac10b-58cc-4372-a567-0e02b2c3d479
             title: Amber Collection Updated
-          - content: Version 2.1 - Enhanced paddock monitoring now available.
+          - active: true
+            content: Version 2.1 - Enhanced paddock monitoring now available.
             id: fe6c2c9c-849e-48d2-a5e5-9dc1f6b0f806
             title: Security Systems Upgraded
         recipient:
@@ -3335,6 +3365,11 @@ components:
           description: A list of guides.
           items:
             properties:
+              active:
+                description: Whether the guide is active.
+                type: boolean
+                x-struct: null
+                x-validate: null
               content:
                 description: The content of the guide.
                 type: string
@@ -5864,6 +5899,7 @@ components:
           oneOf:
             - $ref: '#/components/schemas/PushChannelData'
             - $ref: '#/components/schemas/OneSignalChannelData'
+            - $ref: '#/components/schemas/AwsSnsPushChannelData'
             - $ref: '#/components/schemas/SlackChannelData'
             - $ref: '#/components/schemas/MsTeamsChannelData'
             - $ref: '#/components/schemas/DiscordChannelData'
