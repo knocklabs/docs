@@ -8695,7 +8695,7 @@ paths:
   /v1/whoami:
     get:
       callbacks: {}
-      description: Return information about the current service token.
+      description: Return information about the current calling scope. Will either be a service token or from an OAuth context.
       operationId: getWhoami
       parameters: []
       responses:
@@ -8703,11 +8703,13 @@ paths:
           content:
             application/json:
               schema:
-                description: Information about the current service token.
+                description: Information about the current calling scope.
                 example:
                   account_name: Acme, Inc.
                   account_slug: acme
                   service_token_name: My Service Token
+                  type: service_token
+                  user_id: null
                 properties:
                   account_name:
                     type: string
@@ -8718,13 +8720,26 @@ paths:
                     x-struct: null
                     x-validate: null
                   service_token_name:
+                    nullable: true
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  type:
+                    enum:
+                      - service_token
+                      - oauth_context
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  user_id:
+                    nullable: true
                     type: string
                     x-struct: null
                     x-validate: null
                 required:
                   - account_name
                   - account_slug
-                  - service_token_name
+                  - type
                 type: object
                 x-struct: null
                 x-validate: null
@@ -8742,7 +8757,7 @@ paths:
 
           const response = await client.auth.verify();
 
-          console.log(response.account_name);
+          console.log(response.user_id);
         python: |-
           from knock_mapi import KnockMgmt
 
@@ -8750,7 +8765,7 @@ paths:
               service_token="My Service Token",
           )
           response = client.auth.verify()
-          print(response.account_name)
+          print(response.user_id)
   /v1/commits/{id}:
     get:
       callbacks: {}
