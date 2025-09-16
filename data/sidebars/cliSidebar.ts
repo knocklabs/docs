@@ -14,6 +14,16 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
+    title: "Login",
+    slug: "/cli/login",
+  },
+
+  {
+    title: "Logout",
+    slug: "/cli/logout",
+  },
+
+  {
     title: "Pull all resources",
     slug: "/cli/pull",
   },
