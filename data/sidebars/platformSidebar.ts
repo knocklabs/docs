@@ -42,6 +42,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/schedules", title: "Schedules" },
       { slug: "/messages", title: "Messages" },
       { slug: "/translations", title: "Translations" },
+      { slug: "/http-requests", title: "HTTP requests" },
       { slug: "/conditions", title: "Conditions" },
       { slug: "/variables", title: "Variables" },
     ],
