@@ -6011,6 +6011,57 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
+  /v1/users/{user_id}/guides/messages/seen:
+    put:
+      callbacks: {}
+      description: Records that a guide has been seen by a user, triggering any associated seen events.
+      operationId: markUserGuideAsSeen (2)
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            example:
+              channel_id: 123e4567-e89b-12d3-a456-426614174000
+              content:
+                body: Limited spots available for today's behind-the-scenes DNA extraction demonstration.
+                title: DNA Lab Tour Available
+              data:
+                next_time: 14:30
+                spots_left: 8
+                tour_id: dna_lab_tour
+              guide_id: 7e9dc78c-b3b1-4127-a54e-71f1899b831a
+              guide_key: tour_notification
+              guide_step_ref: lab_tours
+              is_final: false
+              metadata:
+                cta: Reserve Spot
+                theme: amber
+                type: banner
+              tenant: ingen_isla_nublar
+            schema:
+              $ref: '#/components/schemas/GuideActionRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuideActionResponse'
+          description: OK
+      summary: Mark guide as seen
+      tags:
+        - Guides
+        - Users
+      x-ratelimit-tier: 2
   /v1/tenants/{id}:
     delete:
       callbacks: {}
@@ -7677,14 +7728,6 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The unique identifier for the message.
-          in: path
-          name: message_id
-          required: true
-          schema:
-            type: string
-            x-struct: null
-            x-validate: null
       requestBody:
         content:
           application/json:
@@ -8352,6 +8395,71 @@ paths:
           response = knock.workflows.trigger("key", recipients: ["dr_grant", "dr_sattler", "dr_malcolm"])
 
           puts(response)
+  /v1/users/{user_id}/guides/messages/archived:
+    delete:
+      callbacks: {}
+      description: Records that a guide has been unarchived, triggering any associated unarchived events.
+      operationId: markUserGuideAsUnarchived
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuideActionRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuideActionResponse'
+          description: OK
+      summary: Mark guide as unarchived
+      tags:
+        - Guides
+        - Users
+      x-ratelimit-tier: 2
+    put:
+      callbacks: {}
+      description: Records that a guide has been archived by a user, triggering any associated archived events.
+      operationId: markUserGuideAsArchived (2)
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuideActionRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuideActionResponse'
+          description: OK
+      summary: Mark guide as archived
+      tags:
+        - Guides
+        - Users
+      x-ratelimit-tier: 2
   /v1/messages/batch/unarchived:
     post:
       callbacks: {}
@@ -10194,6 +10302,39 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
+  /v1/users/{user_id}/guides/messages/interacted:
+    put:
+      callbacks: {}
+      description: Records that a user has interacted with a guide, triggering any associated interacted events.
+      operationId: markUserGuideAsInteracted (2)
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuideActionRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuideActionResponse'
+          description: OK
+      summary: Mark guide as interacted
+      tags:
+        - Guides
+        - Users
+      x-ratelimit-tier: 2
   /v1/objects/{collection}/{object_id}/preferences:
     get:
       callbacks: {}
@@ -12468,14 +12609,6 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The unique identifier for the message.
-          in: path
-          name: message_id
-          required: true
-          schema:
-            type: string
-            x-struct: null
-            x-validate: null
       requestBody:
         content:
           application/json:
@@ -14066,14 +14199,6 @@ paths:
         - description: The unique identifier of the user.
           in: path
           name: user_id
-          required: true
-          schema:
-            type: string
-            x-struct: null
-            x-validate: null
-        - description: The unique identifier for the message.
-          in: path
-          name: message_id
           required: true
           schema:
             type: string
