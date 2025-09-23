@@ -515,6 +515,11 @@ const nextConfig = {
         destination: "/getting-started/quick-start/general",
         permanent: false,
       },
+      {
+        source: "/http-fetch-function",
+        destination: "/designing-workflows/fetch-function",
+        permanent: true,
+      },
     ];
   },
 };
