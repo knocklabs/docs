@@ -8,7 +8,7 @@ In this tutorial, we'll walk through how to configure Knock and Firebase Cloud M
 
 ## Configuring FCM resources
 
-Since Knock does not have a first-party web push channel, you'll need to use FCM to actually send messages to a user’s browser. There are multiple steps to this configuration, both within Knock and inside your application.
+Since Knock does not have a first-party web push channel, you'll need to use FCM to actually send messages to a user's browser. There are multiple steps to this configuration, both within Knock and inside your application.
 
 ### Add FCM as a push channel
 
@@ -18,7 +18,7 @@ The first step is to add FCM as a push channel integration in the Knock dashboar
 
 Many of the steps you'll need to take to successfully register for and receive web push messages will happen inside of your application.
 
-The Firebase SDK is responsible for creating a `token` that registers the user’s browser and displaying certain types of notifications to the user.
+The Firebase SDK is responsible for creating a `token` that registers the user's browser and displaying certain types of notifications to the user.
 
 Run the following command to install the SDK in your client-side application:
 
@@ -30,7 +30,7 @@ You will use both the `app` and `messaging` packages in the following steps.
 
 ### Create environment variables in your application
 
-You’ll need several environment variables to initialize the Firebase `app` and an additional environment variable to store your public VAPID key from the Firebase dashboard.
+You'll need several environment variables to initialize the Firebase `app` and an additional environment variable to store your public VAPID key from the Firebase dashboard.
 
 ```bash
 # The `channel_id` from earlier
@@ -93,13 +93,13 @@ self.addEventListener("activate", (event) => {
 
 This file loads the Firebase client libraries and adds some debugging logs to indicate its status.
 
-The important part of this file is that a new Firebase `app` is initialized and a new instance of `messaging` is created to automatically handle background notifications. Since [service workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) run on their own thread, separate from the JavaScript that powers your app, you’ll need to bring Firebase into your application as well and pass a reference to this service worker.
+The important part of this file is that a new Firebase `app` is initialized and a new instance of `messaging` is created to automatically handle background notifications. Since [service workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) run on their own thread, separate from the JavaScript that powers your app, you'll need to bring Firebase into your application as well and pass a reference to this service worker.
 
 ### Create a FirebaseProvider component
 
-In the next step, we’ll create a component that initializes the Firebase SDK and registers our service worker, providing both the `messaging` instance and the service worker to other components through [React context](https://react.dev/learn/passing-data-deeply-with-context).
+In the next step, we'll create a component that initializes the Firebase SDK and registers our service worker, providing both the `messaging` instance and the service worker to other components through [React context](https://react.dev/learn/passing-data-deeply-with-context).
 
-You can use the code in the following component as a starting point, but we’ll walk through what’s happening here step-by-step below:
+You can use the code in the following component as a starting point, but we'll walk through what's happening here step-by-step below:
 
 ```javascript
 "use client";
@@ -218,7 +218,7 @@ export default FirebaseProvider;
 
 #### Create FirebaseContext
 
-First, we define the `firebaseConfig` values needed to create a new `app` and `messaging` instance. Then we create a new context object called `FirebaseContext` and create an interface to define its properties. This context object is what we’ll pass down to other components so they can access the values of `messaging` package and the `serviceWorkerRegistration`.
+First, we define the `firebaseConfig` values needed to create a new `app` and `messaging` instance. Then we create a new context object called `FirebaseContext` and create an interface to define its properties. This context object is what we'll pass down to other components so they can access the values of `messaging` package and the `serviceWorkerRegistration`.
 
 ```javascript
 // Your web app's Firebase configuration
@@ -242,9 +242,9 @@ export const FirebaseContext =
 
 #### Initialize `app` and register service worker
 
-Inside the body of the `FirebaseProvider` component, we’ll create `useState` variables to store the `messaging` object and service worker `registration` before running a series of `useEffect` calls to ensure that our code is loading correctly on the client and the browser context supports service workers.
+Inside the body of the `FirebaseProvider` component, we'll create `useState` variables to store the `messaging` object and service worker `registration` before running a series of `useEffect` calls to ensure that our code is loading correctly on the client and the browser context supports service workers.
 
-Inside of the `initializeFirebase` function we’ll create a new `app` and `messaging` instance and store that `messaging` value in state:
+Inside of the `initializeFirebase` function we'll create a new `app` and `messaging` instance and store that `messaging` value in state:
 
 ```javascript
 // Initialize Firebase
@@ -254,7 +254,7 @@ console.log("Firebase messaging initialized:", messagingInstance);
 setMessaging(messagingInstance);
 ```
 
-Next, we’ll register the service worker we created in the previous step and store that in state as well:
+Next, we'll register the service worker we created in the previous step and store that in state as well:
 
 ```javascript
 // Register service worker
@@ -276,7 +276,7 @@ setServiceWorkerRegistration(registration);
 
 #### Handling foreground notifications
 
-The `FirebaseProvider` component is also a great place to centralize your logic for handling foreground messages if you want to use them. In this file, you can see an `onMessage` callback that handles showing foreground notifications using browser APIs. We’ll revisit this section of code later when discussing the default behavior of push notifications, e.g. foreground vs. background.
+The `FirebaseProvider` component is also a great place to centralize your logic for handling foreground messages if you want to use them. In this file, you can see an `onMessage` callback that handles showing foreground notifications using browser APIs. We'll revisit this section of code later when discussing the default behavior of push notifications, e.g. foreground vs. background.
 
 #### Return and use context
 
@@ -401,7 +401,7 @@ export const PushSubscribeButton: React.FC = () => {
 
 ```
 
-Let’s walk through this code.
+Let's walk through this code.
 
 ### Requesting permission to send notifications
 
@@ -415,7 +415,7 @@ if (Notification.permission !== "granted") {
 }
 ```
 
-The `Notification.requestPermission` method will trigger the browser’s default UI to let you allow or deny notifications for this domain.
+The `Notification.requestPermission` method will trigger the browser's default UI to let you allow or deny notifications for this domain.
 
 ### Get Firebase push token
 
@@ -467,9 +467,9 @@ const channelData = await knock.user.setChannelData({
 });
 ```
 
-Here we’ll use the `knock.user.setChannelData` method to overwrite the channel data for the FCM channel to an empty array.  
+Here we'll use the `knock.user.setChannelData` method to overwrite the channel data for the FCM channel to an empty array.  
 \<Callout\>  
-It’s possible to store a push token per device for a user, so if you’re using mobile push as well, it may be better to refetch the browser push token and filter it from the `tokens` array before resetting a user’s channel data.  
+It's possible to store a push token per device for a user, so if you're using mobile push as well, it may be better to refetch the browser push token and filter it from the `tokens` array before resetting a user's channel data.  
 \</Callout\>
 
 ### Test a push workflow
@@ -482,7 +482,7 @@ Using the Firebase SDK and [Knock payload overrides](https://docs.knock.app/inte
 
 ### Data vs. notification message types
 
-One of the common differences you’ll see in web push messages is [`data` vs. `notification` messages.](https://firebase.google.com/docs/cloud-messaging/concept-options#notifications_and_data_messages)
+One of the common differences you'll see in web push messages is [`data` vs. `notification` messages.](https://firebase.google.com/docs/cloud-messaging/concept-options#notifications_and_data_messages)
 
 #### Notification messages
 
@@ -492,7 +492,7 @@ With `notification` messages, the FCM SDK and the browser automatically handle d
 
 You can also use payload overrides to send [web push platform-specific customization options](https://firebase.google.com/docs/cloud-messaging/concept-options#example-notification-message-with-platform-specific-delivery-options). Using the `webpush` key in your FCM payload, you can override options on the `Notification` browser API or send any other values allowed by [the WebPushConfig object](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#WebpushConfig).
 
-Here’s an example of a payload override JSON object using the default merge strategy:
+Here's an example of a payload override JSON object using the default merge strategy:
 
 ```json
 {
@@ -509,7 +509,7 @@ Here’s an example of a payload override JSON object using the default merge st
 
 In contrast, `data` messages allow the client application to handle the processing and display of all incoming messages, both in the foreground and background. Unlike `notification` type messages, the key/value pairs for `data` messages are entirely customizable. These key/value pairs are then mapped to `Notification` properties in your code.
 
-To send a `data` message in Knock, you’ll need to use a payload override using the `__replace__` strategy to override the default `notification` values:
+To send a `data` message in Knock, you'll need to use a payload override using the `__replace__` strategy to override the default `notification` values:
 
 ```json
 {
@@ -522,7 +522,7 @@ To send a `data` message in Knock, you’ll need to use a payload override using
 }
 ```
 
-As you can see in this JSON sample, you can still use Liquid to generate dynamic or personalized content, but this payload override is not automatically connected to the live preview functionality in the template editor. Just be aware that it’s easy for messaging to drift when using `data` messages.
+As you can see in this JSON sample, you can still use Liquid to generate dynamic or personalized content, but this payload override is not automatically connected to the live preview functionality in the template editor. Just be aware that it's easy for messaging to drift when using `data` messages.
 
 ### Custom foreground and background handling
 
@@ -530,7 +530,7 @@ The Firebase SDK provides methods for manually handling both foreground and back
 
 #### Handling foreground messages
 
-To handle foreground messages of any type, you’ll need to use the `onMessage` handler to show a notification using browser APIs. This code needs access to both the `firebase.messaging` module and your service worker registration:
+To handle foreground messages of any type, you'll need to use the `onMessage` handler to show a notification using browser APIs. This code needs access to both the `firebase.messaging` module and your service worker registration:
 
 ```javascript
 onMessage(messagingInstance, async (payload) => {
@@ -566,6 +566,15 @@ messaging.onBackgroundMessage(async (payload) => {
 });
 ```
 
-Wrapping up
+## Frequently asked questions
 
-Some outro here
+<AccordionGroup>
+  <Accordion title="Can I use FCM web push messages with any browser?">
+    Yes, FCM web push is supported by all major modern browsers.
+  </Accordion>
+  <Accordion title="Why do I see a 'This site has been updated in the background' notification?">
+    This notification is displayed by the browser to let a user know that a site
+    has received a push notification. You may need to update how you handle
+    background messages.
+  </Accordion>
+</AccordionGroup>
