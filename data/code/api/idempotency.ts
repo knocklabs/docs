@@ -30,9 +30,7 @@ await knock.workflows.trigger(
     tenant: "jurassic_world_employees",
   },
   {
-    headers: {
-      "Idempotency-Key": "123",
-    },
+    idempotencyKey: "123",
   },
 );
 `,
