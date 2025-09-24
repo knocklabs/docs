@@ -1,6 +1,6 @@
 ---
 title: Sending web push notifications with Firebase Cloud Messaging (FCM)
-description: Learn how to map use FCM and Knock to deliver web push messages to a React application.
+description: Learn how to use FCM and Knock to deliver web push messages to a React application.
 section: Tutorials
 ---
 
@@ -16,7 +16,7 @@ The first step is to add FCM as a push channel integration in the Knock dashboar
 
 ### Install the Firebase SDK
 
-Many of the steps you'll need to take to successfully register for and receive web push messages will happen inside of your application.
+Many of the steps you'll need to take to successfully register for and receive web push messages will happen inside your application.
 
 The Firebase SDK is responsible for generating a `token` that registers the user's browser and displaying certain types of notifications to the user.
 
@@ -32,7 +32,7 @@ You will use both the `app` and `messaging` modules of the `firebase` package in
 
 You'll need several environment variables to initialize the Firebase `app` and an additional environment variable to store your public VAPID key from the Firebase dashboard.
 
-The environment variables for the Firebase config will also be needed inside of a service worker file, which may not have access to your application or framework's public variables. You may choose to hardcode those values, which you can see in [this example](https://firebase.google.com/docs/web/learn-more#config-object) of the Firebase `config` object.
+The environment variables for the Firebase config will also be needed inside of a service worker file, which may not have access to your application or framework's public variables. You may choose to hard-code those values, which you can see in [this example](https://firebase.google.com/docs/web/learn-more#config-object) of the Firebase `config` object.
 
 ```bash title="Store environment variables"
 # The `channel_id` from earlier
@@ -55,8 +55,7 @@ In the following steps, we'll use the Firebase SDK inside your application to re
 
 ### Create a service worker file
 
-First, let's create a service worker file.
-FCM requires a service worker file to handle displaying push notifications. Create a file called [`firebase-messaging-sw.js`](http://firebase-messaging-sw.js) in your `public` directory and include the following contents:
+First, let's create a service worker file. FCM requires a service worker file to handle displaying push notifications. Create a file called `firebase-messaging-sw.js` in your `public` directory and include the following contents:
 
 ```javascript title="Creating a service worker file"
 console.log("[Firebase SW] Service Worker Loaded");
@@ -96,7 +95,7 @@ self.addEventListener("activate", (event) => {
 
 This file loads the Firebase client libraries and adds some debugging logs to indicate its status.
 
-The important part of this file is that a new Firebase `app` is initialized and a new instance of `messaging` is created to automatically handle background notifications. Since [service workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) run on their own thread, separate from the JavaScript that powers your app, you'll need to bring Firebase into your application as well and pass a reference to this service worker.
+The important part of this file is that a new Firebase `app` is initialized and a new instance of `messaging` is created to automatically handle background notifications. Since [service workers](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API) run in their own thread, separate from the JavaScript that powers your app, you'll need to bring Firebase into your application as well and pass a reference to this service worker.
 
 ### Create a FirebaseProvider component
 
@@ -130,9 +129,8 @@ interface FirebaseContextType {
  serviceWorkerRegistration: ServiceWorkerRegistration | undefined;
 }
 
-export const FirebaseContext = createContext<FirebaseContextType | undefined>(
- undefined
-);
+export const FirebaseContext =
+  (createContext < FirebaseContextType) | (undefined > undefined);
 
 const FirebaseProvider: React.FC<PropsWithChildren> = ({ children }) => {
  const [isClient, setIsClient] = useState(false);
@@ -221,7 +219,7 @@ export default FirebaseProvider;
 
 #### Create FirebaseContext
 
-First, we define the `firebaseConfig` values needed to create a new `app` and `messaging` instance. Then we create a new context object called `FirebaseContext` and create an interface to define its properties. This context object is what we'll pass down to other components so they can access the values of `messaging` package and the `serviceWorkerRegistration`.
+First, we define the `firebaseConfig` values needed to create a new `app` and `messaging` instance. Then we create a new context object called `FirebaseContext` and create an interface to define its properties. This context object is what we'll pass down to other components so they can access the values from the `messaging` package and the `serviceWorkerRegistration`.
 
 ```javascript title="Create context with FirebaseContext"
 // Your web app's Firebase configuration
@@ -339,7 +337,7 @@ export const PushSubscribeButton: React.FC = () => {
    try {
      if (device === DeviceTypes.IOS && !isPWA())
        throw new Error(
-         'In IPhone you must install the app first, by clicking on Share button in browser and selecting "Add to Home Screen"'
+         'In iPhone you must install the app first, by clicking on the Share button in browser and selecting "Add to Home Screen"'
        );
 
      if (
@@ -360,8 +358,7 @@ export const PushSubscribeButton: React.FC = () => {
 
      // Get Firebase token using the registration from context
      const firebaseToken = await getToken(firebaseContext.messaging, {
-       vapidKey:
-         "BDBOG_hkI8rPZNBbeto6Mt8UBS4w4PljTuvHSo9nfT-4JyPBnZYaJ_zSspBRq84cSOpHfmzKLZb1exkOgviE3A4",
+       vapidKey: NEXT_PUBLIC_FIREBASE_VAPID_KEY,
        serviceWorkerRegistration: firebaseContext.serviceWorkerRegistration,
      });
 
@@ -422,7 +419,7 @@ The `Notification.requestPermission` method will trigger the browser's default U
 
 ### Get Firebase push token
 
-Once the Browser has notifications enabled for this host, we can use the Firebase SDK to request a token specific to this browser. We call the `getToken` method, and pass in the Firebase context `messaging` and `serviceWorkerRegistration` values, as well as the `NEXT_PUBLIC_FIREBASE_VAPID_KEY` as paramters:
+Once the browser has notifications enabled for this host, we can use the Firebase SDK to request a token specific to this browser. We call the `getToken` method, and pass in the Firebase context `messaging` and `serviceWorkerRegistration` values, as well as the `NEXT_PUBLIC_FIREBASE_VAPID_KEY` as parameters:
 
 ```javascript title="Get browser token using Firebase"
 // Get Firebase token using the registration from context
@@ -470,10 +467,13 @@ const channelData = await knock.user.setChannelData({
 });
 ```
 
-Here we'll use the `knock.user.setChannelData` method to overwrite the channel data for the FCM channel to an empty array.  
-\<Callout\>  
-It's possible to store a push token per device for a user, so if you're using mobile push as well, it may be better to refetch the browser push token and filter it from the `tokens` array before resetting a user's channel data.  
-\</Callout\>
+Here, we'll use the `knock.user.setChannelData` method to overwrite the channel data for the FCM channel to an empty array.
+
+<Callout emoji="💡">
+  It's possible to store a push token per device for a user, so if you're using
+  mobile push as well, it may be better to refetch the browser push token and
+  filter it from the `tokens` array before resetting a user's channel data.
+</Callout>
 
 ### Test a push workflow
 
@@ -489,7 +489,7 @@ One of the common differences you'll see in web push messages is [`data` vs. `no
 
 #### Notification messages
 
-By default, Knock sends `notification` message type payloads to FCM, which already contain a set of pre-defined key/value pairs. All `notification` messages will contain a top-level `notification` key, but may also contain an optional `data` payload.
+By default, Knock sends `notification` message type payloads to FCM, which already contain a set of predefined key/value pairs. All `notification` messages will contain a top-level `notification` key, but may also contain an optional `data` payload.
 
 With `notification` messages, the FCM SDK and the browser automatically handle displaying messages when the web app is in the background, e.g. not in the current tab, window is minimized, etc. Developers can customize the foreground behavior of web push messages using the Firebase SDK.
 
@@ -573,7 +573,7 @@ messaging.onBackgroundMessage(async (payload) => {
 
 <AccordionGroup>
   <Accordion title="Can I use FCM web push messages with any browser?">
-    Yes, FCM web push is supported by all major modern browsers.
+    Yes, FCM web push is supported in all major modern browsers.
   </Accordion>
   <Accordion title="Why do I see a 'This site has been updated in the background' notification?">
     This notification is displayed by the browser to let a user know that a site
