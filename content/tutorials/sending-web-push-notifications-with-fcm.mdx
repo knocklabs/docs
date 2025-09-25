@@ -106,119 +106,110 @@ You can use the code in the following component as a starting point, but we'll w
 ```javascript title="Create a context provider to share Firebase state"
 "use client";
 import React, {
- createContext,
- PropsWithChildren,
- useEffect,
- useState,
+  createContext,
+  PropsWithChildren,
+  useEffect,
+  useState,
 } from "react";
 import { getMessaging, Messaging, onMessage } from "firebase/messaging";
 import { initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
- apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
- authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
- projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
- storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
- messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
- appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 interface FirebaseContextType {
- messaging: Messaging | undefined;
- serviceWorkerRegistration: ServiceWorkerRegistration | undefined;
+  messaging: Messaging | undefined;
+  serviceWorkerRegistration: ServiceWorkerRegistration | undefined;
 }
 
 export const FirebaseContext =
   (createContext < FirebaseContextType) | (undefined > undefined);
 
 const FirebaseProvider: React.FC<PropsWithChildren> = ({ children }) => {
- const [isClient, setIsClient] = useState(false);
- const [messaging, setMessaging] = useState<Messaging | undefined>(undefined);
- const [serviceWorkerRegistration, setServiceWorkerRegistration] = useState<
-   ServiceWorkerRegistration | undefined
- >(undefined);
+  const [isClient, setIsClient] = useState(false);
+  const [messaging, setMessaging] =
+    (useState < Messaging) | (undefined > undefined);
+  const [serviceWorkerRegistration, setServiceWorkerRegistration] =
+    (useState < ServiceWorkerRegistration) | (undefined > undefined);
 
- useEffect(() => {
-   setIsClient(true);
- }, []);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
- useEffect(() => {
-   const initializeFirebase = async () => {
-     try {
-       if (
-         isClient &&
-         "serviceWorker" in navigator &&
-         "Notification" in window
-       ) {
-         // Initialize Firebase
-         const app = initializeApp(firebaseConfig);
-         const messagingInstance = getMessaging(app);
-         console.log("Firebase messaging initialized:", messagingInstance);
-         setMessaging(messagingInstance);
+  useEffect(() => {
+    const initializeFirebase = async () => {
+      try {
+        if (
+          isClient &&
+          "serviceWorker" in navigator &&
+          "Notification" in window
+        ) {
+          // Initialize Firebase
+          const app = initializeApp(firebaseConfig);
+          const messagingInstance = getMessaging(app);
+          console.log("Firebase messaging initialized:", messagingInstance);
+          setMessaging(messagingInstance);
 
-         // Register service worker
-         let registration = await navigator.serviceWorker.getRegistration("/");
-         if (!registration) {
-           console.log("Registering service worker...");
-           registration = await navigator.serviceWorker.register(
-             "/firebase-messaging-sw.js",
-             {
-               scope: "/",
-             }
-           );
-         }
+          // Register service worker
+          let registration = await navigator.serviceWorker.getRegistration("/");
+          if (!registration) {
+            console.log("Registering service worker...");
+            registration = await navigator.serviceWorker.register(
+              "/firebase-messaging-sw.js",
+              {
+                scope: "/",
+              },
+            );
+          }
 
-         await navigator.serviceWorker.ready;
-         console.log("Service worker ready:", registration);
-         setServiceWorkerRegistration(registration);
+          await navigator.serviceWorker.ready;
+          console.log("Service worker ready:", registration);
+          setServiceWorkerRegistration(registration);
 
-         // Set up foreground message handler
-         const unsubscribe = onMessage(messagingInstance, async (payload) => {
-           console.log("Foreground message received:", payload);
-           if (Notification.permission === "granted" && payload.notification) {
-             const url = payload.data?.url || "/";
-             await registration!.showNotification(
-               payload?.notification?.title || "",
-               {
-                 body: payload.notification?.body,
-                 icon: "/assets/logo.png",
-                 data: { url },
-               }
-             );
-           }
-         });
+          // Set up foreground message handler
+          const unsubscribe = onMessage(messagingInstance, async (payload) => {
+            console.log("Foreground message received:", payload);
+            //handle foreground message here
+          });
 
-         return () => unsubscribe();
-       } else {
-         console.log("Firebase not supported in this environment");
-       }
-     } catch (error) {
-       console.error("Error initializing Firebase:", error);
-       alert(`Error initializing Firebase: ${error}`);
-     }
-   };
+          return () => unsubscribe();
+        } else {
+          console.log("Firebase not supported in this environment");
+        }
+      } catch (error) {
+        console.error("Error initializing Firebase:", error);
+        alert(`Error initializing Firebase: ${error}`);
+      }
+    };
 
-   initializeFirebase();
- }, [isClient]);
+    initializeFirebase();
+  }, [isClient]);
 
- if (!isClient) {
-   return <>{children}</>;
- }
+  if (!isClient) {
+    return <>{children}</>;
+  }
 
- return (
-   <FirebaseContext.Provider value={{ messaging, serviceWorkerRegistration }}>
-     {children}
-   </FirebaseContext.Provider>
- );
+  return (
+    <FirebaseContext.Provider value={{ messaging, serviceWorkerRegistration }}>
+      {children}
+    </FirebaseContext.Provider>
+  );
 };
 
 export default FirebaseProvider;
-
 ```
 
-#### Create FirebaseContext
+Now, let's break down what's happening.
 
+<Steps titleSize="p">
+<Step title="Create FirebaseContext">
 First, we define the `firebaseConfig` values needed to create a new `app` and `messaging` instance. Then we create a new context object called `FirebaseContext` and create an interface to define its properties. This context object is what we'll pass down to other components so they can access the values from the `messaging` package and the `serviceWorkerRegistration`.
 
 ```javascript title="Create context with FirebaseContext"
@@ -241,8 +232,9 @@ export const FirebaseContext =
   (createContext < FirebaseContextType) | (undefined > undefined);
 ```
 
-#### Initialize `app` and register service worker
+</Step>
 
+<Step title="Initialize `app` and register service worker">
 Inside the body of the `FirebaseProvider` component, we'll create `useState` variables to store the `messaging` object and service worker `registration` before running a series of `useEffect` calls to ensure that our code is loading correctly on the client and the browser context supports service workers.
 
 Inside of the `initializeFirebase` function we'll create a new `app` and `messaging` instance and store that `messaging` value in state:
@@ -275,12 +267,18 @@ console.log("Service worker ready:", registration);
 setServiceWorkerRegistration(registration);
 ```
 
-#### Handling foreground notifications
+</Step>
 
-The `FirebaseProvider` component is also a great place to centralize your logic for handling foreground messages if you want to use them. In this file, you'll see an `onMessage` callback that handles showing foreground notifications using browser APIs. We'll revisit this section of code later when discussing the default behavior of push notifications, e.g. foreground vs. background.
+<Step title="Handling foreground notifications">
+  The `FirebaseProvider` component is also a great place to centralize your
+  logic for handling foreground messages if you want to use them. In this file,
+  you'll see an `onMessage` callback that handles showing foreground
+  notifications using browser APIs. We'll revisit this section of code later
+  when discussing the default behavior of push notifications, e.g. foreground
+  vs. background.
+</Step>
 
-#### Return and use context
-
+<Step title="Return and use context">
 Next, we'll return `FirebaseContext.Provider` from `FirebaseProvider` with values for `messaging` and `serviceWorkerRegistration` so we can use them in the following steps:
 
 ```javascript title="Export our shared context"
@@ -301,6 +299,9 @@ Finally, you'll also need to implement this provider component in your app and s
 </KnockNotificationProviders>
 ```
 
+</Step>
+</Steps>
+
 Next, we'll register the user's browser to receive web push notifications and store the `token` in Knock.
 
 ## Registering for web push notifications
@@ -309,7 +310,7 @@ Browser push notifications require user consent for registration, so you'll typi
 
 For this section, we'll create two UI buttons that subscribe and unsubscribe a user from web push notifications.
 
-### Get a web push token
+### Retrieve and save a push token
 
 The first component will be responsible for retrieving a push token from the browser using the Firebase SDK and then storing that push token on the current user's Knock profile as channel data.
 
@@ -403,7 +404,8 @@ export const PushSubscribeButton: React.FC = () => {
 
 Let's walk through this code.
 
-### Requesting permission to send notifications
+<Steps titleSize="p">
+<Step title="Requesting permission to send notifications">
 
 After making some checks to see what type of device we're on and ensuring that the Firebase SDK has loaded, this component uses browser APIs to enable push notifications in the browser.
 
@@ -417,7 +419,9 @@ if (Notification.permission !== "granted") {
 
 The `Notification.requestPermission` method will trigger the browser's default UI to let you allow or deny notifications for this domain.
 
-### Get Firebase push token
+</Step>
+
+<Step title="Get Firebase push token">
 
 Once the browser has notifications enabled for this host, we can use the Firebase SDK to request a token specific to this browser. We call the `getToken` method, and pass in the Firebase context `messaging` and `serviceWorkerRegistration` values, as well as the `NEXT_PUBLIC_FIREBASE_VAPID_KEY` as parameters:
 
@@ -431,7 +435,9 @@ const firebaseToken = await getToken(firebaseContext.messaging, {
 
 The return value will be a `token` that we can use to send this user push messages on this device and browser.
 
-### Store push token in Knock
+</Step>
+
+<Step title="Store push token in Knock">
 
 Next we need to store this `token` as [channel data](https://docs.knock.app/managing-recipients/setting-channel-data) on a user in Knock so that we can use it inside of workflows.
 
@@ -450,6 +456,9 @@ console.log("Knock channel data set:", channelData);
 ```
 
 With this channel data successfully stored you should be ready to use an FCM channel step inside of a workflow.
+
+</Step>
+</Steps>
 
 ### Revoking notification permission
 
