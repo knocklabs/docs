@@ -2,23 +2,24 @@ import type { OpenAPIV3 } from "@scalar/openapi-types";
 import { useState } from "react";
 import Markdown from "react-markdown";
 
-import { Endpoint } from "../../Endpoints";
+import { Callout } from "@/components/ui/Callout";
+import RateLimit from "@/components/ui/RateLimit";
+import { Box } from "@telegraph/layout";
+import { Code, Heading } from "@telegraph/typography";
+import { AnimatePresence, motion } from "framer-motion";
 import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
 import { CodeBlock } from "../../CodeBlock";
+import { Endpoint } from "../../Endpoints";
 import { useApiReference } from "../ApiReferenceContext";
-import { SchemaProperties } from "../SchemaProperties";
-import OperationParameters from "../OperationParameters/OperationParameters";
-import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import MultiLangExample from "../MultiLangExample";
+import OperationParameters from "../OperationParameters/OperationParameters";
+import { SchemaProperties } from "../SchemaProperties";
+import { PropertyRow } from "../SchemaProperties/PropertyRow";
 import {
   augmentSnippetsWithCurlRequest,
+  formatResponseStatusCodes,
   resolveResponseSchemas,
 } from "../helpers";
-import { Heading } from "@telegraph/typography";
-import { AnimatePresence, motion } from "framer-motion";
-import RateLimit from "@/components/ui/RateLimit";
-import { Callout } from "@/components/ui/Callout";
-import { Box } from "@telegraph/layout";
 
 type Props = {
   methodName: string;
@@ -44,7 +45,6 @@ function ApiReferenceMethod({
   }
 
   const parameters = method.parameters || [];
-  // const responses = method.responses || {};
 
   const pathParameters = parameters.filter(
     (p) => p.in === "path",
@@ -181,53 +181,72 @@ function ApiReferenceMethod({
           Returns
         </Heading>
 
-        {responseSchemas.map((responseSchema) => (
-          <PropertyRow.Wrapper key={responseSchema.title}>
-            <PropertyRow.Container>
-              <PropertyRow.Header>
-                <PropertyRow.Type
-                  href={schemaReferences[responseSchema.title ?? ""]}
-                >
-                  {responseSchema.title}
-                </PropertyRow.Type>
-              </PropertyRow.Header>
-              <PropertyRow.Description>
-                <Markdown>{responseSchema.description ?? ""}</Markdown>
-              </PropertyRow.Description>
-
-              {responseSchema.properties && (
-                <>
-                  <PropertyRow.ExpandableButton
-                    isOpen={isResponseExpanded}
-                    onClick={() => setIsResponseExpanded(!isResponseExpanded)}
+        {responseSchemas.length > 0 &&
+          responseSchemas.map((responseSchema) => (
+            <PropertyRow.Wrapper key={responseSchema.title}>
+              <PropertyRow.Container>
+                <PropertyRow.Header>
+                  <PropertyRow.Type
+                    href={schemaReferences[responseSchema.title ?? ""]}
                   >
-                    {isResponseExpanded ? "Hide properties" : "Show properties"}
-                  </PropertyRow.ExpandableButton>
+                    {responseSchema.title}
+                  </PropertyRow.Type>
+                </PropertyRow.Header>
+                <PropertyRow.Description>
+                  <Markdown>{responseSchema.description ?? ""}</Markdown>
+                </PropertyRow.Description>
 
-                  <AnimatePresence initial={false}>
-                    <motion.div
-                      key="response-properties"
-                      initial={false}
-                      animate={{
-                        height: isResponseExpanded ? "auto" : 0,
-                        opacity: isResponseExpanded ? 1 : 0,
-                        visibility: isResponseExpanded ? "visible" : "hidden",
-                      }}
-                      transition={{ duration: 0.2 }}
+                {responseSchema.properties && (
+                  <>
+                    <PropertyRow.ExpandableButton
+                      isOpen={isResponseExpanded}
+                      onClick={() => setIsResponseExpanded(!isResponseExpanded)}
                     >
-                      <PropertyRow.ChildProperties>
-                        <SchemaProperties
-                          schema={responseSchema}
-                          hideRequired
-                        />
-                      </PropertyRow.ChildProperties>
-                    </motion.div>
-                  </AnimatePresence>
-                </>
-              )}
-            </PropertyRow.Container>
-          </PropertyRow.Wrapper>
-        ))}
+                      {isResponseExpanded
+                        ? "Hide properties"
+                        : "Show properties"}
+                    </PropertyRow.ExpandableButton>
+
+                    <AnimatePresence initial={false}>
+                      <motion.div
+                        key="response-properties"
+                        initial={false}
+                        animate={{
+                          height: isResponseExpanded ? "auto" : 0,
+                          opacity: isResponseExpanded ? 1 : 0,
+                          visibility: isResponseExpanded ? "visible" : "hidden",
+                        }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <PropertyRow.ChildProperties>
+                          <SchemaProperties
+                            schema={responseSchema}
+                            hideRequired
+                          />
+                        </PropertyRow.ChildProperties>
+                      </motion.div>
+                    </AnimatePresence>
+                  </>
+                )}
+              </PropertyRow.Container>
+            </PropertyRow.Wrapper>
+          ))}
+
+        {responseSchemas.length === 0 && (
+          <Box py="3">
+            {formatResponseStatusCodes(method).map((formattedStatus, index) => (
+              <Code
+                key={`response-status-${index}`}
+                as="span"
+                size="1"
+                pl="0"
+                weight="semi-bold"
+              >
+                {formattedStatus}
+              </Code>
+            ))}
+          </Box>
+        )}
       </ContentColumn>
       <ExampleColumn>
         <MultiLangExample
