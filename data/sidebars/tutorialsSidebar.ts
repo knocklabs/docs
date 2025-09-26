@@ -44,4 +44,8 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     slug: `${baseSlug}/launchdarkly-knock`,
     title: "Using LaunchDarkly with Knock to A/B test messaging",
   },
+  {
+    slug: `${baseSlug}/sending-web-push-notifications-with-fcm`,
+    title: "Send web push with FCM",
+  },
 ];
