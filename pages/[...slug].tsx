@@ -22,23 +22,28 @@ import AiChatButton from "../components/AiChatButton";
 
 import { FrontMatter } from "../types";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
+import { getAllTypedocs } from "@/lib/typedoc";
+import { TypedocsProvider } from "@/components/Typedoc/Provider";
+import { Typedoc } from "@/components/Typedoc";
 
-export default function ContentPage({ source, sourcePath }) {
+export default function ContentPage({ source, sourcePath, typedocs }) {
   return (
-    <div className="wrapper">
-      <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
-        <MDXRemote
-          {...source}
-          components={MDX_COMPONENTS}
-          scope={{
-            datadogDashboardJson,
-            newRelicDashboardJson,
-            eventPayload,
-          }}
-        />
-        <AiChatButton />
-      </MDXLayout>
-    </div>
+    <TypedocsProvider typedocs={typedocs}>
+      <div className="wrapper">
+        <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
+          <MDXRemote
+            {...source}
+            components={{ ...MDX_COMPONENTS, Typedoc }}
+            scope={{
+              datadogDashboardJson,
+              newRelicDashboardJson,
+              eventPayload,
+            }}
+          />
+          <AiChatButton />
+        </MDXLayout>
+      </div>
+    </TypedocsProvider>
   );
 }
 
@@ -75,6 +80,8 @@ export async function getStaticProps({ params: { slug } }) {
     throw new Error("Unable to read page content.");
   }
 
+  const typedocs = await getAllTypedocs();
+
   // Serialize file contents into mdx, and parse frontmatter
   const mdxSource = await serialize<{}, FrontMatter>(source, {
     parseFrontmatter: true,
@@ -90,7 +97,7 @@ export async function getStaticProps({ params: { slug } }) {
   // Index page in algolia
   await generateAlgoliaIndex(mdxSource.frontmatter);
 
-  return { props: { source: mdxSource, sourcePath } };
+  return { props: { source: mdxSource, sourcePath, typedocs } };
 }
 
 // Get the list of pages
