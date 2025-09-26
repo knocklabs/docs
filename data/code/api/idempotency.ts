@@ -140,7 +140,7 @@ result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", knock.WorkflowTri
 	Actor:           param.New("3"),
 	CancellationKey: param.New("cancel_123"),
 	Tenant:          param.New("jurassic_world_employees"),
-}, option.WithHeader("Idempotency-Key", "123"))
+}, option.WithIdempotencyKey("123"))
 `,
   java: `
 import app.knock.api.client.KnockClient;
