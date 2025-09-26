@@ -1,0 +1,378 @@
+Client for managing in-app guides, including real-time updates, location tracking, and engagement events.
+
+## Constructor
+
+Initializes a new guide client instance.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="The Knock client instance to use for API requests."
+  />
+  <Attribute
+    name="channelId"
+    type="string"
+    description="The channel ID for the guides integration."
+  />
+  <Attribute
+    name="targetParams"
+    type="TargetParams"
+    description="Optional targeting parameters for guide selection (e.g., user properties, tenant)."
+  />
+  <Attribute
+    name="options"
+    type="ConstructorOpts"
+    description="Optional configuration options for the guide client."
+  />
+</Attributes>
+
+**Constructor Options**:
+
+<Attributes>
+  <Attribute
+    name="trackLocationFromWindow"
+    type="boolean"
+    description="Whether to automatically track location changes from the browser window. Defaults to true."
+  />
+  <Attribute
+    name="throttleCheckInterval"
+    type="number"
+    description="Interval in milliseconds for throttle checking. Defaults to 30000 (30 seconds)."
+  />
+  <Attribute
+    name="orderResolutionDuration"
+    type="number"
+    description="Duration in milliseconds to wait before resolving guide order. Defaults to 50ms."
+  />
+</Attributes>
+
+**Returns**: `KnockGuideClient`
+
+## Properties
+
+### `store`
+
+A Tanstack Store instance containing the current state of guides, location, and other client data.
+
+**Type**: `Store<StoreState, (state: StoreState) => StoreState>`
+
+## Core Methods
+
+### `fetch`
+
+Fetches guides from the API based on the current targeting parameters and optional filters.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute name="opts" type="object" description="Optional fetch options." />
+  <Attribute
+    name="opts.filters"
+    type="QueryFilterParams"
+    description="Optional filter parameters to apply to the guide query."
+  />
+</Attributes>
+
+**Returns**: `Promise<QueryStatus>`
+
+**Example**:
+
+```javascript title="Fetching guides"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const guideClient = knock.guides.initialize("in-app-guide-channel");
+
+// Fetch all eligible guides
+const status = await guideClient.fetch();
+
+// Fetch with filters
+const filteredStatus = await guideClient.fetch({
+  filters: { type: "tooltip" },
+});
+```
+
+### `subscribe`
+
+Subscribes to real-time guide updates via websocket connection.
+
+**Returns**: `void`
+
+**Example**:
+
+```javascript title="Subscribing to real-time updates"
+const guideClient = knock.guides.initialize("in-app-guide-channel");
+
+// Subscribe to real-time updates
+guideClient.subscribe();
+
+// Remember to cleanup when component unmounts
+// guideClient.unsubscribe();
+```
+
+### `unsubscribe`
+
+Unsubscribes from real-time guide updates and cleans up websocket connections.
+
+**Returns**: `void`
+
+### `cleanup`
+
+Performs complete cleanup of the guide client, including unsubscribing from websockets, removing event listeners, and clearing intervals.
+
+**Returns**: `void`
+
+**Example**:
+
+```javascript title="Cleaning up guide client"
+// In React useEffect cleanup or component unmount
+useEffect(() => {
+  const guideClient = knock.guides.initialize("in-app-guide-channel");
+
+  return () => {
+    guideClient.cleanup();
+  };
+}, []);
+```
+
+## Selection Methods
+
+### `selectGuides`
+
+Selects multiple guides based on the current state and optional filters.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="state"
+    type="StoreState"
+    description="The current store state."
+  />
+  <Attribute
+    name="filters"
+    type="SelectFilterParams"
+    description="Optional filters to apply during selection."
+  />
+</Attributes>
+
+**Filter Parameters**:
+
+<Attributes>
+  <Attribute
+    name="type"
+    type="string"
+    description="Filter guides by type (e.g., 'tooltip', 'modal', 'banner')."
+  />
+  <Attribute
+    name="key"
+    type="string"
+    description="Filter guides by specific guide key."
+  />
+</Attributes>
+
+**Returns**: `KnockGuide<C>[]`
+
+**Example**:
+
+```javascript title="Selecting multiple guides"
+const guideClient = knock.guides.initialize("in-app-guide-channel");
+
+// Get all guides
+const allGuides = guideClient.selectGuides(guideClient.store.state);
+
+// Get guides of a specific type
+const tooltips = guideClient.selectGuides(guideClient.store.state, {
+  type: "tooltip",
+});
+```
+
+### `selectGuide`
+
+Selects a single guide based on priority, throttling rules, and group staging logic.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="state"
+    type="StoreState"
+    description="The current store state."
+  />
+  <Attribute
+    name="filters"
+    type="SelectFilterParams"
+    description="Optional filters to apply during selection."
+  />
+</Attributes>
+
+**Returns**: `KnockGuide<C> | undefined`
+
+**Example**:
+
+```javascript title="Selecting a single guide"
+const guideClient = knock.guides.initialize("in-app-guide-channel");
+
+// Get the highest priority guide
+const guide = guideClient.selectGuide(guideClient.store.state);
+
+if (guide) {
+  console.log(`Selected guide: ${guide.key}`);
+
+  // Get the next step to show
+  const step = guide.getStep();
+  if (step) {
+    console.log(`Show step: ${step.ref}`);
+  }
+}
+```
+
+## Location Tracking
+
+### `setLocation`
+
+Manually sets the current location for guide activation rule evaluation.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="href"
+    type="string"
+    description="The URL to set as the current location."
+  />
+  <Attribute
+    name="additionalParams"
+    type="Partial<StoreState>"
+    description="Optional additional state parameters to update."
+  />
+</Attributes>
+
+**Returns**: `void`
+
+**Example**:
+
+```javascript title="Setting location manually"
+const guideClient = knock.guides.initialize("in-app-guide-channel");
+
+// Manually set location (useful for SPAs)
+guideClient.setLocation("/dashboard/analytics");
+
+// Set location with additional debug params
+guideClient.setLocation("/dashboard", {
+  debug: { forcedGuideKey: "onboarding-guide" },
+});
+```
+
+## Engagement Methods
+
+### `markAsSeen`
+
+Marks a guide step as seen by the user.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="guide"
+    type="GuideData"
+    description="The guide containing the step."
+  />
+  <Attribute
+    name="step"
+    type="GuideStepData"
+    description="The step to mark as seen."
+  />
+</Attributes>
+
+**Returns**: `Promise<KnockGuideStep | undefined>`
+
+### `markAsInteracted`
+
+Marks a guide step as interacted with by the user.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="guide"
+    type="GuideData"
+    description="The guide containing the step."
+  />
+  <Attribute
+    name="step"
+    type="GuideStepData"
+    description="The step to mark as interacted."
+  />
+  <Attribute
+    name="metadata"
+    type="GenericData"
+    description="Optional metadata about the interaction."
+  />
+</Attributes>
+
+**Returns**: `Promise<KnockGuideStep | undefined>`
+
+### `markAsArchived`
+
+Marks a guide step as archived by the user.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="guide"
+    type="GuideData"
+    description="The guide containing the step."
+  />
+  <Attribute
+    name="step"
+    type="GuideStepData"
+    description="The step to mark as archived."
+  />
+</Attributes>
+
+**Returns**: `Promise<KnockGuideStep | undefined>`
+
+**Example**:
+
+```javascript title="Using engagement methods"
+const guideClient = knock.guides.initialize("in-app-guide-channel");
+const guide = guideClient.selectGuide(guideClient.store.state);
+
+if (guide) {
+  const step = guide.getStep();
+
+  if (step) {
+    // Mark as seen when guide is displayed
+    await step.markAsSeen();
+
+    // Mark as interacted when user clicks
+    await step.markAsInteracted({
+      action: "clicked",
+      element: "cta-button",
+    });
+
+    // Mark as archived when user dismisses
+    await step.markAsArchived();
+  }
+}
+```
+
+## Debug Support
+
+The guide client supports debug mode through URL parameters:
+
+- `knock_guide_key` - Forces a specific guide to show
+- `knock_preview_session_id` - Shows preview guides from a specific session
+
+**Example**:
+
+```
+https://yourapp.com/dashboard?knock_guide_key=onboarding-tooltip
+```

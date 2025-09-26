@@ -1,0 +1,212 @@
+Client for interacting with Microsoft Teams integration operations in the Knock API.
+
+## Constructor
+
+Initializes a new Microsoft Teams client instance.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="instance"
+    type="Knock"
+    description="The Knock client instance to use for API requests."
+  />
+</Attributes>
+
+**Returns**: `MsTeamsClient`
+
+## Methods
+
+### `authCheck`
+
+Checks the authentication status for a Microsoft Teams channel integration.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="tenant"
+    type="string"
+    description="The tenant identifier to check authentication for."
+  />
+  <Attribute
+    name="knockChannelId"
+    type="string"
+    description="The Knock channel ID for the Microsoft Teams integration."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Checking Microsoft Teams authentication"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const authStatus = await knock.msTeams.authCheck({
+  tenant: "tenant-123",
+  knockChannelId: "ms-teams-channel-id",
+});
+```
+
+### `getTeams`
+
+Retrieves available Microsoft Teams teams for the authenticated integration.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="knockChannelId"
+    type="string"
+    description="The Knock channel ID for the Microsoft Teams integration."
+  />
+  <Attribute name="tenant" type="string" description="The tenant identifier." />
+  <Attribute
+    name="queryOptions"
+    type="MsTeamsTeamQueryOptions"
+    description="Optional Microsoft Graph API query parameters for filtering and pagination."
+  />
+</Attributes>
+
+**Query Options**:
+
+<Attributes>
+  <Attribute
+    name="$filter"
+    type="string"
+    description="OData filter expression to filter teams (e.g., 'displayName eq 'Marketing Team')."
+  />
+  <Attribute
+    name="$select"
+    type="string"
+    description="Comma-separated list of properties to include in the response."
+  />
+  <Attribute
+    name="$top"
+    type="number"
+    description="Maximum number of teams to return."
+  />
+  <Attribute
+    name="$skiptoken"
+    type="string"
+    description="Pagination token for retrieving the next set of results."
+  />
+</Attributes>
+
+**Returns**: `Promise<GetMsTeamsTeamsResponse>`
+
+**Example**:
+
+```javascript title="Getting Microsoft Teams teams"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const teams = await knock.msTeams.getTeams({
+  knockChannelId: "ms-teams-channel-id",
+  tenant: "tenant-123",
+  queryOptions: {
+    $top: 50,
+    $filter: "archived eq false",
+    $select: "id,displayName,description",
+  },
+});
+```
+
+### `getChannels`
+
+Retrieves available Microsoft Teams channels for a specific team.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="knockChannelId"
+    type="string"
+    description="The Knock channel ID for the Microsoft Teams integration."
+  />
+  <Attribute
+    name="teamId"
+    type="string"
+    description="The Microsoft Teams team ID to get channels for."
+  />
+  <Attribute name="tenant" type="string" description="The tenant identifier." />
+  <Attribute
+    name="queryOptions"
+    type="MsTeamsChannelQueryOptions"
+    description="Optional Microsoft Graph API query parameters for filtering."
+  />
+</Attributes>
+
+**Query Options**:
+
+<Attributes>
+  <Attribute
+    name="$filter"
+    type="string"
+    description="OData filter expression to filter channels (e.g., 'membershipType eq 'standard')."
+  />
+  <Attribute
+    name="$select"
+    type="string"
+    description="Comma-separated list of properties to include in the response."
+  />
+</Attributes>
+
+**Returns**: `Promise<GetMsTeamsChannelsResponse>`
+
+**Example**:
+
+```javascript title="Getting Microsoft Teams channels"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const channels = await knock.msTeams.getChannels({
+  knockChannelId: "ms-teams-channel-id",
+  teamId: "team-abc-123",
+  tenant: "tenant-123",
+  queryOptions: {
+    $filter: "membershipType eq 'standard'",
+    $select: "id,displayName,description,membershipType",
+  },
+});
+```
+
+### `revokeAccessToken`
+
+Revokes the access token for a Microsoft Teams integration, effectively disconnecting it.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute name="tenant" type="string" description="The tenant identifier." />
+  <Attribute
+    name="knockChannelId"
+    type="string"
+    description="The Knock channel ID for the Microsoft Teams integration to revoke access for."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Revoking Microsoft Teams access token"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const result = await knock.msTeams.revokeAccessToken({
+  tenant: "tenant-123",
+  knockChannelId: "ms-teams-channel-id",
+});
+```
