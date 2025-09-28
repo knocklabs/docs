@@ -6,7 +6,7 @@ const Typedoc = ({ file }: { file: string }) => {
   const typedoc = useTypedoc(file);
 
   if (!typedoc) {
-    return null;
+    throw new Error(`Typedoc file ${file} not found`);
   }
 
   return (

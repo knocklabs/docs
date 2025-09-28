@@ -20,7 +20,11 @@ export const TypedocsProvider = ({
 };
 
 export const useTypedocs = () => {
-  return useContext(TypedocsContext);
+  const context = useContext(TypedocsContext);
+  if (context === undefined) {
+    throw new Error("useTypedocs must be used within a TypedocsProvider");
+  }
+  return context;
 };
 
 export const useTypedoc = (slug: string) => {

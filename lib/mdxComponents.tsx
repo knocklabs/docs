@@ -40,7 +40,6 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { ContentActions } from "@/components/ui/ContentActions";
 import PermissionsMatrix from "@/components/ui/PermissionsMatrix";
 import { PreTextDiagram } from "@/components/ui/PreTextDiagram";
-import Typedoc from "@/components/Typedoc/Typedoc";
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
