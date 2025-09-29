@@ -520,6 +520,11 @@ const nextConfig = {
         destination: "/designing-workflows/fetch-function",
         permanent: true,
       },
+      {
+        source: "/in-app-ui/message-types",
+        destination: "/in-app-ui/message-types/overview",
+        permanent: true,
+      },
     ];
   },
 };

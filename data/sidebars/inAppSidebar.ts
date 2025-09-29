@@ -65,11 +65,34 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
             slug: "/render-guides",
             title: "Rendering guides",
           },
+          {
+            slug: "/handling-engagement",
+            title: "Guide engagement",
+          },
+          {
+            slug: "/analytics-and-observability",
+            title: "Analytics and observability",
+          },
+          {
+            slug: "/debugging-guides",
+            title: "Debugging guides",
+          },
         ],
       },
       {
         slug: "/message-types",
         title: "Message types",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/create-message-types",
+            title: "Creating message types",
+          },
+          {
+            slug: "/schema-reference",
+            title: "Schema reference",
+          },
+        ],
         isBeta: true,
       },
     ],
@@ -219,6 +242,7 @@ export const REACT_SIDEBAR: SidebarSection[] = [
     slug: "/in-app-ui/react/headless",
     pages: [
       { slug: "/feed", title: "Feed" },
+      { slug: "/guide", title: "Guide" },
       { slug: "/preferences", title: "Preferences" },
     ],
     sidebarMenuDefaultOpen: true,

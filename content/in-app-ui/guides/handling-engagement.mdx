@@ -1,0 +1,55 @@
+---
+title: Guide engagement
+description: How to track engagement with your guides.
+tags: ["guides", "rendering", "lifecycle", "marketing", "tours"]
+section: Building in-app UI > Guides
+---
+
+Guides produce [messages](/concepts/messages) that capture the content rendered to the user and the engagement of the user with the guide, just like workflows and broadcasts within Knock. This means guide messages will appear in messages tables synched to your data warehouse and in downstream events sent to Segment and Heap.
+
+## When is a guide message created?
+
+A guide message is created once a guide has been engaged with by a user. This can happen in a number of ways:
+
+- The user sees the guide
+- The user interacts with the guide
+- The user archives the guide
+
+## Tracking guide engagement
+
+Each guide step exposes methods to work with engagement tracking:
+
+- `markAsSeen`: mark that the user has seen the guide, but not yet interacted with it.
+- `markAsInteracted`: mark the step as interacted with, optionally passing metadata about the interaction
+- `markAsArchived`: mark the step as archived, making it no longer visible for the user.
+
+If you need to understand the current status of the guide step, you can access the state under `step.message` which will expose a `StepMessageState` including:
+
+- `seen_at`: when the message was last seen (timestamp or null)
+- `read_at`: when the message was last read (timestamp or null)
+- `interacted_at`: when the message was last interacted (timestamp or null)
+- `archived_at`: when the message was last archived (timestamp or null)
+
+## Tracking metadata associated with guide engagement
+
+When using the `markAsInteracted` method, you can pass metadata about the interaction. This metadata will be included in the guide message and will be available in the messages table and downstream events.
+
+For example, if you're building an NPS survey guide, you can pass the NPS score as metadata to the interaction.
+
+```tsx title="Tracking metadata associated with guide engagement"
+guideStep.markAsInteracted({
+  metadata: {
+    nps_score: 8,
+  },
+});
+```
+
+This `nps_score` metadata will be made available to anything consuming the guide message events, like outbound webhooks or CDP integrations.
+
+## Viewing guide engagement in the dashboard
+
+You can view the status of your guide messages via the Knock dashboard. From the dashboard you can:
+
+- Filter for all messages that have been seen/read/interacted/archived
+- View the metadata associated with the interaction
+- View the timeline of events for the message

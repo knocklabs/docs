@@ -1,0 +1,503 @@
+---
+title: Message types schema reference
+description: Learn more about the schema and available fields for message types.
+section: Building in-app UI
+---
+
+A message type schema defines the fields that a message type will have in the template editor and forms the structure of the message contents returned by the [guides API](/mapi-reference/message_types/schemas/message_type).
+
+An example schema is shown below:
+
+```json title="A message type schema example"
+{
+  "variants": [
+    {
+      "key": "default",
+      "name": "Default",
+      "fields": [
+        {
+          "type": "text",
+          "key": "title",
+          "label": "Title"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Variants
+
+Your schema must have one or more variants. Each of these variants must have:
+
+- A `key` uniquely identifying the variant for the message type
+- A `name` to display in the message template editor to select the variant
+- One or more `fields` (see below)
+
+Every schema must define a variant with the key `"default"`. You can name your variants anything you would like, but the variant key must be unique.
+
+## Fields
+
+All fields must have:
+
+- `type`: The type of the field to render (see below)
+- `key`: A unique key for the field in the variant
+- `label`: A label to render
+
+## Field types
+
+### Text
+
+A plain text, single line text field.
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+  <Attribute
+    name="default"
+    type="string"
+    description="The default value to display"
+  />
+  <Attribute
+    name="minLength"
+    type="integer"
+    description="The minimum length to validate"
+  />
+  <Attribute
+    name="maxLength"
+    type="integer"
+    description="The maximum length to validate against"
+  />
+</Attributes>
+
+**Example**
+
+```json
+{
+  "type": "text",
+  "key": "title",
+  "label": "Title",
+  "settings": {
+    "required": true,
+    "default": "Card title",
+    "minLength": 3,
+    "maxLength": 32
+  }
+}
+```
+
+### Markdown
+
+A markdown editor for creating rich text. Will always be rendered as HTML.
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+  <Attribute
+    name="default"
+    type="string"
+    description="The default value to display"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "markdown",
+  "key": "body",
+  "label": "Body",
+  "settings": {
+    "default": "**Default markdown**"
+  }
+}
+```
+
+### Textarea
+
+A multi-line plain text area
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+  <Attribute
+    name="default"
+    type="string"
+    description="The default value to display"
+  />
+  <Attribute
+    name="minLength"
+    type="integer"
+    description="The minimum length to validate"
+  />
+  <Attribute
+    name="maxLength"
+    type="integer"
+    description="The maximum length to validate against"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "textarea",
+  "key": "body",
+  "label": "Body",
+  "settings": {
+    "default": "My body"
+  }
+}
+```
+
+### Boolean
+
+A checkbox that returns either true or false (checked or unchecked).
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+  <Attribute
+    name="default"
+    type="boolean"
+    description="The default value to set"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "boolean",
+  "key": "dismissable",
+  "label": "Can be dismissed?",
+  "settings": {
+    "default": true
+  }
+}
+```
+
+### Select
+
+A single select box that defines a static list of options for editors to pick from.
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="options"
+    type="object[]"
+    description="A list of option objects that must include a `label` and a `value`"
+  />
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="default"
+    type="string"
+    description="The value of the default option to set"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "select",
+  "key": "icon",
+  "label": "Icon",
+  "settings": {
+    "options": [
+      { "label": "Skull", "value": "skull-icon.svg" },
+      { "label": "Heart", "value": "heart-icon.svg" }
+    ],
+    "default": "skull-icon.svg"
+  }
+}
+```
+
+#### Usage
+
+In your template preview, you can access the `value` of the selected option using the field's `key`. For example:
+
+```liquid title="Accessing the selected value"
+<div>
+  <img src="{{ icon }}" alt="" />
+</div>
+```
+
+### Multi-select
+
+A multi-select box that defines a static list of options for editors to pick from.
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="options"
+    type="object[]"
+    description="A list of option objects that must include a `label` and a `value`"
+  />
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="default"
+    type="string[]"
+    description="The values of the default options to set"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "multi_select",
+  "key": "icons",
+  "label": "Icons",
+  "settings": {
+    "options": [
+      { "label": "Skull", "value": "skull-icon.svg" },
+      { "label": "Heart", "value": "heart-icon.svg" },
+      { "label": "Star", "value": "star-icon.svg" }
+    ],
+    "default": ["skull-icon.svg", "heart-icon.svg"]
+  }
+}
+```
+
+#### Usage
+
+In your template preview, you can access the selected values using the field's `key`. For example:
+
+```liquid title="Accessing the selected values"
+<div>
+  {% for icon in icons %}
+    <img src="{{ icon }}" alt="" />
+  {% endfor %}
+</div>
+```
+
+### Button
+
+A button, with text to display and an action to perform when clicked.
+
+Every button field contains two subfields:
+
+<Attributes>
+  <Attribute
+    name="text"
+    type="string"
+    description="A text field that represents the button's text"
+  />
+  <Attribute
+    name="action"
+    type="string"
+    description="A text field that represents the button's action"
+  />
+</Attributes>
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "button",
+  "key": "primary_button",
+  "label": "Primary button",
+  "text": {
+    "type": "text",
+    "key": "text",
+    "label": "Button text",
+    "settings": {
+      "required": true,
+      "default": "Learn more"
+    }
+  },
+  "action": {
+    "type": "text",
+    "key": "action",
+    "label": "Button action",
+    "settings": {
+      "required": true,
+      "default": "https://example.com/"
+    }
+  },
+  "settings": {
+    "required": true
+  }
+}
+```
+
+### URL
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+  <Attribute
+    name="default"
+    type="string"
+    description="The default URL to display"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "url",
+  "key": "contact_url",
+  "label": "Contact link",
+  "settings": {
+    "required": true,
+    "default": "https://example.com/"
+  }
+}
+```
+
+### Image
+
+An image field, used to display an image with alt text and an optional action to perform when clicked.
+
+Every image field contains three subfields:
+
+<Attributes>
+  <Attribute
+    name="url"
+    type="string"
+    description="A URL field that represents the source of the image to be displayed"
+  />
+  <Attribute
+    name="alt"
+    type="string"
+    description="A text field that represents the image's alt text"
+  />
+  <Attribute
+    name="action"
+    type="string"
+    description="An optional text field that represents an action to perform when the image is clicked"
+  />
+</Attributes>
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "image",
+  "key": "hero_image",
+  "label": "Hero image",
+  "url": {
+    "type": "url",
+    "key": "url",
+    "label": "Image URL",
+    "settings": {
+      "required": true,
+      "default": "https://example.com/image.png"
+    }
+  },
+  "alt": {
+    "type": "text",
+    "key": "alt",
+    "label": "Image alt text",
+    "settings": {
+      "required": true,
+      "default": "Lorem ipsum"
+    }
+  },
+  "action": {
+    "type": "text",
+    "key": "action",
+    "label": "Image action",
+    "settings": {
+      "required": true,
+      "default": "https://example.com/"
+    }
+  },
+  "settings": {
+    "required": true
+  }
+}
+```
