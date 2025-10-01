@@ -70,12 +70,12 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
             title: "Guide engagement",
           },
           {
-            slug: "/analytics-and-observability",
-            title: "Analytics and observability",
+            slug: "/debugging-guides",
+            title: "Testing + debugging",
           },
           {
-            slug: "/debugging-guides",
-            title: "Debugging guides",
+            slug: "/analytics-and-observability",
+            title: "Analytics + observability",
           },
         ],
       },
