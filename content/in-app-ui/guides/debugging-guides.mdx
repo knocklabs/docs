@@ -44,7 +44,7 @@ With live preview, you can:
 4. Enter the URL of the page in your application where you will preview the guide.
 5. Click "Open preview" to see your guide rendered in your application.
 
-Live preview integrates seamlessly with your existing `KnockGuideProvider` setup and doesn't require additional code changes to your application.
+Live preview integrates seamlessly with your existing [`KnockGuideProvider`](/in-app-ui/guides/render-guides) setup and doesn't require additional code changes to your application.
 
 <Callout
   emoji="💡"
@@ -55,7 +55,7 @@ Live preview integrates seamlessly with your existing `KnockGuideProvider` setup
 
 ### Dashboard preview
 
-You can preview guides directly in the Knock dashboard using the preview pane, which is powered by your message type's template preview:
+You can preview guides directly in the Knock dashboard using the preview pane, which is powered by your message type's [template preview](/in-app-ui/react/sdk/components/knock-guide-provider):
 
 1. Navigate to your guide in the dashboard and open the guide editor.
 2. Use the preview pane on the right side to see how your guide content will render.
@@ -66,16 +66,19 @@ You can preview guides directly in the Knock dashboard using the preview pane, w
   emoji="⚠️"
   bgColor="yellow"
   title="Keep template code aligned."
-  text="Ensure your message type's template preview code matches your application code to avoid unexpected visual differences when the guide renders in your actual application. We recommend using live preview to ensure your actual code renders your guide schema as expected."
+  text="To ensure consistency between the dashboard's template preview and the guide component in your application, keep your message type's template preview code aligned with your component code. We recommend using live preview to ensure your actual code renders your guide schema as expected."
 />
 
 ### Testing best practices
 
-- **Test page targeting**. Verify that guides appear on the correct pages by testing different URLs and path patterns in your activation rules.
-- **Test user targeting**. Confirm that targeting conditions work correctly by testing with users who should and shouldn't see the guide based on your eligibility criteria.
-- **Test engagement events**. Interact with your guides and verify that engagement status updates appear as expected in the dashboard (seen, interacted, archived).
-- **Test all interactions**. Click all links, buttons, and interactive elements to ensure they work as expected and navigate to the correct destinations.
-- **Use message unarchiving**. Take advantage of the "unarchive" option in the dashboard to reset guide messages, allowing you to test the same user/guide combination multiple times.
+Before launching your guides to users, test them thoroughly to ensure they work as expected. Focus on these key areas:
+
+- **Page targeting**. Verify that guides appear on the correct pages by testing different URLs and path patterns in your activation rules.
+- **User targeting**. Confirm that targeting conditions work correctly by testing with users who should and shouldn't see the guide based on your eligibility criteria.
+- **Engagement tracking events**. Interact with your guides and verify that engagement status updates appear as expected in the dashboard (seen, interacted, archived).
+- **User interactions**. Click all links, buttons, and interactive elements to ensure they work as expected and navigate to the correct destinations.
+
+While testing, take advantage of the "unarchive" option in the dashboard to reset guide messages, allowing you to test the same user/guide combination multiple times.
 
 ## Debugging guides
 
@@ -83,15 +86,15 @@ When guides aren't working as expected, use these debugging approaches to identi
 
 ### Confirm eligibility
 
-The easiest way to confirm if a user is eligible for a guide is to call the [guides API](/api-reference/users/guides) directly for that user and check if your guide appears in the response.
+The easiest way to confirm if a user is eligible for a guide is to call the [Guides API](/api-reference/users/guides) directly for that user and check if your guide appears in the response.
 
 If your guide is missing from the response:
 
 - **Confirm the guide is activated**. Verify the guide is committed and active in the environment you're testing.
 - **Check if the guide is archived**. Verify the guide hasn't been archived for that user by checking the message status in the dashboard.
-- **Review targeting conditions**. Check that user properties match your targeting rules.
-- **Verify audience membership**. Ensure the user belongs to any required audiences.
-- **Check activation rules**. Confirm the current page matches your path-based activation rules.
+- **Review targeting conditions**. Check that user properties match your [targeting rules](/in-app-ui/guides/create-guides#targeting).
+- **Verify audience membership**. Ensure the user belongs to any required [audiences](/concepts/audiences).
+- **Check activation rules**. Confirm the current page matches your path-based [activation rules](/in-app-ui/guides/create-guides#activation).
 - **Validate data types**. Ensure string vs. number comparisons in conditions are correct.
 - **Test runtime data**. Verify any data passed to the guides API matches your targeting conditions.
 
@@ -104,19 +107,21 @@ If you've confirmed user eligibility for the guide, you may need to debug an iss
 - Your implementation is attempting to reference an incorrect part of the guides response.
 - The `key` or `type` filter is set incorrectly.
 - The fetched guide is not being rendered correctly by your component.
-- The message type schema for the guide is formatted differently than expected.
+- The [message type](/in-app-ui/message-types) schema for the guide is formatted differently than expected.
 - Guide websocket is not established and realtime updates are unavailable.
 
 ### Engagement tracking
 
-The expected results of engagment status updates will may vary. While Knock's pre-built guide components provide out-of-the-box engagement tracking, your team will own the UI of other guide components completely. This includes decisions about and the implementation of engagement status updates.
+The expected results of engagment status updates may vary based on your own implementation decisions. While Knock's pre-built guide components provide out-of-the-box engagement tracking, your team will own the UI of other guide components completely. This includes making decisions about and implementing [engagement tracking](/in-app-ui/guides/handling-engagement#tracking-guide-engagement).
 
 **Common engagement tracking issues:**
 
 - Engagement status updates have not been implemented for the component.
-- Engagement status requests fail because required parameters are missing or incorrect (see [guides API](/api-reference/users/guides/mark_message_as_seen)):
+- Engagement status requests fail because required parameters are missing or incorrect:
   - `channel_id` (string, required): The unique identifier for the channel.
   - `guide_id` (string, required): The unique identifier for the guide.
   - `guide_key` (string, required): The key of the guide.
   - `guide_step_ref` (string, required): The step reference of the guide.
-- Engagement status requests fail because the `guide_id` is used in the endpoint instead of `message_id` (see [guides API](/api-reference/users/guides/mark_message_as_seen)).
+- Engagement status requests fail because the `guide_id` is used in the endpoint instead of `message_id`.
+
+[API reference ->](/api-reference/users/guides/mark_message_as_seen)
