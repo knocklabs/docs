@@ -490,11 +490,16 @@ const Autocomplete = () => {
     inputElement: inputRef.current,
   });
 
+  const originalOnSubmit = (formProps as FormProps).onSubmit;
+
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     if (autocompleteState?.query && !hasResults) {
       e.preventDefault();
       handleOpenAiChat(autocompleteState.query);
       return;
+    }
+    if (originalOnSubmit) {
+      originalOnSubmit(e);
     }
   };
 
