@@ -50,7 +50,6 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
       {
         title: "Guides",
         slug: "/guides",
-        isBeta: true,
         pages: [
           { slug: "/overview", title: "Overview" },
           {
@@ -93,7 +92,6 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
             title: "Schema reference",
           },
         ],
-        isBeta: true,
       },
     ],
     sidebarMenuDefaultOpen: true,
