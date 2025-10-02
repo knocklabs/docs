@@ -412,16 +412,13 @@ const Autocomplete = () => {
         },
         navigator: {
           navigate({ itemUrl, item, state }) {
-            // Check if this is our Ask AI item
             if ((item as any).__isAskAiItem) {
               handleOpenAiChat(state.query);
               return;
             }
 
-            // Handle regular navigation
             router.push(`/${itemUrl}`);
 
-            // Clear the query when navigating
             if (state.query) {
               autocomplete.setQuery("");
             }
@@ -484,9 +481,22 @@ const Autocomplete = () => {
     onReset: (e: React.FormEvent<HTMLFormElement>) => void;
   };
 
+  const hasResults =
+    autocompleteState?.collections?.some(
+      (collection) => collection.items.length > 1,
+    ) ?? false;
+
   const formProps: unknown = autocomplete.getFormProps({
     inputElement: inputRef.current,
   });
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (autocompleteState?.query && !hasResults) {
+      handleOpenAiChat(autocompleteState.query);
+      return;
+    }
+  };
 
   const inputProps: unknown = autocomplete.getInputProps({
     inputElement: inputRef.current,
@@ -495,7 +505,12 @@ const Autocomplete = () => {
 
   return (
     <Box {...autocomplete.getRootProps()} w="full" tgphRef={rootRef}>
-      <Box as="form" className="aa-Form" {...(formProps as FormProps)}>
+      <Box
+        as="form"
+        className="aa-Form"
+        {...(formProps as FormProps)}
+        onSubmit={handleFormSubmit}
+      >
         <Input
           tgphRef={inputRef}
           placeholder="Search the docs.."
