@@ -499,10 +499,24 @@ const Autocomplete = () => {
     },
   };
 
-  const inputProps: unknown = autocomplete.getInputProps({
+  const defaultInputProps = autocomplete.getInputProps({
     inputElement: inputRef.current,
     placeholder: "Search the docs...",
   });
+
+  const inputProps = {
+    ...defaultInputProps,
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && autocompleteState?.query && !hasResults) {
+        e.preventDefault();
+        handleOpenAiChat(autocompleteState.query);
+        return;
+      }
+      if ((defaultInputProps as any).onKeyDown) {
+        (defaultInputProps as any).onKeyDown(e);
+      }
+    },
+  };
 
   return (
     <Box {...autocomplete.getRootProps()} w="full" tgphRef={rootRef}>
@@ -511,10 +525,7 @@ const Autocomplete = () => {
           tgphRef={inputRef}
           placeholder="Search the docs.."
           className="aa-Input"
-          {...(inputProps as React.DetailedHTMLProps<
-            React.InputHTMLAttributes<HTMLInputElement>,
-            HTMLInputElement
-          >)}
+          {...(inputProps as any)}
           size="2"
           w="full"
           LeadingComponent={
