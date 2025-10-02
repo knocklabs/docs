@@ -122,7 +122,7 @@ const StaticSearch = () => {
 };
 
 const handleSearchNavigation = (
-  e: React.MouseEvent<HTMLAnchorElement>,
+  e: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent<HTMLFormElement>,
   router,
   itemUrl,
   onSearch: () => void,
@@ -484,6 +484,30 @@ const Autocomplete = () => {
     onReset: (e: React.FormEvent<HTMLFormElement>) => void;
   };
 
+  const hasResults =
+    autocompleteState?.collections?.some(
+      (collection) => collection.items.length > 1,
+    ) ?? false;
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+      // Open the AI chat
+      if (autocompleteState?.query && !hasResults) {
+        handleOpenAiChat(autocompleteState.query);
+        return;
+      } else {
+        // Navigate to the first item that is not the "Ask AI" item
+        const firstItem = autocompleteState?.collections[0]?.items[1];
+        if (firstItem) {
+          handleSearchNavigation(e, router, firstItem?.path, () => {});
+        }
+        return;
+      }
+    }
+  };
+
   const formProps: unknown = autocomplete.getFormProps({
     inputElement: inputRef.current,
   });
@@ -495,7 +519,12 @@ const Autocomplete = () => {
 
   return (
     <Box {...autocomplete.getRootProps()} w="full" tgphRef={rootRef}>
-      <Box as="form" className="aa-Form" {...(formProps as FormProps)}>
+      <Box
+        as="form"
+        className="aa-Form"
+        onKeyDown={handleKeyDown}
+        {...(formProps as FormProps)}
+      >
         <Input
           tgphRef={inputRef}
           placeholder="Search the docs.."
