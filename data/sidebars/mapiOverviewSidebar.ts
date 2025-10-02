@@ -13,6 +13,7 @@ export const RESOURCE_ORDER = [
   "message_types",
   "guides",
   "api_keys",
+  "$shared",
 ];
 
 export const MAPI_REFERENCE_OVERVIEW_CONTENT: SidebarSection[] = [

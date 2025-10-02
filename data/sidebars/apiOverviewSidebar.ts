@@ -12,7 +12,7 @@ export const RESOURCE_ORDER = [
   "audiences",
   "bulk_operations",
   "providers",
-  "shared",
+  "$shared",
 ];
 
 export const API_REFERENCE_OVERVIEW_CONTENT: SidebarSection[] = [
