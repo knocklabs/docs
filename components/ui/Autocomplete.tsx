@@ -122,7 +122,7 @@ const StaticSearch = () => {
 };
 
 const handleSearchNavigation = (
-  e: React.MouseEvent<HTMLAnchorElement>,
+  e: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent<HTMLFormElement>,
   router,
   itemUrl,
   onSearch: () => void,
@@ -412,13 +412,16 @@ const Autocomplete = () => {
         },
         navigator: {
           navigate({ itemUrl, item, state }) {
+            // Check if this is our Ask AI item
             if ((item as any).__isAskAiItem) {
               handleOpenAiChat(state.query);
               return;
             }
 
+            // Handle regular navigation
             router.push(`/${itemUrl}`);
 
+            // Clear the query when navigating
             if (state.query) {
               autocomplete.setQuery("");
             }
@@ -486,22 +489,28 @@ const Autocomplete = () => {
       (collection) => collection.items.length > 1,
     ) ?? false;
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+      // Open the AI chat
+      if (autocompleteState?.query && !hasResults) {
+        handleOpenAiChat(autocompleteState.query);
+        return;
+      } else {
+        // Navigate to the first item that is not the "Ask AI" item
+        const firstItem = autocompleteState?.collections[0]?.items[1];
+        if (firstItem) {
+          handleSearchNavigation(e, router, firstItem?.path, () => {});
+        }
+        return;
+      }
+    }
+  };
+
   const formProps: unknown = autocomplete.getFormProps({
     inputElement: inputRef.current,
   });
-
-  const originalOnSubmit = (formProps as FormProps).onSubmit;
-
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (autocompleteState?.query && !hasResults) {
-      e.preventDefault();
-      handleOpenAiChat(autocompleteState.query);
-      return;
-    }
-    if (originalOnSubmit) {
-      originalOnSubmit(e);
-    }
-  };
 
   const inputProps: unknown = autocomplete.getInputProps({
     inputElement: inputRef.current,
@@ -513,8 +522,8 @@ const Autocomplete = () => {
       <Box
         as="form"
         className="aa-Form"
+        onKeyDown={handleKeyDown}
         {...(formProps as FormProps)}
-        onSubmit={handleFormSubmit}
       >
         <Input
           tgphRef={inputRef}
