@@ -476,17 +476,28 @@ const Autocomplete = () => {
     return <StaticSearch />;
   }
 
-  type FormProps = {
-    action: string;
-    noValidate: boolean;
-    role: string;
-    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-    onReset: (e: React.FormEvent<HTMLFormElement>) => void;
-  };
+  const hasResults =
+    autocompleteState?.collections?.some(
+      (collection) => collection.items.length > 1,
+    ) ?? false;
 
-  const formProps: unknown = autocomplete.getFormProps({
+  const defaultFormProps = autocomplete.getFormProps({
     inputElement: inputRef.current,
   });
+
+  const formProps = {
+    ...defaultFormProps,
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (autocompleteState?.query && !hasResults) {
+        handleOpenAiChat(autocompleteState.query);
+        return;
+      }
+      if (defaultFormProps.onSubmit) {
+        defaultFormProps.onSubmit(e.nativeEvent);
+      }
+    },
+  };
 
   const inputProps: unknown = autocomplete.getInputProps({
     inputElement: inputRef.current,
@@ -495,7 +506,7 @@ const Autocomplete = () => {
 
   return (
     <Box {...autocomplete.getRootProps()} w="full" tgphRef={rootRef}>
-      <Box as="form" className="aa-Form" {...(formProps as FormProps)}>
+      <Box as="form" className="aa-Form" {...(formProps as any)}>
         <Input
           tgphRef={inputRef}
           placeholder="Search the docs.."
