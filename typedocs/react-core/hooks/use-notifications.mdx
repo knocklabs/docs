@@ -1,0 +1,89 @@
+The `useNotifications` hook is used to fetch and manage notifications for a user's feed. This hook provides notifications data along with loading states and pagination capabilities.
+
+## Parameters
+
+Accepts an object (`UseNotificationsParams`) with the following properties:
+
+<Attributes>
+  <Attribute
+    name="feedId"
+    type="string"
+    description="The ID of the feed to fetch notifications for"
+    isRequired
+  />
+  <Attribute
+    name="options"
+    type="FeedClientOptions"
+    description="Optional configuration for the feed client"
+  />
+</Attributes>
+
+## Returns
+
+A `UseNotificationsReturn` object with the following properties:
+
+<Attributes>
+  <Attribute
+    name="items"
+    type="KnockFeedItem[]"
+    description="Array of notification items"
+  />
+  <Attribute
+    name="metadata"
+    type="FeedMetadata"
+    description="Metadata about the feed including counts and pagination"
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="Whether notifications are being loaded"
+  />
+  <Attribute
+    name="error"
+    type="Error | null"
+    description="Error object if the request failed"
+  />
+  <Attribute
+    name="refresh"
+    type="() => void"
+    description="Function to refresh the notifications feed"
+  />
+</Attributes>
+
+## Example
+
+### Basic usage
+
+The following example demonstrates how to use the `useNotifications` hook to display notifications.
+
+```tsx
+import { useNotifications } from "@knocklabs/react";
+
+const MyComponent = () => {
+  const { items, metadata, isLoading, error, refresh } = useNotifications({
+    feedId: "default",
+  });
+
+  if (isLoading) return <div>Loading notifications...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      <div className="header">
+        <h2>Notifications ({metadata.unread_count} unread)</h2>
+        <button onClick={refresh}>Refresh</button>
+      </div>
+      <ul>
+        {items.map((notification) => (
+          <li
+            key={notification.id}
+            className={notification.read_at ? "read" : "unread"}
+          >
+            {notification.blocks?.[0]?.rendered}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+```

@@ -368,28 +368,38 @@ components:
           x-struct: null
           x-validate: null
         headers:
-          description: A list of key-value pairs for the request headers. Each object should contain key and value fields with string values.
-          items:
-            properties:
-              key:
-                description: The key of the header.
-                example: X-API-Key
-                type: string
+          description: The headers of the request. Can be a template string or a list of key-value pairs.
+          oneOf:
+            - description: A template string that should resolve to a JSON object representing the headers.
+              example: '{{ data.request_headers }}'
+              type: string
+              x-struct: null
+              x-validate: null
+            - description: A list of key-value pairs for the request headers. Each object should contain key and value fields with string values.
+              items:
+                properties:
+                  key:
+                    description: The key of the header.
+                    example: X-API-Key
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  value:
+                    description: The value of the header.
+                    example: "1234567890"
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - key
+                  - value
+                type: object
                 x-struct: null
                 x-validate: null
-              value:
-                description: The value of the header.
-                example: "1234567890"
-                type: string
-                x-struct: null
-                x-validate: null
-            required:
-              - key
-              - value
-            type: object
-            x-struct: null
-            x-validate: null
-          type: array
+              type: array
+              x-struct: null
+              x-validate: null
+          type: object
           x-struct: null
           x-validate: null
         method:
@@ -405,28 +415,38 @@ components:
           x-struct: null
           x-validate: null
         query_params:
-          description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
-          items:
-            properties:
-              key:
-                description: The key of the query param.
-                example: key
-                type: string
+          description: The query params of the request. Can be a template string or a list of key-value pairs.
+          oneOf:
+            - description: A template string that should resolve to a JSON object representing the query params.
+              example: '{{ data.request_query_params }}'
+              type: string
+              x-struct: null
+              x-validate: null
+            - description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
+              items:
+                properties:
+                  key:
+                    description: The key of the query param.
+                    example: key
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  value:
+                    description: The value of the query param.
+                    example: value
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - key
+                  - value
+                type: object
                 x-struct: null
                 x-validate: null
-              value:
-                description: The value of the query param.
-                example: value
-                type: string
-                x-struct: null
-                x-validate: null
-            required:
-              - key
-              - value
-            type: object
-            x-struct: null
-            x-validate: null
-          type: array
+              type: array
+              x-struct: null
+              x-validate: null
+          type: object
           x-struct: null
           x-validate: null
         url:
@@ -846,7 +866,7 @@ components:
     Commit:
       description: A commit is a change to a resource within an environment, made by an author.
       example:
-        commit_author:
+        author:
           email: john.doe@example.com
           name: John Doe
         commit_message: This is a commit message
@@ -856,9 +876,8 @@ components:
         resource:
           identifier: my-email-layout
           type: email_layout
-        updated_at: "2021-01-01T00:00:00Z"
       properties:
-        commit_author:
+        author:
           description: The author of the commit.
           example:
             email: john.doe@example.com
@@ -936,20 +955,12 @@ components:
           type: object
           x-struct: null
           x-validate: null
-        updated_at:
-          description: The timestamp of when the commit was last updated.
-          format: date-time
-          type: string
-          x-struct: null
-          x-validate: null
       required:
         - id
         - resource
-        - commit_author
+        - author
         - environment
-        - commit_message
         - created_at
-        - updated_at
       title: Commit
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Commit
@@ -2830,7 +2841,7 @@ components:
       description: Wraps the Commit response under the `commit` key.
       example:
         commit:
-          commit_author:
+          author:
             email: john.doe@example.com
             name: John Doe
           commit_message: This is a commit message
@@ -2840,7 +2851,6 @@ components:
           resource:
             identifier: my-email-layout
             type: email_layout
-          updated_at: "2021-01-01T00:00:00Z"
       properties:
         commit:
           $ref: '#/components/schemas/Commit'
@@ -3329,7 +3339,7 @@ components:
       description: A paginated list of Commit. Contains a list of entries and page information.
       example:
         entries:
-          - commit_author:
+          - author:
               email: john.doe@example.com
               name: John Doe
             commit_message: This is a commit message
@@ -3339,7 +3349,6 @@ components:
             resource:
               identifier: my-email-layout
               type: email_layout
-            updated_at: "2021-01-01T00:00:00Z"
         page_info:
           after: null
           before: null
@@ -9820,7 +9829,7 @@ paths:
                 description: Wraps the Commit response under the `commit` key.
                 example:
                   commit:
-                    commit_author:
+                    author:
                       email: john.doe@example.com
                       name: John Doe
                     commit_message: This is a commit message
@@ -9830,7 +9839,6 @@ paths:
                     resource:
                       identifier: my-email-layout
                       type: email_layout
-                    updated_at: "2021-01-01T00:00:00Z"
                 properties:
                   commit:
                     $ref: '#/components/schemas/Commit'
@@ -10651,7 +10659,7 @@ paths:
                 description: A paginated list of Commit. Contains a list of entries and page information.
                 example:
                   entries:
-                    - commit_author:
+                    - author:
                         email: john.doe@example.com
                         name: John Doe
                       commit_message: This is a commit message
@@ -10661,7 +10669,6 @@ paths:
                       resource:
                         identifier: my-email-layout
                         type: email_layout
-                      updated_at: "2021-01-01T00:00:00Z"
                   page_info:
                     after: null
                     before: null

@@ -1,0 +1,152 @@
+Client for interacting with object channel data operations in the Knock API.
+
+## Constructor
+
+Initializes a new object client instance.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="instance"
+    type="Knock"
+    description="The Knock client instance to use for API requests."
+  />
+</Attributes>
+
+**Returns**: `ObjectClient`
+
+## Methods
+
+### `getChannelData`
+
+Retrieves channel data for a specific object in a collection.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="objectId"
+    type="string"
+    description="The unique identifier of the object."
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The collection that contains the object."
+  />
+  <Attribute
+    name="channelId"
+    type="string"
+    description="The channel ID to retrieve data for."
+  />
+</Attributes>
+
+**Returns**: `Promise<ChannelData<T>>`
+
+**Type Parameters**:
+
+<Attributes>
+  <Attribute
+    name="T"
+    type="GenericData"
+    description="The expected shape of the channel data. Defaults to GenericData."
+  />
+</Attributes>
+
+**Example**:
+
+```javascript title="Getting object channel data"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+// Get channel data for an object
+const channelData = await knock.objects.getChannelData({
+  objectId: "project-123",
+  collection: "projects",
+  channelId: "slack-channel-id",
+});
+
+// Get channel data with typed response
+interface SlackChannelData {
+  channel: string;
+  webhook_url: string;
+}
+
+const typedChannelData =
+  (await knock.objects.getChannelData) <
+  SlackChannelData >
+  {
+    objectId: "project-123",
+    collection: "projects",
+    channelId: "slack-channel-id",
+  };
+```
+
+### `setChannelData`
+
+Sets or updates channel data for a specific object in a collection.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="objectId"
+    type="string"
+    description="The unique identifier of the object."
+  />
+  <Attribute
+    name="collection"
+    type="string"
+    description="The collection that contains the object."
+  />
+  <Attribute
+    name="channelId"
+    type="string"
+    description="The channel ID to set data for."
+  />
+  <Attribute
+    name="data"
+    type="GenericData"
+    description="The channel data to store for the object."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Setting object channel data"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+// Set Slack channel data for a project
+const result = await knock.objects.setChannelData({
+  objectId: "project-123",
+  collection: "projects",
+  channelId: "slack-channel-id",
+  data: {
+    channel: "#project-notifications",
+    webhook_url: "https://hooks.slack.com/services/...",
+    notify_on_updates: true,
+  },
+});
+
+// Set email channel data for a user
+const emailResult = await knock.objects.setChannelData({
+  objectId: "user-456",
+  collection: "users",
+  channelId: "email-channel-id",
+  data: {
+    email: "user@example.com",
+    preferences: {
+      marketing: false,
+      notifications: true,
+    },
+  },
+});
+```

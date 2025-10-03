@@ -51,7 +51,7 @@ export const TheadElement = (props) => (
   <Box as="thead" {...props} style={{ textAlign: "left", ...props.style }} />
 );
 
-const Table = ({ headers, rows }) => (
+const Table = ({ headers, rows, codeColumns = [0], codeCells = [] }) => (
   <TableElement>
     <TheadElement>
       <tr>
@@ -63,15 +63,21 @@ const Table = ({ headers, rows }) => (
     <tbody>
       {rows.map((row, i) => (
         <tr key={i}>
-          {row.map((column, idx) =>
-            idx === 0 ? (
+          {row.map((column, idx) => {
+            const shouldFormatAsCode =
+              codeColumns.includes(idx) ||
+              codeCells.some(
+                ([rowIdx, colIdx]) => rowIdx === i && colIdx === idx,
+              );
+
+            return shouldFormatAsCode ? (
               <TdElement key={idx}>
                 <code>{column}</code>
               </TdElement>
             ) : (
               <TdElement key={idx}>{column}</TdElement>
-            ),
-          )}
+            );
+          })}
         </tr>
       ))}
     </tbody>

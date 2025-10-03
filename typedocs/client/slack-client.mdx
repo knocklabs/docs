@@ -1,0 +1,156 @@
+Client for interacting with Slack integration operations in the Knock API.
+
+## Constructor
+
+Initializes a new Slack client instance.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="instance"
+    type="Knock"
+    description="The Knock client instance to use for API requests."
+  />
+</Attributes>
+
+**Returns**: `SlackClient`
+
+## Methods
+
+### `authCheck`
+
+Checks the authentication status for a Slack channel integration.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="tenant"
+    type="string"
+    description="The tenant identifier to check authentication for."
+  />
+  <Attribute
+    name="knockChannelId"
+    type="string"
+    description="The Knock channel ID for the Slack integration."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Checking Slack authentication"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const authStatus = await knock.slack.authCheck({
+  tenant: "tenant-123",
+  knockChannelId: "slack-channel-id",
+});
+```
+
+### `getChannels`
+
+Retrieves available Slack channels for the authenticated integration.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="knockChannelId"
+    type="string"
+    description="The Knock channel ID for the Slack integration."
+  />
+  <Attribute name="tenant" type="string" description="The tenant identifier." />
+  <Attribute
+    name="queryOptions"
+    type="SlackChannelQueryOptions"
+    description="Optional query parameters for filtering and pagination."
+  />
+</Attributes>
+
+**Query Options**:
+
+<Attributes>
+  <Attribute
+    name="cursor"
+    type="string"
+    description="Pagination cursor for retrieving the next set of results."
+  />
+  <Attribute
+    name="limit"
+    type="number"
+    description="Maximum number of channels to return."
+  />
+  <Attribute
+    name="excludeArchived"
+    type="boolean"
+    description="Whether to exclude archived channels from the results."
+  />
+  <Attribute
+    name="teamId"
+    type="string"
+    description="Slack team ID to filter channels by."
+  />
+  <Attribute
+    name="types"
+    type="string[]"
+    description="Array of channel types to include (e.g., ['public_channel', 'private_channel'])."
+  />
+</Attributes>
+
+**Returns**: `Promise<GetSlackChannelsResponse>`
+
+**Example**:
+
+```javascript title="Getting Slack channels"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const channels = await knock.slack.getChannels({
+  knockChannelId: "slack-channel-id",
+  tenant: "tenant-123",
+  queryOptions: {
+    limit: 50,
+    excludeArchived: true,
+    types: ["public_channel", "private_channel"],
+  },
+});
+```
+
+### `revokeAccessToken`
+
+Revokes the access token for a Slack integration, effectively disconnecting it.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute name="tenant" type="string" description="The tenant identifier." />
+  <Attribute
+    name="knockChannelId"
+    type="string"
+    description="The Knock channel ID for the Slack integration to revoke access for."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Revoking Slack access token"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const result = await knock.slack.revokeAccessToken({
+  tenant: "tenant-123",
+  knockChannelId: "slack-channel-id",
+});
+```
