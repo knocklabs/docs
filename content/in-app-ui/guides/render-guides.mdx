@@ -5,159 +5,24 @@ tags: ["guides", "rendering", "lifecycle", "marketing", "tours"]
 section: Building in-app UI > Guides
 ---
 
-In this document you'll learn how to render guides in your product using the [guides API](/api-reference/users/guides/).
+Once you've [created a guide](/in-app-ui/guides/create-guides), you'll need to render it in your product. In this document you'll learn how to render guides in your product using the [guides API](/api-reference/users/guides/).
 
-## Getting started
+In addition to the [guides API](/api-reference/users/guides/), Knock exposes a set of client SDKs that you can use to render guides in your product. These SDKs provide helpers and logic which make it easier to work with guides in your product.
 
-<Callout
-  emoji="🚨"
-  text={
-    <>
-      <span className="font-bold">Note:</span> You must be on @knocklabs/react
-      version 0.7.31 or higher in order to use our new Guides related features.
-      Older SDK versions do not have this capability.
-    </>
-  }
-/>
+## Available client-side SDKs
 
-<Steps titleSize="h3">
-  <Step title="Setup the KnockGuideProvider within your product.">
+- [React SDK](/in-app-ui/react/sdk/overview). Provides pre-built UI components, and a set of hooks for building your own custom UI components.
+- [React Native SDK](/in-app-ui/react-native/sdk/overview). Provides hooks for building your own custom UI components.
+- [JS SDK](/in-app-ui/javascript/sdk/overview). Provides the low-level API bindings and state management for building your own custom UI components.
 
-    You'll need to ensure the guide provider is a child component of the `KnockProvider`. You can find the `channelId` for your guide on the guide details page in the dashboard.
-
-    ```tsx title="Setup the KnockGuideProvider within your product."
-    import { KnockProvider, KnockGuideProvider } from "@knocklabs/react";
-    import { useCurrentUser } from "@/lib/hooks";
-
-    const MyApplication = () => {
-      // Get your authenticated current user
-      const currentUser = useCurrentUser();
-
-      return (
-        <KnockProvider
-          apiKey={process.env.NEXT_PUBLIC_KNOCK_API_KEY}
-          user={{ id: currentUser.id }}
-        >
-          <KnockGuideProvider
-            channelId={process.env.NEXT_PUBLIC_KNOCK_GUIDE_CHANNEL_ID}
-            // A boolean property that controls when guides are ready to be shown
-            // use when you are working with async data
-            readyToTarget
-            // When set to true (default), starts a websocket
-            listenForUpdates
-            targetParams={
-              {
-                // an optional set of data to pass
-                // data: { foo: "bar" },
-                // tenant: workspace.id,
-              }
-            }
-          >
-            <Header />
-            <Sidebar />
-            {/* Rest of your app */}
-          </KnockGuideProvider>
-        </KnockProvider>
-      );
-    };
-    ```
-
-  </Step>
-  <Step title="Build a component to render your guide.">
-    ```tsx
-    import { useEffect } from "react";
-    import { useGuide } from "@knocklabs/react";
-
-    const ChangelogCard = () => {
-      const { step } = useGuide({ type: "changelog-card" });
-
-      useEffect(() => {
-        if (step) step.markAsSeen();
-      }, [step]);
-
-      if (!step) return null;
-
-      return (
-        <div onClick={() => step.markAsInteracted()}>
-          <h3>{step.content.title}</h3>
-          <p>{step.content.body}</p>
-        </div>
-      );
-    };
-    export ChangelogCard;
-    ```
-
-  </Step>
-  <Step title="Mount your component under the KnockGuideProvider.">
-    Once mounted in your application tree, if your user becomes eligible for the guide, then the component will be rendered and displayed to your users.
-
-    ```tsx
-    import { ChangelogCard } from "@/components/ChangelogCard";
-
-    const Sidebar = () => {
-      return (
-        <div>
-          {/* Rest of my sidebar */}
-          <ChangelogCard />
-        </div>
-      );
-    };
-    ```
-
-  </Step>
-</Steps>
+We'll soon be adding support for more of our client SDKs. Please reach out to our team at [support@knock.app](mailto:support@knock.app?subject=Guides%20SDK%20support) if there's a specific SDK that's preventing you from adopting guides.
 
 ## Working with fetched guides
 
-Knock exposes a `useGuide` hook, which accepts either a `type` (corresponding to a message type _key_) or a `key` (a specific _guide_ _key_) to select a guide from the fetched set of guides.
+The Knock client SDKs manage fetching and accessing guides from the Knock API. They provide methods for accessing the fetched guides and their steps. You can fetch guides either by a `type` (corresponding to a message type _key_) or a `key` (a specific _guide_ _key_) to select a guide from the fetched set of guides.
 
 Here's how to think about when to use both of these:
 
 - `key`: If you want your component to only ever render a specific instance of a guide, like when building an embedded UI, then use the `key` selector.
 - `type`: If you want to render **any guide** that uses this message type, like when building a generic "Banner" component that could be used multiple times across many guides, but only ever shows a single banner at a time, then use the `type` selector.
 - When multiple guides exist for a single `type`, by default we return the earliest created guides first then the most recently created guide last. Alternatively, you can control this behavior and manually configure the relative priority of guides by [ordering guides](/in-app-ui/guides/order-guides) in the Knock dashboard.
-
-Knock also exposes a `useGuides` hook that returns an array of guides matching provided filter criteria. Use the `useGuides` hook when you want to select and render multiple guides of a single type at the same time. The `useGuides` hook will return guides in the same order as the `useGuide` hook, whether by the default order or the manually configured order. Each guide in a returned guides array has a `getStep` helper method that will return its step with the message content.
-
-```tsx
-import { useGuides } from "@knocklabs/react";
-
-const ChangelogCards = () => {
-  const { guides } = useGuides({ type: "changelog-card" });
-
-  return (
-    <>
-      {guides.map((guide) => (
-        <ChangelogCard guide={guide} step={guide.getStep()} />
-      ))}
-    </>
-  );
-};
-```
-
-## Handling engagement tracking
-
-Each guide step exposes methods to work with engagement tracking:
-
-- `step.markAsSeen`: mark that the user has seen the guide, but not yet interacted with it.
-- `step.markAsInteracted`: mark the step as interacted with, optionally passing metadata about the interaction
-- `step.markAsArchived`: mark the step as archived, making it no longer visible for the user.
-
-If you need to understand the current status of the guide step, you can access the state under `step.message` which will expose a `StepMessageState` including:
-
-- `seen_at`: when the message was last seen (timestamp or null)
-- `read_at`: when the message was last read (timestamp or null)
-- `interacted_at`: when the message was last interacted
-- `archived_at`: when the message was last archived
-
-## Advanced: working with the `GuideClient`
-
-In certain cases, you may need to drop down to operate on the guide client, which is the state management layer automatically created when you mount a `GuideProvider`.
-
-You can always access the guide client by using the `useGuideContext` hook:
-
-```tsx
-const { client: guideClient } = useGuideContext();
-```
-
-One use case for accessing the guide client is to force a refetch of the users eligible guides, which you can do through the `guideClient.fetch()` method.
