@@ -132,7 +132,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
               Integrations
             </Tabs.Tab>
             <Tabs.Tab value="in-app-ui" as={Link} href="/in-app-ui">
-              Building in-app UI
+              In-app UI
             </Tabs.Tab>
             <Tabs.Tab value="api-reference" as={Link} href="/api-reference">
               API reference

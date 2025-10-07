@@ -28,7 +28,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/workflows", title: "Workflows" },
       { slug: "/broadcasts", title: "Broadcasts" },
-      { slug: "/guides", title: "Guides", isBeta: true },
+      { slug: "/guides", title: "Guides" },
       { slug: "/channels", title: "Channels" },
       { slug: "/commits", title: "Commits" },
       { slug: "/environments", title: "Environments" },
