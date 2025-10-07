@@ -111,12 +111,6 @@ While not required reading, you may want to familiarize yourself with the follow
 - Referencing [variables](/designing-workflows/template-editor/variables) and [your Knock data](/designing-workflows/template-editor/referencing-data) in templates
 - [Knock liquid helpers](/designing-workflows/template-editor/reference-liquid-helpers)
 
-## Migration steps
-
-Now that you have everything you need for your migration, you're ready to get started!
-
-Each step below contains a prompt that you can provide to your LLM. These prompts are designed to be run one at a time in order to provide the LLM with discrete tasks, thus improving the accuracy of the output.
-
 <Callout
   emoji="🚨"
   bgColor="red"
@@ -155,14 +149,30 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
           your context window if you notice that you are approaching the context
           window limit for the current session.
         </li>
+        <li>
+          As always, remember that working with LLMs is non-deterministic. In
+          our testing, we've found that the following prompts can get you very
+          close to a pixel-perfect migration for most use cases, but the testing
+          step is crucial to be sure that your migrated templates look the way
+          you want them to. Small adjustments are easy to do via prompt with the
+          MCP server.
+        </li>
       </ul>
     </>
   }
 />
 
+## Migration steps
+
+Now that you have everything you need for your migration, you're ready to get started!
+
+Each step below contains a prompt that you can provide to your LLM. These prompts are designed to be run one at a time in order to provide the LLM with discrete tasks, thus improving the accuracy of the output.
+
 <Steps titleSize="h3">
   <Step title="Analyze your existing email templates">
     Before creating any resources in Knock, you'll need to analyze your existing email templates to extract layouts and shared components. Copy the prompt below and provide it to your LLM along with access to your template files. We recommend limiting your prompt to 5-10 template files at a time to avoid exceeding the context window limit.
+
+    Repeat this prompt as many times as necessary until you've analyzed all of your templates.
 
     **Prompt:**
 
@@ -185,6 +195,7 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
 
     3. **Extract template-specific content**:
       - Extract the exact HTML content (including any inline styles) of the template's remaining content and add it to a "templates.md" file in the root of the project, noting which template uses this content. If any partials were identified in step 2, reference them with Knock's Liquid syntax (i.e. {% render 'partial-key' %}) in the extracted content rather than copying the partial's HTML content directly.
+      - Replace any dynamic variables with Liquid syntax. You can use Knock-specific Liquid helpers if needed.
       - Document the email subject line
       - Note the key of the layout it should use (from step 1)
       - List which partials it references (from step 2)
@@ -229,7 +240,7 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
     ```markdown title="LLM prompt to create email layouts"
     Using the Knock MCP server, I need to create the email layouts identified in my "layouts.md" file. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
 
-    First, check if the analysis identified a single layout that is used more often than others. If so:
+    First, check if the analysis identified a single default layout that is used more often than others. If so:
     1. Update the existing "default" layout in Knock with that HTML structure, replacing the template-specific content area with {{ content }}
     2. Convert any dynamic variables to Liquid syntax
     3. Preserve all original styles from the analysis
@@ -266,7 +277,7 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
       - Any partials that were identified for this template in the analysis, referencing them with correct keys
       - The exact template-specific HTML content from the analysis report
     5. Ensure no styling is added beyond what was in the original template
-    6. Preserve all HTML structure exactly as documented in the analysis
+    6. IMPORTANT: Preserve all HTML structure exactly as documented in the analysis; do not reference the original template files.
 
     After creating each workflow, provide:
     - The workflow key used
@@ -276,10 +287,10 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
     ```
 
   </Step>
-  <Step title="Summarize the migration and generate test data">
-    After creating all resources, you need to verify that the migration was successful and the templates render correctly. We'll ask our LLM to provide a summary report of the migration and to generate appropriate test data for each workflow.
+  <Step title="Summarize the successful migration">
+    After creating all resources, you need to verify that the migration was successful. We'll ask our LLM to provide a summary report of the migration to ensure that nothing was missed.
 
-    Provide the prompt below to your LLM along with access to the analysis report.
+    Provide the prompt below to your LLM along with access to the `templates.md` file.
 
     **Prompt:**
 
@@ -306,11 +317,11 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
 
   </Step>
   <Step title="Test the migrated templates">
-    Once you've summarized the migration and verified that you've created all of the resources identified, you can use the Knock MCP server to test the migrated templates. Make sure that you update the prompt to target the correct test user.
+    Once you've summarized the migration and verified that you've created all of the resources identified, you can use the Knock MCP server to test the migrated templates. Make sure that you update the prompt to target the correct test user's ID.
 
     <AccordionGroup>
       <Accordion title="Optional prompt to create a test user">
-        You can use the MCP server to create a user that you'd like to send the test emails to, if you don't already have one in your development environment. You should update the example prompt to use a real ID for the user so that you can view the test emails in your inbox.
+        You can use the MCP server to create a user that you'd like to send the test emails to, if you don't already have one in your development environment. You should update the example prompt to use a real email address andID for the user so that you can view the test emails in your inbox.
 
         **Prompt:**
 
@@ -326,11 +337,15 @@ Each step below contains a prompt that you can provide to your LLM. These prompt
     **Prompt:**
 
     ```markdown title="LLM prompt to test your workflows"
-    Using the Knock MCP server, I need to test the workflows listed in my summary report. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+    Using the Knock MCP server, I need to test the workflows in my Knock development environment. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+
+    First, create a document for our testing process.
+
+    Next, list all of the workflows in my Knock development environment. Add them to the testing document.
 
     Please help me test the workflows one at a time. For each workflow, I want to:
 
-    1. **Generate test data**: Generate valid test data for the workflow.
+    1. **Generate test data**: Generate and documentvalid test data for the workflow using the workflow's schema.
 
     2. **Trigger the workflow**: Trigger the workflow with the Knock MCP server, using the test data provided in the summary report. The recipient should be my test user with ID "FILL IN TEST USER ID HERE".
 
