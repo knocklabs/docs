@@ -6,16 +6,9 @@ section: Integrations > Slack
 layout: integrations
 ---
 
-In this guide we'll cover how to create a self-serve Slack integration for a multi-tenant application using Knock. It assumes that you have already created a Slack app and created a Slack channel in Knock as outlined in the [Slack integration overview](/integrations/chat/slack/overview) guide.
+This page covers how to create a self-serve Slack integration for a multi-tenant application using Knock. It assumes that you have already created a Slack app and created a Slack channel in Knock as outlined in the [Slack integration overview](/integrations/chat/slack/overview).
 
 In this implementation, your application's users will connect their Slack workspace to Knock and be able to send messages to individual users via DM. To make this easier to implement, we'll use Knock's [SlackKit components](/in-app-ui/react/slack-kit) to facilitate the OAuth flow.
-
-Here's what we'll cover in this guide:
-
-- Modeling a multi-tenant application in Knock using `Tenants`
-- Implementing a Slack OAuth flow using Knock's `SlackAuthButton` component
-- Using the `access_token` stored in Knock to request a user's Slack ID
-- Triggering a workflow with a user recipient to send a message to a DM
 
 ## Key concepts
 
@@ -59,7 +52,7 @@ We've made it easy for you to tell Knock which resources your users should have 
 
 You'll need to generate a token for your user that includes access to the tenant storing the Slack access token as well as any recipient objects storing Slack channel data described in this reference on [SlackKit resource access grants](/in-app-ui/react/slack-kit#resources-access-grants).
 
-Using the below example, you can quickly generate a token with the [Node SDK](https://github.com/knocklabs/knock-node#signing-jwts).
+Using the below example, you can quickly generate a token with the <a href="https://github.com/knocklabs/knock-node#jwt-token-signing" target="_blank">Node SDK</a>.
 
 ```javascript
 import {
@@ -187,9 +180,7 @@ Once you're confident that all of your application's tenants have granted author
   <Accordion title="Enabling email-based user ID resolution on a Slack channel">
     <Steps>
       <Step title="Open your Slack channel configuration">
-        In the dashboard, navigate to the **Integrations** tab and select your
-        Slack integration. Click the “Manage configuration” button for one of
-        your environments to open the channel configuration dialog.
+        In the dashboard, navigate to the **Channels and sources** page under your account settings and select your Slack integration. Click the “Manage configuration” button for one of your environments to open the channel configuration dialog.
       </Step>
       <Step title="Enable the email-based user ID resolution setting">
         Locate the toggle labeled “Enable email-based user ID resolution” and
@@ -212,7 +203,7 @@ Once you're confident that all of your application's tenants have granted author
   <Accordion title="Enabling email-based user ID resolution on a step in a workflow">
     <Steps>
       <Step title="Open your workflow">
-        In the dashboard, navigate to the **Workflows** tab and select your
+        In the dashboard, navigate to the **Workflows** page and select your
         workflow. Click on an existing Slack step in the workflow.
       </Step>
       <Step title="Enable the email-based user ID resolution setting">
@@ -244,7 +235,7 @@ export async function fetchUserId(email: string): Promise<string> {
       'knocklabs',
       process.env.NEXT_PUBLIC_KNOCK_SLACK_CHANNEL_ID as string,
     );
-  // Next, use that access to to make a request to the Slack API
+  // Next, use that access to make a request to the Slack API
   const response = await fetch(
     `https://slack.com/api/users.lookupByEmail?email=${email}`,
     {
@@ -260,7 +251,9 @@ export async function fetchUserId(email: string): Promise<string> {
       userId,
       process.env.NEXT_PUBLIC_KNOCK_SLACK_CHANNEL_ID as string,
       {
-        connections: [{ user_id: slackUserId }],
+        data: {
+          connections: [{ user_id: slackUserId }]
+        },
       },
     );
   }
@@ -306,7 +299,9 @@ We'll break this function down step-by-step:
         userId,
         process.env.NEXT_PUBLIC_KNOCK_SLACK_CHANNEL_ID as string,
         {
-            connections: [{ user_id: slackUserId }],
+          data: {
+            connections: [{ user_id: slackUserId }]
+          },
         },
     );
     ```

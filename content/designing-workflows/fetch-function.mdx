@@ -34,7 +34,7 @@ As with channel steps, you use the Knock template editor to configure the shape 
 
 Aside from the request method selector, each of the above fields is a Liquid-compatible input. This means you can use Liquid variables and control flow to inject variable data, access Knock-controlled workflow state attributes (e.g., `recipient`), and dynamically shape the request per workflow run.
 
-See the [Knock template editor reference](/send-notifications/designing-workflows/template-editor) for a detailed guide on working with Liquid templates in Knock.
+See the [Knock template editor reference](/send-notifications/designing-workflows/template-editor) for detailed information on working with Liquid templates in Knock.
 
 ## Request execution
 
@@ -167,7 +167,7 @@ If the request encounters an error, you can also expect to see details about the
   </figcaption>
 </figure>
 
-See the [guide on debugging workflows](/send-notifications/debugging-workflows) for more details about workflow debugging and run logs.
+See the [documentation on debugging workflows](/send-notifications/debugging-workflows) for more details about workflow debugging and run logs.
 
 ## Securing fetch requests
 
@@ -202,3 +202,97 @@ To test that the payload sent has not been compromised, you can recreate the sig
 
 3. Generate the signature with an HMAC and SHA256 algorithm using the signing key from the fetch function.
 4. Compare your generated signature with the one extracted in step one; they should match exactly. If the timestamp is more than five minutes old compared to the current time, you may decide you want to reject the payload for additional security.
+
+## Reusable fetch functions
+
+### An overview
+
+Knock allows you to create and save request configurations so that your team can reuse them as instances across multiple workflows. Updates to these requests cascade down to their instances, making it possible to centrally manage configurations. Reusable requests are [a versionable resource](/concepts/commits) in Knock.
+
+### Creating a reusable request
+
+To create a reusable request, navigate to the **Reusable requests** page in the Knock dashboard from the main sidebar. Then, click the "Create reusable request" button. After creation, this will take you to the function editor where you can specify the details of your function.
+
+Once the request is created, save and commit the configuration.
+
+<br />
+
+<figure>
+  <Image
+    src="/images/concepts/reusable-steps/editor.png"
+    width={1052}
+    height={958}
+    alt="Creating a reusable request."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+
+  <figcaption>
+    Creating a reusable request in the dashboard editor.
+  </figcaption>
+</figure>
+
+### Using a reusable request
+
+<Steps>
+  <Step title="Create a fetch step in a workflow">
+
+    To use a reusable request in a workflow, first navigate to the workflow where you'd like to use it. Then, create an fetch step by selecting it in the step selection menu.
+
+    <figure>
+      <Image
+        src="/images/concepts/reusable-steps/click-fetch.png"
+        width={1052}
+        height={958}
+        alt="Selecting an HTTP fetch step."
+        className="rounded-md mx-auto border border-gray-200"
+      />
+    </figure>
+
+  </Step>
+ 
+  <Step title="Select the request template">
+    Within the step panel, you can select the "Apply template" button to select which reusable request to inherit the details of.
+
+    <figure>
+      <Image
+        src="/images/concepts/reusable-steps/selecting-step.png"
+        width={1052}
+        height={958}
+        alt="Selecting a request template."
+        className="rounded-md mx-auto border border-gray-200"
+      />
+    </figure>
+
+  </Step>
+
+  <Step title="All done!">
+    Once selected, **the workflow's fetch step will be in an uneditable state** with the details of the reusable request applied.
+
+    <figure>
+      <Image
+        src="/images/concepts/reusable-steps/selected-state.png"
+        width={1052}
+        height={958}
+        alt="The selected state of a reusable request."
+        className="rounded-md mx-auto border border-gray-200"
+      />
+
+      <figcaption>
+        Reusable request applied to a fetch step.
+      </figcaption>
+    </figure>
+
+  </Step>
+</Steps>
+
+### Making changes to a reusable request
+
+If you need to make changes to the request, it's recommended to edit the underlying request itself via the "Reusable requests" page, that way changes will apply to all instances of the request.
+
+However, if you need to make changes to a single fetch step request, you can click the "Detach instance" button from the dropdown to remove the reusable request usage, and enable an editable state.
+
+### Versioning
+
+Reusable requests are environment-specific, so you can safely edit a request in one environment without affecting production workflows. To use a request in a different environment, make sure the request is committed and promoted to the environment you want to use it in.
+
+Read more about [versioning in Knock here](/concepts/commits).

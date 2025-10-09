@@ -15,7 +15,7 @@ When Knock runs a workflow for a user, we evaluate their `PreferenceSet`. A mess
 
 A preference set is built using three keys: `categories`, `channel_types`, `workflows`. These keys resolve to boolean values to determine if a user has opted out of receiving a notification.
 
-A recipient's `default` preference set also has a `commercial_unsubscribe` key which determines if the recipient should receive notifications sent by commercial workflows or broadcasts. Read more about commercial unsubscribe [here](/preferences/commercial-unsubscribe).
+A recipient's `default` preference set also has a `commercial_subscribed` key which determines if the recipient should receive notifications sent by commercial workflows or broadcasts. Read more about commercial unsubscribe [here](/preferences/commercial-unsubscribe).
 
 A few examples:
 
@@ -100,7 +100,7 @@ There are four steps to building a preference center with Knock:
 
 <Steps titleSize="h3">
   <Step title="Create a default PreferenceSet">
-    A default preference set is the `PreferenceSet` users default to using when they first sign up for your product. Any users who don't have a preference set will default to using the default preference set. You can create a default preference set in the Knock dashboard under **Developers** > **Preferences**.
+    A default preference set is the `PreferenceSet` users default to using when they first sign up for your product. Any users who don't have a preference set will default to using the default preference set. You can create a default preference set in the Knock dashboard under **Platform** > **Preferences**.
 
     <Image
       src="/images/concepts/preferences/preferences default set environment.png"
@@ -131,7 +131,7 @@ There are four steps to building a preference center with Knock:
 
     A `PreferenceView` defines the user-facing labels for any workflows or categories in your default preference set. This enables you to introduce new keys into your default preference set and have them update in your preference center, without needing to make changes within your codebase.
 
-    You can create your `PreferenceView` in the Knock dashboard under **Developers** > **Preferences**. Your `PreferenceView` will be environment-specific for testing purposes. You can copy the `PreferenceView` from one environment to another to keep them in sync.
+    You can create your `PreferenceView` in the Knock dashboard under **Platform** > **Preferences**. Your `PreferenceView` will be environment-specific for testing purposes. You can copy the `PreferenceView` from one environment to another to keep them in sync.
 
   </Step> */}
   <Step title="Get a user's preferences">
@@ -160,7 +160,7 @@ There are four steps to building a preference center with Knock:
 
     Once you have loaded a user's preference, you'll need to render an interface in your application so they can update their notification preferences. Typically you encapsulate all of the getting and setting of preferences in a single component.
 
-    You can see an example of this below, but our [quickstart guide on building preferences UI](/in-app-ui/react/preferences) provides an in-depth walkthrough of how to build a functional `PreferenceCenter` component.
+    You can see an example of this below, but our [quickstart documentation on building preferences UI](/in-app-ui/react/preferences) provides an in-depth walkthrough of how to build a functional `PreferenceCenter` component.
 
 ```jsx title="A basic preference center"
 <PreferenceCenter />
@@ -177,6 +177,8 @@ There are four steps to building a preference center with Knock:
   </Step>
   <Step title="Set a user's preferences">
     When a user makes changes to their preferences in your application, you will use the `setPreferences` method to save those changes back to Knock.
+
+    By default, the `setPreferences` method will overwrite any existing `PreferenceSet` with the new preferences provided. You can learn more about how to update a single preference in the [frequently asked questions](#frequently-asked-questions) section below.
 
     <MultiLangCodeBlock
       title="Set preferences for a user"
@@ -306,7 +308,7 @@ The following hierarchies are used when merging preferences.
   </Accordion>
 </AccordionGroup>
 
-For more information on how you can override these hierarchies, see the [Frequently asked questions](#frequently-asked-questions) section below.
+For more information on how you can override these hierarchies, see the [frequently asked questions](#frequently-asked-questions) section below.
 
 ## Preference evaluation rules
 
@@ -315,7 +317,7 @@ When a workflow is triggered, Knock will evaluate the preferences for each `reci
 <AccordionGroup>
   <Accordion title="General preference rules">
     - If you do not set a preference for a given channel, workflow, or workflow category, Knock defaults them to `true`.
-    - When a recipient clicks an unsubscribe link, their `default` preference set will be updated, marking `commercial_unsubscribe` as `true`. They will be opted-out of commercial messages, and they will continue to receive transactional messages based on their other preferences. Read more about commercial unsubscribe [here](/preferences/commercial-unsubscribe).
+    - When a recipient clicks an unsubscribe link, their `default` preference set will be updated, marking `commercial_subscribed` as `false`. They will be opted-out of commercial messages, and they will continue to receive transactional messages based on their other preferences. Read more about commercial unsubscribe [here](/preferences/commercial-unsubscribe).
   </Accordion>
   <Accordion title="Resolving preference conflicts">
     Knock only sends a notification if all preference combinations that exist on the recipient evaluate to `true`.
@@ -354,9 +356,9 @@ You can update the preferences of up to 1000 users in a single batch by using th
 ## Advanced concepts
 
 - [Per-tenant preferences](/preferences/tenant-preferences). In multi-tenant B2B applications, an advanced use case is customer admins who want to set the tenant-level default `PreferenceSet` for new users within their tenant.
-- [Object preferences](/preferences/object-preferences). In the guide above, we referred to user preferences. You can also set preferences for objects.
+- [Object preferences](/preferences/object-preferences). You can set preferences for object recipients, just as you can for users.
 - [Preference conditions](/preferences/preference-conditions). You can build advanced conditions and store them on Knock’s preference model to power use cases such as per-resource muting (example: mute notifications about this task) or threshold alerts (example: only notify me if my account balance is below $5).
-- Merge strategy. It's possible to configure the merge strategy on specific preferences within a `PreferenceSet`. This allows you to override the default merge hierarchy when preferences are evaluated. See the [Frequently asked questions](#frequently-asked-questions) section below for more details and use cases.
+- Merge strategy. It's possible to configure the merge strategy on specific preferences within a `PreferenceSet`. This allows you to override the default merge hierarchy when preferences are evaluated. See the [frequently asked questions](#frequently-asked-questions) section below for more details and use cases.
 - Workflow overrides. If you need to override a recipient's notification preferences to send notifications like a password reset email, you can override the preferences model. To do this, go to your workflow, click "Manage workflow," and enable "Override recipient preferences." You will need to commit this change for it to take effect. When enabled, the workflow will send to all of its channels, regardless of the recipient's preferences.
 - [Commercial unsubscribe](/preferences/commercial-unsubscribe). You can configure 1-click unsubscribe links to help users opt-out of commercial or promotional notifications and comply with CAN-SPAM requirements.
 
@@ -364,17 +366,75 @@ You can update the preferences of up to 1000 users in a single batch by using th
 
 <AccordionGroup>
   <Accordion title="Can I update a single preference rather than replacing a recipient's entire preference set?">
-    While our preferences API endpoints will always overwrite the
-    existing `PreferenceSet` with the new preferences provided, it's possible to
-    update a single preference by using any of our [recipient identification
-    methods](/managing-recipients/identifying-recipients), including while triggering a workflow (as seen in the example below). 
+    Yes. While our preferences API endpoints will default to overwriting the existing `PreferenceSet` with the new preferences provided, it's possible to update a single preference using either of the two options below.
+    
+    <>
+    **1. Setting a `__persistence_strategy__` key on your `PreferenceSet` to `"merge"`**
+    </>
+    You can provide an optional `__persistence_strategy__` key when providing your `PreferenceSet` to our preferences API endpoints. Setting this key to `"merge"` will perform a deep merge of the provided preferences into any existing preferences. 
+    
+    Here's what this looks like in practice. If a user has these existing `default` preferences:
+    ```json title="An existing default preference set"
+    {
+      "categories": {
+        "collaboration": {
+          "channel_types": {
+            "email": true,
+            "in_app_feed": true
+          }
+        }
+      }
+    }
+    ```
+    and they would like to update their email preference for the `collaboration` category to `false`, you can do so by providing the following `PreferenceSet` to our [user preferences endpoint](/api-reference/users/set_preferences):
+
+    ```javascript title="Updating a single preference using the Node SDK"
+    import Knock from '@knocklabs/node';
+
+    const client = new Knock({
+      apiKey: 'My API Key',
+    });
+
+    const preferenceSet = await client.users.setPreferences('user_id', 'default', {
+      __persistence_strategy__: 'merge',
+      categories: {
+        collaboration: {
+          channel_types: {
+            email: false
+          }
+        }
+      }
+    });
+    ```
+
+    This will result in the following `PreferenceSet` being set on the recipient:
+
+    ```json title="The resulting default preference set"
+    {
+      "categories": {
+        "collaboration": {
+          "channel_types": {
+            "email": false,
+            "in_app_feed": true
+          }
+        }
+      }
+    }
+    ```
+    <br />
+
+    <>
+    **2. Inline identifying preferences**
+    </>
+    You can update a single preference inline by using any of our [recipient identification
+    methods](/managing-recipients/identifying-recipients), including while triggering a workflow (as seen in the example below).
     This will perform a deep merge of the provided preferences into any
     existing preferences, just like any other [properties stored on the
-    recipient](/concepts/users#storing-user-properties). 
-    
+    recipient](/concepts/users#storing-user-properties).
+
     Note that the syntax for providing the `id` of the preference set on an [`InlinePreferenceSetRequest`](/api-reference/recipients/preferences/schemas/inline_preference_set_request)
     is slightly different than the way that our preferences endpoints handles them; you'll simply provide a key-value pair where the key is the `id` of the preference set and the value is the `PreferenceSet` you'd like to merge.
-   
+
     Here's what this looks like in practice. If a user has these existing `default` preferences:
     ```json title="An existing default preference set"
     {

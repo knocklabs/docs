@@ -27,11 +27,11 @@ With the CLI, you can:
 <Section title="Install the CLI" path="/overview/installation">
 <ContentColumn>
 
-### Install with Homebrew
+**Install with Homebrew**
 
 For macOS, you can install the Knock CLI using [Homebrew](https://brew.sh/). Once the CLI is installed you can call it by using the `knock` command in your terminal.
 
-### Install with npm
+**Install with npm**
 
 For other operating systems, you can install the Knock CLI using `npm`, a node package manager. Once the CLI is installed, you can call it by using the `knock` command in your terminal.
 
@@ -51,8 +51,6 @@ You can find the Knock CLI npm package [here](https://www.npmjs.com/package/@kno
 brew install knocklabs/tap/knock
 ```
 
-<div style={{ marginTop: 80 }} />
-
 ```bash title="Install the Knock CLI with npm"
 npm install -g @knocklabs/cli
 ```
@@ -63,9 +61,31 @@ npm install -g @knocklabs/cli
 <Section title="Authentication" path="/overview/authentication">
 <ContentColumn>
 
-The Knock CLI relies on a [service token](/developer-tools/service-tokens) to authenticate and make requests to your Knock account. You can specify a service token in all CLI calls, or you can optionally use a configuration file to authenticate all requests.
+**Using your Knock account**
 
-[Learn how to create a service token.](/developer-tools/service-tokens)
+You can authenticate your Knock account against the CLI by running `knock login`. This will open a browser window where you can sign in to your Knock account and authorize the CLI to access your account.
+
+Once authenticated, you can verify it works by running `knock whoami`. If your account is valid and configured properly, you'll receive a 200 response that shows the account name and your user ID.
+
+<Callout
+  emoji="🚧"
+  bgColor="blue"
+  title="Note:"
+  text={
+    <>
+      Using your Knock account against the CLI will inherit the permissions of
+      the user that is logged in on the account you authorized.
+    </>
+  }
+/>
+
+If you need to switch between accounts, you can run `knock logout` to log out of your current account and log in to a different one.
+
+**Using a service token**
+
+If you need to authenticate in a remote environment, or want complete control, you can generate a [service token](/developer-tools/service-tokens) in the Knock dashboard. You can specify a service token in all CLI calls, or you can optionally use a configuration file to authenticate all requests.
+
+Once you have generated a service token, you can verify it works by running `knock whoami --service-token=YOUR_SERVICE_TOKEN`. If your token is valid and configured properly, you'll receive a 200 response that shows the account name and the service token name.
 
 **Setting up a configuration file (optional)**
 
@@ -84,6 +104,10 @@ When Knock CLI detects a user configuration file, it will use the service token 
 </ContentColumn>
 <ExampleColumn>
 
+```bash title="Log in to your Knock account"
+knock login
+```
+
 ```bash title="Verify your service token"
 knock whoami --service-token=XXX
 ```
@@ -96,17 +120,47 @@ knock whoami --service-token=XXX
 
 The following flags are supported for every command.
 
-### Flags
+**Flags**
 
 <Attributes>
   <Attribute
     name="--service-token"
     type="string"
-    description="The service token for a Knock account to issue the commands against. Required when not using a configuration file."
+    description="The service token for a Knock account to issue the commands against. Required when not using a personal account, or a configuration file."
   />
 </Attributes>
 
 </ContentColumn>
+</Section>
+
+<Section title="knock login" path="/login">
+<ContentColumn>
+
+You can log in to your Knock account with the `login` command. This will open a browser window where you can sign in to your Knock account and authorize the CLI to access your account.
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Log in to your Knock account"
+knock login
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock logout" path="/logout">
+<ContentColumn>
+
+You can log out of your Knock account with the `logout` command. This will clear the authentication token for the CLI.
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Log out of your Knock account"
+knock logout
+```
+
+</ExampleColumn>
 </Section>
 
 <Section title="knock pull [flags]" path="/pull">
@@ -1363,6 +1417,16 @@ List all commits in the environment. Use an `--environment` flag to specify the 
     type="string"
     description="Fetches all entries before this cursor."
   />
+  <Attribute
+    name="--resource-type"
+    type="string"
+    description="Filter commits by resource type. One of: `email_layout`, `workflow`, `guide`, `partial`, `translation`. Must be used with --resource-id."
+  />
+  <Attribute
+    name="--resource-id"
+    type="string"
+    description="Filter commits by the given resource id. This is most typically the `key` of the resource. In the case of translations, this will be the locale code and namespace, separated by a `/`. Must be used with --resource-type."
+  />
   <Attribute name="--json" type="string" description="Format output as json." />
 </Attributes>
 
@@ -1375,6 +1439,10 @@ knock commit list
 
 ```bash title="List unpromoted commits in a different environment"
 knock commit list --no-promoted --environment=staging
+```
+
+```bash title="List commits for a specific workflow"
+knock commit list --resource-type=workflow --resource-id=new-commet
 ```
 
 </ExampleColumn>
@@ -1484,8 +1552,6 @@ You can see all your existing guides in a given environment with the guides list
 
 Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
 
-**Note:** Guides are currently in beta.
-
 ### Flags
 
 <Attributes>
@@ -1538,8 +1604,6 @@ You can show more details about a given guide with the `guides get` command, fol
 
 Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
 
-**Note:** Guides are currently in beta.
-
 ### Flags
 
 <Attributes>
@@ -1576,8 +1640,6 @@ knock guides get my-guide --environment=production
 You can pull and download guides from Knock to a local file system with the `guides pull` command. Knock CLI will create a new guide directory or update the existing guide directory in the local file system.
 
 Note: if pulling the target guide for the first time (or all guides), Knock CLI will ask to confirm before writing to the local file system.
-
-**Note:** Guides are currently in beta.
 
 ### Flags
 
@@ -1649,8 +1711,6 @@ Note:
 - You must be directly above the target guide directory when running the `guides push` command, so the CLI can locate the `guide.json` file.
 - You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
 
-**Note:** Guides are currently in beta.
-
 ### Flags
 
 <Attributes>
@@ -1703,8 +1763,6 @@ You can validate a new or updated guide directory with the `guides validate` com
 
 Note: Validating a guide is only done against the `development` environment.
 
-**Note:** Guides are currently in beta.
-
 ### Flags
 
 <Attributes>
@@ -1734,8 +1792,6 @@ knock guides validate my-guide
 <ContentColumn>
 
 You can activate or deactivate a guide in a given environment with the `guides activate` command. You can either set the active status immediately or schedule it.
-
-**Note:** Guides are currently in beta.
 
 ### Flags
 

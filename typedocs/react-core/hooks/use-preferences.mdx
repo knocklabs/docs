@@ -1,0 +1,90 @@
+The `usePreferences` hook is used to fetch and manage user notification preferences. This hook provides access to preference sets and allows you to update user preferences.
+
+## Parameters
+
+Accepts an object (`UsePreferencesParams`) with the following properties:
+
+<Attributes>
+  <Attribute
+    name="preferenceSet"
+    type="string"
+    description="The preference set ID to fetch. If not provided, the default preference set will be fetched."
+  />
+</Attributes>
+
+## Returns
+
+A `UsePreferencesReturn` object with the following properties:
+
+<Attributes>
+  <Attribute
+    name="preferences"
+    type="PreferenceSet"
+    description="The preference set data including workflows and channels."
+  />
+  <Attribute
+    name="isLoading"
+    type="boolean"
+    description="Whether preferences are being loaded."
+  />
+  <Attribute
+    name="error"
+    type="Error | null"
+    description="Error object if the request failed."
+  />
+  <Attribute
+    name="updatePreferences"
+    type="(updates: PreferenceUpdate) => Promise<void>"
+    description="Function to update user preferences."
+  />
+</Attributes>
+
+## Example
+
+### Basic usage
+
+The following example demonstrates how to use the `usePreferences` hook to manage user preferences.
+
+```tsx
+import { usePreferences } from "@knocklabs/react";
+
+const MyComponent = () => {
+  const { preferences, isLoading, error, updatePreferences } = usePreferences({
+    preferenceSet: "default",
+  });
+
+  if (isLoading) return <div>Loading preferences...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  const handleToggleWorkflow = async (
+    workflowKey: string,
+    enabled: boolean,
+  ) => {
+    await updatePreferences({
+      workflows: {
+        [workflowKey]: { enabled },
+      },
+    });
+  };
+
+  return (
+    <div>
+      <h2>Notification Preferences</h2>
+      {preferences.workflows.map((workflow) => (
+        <div key={workflow.key}>
+          <label>
+            <input
+              type="checkbox"
+              checked={workflow.enabled}
+              onChange={(e) =>
+                handleToggleWorkflow(workflow.key, e.target.checked)
+              }
+            />
+            {workflow.name}
+          </label>
+        </div>
+      ))}
+    </div>
+  );
+};
+```

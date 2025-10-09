@@ -37,13 +37,11 @@ What you'll learn:
 
 The LaunchDarkly + Knock integration follows this flow:
 
-1. **LaunchDarkly** defines your experiment parameters (flags, segments, variations.)
+1. **LaunchDarkly** defines your experiment parameters (flags, segments, variations) and manages statistical analysis.
 2. **Your application** evaluates flags and passes results to Knock via trigger data.
-3. **Knock workflows** use branch steps to deliver different messaging experiences.
-4. **Knock tracking** captures engagement metrics (opens, clicks, conversions.)
-5. **Knock warehouse extension** combines Knock engagement data with LaunchDarkly experiment results.
-
-With Knock and LaunchDarkly you can test message content, channels, and timing, target specific user segments with different strategies, measure the impact of messaging changes on business metrics, and make data-driven decisions about your notification strategy.
+3. **Knock workflows** use branch steps to deliver different messaging experiences based on flag variations.
+4. **Knock** captures engagement events (message delivery, opens, clicks) and forwards them to LaunchDarkly.
+5. **LaunchDarkly** correlates engagement events with flag variations to measure experiment success and statistical significance.
 
 ## LaunchDarkly concepts and setup
 
@@ -115,8 +113,7 @@ const workflowKey =
 await knock.workflows.trigger(workflowKey, {
   recipients: [user.id],
   data: {
-    user_name: user.name,
-    variant: messagingVariant,
+    // Add any data you want to pass to the workflow
   },
 });
 ```
@@ -143,9 +140,8 @@ const variation = await ldClient.variation(
 await knock.workflows.trigger("onboarding-sequence", {
   recipients: [user.id],
   data: {
-    user_name: user.name,
     user_ab_test_variation: variation,
-    user_segment: user.tier,
+    // Any other data you want to pass to the workflow
   },
 });
 ```
@@ -164,9 +160,96 @@ In your Knock workflow, add a branch step with these conditions:
 
 ## Analytics and analyzing results
 
-Knock automatically tracks engagement metrics across all channels, providing the data you need to measure experiment success. Learn more about Knock [engagement status](/send-notifications/message-statuses) and [link/open tracking](/send-notifications/tracking).
+To measure messaging experiment success, forward Knock's engagement events to LaunchDarkly. This allows LaunchDarkly to correlate message engagement with flag variations and calculate proper conversion rates.
 
-You can evaluate this data in Knock's dashboard, or bring it into your stack for analysis using Knock's [warehouse extension](/warehouse-extension/overview) or [outbound webhooks](/outbound-webhooks/overview).
+Three integration approaches are available:
+
+1. **Direct webhook integration.** Forward events in real-time via Knock's [outbound webhooks](/developer-tools/outbound-webhooks/overview).
+2. **Segment integration.** Use Knock's [Segment extension](/integrations/extensions/segment) to route events through Segment to LaunchDarkly.
+3. **Data warehouse integration.** Use Knock's [warehouse sync](/integrations/extensions/data-sync) to bring data into your warehouse for analysis.
+
+### Method 1: Direct webhook integration
+
+Set up a webhook endpoint to receive Knock events and forward them to LaunchDarkly.
+
+<Steps>
+<Step title="Create webhook endpoint">
+
+Create an endpoint to receive Knock webhook events and forward them to LaunchDarkly:
+
+```javascript title="Webhook endpoint to forward events to LaunchDarkly"
+app.post("/knock-webhook", async (req, res) => {
+  const { type, data } = req.body;
+
+  // Forward engagement events to LaunchDarkly
+  if (type === "message.read" || type === "message.link_clicked") {
+    await ldClient.track({
+      eventName: type === "message.read" ? "email_opened" : "email_clicked",
+      user: { key: data.recipient.id },
+      data: {
+        message_id: data.id,
+        workflow_key: data.workflow.key,
+        channel: data.channel_id,
+      },
+    });
+  }
+
+  res.status(200).send("OK");
+});
+```
+
+</Step>
+<Step title="Configure webhook in Knock">
+
+In your Knock dashboard:
+
+1. Go to Developer → Webhooks
+2. Add your webhook endpoint URL
+3. Select events: `message.read`, `message.link_clicked`
+4. Enable webhook
+
+Learn more about [outbound webhooks](/developer-tools/outbound-webhooks/overview).
+
+</Step>
+</Steps>
+
+### Method 2: Segment integration
+
+Use Knock's [Segment extension](/integrations/extensions/segment) to automatically forward events through Segment to LaunchDarkly.
+
+<Steps>
+<Step title="Configure Segment extension">
+
+Configure the Segment extension in your Knock dashboard with your Segment write key. Knock will automatically forward engagement events to Segment.
+
+</Step>
+<Step title="Set up Segment to LaunchDarkly connection">
+
+In your Segment dashboard:
+
+1. Add LaunchDarkly as a destination.
+2. Configure event mapping from Knock events to LaunchDarkly metrics.
+3. Map events like `Notification read` → `email_opened` in LaunchDarkly.
+
+</Step>
+</Steps>
+
+### Method 3: Data warehouse integration
+
+For comprehensive analytics, combine Knock's [data warehouse sync](/integrations/extensions/data-sync) with LaunchDarkly's data export.
+
+<Steps>
+<Step title="Enable Knock warehouse sync">
+
+Configure warehouse sync to your data warehouse. This provides detailed message and engagement data.
+
+</Step>
+<Step title="Export LaunchDarkly experiment data">
+
+Use LaunchDarkly's data export to get flag variation data in your warehouse, then join with Knock's engagement data for analysis.
+
+</Step>
+</Steps>
 
 ## Implementation example: welcome email A/B test
 
@@ -198,11 +281,28 @@ First, create the flag and experiment in LaunchDarkly.
 {
   "name": "Welcome Email Optimization",
   "flagKey": "welcome-email-style",
-  "primaryMetric": "email_click_rate",
+  "primaryMetric": "email_opened",
   "allocation": {
     "friendly": 34,
     "professional": 33,
     "casual": 33
+  }
+}
+```
+
+**Create metrics for the experiment:**
+
+```json title="Create metrics in LaunchDarkly"
+{
+  "email_opened": {
+    "eventName": "email_opened",
+    "unitOfMeasurement": "conversion",
+    "description": "Measures email open rate of users who received the message"
+  },
+  "email_clicked": {
+    "eventName": "email_clicked",
+    "unitOfMeasurement": "conversion",
+    "description": "Measures click-through rate of users who received the message"
   }
 }
 ```
@@ -226,19 +326,8 @@ async function sendWelcomeEmail(user) {
   await knock.workflows.trigger("welcome-sequence", {
     recipients: [user.id],
     data: {
-      user_name: user.name,
       email_style: emailStyle,
-      user_signup_date: user.created_at,
       experiment_name: "welcome-email-optimization",
-    },
-  });
-
-  // Track experiment participation
-  await ldClient.track("experiment-participation", {
-    user: { key: user.id },
-    data: {
-      experiment_name: "welcome-email-optimization",
-      variant: emailStyle,
     },
   });
 }

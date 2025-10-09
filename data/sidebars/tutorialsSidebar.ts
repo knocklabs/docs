@@ -14,7 +14,7 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
   },
   {
     slug: `${baseSlug}/implementation-guide`,
-    title: "Knock implementation guide",
+    title: "Implementing Knock",
   },
   {
     slug: `${baseSlug}/alerting`,
@@ -28,7 +28,14 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     slug: `${baseSlug}/building-recurring-digests`,
     title: "Recurring digests",
   },
-  { slug: `${baseSlug}/migrate-from-courier`, title: "Migrate from Courier" },
+  {
+    slug: `${baseSlug}/migrate-from-courier`,
+    title: "Migrate from Courier",
+  },
+  {
+    slug: `${baseSlug}/migrate-from-braze`,
+    title: "Migrate from Braze",
+  },
   {
     slug: `${baseSlug}/modeling-users-objects-and-tenants`,
     title: "Modeling Users, Objects, and Tenants",
@@ -36,6 +43,10 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
   {
     slug: `${baseSlug}/launchdarkly-knock`,
     title: "Using LaunchDarkly with Knock to A/B test messaging",
+  },
+  {
+    slug: `${baseSlug}/sending-web-push-notifications-with-fcm`,
+    title: "Send web push with FCM",
   },
   {
     slug: `${baseSlug}/migrate-email-with-mcp-server`,

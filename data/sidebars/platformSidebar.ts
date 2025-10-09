@@ -4,10 +4,18 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
   {
     title: "Getting started",
     slug: "/getting-started",
-    desc: "A technical and non-technical introduction to the basics of Knock, and a step-by-step guide to get you going in minutes.",
+    desc: "An introduction to the basics of Knock.",
     pages: [
       { slug: "/what-is-knock", title: "What is Knock?" },
-      { slug: "/quick-start", title: "Quick start" },
+      {
+        slug: "/quick-start",
+        title: "Quick start",
+        pages: [
+          { slug: "/general", title: "General" },
+          { slug: "/nextjs", title: "Next.js" },
+          { slug: "/react", title: "React" },
+        ],
+      },
       { slug: "/example-apps", title: "Example apps" },
     ],
     sidebarMenuDefaultOpen: true,
@@ -20,7 +28,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/workflows", title: "Workflows" },
       { slug: "/broadcasts", title: "Broadcasts" },
-      { slug: "/guides", title: "Guides", isBeta: true },
+      { slug: "/guides", title: "Guides" },
       { slug: "/channels", title: "Channels" },
       { slug: "/commits", title: "Commits" },
       { slug: "/environments", title: "Environments" },

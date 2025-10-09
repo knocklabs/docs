@@ -1,7 +1,7 @@
 import { OpenAPIV3 } from "@scalar/openapi-types";
-import { StainlessConfig, StainlessResource } from "../../../lib/openApiSpec";
 import JSONPointer from "jsonpointer";
 import { SidebarSection, SidebarSubsection } from "../../../data/types";
+import { StainlessConfig, StainlessResource } from "../../../lib/openApiSpec";
 
 function resolveEndpointFromMethod(
   endpointOrMethodConfig: string | { endpoint: string },
@@ -20,6 +20,10 @@ function resolveResponseSchemas(method: OpenAPIV3.OperationObject) {
     method.responses || {},
   )
     .map((r) => r.content?.["application/json"]?.schema)
+    .filter(
+      // There are some responses that do not have a schema, e.g. "204 No Content"
+      (r) => !!r,
+    )
     .map((responseSchema) => {
       if (responseSchema?.allOf) {
         return responseSchema.allOf[0];
@@ -28,6 +32,33 @@ function resolveResponseSchemas(method: OpenAPIV3.OperationObject) {
     });
 
   return responseSchemas;
+}
+
+/**
+ * Formats response status codes for the given OpenAPI operation.
+ * When descriptions are present, they will be appended to the status code.
+ *
+ * For example, given the following OpenAPI operation:
+ *
+ * ```json
+ * {
+ *   "204": {
+ *     "description": "No Content"
+ *   }
+ * }
+ * ```
+ *
+ * The function will return `["204 No Content"]`.
+ */
+function formatResponseStatusCodes(
+  method: OpenAPIV3.OperationObject,
+): string[] {
+  return Object.entries(method.responses ?? {}).map(
+    ([statusCode, respObject]) =>
+      respObject.description
+        ? `${statusCode} ${respObject.description}`
+        : statusCode,
+  );
 }
 
 function buildSchemaReferencesForResource(
@@ -208,10 +239,11 @@ function augmentSnippetsWithCurlRequest(
 }
 
 export {
-  getSidebarContent,
-  resolveEndpointFromMethod,
-  buildSidebarPages,
   augmentSnippetsWithCurlRequest,
   buildSchemaReferences,
+  buildSidebarPages,
+  formatResponseStatusCodes,
+  getSidebarContent,
+  resolveEndpointFromMethod,
   resolveResponseSchemas,
 };

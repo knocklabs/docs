@@ -50,7 +50,6 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
       {
         title: "Guides",
         slug: "/guides",
-        isBeta: true,
         pages: [
           { slug: "/overview", title: "Overview" },
           {
@@ -61,44 +60,42 @@ export const IN_APP_UI_SIDEBAR: SidebarSection[] = [
             slug: "/render-guides",
             title: "Rendering guides",
           },
+          {
+            slug: "/order-guides",
+            title: "Ordering and throttling",
+          },
+          {
+            slug: "/handling-engagement",
+            title: "Engagement tracking",
+          },
+          {
+            slug: "/debugging-guides",
+            title: "Testing and debugging",
+          },
+          {
+            slug: "/analytics-and-observability",
+            title: "Analytics and observability",
+          },
         ],
       },
       {
         slug: "/message-types",
         title: "Message types",
-        isBeta: true,
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          {
+            slug: "/create-message-types",
+            title: "Creating message types",
+          },
+          {
+            slug: "/schema-reference",
+            title: "Schema reference",
+          },
+        ],
       },
     ],
     sidebarMenuDefaultOpen: true,
   },
-  // {
-  //   title: "Feeds",
-  //   slug: "/in-app-ui/feeds",
-  //   desc: "Power real-time feeds, inboxes, and notification centers in your product.",
-  //   pages: [
-  //     { slug: "/overview", title: "Overview" },
-  //     {
-  //       slug: "/filtering-in-app-feeds",
-  //       title: "Filtering feeds",
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "Guides",
-  //   slug: "/in-app-ui/guides",
-  //   desc: "Power announcements, onboarding, and evergreen in-app experiences in your product.",
-  //   pages: [
-  //     { slug: "/overview", title: "Overview" },
-  //     {
-  //       slug: "/create-guides",
-  //       title: "Creating guides",
-  //     },
-  //     {
-  //       slug: "/render-guides",
-  //       title: "Rendering guides",
-  //     },
-  //   ],
-  // },
 ];
 
 const languages = {
@@ -120,6 +117,104 @@ export type SdkSpecificContent = {
   value: string;
   icon: ReactNode;
 };
+
+const SHARED_REACT_COMPONENTS = [
+  { slug: "/knock-provider", title: "KnockProvider" },
+  { slug: "/knock-feed-provider", title: "KnockFeedProvider" },
+  { slug: "/knock-guide-provider", title: "KnockGuideProvider" },
+  { slug: "/knock-slack-provider", title: "KnockSlackProvider" },
+  { slug: "/knock-ms-teams-provider", title: "KnockMsTeamsProvider" },
+  { slug: "/knock-i18n-provider", title: "KnockI18nProvider" },
+];
+
+const ADDITIONAL_REACT_COMPONENTS = [
+  { slug: "/button", title: "Button" },
+  { slug: "/button-group", title: "ButtonGroup" },
+  { slug: "/notification-feed", title: "NotificationFeed" },
+  { slug: "/notification-feed-popover", title: "NotificationFeedPopover" },
+  { slug: "/notification-cell", title: "NotificationCell" },
+  { slug: "/notification-icon-button", title: "NotificationIconButton" },
+  { slug: "/slack-auth-button", title: "SlackAuthButton" },
+  { slug: "/slack-auth-container", title: "SlackAuthContainer" },
+  { slug: "/slack-channel-combobox", title: "SlackChannelCombobox" },
+  { slug: "/ms-teams-auth-button", title: "MsTeamsAuthButton" },
+  { slug: "/ms-teams-auth-container", title: "MsTeamsAuthContainer" },
+  { slug: "/ms-teams-channel-combobox", title: "MsTeamsChannelCombobox" },
+];
+
+const ALL_REACT_COMPONENTS = [
+  ...SHARED_REACT_COMPONENTS,
+  ...ADDITIONAL_REACT_COMPONENTS,
+];
+
+const SHARED_REACT_HOOKS = [
+  // Core hooks
+  {
+    slug: "/use-authenticated-knock-client",
+    title: "useAuthenticatedKnockClient",
+  },
+  { slug: "/use-translations", title: "useTranslations" },
+  // Feed hooks
+  { slug: "/use-notifications", title: "useNotifications" },
+  { slug: "/use-notification-store", title: "useNotificationStore" },
+  // Guides hooks
+  { slug: "/use-guide", title: "useGuide" },
+  { slug: "/use-guides", title: "useGuides" },
+  { slug: "/use-guide-context", title: "useGuideContext" },
+  // Preferences hooks
+  { slug: "/use-preferences", title: "usePreferences" },
+  // Slack hooks
+  { slug: "/use-slack-auth", title: "useSlackAuth" },
+  { slug: "/use-slack-channels", title: "useSlackChannels" },
+  {
+    slug: "/use-connected-slack-channels",
+    title: "useConnectedSlackChannels",
+  },
+  {
+    slug: "/use-slack-connection-status",
+    title: "useSlackConnectionStatus",
+  },
+  // Microsoft Teams hooks
+  {
+    slug: "/use-ms-teams-auth",
+    title: "useMsTeamsAuth",
+  },
+  {
+    slug: "/use-ms-teams-teams",
+    title: "useMsTeamsTeams",
+  },
+  {
+    slug: "/use-ms-teams-channels",
+    title: "useMsTeamsChannels",
+  },
+  {
+    slug: "/use-connected-ms-teams-channels",
+    title: "useConnectedMsTeamsChannels",
+  },
+  {
+    slug: "/use-ms-teams-connection-status",
+    title: "useMsTeamsConnectionStatus",
+  },
+];
+
+const SHARED_REACT_TYPES = [
+  { slug: "/knock-options", title: "KnockOptions" },
+  { slug: "/user-identification-options", title: "UserIdentificationOptions" },
+  { slug: "/i18n-content", title: "I18nContent" },
+  { slug: "/connection-status", title: "ConnectionStatus" },
+  { slug: "/recipient-object", title: "RecipientObject" },
+  { slug: "/slack-channel", title: "SlackChannel" },
+  { slug: "/slack-channel-connection", title: "SlackChannelConnection" },
+  { slug: "/slack-channel-query-options", title: "SlackChannelQueryOptions" },
+  { slug: "/ms-teams-team", title: "MsTeamsTeam" },
+  { slug: "/ms-teams-team-query-options", title: "MsTeamsTeamQueryOptions" },
+  { slug: "/ms-teams-channel", title: "MsTeamsChannel" },
+  { slug: "/ms-teams-channel-connection", title: "MsTeamsChannelConnection" },
+  {
+    slug: "/ms-teams-channel-query-options",
+    title: "MsTeamsChannelQueryOptions",
+  },
+];
 
 export const REACT_SIDEBAR: SidebarSection[] = [
   {
@@ -143,7 +238,11 @@ export const REACT_SIDEBAR: SidebarSection[] = [
   {
     title: "Headless UI",
     slug: "/in-app-ui/react/headless",
-    pages: [{ slug: "/feed", title: "Feed" }],
+    pages: [
+      { slug: "/feed", title: "Feed" },
+      { slug: "/guide", title: "Guide" },
+      { slug: "/preferences", title: "Preferences" },
+    ],
     sidebarMenuDefaultOpen: true,
   },
   {
@@ -152,6 +251,25 @@ export const REACT_SIDEBAR: SidebarSection[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/reference", title: "Reference" },
+      // Built-in components
+      {
+        slug: "/components",
+        title: "Components",
+        pages: ALL_REACT_COMPONENTS,
+      },
+      // Hooks
+      {
+        title: "Hooks",
+        slug: "/hooks",
+        pages: SHARED_REACT_HOOKS,
+      },
+      // Types
+      {
+        title: "Types",
+        slug: "/types",
+        pages: SHARED_REACT_TYPES,
+      },
+      // Guides
       {
         slug: "/migrating-from-react-notification-feed",
         title: "Migrating from @knocklabs/react-notification-feed",
@@ -175,6 +293,35 @@ export const JAVASCRIPT_SIDEBAR: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/reference", title: "Reference" },
+      // SDK references
+      { slug: "/knock", title: "Knock" },
+      { slug: "/api-client", title: "ApiClient" },
+      { slug: "/feed-client", title: "FeedClient" },
+      { slug: "/guide-client", title: "GuideClient" },
+      { slug: "/message-client", title: "MessageClient" },
+      { slug: "/user-client", title: "UserClient" },
+      { slug: "/object-client", title: "ObjectClient" },
+      { slug: "/slack-client", title: "SlackClient" },
+      { slug: "/ms-teams-client", title: "MsTeamsClient" },
+      // Type definitions
+      {
+        slug: "/types",
+        title: "Types",
+        pages: [
+          {
+            slug: "/knock-options",
+            title: "KnockOptions",
+          },
+          {
+            slug: "/authenticate-options",
+            title: "AuthenticateOptions",
+          },
+          {
+            slug: "/feed-store-state",
+            title: "FeedStoreState",
+          },
+        ],
+      },
     ],
     sidebarMenuDefaultOpen: true,
   },
@@ -214,7 +361,6 @@ export const REACT_NATIVE_SIDEBAR: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       { slug: "/quick-start", title: "Quick start" },
       { slug: "/push-notifications", title: "Push notifications" },
-
       { slug: "/reference", title: "Reference" },
     ],
     sidebarMenuDefaultOpen: true,

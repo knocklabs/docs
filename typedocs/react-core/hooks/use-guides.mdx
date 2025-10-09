@@ -1,0 +1,72 @@
+The `useGuides` hook returns an array of guides matching the provided filter criteria. It supports typing the guide step content to ensure type safety.
+
+## Parameters
+
+<Attributes>
+  <Attribute
+    name="type"
+    type="string"
+    description="Match any guide by its type, which corresponds to the key of a message type."
+  />
+</Attributes>
+
+## Returns
+
+A `UseGuidesReturn` object with the following properties:
+
+<Attributes>
+  <Attribute
+    name="guides"
+    type="KnockGuide[]"
+    description="Zero or more matching guides."
+  />
+</Attributes>
+
+## Example
+
+### Getting guides for a specific message type
+
+```tsx
+import { useGuides } from "@knocklabs/react";
+
+const MyComponent = () => {
+  const { guides } = useGuides({ type: "my-message-type" });
+
+  if (guides.length === 0) return null;
+
+  return (
+    <div>
+      {guides.map((guide) => (
+        <div key={guide.key}>{guide.name}</div>
+      ))}
+    </div>
+  );
+};
+```
+
+### Typing the guides
+
+```tsx
+import { useGuides } from "@knocklabs/react";
+
+type MyMessageTypeAttrs = {
+  title: string;
+  body: string;
+};
+
+const MyComponent = () => {
+  const { guides } = useGuides<MyMessageTypeAttrs>({ type: "my-message-type" });
+
+  if (guides.length === 0) return null;
+
+  return (
+    <div>
+      {guides.map((guide) => (
+        <div key={guide.key}>{guide.name}</div>
+        <p>{guide.step.content.body}</p>
+        <p>{guide.step.content.title}</p>
+      ))}
+    </div>
+  );
+};
+```

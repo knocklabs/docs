@@ -91,9 +91,42 @@ Triggers are automatically enabled when you create them. If you want to stop an 
 
 ## Enabling Identify Events
 
-When RudderStack sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `id`, `email`, `phone`, `avatar`, `name`, and any other custom properties over.
+When RudderStack sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `userId` as the user's `id`, as well as `name`, `email`, `phone` (mapped as `phone_number` in Knock), `avatar`, `locale`, `timezone`, and any additional custom properties provided in the `traits` object.
 
-To enable handling of identify events, open the settings for the source in the environment. You can then enable or disable handling identify events accordingly.
+<Callout
+  emoji="⚠️"
+  title="Note:"
+  bgColor="yellow"
+  text={
+    <>
+      RudderStack's default <code>Identify</code>{" "}
+      <a
+        href="https://www.rudderstack.com/docs/event-spec/standard-events/identify/"
+        target="_blank"
+      >
+        event schema
+      </a>{" "}
+      has the <code>traits</code> object nested under a top-level{" "}
+      <code>context</code> key.{" "}
+      <a
+        href="https://www.rudderstack.com/docs/event-spec/standard-events/identify/#identify-traits"
+        target="_blank"
+      >
+        Some RudderStack SDKs
+      </a>{" "}
+      will also include a top-level <code>traits</code> object.
+      <br />
+      <br />
+      Knock expects user properties to be contained in a top-level <code>
+        traits
+      </code> object when processing an <code>Identify</code> event, so you may need
+      to apply a data transformation prior to sending these events to Knock depending
+      on which SDK you're using.
+    </>
+  }
+/>
+
+To enable handling of identify events, open the settings for the source in the relevant Knock environment. You can then enable or disable handling identify events accordingly.
 
 <Image
   src="/images/integrations/sources/rudderstack-identify.png"
@@ -120,7 +153,7 @@ To enable handling of identify events, open the settings for the source in the e
   }
 />
 
-In cases where you send a RudderStack event to Knock with recipients that may not yet have been identified into our system, it's good practice to [inline identify](/managing-recipients/identifying-recipients#inline-identifying-recipients) your users. By inline identifying your users within your RudderStack events, you ensure that those users are identified in Knock when your event triggers a workflow.
+In cases where you send a RudderStack event to Knock with recipients that may not yet have been identified into our system, it's good practice to [inline identify](/managing-recipients/identifying-recipients#inline-identification) your users. By inline identifying your users within your RudderStack events, you ensure that those users are identified in Knock when your event triggers a workflow.
 
 As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified.
 
@@ -162,7 +195,7 @@ To ensure that the user is notified, we'd change the id reference in `recipients
 }
 ```
 
-You can learn more about inline identification in [our guide on identifying recipients](/managing-recipients/identifying-recipients).
+You can learn more about inline identification in [our documentation on identifying recipients](/managing-recipients/identifying-recipients).
 
 ## Video walkthrough
 

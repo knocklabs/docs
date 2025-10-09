@@ -59,6 +59,7 @@ components:
             - $ref: '#/components/schemas/MsTeamsChannelData'
             - $ref: '#/components/schemas/DiscordChannelData'
             - $ref: '#/components/schemas/OneSignalChannelData'
+            - $ref: '#/components/schemas/AwsSnsPushChannelData'
           type: object
           x-struct: null
           x-validate: null
@@ -67,6 +68,7 @@ components:
           enum:
             - push_fcm
             - push_apns
+            - push_aws_sns
             - push_expo
             - push_one_signal
             - chat_slack
@@ -94,7 +96,7 @@ components:
               id: dr_sattler
       properties:
         members:
-          description: A list of audience members to add.
+          description: A list of audience members to add. Limited to 1,000 members per request.
           items:
             $ref: '#/components/schemas/AudienceMemberRequest'
           nullable: false
@@ -124,6 +126,32 @@ components:
       title: TriggerWorkflowResponse
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.TriggerWorkflowResponse
+      x-validate: null
+    AwsSnsPushChannelData:
+      description: AWS SNS push channel data.
+      example:
+        target_arns:
+          - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+      properties:
+        target_arns:
+          description: A list of platform endpoint ARNs. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+          example:
+            - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+          items:
+            description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+            nullable: false
+            type: string
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - target_arns
+      title: AwsSnsPushChannelData
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.AwsSnsPushChannelData
       x-validate: null
     Subscription:
       description: A subscription object.
@@ -489,6 +517,7 @@ components:
         oneOf:
           - $ref: '#/components/schemas/PushChannelData'
           - $ref: '#/components/schemas/OneSignalChannelData'
+          - $ref: '#/components/schemas/AwsSnsPushChannelData'
           - $ref: '#/components/schemas/SlackChannelData'
           - $ref: '#/components/schemas/MsTeamsChannelData'
           - $ref: '#/components/schemas/DiscordChannelData'
@@ -1544,6 +1573,7 @@ components:
       description: A request to set preferences for a set of users in bulk.
       example:
         preferences:
+          __persistence_strategy__: merge
           categories:
             marketing: false
             transactional:
@@ -2750,7 +2780,6 @@ components:
       x-validate: null
     Recipient:
       description: A recipient of a notification, which is either a user or an object.
-      discriminator: __typename
       example:
         __typename: User
         avatar: null
@@ -3321,10 +3350,12 @@ components:
       description: A response for a list of guides.
       example:
         guides:
-          - content: New prehistoric specimens added to the visitor center display.
+          - active: true
+            content: New prehistoric specimens added to the visitor center display.
             id: f47ac10b-58cc-4372-a567-0e02b2c3d479
             title: Amber Collection Updated
-          - content: Version 2.1 - Enhanced paddock monitoring now available.
+          - active: true
+            content: Version 2.1 - Enhanced paddock monitoring now available.
             id: fe6c2c9c-849e-48d2-a5e5-9dc1f6b0f806
             title: Security Systems Upgraded
         recipient:
@@ -3334,6 +3365,11 @@ components:
           description: A list of guides.
           items:
             properties:
+              active:
+                description: Whether the guide is active.
+                type: boolean
+                x-struct: null
+                x-validate: null
               content:
                 description: The content of the guide.
                 type: string
@@ -3434,7 +3470,8 @@ components:
       description: A paginated list of messages.
       example:
         items:
-          - actors:
+          - __typename: Message
+            actors:
               - mr_arnold
               - mr_muldoon
             archived_at: null
@@ -3458,15 +3495,13 @@ components:
             interacted_at: null
             link_clicked_at: null
             metadata:
-              incident_id: shutdown-june-1993
-              initiated_by: ray_arnold
-              priority: critical
+              external_id: 123e4567-e89b-12d3-a456-426614174000
             read_at: "1993-06-11T21:30:00Z"
-            recipients: dr_grant
+            recipient: dr_grant
             scheduled_at: null
             seen_at: "1993-06-11T21:29:45Z"
             source:
-              __typename: Workflow
+              __typename: NotificationSource
               categories:
                 - security
                 - emergency
@@ -4017,17 +4052,11 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.BulkUpdateMessagesForChannelRequest
       x-validate: null
-    EmptyContentResponse:
-      description: A `204 No Content` response.
-      example: ""
-      title: EmptyContentResponse
-      type: string
-      x-struct: Elixir.SwitchboardWeb.V1.Specs.EmptyContentResponse
-      x-validate: null
     BatchListMessagesResponse:
       description: The list of messages that were updated.
       example:
-        - actors:
+        - __typename: Message
+          actors:
             - user_123
           archived_at: null
           channel_id: 123e4567-e89b-12d3-a456-426614174000
@@ -4060,6 +4089,7 @@ components:
         allOf:
           - $ref: '#/components/schemas/Message'
         example:
+          __typename: Message
           actors:
             - user_123
           archived_at: null
@@ -4635,6 +4665,7 @@ components:
     Message:
       description: Represents a single message that was generated by a workflow for a given channel.
       example:
+        __typename: Message
         actors:
           - mr_arnold
           - mr_muldoon
@@ -4659,15 +4690,13 @@ components:
         interacted_at: null
         link_clicked_at: null
         metadata:
-          incident_id: shutdown-june-1993
-          initiated_by: ray_arnold
-          priority: critical
+          external_id: 123e4567-e89b-12d3-a456-426614174000
         read_at: "1993-06-11T21:30:00Z"
-        recipients: dr_grant
+        recipient: dr_grant
         scheduled_at: null
         seen_at: "1993-06-11T21:29:45Z"
         source:
-          __typename: Workflow
+          __typename: NotificationSource
           categories:
             - security
             - emergency
@@ -4796,9 +4825,9 @@ components:
           x-struct: null
           x-validate: null
         source:
-          description: The workflow that triggered the message.
+          description: The workflow or guide that triggered the message.
           example:
-            __typename: Guide
+            __typename: NotificationSource
             categories:
               - collaboration
             key: comment-created
@@ -4806,7 +4835,7 @@ components:
             version_id: 123e4567-e89b-12d3-a456-426614174000
           properties:
             __typename:
-              example: Guide
+              example: NotificationSource
               type: string
               x-struct: null
               x-validate: null
@@ -4820,18 +4849,27 @@ components:
               x-struct: null
               x-validate: null
             key:
-              description: The key of the workflow that triggered the message.
+              description: The key of the workflow or guide that triggered the message.
               type: string
               x-struct: null
               x-validate: null
             step_ref:
-              description: The step reference for the step in the workflow that generated the message
+              description: The step reference for the step in the workflow that generated the message.
               nullable: true
               type: string
               x-struct: null
               x-validate: null
+            type:
+              description: Whether this message was generated from a workflow, broadcast, or guide.
+              enum:
+                - broadcast
+                - workflow
+                - guide
+              type: string
+              x-struct: null
+              x-validate: null
             version_id:
-              description: The ID of the version of the workflow that triggered the message.
+              description: The ID of the version of the workflow or guide that triggered the message.
               format: uuid
               type: string
               x-struct: null
@@ -4877,6 +4915,16 @@ components:
           type: string
           x-struct: null
           x-validate: null
+      required:
+        - __typename
+        - id
+        - channel_id
+        - status
+        - inserted_at
+        - updated_at
+        - recipient
+        - engagement_statuses
+        - source
       title: Message
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Message
@@ -5350,6 +5398,7 @@ components:
     PreferenceSetRequest:
       description: A request to set a preference set for a recipient.
       example:
+        __persistence_strategy__: merge
         categories:
           marketing: false
           transactional:
@@ -5362,6 +5411,14 @@ components:
             channel_types:
               email: false
       properties:
+        __persistence_strategy__:
+          description: Controls how the preference set is persisted. 'replace' will completely replace the preference set, 'merge' will merge with existing preferences.
+          enum:
+            - merge
+            - replace
+          type: string
+          x-struct: null
+          x-validate: null
         categories:
           anyOf:
             - additionalProperties:
@@ -5844,6 +5901,7 @@ components:
           oneOf:
             - $ref: '#/components/schemas/PushChannelData'
             - $ref: '#/components/schemas/OneSignalChannelData'
+            - $ref: '#/components/schemas/AwsSnsPushChannelData'
             - $ref: '#/components/schemas/SlackChannelData'
             - $ref: '#/components/schemas/MsTeamsChannelData'
             - $ref: '#/components/schemas/DiscordChannelData'
@@ -5955,6 +6013,57 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
+  /v1/users/{user_id}/guides/messages/seen:
+    put:
+      callbacks: {}
+      description: Records that a guide has been seen by a user, triggering any associated seen events.
+      operationId: markUserGuideAsSeen (2)
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            example:
+              channel_id: 123e4567-e89b-12d3-a456-426614174000
+              content:
+                body: Limited spots available for today's behind-the-scenes DNA extraction demonstration.
+                title: DNA Lab Tour Available
+              data:
+                next_time: 14:30
+                spots_left: 8
+                tour_id: dna_lab_tour
+              guide_id: 7e9dc78c-b3b1-4127-a54e-71f1899b831a
+              guide_key: tour_notification
+              guide_step_ref: lab_tours
+              is_final: false
+              metadata:
+                cta: Reserve Spot
+                theme: amber
+                type: banner
+              tenant: ingen_isla_nublar
+            schema:
+              $ref: '#/components/schemas/GuideActionRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuideActionResponse'
+          description: OK
+      summary: Mark guide as seen
+      tags:
+        - Guides
+        - Users
+      x-ratelimit-tier: 2
   /v1/tenants/{id}:
     delete:
       callbacks: {}
@@ -5971,10 +6080,6 @@ paths:
             x-validate: null
       responses:
         "204":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
           description: No Content
       summary: Delete a tenant
       tags:
@@ -5988,25 +6093,21 @@ paths:
             apiKey: 'My API Key',
           });
 
-          const tenant = await client.tenants.delete('id');
-
-          console.log(tenant);
+          await client.tenants.delete('id');
         python: |-
           from knockapi import Knock
 
           client = Knock(
               api_key="My API Key",
           )
-          tenant = client.tenants.delete(
+          client.tenants.delete(
               "id",
           )
-          print(tenant)
         go: |
           package main
 
           import (
             "context"
-            "fmt"
 
             "github.com/knocklabs/knock-go"
             "github.com/knocklabs/knock-go/option"
@@ -6016,20 +6117,19 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            tenant, err := client.Tenants.Delete(context.TODO(), "id")
+            err := client.Tenants.Delete(context.TODO(), "id")
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", tenant)
           }
         ruby: |-
           require "knockapi"
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          tenant = knock.tenants.delete("id")
+          result = knock.tenants.delete("id")
 
-          puts(tenant)
+          puts(result)
     get:
       callbacks: {}
       description: Get a tenant by ID.
@@ -6889,10 +6989,6 @@ paths:
             x-validate: null
       responses:
         "204":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
           description: No Content
       summary: Delete user
       tags:
@@ -6906,25 +7002,21 @@ paths:
             apiKey: 'My API Key',
           });
 
-          const user = await client.users.delete('user_id');
-
-          console.log(user);
+          await client.users.delete('user_id');
         python: |-
           from knockapi import Knock
 
           client = Knock(
               api_key="My API Key",
           )
-          user = client.users.delete(
+          client.users.delete(
               "user_id",
           )
-          print(user)
         go: |
           package main
 
           import (
             "context"
-            "fmt"
 
             "github.com/knocklabs/knock-go"
             "github.com/knocklabs/knock-go/option"
@@ -6934,20 +7026,19 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            user, err := client.Users.Delete(context.TODO(), "user_id")
+            err := client.Users.Delete(context.TODO(), "user_id")
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", user)
           }
         ruby: |-
           require "knockapi"
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          user = knock.users.delete("user_id")
+          result = knock.users.delete("user_id")
 
-          puts(user)
+          puts(result)
     get:
       callbacks: {}
       description: Retrieve a specific user by their ID.
@@ -7550,6 +7641,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: null
@@ -7586,6 +7678,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
   /v1/users/{user_id}/preferences/{id}/categories/{key}:
     put:
       callbacks: {}
@@ -7614,14 +7707,6 @@ paths:
         - description: The unique identifier of the user.
           in: path
           name: user_id
-          required: true
-          schema:
-            type: string
-            x-struct: null
-            x-validate: null
-        - description: The unique identifier for the message.
-          in: path
-          name: message_id
           required: true
           schema:
             type: string
@@ -8294,6 +8379,71 @@ paths:
           response = knock.workflows.trigger("key", recipients: ["dr_grant", "dr_sattler", "dr_malcolm"])
 
           puts(response)
+  /v1/users/{user_id}/guides/messages/archived:
+    delete:
+      callbacks: {}
+      description: Records that a guide has been unarchived, triggering any associated unarchived events.
+      operationId: markUserGuideAsUnarchived
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuideActionRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuideActionResponse'
+          description: OK
+      summary: Mark guide as unarchived
+      tags:
+        - Guides
+        - Users
+      x-ratelimit-tier: 2
+    put:
+      callbacks: {}
+      description: Records that a guide has been archived by a user, triggering any associated archived events.
+      operationId: markUserGuideAsArchived (2)
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuideActionRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuideActionResponse'
+          description: OK
+      summary: Mark guide as archived
+      tags:
+        - Guides
+        - Users
+      x-ratelimit-tier: 2
   /v1/messages/batch/unarchived:
     post:
       callbacks: {}
@@ -8318,7 +8468,8 @@ paths:
               schema:
                 description: The list of messages that were updated.
                 example:
-                  - actors:
+                  - __typename: Message
+                    actors:
                       - user_123
                     archived_at: null
                     channel_id: 123e4567-e89b-12d3-a456-426614174000
@@ -8351,6 +8502,7 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/Message'
                   example:
+                    __typename: Message
                     actors:
                       - user_123
                     archived_at: null
@@ -8391,6 +8543,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 3
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8470,6 +8623,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: null
@@ -8507,6 +8661,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
   /v1/providers/ms-teams/{channel_id}/auth_check:
     get:
       callbacks: {}
@@ -8624,6 +8779,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: null
@@ -8660,6 +8816,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8678,7 +8835,7 @@ paths:
               api_key="My API Key",
           )
           message = client.messages.mark_as_unseen(
-              "message_id",
+              "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
           )
           print(message.id)
         go: |
@@ -8707,7 +8864,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          message = knock.messages.mark_as_unseen("message_id")
+          message = knock.messages.mark_as_unseen("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
 
           puts(message)
     put:
@@ -8732,6 +8889,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: null
@@ -8769,6 +8927,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -8787,7 +8946,7 @@ paths:
               api_key="My API Key",
           )
           message = client.messages.mark_as_seen(
-              "message_id",
+              "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
           )
           print(message.id)
         go: |
@@ -8816,7 +8975,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          message = knock.messages.mark_as_seen("message_id")
+          message = knock.messages.mark_as_seen("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
 
           puts(message)
   /v1/users/{user_id}/channel_data/{channel_id}:
@@ -8844,10 +9003,6 @@ paths:
             x-validate: null
       responses:
         "204":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
           description: No Content
       summary: Unset channel data
       tags:
@@ -8862,26 +9017,22 @@ paths:
             apiKey: 'My API Key',
           });
 
-          const response = await client.users.unsetChannelData('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
-
-          console.log(response);
+          await client.users.unsetChannelData('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
         python: |-
           from knockapi import Knock
 
           client = Knock(
               api_key="My API Key",
           )
-          response = client.users.unset_channel_data(
+          client.users.unset_channel_data(
               user_id="user_id",
               channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
           )
-          print(response)
         go: |
           package main
 
           import (
             "context"
-            "fmt"
 
             "github.com/knocklabs/knock-go"
             "github.com/knocklabs/knock-go/option"
@@ -8891,7 +9042,7 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            response, err := client.Users.UnsetChannelData(
+            err := client.Users.UnsetChannelData(
               context.TODO(),
               "user_id",
               "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -8899,16 +9050,15 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", response)
           }
         ruby: |-
           require "knockapi"
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          response = knock.users.unset_channel_data("user_id", "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+          result = knock.users.unset_channel_data("user_id", "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
 
-          puts(response)
+          puts(result)
     get:
       callbacks: {}
       description: Retrieves the channel data for a specific user and channel ID.
@@ -9449,7 +9599,8 @@ paths:
               schema:
                 description: The list of messages that were updated.
                 example:
-                  - actors:
+                  - __typename: Message
+                    actors:
                       - user_123
                     archived_at: null
                     channel_id: 123e4567-e89b-12d3-a456-426614174000
@@ -9482,6 +9633,7 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/Message'
                   example:
+                    __typename: Message
                     actors:
                       - user_123
                     archived_at: null
@@ -9522,6 +9674,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 3
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -9598,7 +9751,8 @@ paths:
               schema:
                 description: The list of messages that were updated.
                 example:
-                  - actors:
+                  - __typename: Message
+                    actors:
                       - user_123
                     archived_at: null
                     channel_id: 123e4567-e89b-12d3-a456-426614174000
@@ -9630,6 +9784,7 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/Message'
                   example:
+                    __typename: Message
                     actors:
                       - user_123
                     archived_at: null
@@ -9669,6 +9824,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 3
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10099,7 +10255,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          page = knock.objects.list_messages("collection", "id")
+          page = knock.objects.list_messages("projects", "project-123")
 
           puts(page)
   /v1/objects/{collection}/{object_id}/preferences/{id}/categories/{key}:
@@ -10121,6 +10277,39 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
+  /v1/users/{user_id}/guides/messages/interacted:
+    put:
+      callbacks: {}
+      description: Records that a user has interacted with a guide, triggering any associated interacted events.
+      operationId: markUserGuideAsInteracted (2)
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuideActionRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuideActionResponse'
+          description: OK
+      summary: Mark guide as interacted
+      tags:
+        - Guides
+        - Users
+      x-ratelimit-tier: 2
   /v1/objects/{collection}/{object_id}/preferences:
     get:
       callbacks: {}
@@ -10255,6 +10444,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: null
@@ -10292,6 +10482,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10310,7 +10501,7 @@ paths:
               api_key="My API Key",
           )
           message = client.messages.mark_as_unread(
-              "message_id",
+              "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
           )
           print(message.id)
         go: |
@@ -10339,7 +10530,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          message = knock.messages.mark_as_unread("message_id")
+          message = knock.messages.mark_as_unread("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
 
           puts(message)
     put:
@@ -10364,6 +10555,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: null
@@ -10402,6 +10594,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -10420,7 +10613,7 @@ paths:
               api_key="My API Key",
           )
           message = client.messages.mark_as_read(
-              "message_id",
+              "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
           )
           print(message.id)
         go: |
@@ -10449,7 +10642,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          message = knock.messages.mark_as_read("message_id")
+          message = knock.messages.mark_as_read("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
 
           puts(message)
   /v1/users/bulk/preferences:
@@ -10463,6 +10656,7 @@ paths:
           application/json:
             example:
               preferences:
+                __persistence_strategy__: merge
                 categories:
                   marketing: false
                   transactional:
@@ -10503,6 +10697,7 @@ paths:
 
           const bulkOperation = await client.users.bulk.setPreferences({
             preferences: {
+              __persistence_strategy__: 'merge',
               categories: { marketing: false, transactional: { channel_types: { email: false } } },
               channel_types: { email: true },
               workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
@@ -10519,6 +10714,7 @@ paths:
           )
           bulk_operation = client.users.bulk.set_preferences(
               preferences={
+                  "_persistence_strategy": "merge",
                   "categories": {
                       "marketing": False,
                       "transactional": {
@@ -10559,6 +10755,7 @@ paths:
             )
             bulkOperation, err := client.Users.Bulk.SetPreferences(context.TODO(), knock.UserBulkSetPreferencesParams{
               Preferences: knock.F(knock.PreferenceSetRequestParam{
+                PersistenceStrategy: knock.F(knock.PreferenceSetRequest_PersistenceStrategyMerge),
                 Categories: knock.F(map[string]knock.PreferenceSetRequestCategoriesUnionParam{
                 "marketing": shared.UnionBool(false),
                 "transactional": knock.PreferenceSetRequestCategoriesPreferenceSetWorkflowCategorySettingObjectParam{
@@ -11319,7 +11516,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          bulk_operation = knock.objects.bulk.add_subscriptions("collection", subscriptions: [{recipients: [{id: "user_1"}]}])
+          bulk_operation = knock.objects.bulk.add_subscriptions("projects", subscriptions: [{recipients: [{id: "user_1"}]}])
 
           puts(bulk_operation)
   /v1/messages/batch/content:
@@ -11642,8 +11839,6 @@ paths:
         required: true
       responses:
         "204":
-          content:
-            application/json: {}
           description: No Content
       summary: Cancel workflow
       tags:
@@ -11673,10 +11868,6 @@ paths:
             x-validate: null
       responses:
         "204":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
           description: No Content
       summary: Delete an object
       tags:
@@ -11690,26 +11881,22 @@ paths:
             apiKey: 'My API Key',
           });
 
-          const object = await client.objects.delete('collection', 'id');
-
-          console.log(object);
+          await client.objects.delete('collection', 'id');
         python: |-
           from knockapi import Knock
 
           client = Knock(
               api_key="My API Key",
           )
-          object = client.objects.delete(
+          client.objects.delete(
               collection="collection",
               id="id",
           )
-          print(object)
         go: |
           package main
 
           import (
             "context"
-            "fmt"
 
             "github.com/knocklabs/knock-go"
             "github.com/knocklabs/knock-go/option"
@@ -11719,7 +11906,7 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            object, err := client.Objects.Delete(
+            err := client.Objects.Delete(
               context.TODO(),
               "collection",
               "id",
@@ -11727,16 +11914,15 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", object)
           }
         ruby: |-
           require "knockapi"
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          object = knock.objects.delete("collection", "id")
+          result = knock.objects.delete("collection", "id")
 
-          puts(object)
+          puts(result)
     get:
       callbacks: {}
       description: Retrieves a specific object by its ID from the specified collection. Returns the object with all its properties.
@@ -11994,7 +12180,7 @@ paths:
   /v1/tenants/bulk/delete:
     post:
       callbacks: {}
-      description: Delete multiple tenants in a single operation. This operation cannot be undone.
+      description: Delete up to 100 tenants at a time in a single operation. This operation cannot be undone.
       operationId: bulkDeleteTenants
       parameters:
         - description: The IDs of the tenants to delete.
@@ -12387,14 +12573,6 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The unique identifier for the message.
-          in: path
-          name: message_id
-          required: true
-          schema:
-            type: string
-            x-struct: null
-            x-validate: null
       requestBody:
         content:
           application/json:
@@ -12524,10 +12702,6 @@ paths:
             x-validate: null
       responses:
         "204":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
           description: No Content
       summary: Unset channel data
       tags:
@@ -12542,31 +12716,23 @@ paths:
             apiKey: 'My API Key',
           });
 
-          const response = await client.objects.unsetChannelData(
-            'collection',
-            'object_id',
-            '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-          );
-
-          console.log(response);
+          await client.objects.unsetChannelData('collection', 'object_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
         python: |-
           from knockapi import Knock
 
           client = Knock(
               api_key="My API Key",
           )
-          response = client.objects.unset_channel_data(
+          client.objects.unset_channel_data(
               collection="collection",
               object_id="object_id",
               channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
           )
-          print(response)
         go: |
           package main
 
           import (
             "context"
-            "fmt"
 
             "github.com/knocklabs/knock-go"
             "github.com/knocklabs/knock-go/option"
@@ -12576,7 +12742,7 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            response, err := client.Objects.UnsetChannelData(
+            err := client.Objects.UnsetChannelData(
               context.TODO(),
               "collection",
               "object_id",
@@ -12585,16 +12751,15 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", response)
           }
         ruby: |-
           require "knockapi"
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          response = knock.objects.unset_channel_data("collection", "object_id", "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+          result = knock.objects.unset_channel_data("collection", "object_id", "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
 
-          puts(response)
+          puts(result)
     get:
       callbacks: {}
       description: Returns the channel data for the specified object and channel.
@@ -12851,10 +13016,6 @@ paths:
         required: true
       responses:
         "204":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
           description: No Content
       summary: Remove members
       tags:
@@ -12868,28 +13029,24 @@ paths:
             apiKey: 'My API Key',
           });
 
-          const response = await client.audiences.removeMembers('key', { members: [{ user: {} }] });
-
-          console.log(response);
+          await client.audiences.removeMembers('key', { members: [{ user: {} }] });
         python: |-
           from knockapi import Knock
 
           client = Knock(
               api_key="My API Key",
           )
-          response = client.audiences.remove_members(
+          client.audiences.remove_members(
               key="key",
               members=[{
                   "user": {}
               }],
           )
-          print(response)
         go: |
           package main
 
           import (
             "context"
-            "fmt"
 
             "github.com/knocklabs/knock-go"
             "github.com/knocklabs/knock-go/option"
@@ -12899,7 +13056,7 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            response, err := client.Audiences.RemoveMembers(
+            err := client.Audiences.RemoveMembers(
               context.TODO(),
               "key",
               knock.AudienceRemoveMembersParams{
@@ -12913,16 +13070,15 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", response)
           }
         ruby: |-
           require "knockapi"
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          response = knock.audiences.remove_members("key", members: [{user: {}}])
+          result = knock.audiences.remove_members("key", members: [{user: {}}])
 
-          puts(response)
+          puts(result)
     get:
       callbacks: {}
       description: Returns a paginated list of members for the specified audience.
@@ -13024,10 +13180,6 @@ paths:
         required: true
       responses:
         "204":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
           description: No Content
       summary: Add members
       tags:
@@ -13041,18 +13193,16 @@ paths:
             apiKey: 'My API Key',
           });
 
-          const response = await client.audiences.addMembers('key', {
+          await client.audiences.addMembers('key', {
             members: [{ tenant: 'ingen_isla_nublar', user: { id: 'dr_sattler' } }],
           });
-
-          console.log(response);
         python: |-
           from knockapi import Knock
 
           client = Knock(
               api_key="My API Key",
           )
-          response = client.audiences.add_members(
+          client.audiences.add_members(
               key="key",
               members=[{
                   "tenant": "ingen_isla_nublar",
@@ -13061,13 +13211,11 @@ paths:
                   },
               }],
           )
-          print(response)
         go: |
           package main
 
           import (
             "context"
-            "fmt"
 
             "github.com/knocklabs/knock-go"
             "github.com/knocklabs/knock-go/option"
@@ -13077,7 +13225,7 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            response, err := client.Audiences.AddMembers(
+            err := client.Audiences.AddMembers(
               context.TODO(),
               "key",
               knock.AudienceAddMembersParams{
@@ -13092,16 +13240,15 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", response)
           }
         ruby: |-
           require "knockapi"
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          response = knock.audiences.add_members("key", members: [{user: {}}])
+          result = knock.audiences.add_members("key", members: [{user: {}}])
 
-          puts(response)
+          puts(result)
   /v1/providers/ms-teams/{channel_id}/channels:
     get:
       callbacks: {}
@@ -13482,7 +13629,8 @@ paths:
               schema:
                 description: The list of messages that were updated.
                 example:
-                  - actors:
+                  - __typename: Message
+                    actors:
                       - user_123
                     archived_at: null
                     channel_id: 123e4567-e89b-12d3-a456-426614174000
@@ -13515,6 +13663,7 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/Message'
                   example:
+                    __typename: Message
                     actors:
                       - user_123
                     archived_at: null
@@ -13555,6 +13704,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 3
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -13987,14 +14137,6 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The unique identifier for the message.
-          in: path
-          name: message_id
-          required: true
-          schema:
-            type: string
-            x-struct: null
-            x-validate: null
       requestBody:
         content:
           application/json:
@@ -14114,6 +14256,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: null
@@ -14151,6 +14294,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14169,7 +14313,7 @@ paths:
               api_key="My API Key",
           )
           message = client.messages.unarchive(
-              "message_id",
+              "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
           )
           print(message.id)
         go: |
@@ -14198,7 +14342,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          message = knock.messages.unarchive("message_id")
+          message = knock.messages.unarchive("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
 
           puts(message)
     put:
@@ -14223,6 +14367,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: "2025-01-01T00:04:00Z"
@@ -14261,6 +14406,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14279,7 +14425,7 @@ paths:
               api_key="My API Key",
           )
           message = client.messages.archive(
-              "message_id",
+              "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
           )
           print(message.id)
         go: |
@@ -14308,7 +14454,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          message = knock.messages.archive("message_id")
+          message = knock.messages.archive("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
 
           puts(message)
   /v1/messages/batch/archived:
@@ -14335,7 +14481,8 @@ paths:
               schema:
                 description: The list of messages that were updated.
                 example:
-                  - actors:
+                  - __typename: Message
+                    actors:
                       - user_123
                     archived_at: "2025-01-01T00:04:00Z"
                     channel_id: 123e4567-e89b-12d3-a456-426614174000
@@ -14369,6 +14516,7 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/Message'
                   example:
+                    __typename: Message
                     actors:
                       - user_123
                     archived_at: "2025-01-01T00:04:00Z"
@@ -14410,6 +14558,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 3
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -14736,7 +14885,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          page = knock.users.list_messages("user_id")
+          page = knock.users.list_messages("user-123")
 
           puts(page)
   /v1/integrations/hightouch/embedded-destination:
@@ -14914,6 +15063,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: null
@@ -14952,6 +15102,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -15005,7 +15156,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          message = knock.messages.mark_as_interacted("message_id")
+          message = knock.messages.mark_as_interacted("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
 
           puts(message)
   /v1/messages/{message_id}/unarchived:
@@ -15031,6 +15182,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Message'
                 example:
+                  __typename: Message
                   actors:
                     - user_123
                   archived_at: null
@@ -15068,6 +15220,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 2
+      x-retention-policy: true
   /v1/users/{user_id}/in-app-messages/{channel_id}/{message_type}:
     get:
       callbacks: {}
@@ -15432,7 +15585,8 @@ paths:
               schema:
                 description: The list of messages that were updated.
                 example:
-                  - actors:
+                  - __typename: Message
+                    actors:
                       - user_123
                     archived_at: null
                     channel_id: 123e4567-e89b-12d3-a456-426614174000
@@ -15466,6 +15620,7 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/Message'
                   example:
+                    __typename: Message
                     actors:
                       - user_123
                     archived_at: null
@@ -15507,6 +15662,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 3
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';
@@ -15590,10 +15746,6 @@ paths:
         required: true
       responses:
         "204":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmptyContentResponse'
           description: No Content
       summary: Cancel workflow
       tags:
@@ -15607,30 +15759,23 @@ paths:
             apiKey: 'My API Key',
           });
 
-          const response = await client.workflows.cancel('key', {
-            cancellation_key: 'cancel-workflow-123',
-            recipients: ['jhammond'],
-          });
-
-          console.log(response);
+          await client.workflows.cancel('key', { cancellation_key: 'cancel-workflow-123', recipients: ['jhammond'] });
         python: |-
           from knockapi import Knock
 
           client = Knock(
               api_key="My API Key",
           )
-          response = client.workflows.cancel(
+          client.workflows.cancel(
               key="key",
               cancellation_key="cancel-workflow-123",
               recipients=["jhammond"],
           )
-          print(response)
         go: |
           package main
 
           import (
             "context"
-            "fmt"
 
             "github.com/knocklabs/knock-go"
             "github.com/knocklabs/knock-go/option"
@@ -15641,7 +15786,7 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            response, err := client.Workflows.Cancel(
+            err := client.Workflows.Cancel(
               context.TODO(),
               "key",
               knock.WorkflowCancelParams{
@@ -15652,16 +15797,15 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", response)
           }
         ruby: |-
           require "knockapi"
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          response = knock.workflows.cancel("key", cancellation_key: "cancel-workflow-123")
+          result = knock.workflows.cancel("key", cancellation_key: "cancel-workflow-123")
 
-          puts(response)
+          puts(result)
   /v1/users/{user_id}/preferences/{id}/workflows/{key}:
     put:
       callbacks: {}
@@ -15922,7 +16066,7 @@ paths:
   /v1/tenants/bulk/set:
     post:
       callbacks: {}
-      description: Set or update up to 1,000 tenants in a single operation.
+      description: Set or update up to 100 tenants in a single operation.
       operationId: bulkSetTenants
       parameters: []
       requestBody:
@@ -16104,7 +16248,7 @@ paths:
           puts(preference_set)
     put:
       callbacks: {}
-      description: Sets preferences within the given preference set. This is a destructive operation and will replace any existing preferences with the preferences given. If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request. The preference set `:id` can be either `default` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).
+      description: 'Sets preferences within the given preference set. By default, this is a destructive operation and will replace any existing preferences with the preferences given. Use ''__persistence_strategy'': ''merge'' to merge with existing preferences instead. If no object exists in the current environment for the given `:collection` and `:object_id`, Knock will create the object as part of this request. The preference set `:id` can be either `default` or a `tenant.id`. Learn more about [per-tenant preferences](/preferences/tenant-preferences).'
       operationId: updateObjectPreferenceSet
       parameters:
         - description: Unique identifier for the object.
@@ -16137,6 +16281,7 @@ paths:
         content:
           application/json:
             example:
+              __persistence_strategy__: merge
               categories:
                 marketing: false
                 transactional:
@@ -16173,6 +16318,7 @@ paths:
           });
 
           const preferenceSet = await client.objects.setPreferences('collection', 'object_id', 'default', {
+            __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
@@ -16189,6 +16335,7 @@ paths:
               collection="collection",
               object_id="object_id",
               id="default",
+              _persistence_strategy="merge",
               categories={
                   "marketing": False,
                   "transactional": {
@@ -16445,7 +16592,7 @@ paths:
               api_key="My API Key",
           )
           message = client.messages.get(
-              "message_id",
+              "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
           )
           print(message.id)
         go: |
@@ -16474,7 +16621,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          message = knock.messages.get("message_id")
+          message = knock.messages.get("1jNaXzB2RZX3LY8wVQnfCKyPnv7")
 
           puts(message)
   /v1/users/{user_id}/preferences/{id}:
@@ -16581,7 +16728,7 @@ paths:
           puts(preference_set)
     put:
       callbacks: {}
-      description: Updates a complete preference set for a user. This is a destructive operation that will replace the existing preference set for the user.
+      description: 'Updates a complete preference set for a user. By default, this is a destructive operation and will replace any existing preferences with the preferences given. Use ''__persistence_strategy__'': ''merge'' to merge with existing preferences instead.'
       operationId: updateUserPreferenceSet
       parameters:
         - description: The unique identifier of the user.
@@ -16606,6 +16753,7 @@ paths:
         content:
           application/json:
             example:
+              __persistence_strategy__: merge
               categories:
                 marketing: false
                 transactional:
@@ -16642,6 +16790,7 @@ paths:
           });
 
           const preferenceSet = await client.users.setPreferences('user_id', 'default', {
+            __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
@@ -16657,6 +16806,7 @@ paths:
           preference_set = client.users.set_preferences(
               user_id="user_id",
               id="default",
+              _persistence_strategy="merge",
               categories={
                   "marketing": False,
                   "transactional": {
@@ -17121,7 +17271,8 @@ paths:
               schema:
                 description: The list of messages that were updated.
                 example:
-                  - actors:
+                  - __typename: Message
+                    actors:
                       - user_123
                     archived_at: null
                     channel_id: 123e4567-e89b-12d3-a456-426614174000
@@ -17155,6 +17306,7 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/Message'
                   example:
+                    __typename: Message
                     actors:
                       - user_123
                     archived_at: null
@@ -17196,6 +17348,7 @@ paths:
       tags:
         - Messages
       x-ratelimit-tier: 3
+      x-retention-policy: true
       x-stainless-snippets:
         typescript: |-
           import Knock from '@knocklabs/node';

@@ -14,6 +14,16 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
+    title: "Login",
+    slug: "/cli/login",
+  },
+
+  {
+    title: "Logout",
+    slug: "/cli/logout",
+  },
+
+  {
     title: "Pull all resources",
     slug: "/cli/pull",
   },
@@ -87,7 +97,6 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   {
     title: "Guides",
     slug: "/cli/guides",
-    isBeta: true,
     pages: [
       { slug: "/list", title: "List guides" },
       { slug: "/get", title: "Get guides" },

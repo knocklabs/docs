@@ -1,0 +1,223 @@
+Client for interacting with message operations in the Knock API.
+
+## Constructor
+
+Initializes a new message client instance.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="The Knock client instance to use for API requests."
+  />
+</Attributes>
+
+**Returns**: `MessageClient`
+
+## Methods
+
+### `get`
+
+Retrieves a specific message by its ID.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="messageId"
+    type="string"
+    description="The unique identifier of the message to retrieve."
+  />
+</Attributes>
+
+**Returns**: `Promise<Message>`
+
+**Example**:
+
+```javascript title="Getting a message"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const message = await knock.messages.get("message-id-123");
+```
+
+### `updateStatus`
+
+Updates the engagement status of a message. For the "interacted" status, additional metadata can be provided.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="messageId"
+    type="string"
+    description="The unique identifier of the message to update."
+  />
+  <Attribute
+    name="status"
+    type="MessageEngagementStatus"
+    description="The engagement status to set (e.g., 'read', 'seen', 'archived', 'interacted')."
+  />
+  <Attribute
+    name="options"
+    type="UpdateMessageStatusOptions"
+    description="Optional parameters. Required when status is 'interacted' to provide metadata."
+  />
+</Attributes>
+
+**Returns**: `Promise<Message>`
+
+**Example**:
+
+```javascript title="Updating message status"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+// Mark as read
+const readMessage = await knock.messages.updateStatus("message-id-123", "read");
+
+// Mark as interacted with metadata
+const interactedMessage = await knock.messages.updateStatus(
+  "message-id-123",
+  "interacted",
+  { metadata: { action: "clicked", button: "cta" } },
+);
+```
+
+### `removeStatus`
+
+Removes an engagement status from a message. Note: Cannot remove "interacted" status.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="messageId"
+    type="string"
+    description="The unique identifier of the message to update."
+  />
+  <Attribute
+    name="status"
+    type="Exclude<MessageEngagementStatus, 'interacted'>"
+    description="The engagement status to remove (e.g., 'read', 'seen', 'archived'). Cannot be 'interacted'."
+  />
+</Attributes>
+
+**Returns**: `Promise<Message>`
+
+**Example**:
+
+```javascript title="Removing message status"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+// Mark as unread
+const unreadMessage = await knock.messages.removeStatus(
+  "message-id-123",
+  "read",
+);
+
+// Mark as unseen
+const unseenMessage = await knock.messages.removeStatus(
+  "message-id-123",
+  "seen",
+);
+```
+
+### `batchUpdateStatuses`
+
+Updates the engagement status of multiple messages in a single request.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="messageIds"
+    type="string[]"
+    description="Array of message IDs to update."
+  />
+  <Attribute
+    name="status"
+    type="MessageEngagementStatus | 'unseen' | 'unread' | 'unarchived'"
+    description="The engagement status to set on all messages. Can include removal statuses like 'unseen', 'unread', 'unarchived'."
+  />
+  <Attribute
+    name="options"
+    type="UpdateMessageStatusOptions"
+    description="Optional parameters. Required when status is 'interacted' to provide metadata."
+  />
+</Attributes>
+
+**Returns**: `Promise<Message[]>`
+
+**Example**:
+
+```javascript title="Batch updating message statuses"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+// Mark multiple messages as read
+const updatedMessages = await knock.messages.batchUpdateStatuses(
+  ["msg-1", "msg-2", "msg-3"],
+  "read",
+);
+
+// Mark multiple messages as interacted
+const interactedMessages = await knock.messages.batchUpdateStatuses(
+  ["msg-1", "msg-2"],
+  "interacted",
+  { metadata: { source: "bulk_action" } },
+);
+```
+
+### `bulkUpdateAllStatusesInChannel`
+
+Updates the engagement status of all messages in a specific channel.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="channelId"
+    type="string"
+    description="The ID of the channel containing the messages to update."
+  />
+  <Attribute
+    name="status"
+    type="MessageEngagementStatus"
+    description="The engagement status to set on all messages in the channel."
+  />
+  <Attribute
+    name="options"
+    type="object"
+    description="Additional options for the bulk update operation."
+  />
+</Attributes>
+
+**Returns**: `Promise<BulkOperation>`
+
+**Example**:
+
+```javascript title="Bulk updating all messages in a channel"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+// Mark all messages in a channel as read
+const bulkOperation = await knock.messages.bulkUpdateAllStatusesInChannel({
+  channelId: "in-app-feed-channel",
+  status: "read",
+  options: {},
+});
+```

@@ -1,0 +1,317 @@
+Represents the connection between a user and a feed, including methods for interacting with the items on that feed. Also includes a stateful store that can be used to build in-app notification experiences easily. See [`FeedStoreState`](#feedstorestate) for more on the shape of the store.
+
+## Properties
+
+### `store`
+
+**Returns**: `StoreApi<FeedStoreState>`
+
+## Methods
+
+### `listenForUpdates`
+
+Connects the feed instance to the realtime socket so that any new items published to the feed are received over the websocket.
+
+**Returns**: `void`
+
+**Example**:
+
+```javascript title="Connecting to a realtime stream"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const knockFeed = knock.feeds.initialize(process.env.KNOCK_FEED_CHANNEL_ID);
+
+// Listen for updates
+knockFeed.listenForUpdates();
+
+// Stop listening
+knockFeed.teardown();
+```
+
+### `on`
+
+Binds an event handler to be invoked when the event is triggered.
+
+**Events**:
+
+<Attributes>
+  <Attribute
+    name="items.received.realtime"
+    type="event"
+    description="Invoked whenever items are received in realtime from the socket."
+  />
+  <Attribute
+    name="items.received.page"
+    type="event"
+    description="Invoked whenever items are received from performing a fetch. Will be invoked for the initial fetch as well."
+  />
+  <Attribute
+    name="items.received.*"
+    type="event"
+    description="Invoked when any event with a name matching this pattern is emitted, e.g. `items.received.realtime` or `items.received.page`."
+  />
+  <Attribute
+    name="items.archived"
+    type="event"
+    description="Invoked when one or more items are archived."
+  />
+  <Attribute
+    name="items.unarchived"
+    type="event"
+    description="Invoked when one or more items are unarchived."
+  />
+  <Attribute
+    name="items.seen"
+    type="event"
+    description="Invoked when one or more items are seen."
+  />
+  <Attribute
+    name="items.unseen"
+    type="event"
+    description="Invoked when one or more items are unseen."
+  />
+  <Attribute
+    name="items.read"
+    type="event"
+    description="Invoked when one or more items are read."
+  />
+  <Attribute
+    name="items.unread"
+    type="event"
+    description="Invoked when one or more items are unread."
+  />
+  <Attribute
+    name="items.all_archived"
+    type="event"
+    description="Invoked when all items in the current scope are marked as archived."
+  />
+  <Attribute
+    name="items.all_seen"
+    type="event"
+    description="Invoked when all items in the current scope are marked as seen."
+  />
+  <Attribute
+    name="items.all_read"
+    type="event"
+    description="Invoked when all items in the current scope are marked as read."
+  />
+  <Attribute
+    name="items.*"
+    type="event"
+    description="Invoked when any event with a name matching this pattern is emitted, e.g. `items.read` or `items.archived`."
+  />
+</Attributes>
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="eventName"
+    type="enum of `messages.new` | `items.received.realtime` | `items.received.page` | `items.received.*`"
+    description="The type of event to bind to."
+  />
+  <Attribute
+    name="callback"
+    type="function"
+    description="A function to be invoked when the event is triggered."
+  />
+</Attributes>
+
+**Returns**: `void`.
+
+**Example**:
+
+```javascript title="Listening to items being received"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const knockFeed = knock.feeds.initialize(process.env.KNOCK_FEED_CHANNEL_ID);
+
+knockFeed.on("items.received.page", ({ items }) => {
+  console.log(items);
+});
+```
+
+### `off`
+
+Unbinds an existing event handler previously bound with `on`. Use this method to cleanup bound event handlers.
+
+**Returns**: `void`.
+
+### `getState`
+
+Programmatically access the current `FeedStoreState`.
+
+**Returns**: `FeedStoreState`.
+
+### `markAllAsSeen`
+
+Marks all of the items in the store optimistically as seen and performs a server-side request to mark **all items on the feed in the current scope** as seen. Broadcasts a `items:all_seen` event.
+
+**Please note**: this operation is deferred and may take some time to process all items in the feed.
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsSeen`
+
+Marks the given items as `seen`. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsUnseen`
+
+Removes the `seen` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAllAsRead`
+
+Marks all of the items in the store optimistically as read and performs a server-side request to mark **all items on the feed in the current scope** as read. Broadcasts a `items:all_read` event.
+
+**Please note**: this operation is deferred and may take some time to process all items in the feed.
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsRead`
+
+Sets the `read` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsUnread`
+
+Removes the `read` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAllAsArchived`
+
+Marks all of the items in the store optimistically as archived and performs a server-side request to mark **all items on the feed in the current scope** as archived. Broadcasts a `items:all_archived` event.
+
+**Please note**: this operation is deferred and may take some time to process all items in the feed.
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsArchived`
+
+Sets the `archived` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`. Broadcasts a `items:archived` event.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsUnarchived`
+
+Removes the `archived` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `markAsInteracted`
+
+Sets the `interacted` status on the item or items given. Will perform the operation optimistically, including updating the current `metadata` in the `FeedStoreState`. Broadcasts an `items:interacted` event.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="itemOrItems"
+    type="FeedItemOrItems"
+    description="A single `FeedItem` or a list of `FeedItem` to perform the update on."
+  />
+  <Attribute
+    name="metadata"
+    type="Record<string, any>"
+    description="Additional metadata to be stored with the interaction event."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `fetch`
+
+Fetches items from the feed.
+
+Emits `items.received.page` events on a successful fetch.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="options"
+    type="FetchFeedOptions"
+    description="Options to pass through to the feed request."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+### `fetchNextPage`
+
+Fetches the next page of the feed items (if there are any more to fetch).
+
+Emits `items.received.page` events on a successful fetch.
+
+Note: this will apply any current feed filters and append returned items to the end of the current set of items.

@@ -36,8 +36,8 @@ Knock will preemptively schedule workflow runs for the recipient(s) that you've 
   text={
     <>
       Breaking changes to Schedules methods were introduced in the v1.0 release
-      of the Knock SDKs. Learn more about the new syntax in the{" "}
-      <a href="/developer-tools/migration-guides/node">SDK migration guides</a>.
+      of the Knock SDKs. Learn more about the new syntax in the{` `}
+      <a href="/developer-tools/migration-guides/node">SDK migration manuals</a>.
     </>
   }
 />
@@ -85,19 +85,6 @@ const schedules = await client.schedules.create({
 });
 ```
 
-### Schedule properties
-
-| Variable       | Type                  | Description                                                                                                                                                                 |
-| -------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `recipients`   | RecipientIdentifier[] | One or more recipient identifiers, or complete recipients to be upserted.                                                                                                   |
-| `workflow`     | string                | The workflow to trigger.                                                                                                                                                    |
-| `repeats`      | ScheduleRepeat[]      | A list of one or more repeats (see below). Required if you're creating a recurring schedule.                                                                                |
-| `data`         | map                   | Custom data to pass to every workflow trigger.                                                                                                                              |
-| `tenant`       | string                | A tenant to pass to the workflow trigger.                                                                                                                                   |
-| `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted.                                                                                                              |
-| `scheduled_at` | utc_datetime          | A UTC datetime in ISO-8601 format representing the start moment for the recurring schedule, or the exact and only execution moment for the non-recurring schedule.          |
-| `ending_at`    | utc_datetime          | A UTC datetime in ISO-8601 format that indicates when the schedule should end. Once the current schedule time passes `ending_at`, no further occurrences will be scheduled. |
-
 <Callout
   emoji="🚨"
   title="Note:"
@@ -112,6 +99,19 @@ const schedules = await client.schedules.create({
     </>
   }
 />
+
+### Schedule properties
+
+| Variable       | Type                  | Description                                                                                                                                                                 |
+| -------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `recipients`   | RecipientIdentifier[] | One or more recipient identifiers, or complete recipients to be upserted.                                                                                                   |
+| `workflow`     | string                | The workflow to trigger.                                                                                                                                                    |
+| `repeats`      | ScheduleRepeat[]      | A list of one or more repeats (see below). Required if you're creating a recurring schedule.                                                                                |
+| `data`         | map                   | Custom data to pass to every workflow trigger.                                                                                                                              |
+| `tenant`       | string                | A tenant to pass to the workflow trigger.                                                                                                                                   |
+| `actor`        | RecipientIdentifier   | An identifier of an actor, or a complete actor to be upserted.                                                                                                              |
+| `scheduled_at` | utc_datetime          | A UTC datetime in ISO-8601 format representing the start moment for the recurring schedule, or the exact and only execution moment for the non-recurring schedule.          |
+| `ending_at`    | utc_datetime          | A UTC datetime in ISO-8601 format that indicates when the schedule should end. Once the current schedule time passes `ending_at`, no further occurrences will be scheduled. |
 
 ### ScheduleRepeat properties
 
@@ -288,6 +288,12 @@ Knock supports a `timezone` property on the recipient that automatically makes a
 ## Frequently asked questions
 
 <AccordionGroup>
+  <Accordion title="Can I create a schedule to notify subscribers of an object?">
+    No, currently we do not support creating schedules to notify subscribers of
+    an object. Each individual subscriber will need to be added as a recipient
+    when creating the workflow schedule; a schedule for an object recipient will
+    only generate a workflow run for that object.
+  </Accordion>
   <Accordion title="How can I start my repeating schedule at a particular time?">
     You can use the `scheduled_at` attribute to start your schedule at a
     particular time in the future.

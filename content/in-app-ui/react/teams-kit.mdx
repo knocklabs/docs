@@ -8,9 +8,9 @@ Our `@knocklabs/react` library comes with pre-built components for allowing your
 
 ## Getting started
 
-To get started you'll need a [Knock account](https://dashboard.knock.app), a [Microsoft Teams channel connected to a Microsoft Teams bot](/integrations/chat/microsoft-teams/overview), and a workflow with a Microsoft Teams channel step.
+To get started you'll need a [Knock account](https://dashboard.knock.app), a [Microsoft Teams channel connected to a Microsoft Teams bot](/integrations/chat/microsoft-teams/overview), a [Graph API-enabled application](/integrations/chat/microsoft-teams/overview#configuring-a-graph-api-enabled-application-in-microsoft-entra), and a workflow with a Microsoft Teams channel step.
 
-Depending on your use case, you can follow one of these guides for step-by-step instructions on how to set up your Microsoft Teams integration:
+Follow step-by-step instructions for your use case:
 
 - [Sending messages to public channels](/integrations/chat/microsoft-teams/sending-a-message-to-channels) in your customers' Microsoft Teams instances
 - [Sending direct messages](/integrations/chat/microsoft-teams/sending-a-direct-message) to users in your customers' Microsoft Teams instances
@@ -57,12 +57,12 @@ The `KnockMsTeamsProvider` gives your components access to the status of the con
   </figcaption>
 </figure>
 
-Your users will give your Microsoft Teams bot access to their own Microsoft Entra tenants via the `MsTeamsAuthButton`. This button can be used on its own, or nested in the `MsTeamsAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
+Your users will connect your Microsoft Teams bot to their own Microsoft Entra tenants via the `MsTeamsAuthButton`. This button can be used on its own, or nested in the `MsTeamsAuthContainer` for a bigger visual footprint. Here's an example of how to use them:
 
 ```javascript title="Initiate OAuth and display auth state with MsTeamsAuthButton"
 // Without container
 <MsTeamsAuthButton
-    msTeamsBotId="Microsoft Teams bot ID"
+    graphApiClientId="Microsoft Graph API client ID"
     redirectUrl="The URL of your application to return to once Microsoft Teams authorization is complete"
 />
 
@@ -70,7 +70,7 @@ Your users will give your Microsoft Teams bot access to their own Microsoft Entr
 <MsTeamsAuthContainer
     actionButton={
         <MsTeamsAuthButton
-            msTeamsBotId="Microsoft Teams bot ID"
+            graphApiClientId="Microsoft Graph API client ID"
             redirectUrl="The URL of your application to return to once Microsoft Teams authorization is complete"
         />
     }
@@ -178,7 +178,7 @@ Here's an example of these components in a React application.
 KNOCK_PUBLIC_API_KEY = "pk_test_12345";
 KNOCK_MS_TEAMS_CHANNEL_ID = "2e0e37c3-751b-4be5-a684-8296009e960e";
 
-MS_TEAMS_BOT_ID = "f1b85cf4-58e1-4cef-8d3f-ce6ccf60734d";
+GRAPH_API_CLIENT_ID = "f1b85cf4-58e1-4cef-8d3f-ce6ccf60734d";
 ```
 
 <br />
@@ -207,7 +207,7 @@ const NotificationSettings = () => {
     <MsTeamsAuthContainer
       actionButton={
         <MsTeamsAuthButton
-          msTeamsBotId={process.env.MS_TEAMS_BOT_ID}
+          graphApiClientId={process.env.GRAPH_API_CLIENT_ID}
           redirectUrl={"www.my-example-app.com/notification-settings"}
         />
       }
@@ -258,7 +258,7 @@ TeamsKit exposes three levels of support: React hooks, client functions, and API
 
 You can use the [Microsoft Teams React hooks](/in-app-ui/react/sdk/reference#microsoft-teams-hooks) under the hood to access and set Microsoft Teams integration data with your own components. All of them are available from the `@knocklabs/react-core` package. All of them must still be nested under the `KnockMsTeamsProvider` to work.
 
-To use a hook in your component, all you need to to is import it and pass it the necessary params, and then you can use the data and functions returned in each to pass to your own component UI.
+To use a hook in your component, all you need to do is import it and pass it the necessary params, and then you can use the data and functions returned in each to pass to your own component UI.
 
 ### Client functions
 
@@ -298,7 +298,7 @@ Example:
 - Recipient object collection: `videos`
 - Recipient object ID: `dinosaurs-loose`
 
-Using the above example, you can quickly generate a token with the [Node SDK](https://github.com/knocklabs/knock-node#signing-jwts).
+Using the above example, you can quickly generate a token with the <a href="https://github.com/knocklabs/knock-node#jwt-token-signing" target="_blank">Node SDK</a>.
 
 ```javascript
 import {
@@ -317,7 +317,7 @@ await signUserToken("user-1", {
       [Grants.ChannelDataRead, Grants.ChannelDataWrite],
     ),
     buildUserTokenGrant(
-      { type: "object", id: "raptor-feeding-guide", collection: "videos" },
+      { type: "object", id: "raptor-feeding-info", collection: "videos" },
       [Grants.ChannelDataRead, Grants.ChannelDataWrite],
     ),
   ],

@@ -1,7 +1,21 @@
 ---
 title: Broadcasts
 description: Power one-time, cross-channel messaging to your users through Knock.
-tags: []
+tags:
+  [
+    "segmentation",
+    "user segmentation",
+    "lifecycle",
+    "marketing",
+    "audience",
+    "groups",
+    "segments",
+    "one-time",
+    "one-off",
+    "cross-channel",
+    "broadcast",
+    "broadcasts",
+  ]
 section: Concepts
 ---
 
@@ -17,7 +31,11 @@ If you wish to mirror a flow where you create a broadcast in development, and th
 
 Broadcasts can be targeted to a specific set of users [via an audience](/concepts/audiences), sent to all users in an environment, or sent to a specific set of users by uploading a CSV.
 
-Your users **must** exist within Knock in order to send them a broadcast. If you're looking to send a broadcast to users who don't yet exist within Knock, you can use a CSV to upload a list of users who will first be identified before the broadcast is sent. You can also create a new audience on the fly when uploading a CSV of users to a broadcast.
+Your users **must** exist within Knock in order to send them a broadcast. If you're looking to send a broadcast to users who don't yet exist within Knock, you can use a CSV to upload a list of users who will first be identified before the broadcast is sent. Knock will upsert the users as they are added to the broadcast and skip any users with malformed or missing IDs. You can also create a new audience on the fly when uploading a CSV of users to a broadcast.
+
+You can also include a tenant ID associated with each user when uploading a CSV of users to a broadcast. Each user-tenant pair will be treated as a distinct recipient for the purposes of the broadcast. See [using audiences with tenants](/concepts/audiences#using-audiences-with-tenants) for more details.
+
+**Note**: Uploading the same user multiple times with a different tenant ID will always persist the last user properties uploaded in the list onto the user. If you want to use data specific to a tenant, you can categorize your fields as "broadcast data" so that it will be available for that particular user-tenant pair.
 
 ## Creating and managing broadcast content
 
@@ -45,6 +63,24 @@ Knock will automatically expose the following variables to the broadcast builder
 
 You can access the broadcast state in the broadcast builder by toggling the state pane. All of these variables are also available [in the template editor](/designing-workflows/template-editor/variables).
 
+### Per-recipient data
+
+When you upload a CSV of users to a broadcast, you can map any columns of your CSV to either the "User" or "Broadcast" schema. When you map them to the user, these properties will be persisted to the user object in Knock. When you map them to the broadcast, these properties will be available in the template editor for this broadcast only and cannot be reused in other broadcasts. You can access these properties in the template editor by using the `data` variable as you would with workflow data.
+
+<Callout
+  emoji="⚠️"
+  bgColor="yellow"
+  title="Note:"
+  text={
+    <>
+      Due to the nature of the CSV format, all data values (user or broadcast)
+      that are upserted via CSV as part of a broadcast will be treated as
+      strings. You'll need to account for this when using your data in your
+      templates or conditions.
+    </>
+  }
+/>
+
 ## Scheduling broadcasts
 
 Broadcasts can optionally be scheduled to send at a specific time. When a broadcast is scheduled, you will see the status of the broadcast reflected as scheduled on the date and time you specified. Scheduled broadcasts can be canceled before they are sent, should you wish to make any changes.
@@ -61,7 +97,7 @@ Sent broadcasts include a recipient summary that highlights key delivery and eng
 - **Read**: The number of messages that were opened and read by the recipient at least once.
 - **Interacted**: The number of messages that were interacted with (e.g. the recipient clicked a link).
 
-To learn more, see our [message statuses guide](/send-notifications/message-statuses).
+To learn more, see our [message status documentation](/send-notifications/message-statuses).
 
 <Image
   src="/images/concepts/broadcasts/broadcast_analytics_summary.png"
@@ -80,7 +116,7 @@ You can test a broadcast by clicking the "Run test" button in the broadcast over
 Broadcasts are processed in the same way as workflows, and as such, you can use the same tools to debug and observe broadcasts as you can workflows.
 
 - **Messages** generated from a broadcast are available under the "Messages" logs, which you can find in the main sidebar on the dashboard, under a user's profile, or within a specific broadcast.
-- **Runs** generated from executing broadcasts are available under the "Runs" tab, which you can find under the "Developers" section of the sidebar, under a user's profile, or within a specific broadcast.
+- **Runs** generated from executing broadcasts are available under the "Runs" tab, under a user's profile, or within a specific broadcast.
 
 Additionally, developer tools and extensions are available for broadcasts as they are workflows.
 
@@ -115,7 +151,11 @@ Knock also supports [commercial unsubscribe](/preferences/commercial-unsubscribe
     you](mailto:support@knock.app?subject=Broadcast%20to%20objects).
   </Accordion>
   <Accordion title="Can I send a broadcast to a set of users who don't exist in Knock?">
-    No, your users must be identified as users in Knock before you can send them
-    a broadcast.
+    Your users must be identified as users in Knock before you can send them a
+    broadcast. When you upload a CSV of users to a broadcast, Knock will
+    automatically identify the users.
+  </Accordion>
+  <Accordion title="What's the maximum size of a CSV upload for a broadcast?">
+    The maximum size of a CSV upload is capped at 10MB.
   </Accordion>
 </AccordionGroup>

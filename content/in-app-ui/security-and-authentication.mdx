@@ -17,13 +17,13 @@ tags:
   title="Note:"
   text={
     <>
-      This integration guide references examples from our{" "}
+      This documentation references examples from our{" "}
       <a href="https://github.com/knocklabs/javascript/tree/main/packages/client">
         client-side JS SDK
       </a>
-      . You only need to add the authentication outlined in this guide if you're
-      integrating Knock on the client-side of your applications to use Knock feeds
-      and guides, or the Knock preferences model.
+      . You only need to add the authentication outlined here if you're integrating
+      Knock on the client-side of your applications to use Knock feeds and guides,
+      or the Knock preferences model.
     </>
   }
 />
@@ -90,7 +90,7 @@ backend. This means you can generate the authentication token out-of-band withou
 
 ### 1. Generate the signing key
 
-You can find the signing key in the Knock dashboard under the **Developers** > **API keys** page. Save the private
+You can find the signing key in the Knock dashboard under the **Platform** > **API keys** page. Save the private
 key shown to you here. Note: you won't be shown this key again, so you'll need to regenerate
 it if you lose access.
 
@@ -107,15 +107,15 @@ Knock SDK will look for the key by default.
 Within your backend application, you'll need to sign the JWT and make it available to your front-end
 client. Usually, you'll do this by passing it down as a serialized property on the user or passing in a cookie.
 
-Your JWT will need to be signed against your **private signing key** using an **RS256** algorithm. At a minimum, the JWT to be signed must contain:
+Your JWT will need to be signed against your **private signing key** using an **RS256** algorithm. The JWT must contain the `sub` claim and we recommend also including `iat` and `exp` to enforce token expiration:
 
 ```json
 {
-  // The user that you're signing the token for
+  // The user that you're signing the token for (required)
   "sub": "user_id",
-  // When the token was issued
+  // When the token was issued (recommended)
   "iat": 1608600116,
-  // Expiry timestamp
+  // Expiry timestamp (recommended)
   "exp": 1608603716
 }
 ```
@@ -144,7 +144,7 @@ app.use(async (req, res, next) => {
 });
 ```
 
-You can see more details on the options for the `signUserToken` method [in the docs](https://github.com/knocklabs/knock-node#signing-jwts).
+You can see more details on the options for the `signUserToken` method <a href="https://github.com/knocklabs/knock-node#jwt-token-signing" target="_blank">in the SDK docs</a>.
 
 ### 3. Send the JWT to the client
 
@@ -189,7 +189,7 @@ although we don't recommend this approach as it will add more latency for your u
 ### Errors using your Knock signing key
 
 If you are getting errors like `secretOrPrivateKey must be an asymmetric key when using RS256`,
-try using the base-64 encoded format of your signing key generated in the Knock Dashboard (under **Developers** > **API keys** > **Application Signing Keys**).
+try using the base-64 encoded format of your signing key generated in the Knock Dashboard (under **Platform** > **API keys** > **Application Signing Keys**).
 
 ```bash
 // .env.local

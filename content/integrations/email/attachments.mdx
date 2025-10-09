@@ -15,13 +15,15 @@ layout: integrations
 
 Every attachment you send to Knock in your `data` payload should include the following properties (those marked with an `*` are required):
 
-| Property         | Description                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`\*         | The name of the file                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `content_type`\* | A mime type for the file                                                                                                                                                                                                                                                                                                                                                                                              |
-| `content`\*      | The base64 encoded file content (up to 10mb)                                                                                                                                                                                                                                                                                                                                                                          |
-| `content_id`     | An optional unique `Content-ID` for the attachment, which will automatically set the attachment as `inline`. Currently only supported for [SendGrid](/integrations/email/sendgrid) and [Postmark](/integrations/email/postmark). See <a href="#referencing-attachment-files-inline" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>Referencing attachment files inline</a> for more details. |
+| Property         | Description                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `name`\*         | The name of the file                                                                                                                                                                                                                                                                                                                                         |
+| `content_type`\* | A mime type for the file                                                                                                                                                                                                                                                                                                                                     |
+| `content`\*      | The base64 encoded file content (up to 10mb)                                                                                                                                                                                                                                                                                                                 |
+| `content_id`     | An optional unique `Content-ID` for the attachment. Currently only supported for [SendGrid](/integrations/email/sendgrid) and [Postmark](/integrations/email/postmark). See <a href="#referencing-attachment-files-inline" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>Referencing attachment files inline</a> for more details. |
+| `disposition`    | An optional disposition for the attachment (`inline` or `attachment`). Currently only supported for [SendGrid](/integrations/email/sendgrid) and [Postmark](/integrations/email/postmark).                                                                                                                                                                   |
 
+<br/>
 ```js title="An example attachment object"
 {
   name: "my-file.txt",
@@ -72,11 +74,43 @@ filesAndRecipients.forEach(({ id, file }) => {
 
 ## Referencing attachment files inline
 
-If you're using SendGrid or Postmark as your email provider, you can reference attachment files inline in your email template by providing a `content_id` property on the attachment object you send in your trigger call. Adding a `content_id` to the attachment embeds it in the email as an inline attachment, which you can reference in your template using the `cid:` prefix and the `content_id` value.
+If you're using [SendGrid](/integrations/email/sendgrid) or [Postmark](/integrations/email/postmark) as your email provider, you can set attachment files to be inline in your email template by providing a `disposition` property of `inline` on the attachment object you send in your trigger call.
+
+### Inline image attachments
+
+To attach image files to your email and reference them inline, add a `content_id` and `disposition` to the attachment object. You can then reference the attachment in your template using the `cid:` prefix and the `content_id` value.
+
+```js title="An example inline image attachment"
+{
+  name: "my-image.png",
+  content_type: "image/png",
+  content: imageContent,
+  content_id: "my-attachment",
+  disposition: "inline"
+}
+```
 
 ```html title="Referencing an attachment file inline"
 <img src="cid:my-attachment" />
 ```
+
+### Inline calendar invitations
+
+To set calendar files to be inline in your email message, add a `disposition` property of `inline` on the attachment object you send in your trigger call.
+
+```js title="An example attachment object for an inline calendar invitation"
+{
+  name: "invite.ics",
+  content_type: "text/calendar; charset=utf-8; method=REQUEST",
+  content: calendarContent,
+  disposition: "inline"
+}
+```
+
+We also recommend that your `.ics` file include the following parameters for the best email client support:
+
+- `METHOD:REQUEST`
+- `RSVP=TRUE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION` (on the `ATTENDEE`, to enable RSVPs)
 
 ## Previewing messages with attachments
 

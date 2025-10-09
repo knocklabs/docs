@@ -10,11 +10,16 @@ import {
   FaAngular,
   FaVuejs,
   FaYoutube,
+  FaRegFileCode,
 } from "react-icons/fa";
 import { DiRuby, DiDotnet } from "react-icons/di";
 import { FaGolang } from "react-icons/fa6";
 import { SiElixir, SiFlutter, SiExpo } from "react-icons/si";
-import { TbBrandKotlin, TbBrandReactNative } from "react-icons/tb";
+import {
+  TbBrandKotlin,
+  TbBrandReactNative,
+  TbBrandNextjs,
+} from "react-icons/tb";
 import { Card } from "./Card";
 import { Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
@@ -39,7 +44,9 @@ export type SupportedIcon =
   | "angular"
   | "vue"
   | "youtube"
-  | "expo";
+  | "expo"
+  | "nextjs"
+  | "code";
 
 export const icons: Record<SupportedIcon, React.ReactNode> = {
   default: <Icon icon={Square} aria-hidden={true} />,
@@ -61,6 +68,8 @@ export const icons: Record<SupportedIcon, React.ReactNode> = {
   vue: <FaVuejs />,
   youtube: <FaYoutube />,
   expo: <SiExpo />,
+  nextjs: <TbBrandNextjs />,
+  code: <FaRegFileCode />,
 };
 
 type Props = {

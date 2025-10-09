@@ -41,19 +41,19 @@ Below we break down each status in detail (including any channel-specific limita
 
 We attempted to deliver your message, we encountered an error, and _we will not retry delivery_. Your message has not made it from Knock to your provider.
 
-You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
+You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our documentation on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
 
 ### 2) Bounced
 
 Your message was successfully sent to the downstream provider, but the message was dropped by your provider due to bad recipient data, resulting in a bounce, and _we will not retry delivery_.
 
-You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
+You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our documentation on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
 
 ### 3) Delivery attempted
 
 We attempted to deliver your message, but we encountered an error. If we deem the error retryable and we have not hit our retry limit, we will re-enqueue the message for another delivery attempt.
 
-You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our guide on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
+You can use the message delivery logs to help debug what may have gone wrong between Knock and the downstream provider. See our documentation on [message delivery retries](/send-notifications/delivering-notifications#retry-logic) for more details on how delivery attempts and retries at Knock work.
 
 ### 4) Queued
 
@@ -85,9 +85,11 @@ On a per-channel level, `delivered` means that:
 - **Email** — Your message was successfully delivered to the recipient's email service provider.
 - **In-app** — Your message was successfully delivered to the recipient's feed.
 - **Push** — We do not support delivery tracking for push channels, so push channel messages will never have a delivery status greater than `sent`. However, you can introduce a handler into your mobile app to update a given message's [engagement status](#engagement-status) when the message has successfully made it to your recipient's device, using the `knock_message_id` from the push notification payload.
-- **SMS** — Your message was successfully sent to the recipient's SMS provider. Note that not all SMS delivery providers support delivery tracking. See the [Knock integration guides for SMS providers](/integrations/sms/overview) for more information.
+- **SMS** — Your message was successfully sent to the recipient's SMS provider. Note that not all SMS delivery providers support delivery tracking. See the [Knock integration documentation for SMS providers](/integrations/sms/overview) for more information.
 - **Chat** — Delivery tracking is not available for chat platforms, so chat channel messages will never have a delivery status greater than `sent`. In most cases, a `sent` status will also mean that the message has been delivered to the recipient.
 - **Webhook** — Your message was successfully delivered to your webhook endpoint.
+
+Check your provider's [integration page](/integrations/overview) for specific information about `delivered` status support.
 
 ## Engagement status
 
@@ -109,7 +111,7 @@ Below we review the possible engagement statuses and various per-channel caveats
 
 Knock only implicitly manages this status for the in-app feed channel.
 
-The `seen` status indicates that the message has been retrieved for display in the recipient's in-app feed at least once. The timestamp represents the time of the most recent action. The `seen` status is separate from an [opened/read status](/send-notifications/message-statuses#2b-marked-as-read--opened-read_at-iso8601-timestamp), in that it doesn't indicate the recipient has explicitly interacted with the message itself.
+The `seen` status indicates that the message has been retrieved for display in the recipient's in-app feed at least once. The timestamp represents the time of the most recent action. The `seen` status is separate from an [opened/read status](/send-notifications/message-statuses#marked-as-read--opened), in that it doesn't indicate the recipient has explicitly interacted with the message itself.
 
 ### Marked as read / opened
 
@@ -167,4 +169,4 @@ The message has been archived by the recipient. The timestamp represents the tim
 
 ## Message events
 
-Knock records each change in message status, whether delivery or engagement, as a message event. You can view these events in chronological order of occurrence in the message timeline view in the Knock dashboard. Knock also uses these message events to power webhooks. See our [guide on outbound webhooks](/developer-tools/outbound-webhooks/overview) to learn more about how you can hook into the Knock message status lifecycle.
+Knock records each change in message status, whether delivery or engagement, as a message event. You can view these events in chronological order of occurrence in the message timeline view in the Knock dashboard. Knock also uses these message events to power webhooks. See our [documentation on outbound webhooks](/developer-tools/outbound-webhooks/overview) to learn more about how you can hook into the Knock message status lifecycle.

@@ -5,7 +5,7 @@ section: Integrations > Sources
 layout: integrations
 ---
 
-This guide covers using Segment as a [Knock source](/integrations/sources/overview) to bring track and identify event data from Segment into Knock to power your notifications.
+Knock's Segment integration enables you to use Segment as a [Knock source](/integrations/sources/overview) to power your notifications with track and identify events.
 
 Knock also provides a separate [Segment extension](/integrations/extensions/segment) for sending Knock notification data into Segment for use in your downstream tools.
 
@@ -13,7 +13,7 @@ Knock also provides a separate [Segment extension](/integrations/extensions/segm
 
 When using Segment as a Knock source, you also need to configure Knock as a [destination](https://segment.com/docs/connections/destinations/) within Segment. This means you can use events coming through Segment to power actions in Knock, such as triggering a workflow.
 
-To start routing your Segment events to Knock, click the "Create Source" button in the Knock dashboard under the **Integrations** > **Sources** section and select Segment. Once created, select it from the list to navigate to the environment configuration page, where you can copy the unique webhook destination URLs for each environment you have configured in Knock.
+To start routing your Segment events to Knock, navigate to **Integrations** > **Sources** under the account settings section of your dashboard, click the "Create Source" button and select Segment. Once created, select it from the list to access the environment configuration page, where you can copy the unique webhook destination URLs for each environment you have configured in Knock.
 
 ## Configure a Knock destination in Segment
 
@@ -113,9 +113,9 @@ Triggers are automatically enabled when you create them. If you want to stop an 
 
 ## Enabling Identify events
 
-When Segment sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `id`, `email`, `phone`, `avatar`, `name`, and any other custom properties.
+When Segment sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `userId` as the user's `id`, as well as `name`, `email`, `phone` (mapped as `phone_number` in Knock), `avatar`, `locale`, `timezone`, and any additional custom properties provided in the `traits` object.
 
-To enable the handling of identify events, open the settings for the source in the environment. You can then enable or disable handling identify events accordingly.
+To enable the handling of identify events, open the settings for the source in the relevant Knock environment. You can then enable or disable handling identify events accordingly.
 
 <Image
   src="/images/integrations/sources/segment-identify.png"
@@ -161,7 +161,7 @@ To enable the handling of identify events, open the settings for the source in t
   }
 />
 
-In cases where you send a Segment event to Knock with recipients who may not yet have been identified in our system, it's good practice to [inline identify](/managing-recipients/identifying-recipients#inline-identifying-recipients) your users. By inline identifying your users within your Segment events, you ensure that those users are identified in Knock when your event triggers a workflow.
+In cases where you send a Segment event to Knock with recipients who may not yet have been identified in our system, it's good practice to [inline identify](/managing-recipients/identifying-recipients#inline-identification) your users. By inline identifying your users within your Segment events, you ensure that those users are identified in Knock when your event triggers a workflow.
 
 As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified.
 
@@ -203,7 +203,7 @@ To ensure the user is notified, we'd change the id reference in `recipients` to 
 }
 ```
 
-You can learn more about inline identification in [our guide on identifying recipients](/managing-recipients/identifying-recipients).
+You can learn more about inline identification in [our documentation on identifying recipients](/managing-recipients/identifying-recipients).
 
 ## Video walkthrough
 
@@ -228,7 +228,7 @@ You can learn more about inline identification in [our guide on identifying reci
 
 <AccordionGroup>
   <Accordion title="Can I use a single Segment event to trigger multiple workflows?">
-    Yes. Under the **Developers** > **Sources** section in your Knock dashboard,
+    Yes. Under the **Platform** > **Sources** section in your Knock dashboard,
     select an event from Segment to view a list of triggers configured for that
     event. Then, in the upper right-hand corner, click the "Create workflow
     trigger" button to select the additional workflow you want this event to
@@ -236,7 +236,7 @@ You can learn more about inline identification in [our guide on identifying reci
     mapping before saving and committing the workflow with its new trigger.
   </Accordion>
   <Accordion title="Can I use multiple different Segment events to trigger the same workflow?">
-    Yes. To do so, go to the **Developers** > **Sources** section in your Knock
+    Yes. To do so, go to the **Platform** > **Sources** section in your Knock
     dashboard, select an event, and then click the "Create workflow trigger"
     button in the upper right-hand corner. You will choose the same workflow
     from the **Create workflow trigger** modal.

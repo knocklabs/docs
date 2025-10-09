@@ -18,18 +18,20 @@ curl -X POST https://api.knock.app/v1/workflows/new-comment/trigger \\
 import Knock from "@knocklabs/node";
 const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
-await knock.workflows.trigger("new-comment", {
-  recipients: ["1", "2"],
+await knock.workflows.trigger(
+  "new-comment",
+  {
+    recipients: ["1", "2"],
 
-  // optional
-  data: { "project_name": "My Project" },
-  actor: "3",
-  cancellationKey: "cancel_123",
-  tenant: "jurassic_world_employees"
-},
-{
-  idempotencyKey: "123"
-}
+    // optional
+    data: { project_name: "My Project" },
+    actor: "3",
+    cancellationKey: "cancel_123",
+    tenant: "jurassic_world_employees",
+  },
+  {
+    idempotencyKey: "123",
+  },
 );
 `,
   python: `

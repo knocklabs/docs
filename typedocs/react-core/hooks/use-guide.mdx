@@ -1,0 +1,86 @@
+The `useGuide` hook is used to retrieve guides by either a message type key or a specific guide key. It supports typing the guide step content to ensure type safety.
+
+## Parameters
+
+Accepts an object (`KnockGuideFilterParams`) with the following properties:
+
+<Attributes>
+  <Attribute
+    name="key"
+    type="string"
+    description="Match a specific guide by its key."
+  />
+  <Attribute
+    name="type"
+    type="string"
+    description="Match any guide by its type (message type)."
+  />
+</Attributes>
+
+## Returns
+
+A `UseGuideReturn` object with the following properties:
+
+<Attributes>
+  <Attribute
+    name="guide"
+    type="KnockGuide | undefined"
+    description="The matching guide."
+  />
+  <Attribute
+    name="step"
+    type="KnockGuideStep | undefined"
+    description="The matching guide step. Will always be defined if the guide is defined."
+  />
+</Attributes>
+
+## Example
+
+### Specific message type
+
+The following example demonstrates how to use the `useGuide` hook to get the guide for a specific message type.
+
+```tsx
+import { useGuide } from "@knocklabs/react";
+
+const MyComponent = () => {
+  const { guide, step } = useGuide({ type: "my-message-type" });
+
+  if (!step) return null;
+
+  return (
+    <div>
+      <h1>{step.content.title}</h1>
+      <p>{step.content.body}</p>
+    </div>
+  );
+};
+```
+
+### Typing the guide and step
+
+The `useGuide` hook returns the guide and step as `KnockGuide` and `KnockGuideStep` respectively.
+
+```tsx
+import { useGuide } from "@knocklabs/react";
+
+type MyMessageTypeAttrs = {
+  title: string;
+  body: string;
+};
+
+const MyComponent = () => {
+  const { guide, step } = useGuide<MyMessageTypeAttrs>({
+    type: "my-message-type",
+  });
+
+  if (!step) return null;
+
+  return (
+    <div>
+      <h1>{step.content.title}</h1>
+      <p>{step.content.body}</p>
+    </div>
+  );
+};
+```

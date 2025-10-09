@@ -69,7 +69,7 @@ export const Callout = ({
           h="8"
           w="8"
           borderRadius="4"
-          style={{ flexShrink: 0 }}
+          style={{ flexShrink: 0, marginTop: "1px" }}
           className="md-hidden"
         >
           <Box>
@@ -86,6 +86,7 @@ export const Callout = ({
         mb="0"
         leading="3"
         pl="2"
+        py="1"
         style={{ marginBottom: "0px" }}
       >
         {title && (

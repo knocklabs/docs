@@ -368,28 +368,38 @@ components:
           x-struct: null
           x-validate: null
         headers:
-          description: A list of key-value pairs for the request headers. Each object should contain key and value fields with string values.
-          items:
-            properties:
-              key:
-                description: The key of the header.
-                example: X-API-Key
-                type: string
+          description: The headers of the request. Can be a template string or a list of key-value pairs.
+          oneOf:
+            - description: A template string that should resolve to a JSON object representing the headers.
+              example: '{{ data.request_headers }}'
+              type: string
+              x-struct: null
+              x-validate: null
+            - description: A list of key-value pairs for the request headers. Each object should contain key and value fields with string values.
+              items:
+                properties:
+                  key:
+                    description: The key of the header.
+                    example: X-API-Key
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  value:
+                    description: The value of the header.
+                    example: "1234567890"
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - key
+                  - value
+                type: object
                 x-struct: null
                 x-validate: null
-              value:
-                description: The value of the header.
-                example: "1234567890"
-                type: string
-                x-struct: null
-                x-validate: null
-            required:
-              - key
-              - value
-            type: object
-            x-struct: null
-            x-validate: null
-          type: array
+              type: array
+              x-struct: null
+              x-validate: null
+          type: object
           x-struct: null
           x-validate: null
         method:
@@ -405,28 +415,38 @@ components:
           x-struct: null
           x-validate: null
         query_params:
-          description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
-          items:
-            properties:
-              key:
-                description: The key of the query param.
-                example: key
-                type: string
+          description: The query params of the request. Can be a template string or a list of key-value pairs.
+          oneOf:
+            - description: A template string that should resolve to a JSON object representing the query params.
+              example: '{{ data.request_query_params }}'
+              type: string
+              x-struct: null
+              x-validate: null
+            - description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
+              items:
+                properties:
+                  key:
+                    description: The key of the query param.
+                    example: key
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  value:
+                    description: The value of the query param.
+                    example: value
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - key
+                  - value
+                type: object
                 x-struct: null
                 x-validate: null
-              value:
-                description: The value of the query param.
-                example: value
-                type: string
-                x-struct: null
-                x-validate: null
-            required:
-              - key
-              - value
-            type: object
-            x-struct: null
-            x-validate: null
-          type: array
+              type: array
+              x-struct: null
+              x-validate: null
+          type: object
           x-struct: null
           x-validate: null
         url:
@@ -534,6 +554,22 @@ components:
       title: WrappedPartialResponse
       type: object
       x-struct: null
+      x-validate: null
+    BroadcastSendRequest:
+      description: A request to send or schedule a broadcast.
+      example:
+        send_at: "2024-03-20T10:00:00Z"
+      properties:
+        send_at:
+          description: When to send the broadcast. If provided, the broadcast will be scheduled to send at this time. Must be in ISO 8601 UTC format. If not provided, the broadcast will be sent immediately.
+          example: "2024-03-20T10:00:00Z"
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      title: BroadcastSendRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BroadcastSendRequest
       x-validate: null
     WrappedPartialRequestRequest:
       description: Wraps the PartialRequest request under the partial key.
@@ -830,7 +866,7 @@ components:
     Commit:
       description: A commit is a change to a resource within an environment, made by an author.
       example:
-        commit_author:
+        author:
           email: john.doe@example.com
           name: John Doe
         commit_message: This is a commit message
@@ -840,9 +876,8 @@ components:
         resource:
           identifier: my-email-layout
           type: email_layout
-        updated_at: "2021-01-01T00:00:00Z"
       properties:
-        commit_author:
+        author:
           description: The author of the commit.
           example:
             email: john.doe@example.com
@@ -902,11 +937,13 @@ components:
             type:
               description: The type of the resource object.
               enum:
+                - dynamic_audience
                 - email_layout
-                - workflow
-                - translation
-                - partial
+                - guide
                 - message_type
+                - partial
+                - translation
+                - workflow
               example: workflow
               type: string
               x-struct: null
@@ -918,20 +955,12 @@ components:
           type: object
           x-struct: null
           x-validate: null
-        updated_at:
-          description: The timestamp of when the commit was last updated.
-          format: date-time
-          type: string
-          x-struct: null
-          x-validate: null
       required:
         - id
         - resource
-        - commit_author
+        - author
         - environment
-        - commit_message
         - created_at
-        - updated_at
       title: Commit
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Commit
@@ -1502,6 +1531,136 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ConditionGroup
       x-validate: null
+    BroadcastRequest:
+      description: A broadcast request for upserting a broadcast.
+      example:
+        categories:
+          - announcement
+        description: A broadcast to all users
+        name: My Broadcast
+        settings:
+          is_commercial: true
+          override_preferences: false
+        steps:
+          - channel_key: in-app-feed
+            name: Channel 1
+            ref: channel_1
+            template:
+              action_url: '{{ vars.app_url }}'
+              markdown_body: Hello **{{ recipient.name }}**
+            type: channel
+        target_audience_key: all-users
+      properties:
+        categories:
+          description: A list of categories that the broadcast belongs to.
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a broadcast object. Useful for adding notes about the broadcast for internal purposes. Maximum of 280 characters allowed.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the broadcast. Must be at maximum 255 characters in length.
+          type: string
+          x-struct: null
+          x-validate: null
+        scheduled_at:
+          description: The timestamp of when the broadcast is scheduled to be sent.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: A map of broadcast settings.
+          properties:
+            is_commercial:
+              description: Whether the broadcast is commercial. Defaults to true.
+              example: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+            override_preferences:
+              description: Whether to ignore recipient preferences for a given type of notification. If true, will send for every channel in the workflow even if the recipient has opted out of a certain kind. Defaults to false.
+              example: false
+              type: boolean
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        steps:
+          description: A list of broadcast step objects in the broadcast. Broadcasts only support channel, branch, and delay steps.
+          items:
+            description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
+            oneOf:
+              - $ref: '#/components/schemas/WorkflowChannelStep'
+              - $ref: '#/components/schemas/WorkflowBranchStep'
+              - $ref: '#/components/schemas/WorkflowDelayStep'
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        target_audience_key:
+          description: The key of the audience to target for this broadcast.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+        - steps
+      title: BroadcastRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BroadcastRequest
+      x-validate: null
+    WrappedBroadcastResponse:
+      description: Wraps the Broadcast response under the `broadcast` key.
+      example:
+        broadcast:
+          categories:
+            - marketing
+            - promotions
+          created_at: "2022-12-16T19:07:50.027113Z"
+          description: Holiday promotion broadcast for December
+          environment: development
+          key: december-promotion
+          name: December Promotion
+          scheduled_at: null
+          sent_at: null
+          settings:
+            is_commercial: true
+            override_preferences: false
+          sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+          status: draft
+          steps:
+            - channel_key: in-app-feed
+              description: Main in-app feed
+              name: In-app step
+              ref: in_app_feed_1
+              template:
+                action_url: '{{ vars.app_url }}'
+                markdown_body: Hello **{{ recipient.name }}**
+              type: channel
+          target_audience_key: premium-users
+          updated_at: "2023-02-08T22:15:19.846681Z"
+          valid: true
+      properties:
+        broadcast:
+          $ref: '#/components/schemas/Broadcast'
+      required:
+        - broadcast
+      title: WrappedBroadcastResponse
+      type: object
+      x-struct: null
+      x-validate: null
     WorkflowRequest:
       description: A workflow request for upserting a workflow.
       example:
@@ -1684,6 +1843,35 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EmailBlocks.PartialBlock
       x-validate: null
+    WrappedBroadcastRequestRequest:
+      description: Wraps the BroadcastRequest request under the broadcast key.
+      example:
+        broadcast:
+          categories:
+            - announcement
+          description: A broadcast to all users
+          name: My Broadcast
+          settings:
+            is_commercial: true
+            override_preferences: false
+          steps:
+            - channel_key: in-app-feed
+              name: Channel 1
+              ref: channel_1
+              template:
+                action_url: '{{ vars.app_url }}'
+                markdown_body: Hello **{{ recipient.name }}**
+              type: channel
+          target_audience_key: all-users
+      properties:
+        broadcast:
+          $ref: '#/components/schemas/BroadcastRequest'
+      required:
+        - broadcast
+      title: WrappedBroadcastRequestRequest
+      type: object
+      x-struct: null
+      x-validate: null
     RecipientReference:
       description: A recipient reference, used when referencing a recipient by either their ID (for a user), or by a reference for an object.
       example:
@@ -1727,7 +1915,7 @@ components:
       description: Wraps the Guide response under the `guide` key.
       example:
         guide:
-          activation_location_rules:
+          activation_url_patterns:
             - directive: allow
               pathname: /dashboard/*
           active: true
@@ -2653,7 +2841,7 @@ components:
       description: Wraps the Commit response under the `commit` key.
       example:
         commit:
-          commit_author:
+          author:
             email: john.doe@example.com
             name: John Doe
           commit_message: This is a commit message
@@ -2663,7 +2851,6 @@ components:
           resource:
             identifier: my-email-layout
             type: email_layout
-          updated_at: "2021-01-01T00:00:00Z"
       properties:
         commit:
           $ref: '#/components/schemas/Commit'
@@ -2696,6 +2883,34 @@ components:
       title: WrappedEmailLayoutResponse
       type: object
       x-struct: null
+      x-validate: null
+    GuideActivationUrlPattern:
+      description: A rule that controls when a guide should be shown based on the user's location in the application.
+      example:
+        directive: allow
+        pathname: /dashboard/*
+      properties:
+        directive:
+          default: allow
+          description: Whether to allow or block the guide at the specified pathname.
+          enum:
+            - allow
+            - block
+          type: string
+          x-struct: null
+          x-validate: null
+        pathname:
+          description: The URL pathname pattern to match against. Must be a valid URI path.
+          example: /dashboard/*
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - directive
+        - pathname
+      title: GuideActivationUrlPattern
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.GuideActivationUrlPattern
       x-validate: null
     WrappedTranslationRequestRequest:
       description: Wraps the TranslationRequest request under the translation key.
@@ -2764,6 +2979,7 @@ components:
         archived_at: null
         created_at: "2021-01-01T00:00:00Z"
         custom_icon_url: null
+        id: 01234567-89ab-cdef-0123-456789abcdef
         key: my-sendgrid-channel
         name: My Sendgrid Channel
         provider: sendgrid
@@ -2792,6 +3008,11 @@ components:
         description:
           description: Optional description of the channel's purpose or usage.
           nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique identifier for the channel.
           type: string
           x-struct: null
           x-validate: null
@@ -2831,6 +3052,7 @@ components:
           x-struct: null
           x-validate: null
       required:
+        - id
         - name
         - key
         - type
@@ -2879,7 +3101,7 @@ components:
           x-struct: null
           x-validate: null
         tenant:
-          description: The tenant to associate the workflow run with.
+          description: The tenant to associate the workflow run with. Must not contain whitespace.
           type: string
           x-struct: null
           x-validate: null
@@ -2898,6 +3120,7 @@ components:
                   archived_at: null
                   created_at: "2021-01-01T00:00:00Z"
                   custom_icon_url: null
+                  id: 01234567-89ab-cdef-0123-456789abcdef
                   key: my-sendgrid-channel
                   name: My Sendgrid Channel
                   provider: sendgrid
@@ -3116,7 +3339,7 @@ components:
       description: A paginated list of Commit. Contains a list of entries and page information.
       example:
         entries:
-          - commit_author:
+          - author:
               email: john.doe@example.com
               name: John Doe
             commit_message: This is a commit message
@@ -3126,7 +3349,6 @@ components:
             resource:
               identifier: my-email-layout
               type: email_layout
-            updated_at: "2021-01-01T00:00:00Z"
         page_info:
           after: null
           before: null
@@ -3324,6 +3546,7 @@ components:
               archived_at: null
               created_at: "2021-01-01T00:00:00Z"
               custom_icon_url: null
+              id: 01234567-89ab-cdef-0123-456789abcdef
               key: my-sendgrid-channel
               name: My Sendgrid Channel
               provider: sendgrid
@@ -3420,6 +3643,7 @@ components:
           archived_at: null
           created_at: "2021-01-01T00:00:00Z"
           custom_icon_url: null
+          id: 01234567-89ab-cdef-0123-456789abcdef
           key: my-sendgrid-channel
           name: My Sendgrid Channel
           provider: sendgrid
@@ -3461,6 +3685,7 @@ components:
             - contains
             - not_contains
             - contains_all
+            - not_contains_all
             - empty
             - not_empty
             - is_audience_member
@@ -3973,7 +4198,7 @@ components:
     Guide:
       description: A guide defines an in-app guide that can be displayed to users based on priority and other conditions.
       example:
-        activation_location_rules:
+        activation_url_patterns:
           - directive: allow
             pathname: /dashboard/*
         active: true
@@ -4004,10 +4229,10 @@ components:
         updated_at: "2024-01-01T00:00:00Z"
         valid: true
       properties:
-        activation_location_rules:
-          description: A list of activation location rules that describe when the guide should be shown.
+        activation_url_patterns:
+          description: A list of activation url patterns that describe when the guide should be shown.
           items:
-            $ref: '#/components/schemas/GuideActivationLocationRule'
+            $ref: '#/components/schemas/GuideActivationUrlPattern'
           type: array
           x-struct: null
           x-validate: null
@@ -4354,34 +4579,6 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WebhookTemplate
       x-validate: null
-    GuideActivationLocationRule:
-      description: A rule that controls when a guide should be shown based on the user's location in the application.
-      example:
-        directive: allow
-        pathname: /dashboard/*
-      properties:
-        directive:
-          default: allow
-          description: Whether to allow or block the guide at the specified pathname.
-          enum:
-            - allow
-            - block
-          type: string
-          x-struct: null
-          x-validate: null
-        pathname:
-          description: The URL pathname pattern to match against. Must be a valid URI path.
-          example: /dashboard/*
-          type: string
-          x-struct: null
-          x-validate: null
-      required:
-        - directive
-        - pathname
-      title: GuideActivationLocationRule
-      type: object
-      x-struct: Elixir.ControlWeb.V1.Specs.GuideActivationLocationRule
-      x-validate: null
     PaginatedChannelResponse:
       description: A paginated list of Channel. Contains a list of entries and page information.
       example:
@@ -4389,6 +4586,7 @@ components:
           - archived_at: null
             created_at: "2021-01-01T00:00:00Z"
             custom_icon_url: null
+            id: 01234567-89ab-cdef-0123-456789abcdef
             key: my-sendgrid-channel
             name: My Sendgrid Channel
             provider: sendgrid
@@ -4420,7 +4618,7 @@ components:
       description: A paginated list of Guide. Contains a list of entries and page information.
       example:
         entries:
-          - activation_location_rules:
+          - activation_url_patterns:
               - directive: allow
                 pathname: /dashboard/*
             active: true
@@ -4738,7 +4936,7 @@ components:
     GuideRequest:
       description: A request to create or update a guide.
       example:
-        activation_location_rules:
+        activation_url_patterns:
           - directive: allow
             pathname: /dashboard/*
         channel_key: in-app-guide
@@ -4759,10 +4957,10 @@ components:
               operator: equal_to
               variable: recipient.property
       properties:
-        activation_location_rules:
-          description: A list of activation location rules that describe when the guide should be shown.
+        activation_url_patterns:
+          description: A list of activation url patterns that describe when the guide should be shown.
           items:
-            $ref: '#/components/schemas/GuideActivationLocationRule'
+            $ref: '#/components/schemas/GuideActivationUrlPattern'
           type: array
           x-struct: null
           x-validate: null
@@ -5196,7 +5394,7 @@ components:
         recipient:
           $ref: '#/components/schemas/RecipientReference'
         tenant:
-          description: The tenant to associate the workflow with.
+          description: The tenant to associate the workflow with. Must not contain whitespace.
           nullable: true
           type: string
           x-struct: null
@@ -5686,7 +5884,7 @@ components:
       description: Wraps the GuideRequest request under the guide key.
       example:
         guide:
-          activation_location_rules:
+          activation_url_patterns:
             - directive: allow
               pathname: /dashboard/*
           channel_key: in-app-guide
@@ -5995,6 +6193,7 @@ components:
             - contains
             - not_contains
             - contains_all
+            - not_contains_all
             - empty
             - not_empty
             - is_audience_member
@@ -6108,11 +6307,13 @@ components:
         type:
           description: The type of the resource object.
           enum:
+            - dynamic_audience
             - email_layout
-            - workflow
-            - translation
-            - partial
+            - guide
             - message_type
+            - partial
+            - translation
+            - workflow
           example: workflow
           type: string
           x-struct: null
@@ -6652,7 +6853,7 @@ paths:
               description: Wraps the GuideRequest request under the guide key.
               example:
                 guide:
-                  activation_location_rules:
+                  activation_url_patterns:
                     - directive: allow
                       pathname: /dashboard/*
                   channel_key: in-app-guide
@@ -6691,7 +6892,7 @@ paths:
                 description: Wraps the Guide response under the `guide` key.
                 example:
                   guide:
-                    activation_location_rules:
+                    activation_url_patterns:
                       - directive: allow
                         pathname: /dashboard/*
                     active: true
@@ -6775,6 +6976,85 @@ paths:
               },
           )
           print(response.guide)
+  /v1/broadcasts/{broadcast_key}/send:
+    put:
+      callbacks: {}
+      description: |
+        Sends a broadcast immediately or schedules it to send at a future time.
+      operationId: sendBroadcast
+      parameters:
+        - description: The key of the broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BroadcastSendRequest'
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Broadcast response under the `broadcast` key.
+                example:
+                  broadcast:
+                    categories:
+                      - marketing
+                      - promotions
+                    created_at: "2022-12-16T19:07:50.027113Z"
+                    description: Holiday promotion broadcast for December
+                    environment: development
+                    key: december-promotion
+                    name: December Promotion
+                    scheduled_at: null
+                    sent_at: null
+                    settings:
+                      is_commercial: true
+                      override_preferences: false
+                    sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+                    status: draft
+                    steps:
+                      - channel_key: in-app-feed
+                        description: Main in-app feed
+                        name: In-app step
+                        ref: in_app_feed_1
+                        template:
+                          action_url: '{{ vars.app_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**
+                        type: channel
+                    target_audience_key: premium-users
+                    updated_at: "2023-02-08T22:15:19.846681Z"
+                    valid: true
+                properties:
+                  broadcast:
+                    $ref: '#/components/schemas/Broadcast'
+                required:
+                  - broadcast
+                title: WrappedBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Send a broadcast
+      tags:
+        - Broadcasts
   /v1/guides:
     get:
       callbacks: {}
@@ -6838,7 +7118,7 @@ paths:
                 description: A paginated list of Guide. Contains a list of entries and page information.
                 example:
                   entries:
-                    - activation_location_rules:
+                    - activation_url_patterns:
                         - directive: allow
                           pathname: /dashboard/*
                       active: true
@@ -6917,6 +7197,112 @@ paths:
           )
           page = page.entries[0]
           print(page.target_audience_id)
+  /v1/broadcasts/{broadcast_key}/validate:
+    put:
+      callbacks: {}
+      description: |
+        Validates a broadcast payload without persisting it.
+      operationId: validateBroadcast
+      parameters:
+        - description: The key of the broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the BroadcastRequest request under the broadcast key.
+              example:
+                broadcast:
+                  categories:
+                    - announcement
+                  description: A broadcast to all users
+                  name: My Broadcast
+                  settings:
+                    is_commercial: true
+                    override_preferences: false
+                  steps:
+                    - channel_key: in-app-feed
+                      name: Channel 1
+                      ref: channel_1
+                      template:
+                        action_url: '{{ vars.app_url }}'
+                        markdown_body: Hello **{{ recipient.name }}**
+                      type: channel
+                  target_audience_key: all-users
+              properties:
+                broadcast:
+                  $ref: '#/components/schemas/BroadcastRequest'
+              required:
+                - broadcast
+              title: WrappedBroadcastRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Broadcast response under the `broadcast` key.
+                example:
+                  broadcast:
+                    categories:
+                      - marketing
+                      - promotions
+                    created_at: "2022-12-16T19:07:50.027113Z"
+                    description: Holiday promotion broadcast for December
+                    environment: development
+                    key: december-promotion
+                    name: December Promotion
+                    scheduled_at: null
+                    sent_at: null
+                    settings:
+                      is_commercial: true
+                      override_preferences: false
+                    sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+                    status: draft
+                    steps:
+                      - channel_key: in-app-feed
+                        description: Main in-app feed
+                        name: In-app step
+                        ref: in_app_feed_1
+                        template:
+                          action_url: '{{ vars.app_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**
+                        type: channel
+                    target_audience_key: premium-users
+                    updated_at: "2023-02-08T22:15:19.846681Z"
+                    valid: true
+                properties:
+                  broadcast:
+                    $ref: '#/components/schemas/Broadcast'
+                required:
+                  - broadcast
+                title: WrappedBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Validate a broadcast
+      tags:
+        - Broadcasts
   /v1/translations:
     get:
       callbacks: {}
@@ -7180,7 +7566,7 @@ paths:
                 description: Wraps the Guide response under the `guide` key.
                 example:
                   guide:
-                    activation_location_rules:
+                    activation_url_patterns:
                       - directive: allow
                         pathname: /dashboard/*
                     active: true
@@ -7578,6 +7964,15 @@ paths:
       description: 'Returns a paginated list of channels. Note: the list of channels is across the entire account, not scoped to an environment.'
       operationId: listChannels
       parameters:
+        - description: A channel id to filter the results by.
+          in: query
+          name: id
+          required: false
+          schema:
+            format: uuid
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The cursor to fetch entries after.
           in: query
           name: after
@@ -7613,6 +8008,7 @@ paths:
                     - archived_at: null
                       created_at: "2021-01-01T00:00:00Z"
                       custom_icon_url: null
+                      id: 01234567-89ab-cdef-0123-456789abcdef
                       key: my-sendgrid-channel
                       name: My Sendgrid Channel
                       provider: sendgrid
@@ -7654,7 +8050,7 @@ paths:
 
           // Automatically fetches more pages as needed.
           for await (const channel of client.channels.list()) {
-            console.log(channel.provider);
+            console.log(channel.id);
           }
         python: |-
           from knock_mapi import KnockMgmt
@@ -7664,7 +8060,7 @@ paths:
           )
           page = client.channels.list()
           page = page.entries[0]
-          print(page.provider)
+          print(page.id)
   /v1/email_layouts/{email_layout_key}:
     get:
       callbacks: {}
@@ -7918,6 +8314,7 @@ paths:
                             archived_at: null
                             created_at: "2021-01-01T00:00:00Z"
                             custom_icon_url: null
+                            id: 01234567-89ab-cdef-0123-456789abcdef
                             key: my-sendgrid-channel
                             name: My Sendgrid Channel
                             provider: sendgrid
@@ -8350,7 +8747,7 @@ paths:
   /v1/whoami:
     get:
       callbacks: {}
-      description: Return information about the current service token.
+      description: Return information about the current calling scope. Will either be a service token or from an OAuth context.
       operationId: getWhoami
       parameters: []
       responses:
@@ -8358,11 +8755,13 @@ paths:
           content:
             application/json:
               schema:
-                description: Information about the current service token.
+                description: Information about the current calling scope.
                 example:
                   account_name: Acme, Inc.
                   account_slug: acme
                   service_token_name: My Service Token
+                  type: service_token
+                  user_id: null
                 properties:
                   account_name:
                     type: string
@@ -8373,13 +8772,26 @@ paths:
                     x-struct: null
                     x-validate: null
                   service_token_name:
+                    nullable: true
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  type:
+                    enum:
+                      - service_token
+                      - oauth_context
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  user_id:
+                    nullable: true
                     type: string
                     x-struct: null
                     x-validate: null
                 required:
                   - account_name
                   - account_slug
-                  - service_token_name
+                  - type
                 type: object
                 x-struct: null
                 x-validate: null
@@ -8397,7 +8809,7 @@ paths:
 
           const response = await client.auth.verify();
 
-          console.log(response.account_name);
+          console.log(response.user_id);
         python: |-
           from knock_mapi import KnockMgmt
 
@@ -8405,7 +8817,7 @@ paths:
               service_token="My Service Token",
           )
           response = client.auth.verify()
-          print(response.account_name)
+          print(response.user_id)
   /v1/commits/{id}:
     get:
       callbacks: {}
@@ -9419,7 +9831,7 @@ paths:
                 description: Wraps the Commit response under the `commit` key.
                 example:
                   commit:
-                    commit_author:
+                    author:
                       email: john.doe@example.com
                       name: John Doe
                     commit_message: This is a commit message
@@ -9429,7 +9841,6 @@ paths:
                     resource:
                       identifier: my-email-layout
                       type: email_layout
-                    updated_at: "2021-01-01T00:00:00Z"
                 properties:
                   commit:
                     $ref: '#/components/schemas/Commit'
@@ -9497,7 +9908,7 @@ paths:
               description: Wraps the GuideRequest request under the guide key.
               example:
                 guide:
-                  activation_location_rules:
+                  activation_url_patterns:
                     - directive: allow
                       pathname: /dashboard/*
                   channel_key: in-app-guide
@@ -9536,7 +9947,7 @@ paths:
                 description: Wraps the Guide response under the `guide` key.
                 example:
                   guide:
-                    activation_location_rules:
+                    activation_url_patterns:
                       - directive: allow
                         pathname: /dashboard/*
                     active: true
@@ -10194,6 +10605,30 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
+        - description: Filter commits by resource type. Must be used together with resource_id.
+          in: query
+          name: resource_type
+          required: false
+          schema:
+            enum:
+              - dynamic_audience
+              - email_layout
+              - guide
+              - message_type
+              - partial
+              - translation
+              - workflow
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter commits by resource identifier. Must be used together with resource_type. For most resources, this will be the resource key. In the case of translations, this will be the locale code and namespace, separated by a `/`. For example, `en/courses` or `en`.
+          in: query
+          name: resource_id
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The cursor to fetch entries after.
           in: query
           name: after
@@ -10226,7 +10661,7 @@ paths:
                 description: A paginated list of Commit. Contains a list of entries and page information.
                 example:
                   entries:
-                    - commit_author:
+                    - author:
                         email: john.doe@example.com
                         name: John Doe
                       commit_message: This is a commit message
@@ -10236,7 +10671,6 @@ paths:
                       resource:
                         identifier: my-email-layout
                         type: email_layout
-                      updated_at: "2021-01-01T00:00:00Z"
                   page_info:
                     after: null
                     before: null
@@ -10463,6 +10897,119 @@ paths:
       summary: Get a broadcast
       tags:
         - Broadcasts
+    put:
+      callbacks: {}
+      description: |
+        Updates a broadcast of a given key, or creates a new one if it does not yet exist.
+      operationId: upsertBroadcast
+      parameters:
+        - description: The key of the broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the BroadcastRequest request under the broadcast key.
+              example:
+                broadcast:
+                  categories:
+                    - announcement
+                  description: A broadcast to all users
+                  name: My Broadcast
+                  settings:
+                    is_commercial: true
+                    override_preferences: false
+                  steps:
+                    - channel_key: in-app-feed
+                      name: Channel 1
+                      ref: channel_1
+                      template:
+                        action_url: '{{ vars.app_url }}'
+                        markdown_body: Hello **{{ recipient.name }}**
+                      type: channel
+                  target_audience_key: all-users
+              properties:
+                broadcast:
+                  $ref: '#/components/schemas/BroadcastRequest'
+              required:
+                - broadcast
+              title: WrappedBroadcastRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Broadcast response under the `broadcast` key.
+                example:
+                  broadcast:
+                    categories:
+                      - marketing
+                      - promotions
+                    created_at: "2022-12-16T19:07:50.027113Z"
+                    description: Holiday promotion broadcast for December
+                    environment: development
+                    key: december-promotion
+                    name: December Promotion
+                    scheduled_at: null
+                    sent_at: null
+                    settings:
+                      is_commercial: true
+                      override_preferences: false
+                    sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+                    status: draft
+                    steps:
+                      - channel_key: in-app-feed
+                        description: Main in-app feed
+                        name: In-app step
+                        ref: in_app_feed_1
+                        template:
+                          action_url: '{{ vars.app_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**
+                        type: channel
+                    target_audience_key: premium-users
+                    updated_at: "2023-02-08T22:15:19.846681Z"
+                    valid: true
+                properties:
+                  broadcast:
+                    $ref: '#/components/schemas/Broadcast'
+                required:
+                  - broadcast
+                title: WrappedBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert a broadcast
+      tags:
+        - Broadcasts
   /v1/message_types:
     get:
       callbacks: {}
@@ -10601,6 +11148,78 @@ paths:
           )
           page = page.entries[0]
           print(page.valid)
+  /v1/broadcasts/{broadcast_key}/cancel:
+    put:
+      callbacks: {}
+      description: |
+        Cancels sending a scheduled broadcast. The broadcast will return to draft status.
+      operationId: cancelBroadcast
+      parameters:
+        - description: The key of the broadcast.
+          in: path
+          name: broadcast_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Broadcast response under the `broadcast` key.
+                example:
+                  broadcast:
+                    categories:
+                      - marketing
+                      - promotions
+                    created_at: "2022-12-16T19:07:50.027113Z"
+                    description: Holiday promotion broadcast for December
+                    environment: development
+                    key: december-promotion
+                    name: December Promotion
+                    scheduled_at: null
+                    sent_at: null
+                    settings:
+                      is_commercial: true
+                      override_preferences: false
+                    sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+                    status: draft
+                    steps:
+                      - channel_key: in-app-feed
+                        description: Main in-app feed
+                        name: In-app step
+                        ref: in_app_feed_1
+                        template:
+                          action_url: '{{ vars.app_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**
+                        type: channel
+                    target_audience_key: premium-users
+                    updated_at: "2023-02-08T22:15:19.846681Z"
+                    valid: true
+                properties:
+                  broadcast:
+                    $ref: '#/components/schemas/Broadcast'
+                required:
+                  - broadcast
+                title: WrappedBroadcastResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Cancel a scheduled broadcast
+      tags:
+        - Broadcasts
 security:
   - BearerAuth: []
 servers:

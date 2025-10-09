@@ -1,0 +1,54 @@
+Client for managing user preferences in Knock.
+
+## Methods
+
+### `get`
+
+Retrieves a preference set for the authenticated user by calling the [get preferences endpoint](/api-reference/users/get_preferences) directly from the client.
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Getting preferences for the user"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const preferenceSet = await knock.preferences.get();
+```
+
+### `set`
+
+Updates the authenticated users preferences by calling the [set preferences endpoint](/api-reference/users/set_preferences) directly from the client.
+
+**Parameters**:
+
+<Attributes>
+  <Attribute
+    name="preferenceSet"
+    type="SetPreferencesProperties"
+    description="The preferences to set for the current user."
+  />
+</Attributes>
+
+**Returns**: `Promise<ApiResponse>`
+
+**Example**:
+
+```javascript title="Setting preferences for the user"
+import { Knock } from "@knocklabs/client";
+
+const knock = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+knock.authenticate({ id: user.id });
+
+const preferenceSet = await knock.preferences.set({
+  channel_types: { email: true, sms: false },
+  workflows: {
+    "dinosaurs-loose": {
+      channel_types: { email: false, in_app_feed: true },
+    },
+  },
+});
+```
