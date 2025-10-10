@@ -4,6 +4,7 @@ import { Code, Text } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 import { ArrowRight } from "lucide-react";
 import { highlightResource } from "@/components/ui/Page/helpers";
+import Markdown from "react-markdown";
 
 const Header = ({ children }) => (
   <Stack data-property-row-header alignItems="baseline" gap="1" mb="1">
@@ -122,17 +123,43 @@ const Type = ({
   );
 };
 
-const Description = ({ children }) => (
-  <Text
-    data-property-row-description
-    as="span"
-    size="1"
-    color="gray"
-    weight="regular"
-  >
-    {children}
-  </Text>
-);
+const Description = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Text
+      data-property-row-description
+      as="span"
+      size="1"
+      color="gray"
+      weight="regular"
+    >
+      {typeof children === "string" ? (
+        <Markdown
+          components={{
+            code: ({ children }) => (
+              <Code
+                as="span"
+                size="0"
+                bg="gray-2"
+                px="1"
+                borderRadius="2"
+                color="black"
+                weight="regular"
+                border="px"
+                borderColor="gray-5"
+              >
+                {children}
+              </Code>
+            ),
+          }}
+        >
+          {children}
+        </Markdown>
+      ) : (
+        children
+      )}
+    </Text>
+  );
+};
 
 const Required = () => (
   <Code
@@ -162,7 +189,7 @@ const ExpandableButton = ({ children, isOpen, onClick }) => (
       marginLeft: "calc(var(--tgph-spacing-1) * -1)",
     }}
     icon={{
-      icon: ArrowRight,
+      icon: ArrowRight as any,
       "aria-hidden": true,
       style: {
         transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
