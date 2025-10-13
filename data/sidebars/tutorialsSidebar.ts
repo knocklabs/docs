@@ -50,6 +50,6 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
   },
   {
     slug: `${baseSlug}/migrate-email-with-mcp-server`,
-    title: "MCP for email template migration",
+    title: "Email template migration",
   },
 ];
