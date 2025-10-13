@@ -20,6 +20,7 @@ const nextConfig = {
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       img-src 'self' blob: data: https://knock.app;
       font-src 'self' https://fonts.googleapis.com;
+      frame-src 'self' https:;
       object-src 'none';
       base-uri 'self';
       form-action 'self';
@@ -28,6 +29,15 @@ const nextConfig = {
       `;
 
     return [
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: cspHeader.replace(/\n/g, ""),
+          },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [
