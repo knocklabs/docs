@@ -5,26 +5,28 @@ const withRemoteRefresh = require("next-remote-refresh")({
   paths: [path.resolve(__dirname, "content")],
 });
 
-const cspHeader = `
-default-src 'self';
-script-src 'self' https:;
-connect-src 'self' https:;
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-img-src 'self' blob: data: https://knock.app;
-font-src 'self' https://fonts.googleapis.com;
-object-src 'none';
-base-uri 'self';
-form-action 'self';
-frame-ancestors 'none';
-upgrade-insecure-requests;
-`;
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   poweredByHeader: false,
 
   async headers() {
+    const isDev = process.env.NODE_ENV === "development";
+
+    const cspHeader = `
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https:;
+      connect-src 'self' ${isDev ? "ws:" : ""} https:;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      img-src 'self' blob: data: https://knock.app;
+      font-src 'self' https://fonts.googleapis.com;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      upgrade-insecure-requests;
+      `;
+
     return [
       {
         source: "/(.*)",
