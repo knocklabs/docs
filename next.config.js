@@ -7,7 +7,8 @@ const withRemoteRefresh = require("next-remote-refresh")({
 
 const cspHeader = `
 default-src 'self';
-script-src 'self' 'unsafe-eval' 'unsafe-inline' https:;
+script-src 'self' https:;
+connect-src 'self' https:;
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
 img-src 'self' blob: data: https://knock.app;
 font-src 'self' https://fonts.googleapis.com;
