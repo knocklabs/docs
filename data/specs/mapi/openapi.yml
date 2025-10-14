@@ -4377,6 +4377,199 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    ShowWorkflowResponse:
+      description: A workflow object.
+      example:
+        active: false
+        categories:
+          - marketing
+          - black-friday
+        conditions:
+          all:
+            - argument: admin
+              operator: equal_to
+              variable: recipient.role
+        created_at: "2022-12-16T19:07:50.027113Z"
+        created_by:
+          email: john@example.com
+          id: user_123
+          name: John Doe
+        description: This is a dummy workflow for demo purposes.
+        environment: development
+        key: december-16-demo
+        name: december-16-demo
+        settings:
+          override_preferences: true
+        sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+        steps:
+          - channel_key: in-app-feed
+            description: Main in-app feed
+            name: In-app step
+            ref: in_app_feed_1
+            template:
+              action_url: '{{ vars.app_url }}'
+              markdown_body: Hello **{{ recipient.name }}**
+            type: channel
+        trigger_data_json_schema:
+          properties:
+            name:
+              type: string
+          required:
+            - name
+          type: object
+        trigger_frequency: every_trigger
+        updated_at: "2023-02-08T22:15:19.846681Z"
+        updated_by:
+          email: jane@example.com
+          id: user_456
+          name: Jane Smith
+        valid: true
+      properties:
+        active:
+          description: Whether the workflow is [active](https://docs.knock.app/concepts/workflows#workflow-status) in the current environment. (read-only).
+          type: boolean
+          x-struct: null
+          x-validate: null
+        categories:
+          description: A list of [categories](https://docs.knock.app/concepts/workflows#workflow-categories) that the workflow belongs to.
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A conditions object that describes one or more conditions to be met for the workflow to be executed. (optional).
+          type: object
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: The timestamp of when the workflow was created. (read-only).
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        created_by:
+          anyOf:
+            - $ref: '#/components/schemas/WorkflowUserInfo'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: Information about the user who created the workflow. Only included in detailed views. (read-only).
+          x-struct: null
+          x-validate: null
+        deleted_at:
+          description: The timestamp of when the workflow was deleted. (read-only).
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow object. Useful for adding notes about the workflow for internal purposes. Maximum of 280 characters allowed.
+          type: string
+          x-struct: null
+          x-validate: null
+        environment:
+          description: The slug of the environment in which the workflow exists. (read-only).
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The unique key string for the workflow object. Must be at minimum 3 characters and at maximum 255 characters in length. Must be in the format of ^[a-z0-9_-]+$.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow. Must be at maximum 255 characters in length.
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: A map of workflow settings.
+          properties:
+            is_commercial:
+              description: Whether the workflow is commercial. Defaults to false.
+              example: false
+              type: boolean
+              x-struct: null
+              x-validate: null
+            override_preferences:
+              description: Whether to ignore recipient preferences for a given type of notification. If true, will send for every channel in the workflow even if the recipient has opted out of a certain kind. Defaults to false.
+              example: false
+              type: boolean
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        sha:
+          description: The SHA hash of the workflow data. (read-only).
+          type: string
+          x-struct: null
+          x-validate: null
+        steps:
+          description: A list of workflow step objects in the workflow.
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+          type: array
+          x-struct: null
+          x-validate: null
+        trigger_data_json_schema:
+          additionalProperties: true
+          description: A JSON schema for the expected structure of the workflow trigger's data payload. Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
+          type: object
+          x-struct: null
+          x-validate: null
+        trigger_frequency:
+          description: 'The frequency at which the workflow should be triggered. One of: `once_per_recipient`, `once_per_recipient_per_tenant`, `every_trigger`. Defaults to `every_trigger`. Read more in [docs](https://docs.knock.app/send-notifications/triggering-workflows/overview#controlling-workflow-trigger-frequency).'
+          enum:
+            - every_trigger
+            - once_per_recipient
+            - once_per_recipient_per_tenant
+          example: every_trigger
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the workflow was last updated. (read-only).
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_by:
+          anyOf:
+            - $ref: '#/components/schemas/WorkflowUserInfo'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: Information about the user who last updated the workflow. Only included in detailed views. (read-only).
+          x-struct: null
+          x-validate: null
+        valid:
+          description: Whether the workflow and its steps are in a valid state. (read-only).
+          type: boolean
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - name
+        - steps
+        - active
+        - valid
+        - environment
+        - created_at
+        - updated_at
+        - sha
+      title: ShowWorkflowResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.ShowWorkflowResponse
+      x-validate: null
     WorkflowBranchStep:
       description: A branch function step. Read more in the [docs](https://docs.knock.app/designing-workflows/branch-function).
       example:
@@ -4669,6 +4862,37 @@ components:
       title: PaginatedGuideResponse
       type: object
       x-struct: null
+      x-validate: null
+    WorkflowUserInfo:
+      description: User information.
+      example:
+        email: john@example.com
+        id: user_123
+        name: John Doe
+      properties:
+        email:
+          description: The user's email address.
+          format: email
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The user's unique identifier.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The user's name.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - email
+      title: WorkflowUserInfo
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowUserInfo
       x-validate: null
     EmailMarkdownBlock:
       description: A markdown block in an email template.
@@ -10311,7 +10535,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Workflow'
+                $ref: '#/components/schemas/ShowWorkflowResponse'
           description: OK
       summary: Get a workflow
       tags:
