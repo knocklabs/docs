@@ -7,7 +7,7 @@ const Attributes = ({ children }) => (
 type Props = {
   name: string;
   type: string;
-  description: string | React.ReactNode;
+  description: string;
   typeSlug?: string;
   nameSlug?: string;
   isRequired?: boolean;

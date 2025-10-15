@@ -124,36 +124,30 @@ const Type = ({
   );
 };
 
-const Description = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <Text
-      data-property-row-description
-      as="span"
-      size="1"
-      color="gray"
-      weight="regular"
+const Description = ({ children }: { children: string }) => (
+  <Text
+    data-property-row-description
+    as="span"
+    size="1"
+    color="gray"
+    weight="regular"
+  >
+    <Markdown
+      components={{
+        // Spread the rest of our supported markdown elements
+        ...MDX_COMPONENTS,
+        // override code elements with this style
+        code: ({ children }) => (
+          <Code as="code" bg="gray-2" borderRadius="2" color="gray">
+            {children}
+          </Code>
+        ),
+      }}
     >
-      {typeof children === "string" ? (
-        <Markdown
-          components={{
-            // Spread the rest of our supported markdown elements
-            ...MDX_COMPONENTS,
-            // override code elements with this style
-            code: ({ children }) => (
-              <Code as="code" bg="gray-2" borderRadius="2" color="gray">
-                {children}
-              </Code>
-            ),
-          }}
-        >
-          {children}
-        </Markdown>
-      ) : (
-        children
-      )}
-    </Text>
-  );
-};
+      {children}
+    </Markdown>
+  </Text>
+);
 
 const Required = () => (
   <Code
