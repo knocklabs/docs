@@ -1581,6 +1581,7 @@ components:
                 email: false
           channel_types:
             email: true
+          commercial_subscribed: true
           workflows:
             dinosaurs-loose:
               channel_types:
@@ -4728,8 +4729,77 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        channel:
+          description: A configured channel, which is a way to route messages to a provider.
+          example:
+            created_at: "2021-01-01T00:00:00Z"
+            id: 01234567-89ab-cdef-0123-456789abcdef
+            key: my-sendgrid-channel
+            name: My Sendgrid Channel
+            provider: sendgrid
+            type: email
+            updated_at: "2021-01-01T00:00:00Z"
+          properties:
+            created_at:
+              description: The timestamp of when the channel was created.
+              format: date-time
+              type: string
+              x-struct: null
+              x-validate: null
+            id:
+              description: The unique identifier for the channel.
+              type: string
+              x-struct: null
+              x-validate: null
+            key:
+              description: Unique identifier for the channel within a project (immutable once created).
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            name:
+              description: The human-readable name of the channel.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            provider:
+              description: The ID of the provider that this channel uses to deliver messages.
+              type: string
+              x-struct: null
+              x-validate: null
+            type:
+              description: The type of channel, determining what kind of messages it can send.
+              enum:
+                - email
+                - in_app
+                - in_app_feed
+                - in_app_guide
+                - sms
+                - push
+                - chat
+                - http
+              type: string
+              x-struct: null
+              x-validate: null
+            updated_at:
+              description: The timestamp of when the channel was last updated.
+              format: date-time
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - id
+            - type
+            - provider
+            - created_at
+            - updated_at
+          type: object
+          x-struct: null
+          x-validate: null
         channel_id:
-          description: The ID for the channel the message was sent through.
+          deprecated: true
+          description: Deprecated, use channel.id instead.
           format: uuid
           type: string
           x-struct: null
@@ -5406,6 +5476,7 @@ components:
               email: false
         channel_types:
           email: true
+        commercial_subscribed: true
         workflows:
           dinosaurs-loose:
             channel_types:
@@ -5446,6 +5517,12 @@ components:
               x-struct: null
               x-validate: null
           description: An object where the key is the channel type and the values are the preference settings for that channel type.
+          x-struct: null
+          x-validate: null
+        commercial_subscribed:
+          description: Whether the recipient is subscribed to commercial communications. When false, the recipient will not receive commercial workflow notifications.
+          nullable: true
+          type: boolean
           x-struct: null
           x-validate: null
         workflows:
@@ -10664,6 +10741,7 @@ paths:
                       email: false
                 channel_types:
                   email: true
+                commercial_subscribed: true
                 workflows:
                   dinosaurs-loose:
                     channel_types:
@@ -10700,6 +10778,7 @@ paths:
               __persistence_strategy__: 'merge',
               categories: { marketing: false, transactional: { channel_types: { email: false } } },
               channel_types: { email: true },
+              commercial_subscribed: true,
               workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
             },
             user_ids: ['user_1', 'user_2'],
@@ -10726,6 +10805,7 @@ paths:
                   "channel_types": {
                       "email": True
                   },
+                  "commercial_subscribed": True,
                   "workflows": {
                       "dinosaurs-loose": {
                           "channel_types": {
@@ -10767,6 +10847,7 @@ paths:
                 ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
                   Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(true)),
                 }),
+                CommercialSubscribed: knock.F(true),
                 Workflows: knock.F(map[string]knock.PreferenceSetRequestWorkflowsUnionParam{
                 "dinosaurs-loose": knock.PreferenceSetRequestWorkflowsPreferenceSetWorkflowCategorySettingObjectParam{
                   ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
@@ -16289,6 +16370,7 @@ paths:
                     email: false
               channel_types:
                 email: true
+              commercial_subscribed: true
               workflows:
                 dinosaurs-loose:
                   channel_types:
@@ -16321,6 +16403,7 @@ paths:
             __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
+            commercial_subscribed: true,
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
           });
 
@@ -16347,6 +16430,7 @@ paths:
               channel_types={
                   "email": True
               },
+              commercial_subscribed=True,
               workflows={
                   "dinosaurs-loose": {
                       "channel_types": {
@@ -16761,6 +16845,7 @@ paths:
                     email: false
               channel_types:
                 email: true
+              commercial_subscribed: true
               workflows:
                 dinosaurs-loose:
                   channel_types:
@@ -16793,6 +16878,7 @@ paths:
             __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
+            commercial_subscribed: true,
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
           });
 
@@ -16818,6 +16904,7 @@ paths:
               channel_types={
                   "email": True
               },
+              commercial_subscribed=True,
               workflows={
                   "dinosaurs-loose": {
                       "channel_types": {
