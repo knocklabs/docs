@@ -177,7 +177,7 @@ const ExpandableButton = ({ children, isOpen, onClick }) => (
       marginLeft: "calc(var(--tgph-spacing-1) * -1)",
     }}
     icon={{
-      icon: ArrowRight as any,
+      icon: ArrowRight,
       "aria-hidden": true,
       style: {
         transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
