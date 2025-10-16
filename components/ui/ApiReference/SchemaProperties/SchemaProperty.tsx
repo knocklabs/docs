@@ -63,9 +63,7 @@ const SchemaProperty = ({ name, schema }: Props) => {
       </PropertyRow.Header>
 
       {schema.description && (
-        <PropertyRow.Description>
-          <Markdown>{schema.description}</Markdown>
-        </PropertyRow.Description>
+        <PropertyRow.Description>{schema.description}</PropertyRow.Description>
       )}
 
       {maybeEnum && (

@@ -193,7 +193,7 @@ function ApiReferenceMethod({
                   </PropertyRow.Type>
                 </PropertyRow.Header>
                 <PropertyRow.Description>
-                  <Markdown>{responseSchema.description ?? ""}</Markdown>
+                  {responseSchema.description ?? ""}
                 </PropertyRow.Description>
 
                 {responseSchema.properties && (

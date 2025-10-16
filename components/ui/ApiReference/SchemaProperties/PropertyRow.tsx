@@ -4,6 +4,8 @@ import { Code, Text } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 import { ArrowRight } from "lucide-react";
 import { highlightResource } from "@/components/ui/Page/helpers";
+import Markdown from "react-markdown";
+import { MDX_COMPONENTS } from "@/lib/mdxComponents";
 
 const Header = ({ children }) => (
   <Stack data-property-row-header alignItems="baseline" gap="1" mb="1">
@@ -122,7 +124,7 @@ const Type = ({
   );
 };
 
-const Description = ({ children }) => (
+const Description = ({ children }: { children: string }) => (
   <Text
     data-property-row-description
     as="span"
@@ -130,7 +132,20 @@ const Description = ({ children }) => (
     color="gray"
     weight="regular"
   >
-    {children}
+    <Markdown
+      components={{
+        // Spread the rest of our supported markdown elements
+        ...MDX_COMPONENTS,
+        // override code elements with this style
+        code: ({ children }) => (
+          <Code as="code" bg="gray-2" borderRadius="2" color="gray">
+            {children}
+          </Code>
+        ),
+      }}
+    >
+      {children}
+    </Markdown>
   </Text>
 );
 
