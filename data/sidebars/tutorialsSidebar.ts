@@ -48,4 +48,8 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     slug: `${baseSlug}/sending-web-push-notifications-with-fcm`,
     title: "Send web push with FCM",
   },
+  {
+    slug: `${baseSlug}/migrate-email-with-mcp-server`,
+    title: "Email template migration",
+  },
 ];

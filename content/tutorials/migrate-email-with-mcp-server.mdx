@@ -1,0 +1,362 @@
+---
+title: Migrate email templates using Knock's MCP server
+description: Learn how to quickly migrate your email templates to Knock using our MCP server.
+tags:
+  [
+    "migrate",
+    "email",
+    "migration",
+    "templates",
+    "MJML",
+    "components",
+    "MCP server",
+    "React Email",
+  ]
+section: Tutorials
+---
+
+Storing your email templates in Knock comes with [many advantages](/designing-workflows/template-editor/overview#frequently-asked-questions). In this tutorial, we'll walk you through how to leverage Knock's [MCP server](/developer-tools/mcp-server) with the large language model (LLM) of your choice as a low-effort solution to quickly migrate your email templates to Knock.
+
+## Prerequisites
+
+Before getting started, you'll need access to the following:
+
+- A [Knock account](https://dashboard.knock.app/).
+- A configured [email provider](/integrations/email/overview) in your Knock account. Navigate to **Integrations** > **Channels** in your dashboard to set this up if you haven't already done so.
+- A [service token](https://docs.knock.app/developer-tools/service-tokens) for your Knock account.
+- An MCP-compatible client (such as Cursor or Claude Desktop). We recommend Cursor for working with a large collection of HTML files.
+- For the purposes of this tutorial, we will assume that you're familiar with prompting an agentic LLM and understand how to provide access to files as context for your prompts. If you're not sure what this means, we recommend checking out this <a href="https://docs.cursor.com/en/guides/working-with-context" target="_blank">guide on working with context</a> from Cursor.
+- Your existing email template files. Your templates will be upserted to Knock as HTML, so if you're using a format like MJML or React Email, you'll want to convert them to HTML before you begin.
+
+For more information on setting up the Knock MCP server, see the [Get started](/developer-tools/mcp-server#get-started) section of the MCP documentation.
+
+### Required MCP tools
+
+When working with MCP servers, it's recommended that you expose only the tools you need for your use case to your LLM. The steps in this tutorial will require access to the following tools:
+
+- `documentation.*`
+- `channels.*`
+- `commits.*`
+- `emailLayouts.*`
+- `partials.*`
+- `workflows.*`
+- `users.*`
+
+Learn more about configuring these tools in your MCP-compatible client [here](/developer-tools/mcp-server#configuring-the-available-tools). If you're using Cursor or Claude Desktop, you can simply copy and paste the relevant configuration below into your MCP settings, under the `mcpServers` key. Be sure to update the configuration with your own service token.
+
+<AccordionGroup>
+  <Accordion title="MCP configuration for Cursor">
+  ```json title="Cursor MCP server configuration for email migration"
+  {
+    "knock": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@knocklabs/agent-toolkit",
+        "-p",
+        "local-mcp",
+        "--tools",
+        "documentation.*",
+        "channels.*",
+        "commits.*",
+        "emailLayouts.*",
+        "partials.*",
+        "workflows.*",
+        "users.*"
+      ],
+      "name": "Knock MCP Server",
+      "env": {
+        "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
+      }
+    }
+  }
+  ```
+  </Accordion>
+  <Accordion title="MCP configuration for Claude Desktop">
+  ```json title="Claude Desktop MCP server configuration for email migration"
+  {
+    "knock": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@knocklabs/agent-toolkit",
+        "-p",
+        "local-mcp",
+        "--tools",
+        "documentation.*",
+        "channels.*",
+        "commits.*",
+        "emailLayouts.*",
+        "partials.*",
+        "workflows.*",
+        "users.*"
+      ],
+      "env": {
+        "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
+      }
+    }
+  }
+  ```
+  </Accordion>
+</AccordionGroup>
+
+## Background
+
+While not required reading, you may want to familiarize yourself with the following Knock concepts before beginning your migration so that you can understand more about the prompts you'll be providing to your LLM and the resources that you'll be creating:
+
+- [Workflows](/concepts/workflows)
+- [Channel steps](/designing-workflows/channel-step)
+- [Email layouts](/integrations/email/layouts)
+- [Partials](/designing-workflows/partials)
+- Referencing [variables](/designing-workflows/template-editor/variables) and [your Knock data](/designing-workflows/template-editor/referencing-data) in templates
+- [Knock liquid helpers](/designing-workflows/template-editor/reference-liquid-helpers)
+
+<Callout
+  emoji="🚨"
+  bgColor="red"
+  title="Important considerations for best results."
+  text={
+    <>
+      <br />
+      <br />
+      <ul>
+        <li>
+          We recommend leveraging an LLM with the largest context window
+          available. In Cursor, you'll likely have the best results if you
+          enable "MAX mode" on your agent. Note that this may have billing
+          implications depending on your Cursor plan.
+        </li>
+        <li>
+          If you have a large number of templates, you will need to repeat the
+          first step below multiple times with a subset of your templates to
+          avoid exceeding the context window limit.{" "}
+          <b>
+            We recommend providing no more than 5-10 template files per prompt.
+          </b>{" "}
+          The prompt is designed so that you can run it multiple times and it
+          will add to the existing template analysis if it has already been run.
+        </li>
+        <li>
+          Cursor will sometimes show a "⚠️" icon on the files that you add to
+          chat context, with a tooltip that says "This file has been
+          significantly condensed to fit in the context limit." If you see this,
+          you should reduce the number of files you are providing as context to
+          your prompt, as proceeding will result in migrated templates that are
+          not pixel-perfect to your original templates.
+        </li>
+        <li>
+          As you work through the migration, start a new chat session to clear
+          your context window if you notice that you are approaching the context
+          window limit for the current session.
+        </li>
+        <li>
+          As always, remember that working with LLMs is non-deterministic. In
+          our testing, we've found that the following prompts can get you very
+          close to a pixel-perfect migration for most use cases, but the final
+          step to test your workflows is crucial to ensure that your migrated
+          templates look the way you want them to. Small adjustments are easy to
+          do via prompt with the MCP server.
+        </li>
+      </ul>
+    </>
+  }
+/>
+
+## Migration steps
+
+Now that you have everything you need for your migration, you're ready to get started!
+
+Each step below contains a prompt that you can provide to your LLM. These prompts are designed to be run one at a time in order to provide the LLM with discrete tasks, thus improving the accuracy of the output.
+
+<Steps titleSize="h3">
+  <Step title="Analyze your existing email templates">
+    Before creating any resources in Knock, you'll need to analyze your existing email templates to extract layouts and shared components. Copy the prompt below and provide it to your LLM along with access to your template files. We recommend limiting your prompt to 5-10 template files at a time to avoid exceeding the context window limit.
+
+    Repeat this prompt as many times as necessary until you've analyzed all of your templates.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to analyze your existing email templates"
+    I need to analyze my existing email templates to prepare for migration to Knock. The final migrated templates need to be pixel-perfect replicas of the original templates.
+
+    I have provided access to my HTML email template files. Only reference the files that I've explicitly provided as context. Examine each template one at a time and complete the following steps. Reference the Knock documentation with the Knock MCP server as needed.
+
+    1. **Extract the email layout**: Identify header, footer, and structural elements that appear in the template. For each identified layout pattern:
+      - Extract the exact HTML structure including <html>, <head>, and <body> tags.
+      - Include all CSS styles from the <head> section
+      - Mark the area where template-specific content will be injected with {{ content }}
+      - Add the layout to a "layouts.md" file in the root of the project, noting which template uses this layout.
+      - Note a key for the layout (use kebab-case based on its purpose)
+
+    2. **Extract reusable content blocks for partials**: From the remaining content in the template, identify any content sections that might be appropriately mapped to a Knock partial, which is a reusable block of HTML content that can be used in multiple templates. For each reusable block identified:
+      - Extract the exact HTML content (including any inline styles) and add it to a "partials.md" file in the root of the project, noting which template uses this partial.
+      - Identify any variables within the content that should be converted to Liquid syntax.
+      - Note the key of the partial (use kebab-case based on its purpose)
+
+    3. **Extract template-specific content**:
+      - Extract the exact HTML content (including any inline styles) of the template's remaining content and add it to a "templates.md" file in the root of the project, noting which template uses this content. If any partials were identified in step 2, reference them with Knock's Liquid syntax (i.e. {% render 'partial-key' %}) in the extracted content rather than copying the partial's HTML content directly.
+      - Replace any dynamic variables with Liquid syntax. You can use Knock-specific Liquid helpers if needed.
+      - Document the email subject line
+      - Note the key of the layout it should use (from step 1)
+      - List which partials it references (from step 2)
+      - Identify all variables used
+      - Note its name and purpose
+
+    Important: Extract and document the actual HTML content, not just descriptions. Only suggest creating layouts and partials for content that actually exists in my templates. Do not suggest any additional components that aren't present in the original templates.
+    ```
+
+  </Step>
+  <Step title="Create partials">
+    Based on your analysis, you'll now create the identified partials. Copy the prompt below and provide it to your LLM along with access to the `partials.md` file generated in the previous step.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to create partials"
+    Using the Knock MCP server, I need to create the partials identified in my "partials.md" file. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+
+    Please create each partial from the file one by one, using:
+    1. The key from the file
+    2. The type set as "html"
+    3. The exact HTML content
+    4. Any dynamic content converted to Liquid syntax with appropriate variable names
+
+    Once all partials are created, compare the partials in Knock to the list of partials in the "partials.md" file. If there are any differences, update the partials in Knock to match the file. Once they are complete, commit the partials to the development environment.
+    ```
+
+  </Step>
+  <Step title="Create email layouts">
+    Now you'll create the email layouts identified in your analysis. We'll do this in two parts; first we'll identify any duplicated layouts and determine which of the layouts should be used as your account's "default" layout, then we'll create all of the layouts in Knock. Provide the prompts below to your LLM one at a time, along with access to the `layouts.md` file generated in step 1.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to identify duplicate and default layouts"
+    I need to identify any duplicate layouts in my "layouts.md" file and determine which of the layouts should be used as my account's "default" layout. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+
+    1. Identify any layouts that are identical to each other in the file. For any identical layouts, consolidate them into a single layout and update the list of email templates that use this layout.
+    2. Determine which layout should be used as the "default" layout. The default layout is the one that is used most often in the file. Update its key to "default".
+    3. For any consolidated or modified layouts, update the key referenced in "templates.md" to use the correct layout key.
+    ```
+
+    ```markdown title="LLM prompt to create email layouts"
+    Using the Knock MCP server, I need to create the email layouts identified in my "layouts.md" file. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+
+    First, check if the analysis identified a single default layout that is used more often than others. If so:
+    1. Update the existing "default" layout in Knock with that HTML structure, replacing the template-specific content area with {{ content }}
+    2. Convert any dynamic variables to Liquid syntax
+    3. Preserve all original styles from the analysis
+    4. If any of the previously created partials should be used in this layout, reference them using {% render 'partial-key' %}
+    5. Include all CSS styles that were documented in the analysis
+    6. Create a text version that includes {{ content }} appropriately
+    7. Ensure the layout is a complete, valid HTML document
+
+    Then, follow the same steps to create a new layout for each additional layout in the analysis, using an appropriate unique key (use kebab-case based on its purpose) and the HTML structure from the analysis. Repeat this process until all layouts are created.
+
+    Important: Use the exact HTML structure from the analysis without modifications beyond what's necessary for the {{ content }} insertion.
+
+    Once all layouts are created, compare the layouts in Knock to the list of layouts in the analysis report. Once they are complete, commit the layouts to the development environment.
+    ```
+
+  </Step>
+  <Step title="Create workflows">
+    For each email template, you'll create a workflow with an email step whose template leverages the layouts and partials noted in our analysis.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to create templates in workflows"
+    Using the Knock MCP server, I need to create workflows for each of the templates identified in "templates.md". Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+
+    Please create a workflow for each template, one at a time:
+
+    1. Create a new workflow with a key based on the template's purpose (use kebab-case)
+    2. Add a descriptive name and description based on the template's function
+    3. Add appropriate categories if identified in the analysis
+    4. Create an email step in the workflow with:
+      - The original subject line from the template
+      - Any variables converted to Liquid syntax
+      - The layout key that was mapped to this template in the analysis
+      - Any partials that were identified for this template in the analysis, referencing them with correct keys
+      - The exact template-specific HTML content from the analysis report
+    5. Ensure no styling is added beyond what was in the original template
+    6. IMPORTANT: Preserve all HTML structure exactly as documented in the analysis; do not reference the original template files.
+
+    After creating each workflow, provide:
+    - The workflow key used
+    - Confirmation that the email step was configured correctly
+
+    Start with the first template and proceed one by one. Repeat this process until all workflows are created. Commit the workflows to the development environment.
+    ```
+
+  </Step>
+  <Step title="Summarize the successful migration">
+    After creating all resources, you need to verify that the migration was successful. We'll ask our LLM to provide a summary report of the migration to ensure that nothing was missed.
+
+    Provide the prompt below to your LLM along with access to the `templates.md` file.
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to verify the migration"
+    I've completed migrating my email templates to Knock. Please help me verify the migration was successful by generating a summary report that includes the following:
+
+    1. **List all created resources**: List all the partials, layouts, and workflows that were created in my development environment. Cross-reference "templates.md" to ensure nothing was missed.
+
+    2. **Check resource relationships**: Based on the mappings in the analysis report, verify that:
+      - Each workflow is using the correct layout as specified
+      - Partials are properly referenced where the analysis indicated they should be used
+      - All resources are in a valid state
+
+    3. **Validate completeness**: Check against the original analysis to ensure:
+      - All templates listed have corresponding workflows
+      - All partials identified were created and used correctly
+      - All layouts documented were implemented
+
+    Please provide a summary report showing:
+    - A list of all workflows created
+    - Comparison of analysis vs. actual implementation
+    - Any discrepancies found
+    ```
+
+  </Step>
+  <Step title="Test the migrated templates">
+    Once you've summarized the migration and verified that you've created all of the resources identified, you can use the Knock MCP server to test the migrated templates. Make sure that you update the prompt to target the correct test user's ID.
+
+    <AccordionGroup>
+      <Accordion title="Optional prompt to create a test user">
+        You can use the MCP server to create a user that you'd like to send the test emails to, if you don't already have one in your development environment. You should update the example prompt to use a real email address and ID for the user so that you can view the test emails in your inbox.
+
+        **Prompt:**
+
+        ```markdown title="Example LLM prompt to create a user"
+        I need to create a user in my Knock development environment. Please help me create a user with the following information:
+        - Email: test@example.com
+        - Name: Test User
+        - ID: test-user
+        ```
+      </Accordion>
+    </AccordionGroup>
+
+    **Prompt:**
+
+    ```markdown title="LLM prompt to test your workflows"
+    Using the Knock MCP server, I need to test the workflows in my Knock development environment. Be sure you understand all of the following instructions before proceeding. Reference the Knock documentation as needed.
+
+    First, create a document for our testing process.
+
+    Next, list all of the workflows in my Knock development environment. Add them to the testing document.
+
+    Please help me test the workflows one at a time. For each workflow, I want to:
+
+    1. **Generate test data**: Generate and document valid test data for the workflow using the workflow's schema.
+
+    2. **Trigger the workflow**: Trigger the workflow with the Knock MCP server, using the test data generated in the previous step. The recipient should be my test user with ID "FILL IN TEST USER ID HERE".
+
+    3. **Wait for confirmation**: Wait for me to confirm that the workflow was triggered successfully and that the test email was received. If I have feedback on the email that I received, note it in the summary report.
+
+    4. **Mark the workflow as tested**: If the workflow was triggered successfully and I do not have any further feedback, mark the workflow as tested in the summary report.
+
+    5. **Stop**: Ask me to confirm that I'm ready to test the next workflow before proceeding.
+
+    We'll proceed through the list of workflows one at a time. Once we've tested all of them, please provide a final summary of the test results, including any outstanding feedback that needs to be addressed.
+    ```
+
+  </Step>
+</Steps>
