@@ -113,6 +113,22 @@ if user.Name == "" {
 extraField := user.JSON.ExtraFields["custom_field"].Raw()
 ```
 
+### Undocumented request parameters
+
+The new SDK allows undocumented request parameters to be passed in the request body. 
+
+To make requests using undocumented parameters, you may use either the `option.WithQuerySet()` or the `option.WithJSONSet()` methods.
+
+```go title="Making requests with undocumented parameters"
+params := FooNewParams{
+    ID:   knock.F("id_xxxx"),
+    Data: knock.F(FooNewParamsData{
+        FirstName: knock.F("John"),
+    }),
+}
+client.Foo.New(context.Background(), params, option.WithJSONSet("data.last_name", "Doe"))
+```
+
 ## Breaking changes
 
 ### Request parameter style
@@ -220,6 +236,7 @@ object, _ := client.Objects.Set(ctx, &knock.SetObjectRequest{
     Properties: map[string]interface{}{
         "name":    "Rexy",
         "species": "Tyrannosaurus rex",
+        "timezone": "America/Chicago",
     },
 })
 ```
@@ -232,11 +249,10 @@ object, err := client.Objects.Set(
     "dinosaurs",
     "trex1",
     knock.ObjectSetParams{
-        ExtraFields: map[string]interface{}{
-            "name":    "Rexy",
-            "species": "Tyrannosaurus rex",
-        },
+        Timezone: knock.F("America/Chicago"),
     },
+    option.WithJSONSet("name", "Rexy"),
+    option.WithJSONSet("species", "Tyrannosaurus rex"),
 )
 ```
 
