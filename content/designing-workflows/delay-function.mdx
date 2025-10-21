@@ -48,14 +48,13 @@ When the key specified is missing or resolves to an invalid value, a correspondi
   <Accordion title="Using durations">
     A duration will take the current time that the delay step is executing and add the duration to it to produce the delay until time. A duration object is an entity that you can set on recipients, tenants, environment variables, or in your data payload and reference on your delay step.
 
-    #### The duration schema
+    #### Duration properties
 
-    ```typescript title="A relative duration"
-    type Duration = {
-      unit: "seconds" | "minutes" | "hours" | "days" | "weeks";
-      value: number;
-    };
-    ```
+
+    | Variable       | Type                                 | Description                                                                                                                                 |
+    | -------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `unit`    | "seconds" \| "minutes" \| "hours" \| "days" \| "weeks" | Unit of duration.                                                                        |
+    | `value`         | number | Number of seconds, minutes, hours, days, or weeks to delay the workflow.                                                                                         |
 
     #### An example duration
 
@@ -78,23 +77,15 @@ When the key specified is missing or resolves to an invalid value, a correspondi
 
     The window rule will always be evaluated in the [recipient's timezone](/concepts/recipients#recipient-timezones) (when set) and will fall back to the account default timezone, or "Etc/UTC".
 
-    #### The window rule schema
+#### Window rule properties
 
-    ```typescript title="A window rule"
-    type WindowRule = {
-      frequency: "hourly" | "daily" | "weekly" | "monthly",
-      // The specific days the rule is valid on
-      days?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"> | "weekdays" | "weekends",
-      // The hour which the rule should evaluate (defaults to 0)
-      hours?: number,
-      // The minute at which the rule should evaluate (default to 0)
-      minutes?: number,
-      // What day of the month should this rule execute (useful when monthly)
-      day_of_month?: number,
-      // How often should this rule repeat? Defaults to 1
-      interval?: number
-    };
-    ```
+    | Variable       | Type                                 | Description                                                                                                                                 |
+    | -------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+    | `frequency`    | "hourly" \| "daily" \| "weekly" \| "monthly" | The frequency at which the window rule should evaluate.                                                                                     |
+    | `days`         | DaysOfWeek[], "weekdays", "weekends" (optional) | The specific days the rule is valid on.                                                                                           |
+    | `hours`        | number (optional)                    | The hour at which the rule should evaluate. Defaults to 0.                                                                                  |
+    | `minutes`      | number (optional)                    | The minute at which the rule should evaluate. Must be one of: 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55. Defaults to 0.                 |
+    | `day_of_month` | number (optional)                    | What day of the month should this rule execute. Useful when frequency is monthly.                                                           |
 
     #### Example window rule
 
