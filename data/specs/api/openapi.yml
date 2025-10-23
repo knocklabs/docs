@@ -36,8 +36,6 @@ components:
         __typename: ChannelData
         channel_id: 123e4567-e89b-12d3-a456-426614174000
         data:
-          devices:
-            - token: device_1
           tokens:
             - push_token_1
       properties:
@@ -56,8 +54,8 @@ components:
         data:
           description: Channel data for a given channel type.
           oneOf:
-            - $ref: '#/components/schemas/PushChannelDataFull'
-            - $ref: '#/components/schemas/AWSSNSPushChannelDataFull'
+            - $ref: '#/components/schemas/PushChannelDataTokensOnly'
+            - $ref: '#/components/schemas/AWSSNSPushChannelDataTargetARNsOnly'
             - $ref: '#/components/schemas/OneSignalChannelDataPlayerIdsOnly'
             - $ref: '#/components/schemas/SlackChannelData'
             - $ref: '#/components/schemas/MsTeamsChannelData'
@@ -3299,29 +3297,165 @@ components:
     GuidesResponse:
       description: A response for a list of guides.
       example:
-        guides:
-          - active: true
-            content: New prehistoric specimens added to the visitor center display.
-            id: f47ac10b-58cc-4372-a567-0e02b2c3d479
-            title: Amber Collection Updated
-          - active: true
-            content: Version 2.1 - Enhanced paddock monitoring now available.
-            id: fe6c2c9c-849e-48d2-a5e5-9dc1f6b0f806
-            title: Security Systems Upgraded
-        recipient:
-          id: dr_malcolm
+        entries:
+          - __typename: Guide
+            activation_url_patterns: []
+            activation_url_rules:
+              - argument: /workflows
+                directive: allow
+                operator: contains
+                variable: pathname
+              - argument: /guides
+                directive: allow
+                operator: equal_to
+                variable: pathname
+            active: true
+            bypass_global_group_limit: false
+            channel_id: 51b92f90-1504-4fda-95c1-495a3883bc4d
+            id: 53595157-2fac-4a17-8dd7-e6603e32cb3a
+            inserted_at: "2025-09-30T14:54:44.217756Z"
+            key: nps-survey
+            semver: 0.0.3
+            steps:
+              - content:
+                  companyName: Knock
+                  showFeedbackSection: true
+                  showThanksToast: true
+                message:
+                  archived_at: null
+                  id: 33hjnKRKNx9ISRlixVBjhpkh28J
+                  interacted_at: "2025-10-07T15:10:59.291Z"
+                  link_clicked_at: null
+                  read_at: "2025-10-07T15:10:59.291Z"
+                  seen_at: "2025-10-06T18:46:03.210Z"
+                ref: step_1
+                schema_key: nps-survey
+                schema_semver: 0.0.3
+                schema_variant_key: default
+            type: nps-survey
+            updated_at: "2025-10-03T17:46:53.653663Z"
+          - __typename: Guide
+            activation_url_patterns:
+              - directive: allow
+                pathname: /dairy/*
+              - directive: allow
+                pathname: /produce
+              - directive: allow
+                pathname: /
+            activation_url_rules: []
+            active: true
+            bypass_global_group_limit: false
+            channel_id: 51b92f90-1504-4fda-95c1-495a3883bc4d
+            id: 4fc4503e-ef8b-473a-ae07-14800639d30c
+            inserted_at: "2025-10-07T19:41:06.215233Z"
+            key: changelog-card
+            semver: 0.0.3
+            steps:
+              - content:
+                  body: Lorem ipsum
+                  dismissible: false
+                  eyebrowText: New in Knock
+                  image:
+                    action: ""
+                    alt: ""
+                    url: https://bhoite.com/img/sculptures/2024/lander-r2/lander-r2.jpg
+                  link: https://dashboard.knock.app/knock/development/guides/changelog-card/editor
+                  title: Changelog card
+                message:
+                  archived_at: null
+                  id: null
+                  interacted_at: null
+                  link_clicked_at: null
+                  read_at: null
+                  seen_at: null
+                ref: step_1
+                schema_key: changelog-card
+                schema_semver: 0.0.3
+                schema_variant_key: default
+            type: changelog-card
+            updated_at: "2025-10-07T20:39:52.410146Z"
+        guide_group_display_logs:
+          default: "2025-08-16T00:47:14.025Z"
+        guide_groups:
+          - __typename: GuideGroup
+            display_interval: 3600
+            display_sequence:
+              - nps-survey
+              - changelog-card
+            inserted_at: "2025-07-24T21:06:27.394627Z"
+            key: default
+            updated_at: "2025-10-07T20:39:52.465400Z"
       properties:
-        guides:
+        entries:
           description: A list of guides.
           items:
             properties:
+              __typename:
+                description: The typename of the schema.
+                type: string
+                x-struct: null
+                x-validate: null
+              activation_url_patterns:
+                description: A list of URL Patterns to evaluate user's current location to activate the guide, if matched
+                items:
+                  properties:
+                    directive:
+                      description: The directive for the URL pattern ('allow' or 'block')
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    pathname:
+                      description: The pathname pattern to match (supports wildcards like /*)
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
+              activation_url_rules:
+                description: A list of URL rules to evaluate user's current location to activate the guide, if matched
+                items:
+                  properties:
+                    argument:
+                      description: The value to compare against
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    directive:
+                      description: The directive for the URL pattern ('allow' or 'block')
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    operator:
+                      description: The comparison operator ('contains' or 'equal_to')
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    variable:
+                      description: The variable to evaluate ('pathname')
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
               active:
                 description: Whether the guide is active.
                 type: boolean
                 x-struct: null
                 x-validate: null
-              content:
-                description: The content of the guide.
+              bypass_global_group_limit:
+                type: boolean
+                x-struct: null
+                x-validate: null
+              channel_id:
+                format: uuid
                 type: string
                 x-struct: null
                 x-validate: null
@@ -3331,104 +3465,163 @@ components:
                 type: string
                 x-struct: null
                 x-validate: null
-              metadata:
-                additionalProperties: true
-                description: The metadata of the guide.
-                type: object
-                x-struct: null
-                x-validate: null
-              title:
-                description: The title of the guide.
+              inserted_at:
+                format: date-time
                 type: string
                 x-struct: null
                 x-validate: null
-            type: object
-            x-struct: null
-            x-validate: null
-          type: array
-          x-struct: null
-          x-validate: null
-        recipient:
-          description: The recipient of the guide.
-          oneOf:
-            - type: "null"
-              x-struct: null
-              x-validate: null
-            - description: The recipient of the guide.
-              properties:
-                id:
-                  description: Unique identifier for the recipient.
-                  type: string
+              key:
+                description: The key of the guide.
+                type: string
+                x-struct: null
+                x-validate: null
+              semver:
+                type: string
+                x-struct: null
+                x-validate: null
+              steps:
+                items:
+                  properties:
+                    content:
+                      additionalProperties: true
+                      type: object
+                      x-struct: null
+                      x-validate: null
+                    message:
+                      properties:
+                        archived_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct: null
+                          x-validate: null
+                        id:
+                          nullable: true
+                          type: string
+                          x-struct: null
+                          x-validate: null
+                        interacted_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct: null
+                          x-validate: null
+                        link_clicked_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct: null
+                          x-validate: null
+                        read_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct: null
+                          x-validate: null
+                        seen_at:
+                          format: date-time
+                          nullable: true
+                          type: string
+                          x-struct: null
+                          x-validate: null
+                      type: object
+                      x-struct: null
+                      x-validate: null
+                    ref:
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    schema_key:
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    schema_semver:
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    schema_variant_key:
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                  type: object
                   x-struct: null
                   x-validate: null
-              type: object
-              x-struct: null
-              x-validate: null
-          x-struct: null
-          x-validate: null
-      required:
-        - guides
-      title: GuidesResponse
-      type: object
-      x-struct: Elixir.SwitchboardWeb.V1.Specs.Guides.Responses.GuidesResponse
-      x-validate: null
-    PushChannelDataFull:
-      description: Push channel data.
-      example:
-        devices:
-          - locale: en-US
-            timezone: America/Los_Angeles
-            token: push_token_1
-        tokens:
-          - push_token_1
-          - push_token_2
-      properties:
-        devices:
-          description: A list of devices. Each device contains a token, and optionally a locale and timezone.
-          items:
-            properties:
-              locale:
-                description: The locale of the object. Used for [message localization](/concepts/translations).
+                type: array
+                x-struct: null
+                x-validate: null
+              type:
+                description: The type of the guide.
                 type: string
                 x-struct: null
                 x-validate: null
-              timezone:
-                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+              updated_at:
+                format: date-time
                 type: string
                 x-struct: null
                 x-validate: null
-              token:
-                description: The device token to send the push notification to.
-                type: string
-                x-struct: null
-                x-validate: null
-            required:
-              - token
             type: object
             x-struct: null
             x-validate: null
-          nullable: false
           type: array
           x-struct: null
           x-validate: null
-        tokens:
-          description: A list of push channel tokens.
-          items:
-            description: The device token to send the push notification to.
-            nullable: false
+        guide_group_display_logs:
+          additionalProperties:
+            format: date-time
             type: string
             x-struct: null
             x-validate: null
-          nullable: false
+          description: A map of guide group keys to their last display timestamps.
+          type: object
+          x-struct: null
+          x-validate: null
+        guide_groups:
+          description: A list of guide groups with their display sequences and intervals.
+          items:
+            properties:
+              __typename:
+                type: string
+                x-struct: null
+                x-validate: null
+              display_interval:
+                type: integer
+                x-struct: null
+                x-validate: null
+              display_sequence:
+                items:
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
+              inserted_at:
+                format: date-time
+                type: string
+                x-struct: null
+                x-validate: null
+              key:
+                type: string
+                x-struct: null
+                x-validate: null
+              updated_at:
+                format: date-time
+                type: string
+                x-struct: null
+                x-validate: null
+            type: object
+            x-struct: null
+            x-validate: null
           type: array
           x-struct: null
           x-validate: null
       required:
-        - tokens
-        - devices
-      title: PushChannelDataFull
+        - entries
+        - guide_groups
+        - guide_group_display_logs
+      title: GuidesResponse
       type: object
-      x-struct: Elixir.SwitchboardWeb.V1.Specs.PushChannelDataFull
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.Guides.Responses.GuidesResponse
       x-validate: null
     MessageInAppFeedContentBlock:
       description: A block in a message in an app feed.
@@ -4200,63 +4393,6 @@ components:
       title: Activity
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Activity
-      x-validate: null
-    AWSSNSPushChannelDataFull:
-      description: AWS SNS push channel data.
-      example:
-        devices:
-          - locale: en-US
-            target_arn: arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
-            timezone: America/Los_Angeles
-        target_arns:
-          - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
-      properties:
-        devices:
-          description: A list of devices. Each device contains a target_arn, and optionally a locale and timezone.
-          items:
-            properties:
-              locale:
-                description: The locale of the object. Used for [message localization](/concepts/translations).
-                type: string
-                x-struct: null
-                x-validate: null
-              target_arn:
-                description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
-                type: string
-                x-struct: null
-                x-validate: null
-              timezone:
-                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
-                type: string
-                x-struct: null
-                x-validate: null
-            required:
-              - target_arn
-            type: object
-            x-struct: null
-            x-validate: null
-          nullable: false
-          type: array
-          x-struct: null
-          x-validate: null
-        target_arns:
-          description: A list of platform endpoint ARNs. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
-          items:
-            description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
-            nullable: false
-            type: string
-            x-struct: null
-            x-validate: null
-          nullable: false
-          type: array
-          x-struct: null
-          x-validate: null
-      required:
-        - target_arns
-        - devices
-      title: AWSSNSPushChannelDataFull
-      type: object
-      x-struct: Elixir.SwitchboardWeb.V1.Specs.AWSSNSPushChannelDataFull
       x-validate: null
     InlineIdentifyUserRequest:
       additionalProperties: true
@@ -11074,7 +11210,7 @@ paths:
 
           const response = await client.users.guides.getChannel('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
 
-          console.log(response.guides);
+          console.log(response.guide_group_display_logs);
         python: |-
           from knockapi import Knock
 
@@ -11085,7 +11221,7 @@ paths:
               user_id="user_id",
               channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
           )
-          print(response.guides)
+          print(response.guide_group_display_logs)
         go: |
           package main
 
@@ -11112,7 +11248,7 @@ paths:
             if err != nil {
               panic(err.Error())
             }
-            fmt.Printf("%+v\n", response.Guides)
+            fmt.Printf("%+v\n", response.GuideGroupDisplayLogs)
           }
         ruby: |-
           require "knockapi"
