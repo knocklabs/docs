@@ -36,6 +36,10 @@ components:
         __typename: ChannelData
         channel_id: 123e4567-e89b-12d3-a456-426614174000
         data:
+          devices:
+            - locale: null
+              timezone: null
+              token: device_1
           tokens:
             - push_token_1
       properties:
@@ -54,8 +58,8 @@ components:
         data:
           description: Channel data for a given channel type.
           oneOf:
-            - $ref: '#/components/schemas/PushChannelDataTokensOnly'
-            - $ref: '#/components/schemas/AWSSNSPushChannelDataTargetARNsOnly'
+            - $ref: '#/components/schemas/PushChannelDataFull'
+            - $ref: '#/components/schemas/AWSSNSPushChannelDataFull'
             - $ref: '#/components/schemas/OneSignalChannelDataPlayerIdsOnly'
             - $ref: '#/components/schemas/SlackChannelData'
             - $ref: '#/components/schemas/MsTeamsChannelData'
@@ -3623,6 +3627,66 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Guides.Responses.GuidesResponse
       x-validate: null
+    PushChannelDataFull:
+      description: Push channel data.
+      example:
+        devices:
+          - locale: en-US
+            timezone: null
+            token: push_token_1
+        tokens:
+          - push_token_1
+          - push_token_2
+      properties:
+        devices:
+          description: A list of devices. Each device contains a token, and optionally a locale and timezone.
+          items:
+            properties:
+              locale:
+                description: The locale of the object. Used for [message localization](/concepts/translations).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              timezone:
+                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              token:
+                description: The device token to send the push notification to.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - token
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        tokens:
+          description: A list of push channel tokens.
+          items:
+            description: The device token to send the push notification to.
+            nullable: false
+            type: string
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - tokens
+        - devices
+      title: PushChannelDataFull
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PushChannelDataFull
+      x-validate: null
     MessageInAppFeedContentBlock:
       description: A block in a message in an app feed.
       example:
@@ -4393,6 +4457,65 @@ components:
       title: Activity
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Activity
+      x-validate: null
+    AWSSNSPushChannelDataFull:
+      description: AWS SNS push channel data.
+      example:
+        devices:
+          - locale: en-US
+            target_arn: arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+            timezone: America/Los_Angeles
+        target_arns:
+          - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+      properties:
+        devices:
+          description: A list of devices. Each device contains a target_arn, and optionally a locale and timezone.
+          items:
+            properties:
+              locale:
+                description: The locale of the object. Used for [message localization](/concepts/translations).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              target_arn:
+                description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+                type: string
+                x-struct: null
+                x-validate: null
+              timezone:
+                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - target_arn
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        target_arns:
+          description: A list of platform endpoint ARNs. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+          items:
+            description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+            nullable: false
+            type: string
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - target_arns
+        - devices
+      title: AWSSNSPushChannelDataFull
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.AWSSNSPushChannelDataFull
       x-validate: null
     InlineIdentifyUserRequest:
       additionalProperties: true
