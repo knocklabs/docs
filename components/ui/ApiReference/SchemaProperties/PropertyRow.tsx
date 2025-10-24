@@ -137,10 +137,36 @@ const Description = ({ children }: { children: ReactNode }) => {
       >
         <Markdown
           components={{
+            // Include essential markdown components without circular dependency
             code: ({ children }) => (
               <Code as="code" bg="gray-2" borderRadius="2" color="gray">
                 {children}
               </Code>
+            ),
+            strong: ({ children }) => (
+              <Text as="strong" weight="semi-bold">
+                {children}
+              </Text>
+            ),
+            em: ({ children }) => (
+              <Text as="em" style={{ fontStyle: "italic" }}>
+                {children}
+              </Text>
+            ),
+            a: ({ children, href }) => (
+              <Text
+                as="a"
+                href={href}
+                color="accent"
+                style={{ textDecoration: "underline" }}
+              >
+                {children}
+              </Text>
+            ),
+            p: ({ children }) => (
+              <Text as="p" size="1" color="gray" weight="regular">
+                {children}
+              </Text>
             ),
           }}
         >
