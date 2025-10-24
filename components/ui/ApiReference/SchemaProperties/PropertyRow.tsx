@@ -5,7 +5,7 @@ import { Button } from "@telegraph/button";
 import { ArrowRight } from "lucide-react";
 import { highlightResource } from "@/components/ui/Page/helpers";
 import Markdown from "react-markdown";
-import { ReactNode } from "react";
+import { MDX_COMPONENTS } from "../../../lib/mdxComponents";
 
 const Header = ({ children }) => (
   <Stack data-property-row-header alignItems="baseline" gap="1" mb="1">
@@ -124,71 +124,30 @@ const Type = ({
   );
 };
 
-const Description = ({ children }: { children: ReactNode }) => {
-  // If children is a string, render it through Markdown
-  if (typeof children === "string") {
-    return (
-      <Text
-        data-property-row-description
-        as="span"
-        size="1"
-        color="gray"
-        weight="regular"
-      >
-        <Markdown
-          components={{
-            // Include essential markdown components without circular dependency
-            code: ({ children }) => (
-              <Code as="code" bg="gray-2" borderRadius="2" color="gray">
-                {children}
-              </Code>
-            ),
-            strong: ({ children }) => (
-              <Text as="strong" weight="semi-bold">
-                {children}
-              </Text>
-            ),
-            em: ({ children }) => (
-              <Text as="em" style={{ fontStyle: "italic" }}>
-                {children}
-              </Text>
-            ),
-            a: ({ children, href }) => (
-              <Text
-                as="a"
-                href={href}
-                color="accent"
-                style={{ textDecoration: "underline" }}
-              >
-                {children}
-              </Text>
-            ),
-            p: ({ children }) => (
-              <Text as="p" size="1" color="gray" weight="regular">
-                {children}
-              </Text>
-            ),
-          }}
-        >
-          {children}
-        </Markdown>
-      </Text>
-    );
-  }
-
-  // If children is JSX, render it directly without Markdown processing
-  return (
-    <Text
-      data-property-row-description
-      as="span"
-      size="1"
-      color="gray"
-      weight="regular"
+const Description = ({ children }: { children: string }) => (
+  <Text
+    data-property-row-description
+    as="span"
+    size="1"
+    color="gray"
+    weight="regular"
+  >
+    <Markdown
+      components={{
+        // Spread the rest of our supported markdown elements
+        ...MDX_COMPONENTS,
+        // override code elements with this style
+        code: ({ children }) => (
+          <Code as="code" bg="gray-2" borderRadius="2" color="gray">
+            {children}
+          </Code>
+        ),
+      }}
     >
       {children}
-    </Text>
-  );
-};
+    </Markdown>
+  </Text>
+);
 
 const Required = () => (
   <Code

@@ -1,5 +1,4 @@
 import { PropertyRow } from "./ApiReference/SchemaProperties/PropertyRow";
-import { ReactNode } from "react";
 
 const Attributes = ({ children }) => {
   return <PropertyRow.Wrapper>{children}</PropertyRow.Wrapper>;
@@ -8,7 +7,7 @@ const Attributes = ({ children }) => {
 type Props = {
   name: string;
   type: string;
-  description: ReactNode;
+  description: string;
   typeSlug?: string;
   nameSlug?: string;
   isRequired?: boolean;
