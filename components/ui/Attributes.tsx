@@ -25,7 +25,7 @@ const Attribute = ({
       <PropertyRow.Header>
         <PropertyRow.Name>{name}</PropertyRow.Name>
         {/* Pass an optional `typeSlug` to link the `type` to its definition in the docs*/}
-        <PropertyRow.Type href={typeSlug}>{type}</PropertyRow.Type>
+        {type && <PropertyRow.Type href={typeSlug}>{type}</PropertyRow.Type>}
         {isRequired && <PropertyRow.Required />}
       </PropertyRow.Header>
       {description && (
