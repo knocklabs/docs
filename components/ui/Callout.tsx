@@ -16,7 +16,7 @@ const TYPE_CONFIG: Record<
   warning: { emoji: "⚠️", bgColor: "yellow" },
   alert: { emoji: "🚨", bgColor: "red" },
   enterprise: { emoji: "🏢", bgColor: "blue" },
-  beta: { emoji: "🚧", bgColor: "blue" },
+  beta: { emoji: "🚧", bgColor: "yellow" },
 };
 
 export const Callout = ({
@@ -48,13 +48,13 @@ export const Callout = ({
 
   const emoji = effectiveType
     ? TYPE_CONFIG[effectiveType].emoji
-    : (customEmoji || "💡");
+    : customEmoji || "💡";
   const bgColor = effectiveType
     ? TYPE_CONFIG[effectiveType].bgColor
-    : (customBgColor || "default");
+    : customBgColor || "default";
 
   // Ensure emoji is always a string
-  const emojiString = typeof emoji === 'string' ? emoji : String(emoji || "💡");
+  const emojiString = typeof emoji === "string" ? emoji : String(emoji || "💡");
   const centeredProps: TgphComponentProps<typeof Stack> = isCentered
     ? { mx: "auto", style: { maxWidth: "90%" } }
     : { style: { maxWidth } };
