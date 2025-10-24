@@ -5,7 +5,7 @@ import { Button } from "@telegraph/button";
 import { ArrowRight } from "lucide-react";
 import { highlightResource } from "@/components/ui/Page/helpers";
 import Markdown from "react-markdown";
-import { MDX_COMPONENTS } from "../../../lib/mdxComponents";
+import { MDX_COMPONENTS } from "../../../../lib/mdxComponents";
 
 const Header = ({ children }) => (
   <Stack data-property-row-header alignItems="baseline" gap="1" mb="1">
