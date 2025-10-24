@@ -77,17 +77,192 @@ An example configuration for your sync may look something like this:
 
 ## Syncing audiences into Knock from Hightouch
 
-<Callout
-  emoji="🚧"
-  bgColor="blue"
-  text={
-    <>
-      Our Hightouch audience integration is currently in beta. If you'd like
-      early access, or this is blocking your adoption of Knock, please{" "}
-      <a href="mailto:support@knock.app?subject=Hightouch audience integration">
-        get in touch
-      </a>
-      .
-    </>
-  }
-/>
+Hightouch models can be synced to Knock [audiences](/concepts/audiences) by configuring Knock as an Embedded Destination in Hightouch. This integration does not require any additional configuration in the Knock dashboard once the following steps are completed in Hightouch.
+
+### Prerequisites
+
+1. Determine which Knock environment you want to sync your audience to. You most likely want to sync in the Production environment, unless you’re configuring a test sync.
+2. Create an audience in Knock that will serve as the target for your sync.
+3. Have your Knock environment’s secret API key ready. Each environment has its own unique set of API keys; you can find your secret API key in your dashboard under **Platform** > **API keys**. Be sure that the correct environment is selected in the switcher at the top of the page.
+
+### Configure Knock as a Hightouch Destination
+
+Before you can sync audiences into Knock from Hightouch, you need to configure Knock as an Embedded Destination in Hightouch.
+
+<Steps>
+  <Step title="Add destination">
+    Navigate to the **Integrations** > **Destinations** page in Hightouch’s
+    sidebar, then click "Add destination."
+
+    <Image
+      src="/images/integrations/sources/hightouch/hightouch_audience_sync_1.png"
+      width={1000}
+      height={500}
+      className="rounded-md mx-auto border border-gray-200"
+      alt="Add destination"
+    />
+
+  </Step>
+  <Step title='Select destination type'>
+    Under "Developer tools," select "Embedded Destination" and then click "Continue."
+
+    <Image
+      src="/images/integrations/sources/hightouch/hightouch_audience_sync_2.png"
+      width={1000}
+      height={500}
+      className="rounded-md mx-auto border border-gray-200"
+      alt="Select Embedded Destination"
+    />
+
+  </Step>
+  <Step title="Configure the destination URI">
+    Copy and paste the following into the URI field: 
+    ```txt title="Knock Embedded Destination URI"
+    https://api.knock.app/v1/integrations/hightouch/embedded-destination
+    ```
+    <br/>
+    
+    Add the following under **Headers**. Be sure to toggle the "Secret" setting for the value:
+    
+    | Header | Value |
+    | ------ | ----- |
+    | `Authorization` | `Bearer <your Knock secret API key>` |
+    
+    <br/>
+
+    Your completed URI configuration should look something like this:
+    <Image
+      src="/images/integrations/sources/hightouch/hightouch_audience_sync_3.png"
+      width={1000}
+      height={500}
+      className="rounded-md mx-auto border border-gray-200"
+      alt="Configure the destination URI"
+    />
+
+    <br/>
+
+    Click "Continue."
+
+    You'll be given the opportunity to configure alerts for this destination; if you don't need alerts, you can click "Continue" again.
+
+  </Step>
+  <Step title="Name your destination">
+    Type in a name for your destination and click "Finish." 
+    
+    We recommend something like “Knock Production” so that its clear which environment the destination writes to.
+  </Step>
+</Steps>
+
+### Add a sync to your Knock destination
+
+Once you have configured Knock as an Embedded Destination in Hightouch, you can add a sync to your destination.
+
+<Steps>
+  <Step title="Add a sync">
+    Navigate to **Activation** > **Syncs** in the Hightouch sidebar, then click "Add sync."
+
+    <Image
+      src="/images/integrations/sources/hightouch/hightouch_audience_sync_4.png"
+      width={1000}
+      height={500}
+      className="rounded-md mx-auto border border-gray-200"
+      alt="Add a sync"
+    />
+
+  </Step>
+  <Step title="Select your source data">
+    You'll be prompted to select a model for your source data. Select the model for the audience that you want to sync to Knock.
+  </Step>
+  <Step title="Select a destination">
+    Next, you'll select the Knock Embedded Destination that you created above.
+
+    <Image
+      src="/images/integrations/sources/hightouch/hightouch_audience_sync_5.png"
+      width={1000}
+      height={500}
+      className="rounded-md mx-auto border border-gray-200"
+      alt="Select a destination"
+    />
+
+  </Step>
+  <Step title="Configure your sync">
+    Select “Audiences” in the “Which object would you like to sync data to?” dropdown.
+
+    <Image
+      src="/images/integrations/sources/hightouch/hightouch_audience_sync_6.png"
+      width={1000}
+      height={500}
+      className="rounded-md mx-auto border border-gray-200"
+      alt="Configure your sync"
+    />
+
+    <br/>
+
+    Then, select a mode for the sync:
+
+    - **Insert only:** Only new rows added to your model will be synced to Knock. Removing rows from your model will have no effect on your Knock audience.
+    - **Mirror:** New rows in your model will be added to your audience and removed rows in your model will be deleted from your audience.
+
+    <Callout
+    emoji="💡"
+    title="Note:"
+    text={
+      <>
+        Knock’s Embedded Destination only applies add and remove operations. It does not support update operations.
+      </>
+    }
+    />
+
+  </Step>
+  <Step title="Configure your data mapping">
+    Map your model’s fields to the audience fields. 
+    
+    You must map a model field to the audience "User ID" field. This field should correspond to the ID of the user in Knock. 
+    
+    If you’d also like to map a `tenant` field, click "Add mapping" and select the appropriate field from your model.
+
+    <Image
+      src="/images/integrations/sources/hightouch/hightouch_audience_sync_7.png"
+      width={1000}
+      height={500}
+      className="rounded-md mx-auto border border-gray-200"
+      alt="Configure your data mapping"
+    />
+
+  </Step>
+  <Step title="Add the audience key">
+    Next, add the key of the Knock audience that you want to sync to. Click "Continue."
+
+    <Image
+      src="/images/integrations/sources/hightouch/hightouch_audience_sync_8.png"
+      width={1000}
+      height={500}
+      className="rounded-md mx-auto border border-gray-200"
+      alt="Add the audience key"
+    />
+
+  </Step>
+  <Step title="Finalize your sync">
+    Finally, you'll set your sync to run manually, on a schedule, or with an automation.
+
+    You can now click "Finish" to add the sync and run it whenever you’d like.  Refer to <a href="https://hightouch.com/docs/syncs/overview" target="_blank" rel="noopener noreferrer">Hightouch’s documentation</a> for more information on syncs.
+
+    <Callout
+    emoji="⚠️"
+    bgColor="red"
+    title="Note:"
+    text={
+      <>
+        If you want to trigger any Knock workflows based on <a href="/send-notifications/triggering-workflows/audiences">audience entry</a>, ensure that the workflows are configured, committed, and promoted to the relevant environment before starting the Hightouch sync.
+      </>
+    }
+    />
+
+    You can verify that the sync is behaving as expected by:
+
+    - Comparing total user counts in your model and the audience in your Knock dashboard.
+    - Viewing the audience user list.
+    - Viewing workflow run logs for the audience (if you have workflow audience triggers configured).
+
+  </Step>
+</Steps>
