@@ -1,43 +1,46 @@
 ---
 title: Feeds v. guides
 description: An overview of the differences between feeds and guides.
-tags: [feed, guides]
+tags: [feed, guides, in-app]
 section: Building in-app UI
 ---
 
-Knock uses two different concepts to power in-app messaging: feeds and guides.
-
-In this document we'll cover the key differences between the two, and when to use each.
+Knock uses two different concepts to power in-app messaging: feeds and guides. While feeds enable you to build notification centers and inboxes with messages generated ahead of time, guides enable you to power in-product UI with content and targeting managed in the Knock dashboard. In this document we'll cover the key differences between the two, and when to use each.
 
 ## Feeds
 
-The [feeds API](/api-reference/users/feeds) is great for building in-product messaging that relies on a _feed_ of per-user notifications.
+The [feeds API](/api-reference/users/feeds) enables you to build notification feeds, inboxes, and notification centers that display a chronological list of per-user notifications.
 
-The key unique principle of the feeds API relative to guides is that feed messages must be generated ahead of render time. If you consider the UX of a notification feed or inbox, it makes sense. The user opens the feed, the feed fetches the messages, and the messages are rendered.
+Feed messages are generated ahead of render time by triggering workflows or scheduling broadcasts. When a user opens their feed, the API fetches pre-generated messages and displays them.
 
-Here are a few characteristics of the feeds API.
+### Feed characteristics
 
 - Returns a list of messages generated ahead of time by triggering workflows and scheduling broadcasts.
 - Returns messages in reverse chronological order.
 - Returns aggregate values for unread counts, read counts, and seen counts, for use in feed badge UIs.
 - Can be filtered by status (unread, read, seen, archived) or custom properties.
 
-When to use feeds:
+### Feed use cases
 
-- When you want to build a notification feed or inbox or notification center.
+- When you want to build a notification feed, inbox, or notification center.
 - When you want to build a notification experience that can be thought of as a list of items.
 
 ## Guides
 
-The [guides API](/api-reference/users/guides/) is great for building in-product messaging that doesn't fit well into the feed-based model, such as announcements, paywalls, and other one-time or evergreen UI.
+The [guides API](/api-reference/users/guides/) enables you to power in-product messaging using your own UI components. Use guides for announcements, upgrade flows, paywalls, banners, and other UI that doesn't fit the feed-based model.
 
-The key unique principle of the guides API is that messages are generated at render time. This means that instead of pre-generating a message using a workflow or a broadcast, guides are generated when a user in your frontend is eligible to see a particular guide. When a guide renders to a user, Knock generates a message on the backend for analytics and observability purposes.
+Guides are data-driven and evaluated at render time. When a user is eligible to see a guide based on targeting and activation rules configured in the Knock dashboard, the API returns the guide data to your application. Your engineering team controls the UI layer, while your content team manages content, targeting, and activation rules in the dashboard.
 
-Here are a few characteristics of the guides API:
+### Guides characteristics
 
-- Returns either a single guide with a `key` or a list of guides that all share a `message-type`
-- Does not include aggregate counts of unseen/unread items
+- Returns guides based on eligibility determined by [targeting conditions](/in-app-ui/guides/create-guides#targeting) and [activation location rules](/in-app-ui/guides/create-guides#activation).
+- Can fetch a guide by its unique `key` or fetch guides filtered by `type` (message type).
+- Does not include aggregate counts of unseen/unread items.
+- Generates messages when a guide is fetched and returned to a user.
 
-When to use guides:
+### Guides use cases
 
-- For non-feed use cases such as modals, banners, tooltips, and inline components such as paywalls or other UI.
+- When you need eligibility determined at runtime based on user attributes or application state.
+- When you want to control the UI layer in your codebase while non-technical teams manage content and targeting.
+- When you need location-based activation rules (showing UI on specific pages or routes).
+- For non-feed UI such as modals, banners, tooltips, badges, or inline components like paywalls.
