@@ -1,83 +1,36 @@
 import { Icon } from "@telegraph/icon";
 import { Stack } from "@telegraph/layout";
 import { Check } from "lucide-react";
+import Link from "next/link";
 
-interface Permission {
+interface Feature {
   name: string;
-  roles: string[];
+  href?: string;
+  columns: string[];
 }
 
-interface PermissionCategory {
+interface FeatureCategory {
   name: string;
-  permissions: Permission[];
+  features: Feature[];
 }
 
-interface PermissionsMatrixProps {
-  roles?: string[];
-  categories?: PermissionCategory[];
+interface ColumnHeader {
+  name: string;
+  href?: string;
 }
 
-const defaultRoles = ["Owner", "Admin", "Member", "Support", "Billing"];
+interface FeaturesMatrixProps {
+  columnHeaders: (string | ColumnHeader)[];
+  categories: FeatureCategory[];
+}
 
-const defaultCategories: PermissionCategory[] = [
-  {
-    name: "Admin",
-    permissions: [
-      { name: "Manage billing", roles: ["Owner", "Billing"] },
-      { name: "Create and manage environments", roles: ["Owner", "Admin"] },
-      { name: "View account audit logs", roles: ["Owner", "Admin"] },
-      { name: "Invite and manage account members", roles: ["Owner", "Admin"] },
-      { name: "Manage account branding", roles: ["Owner", "Admin"] },
-    ],
-  },
-  {
-    name: "Core",
-    permissions: [
-      {
-        name: "Create and manage workflows/templates",
-        roles: ["Owner", "Admin", "Member"],
-      },
-      {
-        name: "Create and manage email layouts",
-        roles: ["Owner", "Admin", "Member"],
-      },
-      { name: "Commit and push changes", roles: ["Owner", "Admin", "Member"] },
-      {
-        name: "Manage users/objects/tenants",
-        roles: ["Owner", "Admin", "Member"],
-      },
-      {
-        name: "View users/objects/tenants",
-        roles: ["Owner", "Admin", "Member", "Support"],
-      },
-      {
-        name: "Manage per-tenant branding",
-        roles: ["Owner", "Admin", "Member"],
-      },
-      {
-        name: "View environment logs (API, messages)",
-        roles: ["Owner", "Admin", "Member", "Support"],
-      },
-    ],
-  },
-  {
-    name: "Developer",
-    permissions: [
-      { name: "View API keys", roles: ["Owner", "Admin", "Member"] },
-      { name: "Roll API keys", roles: ["Owner", "Admin"] },
-      { name: "Manage variables", roles: ["Owner", "Admin"] },
-      { name: "Manage signing keys", roles: ["Owner", "Admin"] },
-      { name: "Manage webhooks", roles: ["Owner", "Admin"] },
-    ],
-  },
-];
+const FeaturesMatrix = ({ columnHeaders, categories }: FeaturesMatrixProps) => {
+  const normalizedHeaders = columnHeaders.map((header) =>
+    typeof header === "string" ? { name: header } : header,
+  );
 
-const PermissionsMatrix = ({
-  roles = defaultRoles,
-  categories = defaultCategories,
-}: PermissionsMatrixProps) => {
-  const hasPermission = (permission: Permission, role: string): boolean => {
-    return permission.roles.includes(role);
+  const hasFeature = (feature: Feature, columnName: string): boolean => {
+    return feature.columns.includes(columnName);
   };
 
   return (
@@ -86,7 +39,6 @@ const PermissionsMatrix = ({
         className="w-full border-separate border-spacing-0"
         style={{ tableLayout: "fixed" }}
       >
-        {/* Roles header */}
         <thead>
           <tr className="border-b border-gray-200">
             <th
@@ -94,18 +46,18 @@ const PermissionsMatrix = ({
               style={{ width: "32px" }}
             ></th>
             <th className="px-3 py-3 border-l-0 border-t-0 border-r-0"></th>
-            {roles.map((role, index) => {
-              const baseWidth = `${55 / roles.length}%`; // Start with 55% of available space divided by roles
+            {normalizedHeaders.map((header, index) => {
+              const baseWidth = `${55 / normalizedHeaders.length}%`;
 
               return (
                 <th
-                  key={role}
+                  key={header.name}
                   className={`px-1 py-3 text-center font-semibold text-gray-900 text-xs border-t border-r border-gray-200 truncate ${
                     index === 0
                       ? "border-l border-gray-200 rounded-tl-md border-tl-0"
                       : ""
                   } ${
-                    index === roles.length - 1
+                    index === normalizedHeaders.length - 1
                       ? "border-r border-gray-200 rounded-tr-md border-tr-0"
                       : ""
                   }`}
@@ -115,34 +67,43 @@ const PermissionsMatrix = ({
                     maxWidth: "70px",
                     borderTopLeftRadius: index === 0 ? ".375rem" : undefined,
                     borderTopRightRadius:
-                      index === roles.length - 1 ? ".375rem" : undefined,
+                      index === normalizedHeaders.length - 1
+                        ? ".375rem"
+                        : undefined,
                   }}
                 >
-                  {role}
+                  {header.href ? (
+                    <Link
+                      href={header.href}
+                      className="hover:underline text-gray-900"
+                    >
+                      {header.name}
+                    </Link>
+                  ) : (
+                    header.name
+                  )}
                 </th>
               );
             })}
           </tr>
         </thead>
 
-        {/* Categories and Permissions */}
         <tbody>
           {categories.map((category, categoryIndex) => (
             <>
-              {category.permissions.map((permission, permissionIndex) => (
-                <tr key={permission.name}>
-                  {/* Category column - spans all rows for this category */}
-                  {permissionIndex === 0 && (
+              {category.features.map((feature, featureIndex) => (
+                <tr key={feature.name}>
+                  {featureIndex === 0 && (
                     <td
                       className={`w-8 px-4 bg-gray-100 border-r border-gray-200 relative ${
                         categoryIndex !== categories.length - 1
                           ? ""
                           : "border-b border-gray-200"
                       }`}
-                      rowSpan={category.permissions.length}
+                      rowSpan={category.features.length}
                       style={{ width: "32px" }}
                     >
-                      {permissionIndex === 0 && (
+                      {featureIndex === 0 && (
                         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-50"></div>
                       )}
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -153,10 +114,9 @@ const PermissionsMatrix = ({
                     </td>
                   )}
 
-                  {/* Permission name */}
                   <td
                     className={`px-3 py-2 text-sm relative ${
-                      permissionIndex === category.permissions.length - 1 &&
+                      featureIndex === category.features.length - 1 &&
                       categoryIndex !== categories.length - 1
                         ? ""
                         : "border-b border-gray-200"
@@ -165,36 +125,44 @@ const PermissionsMatrix = ({
                       minWidth: "150px",
                     }}
                   >
-                    {permissionIndex === 0 && (
+                    {featureIndex === 0 && (
                       <div className="absolute top-0 -left-px -right-px h-0.5 bg-gray-400 z-1"></div>
                     )}
                     <div className="text-gray-700 text-xs break-words leading-tight">
-                      {permission.name}
+                      {feature.href ? (
+                        <Link
+                          href={feature.href}
+                          className="hover:underline text-gray-700"
+                        >
+                          {feature.name}
+                        </Link>
+                      ) : (
+                        feature.name
+                      )}
                     </div>
                   </td>
 
-                  {/* Permission checkmarks */}
-                  {roles.map((role, index) => {
+                  {normalizedHeaders.map((header, index) => {
                     return (
                       <td
-                        key={`${permission.name}-${role}`}
+                        key={`${feature.name}-${header.name}`}
                         className={`px-2 py-2 text-center border-r border-gray-200 relative ${
                           index === 0 ? "border-l border-gray-200" : ""
                         } ${
-                          index === roles.length - 1
+                          index === normalizedHeaders.length - 1
                             ? "border-r border-gray-200"
                             : ""
                         } ${
-                          permissionIndex === category.permissions.length - 1 &&
+                          featureIndex === category.features.length - 1 &&
                           categoryIndex !== categories.length - 1
                             ? ""
                             : "border-b border-gray-200"
                         }`}
                       >
-                        {permissionIndex === 0 && (
+                        {featureIndex === 0 && (
                           <div className="absolute top-0 -left-px right-0 h-0.5 bg-gray-400 z-1"></div>
                         )}
-                        {hasPermission(permission, role) && (
+                        {hasFeature(feature, header.name) && (
                           <Stack
                             w="3"
                             h="3"
@@ -233,4 +201,4 @@ const PermissionsMatrix = ({
   );
 };
 
-export default PermissionsMatrix;
+export default FeaturesMatrix;
