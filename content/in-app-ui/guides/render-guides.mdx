@@ -5,7 +5,7 @@ tags: ["guides", "rendering", "lifecycle", "marketing", "tours"]
 section: Building in-app UI > Guides
 ---
 
-Once you've [created a guide](/in-app-ui/guides/create-guides), you'll need to render it in your product using the [guides API](/api-reference/users/guides/). This involves fetching the guide data from Knock and displaying it to your users based on their eligibility. You can render guides using Knock's client-side SDKs, which provide built-in state management and helper methods, or by directly calling the guides API to build a custom implementation. Below we cover both approaches and how to filter guides to show the right content to your users.
+Once you've [created a guide](/in-app-ui/guides/create-guides), you'll need to render it in your product using the [guides API](/api-reference/users/guides/). This involves fetching the guide data from Knock and displaying it to your users based on their eligibility. You can render guides using Knock's client-side SDKs, which provide built-in state management and helper methods, or by directly calling the [guides API](/api-reference/users/guides) to build a custom implementation. Below we cover both approaches and how to filter guides to show the right content to your users.
 
 ## Fetching guides
 
@@ -48,7 +48,7 @@ Knock exposes a set of client SDKs that provide helpers and logic to make it eas
 
 #### Key SDK resources
 
-When working with Knock's client-side SDKs to fetch and render guides, you'll use the following components and hooks:
+When working with Knock's SDKs to fetch and render guides, you'll use the following components and hooks:
 
 - [**KnockGuideProvider**](/in-app-ui/react/sdk/components/knock-guide-provider). Provider component that fetches guides and manages guide state.
 - [**useGuide**](/in-app-ui/react/sdk/hooks/use-guide). Hook to fetch a single guide by type or key.
@@ -78,12 +78,12 @@ You can also directly call the [guides API](/api-reference/users/guides) to fetc
 
 ## Filtering guides
 
-You can fetch guides either by a `type` or a `key` to select a guide from the fetched set of guides. Here's how to think about when to use both of these:
+You can fetch guides either by a `type` or a `key` to select a guide from the fetched set of guides. Here's how to think about choosing between these two selectors:
 
-| Selector | Filters by         | When to use                                                                          |
-| -------- | ------------------ | ------------------------------------------------------------------------------------ |
-| `key`    | Guide `key`        | Render **a specific instance of a guide**.                                           |
-| `type`   | Message type `key` | Render **any guide** that uses this [message type](/in-app-ui/guides/message-types). |
+| Selector | Filters by         | When to use                                                               |
+| -------- | ------------------ | ------------------------------------------------------------------------- |
+| `key`    | Guide `key`        | Render a specific instance of a guide.                                    |
+| `type`   | Message type `key` | Render any guide of this [message type](/in-app-ui/guides/message-types). |
 
 By default, when multiple guides exist for a single `type` (e.g, a generic "Banner" component that could be used multiple times across many guides) Knock returns the earliest created guides first then the most recently created guide last. Alternatively, you can control this behavior and manually configure the relative priority of guides by [ordering guides](/in-app-ui/guides/order-guides) in the Knock dashboard.
 
@@ -101,11 +101,11 @@ By default, when multiple guides exist for a single `type` (e.g, a generic "Bann
   <Accordion title="How do I render multiple guides in a single component?">
     To render multiple guides in a single component, use the [`useGuides`](/in-app-ui/react/sdk/hooks/use-guides) hook instead of [`useGuide`](/in-app-ui/react/sdk/hooks/use-guide). The plural `useGuides` hook returns an array of guides that you can map over to render multiple instances.
 
-    ```tsx
+    ```tsx title="Rendering multiple guides"
     import { useGuides } from "@knocklabs/react";
 
     const ChangelogList = () => {
-      const { guides } = useGuides({ type: "changelog-card" });
+      const { guides } = useGuides({ type: "sidebar-changelog-card" });
 
       return (
         <div>

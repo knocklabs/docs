@@ -1,3 +1,4 @@
+import React from "react";
 import { Icon } from "@telegraph/icon";
 import { Stack } from "@telegraph/layout";
 import { Check } from "lucide-react";
@@ -91,7 +92,7 @@ const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
 
         <tbody>
           {rowGroups.map((rowGroup, rowGroupIndex) => (
-            <>
+            <React.Fragment key={rowGroup.name}>
               {rowGroup.rows.map((row, rowIndex) => (
                 <tr key={row.name}>
                   {rowIndex === 0 && (
@@ -195,7 +196,7 @@ const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
                   })}
                 </tr>
               ))}
-            </>
+            </React.Fragment>
           ))}
         </tbody>
       </table>
