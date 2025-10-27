@@ -3,34 +3,34 @@ import { Stack } from "@telegraph/layout";
 import { Check } from "lucide-react";
 import Link from "next/link";
 
-interface Feature {
+interface MatrixRow {
   name: string;
   href?: string;
-  columns: string[];
+  columnsChecked: string[];
 }
 
-interface FeatureCategory {
+interface MatrixRowGroup {
   name: string;
-  features: Feature[];
+  rows: MatrixRow[];
 }
 
-interface ColumnHeader {
+interface MatrixColumn {
   name: string;
   href?: string;
 }
 
 interface FeaturesMatrixProps {
-  columnHeaders: (string | ColumnHeader)[];
-  categories: FeatureCategory[];
+  columns: (string | MatrixColumn)[];
+  rowGroups: MatrixRowGroup[];
 }
 
-const FeaturesMatrix = ({ columnHeaders, categories }: FeaturesMatrixProps) => {
-  const normalizedHeaders = columnHeaders.map((header) =>
-    typeof header === "string" ? { name: header } : header,
+const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
+  const normalizedColumns = columns.map((column) =>
+    typeof column === "string" ? { name: column } : column,
   );
 
-  const hasFeature = (feature: Feature, columnName: string): boolean => {
-    return feature.columns.includes(columnName);
+  const hasFeature = (row: MatrixRow, columnName: string): boolean => {
+    return row.columnsChecked.includes(columnName);
   };
 
   return (
@@ -46,18 +46,18 @@ const FeaturesMatrix = ({ columnHeaders, categories }: FeaturesMatrixProps) => {
               style={{ width: "32px" }}
             ></th>
             <th className="px-3 py-3 border-l-0 border-t-0 border-r-0"></th>
-            {normalizedHeaders.map((header, index) => {
-              const baseWidth = `${55 / normalizedHeaders.length}%`;
+            {normalizedColumns.map((column, index) => {
+              const baseWidth = `${55 / normalizedColumns.length}%`;
 
               return (
                 <th
-                  key={header.name}
-                  className={`px-1 py-3 text-center font-semibold text-gray-900 text-xs border-t border-r border-gray-200 truncate ${
+                  key={column.name}
+                  className={`px-1 py-3 text-center font-semibold text-xs border-t border-r border-gray-200 truncate ${
                     index === 0
                       ? "border-l border-gray-200 rounded-tl-md border-tl-0"
                       : ""
                   } ${
-                    index === normalizedHeaders.length - 1
+                    index === normalizedColumns.length - 1
                       ? "border-r border-gray-200 rounded-tr-md border-tr-0"
                       : ""
                   }`}
@@ -67,20 +67,21 @@ const FeaturesMatrix = ({ columnHeaders, categories }: FeaturesMatrixProps) => {
                     maxWidth: "70px",
                     borderTopLeftRadius: index === 0 ? ".375rem" : undefined,
                     borderTopRightRadius:
-                      index === normalizedHeaders.length - 1
+                      index === normalizedColumns.length - 1
                         ? ".375rem"
                         : undefined,
                   }}
                 >
-                  {header.href ? (
+                  {column.href ? (
                     <Link
-                      href={header.href}
-                      className="hover:underline text-gray-900"
+                      href={column.href}
+                      className="underline"
+                      style={{ color: "var(--tgph-accent-11)" }}
                     >
-                      {header.name}
+                      {column.name}
                     </Link>
                   ) : (
-                    header.name
+                    <span className="text-gray-900">{column.name}</span>
                   )}
                 </th>
               );
@@ -89,26 +90,26 @@ const FeaturesMatrix = ({ columnHeaders, categories }: FeaturesMatrixProps) => {
         </thead>
 
         <tbody>
-          {categories.map((category, categoryIndex) => (
+          {rowGroups.map((rowGroup, rowGroupIndex) => (
             <>
-              {category.features.map((feature, featureIndex) => (
-                <tr key={feature.name}>
-                  {featureIndex === 0 && (
+              {rowGroup.rows.map((row, rowIndex) => (
+                <tr key={row.name}>
+                  {rowIndex === 0 && (
                     <td
                       className={`w-8 px-4 bg-gray-100 border-r border-gray-200 relative ${
-                        categoryIndex !== categories.length - 1
+                        rowGroupIndex !== rowGroups.length - 1
                           ? ""
                           : "border-b border-gray-200"
                       }`}
-                      rowSpan={category.features.length}
+                      rowSpan={rowGroup.rows.length}
                       style={{ width: "32px" }}
                     >
-                      {featureIndex === 0 && (
+                      {rowIndex === 0 && (
                         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-50"></div>
                       )}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="transform -rotate-90 whitespace-nowrap text-sm font-medium text-gray-400">
-                          {category.name}
+                          {rowGroup.name}
                         </div>
                       </div>
                     </td>
@@ -116,8 +117,8 @@ const FeaturesMatrix = ({ columnHeaders, categories }: FeaturesMatrixProps) => {
 
                   <td
                     className={`px-3 py-2 text-sm relative ${
-                      featureIndex === category.features.length - 1 &&
-                      categoryIndex !== categories.length - 1
+                      rowIndex === rowGroup.rows.length - 1 &&
+                      rowGroupIndex !== rowGroups.length - 1
                         ? ""
                         : "border-b border-gray-200"
                     }`}
@@ -125,44 +126,45 @@ const FeaturesMatrix = ({ columnHeaders, categories }: FeaturesMatrixProps) => {
                       minWidth: "150px",
                     }}
                   >
-                    {featureIndex === 0 && (
+                    {rowIndex === 0 && (
                       <div className="absolute top-0 -left-px -right-px h-0.5 bg-gray-400 z-1"></div>
                     )}
-                    <div className="text-gray-700 text-xs break-words leading-tight">
-                      {feature.href ? (
+                    <div className="text-xs break-words leading-tight">
+                      {row.href ? (
                         <Link
-                          href={feature.href}
-                          className="hover:underline text-gray-700"
+                          href={row.href}
+                          className="underline"
+                          style={{ color: "var(--tgph-accent-11)" }}
                         >
-                          {feature.name}
+                          {row.name}
                         </Link>
                       ) : (
-                        feature.name
+                        <span className="text-gray-700">{row.name}</span>
                       )}
                     </div>
                   </td>
 
-                  {normalizedHeaders.map((header, index) => {
+                  {normalizedColumns.map((column, index) => {
                     return (
                       <td
-                        key={`${feature.name}-${header.name}`}
+                        key={`${row.name}-${column.name}`}
                         className={`px-2 py-2 text-center border-r border-gray-200 relative ${
                           index === 0 ? "border-l border-gray-200" : ""
                         } ${
-                          index === normalizedHeaders.length - 1
+                          index === normalizedColumns.length - 1
                             ? "border-r border-gray-200"
                             : ""
                         } ${
-                          featureIndex === category.features.length - 1 &&
-                          categoryIndex !== categories.length - 1
+                          rowIndex === rowGroup.rows.length - 1 &&
+                          rowGroupIndex !== rowGroups.length - 1
                             ? ""
                             : "border-b border-gray-200"
                         }`}
                       >
-                        {featureIndex === 0 && (
+                        {rowIndex === 0 && (
                           <div className="absolute top-0 -left-px right-0 h-0.5 bg-gray-400 z-1"></div>
                         )}
-                        {hasFeature(feature, header.name) && (
+                        {hasFeature(row, column.name) && (
                           <Stack
                             w="3"
                             h="3"
