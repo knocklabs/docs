@@ -24,12 +24,22 @@ interface MatrixColumn {
 interface FeaturesMatrixProps {
   columns: (string | MatrixColumn)[];
   rowGroups: MatrixRowGroup[];
+  noWrapRowHeaders?: boolean;
+  rowHeaderWidth?: string;
 }
 
-const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
+const FeaturesMatrix = ({
+  columns,
+  rowGroups,
+  noWrapRowHeaders = false,
+  rowHeaderWidth = "35%",
+}: FeaturesMatrixProps) => {
   const normalizedColumns = columns.map((column) =>
     typeof column === "string" ? { name: column } : column,
   );
+
+  // Check if any row group has a name to determine if we should show the first column
+  const hasRowGroupNames = rowGroups.some((group) => group.name);
 
   const getFeatureStatus = (
     row: MatrixRow,
@@ -44,26 +54,44 @@ const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
     return null;
   };
 
+  // Calculate column widths based on whether we have row group names
+  const groupNameWidth = hasRowGroupNames ? "32px" : "0";
+  const dataColumnsWidth = hasRowGroupNames
+    ? `calc(100% - ${rowHeaderWidth})`
+    : `calc(100% - ${rowHeaderWidth})`;
+
   return (
-    <div className="w-full mx-auto my-10">
+    <div className="w-full mx-auto my-10 overflow-x-auto">
       <table
         className="w-full border-separate border-spacing-0"
-        style={{ tableLayout: "fixed" }}
+        style={{ tableLayout: "fixed", maxWidth: "100%" }}
       >
         <thead>
           <tr className="border-b border-gray-200">
+            {hasRowGroupNames && (
+              <th
+                className="px-2 py-3 border-l-0 border-t-0 border-r-0"
+                style={{ width: groupNameWidth, minWidth: groupNameWidth }}
+              ></th>
+            )}
             <th
-              className="w-8 px-2 py-3 border-l-0 border-t-0 border-r-0"
-              style={{ width: "32px" }}
+              className="px-3 py-3 border-l-0 border-t-0 border-r-0"
+              style={{
+                width: hasRowGroupNames
+                  ? `calc(${rowHeaderWidth} - ${groupNameWidth})`
+                  : rowHeaderWidth,
+                maxWidth: hasRowGroupNames
+                  ? `calc(${rowHeaderWidth} - ${groupNameWidth})`
+                  : rowHeaderWidth,
+              }}
             ></th>
-            <th className="px-3 py-3 border-l-0 border-t-0 border-r-0"></th>
             {normalizedColumns.map((column, index) => {
-              const baseWidth = `${55 / normalizedColumns.length}%`;
+              const baseWidth = `calc(${dataColumnsWidth} / ${normalizedColumns.length})`;
 
               return (
                 <th
                   key={column.name}
-                  className={`px-1 py-3 text-center font-semibold text-xs border-t border-r border-gray-200 truncate ${
+                  className={`px-1 py-3 text-center font-semibold text-xs border-t border-r border-gray-200 ${
                     index === 0
                       ? "border-l border-gray-200 rounded-tl-md border-tl-0"
                       : ""
@@ -74,8 +102,6 @@ const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
                   }`}
                   style={{
                     width: baseWidth,
-                    minWidth: "55px",
-                    maxWidth: "70px",
                     borderTopLeftRadius: index === 0 ? ".375rem" : undefined,
                     borderTopRightRadius:
                       index === normalizedColumns.length - 1
@@ -83,17 +109,19 @@ const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
                         : undefined,
                   }}
                 >
-                  {column.href ? (
-                    <Link
-                      href={column.href}
-                      className="underline"
-                      style={{ color: "var(--tgph-accent-11)" }}
-                    >
-                      {column.name}
-                    </Link>
-                  ) : (
-                    <span className="text-gray-900">{column.name}</span>
-                  )}
+                  <div className="break-words leading-tight">
+                    {column.href ? (
+                      <Link
+                        href={column.href}
+                        className="underline"
+                        style={{ color: "var(--tgph-accent-11)" }}
+                      >
+                        {column.name}
+                      </Link>
+                    ) : (
+                      <span className="text-gray-900">{column.name}</span>
+                    )}
+                  </div>
                 </th>
               );
             })}
@@ -105,15 +133,18 @@ const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
             <React.Fragment key={rowGroup.name}>
               {rowGroup.rows.map((row, rowIndex) => (
                 <tr key={row.name}>
-                  {rowIndex === 0 && (
+                  {hasRowGroupNames && rowIndex === 0 && (
                     <td
-                      className={`w-8 px-4 bg-gray-100 border-r border-gray-200 relative ${
+                      className={`px-4 bg-gray-100 border-r border-gray-200 relative ${
                         rowGroupIndex !== rowGroups.length - 1
                           ? ""
                           : "border-b border-gray-200"
                       }`}
                       rowSpan={rowGroup.rows.length}
-                      style={{ width: "32px" }}
+                      style={{
+                        width: groupNameWidth,
+                        minWidth: groupNameWidth,
+                      }}
                     >
                       {rowIndex === 0 && (
                         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-50"></div>
@@ -133,14 +164,18 @@ const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
                         ? ""
                         : "border-b border-gray-200"
                     }`}
-                    style={{
-                      minWidth: "150px",
-                    }}
                   >
-                    {rowIndex === 0 && (
+                    {rowIndex === 0 && hasRowGroupNames && (
                       <div className="absolute top-0 -left-px -right-px h-0.5 bg-gray-400 z-1"></div>
                     )}
-                    <div className="text-xs break-words leading-tight">
+                    {rowIndex === 0 && !hasRowGroupNames && (
+                      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-1"></div>
+                    )}
+                    <div
+                      className={`text-xs leading-tight ${
+                        noWrapRowHeaders ? "whitespace-nowrap" : "break-words"
+                      }`}
+                    >
                       {row.href ? (
                         <Link
                           href={row.href}
