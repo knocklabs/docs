@@ -567,6 +567,52 @@ const nextConfig = {
         destination: "/in-app-ui/message-types/overview",
         permanent: true,
       },
+      // CLI guides redirects (plural to singular)
+      {
+        source: "/cli/guides",
+        destination: "/cli/guide",
+        permanent: true,
+      },
+      {
+        source: "/cli/guides/file-structure",
+        destination: "/cli/guide/file-structure",
+        permanent: true,
+      },
+      {
+        source: "/cli/guides/list",
+        destination: "/cli/guide/list",
+        permanent: true,
+      },
+      {
+        source: "/cli/guides/get",
+        destination: "/cli/guide/get",
+        permanent: true,
+      },
+      {
+        source: "/cli/guides/pull",
+        destination: "/cli/guide/pull",
+        permanent: true,
+      },
+      {
+        source: "/cli/guides/push",
+        destination: "/cli/guide/push",
+        permanent: true,
+      },
+      {
+        source: "/cli/guides/validate",
+        destination: "/cli/guide/validate",
+        permanent: true,
+      },
+      {
+        source: "/cli/guides/activate",
+        destination: "/cli/guide/activate",
+        permanent: true,
+      },
+      {
+        source: "/cli/guides/:path*",
+        destination: "/cli/guide/:path*",
+        permanent: true,
+      },
     ];
   },
 };

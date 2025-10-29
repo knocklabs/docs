@@ -101,7 +101,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
   {
     title: "Guides",
-    slug: "/cli/guides",
+    slug: "/cli/guide",
     pages: [
       { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List guides" },
