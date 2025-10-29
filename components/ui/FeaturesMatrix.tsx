@@ -24,14 +24,12 @@ interface MatrixColumn {
 interface FeaturesMatrixProps {
   columns: (string | MatrixColumn)[];
   rowGroups: MatrixRowGroup[];
-  noWrapRowHeaders?: boolean;
   rowHeaderWidth?: string;
 }
 
 const FeaturesMatrix = ({
   columns,
   rowGroups,
-  noWrapRowHeaders = false,
   rowHeaderWidth = "35%",
 }: FeaturesMatrixProps) => {
   const normalizedColumns = columns.map((column) =>
@@ -171,11 +169,7 @@ const FeaturesMatrix = ({
                     {rowIndex === 0 && !hasRowGroupNames && (
                       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-1"></div>
                     )}
-                    <div
-                      className={`text-xs leading-tight ${
-                        noWrapRowHeaders ? "whitespace-nowrap" : "break-words"
-                      }`}
-                    >
+                    <div className="text-xs break-words leading-tight">
                       {row.href ? (
                         <Link
                           href={row.href}
