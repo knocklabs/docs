@@ -112,4 +112,9 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/activate", title: "Activate guide" },
     ],
   },
+  {
+    title: "Message types",
+    slug: "/cli/message-type",
+    pages: [{ slug: "/file-structure", title: "File structure" }],
+  },
 ];
