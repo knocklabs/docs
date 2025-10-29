@@ -115,6 +115,13 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   {
     title: "Message types",
     slug: "/cli/message-type",
-    pages: [{ slug: "/file-structure", title: "File structure" }],
+    pages: [
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List message types" },
+      { slug: "/get", title: "Get message types" },
+      { slug: "/pull", title: "Pull message types" },
+      { slug: "/push", title: "Push message types" },
+      { slug: "/validate", title: "Validate message types" },
+    ],
   },
 ];
