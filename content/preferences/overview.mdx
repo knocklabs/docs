@@ -45,28 +45,14 @@ A few examples:
 }
 ```
 
-## Channel preferences vs. channel types
+## Channels vs. channel types
 
 Channel preferences provide more granular control than channel types by allowing you to specify preferences for individual channels rather than entire channel types.
 
-- **Channel types** (like `email`, `sms`, `push`) control broad categories of channels
-- **Channels** (like `550e8400-e29b-41d4-a716-446655440000`, `6ba7b810-9dad-11d1-80b4-00c04fd430c8`) control specific channel instances
+- **Channel type preferences** (`channel_types`) control broad categories like `email`, `sms`, or `push`
+- **Channel preferences** (`channels`) control specific channel instances using their UUID identifiers
 
-Channel preferences always take precedence over channel type preferences because they are more specific. For example, if a user has opted out of `email` notifications via `channel_types` but opted into a specific channel via `channels` (e.g., `"550e8400-e29b-41d4-a716-446655440000": true`), they will receive notifications from that specific channel.
-
-### Preference evaluation order
-
-When Knock evaluates preferences, it follows this hierarchy (most specific wins):
-
-1. **Channel preferences** - specific channel IDs (e.g., `"550e8400-e29b-41d4-a716-446655440000": false`)
-2. **Channel type preferences** - broad channel categories (e.g., `"email": false`)
-
-This means you can:
-
-- Opt out of all email notifications via channel types, but opt into specific marketing emails
-- Opt into SMS notifications generally, but opt out of a specific SMS provider
-- Create fine-grained control over which channels users receive notifications from
-
+Channel preferences always take precedence over channel type preferences because they are more specific. See [preference evaluation rules](#preference-evaluation-rules) below for more information.
 You can combine these keys to create preference grids like the one in the image below:
 
 ```json title="A preference grid for categories and channels"
