@@ -7,25 +7,63 @@ section: Send notifications
 
 ## Overview
 
-Knock provides opt-in, provider-agnostic tracking capabilities for your notifications. These are:
+Knock provides opt-in, provider-agnostic tracking capabilities for your notifications. With Knock tracking, you get the same features with cross-channel tracking
+events surfaced as first-class entities in a single place: your Knock account. Knock offers two types of tracking:
 
 - **Link tracking.** Knock will wrap URLs in your notification and capture link-click events before directing your recipient to the destination.
 - **Open tracking.** Currently for email channels only. Knock uses a 1x1 transparent "tracking pixel" to determine when a recipient opens and reads your email notifications.
 
-Many of the providers Knock integrates with offer their own versions of open and link tracking. You can configure your channels to use provider-owned tracking in these cases.
+Due to technical limitations, support for link and open tracking varies by channel type.
 
-With Knock tracking, you get the same features with cross-channel tracking events surfaced as first-class entities in a single place: your Knock account.
+<FeaturesMatrix
+  columns={["Link tracking", "Open tracking"]}
+  rowGroups={[
+    {
+      name: "Channel",
+      rows: [
+        {
+          name: "Email",
+          columnsYes: ["Link tracking", "Open tracking"],
+        },
+        {
+          name: "In-app feed",
+          columnsYes: ["Link tracking", "Open tracking"],
+        },
+        {
+          name: "Push",
+          columnsNo: ["Link tracking", "Open tracking"],
+        },
+        {
+          name: "SMS",
+          columnsYes: ["Link tracking"],
+          columnsNo: ["Open tracking"],
+        },
+        {
+          name: "Chat",
+          columnsYes: ["Link tracking"],
+          columnsNo: ["Open tracking"],
+        },
+        {
+          name: "Webhook",
+          columnsNo: ["Link tracking", "Open tracking"],
+        },
+      ],
+    },
+  ]}
+/>
 
-### Availability
-
-| Channel     | Link tracking available? | Open tracking available? |
-| ----------- | ------------------------ | ------------------------ |
-| Email       | ✅                       | ✅                       |
-| In-app feed | ✅                       | ✅                       |
-| Push        | ❌                       | ❌                       |
-| SMS         | ✅                       | ❌                       |
-| Chat        | ✅                       | ❌                       |
-| Webhook     | ❌                       | ❌                       |
+<Callout
+  emoji="💡"
+  title="Provider-owned tracking."
+  text={
+    <>
+      Many of the providers Knock integrates with offer their own versions of
+      open and link tracking. You can configure your channels to use
+      provider-owned tracking in these cases. We recommend using either
+      provider-owned tracking <i>or</i> Knock tracking.
+    </>
+  }
+/>
 
 ## Configuring Knock tracking
 
@@ -44,15 +82,18 @@ You can configure Knock tracking on a per-environment basis, using your channel'
 
 <Callout
   emoji="🌠"
-  title="In-app feed channels do not have an open tracking configuration option."
+  title="In-app feed channels have open tracking by default."
   text={
     <>
-      In-app feed open tracking is enabled implicitly whenever you use the{" "}
+      You won't find a configuration option for open tracking in the in-app feed
+      channel settings because open tracking is enabled implicitly whenever you
+      use the{" "}
       <a href="/in-app-ui/react/feed">
-        <code>KnockFeedProvider</code> component
-      </a>
-      . If you're building your own in-app feed view with a Knock SDK, then you'll
-      need to manage open tracking yourself by manually marking messages as read.
+        <code>KnockFeedProvider</code>
+      </a>{" "}
+      component. If you're building your own in-app feed view with a Knock SDK,
+      then you'll need to manage open tracking yourself by manually marking
+      messages as read.
     </>
   }
 />

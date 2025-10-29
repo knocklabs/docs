@@ -1,13 +1,14 @@
 import React from "react";
 import { Icon } from "@telegraph/icon";
 import { Stack } from "@telegraph/layout";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import Link from "next/link";
 
 interface MatrixRow {
   name: string;
   href?: string;
-  columnsChecked: string[];
+  columnsYes?: string[];
+  columnsNo?: string[];
 }
 
 interface MatrixRowGroup {
@@ -30,8 +31,17 @@ const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
     typeof column === "string" ? { name: column } : column,
   );
 
-  const hasFeature = (row: MatrixRow, columnName: string): boolean => {
-    return row.columnsChecked.includes(columnName);
+  const getFeatureStatus = (
+    row: MatrixRow,
+    columnName: string,
+  ): "available" | "unavailable" | null => {
+    if (row.columnsYes?.includes(columnName)) {
+      return "available";
+    }
+    if (row.columnsNo?.includes(columnName)) {
+      return "unavailable";
+    }
+    return null;
   };
 
   return (
@@ -165,32 +175,48 @@ const FeaturesMatrix = ({ columns, rowGroups }: FeaturesMatrixProps) => {
                         {rowIndex === 0 && (
                           <div className="absolute top-0 -left-px right-0 h-0.5 bg-gray-400 z-1"></div>
                         )}
-                        {hasFeature(row, column.name) && (
-                          <Stack
-                            w="3"
-                            h="3"
-                            rounded="full"
-                            alignItems="center"
-                            justifyContent="center"
-                            mx="auto"
-                            style={{
-                              backgroundColor: "var(--tgph-accent-9)",
-                            }}
-                          >
-                            <Icon
-                              icon={Check}
-                              color="white"
-                              size="0"
-                              aria-hidden={false}
-                              alt="Check"
-                              style={{
-                                width: "90%",
-                                height: "90%",
-                                transform: "translateY(0.5px)",
-                              }}
-                            />
-                          </Stack>
-                        )}
+                        {(() => {
+                          const status = getFeatureStatus(row, column.name);
+                          if (!status) return null;
+
+                          const isAvailable = status === "available";
+                          const icon = isAvailable ? Check : X;
+                          const bgColor = isAvailable
+                            ? "var(--tgph-accent-9)"
+                            : "var(--tgph-gray-4)";
+                          const iconColor = isAvailable ? "white" : "gray";
+                          const alt = isAvailable
+                            ? "Available"
+                            : "Not available";
+                          const transform = isAvailable
+                            ? "translateY(0.5px)"
+                            : undefined;
+
+                          return (
+                            <Stack
+                              w="3"
+                              h="3"
+                              rounded="full"
+                              alignItems="center"
+                              justifyContent="center"
+                              mx="auto"
+                              style={{ backgroundColor: bgColor }}
+                            >
+                              <Icon
+                                icon={icon}
+                                color={iconColor}
+                                size="0"
+                                aria-hidden={false}
+                                alt={alt}
+                                style={{
+                                  width: "90%",
+                                  height: "90%",
+                                  transform,
+                                }}
+                              />
+                            </Stack>
+                          );
+                        })()}
                       </td>
                     );
                   })}
