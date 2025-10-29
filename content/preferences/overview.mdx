@@ -13,7 +13,7 @@ A user has a <a href="/api-reference/recipients/preferences">`PreferenceSet`</a>
 
 When Knock runs a workflow for a user, we evaluate their `PreferenceSet`. A message will not send if the user has opted out of receiving it.
 
-A preference set is built using three keys: `categories`, `channel_types`, `workflows`. These keys resolve to boolean values to determine if a user has opted out of receiving a notification.
+A preference set is built using four keys: `categories`, `channels`, `channel_types`, `workflows`. These keys resolve to boolean values to determine if a user has opted out of receiving a notification.
 
 A recipient's `default` preference set also has a `commercial_subscribed` key which determines if the recipient should receive notifications sent by commercial workflows or broadcasts. Read more about commercial unsubscribe [here](/preferences/commercial-unsubscribe).
 
@@ -31,12 +31,41 @@ A few examples:
   "channel_types": { "email": false }
 }
 ```
+
+<br/>
+```json title="Unsubscribe user from a specific email channel"
+{
+  "channels": { "550e8400-e29b-41d4-a716-446655440000": false }
+}
+```
 <br/>
 ```json title="Unsubscribe user from at-mention notifications"
 {
   "workflows": { "mention": false }
 }
 ```
+
+## Channel preferences vs. channel types
+
+Channel preferences provide more granular control than channel types by allowing you to specify preferences for individual channels rather than entire channel types.
+
+- **Channel types** (like `email`, `sms`, `push`) control broad categories of channels
+- **Channels** (like `550e8400-e29b-41d4-a716-446655440000`, `6ba7b810-9dad-11d1-80b4-00c04fd430c8`) control specific channel instances
+
+Channel preferences always take precedence over channel type preferences because they are more specific. For example, if a user has opted out of `email` notifications via `channel_types` but opted into a specific channel via `channels` (e.g., `"550e8400-e29b-41d4-a716-446655440000": true`), they will receive notifications from that specific channel.
+
+### Preference evaluation order
+
+When Knock evaluates preferences, it follows this hierarchy (most specific wins):
+
+1. **Channel preferences** - specific channel IDs (e.g., `"550e8400-e29b-41d4-a716-446655440000": false`)
+2. **Channel type preferences** - broad channel categories (e.g., `"email": false`)
+
+This means you can:
+
+- Opt out of all email notifications via channel types, but opt into specific marketing emails
+- Opt into SMS notifications generally, but opt out of a specific SMS provider
+- Create fine-grained control over which channels users receive notifications from
 
 You can combine these keys to create preference grids like the one in the image below:
 
@@ -47,6 +76,10 @@ You can combine these keys to create preference grids like the one in the image 
       "channel_types": {
         "email": true,
         "in_app_feed": true
+      },
+      "channels": {
+        "550e8400-e29b-41d4-a716-446655440000": false,
+        "6ba7b810-9dad-11d1-80b4-00c04fd430c8": true
       }
     },
     "project-updates": {
@@ -60,6 +93,10 @@ You can combine these keys to create preference grids like the one in the image 
     "invoice-issued": {
       "channel_types": {
         "email": true
+      },
+      "channels": {
+        "6ba7b810-9dad-11d1-80b4-00c04fd430c8": true,
+        "f47ac10b-58cc-4372-a567-0e02b2c3d479": false
       }
     }
   }
@@ -323,7 +360,9 @@ When a workflow is triggered, Knock will evaluate the preferences for each `reci
     Knock only sends a notification if all preference combinations that exist on the recipient evaluate to `true`.
 
     - A workflow can belong to multiple `categories`. Only one of those category preferences needs to evaluate to `false` for the notification not to send.
-    - If a workflow's `category` is set to `false`, the notification will not send even if a `channel_type` on the workflow is explicitly set to `true`.
+    - If a workflow's `category` is set to `false`, the notification will not send even if a `channel_type` or `channel` on the workflow is explicitly set to `true`.
+    - Channel preferences take precedence over channel type preferences. If a specific `channel` is set to `true` but the `channel_type` is set to `false`, the notification will still send through that specific channel.
+    - If both `channel` and `channel_type` preferences exist for the same notification, the `channel` preference is evaluated first and takes priority.
 
   </Accordion>
   <Accordion title="Debugging preferences">
@@ -564,7 +603,7 @@ You can update the preferences of up to 1000 users in a single batch by using th
     <br />
     Here are some important thing to keep in mind when using the `replace` strategy:
     - This strategy will only apply to the specific preference(s) where it's included; there's no way to override the entire `PreferenceSet` at the top level.
-    - The `__strategy__` key can only be used on a combined `workflows`-`channel_types` or `categories`-`channel_types` preference, as seen in the example above.
+    - The `__strategy__` key can only be used on a combined `workflows`-`channel_types`, `workflows`-`channels`, `categories`-`channel_types`, or `categories`-`channels` preference, as seen in the example above.
     - When the preference with the `replace` strategy is removed, any existing preferences that were overridden by the `replace` strategy will be immediately restored to their original values. For the example above, the user will once again be opted in to `collaboration` notifications.
 
   </Accordion>
@@ -582,6 +621,27 @@ You can update the preferences of up to 1000 users in a single batch by using th
     This is because Knock automatically opts all recipients in to all `channel_types` by default, to ensure that the recipient receives notifications unless they have been explicitly opted out.
 
     If you want to override this behavior, you can set the `channel_types` preference to `false` for all channel types in your environment default preference set. This will opt the recipient out from all notifications.
+
+  </Accordion>
+  <Accordion title="What's the difference between channel preferences and channel type preferences?">
+    Channel preferences and channel type preferences work together to provide different levels of granularity:
+
+    - **Channel type preferences** (`channel_types`) control broad categories like `email`, `sms`, or `push`
+    - **Channel preferences** (`channels`) control specific channel instances using their UUID identifiers
+
+    Channel preferences always take precedence over channel type preferences. This allows users to:
+    - Opt out of all email notifications but still receive critical transactional emails from a specific channel
+    - Opt into SMS notifications generally but exclude marketing messages from a particular provider
+    - Have fine-grained control over their notification experience
+
+    For example, if a user has:
+    ```json
+    {
+      "channel_types": { "email": false },
+      "channels": { "550e8400-e29b-41d4-a716-446655440000": true }
+    }
+    ```
+    They will not receive email notifications in general, but will still receive notifications sent through the specific channel with ID `550e8400-e29b-41d4-a716-446655440000`.
 
   </Accordion>
 </AccordionGroup>
