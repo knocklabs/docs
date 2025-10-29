@@ -628,6 +628,16 @@ const nextConfig = {
         destination: "/cli/guide/:path*",
         permanent: true,
       },
+      {
+        source: "/concepts/commits",
+        destination: "/version-control/commits",
+        permanent: true,
+      },
+      {
+        source: "/concepts/environments",
+        destination: "/version-control/environments",
+        permanent: true,
+      },
     ];
   },
 };

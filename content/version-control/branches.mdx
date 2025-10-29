@@ -1,0 +1,122 @@
+---
+title: "Branches"
+description: "Learn how to use branches to isolate changes to your Knock resources."
+tags: ["version control", "branches", "environments", "commits"]
+section: Version control
+---
+
+<Callout
+  type="beta"
+  text={
+    <>
+      Branches are currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Branches">get in touch</a>.
+    </>
+  }
+/>
+
+## What are branches in Knock?
+
+Branches in Knock are a way to isolate changes to your Knock resources. It's like a sandbox for your changes, allowing you to make changes to your resources without affecting the main branch, or other branches in your account.
+
+Knock branches are conceptually similar to git branches, and are designed to be used in a similar way as part of your development workflow with Knock. You can create a branch, make changes to your resources, and merge those changes into the main branch when you're ready. Your Knock branches can mirror your git branches, so that you can coordinate feature changes between your application and Knock.
+
+Branches are a completely optional feature in Knock. If you don't use branches, you can still use Knock's [commit model](/version-control/commits) to version changes to your resources [in isolated environments](/version-control/environments).
+
+## Create a branch
+
+**In the dashboard**
+
+You can create a new branch in the Knock dashboard by going to the **Branches** page in your account settings and clicking the "Create branch" button. Alternatively, you can type into the branch selector in the top left of the Knock dashboard to quickly create a new branch.
+
+**In the CLI**
+
+```bash title="Creating a new branch in the CLI"
+knock branch create my-branch
+```
+
+## Merging changes from a branch
+
+**In the dashboard**
+
+You can view the changes made to a branch in the Knock dashboard by going to the **Commits** page. From there you can navigate to the "Unmerged changes" tab to see all changes that have not been merged into the main branch.
+
+When you're ready to merge the changes from a branch into the main branch, you can click the "Merge all changes" button to merge all commits from the branch into the main branch, or you can merge individual commits from the branch into the main branch.
+
+**In the CLI**
+
+```bash title="Merging changes from a branch in the CLI"
+knock branch merge my-branch
+```
+
+## Delete a branch
+
+**In the dashboard**
+
+You can delete a branch in the Knock dashboard by going to the **Branches** page in your account settings and clicking the "Delete branch" button next to the branch you want to delete.
+
+**In the CLI**
+
+```bash title="Deleting a branch in the CLI"
+knock branch delete my-branch
+```
+
+## Working with branches in the API
+
+Branches are fully supported in the Knock API so that you can execute workflows, create users, and manage preferences in a branch-specific environment. When making requests to the API for your branch, you **must use the API key for your `development` environment**, along with a special `X-Knock-Branch` header to specify the branch you want to work with.
+
+## Working with branches in the CLI
+
+Branches are supported in the Knock CLI for all commands that interact with resources in your Knock account. You can always use the `--branch` flag to specify the branch you want to work with, set the `KNOCK_BRANCH` environment variable, or set a `.knock-branch` file in your home directory to specify the branch you want to work with.
+
+```bash title="Specifying a branch in the CLI"
+knock workflow list --branch my-branch
+```
+
+It's also possible to use the CLI to programmatically create, update, and delete branches. Read more about [working with branches via the CLI](/cli/branches).
+
+## Working with branches via the Management API
+
+When using the management API, you can specify the branch you want to work with by passing the `branch` query parameter to the API endpoint, similar to how you would specify the environment.
+
+```bash title="Specifying a branch in the Management API"
+curl -X GET "https://control.knock.app/v1/workflows?branch=my-branch" \
+  -H "Authorization: Bearer $KNOCK_SERVICE_TOKEN"
+```
+
+It's also possible to use the management API to programmatically create, update, and delete branches. Read more about [working with branches via the Management API](/mapi-reference/branches).
+
+## Limitations
+
+There are a few limitations to branches in Knock:
+
+- Branches are **only** available in the `development` environment.
+- If you have merge conflicts on a resource that is part of a branch, you will need to resolve the conflicts outside of the dashboard via the CLI in order to continue.
+- There's currently no way to "rebase" a branch against `main` without using the CLI.
+- Branches are not supported for [broadcasts](/concepts/broadcasts).
+- Branches are not supported for [sources](/integrations/sources/overview).
+- Branches are not supported for [webhooks](/integrations/webhooks/overview).
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="What is the difference between a branch and an environment?">
+    A branch is a way to isolate changes to your Knock resources. It's like a
+    sandbox for your changes.
+  </Accordion>
+  <Accordion title="Can I block change being made directly to my development environment?">
+    No, you cannot yet block change being made directly to your development
+    environment. However, we're considering this feature and would love to hear
+    your use case if you'd like to see this feature. Please [get in
+    touch](mailto:support@knock.app) and we can discuss your use case further.
+  </Accordion>
+  <Accordion title="Can I put an approval process in place before merging changes from a branch into the main branch?">
+    No, there's not currently a way to put a review process in place before
+    merging changes from a branch into the main branch.
+  </Accordion>
+  <Accordion title="Is there a limit to the number of branches I can have in my account?">
+    No, there's no limit to the number of branches you can have in your account.
+  </Accordion>
+
+</AccordionGroup>
