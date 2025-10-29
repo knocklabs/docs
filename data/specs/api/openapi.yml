@@ -36,6 +36,10 @@ components:
         __typename: ChannelData
         channel_id: 123e4567-e89b-12d3-a456-426614174000
         data:
+          devices:
+            - locale: null
+              timezone: null
+              token: device_1
           tokens:
             - push_token_1
       properties:
@@ -54,8 +58,8 @@ components:
         data:
           description: Channel data for a given channel type.
           oneOf:
-            - $ref: '#/components/schemas/PushChannelDataTokensOnly'
-            - $ref: '#/components/schemas/AWSSNSPushChannelDataTargetARNsOnly'
+            - $ref: '#/components/schemas/PushChannelDataFull'
+            - $ref: '#/components/schemas/AWSSNSPushChannelDataFull'
             - $ref: '#/components/schemas/OneSignalChannelDataPlayerIdsOnly'
             - $ref: '#/components/schemas/SlackChannelData'
             - $ref: '#/components/schemas/MsTeamsChannelData'
@@ -214,6 +218,7 @@ components:
                 - argument: US
                   operator: equal_to
                   variable: recipient.country_code
+          commercial_subscribed: true
           id: default
           workflows: null
       items:
@@ -227,6 +232,8 @@ components:
       example:
         channel_types:
           email: false
+        channels:
+          aef6e715-df82-4ab6-b61e-b743e249f7b6: true
         conditions: null
       properties:
         channel_types:
@@ -236,6 +243,15 @@ components:
               x-struct: null
               x-validate: null
           description: An object where the key is the channel type and the values are the preference settings for that channel type.
+          x-struct: null
+          x-validate: null
+        channels:
+          anyOf:
+            - $ref: '#/components/schemas/PreferenceSetChannels'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the channel ID and the values are the preference settings for that channel ID.
           x-struct: null
           x-validate: null
         conditions:
@@ -1427,6 +1443,7 @@ components:
                 - argument: US
                   operator: equal_to
                   variable: recipient.country_code
+          commercial_subscribed: true
           id: default
           workflows: null
       items:
@@ -1555,6 +1572,13 @@ components:
                 email: false
           channel_types:
             email: true
+          channels:
+            2f641633-95d3-4555-9222-9f1eb7888a80:
+              conditions:
+                - argument: US
+                  operator: equal_to
+                  variable: recipient.country_code
+            aef6e715-df82-4ab6-b61e-b743e249f7b6: true
           commercial_subscribed: true
           workflows:
             dinosaurs-loose:
@@ -1805,6 +1829,7 @@ components:
               - argument: US
                 operator: equal_to
                 variable: recipient.country_code
+        commercial_subscribed: true
         id: default
         workflows: null
       properties:
@@ -1834,6 +1859,21 @@ components:
               x-struct: null
               x-validate: null
           description: An object where the key is the channel type and the values are the preference settings for that channel type.
+          x-struct: null
+          x-validate: null
+        channels:
+          anyOf:
+            - $ref: '#/components/schemas/PreferenceSetChannels'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the channel ID and the values are the preference settings for that channel ID.
+          x-struct: null
+          x-validate: null
+        commercial_subscribed:
+          description: Whether the recipient is subscribed to commercial communications. When false, the recipient will not receive commercial workflow notifications.
+          nullable: true
+          type: boolean
           x-struct: null
           x-validate: null
         id:
@@ -2212,6 +2252,8 @@ components:
       example:
         channel_types:
           email: false
+        channels:
+          aef6e715-df82-4ab6-b61e-b743e249f7b6: true
       oneOf:
         - example: false
           type: boolean
@@ -2221,6 +2263,8 @@ components:
           example:
             channel_types:
               email: false
+            channels:
+              aef6e715-df82-4ab6-b61e-b743e249f7b6: true
             conditions: null
           properties:
             channel_types:
@@ -2230,6 +2274,15 @@ components:
                   x-struct: null
                   x-validate: null
               description: An object where the key is the channel type and the values are the preference settings for that channel type.
+              x-struct: null
+              x-validate: null
+            channels:
+              anyOf:
+                - $ref: '#/components/schemas/PreferenceSetChannels'
+                - nullable: true
+                  x-struct: null
+                  x-validate: null
+              description: An object where the key is the channel ID and the values are the preference settings for that channel ID.
               x-struct: null
               x-validate: null
             conditions:
@@ -3623,6 +3676,66 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Guides.Responses.GuidesResponse
       x-validate: null
+    PushChannelDataFull:
+      description: Push channel data.
+      example:
+        devices:
+          - locale: en-US
+            timezone: null
+            token: push_token_1
+        tokens:
+          - push_token_1
+          - push_token_2
+      properties:
+        devices:
+          description: A list of devices. Each device contains a token, and optionally a locale and timezone.
+          items:
+            properties:
+              locale:
+                description: The locale of the object. Used for [message localization](/concepts/translations).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              timezone:
+                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              token:
+                description: The device token to send the push notification to.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - token
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        tokens:
+          description: A list of push channel tokens.
+          items:
+            description: The device token to send the push notification to.
+            nullable: false
+            type: string
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - tokens
+        - devices
+      title: PushChannelDataFull
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PushChannelDataFull
+      x-validate: null
     MessageInAppFeedContentBlock:
       description: A block in a message in an app feed.
       example:
@@ -4394,6 +4507,65 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Activity
       x-validate: null
+    AWSSNSPushChannelDataFull:
+      description: AWS SNS push channel data.
+      example:
+        devices:
+          - locale: en-US
+            target_arn: arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+            timezone: America/Los_Angeles
+        target_arns:
+          - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+      properties:
+        devices:
+          description: A list of devices. Each device contains a target_arn, and optionally a locale and timezone.
+          items:
+            properties:
+              locale:
+                description: The locale of the object. Used for [message localization](/concepts/translations).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              target_arn:
+                description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+                type: string
+                x-struct: null
+                x-validate: null
+              timezone:
+                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - target_arn
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        target_arns:
+          description: A list of platform endpoint ARNs. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+          items:
+            description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+            nullable: false
+            type: string
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - target_arns
+        - devices
+      title: AWSSNSPushChannelDataFull
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.AWSSNSPushChannelDataFull
+      x-validate: null
     InlineIdentifyUserRequest:
       additionalProperties: true
       description: A set of parameters to inline-identify a user with. Inline identifying the user will ensure that the user is available before the request is executed in Knock. It will perform an upsert for the user you're supplying, replacing any properties specified.
@@ -4685,6 +4857,28 @@ components:
       title: PushChannelDataTokensOnly
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.PushChannelDataTokensOnly
+      x-validate: null
+    PreferenceSetChannels:
+      additionalProperties:
+        description: Whether the specific channel (by channel_id) is enabled for the preference set, or a settings object with conditions.
+        oneOf:
+          - type: boolean
+            x-struct: null
+            x-validate: null
+          - $ref: '#/components/schemas/PreferenceSetChannelSetting'
+        x-struct: null
+        x-validate: null
+      description: Channel preferences.
+      example:
+        2f641633-95d3-4555-9222-9f1eb7888a80:
+          conditions:
+            - argument: US
+              operator: equal_to
+              variable: recipient.country_code
+        aef6e715-df82-4ab6-b61e-b743e249f7b6: true
+      title: PreferenceSetChannels
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceSetChannels
       x-validate: null
     BulkOperation:
       description: A bulk operation entity.
@@ -5727,6 +5921,13 @@ components:
               email: false
         channel_types:
           email: true
+        channels:
+          2f641633-95d3-4555-9222-9f1eb7888a80:
+            conditions:
+              - argument: US
+                operator: equal_to
+                variable: recipient.country_code
+          aef6e715-df82-4ab6-b61e-b743e249f7b6: true
         commercial_subscribed: true
         workflows:
           dinosaurs-loose:
@@ -5768,6 +5969,15 @@ components:
               x-struct: null
               x-validate: null
           description: An object where the key is the channel type and the values are the preference settings for that channel type.
+          x-struct: null
+          x-validate: null
+        channels:
+          anyOf:
+            - $ref: '#/components/schemas/PreferenceSetChannels'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the channel ID and the values are the preference settings for that channel ID.
           x-struct: null
           x-validate: null
         commercial_subscribed:
@@ -6189,6 +6399,27 @@ components:
       title: Condition
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Condition
+      x-validate: null
+    PreferenceSetChannelSetting:
+      description: A set of settings for a specific channel. Currently, this can only be a list of conditions to apply.
+      example:
+        conditions:
+          - argument: US
+            operator: equal_to
+            variable: recipient.country_code
+      properties:
+        conditions:
+          description: A list of conditions to apply to a specific channel.
+          items:
+            $ref: '#/components/schemas/Condition'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - conditions
+      title: PreferenceSetChannelSetting
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceSetChannels.PreferenceSetChannelSetting
       x-validate: null
     CancelWorkflowRequest:
       description: When invoked using a specific workflow key and cancellation key, will cancel any queued workflow runs associated with that key/cancellation key pair. Can optionally provide one or more recipients to scope the request to.
@@ -10680,6 +10911,7 @@ paths:
                           - argument: US
                             operator: equal_to
                             variable: recipient.country_code
+                    commercial_subscribed: true
                     id: default
                     workflows: null
                 items:
@@ -10992,6 +11224,13 @@ paths:
                       email: false
                 channel_types:
                   email: true
+                channels:
+                  2f641633-95d3-4555-9222-9f1eb7888a80:
+                    conditions:
+                      - argument: US
+                        operator: equal_to
+                        variable: recipient.country_code
+                  aef6e715-df82-4ab6-b61e-b743e249f7b6: true
                 commercial_subscribed: true
                 workflows:
                   dinosaurs-loose:
@@ -11029,6 +11268,12 @@ paths:
               __persistence_strategy__: 'merge',
               categories: { marketing: false, transactional: { channel_types: { email: false } } },
               channel_types: { email: true },
+              channels: {
+                '2f641633-95d3-4555-9222-9f1eb7888a80': {
+                  conditions: [{ argument: 'US', operator: 'equal_to', variable: 'recipient.country_code' }],
+                },
+                'aef6e715-df82-4ab6-b61e-b743e249f7b6': true,
+              },
               commercial_subscribed: true,
               workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
             },
@@ -11055,6 +11300,16 @@ paths:
                   },
                   "channel_types": {
                       "email": True
+                  },
+                  "channels": {
+                      "2f641633-95d3-4555-9222-9f1eb7888a80": {
+                          "conditions": [{
+                              "argument": "US",
+                              "operator": "equal_to",
+                              "variable": "recipient.country_code",
+                          }]
+                      },
+                      "aef6e715-df82-4ab6-b61e-b743e249f7b6": True,
                   },
                   "commercial_subscribed": True,
                   "workflows": {
@@ -11097,6 +11352,16 @@ paths:
                 }),
                 ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
                   Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(true)),
+                }),
+                Channels: knock.F(map[string]knock.PreferenceSetRequestChannelsUnionParam{
+                "2f641633-95d3-4555-9222-9f1eb7888a80": knock.PreferenceSetRequestChannelsPreferenceSetChannelSettingParam{
+                  Conditions: knock.F([]shared.ConditionParam{shared.ConditionParam{
+                    Argument: knock.F("US"),
+                    Operator: knock.F(shared.ConditionOperatorEqualTo),
+                    Variable: knock.F("recipient.country_code"),
+                  }}),
+                },
+                "aef6e715-df82-4ab6-b61e-b743e249f7b6": shared.UnionBool(true),
                 }),
                 CommercialSubscribed: knock.F(true),
                 Workflows: knock.F(map[string]knock.PreferenceSetRequestWorkflowsUnionParam{
@@ -14267,6 +14532,7 @@ paths:
                           - argument: US
                             operator: equal_to
                             variable: recipient.country_code
+                    commercial_subscribed: true
                     id: default
                     workflows: null
                 items:
@@ -16621,6 +16887,13 @@ paths:
                     email: false
               channel_types:
                 email: true
+              channels:
+                2f641633-95d3-4555-9222-9f1eb7888a80:
+                  conditions:
+                    - argument: US
+                      operator: equal_to
+                      variable: recipient.country_code
+                aef6e715-df82-4ab6-b61e-b743e249f7b6: true
               commercial_subscribed: true
               workflows:
                 dinosaurs-loose:
@@ -16654,6 +16927,12 @@ paths:
             __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
+            channels: {
+              '2f641633-95d3-4555-9222-9f1eb7888a80': {
+                conditions: [{ argument: 'US', operator: 'equal_to', variable: 'recipient.country_code' }],
+              },
+              'aef6e715-df82-4ab6-b61e-b743e249f7b6': true,
+            },
             commercial_subscribed: true,
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
           });
@@ -16680,6 +16959,16 @@ paths:
               },
               channel_types={
                   "email": True
+              },
+              channels={
+                  "2f641633-95d3-4555-9222-9f1eb7888a80": {
+                      "conditions": [{
+                          "argument": "US",
+                          "operator": "equal_to",
+                          "variable": "recipient.country_code",
+                      }]
+                  },
+                  "aef6e715-df82-4ab6-b61e-b743e249f7b6": True,
               },
               commercial_subscribed=True,
               workflows={
@@ -17096,6 +17385,13 @@ paths:
                     email: false
               channel_types:
                 email: true
+              channels:
+                2f641633-95d3-4555-9222-9f1eb7888a80:
+                  conditions:
+                    - argument: US
+                      operator: equal_to
+                      variable: recipient.country_code
+                aef6e715-df82-4ab6-b61e-b743e249f7b6: true
               commercial_subscribed: true
               workflows:
                 dinosaurs-loose:
@@ -17129,6 +17425,12 @@ paths:
             __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
+            channels: {
+              '2f641633-95d3-4555-9222-9f1eb7888a80': {
+                conditions: [{ argument: 'US', operator: 'equal_to', variable: 'recipient.country_code' }],
+              },
+              'aef6e715-df82-4ab6-b61e-b743e249f7b6': true,
+            },
             commercial_subscribed: true,
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
           });
@@ -17154,6 +17456,16 @@ paths:
               },
               channel_types={
                   "email": True
+              },
+              channels={
+                  "2f641633-95d3-4555-9222-9f1eb7888a80": {
+                      "conditions": [{
+                          "argument": "US",
+                          "operator": "equal_to",
+                          "variable": "recipient.country_code",
+                      }]
+                  },
+                  "aef6e715-df82-4ab6-b61e-b743e249f7b6": True,
               },
               commercial_subscribed=True,
               workflows={
