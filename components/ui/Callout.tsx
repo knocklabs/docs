@@ -3,7 +3,13 @@ import React from "react";
 import { Text } from "@telegraph/typography";
 import { TgphComponentProps } from "@telegraph/helpers";
 
-type CalloutType = "info" | "warning" | "alert" | "enterprise" | "beta";
+type CalloutType =
+  | "info"
+  | "warning"
+  | "alert"
+  | "enterprise"
+  | "beta"
+  | "roadmap";
 
 const TYPE_CONFIG: Record<
   CalloutType,
@@ -17,6 +23,7 @@ const TYPE_CONFIG: Record<
   alert: { emoji: "🚨", bgColor: "red" },
   enterprise: { emoji: "🏢", bgColor: "blue" },
   beta: { emoji: "🚧", bgColor: "yellow" },
+  roadmap: { emoji: "🛣", bgColor: "default" },
 };
 
 export const Callout = ({
