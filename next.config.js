@@ -567,6 +567,11 @@ const nextConfig = {
         destination: "/in-app-ui/message-types/overview",
         permanent: true,
       },
+      {
+        source: "/cli",
+        destination: "/cli/overview",
+        permanent: false,
+      },
       // CLI guides redirects (plural to singular)
       {
         source: "/cli/guides",
