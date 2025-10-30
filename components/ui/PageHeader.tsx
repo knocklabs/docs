@@ -134,13 +134,21 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             <Tabs.Tab value="in-app-ui" as={Link} href="/in-app-ui">
               In-app UI
             </Tabs.Tab>
-            <Tabs.Tab value="api-reference" as={Link} href="/api-reference">
+            <Tabs.Tab
+              value="api-reference"
+              as={Link}
+              href="/api-reference/overview"
+            >
               API reference
             </Tabs.Tab>
             <Tabs.Tab value="cli-reference" as={Link} href="/cli/overview">
               CLI reference
             </Tabs.Tab>
-            <Tabs.Tab value="mapi-reference" as={Link} href="/mapi-reference">
+            <Tabs.Tab
+              value="mapi-reference"
+              as={Link}
+              href="/mapi-reference/overview"
+            >
               Management API
             </Tabs.Tab>
             <Tabs.Tab value="developer-tools" as={Link} href="/developer-tools">

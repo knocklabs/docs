@@ -572,6 +572,16 @@ const nextConfig = {
         destination: "/cli/overview",
         permanent: false,
       },
+      {
+        source: "/api-reference",
+        destination: "/api-reference/overview",
+        permanent: false,
+      },
+      {
+        source: "/mapi-reference",
+        destination: "/mapi-reference/overview",
+        permanent: false,
+      },
       // CLI guides redirects (plural to singular)
       {
         source: "/cli/guides",
