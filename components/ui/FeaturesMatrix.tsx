@@ -107,7 +107,7 @@ const FeaturesMatrix = ({
                         : undefined,
                   }}
                 >
-                  <div className="break-words leading-tight">
+                  <div className="overflow-hidden leading-tight">
                     {column.href ? (
                       <Link
                         href={column.href}
@@ -169,7 +169,7 @@ const FeaturesMatrix = ({
                     {rowIndex === 0 && !hasRowGroupNames && (
                       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-1"></div>
                     )}
-                    <div className="text-xs break-words leading-tight">
+                    <div className="text-xs overflow-hidden leading-tight">
                       {row.href ? (
                         <Link
                           href={row.href}
