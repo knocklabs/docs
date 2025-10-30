@@ -133,6 +133,31 @@ The following flags are supported for every command.
 </ContentColumn>
 </Section>
 
+<Section title="Directory structure" path="/overview/directory-structure">
+<ContentColumn>
+
+There is no required directory structure when working with Knock resources locally. However, if you use the `knock pull` or `knock push` commands, they will produce and expect the directory structure outlined below.
+
+For forward compatibility, we recommend using this structure to ensure your local files work seamlessly with future CLI updates.
+
+When you use `knock pull --knock-dir=./knock`, resources will be grouped by resource type within subdirectories. The following directory structure will be created:
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Recommended directory structure for Knock resources">
+{`./knock/
+├── guides/
+├── layouts/
+├── message-types/
+├── partials/
+├── translations/
+└── workflows/`}
+</PreTextDiagram>
+
+Each resource type has its own directory structure, which is described in detail in the sections below for each resource type.
+
+</ContentColumn>
+</Section>
+
 <Section title="knock login" path="/login">
 <ContentColumn>
 
@@ -166,18 +191,9 @@ knock logout
 <Section title="knock pull [flags]" path="/pull">
 <ContentColumn>
 
-Pulls the contents of all Knock resources (workflows, partials, email layouts, and translations) from Knock into your local file system.
+Pulls the contents of all Knock resources (workflows, partials, email layouts, translations, guides, and message-types) from Knock into your local file system.
 
-Resources will be grouped by resource type within subdirectories of the target directory path set by the `--knock-dir` flag. For example, invoking `knock pull --knock-dir=./knock` will create the following directory structure:
-
-{/* prettier-ignore */}
-<PreTextDiagram description="Directory structure created by the knock pull command">
-{`./knock/
-├── layouts/
-├── partials/
-├── translations/
-└── workflows/`}
-</PreTextDiagram>
+Resources will be grouped by resource type within subdirectories of the target directory path set by the `--knock-dir` flag. See the [Directory structure](/cli/overview/directory-structure) section for details on the directory structure used by `push` and `pull` commands.
 
 ### Flags
 
@@ -247,6 +263,29 @@ knock push --knock-dir=./knock
 ```
 
 </ExampleColumn>
+</Section>
+
+<Section title="Workflow file structure" path="/workflow/file-structure">
+<ContentColumn>
+
+When workflows are pulled from Knock, they are stored in directories named by their workflow key. In addition to a `workflow.json` file that describes all of a given workflow's steps, each workflow directory also contains individual folders for each of the [channel steps](/designing-workflows/channel-step) in the workflow that hold additional content and formatting data.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local workflow files structure">
+{`workflows/
+└── my-workflow/
+    ├── email_1/
+    │   ├── visual_blocks/
+    │   │   └── 1.content.md
+    │   └── visual_blocks.json
+    ├── in_app_feed_1/
+    │   └── markdown_body.md
+    └── workflow.json`}
+</PreTextDiagram>
+
+If you're migrating your local workflow files into Knock, you can arrange them using the example file structure above and then push them into Knock with a single command using [`knock workflow push --all`](/cli/workflow/push). Each `workflow.json` file should follow the structure defined [here](/mapi-reference/workflows/schemas/workflow).
+
+</ContentColumn>
 </Section>
 
 <Section title="knock workflow list [flags]" path="/workflow/list">
@@ -345,7 +384,7 @@ You can pull and download workflows with its message templates from Knock to a l
 
 Note: if pulling the target workflow for the first time (or all workflows), Knock CLI will ask to confirm before writing to the local file system.
 
-See how workflow files are structured in your system [here](/concepts/workflows#workflow-files-structure).
+See the [Workflow file structure](/cli/workflow/file-structure) section for details on how workflow files are organized.
 
 ### Flags
 
@@ -409,7 +448,7 @@ Note:
 - You must be directly above the target workflow directory when running the `workflow push` command, so the CLI can locate the `workflow.json` file.
 - You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
 
-See how workflow files are structured in your system [here](/concepts/workflows#workflow-files-structure).
+See the [Workflow file structure](/cli/workflow/file-structure) section for details on how workflow files are organized.
 
 ### Flags
 
@@ -645,6 +684,39 @@ knock workflow generate-types \
 </ExampleColumn>
 </Section>
 
+<Section title="Layout file structure" path="/email-layout/file-structure">
+<ContentColumn>
+
+When email layouts are pulled from Knock, they are stored in directories named by their layout key.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local layout files structure">
+{`layouts/
+├── default/
+│   ├── html_layout.html
+│   ├── layout.json
+│   └── text_layout.txt
+└── custom-layout/
+    ├── html_layout.html
+    ├── layout.json
+    └── text_layout.txt`}
+</PreTextDiagram>
+
+If you're migrating your local layout files into Knock, you can arrange them using the example file structure above and then push them into Knock with a single command using [`knock layout push --all`](/cli/email-layout/push). Each `layout.json` file should follow the example shown below; additional information on the Layout structure is defined [here](/mapi-reference/email_layouts/schemas/email_layout).
+
+```json title="Local layout file example JSON"
+{
+  "key": "custom-layout",
+  "name": "Custom Layout",
+  "html_layout@": "html_layout.html",
+  "text_layout@": "text_layout.txt",
+  "footer_links": [{ "text": "My link", "url": "https://example.com" }]
+}
+```
+
+</ContentColumn>
+</Section>
+
 <Section title="knock layout list [flags]" path="/email-layout/list">
 <ContentColumn>
 
@@ -733,7 +805,7 @@ knock layout get default --environment=production
 
 Pulls the contents of one or all email layouts from Knock into your local file system. Using `<layout_key>` you can pull a single email layout specified by the key, or use the `--all` flag to pull all email layouts from Knock at once.
 
-See how layout files are structured in your system [here](/integrations/email/layouts#layout-files-structure).
+See the [Layout file structure](/cli/email-layout/file-structure) section for details on how layout files are organized.
 
 ### Flags
 
@@ -777,7 +849,7 @@ knock layout pull --all
 
 Pushes local email layouts back to Knock and upserts them. Using `<layout_key>` you can push a single email layout specified by the key, or use the `--all` flag to push all email layouts from Knock at once.
 
-See how layout files are structured in your system [here](/integrations/email/layouts#layout-files-structure).
+See the [Layout file structure](/cli/email-layout/file-structure) section for details on how layout files are organized.
 
 ### Flags
 
@@ -854,6 +926,27 @@ knock layout validate default
 ```
 
 </ExampleColumn>
+</Section>
+
+<Section title="Translation file structure" path="/translation/file-structure">
+<ContentColumn>
+
+When translations are pulled from Knock, they are stored in directories named by their locale codes. Their filename will be their locale code. Any namespaced translations will prepend the namespace to the filename, with `.` used as a separator.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local translation files structure">
+{`translations/
+├── en/
+│  ├── en.json
+│  └── admin.en.json
+└── en-GB/
+   ├── en-GB.json
+   └── tasks.en-GB.json`}
+</PreTextDiagram>
+
+If you're migrating your local translation files into Knock, you can arrange them using the file structure above and then push them into Knock with a single command using [`knock translation push --all`](/cli/translation/push). Each `<locale>.json` or `<namespace>.<locale>.json` file should follow the structure defined [here](/mapi-reference/translations/schemas/translation).
+
+</ContentColumn>
 </Section>
 
 <Section title="knock translation list [flags]" path="/translation/list">
@@ -959,7 +1052,7 @@ The `<translation_ref>` is a identifier string that refers to a unique translati
 
 When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pulled.
 
-See how translation files are structured in your system [here](/concepts/translations#translation-directory-structure).
+See the [Translation file structure](/cli/translation/file-structure) section for details on how translation files are organized.
 
 ### Flags
 
@@ -1026,7 +1119,7 @@ The `<translation_ref>` is a identifier string that refers to a unique translati
 
 When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pushed.
 
-See how translation files are structured in your system [here](/concepts/translations#translation-directory-structure).
+See the [Translation file structure](/cli/translation/file-structure) section for details on how translation files are organized.
 
 ### Flags
 
@@ -1115,6 +1208,31 @@ knock translation validate en --all
 ```
 
 </ExampleColumn>
+</Section>
+
+<Section title="Partial file structure" path="/partial/file-structure">
+<ContentColumn>
+
+When partials are pulled from Knock, they are stored in directories named by their partial key. Each partial directory contains a `partial.json` file that describes the partial's properties, and a content file based on the partial's type (HTML, markdown, plaintext, or JSON).
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local partial files structure">
+{`partials/
+└── author-block/
+    ├── content.html
+    └── partial.json`}
+</PreTextDiagram>
+
+The content file name depends on the partial's type:
+
+- HTML partials: `content.html`
+- Markdown partials: `content.md`
+- Plaintext partials: `content.txt`
+- JSON partials: `content.json`
+
+If you're migrating your local partial files into Knock, you can arrange them using the example file structure above and then push them into Knock with a single command using [`knock partial push --all`](/cli/partial/push).
+
+</ContentColumn>
 </Section>
 
 <Section title="knock partial list [flags]" path="/partial/list">
@@ -1207,7 +1325,7 @@ You can pull and download partial files from Knock to a local file system with t
 
 Note: if pulling the target partial for the first time (or all partials), Knock CLI will ask to confirm before writing to the local file system.
 
-See how partial files are structured in your system [here](/designing-workflows/partials#partial-files-structure).
+See the [Partial file structure](/cli/partial/file-structure) section for details on how partial files are organized.
 
 ### Flags
 
@@ -1509,10 +1627,27 @@ knock commit promote --only=69cdde18-830a-42e0-ad4b-a230943bdc90
 </ExampleColumn>
 </Section>
 
-<Section title="knock guides list [flags]" path="/guides/list">
+<Section title="Guide file structure" path="/guide/file-structure">
 <ContentColumn>
 
-You can see all your existing guides in a given environment with the guides list command.
+When guides are pulled from Knock, they are stored in directories named by their guide key. Each guide directory contains a `guide.json` file that describes the guide's configuration.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local guide files structure">
+{`guides/
+└── conference-banner/
+    └── guide.json`}
+</PreTextDiagram>
+
+If you're migrating your local guide files into Knock, you can arrange them using the example file structure above and then push them into Knock with a single command using [`knock guide push --all`](/cli/guide/push).
+
+</ContentColumn>
+</Section>
+
+<Section title="knock guide list [flags]" path="/guide/list">
+<ContentColumn>
+
+You can see all your existing guides in a given environment with the guide list command.
 
 Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
 
@@ -1551,20 +1686,20 @@ Use an `--environment` flag to specify the target environment; if omitted, the K
 <ExampleColumn>
 
 ```bash title="Basic usage"
-knock guides list
+knock guide list
 ```
 
 ```bash title="Pagination example"
-knock guides list --after=xxx
+knock guide list --after=xxx
 ```
 
 </ExampleColumn>
 </Section>
 
-<Section title="knock guides get [flags]" path="/guides/get">
+<Section title="knock guide get [flags]" path="/guide/get">
 <ContentColumn>
 
-You can show more details about a given guide with the `guides get` command, followed by the target guide key.
+You can show more details about a given guide with the `guide get` command, followed by the target guide key.
 
 Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
 
@@ -1588,22 +1723,24 @@ Use an `--environment` flag to specify the target environment; if omitted, the K
 <ExampleColumn>
 
 ```bash title="Basic usage"
-knock guides get my-guide
+knock guide get my-guide
 ```
 
 ```bash title="Get guide in a different environment"
-knock guides get my-guide --environment=production
+knock guide get my-guide --environment=production
 ```
 
 </ExampleColumn>
 </Section>
 
-<Section title="knock guides pull [flags]" path="/guides/pull">
+<Section title="knock guide pull [flags]" path="/guide/pull">
 <ContentColumn>
 
-You can pull and download guides from Knock to a local file system with the `guides pull` command. Knock CLI will create a new guide directory or update the existing guide directory in the local file system.
+You can pull and download guides from Knock to a local file system with the `guide pull` command. Knock CLI will create a new guide directory or update the existing guide directory in the local file system.
 
 Note: if pulling the target guide for the first time (or all guides), Knock CLI will ask to confirm before writing to the local file system.
+
+See the [Guide file structure](/cli/guide/file-structure) section for details on how guide files are organized.
 
 ### Flags
 
@@ -1642,30 +1779,32 @@ When used, all contents in the target directory will be erased and replaced with
 <ExampleColumn>
 
 ```bash title="Basic usage"
-knock guides pull my-guide
+knock guide pull my-guide
 ```
 
 ```bash title="Pulling a guide in a different environment"
-knock guides pull my-guide --environment=production
+knock guide pull my-guide --environment=production
 ```
 
 ```bash title="Pulling all guides into ./guides directory"
-knock guides pull --all --guides-dir=./guides
+knock guide pull --all --guides-dir=./guides
 ```
 
 </ExampleColumn>
 </Section>
 
-<Section title="knock guides push [flags]" path="/guides/push">
+<Section title="knock guide push [flags]" path="/guide/push">
 <ContentColumn>
 
-You can push and upload a guide directory to Knock with the `guides push` command. Knock will update an existing guide by the matching guide key, or create a new guide if it does not exist yet.
+You can push and upload a guide directory to Knock with the `guide push` command. Knock will update an existing guide by the matching guide key, or create a new guide if it does not exist yet.
 
 Note:
 
-- The `guides push` command only pushes guides into the `development` environment.
-- You must be directly above the target guide directory when running the `guides push` command, so the CLI can locate the `guide.json` file.
+- The `guide push` command only pushes guides into the `development` environment.
+- You must be directly above the target guide directory when running the `guide push` command, so the CLI can locate the `guide.json` file.
 - You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
+
+See the [Guide file structure](/cli/guide/file-structure) section for details on how guide files are organized.
 
 ### Flags
 
@@ -1696,26 +1835,26 @@ Note:
 <ExampleColumn>
 
 ```bash title="Basic usage"
-knock guides push my-guide
+knock guide push my-guide
 ```
 
 ```bash title="Pushing a guide and committing with a message"
-knock guides push my-guide \
+knock guide push my-guide \
   --commit \
   -m "Commit message"
 ```
 
 ```bash title="Pushing all guides from ./guides directory"
-knock guides push --all --guides-dir=./guides
+knock guide push --all --guides-dir=./guides
 ```
 
 </ExampleColumn>
 </Section>
 
-<Section title="knock guides validate [flags]" path="/guides/validate">
+<Section title="knock guide validate [flags]" path="/guide/validate">
 <ContentColumn>
 
-You can validate a new or updated guide directory with the `guides validate` command. Knock will validate the given guide payload in the same way as it would with the `guides push` command, except without persisting those changes.
+You can validate a new or updated guide directory with the `guide validate` command. Knock will validate the given guide payload in the same way as it would with the `guide push` command, except without persisting those changes.
 
 Note: Validating a guide is only done against the `development` environment.
 
@@ -1738,16 +1877,16 @@ Note: Validating a guide is only done against the `development` environment.
 <ExampleColumn>
 
 ```bash title="Basic usage"
-knock guides validate my-guide
+knock guide validate my-guide
 ```
 
 </ExampleColumn>
 </Section>
 
-<Section title="knock guides activate [flags]" path="/guides/activate">
+<Section title="knock guide activate [flags]" path="/guide/activate">
 <ContentColumn>
 
-You can activate or deactivate a guide in a given environment with the `guides activate` command. You can either set the active status immediately or schedule it.
+You can activate or deactivate a guide in a given environment with the `guide activate` command. You can either set the active status immediately or schedule it.
 
 ### Flags
 
@@ -1784,14 +1923,269 @@ You can activate or deactivate a guide in a given environment with the `guides a
 <ExampleColumn>
 
 ```bash title="Basic usage"
-knock guides activate my-guide \
+knock guide activate my-guide \
   --environment=development
 ```
 
 ```bash title="Deactivating a guide"
-knock guides activate my-guide \
+knock guide activate my-guide \
   --environment=development \
   --status=false
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Message type file structure" path="/message-type/file-structure">
+<ContentColumn>
+
+When message types are pulled from Knock, they are stored in directories named by their message type key. Each message type directory contains a `message_type.json` file that describes the message type's schema and configuration, and a `preview.html` file that contains the HTML preview template.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local message type files structure">
+{`message-types/
+└── alert-banner/
+    ├── message_type.json
+    └── preview.html`}
+</PreTextDiagram>
+
+If you're migrating your local message type files into Knock, you can arrange them using the example file structure above.
+
+</ContentColumn>
+</Section>
+
+<Section title="knock message-type list [flags]" path="/message-type/list">
+<ContentColumn>
+
+Display all in-app message types for an environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock message-type list
+```
+
+```bash title="Pagination example"
+knock message-type list --after=xxx
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock message-type get <message_type_key> [flags]" path="/message-type/get">
+<ContentColumn>
+
+Display a single in-app message type from an environment.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock message-type get my-message-type
+```
+
+```bash title="Get message type in a different environment"
+knock message-type get my-message-type --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock message-type pull <message_type_key> [flags]" path="/message-type/pull">
+<ContentColumn>
+
+Pull one or more in-app message types from an environment into a local file system. Knock CLI will create a new message type directory or update the existing message type directory in the local file system.
+
+Note: if pulling the target message type for the first time (or all message types), Knock CLI will ask to confirm before writing to the local file system.
+
+See the [Message type file structure](/cli/message-type/file-structure) section for details on how message type files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={`Whether to pull all in-app message types from the specified environment into the target directory path set by \`--message-types-dir\`. Defaults to false.
+
+When used, all contents in the target directory will be erased and replaced with all message types from the specified environment.`}
+/>
+
+  <Attribute
+    name="--message-types-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all in-app message types into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock message-type pull my-message-type
+```
+
+```bash title="Pulling a message type in a different environment"
+knock message-type pull my-message-type --environment=production
+```
+
+```bash title="Pulling all message types into ./message-types directory"
+knock message-type pull --all --message-types-dir=./message-types
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock message-type push <message_type_key> [flags]" path="/message-type/push">
+<ContentColumn>
+
+Push one or more message types from a local file system to Knock. Knock will update an existing message type by the matching message type key, or create a new message type if it does not exist yet.
+
+Note:
+
+- The `message-type push` command only pushes message types into the `development` environment.
+- You must be directly above the target message type directory when running the `message-type push` command, so the CLI can locate the `message_type.json` file.
+- You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
+
+See the [Message type file structure](/cli/message-type/file-structure) section for details on how message type files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit the message type(s) at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all message types from the target directory path set by `--message-types-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--message-types-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all message types from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock message-type push my-message-type
+```
+
+```bash title="Pushing a message type and committing with a message"
+knock message-type push my-message-type \
+  --commit \
+  -m "Commit message"
+```
+
+```bash title="Pushing all message types from ./message-types directory"
+knock message-type push --all --message-types-dir=./message-types
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock message-type validate <message_type_key> [flags]" path="/message-type/validate">
+<ContentColumn>
+
+Validate one or more message types from a local file system. Knock will validate the given message type payload in the same way as it would with the `message-type push` command, except without persisting those changes.
+
+Note: Validating a message type is only done against the `development` environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all message types from the target directory path set by `--message-types-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--message-types-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all message types from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock message-type validate my-message-type
 ```
 
 </ExampleColumn>

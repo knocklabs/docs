@@ -9,6 +9,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/installation", title: "Install the Knock CLI" },
       { slug: "/authentication", title: "Authentication" },
       { slug: "/global-flags", title: "Global flags" },
+      { slug: "/directory-structure", title: "Directory structure" },
     ],
     sidebarMenuDefaultOpen: true,
   },
@@ -37,6 +38,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Workflows",
     slug: "/cli/workflow",
     pages: [
+      { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List workflows" },
       { slug: "/get", title: "Get workflows" },
       { slug: "/pull", title: "Pull workflows" },
@@ -52,6 +54,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Email layouts",
     slug: "/cli/email-layout",
     pages: [
+      { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List email layouts" },
       { slug: "/get", title: "Get email layouts" },
       { slug: "/pull", title: "Pull email layouts" },
@@ -64,6 +67,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Translations",
     slug: "/cli/translation",
     pages: [
+      { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List translations" },
       { slug: "/get", title: "Get translations" },
       { slug: "/pull", title: "Pull translations" },
@@ -76,6 +80,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Partials",
     slug: "/cli/partial",
     pages: [
+      { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List partials" },
       { slug: "/get", title: "Get partials" },
       { slug: "/pull", title: "Pull partials" },
@@ -96,14 +101,27 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
   {
     title: "Guides",
-    slug: "/cli/guides",
+    slug: "/cli/guide",
     pages: [
+      { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List guides" },
       { slug: "/get", title: "Get guides" },
       { slug: "/pull", title: "Pull guides" },
       { slug: "/push", title: "Push guides" },
       { slug: "/validate", title: "Validate guide" },
       { slug: "/activate", title: "Activate guide" },
+    ],
+  },
+  {
+    title: "Message types",
+    slug: "/cli/message-type",
+    pages: [
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List message types" },
+      { slug: "/get", title: "Get message types" },
+      { slug: "/pull", title: "Pull message types" },
+      { slug: "/push", title: "Push message types" },
+      { slug: "/validate", title: "Validate message types" },
     ],
   },
 ];
