@@ -63,7 +63,8 @@ const FeaturesMatrix = ({
         style={{
           tableLayout: "fixed",
           maxWidth: "100%",
-          borderCollapse: "collapse",
+          borderCollapse: "separate",
+          borderSpacing: 0,
         }}
       >
         <thead>
@@ -84,24 +85,21 @@ const FeaturesMatrix = ({
             ></th>
             {normalizedColumns.map((column, index) => {
               const baseWidth = `calc(${dataColumnsWidth} / ${normalizedColumns.length})`;
+              const isFirst = index === 0;
+              const isLast = index === normalizedColumns.length - 1;
 
               return (
                 <th
                   key={column.name}
-                  className={`px-2 py-3 text-center font-semibold text-xs border-t border-r border-gray-200 ${
-                    index === 0 ? "border-l rounded-tl-md" : ""
-                  } ${
-                    index === normalizedColumns.length - 1
-                      ? "rounded-tr-md"
-                      : ""
-                  }`}
+                  className="px-2 py-3 text-center font-semibold text-xs border-t border-gray-200"
                   style={{
                     width: baseWidth,
-                    borderTopLeftRadius: index === 0 ? ".375rem" : undefined,
-                    borderTopRightRadius:
-                      index === normalizedColumns.length - 1
-                        ? ".375rem"
-                        : undefined,
+                    borderLeft: isFirst
+                      ? "1px solid rgb(229, 231, 235)"
+                      : "0.5px solid rgb(229, 231, 235)",
+                    borderRight: isLast
+                      ? "1px solid rgb(229, 231, 235)"
+                      : "0.5px solid rgb(229, 231, 235)",
                   }}
                 >
                   <div className="overflow-hidden leading-tight">
@@ -180,17 +178,26 @@ const FeaturesMatrix = ({
                   </td>
 
                   {normalizedColumns.map((column, index) => {
+                    const isFirst = index === 0;
+                    const isLast = index === normalizedColumns.length - 1;
+
                     return (
                       <td
                         key={`${row.name}-${column.name}`}
-                        className={`px-2 py-2 text-center border-r border-gray-200 relative ${
-                          index === 0 ? "border-l" : ""
-                        } ${
+                        className={`px-2 py-2 text-center border-gray-200 relative ${
                           rowIndex === rowGroup.rows.length - 1 &&
                           rowGroupIndex !== rowGroups.length - 1
                             ? ""
-                            : "border-b border-gray-200"
+                            : "border-b"
                         }`}
+                        style={{
+                          borderLeft: isFirst
+                            ? "1px solid rgb(229, 231, 235)"
+                            : "0.5px solid rgb(229, 231, 235)",
+                          borderRight: isLast
+                            ? "1px solid rgb(229, 231, 235)"
+                            : "0.5px solid rgb(229, 231, 235)",
+                        }}
                       >
                         {rowIndex === 0 && (
                           <div className="absolute top-0 -left-px right-0 h-0.5 bg-gray-400 z-1"></div>
