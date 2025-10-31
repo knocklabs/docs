@@ -59,11 +59,15 @@ const FeaturesMatrix = ({
   return (
     <div className="w-full mx-auto my-10 overflow-x-auto">
       <table
-        className="w-full border-separate border-spacing-0"
-        style={{ tableLayout: "fixed", maxWidth: "100%" }}
+        className="w-full"
+        style={{
+          tableLayout: "fixed",
+          maxWidth: "100%",
+          borderCollapse: "collapse",
+        }}
       >
         <thead>
-          <tr className="border-b border-gray-200">
+          <tr>
             {hasRowGroupNames && (
               <th
                 className="px-2 py-3 border-l-0 border-t-0 border-r-0"
@@ -84,11 +88,11 @@ const FeaturesMatrix = ({
               return (
                 <th
                   key={column.name}
-                  className={`px-1 py-3 text-center font-semibold text-xs border-t border-r border-gray-200 ${
-                    index === 0 ? "border-l border-gray-200 rounded-tl-md" : ""
+                  className={`px-2 py-3 text-center font-semibold text-xs border-t border-r border-gray-200 ${
+                    index === 0 ? "border-l rounded-tl-md" : ""
                   } ${
                     index === normalizedColumns.length - 1
-                      ? "border-r border-gray-200 rounded-tr-md"
+                      ? "rounded-tr-md"
                       : ""
                   }`}
                   style={{
@@ -180,7 +184,7 @@ const FeaturesMatrix = ({
                       <td
                         key={`${row.name}-${column.name}`}
                         className={`px-2 py-2 text-center border-r border-gray-200 relative ${
-                          index === 0 ? "border-l border-gray-200" : ""
+                          index === 0 ? "border-l" : ""
                         } ${
                           rowIndex === rowGroup.rows.length - 1 &&
                           rowGroupIndex !== rowGroups.length - 1
@@ -204,9 +208,6 @@ const FeaturesMatrix = ({
                           const alt = isAvailable
                             ? "Available"
                             : "Not available";
-                          const transform = isAvailable
-                            ? "translateY(0.25px)"
-                            : "translateX(-0.15px)";
 
                           return (
                             <Stack
@@ -227,7 +228,6 @@ const FeaturesMatrix = ({
                                 style={{
                                   width: "60%",
                                   height: "60%",
-                                  transform,
                                 }}
                               />
                             </Stack>
