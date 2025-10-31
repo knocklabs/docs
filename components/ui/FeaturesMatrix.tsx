@@ -54,9 +54,7 @@ const FeaturesMatrix = ({
 
   // Calculate column widths based on whether we have row group names
   const groupNameWidth = hasRowGroupNames ? "32px" : "0";
-  const dataColumnsWidth = hasRowGroupNames
-    ? `calc(100% - ${rowHeaderWidth})`
-    : `calc(100% - ${rowHeaderWidth})`;
+  const dataColumnsWidth = `calc(100% - ${rowHeaderWidth})`;
 
   return (
     <div className="w-full mx-auto my-10 overflow-x-auto">
@@ -78,9 +76,6 @@ const FeaturesMatrix = ({
                 width: hasRowGroupNames
                   ? `calc(${rowHeaderWidth} - ${groupNameWidth})`
                   : rowHeaderWidth,
-                maxWidth: hasRowGroupNames
-                  ? `calc(${rowHeaderWidth} - ${groupNameWidth})`
-                  : rowHeaderWidth,
               }}
             ></th>
             {normalizedColumns.map((column, index) => {
@@ -90,12 +85,10 @@ const FeaturesMatrix = ({
                 <th
                   key={column.name}
                   className={`px-1 py-3 text-center font-semibold text-xs border-t border-r border-gray-200 ${
-                    index === 0
-                      ? "border-l border-gray-200 rounded-tl-md border-tl-0"
-                      : ""
+                    index === 0 ? "border-l border-gray-200 rounded-tl-md" : ""
                   } ${
                     index === normalizedColumns.length - 1
-                      ? "border-r border-gray-200 rounded-tr-md border-tr-0"
+                      ? "border-r border-gray-200 rounded-tr-md"
                       : ""
                   }`}
                   style={{
@@ -144,9 +137,7 @@ const FeaturesMatrix = ({
                         minWidth: groupNameWidth,
                       }}
                     >
-                      {rowIndex === 0 && (
-                        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-50"></div>
-                      )}
+                      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-50"></div>
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="transform -rotate-90 whitespace-nowrap text-sm font-medium text-gray-400">
                           {rowGroup.name}
@@ -191,10 +182,6 @@ const FeaturesMatrix = ({
                         className={`px-2 py-2 text-center border-r border-gray-200 relative ${
                           index === 0 ? "border-l border-gray-200" : ""
                         } ${
-                          index === normalizedColumns.length - 1
-                            ? "border-r border-gray-200"
-                            : ""
-                        } ${
                           rowIndex === rowGroup.rows.length - 1 &&
                           rowGroupIndex !== rowGroups.length - 1
                             ? ""
@@ -218,8 +205,8 @@ const FeaturesMatrix = ({
                             ? "Available"
                             : "Not available";
                           const transform = isAvailable
-                            ? "translateY(0.5px)"
-                            : undefined;
+                            ? "translateY(0.25px)"
+                            : "translateX(-0.15px)";
 
                           return (
                             <Stack
@@ -238,8 +225,8 @@ const FeaturesMatrix = ({
                                 aria-hidden={false}
                                 alt={alt}
                                 style={{
-                                  width: "90%",
-                                  height: "90%",
+                                  width: "60%",
+                                  height: "60%",
                                   transform,
                                 }}
                               />
