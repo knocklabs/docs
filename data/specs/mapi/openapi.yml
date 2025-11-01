@@ -37,7 +37,12 @@ components:
       x-validate: null
     WorkflowStep:
       anyOf:
-        - $ref: '#/components/schemas/WorkflowChannelStep'
+        - $ref: '#/components/schemas/WorkflowWebhookStep'
+        - $ref: '#/components/schemas/WorkflowInAppFeedStep'
+        - $ref: '#/components/schemas/WorkflowChatStep'
+        - $ref: '#/components/schemas/WorkflowSmsStep'
+        - $ref: '#/components/schemas/WorkflowPushStep'
+        - $ref: '#/components/schemas/WorkflowEmailStep'
         - $ref: '#/components/schemas/WorkflowDelayStep'
         - $ref: '#/components/schemas/WorkflowBatchStep'
         - $ref: '#/components/schemas/WorkflowFetchStep'
@@ -49,6 +54,7 @@ components:
         channel_group_key: null
         channel_key: postmark
         channel_overrides: null
+        channel_type: email
         conditions: null
         description: This is a description of the channel step
         name: Email channel step
@@ -297,6 +303,7 @@ components:
         name:
           description: A name for the workflow step.
           example: Delay
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -339,9 +346,6 @@ components:
       required:
         - type
         - ref
-        - name
-        - description
-        - conditions
         - settings
       title: WorkflowDelayStep
       type: object
@@ -554,6 +558,113 @@ components:
       title: WrappedPartialResponse
       type: object
       x-struct: null
+      x-validate: null
+    WorkflowPushStep:
+      description: A push step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
+      example:
+        channel_group_key: null
+        channel_key: apns
+        channel_overrides: null
+        channel_type: push
+        conditions: null
+        description: This is a description of the channel step
+        name: Push channel step
+        ref: channel_step
+        send_windows: null
+        template:
+          settings:
+            payload_overrides: '{"name": "John"}'
+          text_body: Hello, world!
+          title: Hello, world!
+        type: channel
+      properties:
+        channel_group_key:
+          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: email
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_key:
+          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: postmark
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_overrides:
+          anyOf:
+            - $ref: '#/components/schemas/PushChannelSettings'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A map of channel overrides for the channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        channel_type:
+          description: The type of the channel step. Always `push` for push steps.
+          enum:
+            - push
+          example: push
+          type: string
+          x-struct: null
+          x-validate: null
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A set of conditions to be evaluated for this channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Send a message to the channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: channel_step
+          type: string
+          x-struct: null
+          x-validate: null
+        send_windows:
+          description: A list of send window objects. Must include one send window object per day of the week.
+          items:
+            $ref: '#/components/schemas/SendWindow'
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        template:
+          $ref: '#/components/schemas/PushTemplate'
+        type:
+          description: The type of the workflow step.
+          enum:
+            - channel
+          example: channel
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - template
+      title: WorkflowPushStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowPushStep
       x-validate: null
     BroadcastSendRequest:
       description: A request to send or schedule a broadcast.
@@ -937,7 +1048,7 @@ components:
             type:
               description: The type of the resource object.
               enum:
-                - dynamic_audience
+                - audience
                 - email_layout
                 - guide
                 - message_type
@@ -1101,6 +1212,112 @@ components:
       title: MessageTypeButtonField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.ButtonField
+      x-validate: null
+    WorkflowChatStep:
+      description: A chat step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
+      example:
+        channel_group_key: null
+        channel_key: slack
+        channel_overrides: null
+        channel_type: chat
+        conditions: null
+        description: This is a description of the channel step
+        name: Chat channel step
+        ref: channel_step
+        send_windows: null
+        template:
+          json_body: null
+          markdown_body: '**Hello**, world!'
+          summary: Hello, world!
+        type: channel
+      properties:
+        channel_group_key:
+          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: email
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_key:
+          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: postmark
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_overrides:
+          anyOf:
+            - $ref: '#/components/schemas/ChatChannelSettings'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A map of channel overrides for the channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        channel_type:
+          description: The type of the channel step. Always `chat` for chat steps.
+          enum:
+            - chat
+          example: chat
+          type: string
+          x-struct: null
+          x-validate: null
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A set of conditions to be evaluated for this channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Send a message to the channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: channel_step
+          type: string
+          x-struct: null
+          x-validate: null
+        send_windows:
+          description: A list of send window objects. Must include one send window object per day of the week.
+          items:
+            $ref: '#/components/schemas/SendWindow'
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        template:
+          $ref: '#/components/schemas/ChatTemplate'
+        type:
+          description: The type of the workflow step.
+          enum:
+            - channel
+          example: channel
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - template
+      title: WorkflowChatStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowChatStep
       x-validate: null
     EmailButtonSetBlock:
       description: A button set block in an email template.
@@ -1598,11 +1815,16 @@ components:
         steps:
           description: A list of broadcast step objects in the broadcast. Broadcasts only support channel, branch, and delay steps.
           items:
-            description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
-            oneOf:
-              - $ref: '#/components/schemas/WorkflowChannelStep'
+            anyOf:
+              - $ref: '#/components/schemas/WorkflowWebhookStep'
+              - $ref: '#/components/schemas/WorkflowInAppFeedStep'
+              - $ref: '#/components/schemas/WorkflowChatStep'
+              - $ref: '#/components/schemas/WorkflowSmsStep'
+              - $ref: '#/components/schemas/WorkflowPushStep'
+              - $ref: '#/components/schemas/WorkflowEmailStep'
               - $ref: '#/components/schemas/WorkflowBranchStep'
               - $ref: '#/components/schemas/WorkflowDelayStep'
+            description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
             type: object
             x-struct: null
             x-validate: null
@@ -1660,6 +1882,131 @@ components:
       title: WrappedBroadcastResponse
       type: object
       x-struct: null
+      x-validate: null
+    ArchiveGuideResponse:
+      description: The response from archiving a guide.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the promote operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: ArchiveGuideResponse
+      type: object
+      x-struct: null
+      x-validate: null
+    WorkflowInAppFeedStep:
+      description: An in-app feed step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
+      example:
+        channel_group_key: null
+        channel_key: knock-in-app
+        channel_overrides: null
+        channel_type: in_app_feed
+        conditions: null
+        description: This is a description of the channel step
+        name: In-app feed channel step
+        ref: channel_step
+        send_windows: null
+        template:
+          action_buttons:
+            - action: https://example.com
+              label: Button 1
+          action_url: https://example.com
+          markdown_body: Hello, world!
+        type: channel
+      properties:
+        channel_group_key:
+          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: email
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_key:
+          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: postmark
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_overrides:
+          anyOf:
+            - $ref: '#/components/schemas/InAppFeedChannelSettings'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A map of channel overrides for the channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        channel_type:
+          description: The type of the channel step. Always `in_app_feed` for in-app feed steps.
+          enum:
+            - in_app_feed
+          example: in_app_feed
+          type: string
+          x-struct: null
+          x-validate: null
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A set of conditions to be evaluated for this channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Send a message to the channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: channel_step
+          type: string
+          x-struct: null
+          x-validate: null
+        send_windows:
+          description: A list of send window objects. Must include one send window object per day of the week.
+          items:
+            $ref: '#/components/schemas/SendWindow'
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        template:
+          $ref: '#/components/schemas/InAppFeedTemplate'
+        type:
+          description: The type of the workflow step.
+          enum:
+            - channel
+          example: channel
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - template
+      title: WorkflowInAppFeedStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowInAppFeedStep
       x-validate: null
     WorkflowRequest:
       description: A workflow request for upserting a workflow.
@@ -1954,6 +2301,114 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WorkflowEmailStep:
+      description: An email step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
+      example:
+        channel_group_key: null
+        channel_key: postmark
+        channel_overrides: null
+        channel_type: email
+        conditions: null
+        description: This is a description of the channel step
+        name: Email channel step
+        ref: channel_step
+        send_windows: null
+        template:
+          html_body: <p>Hello, world!</p>
+          settings:
+            layout_key: default
+          subject: Hello, world!
+          text_body: Hello, world!
+        type: channel
+      properties:
+        channel_group_key:
+          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: email
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_key:
+          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: postmark
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_overrides:
+          anyOf:
+            - $ref: '#/components/schemas/EmailChannelSettings'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A map of channel overrides for the channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        channel_type:
+          description: The type of the channel step. Always `email` for email steps.
+          enum:
+            - email
+          example: email
+          type: string
+          x-struct: null
+          x-validate: null
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A set of conditions to be evaluated for this channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Send a message to the channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: channel_step
+          type: string
+          x-struct: null
+          x-validate: null
+        send_windows:
+          description: A list of send window objects. Must include one send window object per day of the week.
+          items:
+            $ref: '#/components/schemas/SendWindow'
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        template:
+          $ref: '#/components/schemas/EmailTemplate'
+        type:
+          description: The type of the workflow step.
+          enum:
+            - channel
+          example: channel
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - template
+      title: WorkflowEmailStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowEmailStep
+      x-validate: null
     ConditionGroupAnyMatch:
       description: A group of conditions that any must be met. Can contain nested alls.
       example:
@@ -2158,119 +2613,6 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EmailTemplate
       x-validate: null
-    WorkflowChannelStep:
-      description: A channel step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
-      example:
-        channel_group_key: null
-        channel_key: postmark
-        channel_overrides: null
-        conditions: null
-        description: This is a description of the channel step
-        name: Email channel step
-        ref: channel_step
-        send_windows: null
-        template:
-          html_body: <p>Hello, world!</p>
-          settings:
-            layout_key: default
-          subject: Hello, world!
-          text_body: Hello, world!
-        type: channel
-      properties:
-        channel_group_key:
-          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
-          example: email
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        channel_key:
-          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
-          example: postmark
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        channel_overrides:
-          anyOf:
-            - $ref: '#/components/schemas/EmailChannelSettings'
-            - $ref: '#/components/schemas/InAppFeedChannelSettings'
-            - $ref: '#/components/schemas/SmsChannelSettings'
-            - $ref: '#/components/schemas/PushChannelSettings'
-            - $ref: '#/components/schemas/ChatChannelSettings'
-            - nullable: true
-              x-struct: null
-              x-validate: null
-          description: A map of channel overrides for the channel step.
-          type: object
-          x-struct: null
-          x-validate: null
-        conditions:
-          anyOf:
-            - $ref: '#/components/schemas/ConditionGroup'
-            - nullable: true
-              x-struct: null
-              x-validate: null
-          description: A set of conditions to be evaluated for this channel step.
-          type: object
-          x-struct: null
-          x-validate: null
-        description:
-          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
-          example: Delay for 10 seconds
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        name:
-          description: A name for the workflow step.
-          example: Delay
-          type: string
-          x-struct: null
-          x-validate: null
-        ref:
-          description: The reference key of the workflow step. Must be unique per workflow.
-          example: delay_step
-          type: string
-          x-struct: null
-          x-validate: null
-        send_windows:
-          description: A list of send window objects. Must include one send window object per day of the week.
-          items:
-            $ref: '#/components/schemas/SendWindow'
-          nullable: true
-          type: array
-          x-struct: null
-          x-validate: null
-        template:
-          anyOf:
-            - $ref: '#/components/schemas/EmailTemplate'
-            - $ref: '#/components/schemas/InAppFeedTemplate'
-            - $ref: '#/components/schemas/SmsTemplate'
-            - $ref: '#/components/schemas/PushTemplate'
-            - $ref: '#/components/schemas/ChatTemplate'
-            - $ref: '#/components/schemas/WebhookTemplate'
-          description: 'The message template for the channel step. The shape of the template depends on the type of the channel you''ll be sending to. See below for definitions of each channel type template: email, in-app, SMS, push, chat, and webhook.'
-          type: object
-          x-struct: null
-          x-validate: null
-        type:
-          description: The type of the workflow step.
-          enum:
-            - channel
-          example: channel
-          type: string
-          x-struct: null
-          x-validate: null
-      required:
-        - type
-        - ref
-        - name
-        - template
-      title: WorkflowChannelStep
-      type: object
-      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowChannelStep
-      x-validate: null
     WrappedMessageTypeResponse:
       description: Wraps the MessageType response under the `message_type` key.
       example:
@@ -2474,6 +2816,7 @@ components:
         name:
           description: A name for the workflow step.
           example: Throttle step
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -2532,7 +2875,6 @@ components:
       required:
         - type
         - ref
-        - name
         - settings
       title: WorkflowThrottleStep
       type: object
@@ -2561,6 +2903,7 @@ components:
         name:
           description: A name for the workflow step.
           example: Batch step
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -2665,8 +3008,6 @@ components:
       required:
         - type
         - ref
-        - name
-        - description
         - settings
       title: WorkflowBatchStep
       type: object
@@ -2758,6 +3099,166 @@ components:
       title: Environment
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Environment
+      x-validate: null
+    WhoamiResponse:
+      description: Information about the current calling scope.
+      example:
+        account_features:
+          batch_items_render_limit_allowed: false
+          custom_branding_allowed: false
+          data_retention_days: 30
+          data_warehouse_extension_allowed: false
+          datadog_extension_allowed: true
+          dsync_allowed: false
+          guides_monthly_notified_recipients_limit: 500
+          heap_extension_allowed: false
+          knock_branding_required: true
+          litmus_email_preview_allowed: false
+          message_sent_limit: 10000
+          new_relic_extension_allowed: false
+          segment_extension_allowed: false
+          self_serve_allowed: true
+          sso_allowed: false
+          tenant_preferences_allowed: false
+          translations_allowed: false
+        account_name: Acme, Inc.
+        account_slug: acme
+        service_token_name: My Service Token
+        type: service_token
+        user_id: null
+      properties:
+        account_features:
+          description: Account plan features and limits.
+          properties:
+            batch_items_render_limit_allowed:
+              description: Whether batch rendering limits can be configured.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            custom_branding_allowed:
+              description: Whether custom branding can be applied to notifications.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            data_retention_days:
+              description: Number of days data is retained, null for unlimited retention.
+              nullable: true
+              type: integer
+              x-struct: null
+              x-validate: null
+            data_warehouse_extension_allowed:
+              description: Whether data warehouse integration extensions are available.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            datadog_extension_allowed:
+              description: Whether Datadog integration extension is available.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            dsync_allowed:
+              description: Whether directory sync functionality is available.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            guides_monthly_notified_recipients_limit:
+              description: Monthly limit for guide notification recipients, null for unlimited.
+              nullable: true
+              type: integer
+              x-struct: null
+              x-validate: null
+            heap_extension_allowed:
+              description: Whether Heap integration extension is available.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            knock_branding_required:
+              description: Whether Knock branding is required to be displayed.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            litmus_email_preview_allowed:
+              description: Whether Litmus email preview integration is available.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            message_sent_limit:
+              description: Monthly limit for messages sent, null for unlimited.
+              nullable: true
+              type: integer
+              x-struct: null
+              x-validate: null
+            new_relic_extension_allowed:
+              description: Whether New Relic integration extension is available.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            segment_extension_allowed:
+              description: Whether Segment integration extension is available.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            self_serve_allowed:
+              description: Whether self-service account management features are available.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            sso_allowed:
+              description: Whether single sign-on (SSO) is enabled for the account.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            tenant_preferences_allowed:
+              description: Whether tenant-level preferences are supported.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            translations_allowed:
+              description: Whether multi-language translations are supported.
+              type: boolean
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        account_name:
+          description: The display name of the account.
+          type: string
+          x-struct: null
+          x-validate: null
+        account_slug:
+          description: The unique slug identifier for the account.
+          type: string
+          x-struct: null
+          x-validate: null
+        service_token_name:
+          description: The name of the service token if authenticated via service token, null for OAuth contexts.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of authentication context - either a service token or OAuth user context.
+          enum:
+            - service_token
+            - oauth_context
+          type: string
+          x-struct: null
+          x-validate: null
+        user_id:
+          description: The ID of the authenticated user if in OAuth context, null for service token contexts.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - account_name
+        - account_slug
+        - type
+        - account_features
+      title: WhoamiResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WhoamiResponse
       x-validate: null
     MessageTypeUrlField:
       description: A URL field used in a message type.
@@ -3848,11 +4349,16 @@ components:
         steps:
           description: A list of broadcast step objects in the broadcast. Broadcasts only support channel, branch, and delay steps.
           items:
-            description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
-            oneOf:
-              - $ref: '#/components/schemas/WorkflowChannelStep'
+            anyOf:
+              - $ref: '#/components/schemas/WorkflowWebhookStep'
+              - $ref: '#/components/schemas/WorkflowInAppFeedStep'
+              - $ref: '#/components/schemas/WorkflowChatStep'
+              - $ref: '#/components/schemas/WorkflowSmsStep'
+              - $ref: '#/components/schemas/WorkflowPushStep'
+              - $ref: '#/components/schemas/WorkflowEmailStep'
               - $ref: '#/components/schemas/WorkflowBranchStep'
               - $ref: '#/components/schemas/WorkflowDelayStep'
+            description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
             type: object
             x-struct: null
             x-validate: null
@@ -3888,6 +4394,107 @@ components:
       title: Broadcast
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Broadcast
+      x-validate: null
+    WorkflowWebhookStep:
+      description: A webhook step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
+      example:
+        channel_group_key: null
+        channel_key: pagerduty
+        channel_type: http
+        conditions: null
+        description: This is a description of the channel step
+        name: Webhook channel step
+        ref: channel_step
+        send_windows: null
+        template:
+          body: null
+          headers:
+            - key: X-API-Key
+              value: "1234567890"
+          method: get
+          query_params:
+            - key: key
+              value: value
+          url: https://example.com
+        type: channel
+      properties:
+        channel_group_key:
+          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: email
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_key:
+          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: postmark
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_type:
+          description: The type of the channel step. Always `http` for webhook steps.
+          enum:
+            - http
+          example: http
+          type: string
+          x-struct: null
+          x-validate: null
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A set of conditions to be evaluated for this channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Send a message to the channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: channel_step
+          type: string
+          x-struct: null
+          x-validate: null
+        send_windows:
+          description: A list of send window objects. Must include one send window object per day of the week.
+          items:
+            $ref: '#/components/schemas/SendWindow'
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        template:
+          $ref: '#/components/schemas/WebhookTemplate'
+        type:
+          description: The type of the workflow step.
+          enum:
+            - channel
+          example: channel
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - template
+      title: WorkflowWebhookStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWebhookStep
       x-validate: null
     WrappedWorkflowResponse:
       description: Wraps the Workflow response under the `workflow` key.
@@ -4570,6 +5177,113 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ShowWorkflowResponse
       x-validate: null
+    WorkflowSmsStep:
+      description: A SMS step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
+      example:
+        channel_group_key: null
+        channel_key: twilio
+        channel_overrides: null
+        channel_type: sms
+        conditions: null
+        description: This is a description of the channel step
+        name: SMS channel step
+        ref: channel_step
+        send_windows: null
+        template:
+          settings:
+            payload_overrides: '{"name": "John"}'
+            to_number: "+1234567890"
+          text_body: Hello, world!
+        type: channel
+      properties:
+        channel_group_key:
+          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: email
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_key:
+          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          example: postmark
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        channel_overrides:
+          anyOf:
+            - $ref: '#/components/schemas/SmsChannelSettings'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A map of channel overrides for the channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        channel_type:
+          description: The type of the channel step. Always `sms` for SMS steps.
+          enum:
+            - sms
+          example: sms
+          type: string
+          x-struct: null
+          x-validate: null
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A set of conditions to be evaluated for this channel step.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Send a message to the channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Channel
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: channel_step
+          type: string
+          x-struct: null
+          x-validate: null
+        send_windows:
+          description: A list of send window objects. Must include one send window object per day of the week.
+          items:
+            $ref: '#/components/schemas/SendWindow'
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        template:
+          $ref: '#/components/schemas/SmsTemplate'
+        type:
+          description: The type of the workflow step.
+          enum:
+            - channel
+          example: channel
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - template
+      title: WorkflowSmsStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowSmsStep
+      x-validate: null
     WorkflowBranchStep:
       description: A branch function step. Read more in the [docs](https://docs.knock.app/designing-workflows/branch-function).
       example:
@@ -4650,6 +5364,7 @@ components:
         name:
           description: A name for the workflow step.
           example: Branch
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -4670,8 +5385,6 @@ components:
       required:
         - type
         - ref
-        - name
-        - description
         - branches
       title: WorkflowBranchStep
       type: object
@@ -5998,7 +6711,7 @@ components:
             - key: key
               value: value
           url: https://example.com
-        type: fetch
+        type: http_fetch
       properties:
         conditions:
           anyOf:
@@ -6020,6 +6733,7 @@ components:
         name:
           description: A name for the workflow step.
           example: Fetch step
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -6034,15 +6748,14 @@ components:
         type:
           description: The type of the workflow step.
           enum:
-            - fetch
-          example: fetch
+            - http_fetch
+          example: http_fetch
           type: string
           x-struct: null
           x-validate: null
       required:
         - type
         - ref
-        - name
         - settings
       title: WorkflowFetchStep
       type: object
@@ -6317,12 +7030,14 @@ components:
         description:
           description: A description for the workflow step.
           example: Trigger workflow step description
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
         name:
           description: A name for the workflow step.
           example: Trigger workflow step
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -6385,7 +7100,6 @@ components:
       required:
         - type
         - ref
-        - name
         - settings
       title: WorkflowTriggerWorkflowStep
       type: object
@@ -6531,7 +7245,7 @@ components:
         type:
           description: The type of the resource object.
           enum:
-            - dynamic_audience
+            - audience
             - email_layout
             - guide
             - message_type
@@ -6605,6 +7319,27 @@ paths:
               "development",
           )
           print(environment.hide_pii_data)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            environment, err := client.Environments.Get(context.TODO(), "development")
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", environment.HidePiiData)
+          }
   /v1/workflows/{workflow_key}/validate:
     put:
       callbacks: {}
@@ -6728,12 +7463,7 @@ paths:
             workflow: {
               name: 'My Workflow',
               steps: [
-                {
-                  name: 'Channel 1',
-                  ref: 'channel_1',
-                  template: { markdown_body: 'Hello **{{ recipient.name }}**' },
-                  type: 'channel',
-                },
+                { ref: 'channel_1', template: { markdown_body: 'Hello **{{ recipient.name }}**' }, type: 'channel' },
               ],
             },
           });
@@ -6751,7 +7481,6 @@ paths:
               workflow={
                   "name": "My Workflow",
                   "steps": [{
-                      "name": "Channel 1",
                       "ref": "channel_1",
                       "template": {
                           "markdown_body": "Hello **{{ recipient.name }}**"
@@ -6761,6 +7490,45 @@ paths:
               },
           )
           print(response.workflow)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Workflows.Validate(
+              context.TODO(),
+              "workflow_key",
+              knockmapi.WorkflowValidateParams{
+                Environment: "development",
+                Workflow: knockmapi.WorkflowValidateParamsWorkflow{
+                  Name: "My Workflow",
+                  Steps: []knockmapi.WorkflowStepUnionParam{knockmapi.WorkflowStepUnionParam{
+                    OfWorkflowInAppFeedStep: &knockmapi.WorkflowInAppFeedStepParam{
+                      Ref: "channel_1",
+                      Template: knockmapi.InAppFeedTemplateParam{
+                        MarkdownBody: "Hello **{{ recipient.name }}**",
+                      },
+                      Type: knockmapi.WorkflowInAppFeedStepTypeChannel,
+                    },
+                  }},
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Workflow)
+          }
   /v1/workflows/{workflow_key}/run:
     put:
       callbacks: {}
@@ -6827,6 +7595,36 @@ paths:
               recipients=["dnedry"],
           )
           print(response.workflow_run_id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Workflows.Run(
+              context.TODO(),
+              "workflow_key",
+              knockmapi.WorkflowRunParams{
+                Environment: "development",
+                Recipients: []knockmapi.WorkflowRunParamsRecipientUnion{knockmapi.WorkflowRunParamsRecipientUnion{
+                  OfString: knockmapi.String("dnedry"),
+                }},
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.WorkflowRunID)
+          }
   /v1/email_layouts:
     get:
       callbacks: {}
@@ -6950,7 +7748,110 @@ paths:
           )
           page = page.entries[0]
           print(page.created_at)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.EmailLayouts.List(context.TODO(), knockmapi.EmailLayoutListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/guides/{guide_key}:
+    delete:
+      callbacks: {}
+      description: Archives a given guide across all environments.
+      operationId: archiveGuide
+      parameters:
+        - description: The key of the guide to archive.
+          in: path
+          name: guide_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from archiving a guide.
+                example:
+                  result: success
+                properties:
+                  result:
+                    description: The result of the promote operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - result
+                title: ArchiveGuideResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Archive a guide
+      tags:
+        - Guides
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          const response = await client.guides.archive('guide_key');
+
+          console.log(response.result);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          response = client.guides.archive(
+              "guide_key",
+          )
+          print(response.result)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Guides.Archive(context.TODO(), "guide_key")
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Result)
+          }
     get:
       callbacks: {}
       description: Get a guide by its key.
@@ -7021,6 +7922,33 @@ paths:
               environment="development",
           )
           print(guide.target_audience_id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            guide, err := client.Guides.Get(
+              context.TODO(),
+              "guide_key",
+              knockmapi.GuideGetParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", guide.TargetAudienceID)
+          }
     put:
       callbacks: {}
       description: |
@@ -7200,6 +8128,43 @@ paths:
               },
           )
           print(response.guide)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Guides.Upsert(
+              context.TODO(),
+              "guide_key",
+              knockmapi.GuideUpsertParams{
+                Environment: "development",
+                Guide: knockmapi.GuideUpsertParamsGuide{
+                  ChannelKey: "in-app-guide",
+                  Name: "Getting Started Guide",
+                  Steps: []knockmapi.GuideStepParam{knockmapi.GuideStepParam{
+                    Ref: "welcome-step",
+                    SchemaKey: "tooltip",
+                    SchemaSemver: "1.0.0",
+                    SchemaVariantKey: "default",
+                  }},
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Guide)
+          }
   /v1/broadcasts/{broadcast_key}/send:
     put:
       callbacks: {}
@@ -7421,6 +8386,29 @@ paths:
           )
           page = page.entries[0]
           print(page.target_audience_id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Guides.List(context.TODO(), knockmapi.GuideListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/broadcasts/{broadcast_key}/validate:
     put:
       callbacks: {}
@@ -7673,6 +8661,29 @@ paths:
           )
           page = page.entries[0]
           print(page.content)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Translations.List(context.TODO(), knockmapi.TranslationListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/workflows/{workflow_key}/steps/{step_ref}/preview_template:
     post:
       callbacks: {}
@@ -7749,6 +8760,37 @@ paths:
               recipient="dnedry",
           )
           print(response.content_type)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Workflows.Steps.PreviewTemplate(
+              context.TODO(),
+              "step_ref",
+              knockmapi.WorkflowStepPreviewTemplateParams{
+                WorkflowKey: "workflow_key",
+                Environment: "development",
+                Recipient: knockmapi.WorkflowStepPreviewTemplateParamsRecipientUnion{
+                  OfString: knockmapi.String("dnedry"),
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.ContentType)
+          }
   /v1/guides/{guide_key}/activate:
     put:
       callbacks: {}
@@ -7856,6 +8898,33 @@ paths:
               status=True,
           )
           print(response.guide)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Guides.Activate(
+              context.TODO(),
+              "guide_key",
+              knockmapi.GuideActivateParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Guide)
+          }
   /v1/partials:
     get:
       callbacks: {}
@@ -7979,6 +9048,29 @@ paths:
           )
           page = page.entries[0]
           print(page.valid)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Partials.List(context.TODO(), knockmapi.PartialListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/partials/{partial_key}:
     get:
       callbacks: {}
@@ -8050,6 +9142,33 @@ paths:
               environment="development",
           )
           print(partial.valid)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            partial, err := client.Partials.Get(
+              context.TODO(),
+              "partial_key",
+              knockmapi.PartialGetParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", partial.Valid)
+          }
     put:
       callbacks: {}
       description: |
@@ -8182,6 +9301,38 @@ paths:
               },
           )
           print(response.partial)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Partials.Upsert(
+              context.TODO(),
+              "partial_key",
+              knockmapi.PartialUpsertParams{
+                Environment: "development",
+                Partial: knockmapi.PartialUpsertParamsPartial{
+                  Content: "<p>Hello, world!</p>",
+                  Name: "My Partial",
+                  Type: "html",
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Partial)
+          }
   /v1/channels:
     get:
       callbacks: {}
@@ -8285,6 +9436,29 @@ paths:
           page = client.channels.list()
           page = page.entries[0]
           print(page.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Channels.List(context.TODO(), knockmapi.ChannelListParams{
+
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/email_layouts/{email_layout_key}:
     get:
       callbacks: {}
@@ -8356,6 +9530,33 @@ paths:
               environment="development",
           )
           print(email_layout.created_at)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            emailLayout, err := client.EmailLayouts.Get(
+              context.TODO(),
+              "email_layout_key",
+              knockmapi.EmailLayoutGetParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", emailLayout.CreatedAt)
+          }
     put:
       callbacks: {}
       description: |
@@ -8495,6 +9696,38 @@ paths:
               },
           )
           print(response.email_layout)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.EmailLayouts.Upsert(
+              context.TODO(),
+              "email_layout_key",
+              knockmapi.EmailLayoutUpsertParams{
+                Environment: "development",
+                EmailLayout: knockmapi.EmailLayoutUpsertParamsEmailLayout{
+                  HTMLLayout: "<html><body>Hello, world!</body></html>",
+                  Name: "Transactional",
+                  TextLayout: "Hello, world!",
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.EmailLayout)
+          }
   /v1/channel_groups:
     get:
       callbacks: {}
@@ -8602,6 +9835,29 @@ paths:
           page = client.channel_groups.list()
           page = page.entries[0]
           print(page.channel_rules)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.ChannelGroups.List(context.TODO(), knockmapi.ChannelGroupListParams{
+
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/workflows:
     get:
       callbacks: {}
@@ -8750,6 +10006,29 @@ paths:
           )
           page = page.entries[0]
           print(page.valid)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Workflows.List(context.TODO(), knockmapi.WorkflowListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/broadcasts:
     get:
       callbacks: {}
@@ -8968,6 +10247,37 @@ paths:
               },
           )
           print(response.translation)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Translations.Validate(
+              context.TODO(),
+              "locale_code",
+              knockmapi.TranslationValidateParams{
+                Environment: "development",
+                Translation: knockmapi.TranslationValidateParamsTranslation{
+                  Content: `{"hello":"Hello, world!"}`,
+                  Format: "json",
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Translation)
+          }
   /v1/whoami:
     get:
       callbacks: {}
@@ -8979,46 +10289,7 @@ paths:
           content:
             application/json:
               schema:
-                description: Information about the current calling scope.
-                example:
-                  account_name: Acme, Inc.
-                  account_slug: acme
-                  service_token_name: My Service Token
-                  type: service_token
-                  user_id: null
-                properties:
-                  account_name:
-                    type: string
-                    x-struct: null
-                    x-validate: null
-                  account_slug:
-                    type: string
-                    x-struct: null
-                    x-validate: null
-                  service_token_name:
-                    nullable: true
-                    type: string
-                    x-struct: null
-                    x-validate: null
-                  type:
-                    enum:
-                      - service_token
-                      - oauth_context
-                    type: string
-                    x-struct: null
-                    x-validate: null
-                  user_id:
-                    nullable: true
-                    type: string
-                    x-struct: null
-                    x-validate: null
-                required:
-                  - account_name
-                  - account_slug
-                  - type
-                type: object
-                x-struct: null
-                x-validate: null
+                $ref: '#/components/schemas/WhoamiResponse'
           description: OK
       summary: Verify scope
       tags:
@@ -9042,6 +10313,27 @@ paths:
           )
           response = client.auth.verify()
           print(response.user_id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Auth.Verify(context.TODO())
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.UserID)
+          }
   /v1/commits/{id}:
     get:
       callbacks: {}
@@ -9088,6 +10380,27 @@ paths:
               "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
           )
           print(commit.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            commit, err := client.Commits.Get(context.TODO(), "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", commit.ID)
+          }
   /v1/variables:
     get:
       callbacks: {}
@@ -9190,6 +10503,29 @@ paths:
           )
           page = page.entries[0]
           print(page.inserted_at)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Variables.List(context.TODO(), knockmapi.VariableListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/workflows/{workflow_key}/activate:
     put:
       callbacks: {}
@@ -9319,6 +10655,34 @@ paths:
               status=True,
           )
           print(response.workflow)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Workflows.Activate(
+              context.TODO(),
+              "workflow_key",
+              knockmapi.WorkflowActivateParams{
+                Environment: "development",
+                Status: true,
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Workflow)
+          }
   /v1/partials/{partial_key}/validate:
     put:
       callbacks: {}
@@ -9428,6 +10792,38 @@ paths:
               },
           )
           print(response.partial)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Partials.Validate(
+              context.TODO(),
+              "partial_key",
+              knockmapi.PartialValidateParams{
+                Environment: "development",
+                Partial: knockmapi.PartialValidateParamsPartial{
+                  Content: "<p>Hello, world!</p>",
+                  Name: "My Partial",
+                  Type: "html",
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Partial)
+          }
   /v1/message_types/{message_type_key}/validate:
     put:
       callbacks: {}
@@ -9569,6 +10965,38 @@ paths:
               },
           )
           print(response.message_type)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.MessageTypes.Validate(
+              context.TODO(),
+              "email",
+              knockmapi.MessageTypeValidateParams{
+                Environment: "development",
+                MessageType: knockmapi.MessageTypeValidateParamsMessageType{
+                  Description: knockmapi.String("This is a message type"),
+                  Name: "My Message Type",
+                  Preview: "<div>Hello, world!</div>",
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.MessageType)
+          }
   /v1/translations/{locale_code}:
     get:
       callbacks: {}
@@ -9676,6 +11104,33 @@ paths:
               environment="development",
           )
           print(translation.translation)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            translation, err := client.Translations.Get(
+              context.TODO(),
+              "locale_code",
+              knockmapi.TranslationGetParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", translation.Translation)
+          }
     put:
       callbacks: {}
       description: |
@@ -9822,6 +11277,38 @@ paths:
               },
           )
           print(response.translation)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Translations.Upsert(
+              context.TODO(),
+              "locale_code",
+              knockmapi.TranslationUpsertParams{
+                Environment: "development",
+                Namespace: "namespace",
+                Translation: knockmapi.TranslationUpsertParamsTranslation{
+                  Content: `{"hello":"Hello, world!"}`,
+                  Format: "json",
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Translation)
+          }
   /v1/environments:
     get:
       callbacks: {}
@@ -9917,6 +11404,29 @@ paths:
           page = client.environments.list()
           page = page.entries[0]
           print(page.hide_pii_data)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Environments.List(context.TODO(), knockmapi.EnvironmentListParams{
+
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/email_layouts/{email_layout_key}/validate:
     put:
       callbacks: {}
@@ -10033,6 +11543,38 @@ paths:
               },
           )
           print(response.email_layout)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.EmailLayouts.Validate(
+              context.TODO(),
+              "email_layout_key",
+              knockmapi.EmailLayoutValidateParams{
+                Environment: "development",
+                EmailLayout: knockmapi.EmailLayoutValidateParamsEmailLayout{
+                  HTMLLayout: "<html><body>Hello, world!</body></html>",
+                  Name: "Transactional",
+                  TextLayout: "Hello, world!",
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.EmailLayout)
+          }
   /v1/commits/{id}/promote:
     put:
       callbacks: {}
@@ -10099,6 +11641,27 @@ paths:
               "id",
           )
           print(response.commit)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Commits.PromoteOne(context.TODO(), "id")
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Commit)
+          }
   /v1/guides/{guide_key}/validate:
     put:
       callbacks: {}
@@ -10255,6 +11818,43 @@ paths:
               },
           )
           print(response.guide)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Guides.Validate(
+              context.TODO(),
+              "guide_key",
+              knockmapi.GuideValidateParams{
+                Environment: "development",
+                Guide: knockmapi.GuideValidateParamsGuide{
+                  ChannelKey: "in-app-guide",
+                  Name: "Getting Started Guide",
+                  Steps: []knockmapi.GuideStepParam{knockmapi.GuideStepParam{
+                    Ref: "welcome-step",
+                    SchemaKey: "tooltip",
+                    SchemaSemver: "1.0.0",
+                    SchemaVariantKey: "default",
+                  }},
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Guide)
+          }
   /v1/message_types/{message_type_key}:
     get:
       callbacks: {}
@@ -10327,6 +11927,33 @@ paths:
               environment="development",
           )
           print(message_type.valid)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            messageType, err := client.MessageTypes.Get(
+              context.TODO(),
+              "email",
+              knockmapi.MessageTypeGetParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", messageType.Valid)
+          }
     put:
       callbacks: {}
       description: |
@@ -10491,6 +12118,38 @@ paths:
               },
           )
           print(response.message_type)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.MessageTypes.Upsert(
+              context.TODO(),
+              "email",
+              knockmapi.MessageTypeUpsertParams{
+                Environment: "development",
+                MessageType: knockmapi.MessageTypeUpsertParamsMessageType{
+                  Description: knockmapi.String("This is a message type"),
+                  Name: "My Message Type",
+                  Preview: "<div>Hello, world!</div>",
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.MessageType)
+          }
   /v1/workflows/{workflow_key}:
     get:
       callbacks: {}
@@ -10562,6 +12221,33 @@ paths:
               environment="development",
           )
           print(workflow.valid)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            workflow, err := client.Workflows.Get(
+              context.TODO(),
+              "workflow_key",
+              knockmapi.WorkflowGetParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", workflow.Valid)
+          }
     put:
       callbacks: {}
       description: |
@@ -10708,12 +12394,7 @@ paths:
             workflow: {
               name: 'My Workflow',
               steps: [
-                {
-                  name: 'Channel 1',
-                  ref: 'channel_1',
-                  template: { markdown_body: 'Hello **{{ recipient.name }}**' },
-                  type: 'channel',
-                },
+                { ref: 'channel_1', template: { markdown_body: 'Hello **{{ recipient.name }}**' }, type: 'channel' },
               ],
             },
           });
@@ -10731,7 +12412,6 @@ paths:
               workflow={
                   "name": "My Workflow",
                   "steps": [{
-                      "name": "Channel 1",
                       "ref": "channel_1",
                       "template": {
                           "markdown_body": "Hello **{{ recipient.name }}**"
@@ -10741,6 +12421,45 @@ paths:
               },
           )
           print(response.workflow)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Workflows.Upsert(
+              context.TODO(),
+              "workflow_key",
+              knockmapi.WorkflowUpsertParams{
+                Environment: "development",
+                Workflow: knockmapi.WorkflowUpsertParamsWorkflow{
+                  Name: "My Workflow",
+                  Steps: []knockmapi.WorkflowStepUnionParam{knockmapi.WorkflowStepUnionParam{
+                    OfWorkflowInAppFeedStep: &knockmapi.WorkflowInAppFeedStepParam{
+                      Ref: "channel_1",
+                      Template: knockmapi.InAppFeedTemplateParam{
+                        MarkdownBody: "Hello **{{ recipient.name }}**",
+                      },
+                      Type: knockmapi.WorkflowInAppFeedStepTypeChannel,
+                    },
+                  }},
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Workflow)
+          }
   /v1/commits/promote:
     put:
       callbacks: {}
@@ -10756,6 +12475,48 @@ paths:
           in: query
           name: to_environment
           required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter commits to promote by resource type(s). Accepts a single type or array of types. Can be combined with resource_id to filter for specific resources.
+          in: query
+          name: resource_type
+          required: false
+          schema:
+            oneOf:
+              - enum:
+                  - audience
+                  - email_layout
+                  - guide
+                  - message_type
+                  - partial
+                  - translation
+                  - workflow
+                type: string
+                x-struct: null
+                x-validate: null
+              - items:
+                  enum:
+                    - audience
+                    - email_layout
+                    - guide
+                    - message_type
+                    - partial
+                    - translation
+                    - workflow
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
+            x-struct: null
+            x-validate: null
+        - description: Filter commits to promote by resource identifier. Must be used together with resource_type.
+          in: query
+          name: resource_id
+          required: false
           schema:
             type: string
             x-struct: null
@@ -10806,6 +12567,29 @@ paths:
               to_environment="to_environment",
           )
           print(response.result)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Commits.PromoteAll(context.TODO(), knockmapi.CommitPromoteAllParams{
+              ToEnvironment: "to_environment",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Result)
+          }
   /v1/commits:
     get:
       callbacks: {}
@@ -10829,20 +12613,38 @@ paths:
             type: boolean
             x-struct: null
             x-validate: null
-        - description: Filter commits by resource type. Must be used together with resource_id.
+        - description: Filter commits by resource type(s). Accepts a single type or array of types. Can be combined with resource_id to filter for specific resources.
           in: query
           name: resource_type
           required: false
           schema:
-            enum:
-              - dynamic_audience
-              - email_layout
-              - guide
-              - message_type
-              - partial
-              - translation
-              - workflow
-            type: string
+            oneOf:
+              - enum:
+                  - audience
+                  - email_layout
+                  - guide
+                  - message_type
+                  - partial
+                  - translation
+                  - workflow
+                type: string
+                x-struct: null
+                x-validate: null
+              - items:
+                  enum:
+                    - audience
+                    - email_layout
+                    - guide
+                    - message_type
+                    - partial
+                    - translation
+                    - workflow
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
             x-struct: null
             x-validate: null
         - description: Filter commits by resource identifier. Must be used together with resource_type. For most resources, this will be the resource key. In the case of translations, this will be the locale code and namespace, separated by a `/`. For example, `en/courses` or `en`.
@@ -10944,6 +12746,29 @@ paths:
           )
           page = page.entries[0]
           print(page.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Commits.List(context.TODO(), knockmapi.CommitListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
     put:
       callbacks: {}
       description: Commit all changes across all resources in the development environment.
@@ -10961,6 +12786,48 @@ paths:
         - description: An optional message to include in a commit.
           in: query
           name: commit_message
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter changes to commit by resource type(s). Accepts a single type or array of types. Can be combined with resource_id to filter for specific resources.
+          in: query
+          name: resource_type
+          required: false
+          schema:
+            oneOf:
+              - enum:
+                  - audience
+                  - email_layout
+                  - guide
+                  - message_type
+                  - partial
+                  - translation
+                  - workflow
+                type: string
+                x-struct: null
+                x-validate: null
+              - items:
+                  enum:
+                    - audience
+                    - email_layout
+                    - guide
+                    - message_type
+                    - partial
+                    - translation
+                    - workflow
+                  type: string
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
+            x-struct: null
+            x-validate: null
+        - description: Filter changes to commit by resource identifier. Must be used together with resource_type.
+          in: query
+          name: resource_id
           required: false
           schema:
             type: string
@@ -11012,6 +12879,29 @@ paths:
               environment="development",
           )
           print(response.result)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Commits.CommitAll(context.TODO(), knockmapi.CommitCommitAllParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Result)
+          }
   /v1/api_keys/exchange:
     post:
       callbacks: {}
@@ -11072,6 +12962,29 @@ paths:
               environment="development",
           )
           print(response.api_key)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.APIKeys.Exchange(context.TODO(), knockmapi.APIKeyExchangeParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.APIKey)
+          }
   /v1/broadcasts/{broadcast_key}:
     get:
       callbacks: {}
@@ -11372,6 +13285,29 @@ paths:
           )
           page = page.entries[0]
           print(page.valid)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.MessageTypes.List(context.TODO(), knockmapi.MessageTypeListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/broadcasts/{broadcast_key}/cancel:
     put:
       callbacks: {}
