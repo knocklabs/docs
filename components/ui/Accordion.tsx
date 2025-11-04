@@ -72,7 +72,11 @@ const Accordion = ({
                 size="1"
                 mt="1"
                 color="gray"
-                style={{ display: "block" }}
+                style={{
+                  display: "block",
+                  overflowWrap: "normal",
+                  whiteSpace: "normal",
+                }}
               >
                 {description}
               </Text>
