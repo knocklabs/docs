@@ -15,9 +15,7 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
   {
     slug: `${baseSlug}/sdks`,
     title: "SDKs",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-    ],
+    pages: [{ slug: "/overview", title: "Overview" }],
   },
   {
     slug: `${baseSlug}/migration-guides`,
