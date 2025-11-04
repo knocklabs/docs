@@ -17,17 +17,17 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
     title: "SDKs",
     pages: [
       { slug: "/overview", title: "Overview" },
-      {
-        slug: "/migration-guides",
-        title: "Upgrading to v1.0",
-        pages: [
-          { slug: "/node", title: "Node.js" },
-          { slug: "/python", title: "Python" },
-          { slug: "/java", title: "Java" },
-          { slug: "/ruby", title: "Ruby" },
-          { slug: "/go", title: "Go" },
-        ],
-      },
+    ],
+  },
+  {
+    slug: `${baseSlug}/migration-guides`,
+    title: "Upgrading to v1.0",
+    pages: [
+      { slug: "/node", title: "Node.js" },
+      { slug: "/python", title: "Python" },
+      { slug: "/java", title: "Java" },
+      { slug: "/ruby", title: "Ruby" },
+      { slug: "/go", title: "Go" },
     ],
   },
   { slug: `${baseSlug}/management-api`, title: "Management API" },
