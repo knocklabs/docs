@@ -12,7 +12,24 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
   { slug: `${baseSlug}/api-keys`, title: "API keys" },
   { slug: `${baseSlug}/service-tokens`, title: "Service tokens" },
   { slug: `${baseSlug}/knock-cli`, title: "Knock CLI" },
-  { slug: `${baseSlug}/sdks`, title: "SDKs" },
+  {
+    slug: `${baseSlug}/sdks`,
+    title: "SDKs",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      {
+        slug: "/migration-guides",
+        title: "Upgrading to v1.0",
+        pages: [
+          { slug: "/node", title: "Node.js" },
+          { slug: "/python", title: "Python" },
+          { slug: "/java", title: "Java" },
+          { slug: "/ruby", title: "Ruby" },
+          { slug: "/go", title: "Go" },
+        ],
+      },
+    ],
+  },
   { slug: `${baseSlug}/management-api`, title: "Management API" },
   { slug: `${baseSlug}/api-logs`, title: "API logs" },
   { slug: `${baseSlug}/knock-and-postman`, title: "Knock and Postman" },
@@ -28,17 +45,6 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/event-types", title: "Event types" },
-    ],
-  },
-  {
-    slug: `${baseSlug}/migration-guides`,
-    title: "Migration manuals",
-    pages: [
-      { slug: "/node", title: "Node.js 1.0" },
-      { slug: "/python", title: "Python 1.0" },
-      { slug: "/java", title: "Java 1.0" },
-      { slug: "/ruby", title: "Ruby 1.0" },
-      { slug: "/go", title: "Go 1.0" },
     ],
   },
   {
