@@ -32,6 +32,12 @@ There are three ways of setting channel data for a given recipient:
   <Accordion title="Explicitly setting for Users">
     You can set channel data for a given user using the `users.setChannelData` method. Please note that the channel data will always be overwritten with each `set` call.
 
+    You can set channel data by either passing a list of tokens or a list of device objects (containing token, locale, and timezone). The device level locale will be considered when delivering translated content to the device, the device level timezone will be considered when evaluating channel level send windows (do we have docs to link to for send windows?)
+
+    locale and timezone are not required to be passed. sending a list of tokens will automatically be converted to a list of devices (with null locale/timezone) internally
+
+    Note that we only support setting the devices for expo, fcm, apns, and aws sns push channels
+
     If no user exists in the current environment for the given `user_id`, Knock will create the user entry as part of this request.
 
     In the example below, we're setting a user's device token when they download our mobile app so we can send them push notifications. If this token wasn't set for the user, they wouldn't receive push notifications from our notification workflows.
@@ -39,6 +45,12 @@ There are three ways of setting channel data for a given recipient:
     <MultiLangCodeBlock
       snippet="users.setChannelData"
       title="Set channel data for a User"
+    />
+
+    In the example below, we're setting a user's device token by passing devices, this is similar to the first example but now Knock will be aware of the device's locale / timezone
+    <MultiLangCodeBlock
+      snippet="users.setChannelDataDevices"
+      title="Set channel data for a User via Devices"
     />
 
   </Accordion>
@@ -134,31 +146,43 @@ Any previously set channel data can be cleared by issuing an `unsetChannelData` 
   </Accordion>
 </AccordionGroup>
 
-HERE
-
 ## Provider data requirements
 
 Channel data requirements for each provider are listed below. Typically `channel_data` comprises a `token` or other value that is used to uniquely identify a user's device.
 
 ### Push channels
 
+Note that you can not pass both tokens and devices or target_arns and devices when setting channel data.
+
+Note that onesignal does not support the devices concept.
+
 <AccordionGroup>
   <Accordion title ="APNs (Apple Push Notification Service)">
     | Property | Type       | Description               |
     | -------- | ---------- | ------------------------- |
     | tokens\* | `string[]` | One or more device tokens |
-
+    | devices\* | `string[]` | One or more device objects |
+  
   </Accordion>
   <Accordion title ="FCM (Firebase Cloud Messaging)">
     | Property | Type       | Description               |
     | -------- | ---------- | ------------------------- |
     | tokens\* | `string[]` | One or more device tokens |
+    | tokens\* | `string[]` | One or more device objects |
 
   </Accordion>
   <Accordion title ="Expo">
     | Property | Type       | Description               |
     | -------- | ---------- | ------------------------- |
     | tokens\* | `string[]` | One or more device tokens |
+    | tokens\* | `string[]` | One or more device objects |
+  
+  </Accordion>
+  <Accordion title ="AWS SNS">
+    | Property | Type       | Description               |
+    | -------- | ---------- | ------------------------- |
+    | target_arns\* | `string[]` | One or more device tokens |
+    | tokens\* | `string[]` | One or more device objects |
 
   </Accordion>
   <Accordion title ="OneSignal">
