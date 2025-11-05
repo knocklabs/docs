@@ -35,6 +35,20 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   },
 
   {
+    title: "Branches",
+    slug: "/cli/branch",
+    isBeta: true,
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/list", title: "List branches" },
+      { slug: "/create", title: "Create branches" },
+      { slug: "/delete", title: "Delete branches" },
+      { slug: "/switch", title: "Switch to a branch" },
+      { slug: "/exit", title: "Exit a branch" },
+    ],
+  },
+
+  {
     title: "Workflows",
     slug: "/cli/workflow",
     pages: [
@@ -99,6 +113,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/promote", title: "Promote changes" },
     ],
   },
+
   {
     title: "Guides",
     slug: "/cli/guide",
