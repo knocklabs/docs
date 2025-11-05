@@ -6,12 +6,10 @@ curl -X PUT https://api.knock.app/v1/users/1/channel_data/8209f26c-62a5-461d-95e
   -H "Authorization: Bearer sk_test_12345" \\
   -d '{
         "data": {
-          "channel_data": {
-            "devices": [
-              { "token": "user_device_token_1", "locale": "en-US", "timezone": "America/New_York" },
-              { "token": "user_device_token_2" }
-            ]
-          }
+          "devices": [
+            { "token": "user_device_token_1", "locale": "en-US", "timezone": "America/New_York" },
+            { "token": "user_device_token_2" }
+          ]
         }
       }'
 `,
