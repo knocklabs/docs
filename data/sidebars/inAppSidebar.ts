@@ -122,6 +122,7 @@ const SHARED_REACT_COMPONENTS = [
   { slug: "/knock-provider", title: "KnockProvider" },
   { slug: "/knock-feed-provider", title: "KnockFeedProvider" },
   { slug: "/knock-guide-provider", title: "KnockGuideProvider" },
+  { slug: "/knock-guide-location-sensor", title: "KnockGuideLocationSensor" },
   { slug: "/knock-slack-provider", title: "KnockSlackProvider" },
   { slug: "/knock-ms-teams-provider", title: "KnockMsTeamsProvider" },
   { slug: "/knock-i18n-provider", title: "KnockI18nProvider" },
