@@ -109,6 +109,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/token-deregistration", title: "Token deregistration" },
+      { slug: "/device-metadata", title: "Device metadata" },
       { slug: "/aws-sns", title: "Amazon SNS" },
       { slug: "/apns", title: "Apple (APNS)" },
       { slug: "/expo", title: "Expo (React Native)" },

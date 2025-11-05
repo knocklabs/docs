@@ -13,7 +13,7 @@ At Knock we call this concept <a href="/api-reference/recipients/channel_data">`
 
 - For channel types that require channel data (such as [push](/integrations/push/overview) channels and [chat](/integrations/chat/overview) channels like Slack), the channel step will be skipped during a workflow run if the required `channel_data` is not stored on the recipient.
 - Knock stores channel data for you but makes no assumptions about whether the stored channel data is valid. That means that if a push token expires, it's your responsibility to omit/update that token for future notifications.
-  - For push providers, Knock offers an opt-in [token deregistration](/integrations/push/token-deregistration) feature that automatically removes invalid tokens from a recipient's channel data when messages bounce.
+- For push providers, Knock offers an opt-in [token deregistration](/integrations/push/token-deregistration) feature that automatically removes invalid tokens from a recipient's channel data when messages bounce.
 - Setting channel data always requires a `channel_id`, which can be obtained in the Dashboard under the **Channels and sources** page in your account settings. A channel ID is always a UUID v4.
 
 ## Setting channel data
@@ -134,27 +134,63 @@ Any previously set channel data can be cleared by issuing an `unsetChannelData` 
 
 ## Provider data requirements
 
-Channel data requirements for each provider are listed below. Typically `channel_data` comprises a `token` or other value that is used to uniquely identify a user's device.
+Channel data requirements for each channel type and provider are listed below. Typically `channel_data` comprises a `token` or other value that is used to uniquely identify a user's device.
 
 ### Push channels
 
-<AccordionGroup>
-  <Accordion title ="APNs (Apple Push Notification Service)">
-    | Property | Type       | Description               |
-    | -------- | ---------- | ------------------------- |
-    | tokens\* | `string[]` | One or more device tokens |
+You can set push channel data by passing either:
 
+- A list of `tokens` (or `target_arns` for [Amazon SNS](/integrations/push/aws-sns)) strings
+- A list of `devices` objects for supported push providers. If set, this [device-level metadata](/integrations/push/device-metadata) will be used when evaluating [translations](/concepts/translations) and [send windows](/designing-workflows/send-windows).
+
+#### The `PushDevice` object
+
+The `PushDevice` object is used to optionally set device-level metadata for a push channel. It contains the following properties:
+
+| Property     | Type     | Description                                                                                                                               |
+| ------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| token\*      | `string` | The device token to send the push notification to. Required for providers other than Amazon SNS.                                          |
+| target_arn\* | `string` | The ARN of a platform endpoint associated with a platform application and a device token. Required for Amazon SNS.                        |
+| locale       | `string` | The [locale](/concepts/translations#supported-locales) of the device.                                                                     |
+| timezone     | `string` | The timezone of the device. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). |
+
+#### Provider-specific requirements
+
+<AccordionGroup>
+  <Accordion title ="APNs (Apple Push Notification service)">
+    You must provide one of `tokens` or `devices`.
+    
+    | Property  | Type                                     | Description                 |
+    | --------- | ---------------------------------------- | --------------------------- |
+    | tokens\*  | `string[]`                               | One or more device tokens.  |
+    | devices\* | [`PushDevice[]`](#the-pushdevice-object) | One or more device objects. |
+  
   </Accordion>
   <Accordion title ="FCM (Firebase Cloud Messaging)">
-    | Property | Type       | Description               |
-    | -------- | ---------- | ------------------------- |
-    | tokens\* | `string[]` | One or more device tokens |
+    You must provide one of `tokens` or `devices`.
+    
+    | Property  | Type                                     | Description                 |
+    | --------- | ---------------------------------------- | --------------------------- |
+    | tokens\*  | `string[]`                               | One or more device tokens.  |
+    | devices\* | [`PushDevice[]`](#the-pushdevice-object) | One or more device objects. |
 
   </Accordion>
   <Accordion title ="Expo">
-    | Property | Type       | Description               |
-    | -------- | ---------- | ------------------------- |
-    | tokens\* | `string[]` | One or more device tokens |
+    You must provide one of `tokens` or `devices`.
+    
+    | Property  | Type                                     | Description                 |
+    | --------- | ---------------------------------------- | --------------------------- |
+    | tokens\*  | `string[]`                               | One or more device tokens.  |
+    | devices\* | [`PushDevice[]`](#the-pushdevice-object) | One or more device objects. |
+  
+  </Accordion>
+  <Accordion title ="AWS SNS">
+    You must provide one of `target_arns` or `devices`.
+    
+    | Property      | Type                                     | Description                     |
+    | ------------- | ---------------------------------------- | ------------------------------- |
+    | target_arns\* | `string[]`                               | One or more device target ARNs. |
+    | devices\*     | [`PushDevice[]`](#the-pushdevice-object) | One or more device objects.     |
 
   </Accordion>
   <Accordion title ="OneSignal">
