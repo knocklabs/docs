@@ -3,7 +3,7 @@ import { Box } from "@telegraph/layout";
 import { TgphComponentProps } from "@telegraph/helpers";
 
 export function useOnRefReady<T extends HTMLElement>(
-  ref: React.RefObject<T>,
+  ref: React.RefObject<T | null>,
   callback: (node: T) => void,
 ) {
   const lastNodeRef = useRef<T | null>(null);

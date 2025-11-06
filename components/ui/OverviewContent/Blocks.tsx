@@ -8,7 +8,7 @@ import React from "react";
 import Image from "next/image";
 import { TgphComponentProps } from "@telegraph/helpers";
 
-type IconComponent = () => JSX.Element;
+type IconComponent = () => React.JSX.Element;
 type IconType = keyof typeof Icons | LucideIcon | IconComponent;
 
 function getIcon(icon?: IconType): IconComponent | LucideIcon {
