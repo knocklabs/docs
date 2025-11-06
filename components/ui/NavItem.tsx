@@ -81,15 +81,16 @@ const NavItem = ({
       <Text
         as="span"
         weight="medium"
-        style={{
-          fontSize: "13px",
-          // @ts-expect-error textWrap is fine
-          textWrap: "nowrap",
-          // Easy way to vertically align the text
-          verticalAlign: "text-bottom",
-          "--color": isActive ? "var(--tgph-gray-12)" : "var(--tgph-gray-11)",
-          ...(textProps.style || {}),
-        }}
+        style={
+          {
+            fontSize: "13px",
+            textWrap: "nowrap",
+            // Easy way to vertically align the text
+            verticalAlign: "text-bottom",
+            "--color": isActive ? "var(--tgph-gray-12)" : "var(--tgph-gray-11)",
+            ...(textProps.style || {}),
+          } as React.CSSProperties
+        }
         {...textPropsWithoutStyle}
       >
         {children}
