@@ -1,0 +1,59 @@
+A React helper component intended for use with select supported frameworks, such as [Next.js](https://nextjs.org/) and [Tanstack Router](https://tanstack.com/router/), for detecting route changes.
+
+Activation rules for guides are evaluated as a user's location changes in your application and, by default, [KnockGuideProvider](/in-app-ui/react/sdk/components/knock-guide-provider) listens for location change events from the global `window` object (enabled via the `trackLocationFromWindow` prop). However, modern frameworks often provide their own first class router APIs for detecting and reacting to route changes, which often works better and more reliably.
+
+Two important notes to keep in mind when implementing `KnockGuideLocationSensor`:
+
+1.  The import path is specific to the corresponding framework (e.g., `@knocklabs/react/next` for Next.js).
+2.  `KnockGuideLocationSensor` must be placed inside `KnockGuideProvider`.
+
+## Usage
+
+### Next.js
+
+```jsx title="Next.js implementation of KnockGuideLocationSensor."
+import { KnockProvider, KnockGuideProvider } from "@knocklabs/react-core";
+import { KnockGuideLocationSensor } from "@knocklabs/react/next";
+
+function App() {
+  return (
+    <KnockProvider apiKey="pk_test_..." userId="user-123">
+      <KnockGuideProvider
+        channelId="..."
+        readyToTarget={true}
+        // Turn off default event listeners on window.
+        trackLocationFromWindow={false}
+      >
+        <MyGuideComponent />
+        // Must be placed inside KnockGuideProvider.
+        <KnockGuideLocationSensor.AppRouter />
+        // If you are using the Pages Router: // <KnockGuideLocationSensor.PagesRouter />
+      </KnockGuideProvider>
+    </KnockProvider>
+  );
+}
+```
+
+### Tanstack Router
+
+```jsx title="Tanstack Router implementation of KnockGuideLocationSensor."
+import { KnockProvider, KnockGuideProvider } from "@knocklabs/react-core";
+import { KnockGuideLocationSensor } from "@knocklabs/react/tanstack";
+
+function App() {
+  return (
+    <KnockProvider apiKey="pk_test_..." userId="user-123">
+      <KnockGuideProvider
+        channelId="..."
+        readyToTarget={true}
+        // Turn off default event listeners on window.
+        trackLocationFromWindow={false}
+      >
+        <MyGuideComponent />
+        // Must be placed inside KnockGuideProvider.
+        <KnockGuideLocationSensor />
+      </KnockGuideProvider>
+    </KnockProvider>
+  );
+}
+```

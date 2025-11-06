@@ -9,7 +9,7 @@ Once you've [created a guide](/in-app-ui/guides/create-guides), you'll need to r
 
 ## Fetching guides
 
-You can fetch guides using Knock's client-side SDKs or by directly calling the [guides API](/api-reference/users/guides).
+There are two ways to fetch and render guides: using Knock's client-side SDKs, which provide built-in state management and helper methods, or by directly calling the [guides API](/api-reference/users/guides) to build a custom implementation. Our [step-by-step React example](/in-app-ui/react/headless/guide) demonstrates how to incorporate the SDK's guide provider into your application and render guide components to your users.
 
 ### Client-side SDKs
 
@@ -53,7 +53,7 @@ Knock exposes a set of client SDKs that provide helpers and logic to make it eas
 
 #### Key SDK resources
 
-When working with Knock's SDKs to fetch and render guides, you'll use the following components and hooks:
+When working with Knock's SDKs to fetch and render guides, you'll use the following components and hooks for React:
 
 - [**KnockGuideProvider**](/in-app-ui/react/sdk/components/knock-guide-provider). Provider component that fetches guides and manages guide state.
 - [**useGuide**](/in-app-ui/react/sdk/hooks/use-guide). Hook to fetch a single guide by type or key.
@@ -61,9 +61,8 @@ When working with Knock's SDKs to fetch and render guides, you'll use the follow
 - [**useGuideContext**](/in-app-ui/react/sdk/hooks/use-guide-context). Hook to access the guide client for advanced use cases.
 
 <Callout
-  emoji="🚧"
+  type="info"
   title="Additional SDK support."
-  bgColor="blue"
   text={
     <>
       We're working on adding guides support to more of our client SDKs. Please
@@ -98,9 +97,9 @@ When multiple guides exist for a single `type` (e.g, a generic "Banner" componen
 
 <AccordionGroup>
   <Accordion title="When should I use useGuide vs useGuides?">
-  The [`useGuide`](/in-app-ui/react/sdk/hooks/use-guide) hook fetches a single guide at a time. This is ideal for components that should only display one guide, like a banner or modal that occupies a specific location in your UI.
+  The [`useGuide`](/in-app-ui/react/sdk/hooks/use-guide) hook returns a single guide at a time, subject to eligibility criteria, throttling rules, and ordering. This is ideal for components that should only display one guide, like a banner or modal that occupies a specific location in your UI.
 
-The [`useGuides`](/in-app-ui/react/sdk/hooks/use-guides) hook fetches one or more guides, subject to eligibility criteria. This is useful for components that can display multiple guides at once, like a list of changelog cards or announcements in a sidebar.
+The [`useGuides`](/in-app-ui/react/sdk/hooks/use-guides) hook fetches one or more guides, subject to eligibility criteria, in the configured order. This is useful for components that can display multiple guides at once, like a list of changelog cards or announcements in a sidebar. The `useGuides` hook is designed to return multiple guides, so it does not apply throttling rules.
 
   </Accordion>
   <Accordion title="How do I render multiple guides in a single component?">
@@ -116,8 +115,8 @@ The [`useGuides`](/in-app-ui/react/sdk/hooks/use-guides) hook fetches one or mor
         <div>
           {guides.map((guide) => (
             <div key={guide.key}>
-              <h3>{guide.step.content.title}</h3>
-              <p>{guide.step.content.body}</p>
+              <h3>{guide.steps[0].content.title}</h3>
+              <p>{guide.steps[0].content.body}</p>
             </div>
           ))}
         </div>
@@ -142,5 +141,5 @@ The [`useGuides`](/in-app-ui/react/sdk/hooks/use-guides) hook fetches one or mor
 
     To see which guides are actually eligible to be rendered, check the `entries` array in the API response, which contains only the guides that match all criteria for the current user and context.
 
-  </Accordion>  
+  </Accordion>
 </AccordionGroup>
