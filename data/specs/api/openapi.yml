@@ -1392,6 +1392,12 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        name:
+          description: An optional name for the object.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
         preferences:
           $ref: '#/components/schemas/InlinePreferenceSetRequest'
         timezone:
@@ -1660,6 +1666,12 @@ components:
         id:
           description: Unique identifier for the object.
           nullable: false
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: An optional name for the object.
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -2824,6 +2836,12 @@ components:
           x-validate: null
         id:
           description: The unique identifier for the tenant.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: An optional name for the tenant.
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -4035,6 +4053,12 @@ components:
         id:
           description: Unique identifier for the object.
           nullable: false
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: An optional name for the object.
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -5622,6 +5646,12 @@ components:
             - $ref: '#/components/schemas/InlineChannelDataRequest'
           x-struct: null
           x-validate: null
+        name:
+          description: An optional name for the tenant.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
         settings:
           description: The settings for the tenant. Includes branding and preference set.
           properties:
@@ -6903,6 +6933,7 @@ paths:
           });
 
           const tenant = await client.tenants.set('id', {
+            name: 'Jurassic Park',
             settings: {
               branding: {
                 icon_url: 'https://example.com/trex_silhouette_icon.png',
@@ -6922,6 +6953,7 @@ paths:
           )
           tenant = client.tenants.set(
               id="id",
+              name="Jurassic Park",
               settings={
                   "branding": {
                       "icon_url": "https://example.com/trex_silhouette_icon.png",
@@ -6951,6 +6983,7 @@ paths:
               context.TODO(),
               "id",
               knock.TenantSetParams{
+                Name: knock.F("Jurassic Park"),
                 Settings: knock.F(knock.TenantSetParamsSettings{
                   Branding: knock.F(knock.TenantSetParamsSettingsBranding{
                     IconURL: knock.F("https://example.com/trex_silhouette_icon.png"),
@@ -7077,6 +7110,15 @@ paths:
           example: '{ "key": "value" }'
           in: query
           name: trigger_data
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The locale to render the feed items in. Must be in the IETF 5646 format (e.g. `en-US`). When not provided, will default to the locale that the feed items were rendered in. Only available for enterprise plan customers using custom translations.
+          example: en-US
+          in: query
+          name: locale
           required: false
           schema:
             type: string
@@ -12767,6 +12809,7 @@ paths:
           const object = await client.objects.set('collection', 'id', {
             channel_data: { '97c5837d-c65c-4d54-aa39-080eeb81c69d': { tokens: ['push_token_123'] } },
             locale: 'en-US',
+            name: 'My product',
             preferences: {
               default: {
                 channel_types: { email: true },
@@ -12792,6 +12835,7 @@ paths:
                   }
               },
               locale="en-US",
+              name="My product",
               preferences={
                   "default": {
                       "channel_types": {
@@ -12836,6 +12880,7 @@ paths:
                 },
                 }),
                 Locale: knock.F("en-US"),
+                Name: knock.F("My product"),
                 Preferences: knock.F(knock.InlinePreferenceSetRequestParam{
                 "default": knock.PreferenceSetRequestParam{
                   ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
@@ -16790,7 +16835,9 @@ paths:
             apiKey: 'My API Key',
           });
 
-          const bulkOperation = await client.tenants.bulk.set({ tenants: ['[object Object]'] });
+          const bulkOperation = await client.tenants.bulk.set({
+            tenants: [{ id: 'tenant_1', name: 'Acme Corp, Inc.' }],
+          });
 
           console.log(bulkOperation.id);
         python: |-
@@ -16800,7 +16847,10 @@ paths:
               api_key="My API Key",
           )
           bulk_operation = client.tenants.bulk.set(
-              tenants=["[object Object]"],
+              tenants=[{
+                  "id": "tenant_1",
+                  "name": "Acme Corp, Inc.",
+              }],
           )
           print(bulk_operation.id)
         go: |
@@ -16812,7 +16862,6 @@ paths:
 
             "github.com/knocklabs/knock-go"
             "github.com/knocklabs/knock-go/option"
-            "github.com/knocklabs/knock-go/shared"
           )
 
           func main() {
@@ -16820,7 +16869,10 @@ paths:
               option.WithAPIKey("My API Key"),
             )
             bulkOperation, err := client.Tenants.Bulk.Set(context.TODO(), knock.TenantBulkSetParams{
-              Tenants: knock.F([]knock.InlineTenantRequestUnionParam{shared.UnionString("[object Object]")}),
+              Tenants: knock.F([]knock.InlineTenantRequestUnionParam{knock.TenantRequestParam{
+                ID: knock.F("tenant_1"),
+                Name: knock.F("Acme Corp, Inc."),
+              }}),
             })
             if err != nil {
               panic(err.Error())
@@ -16832,7 +16884,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          bulk_operation = knock.tenants.bulk.set(tenants: ["string"])
+          bulk_operation = knock.tenants.bulk.set(tenants: [{id: "tenant_1"}])
 
           puts(bulk_operation)
   /v1/objects/{collection}/{object_id}/preferences/{id}:
@@ -18217,23 +18269,7 @@ paths:
           });
 
           const bulkOperation = await client.objects.bulk.set('collection', {
-            objects: [
-              {
-                id: 'project_1',
-                name: {
-                  '0': 'M',
-                  '1': 'y',
-                  '2': ' ',
-                  '3': 'p',
-                  '4': 'r',
-                  '5': 'o',
-                  '6': 'j',
-                  '7': 'e',
-                  '8': 'c',
-                  '9': 't',
-                },
-              },
-            ],
+            objects: [{ id: 'project_1', name: 'My project' }],
           });
 
           console.log(bulkOperation.id);
@@ -18247,18 +18283,7 @@ paths:
               collection="collection",
               objects=[{
                   "id": "project_1",
-                  "name": {
-                      "0": "M",
-                      "1": "y",
-                      "2": " ",
-                      "3": "p",
-                      "4": "r",
-                      "5": "o",
-                      "6": "j",
-                      "7": "e",
-                      "8": "c",
-                      "9": "t",
-                  },
+                  "name": "My project",
               }],
           )
           print(bulk_operation.id)
@@ -18283,6 +18308,7 @@ paths:
               knock.ObjectBulkSetParams{
                 Objects: knock.F([]knock.ObjectBulkSetParamsObject{knock.ObjectBulkSetParamsObject{
                   ID: knock.F("project_1"),
+                  Name: knock.F("My project"),
                 }}),
               },
             )
