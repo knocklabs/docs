@@ -17,10 +17,12 @@ Use for nice-to-know information that helps users get more value out of a featur
 
 **Indicators:**
 
-- Words like: "tip", "note", "learn more", "you can also", "additionally"
+- Words like: "tip", "learn more", "you can also", "additionally"
 - Helpful context that doesn't warn about problems
 - Information about optional features or enhancements
 - Links to related documentation
+
+**Note:** Keywords are hints, not definitive rules. Focus on whether the content provides helpful information without warning about problems. For example, "Note: This feature also supports X" would be `info` because it's helpful context, not a warning.
 
 **Example appropriate usage:**
 
@@ -34,11 +36,13 @@ Use when incorrect usage may cause unintended side effects or errors. These situ
 
 **Indicators:**
 
-- Words like: "be careful", "note", "important", "may cause", "could result in", "potential issues"
+- Words like: "be careful", "important", "may cause", "could result in", "potential issues"
 - Mentions of incorrect usage leading to problems
 - Warnings about side effects or unintended behavior
 - Non-destructive but problematic outcomes
 - Situations where errors can be handled by the calling app
+
+**Note:** Keywords are hints, not definitive rules. Focus on whether the content warns about potential problems or side effects. For example, "Note: Incorrect usage may cause errors" would be `warning` because it warns about problems, even though it uses the word "note".
 
 **Example appropriate usage:**
 
@@ -97,6 +101,8 @@ Use for information about planned features or future roadmap items.
 - Upcoming changes or improvements
 
 ### Validation rules
+
+**Important:** When validating Callout types, focus on the semantic meaning and intent of the content, not just keyword matching. The same word can appear in different contexts—what matters is whether the message describes problems (warning/alert) or helpful information (info).
 
 #### Rule 1: Check for incorrect type usage
 
