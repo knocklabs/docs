@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, RefObject } from "react";
 import Link from "next/link";
 import { Box, Stack } from "@telegraph/layout";
 import { Text as TextIcon } from "lucide-react";
@@ -156,7 +156,9 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
           >
             <HeaderList headers={headers} nesting={0} />
           </Stack>
-          <ScrollerBottomGradient scrollerRef={scrollerRef} />
+          <ScrollerBottomGradient
+            scrollerRef={scrollerRef as RefObject<HTMLDivElement>}
+          />
           <Box borderTop="px" borderColor="gray-3" mb="4" />
           <Text
             as="a"

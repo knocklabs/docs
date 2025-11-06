@@ -13,6 +13,7 @@ import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, {
+  RefObject,
   useCallback,
   useEffect,
   useMemo,
@@ -629,7 +630,7 @@ const Autocomplete = () => {
         >
           {/* Adds a white shadow to the bottom of the autocomplete when items below scroll */}
           <ScrollerBottomGradient
-            scrollerRef={scrollerRef}
+            scrollerRef={scrollerRef as RefObject<HTMLDivElement>}
             gradientProps={{
               height: "20",
             }}

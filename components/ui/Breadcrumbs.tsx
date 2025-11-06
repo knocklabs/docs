@@ -32,7 +32,6 @@ const Breadcrumbs = ({ pages }: BreadcrumbsProps) => {
               size="2"
               color="gray"
               style={{
-                // @ts-expect-error shut it
                 textWrap: "nowrap",
               }}
             >

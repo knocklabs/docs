@@ -1,4 +1,4 @@
-import { type ReactElement } from "react";
+import { type ReactElement, type ReactNode } from "react";
 import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import Link from "next/link";
@@ -7,12 +7,18 @@ import { Text } from "@telegraph/typography";
 type Props = {
   emoji?: string;
   title: string;
+  children?: ReactNode;
   linkUrl: string;
   footer?: ReactElement;
   isExternal?: boolean;
 };
 
-const CardGroup = ({ children, cols = 2 }) => (
+type CardGroupProps = {
+  children: ReactNode;
+  cols?: number;
+};
+
+const CardGroup = ({ children, cols = 2 }: CardGroupProps) => (
   <Stack
     style={{
       display: "grid",
@@ -24,14 +30,14 @@ const CardGroup = ({ children, cols = 2 }) => (
   </Stack>
 );
 
-const Card: React.FC<Props> = ({
+const Card = ({
   emoji,
   title,
   children,
   footer,
   linkUrl,
   isExternal = false,
-}) => (
+}: Props) => (
   <Stack h="full" rounded="2" border="px" borderColor="gray-4">
     <MenuItem
       h="full"

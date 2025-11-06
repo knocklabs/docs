@@ -44,7 +44,7 @@ export const Callout = ({
   isCentered?: boolean;
   maxWidth?: string;
   style?: React.CSSProperties;
-}): JSX.Element => {
+}): React.JSX.Element => {
   // Determine emoji and bgColor:
   // 1. If type is provided, use type's config
   // 2. If custom emoji/bgColor provided, use those
