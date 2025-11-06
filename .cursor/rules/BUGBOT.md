@@ -53,7 +53,7 @@ Use when incorrect usage may cause unintended side effects or errors. These situ
 
 #### Alert (`type="alert"`)
 
-Use for destructive operations where data can't be recovered, actions that can't be undone, or anywhere there's a security implication. This is for serious consequences that require immediate attention.
+Use for destructive operations where data can't be recovered, actions that can't be undone, or anywhere there's a security implication. This is for serious consequences that require immediate attention. Alerts should only be used sparingly, so when in doubt about the severity of an outcome, you can suggest a `warning` type.
 
 **Indicators:**
 
