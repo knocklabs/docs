@@ -11,9 +11,9 @@ import { TgphComponentProps } from "@telegraph/helpers";
 type IconComponent = () => JSX.Element;
 type IconType = keyof typeof Icons | LucideIcon | IconComponent;
 
-function getIcon(icon?: IconType): IconComponent | React.ReactNode {
+function getIcon(icon?: IconType): IconComponent | LucideIcon {
   if (typeof icon === "function") {
-    return icon as IconComponent;
+    return icon as IconComponent | LucideIcon;
   }
 
   if (typeof icon === "string") {
@@ -22,7 +22,7 @@ function getIcon(icon?: IconType): IconComponent | React.ReactNode {
     // can't be properly type checked.
     const lowercasedIcon = icon.toLowerCase();
     if (Icons[lowercasedIcon as keyof typeof Icons]) {
-      return Icons[lowercasedIcon as keyof typeof Icons] as () => JSX.Element;
+      return Icons[lowercasedIcon as keyof typeof Icons] as IconComponent;
     }
 
     // We throw an error here so that a build can't complete if there is an icon that
@@ -32,7 +32,7 @@ function getIcon(icon?: IconType): IconComponent | React.ReactNode {
     );
   }
 
-  return icon as React.ReactNode;
+  return icon as unknown as LucideIcon;
 }
 
 export const Tool = ({
@@ -66,7 +66,7 @@ export const Tool = ({
       >
         {typeof _icon === "function" ? (
           <Box w="8" h="8" bg="black" color="white" p="2" borderRadius="2">
-            {_icon()}
+            {(_icon as IconComponent)()}
           </Box>
         ) : (
           <Icon
@@ -134,7 +134,7 @@ export const ContentCard = ({
       >
         {typeof _icon === "function" ? (
           <Box w="10" h="10" bg="gray-2" p="2" borderRadius="2">
-            {_icon()}
+            {(_icon as IconComponent)()}
           </Box>
         ) : (
           <Icon

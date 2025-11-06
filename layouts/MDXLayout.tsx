@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type ReactNode } from "react";
 import { FrontMatter } from "../types";
 
 import { DocsLayout } from "./DocsLayout";
@@ -8,9 +8,13 @@ import InAppUILayout from "./InAppUILayout";
 
 import { useRouter } from "next/router";
 
-const MDXLayout: React.FC<{ frontMatter: FrontMatter; sourcePath: string }> = (
-  props,
-) => {
+type MDXLayoutProps = {
+  frontMatter: FrontMatter;
+  sourcePath: string;
+  children: ReactNode;
+};
+
+const MDXLayout = (props: MDXLayoutProps) => {
   const { asPath } = useRouter();
 
   switch (props.frontMatter.layout) {
