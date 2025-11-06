@@ -17,7 +17,7 @@ Use for nice-to-know information that helps users get more value out of a featur
 
 **Indicators:**
 
-- Words like: "tip", "learn more", "you can also", "additionally"
+- Words like: "tip", "learn more", "you can also", "additionally", "might want to", "could"
 - Helpful context that doesn't warn about problems
 - Information about optional features or enhancements
 - Links to related documentation
@@ -36,7 +36,7 @@ Use when incorrect usage may cause unintended side effects or errors. These situ
 
 **Indicators:**
 
-- Words like: "be careful", "important", "may cause", "could result in", "potential issues"
+- Words like: "be careful", "important", "may cause", "could result in", "potential issues", "breaking changes", "not supported"
 - Mentions of incorrect usage leading to problems
 - Warnings about side effects or unintended behavior
 - Non-destructive but problematic outcomes
