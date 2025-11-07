@@ -1,0 +1,174 @@
+---
+title: "Branches"
+description: "Learn how to use branches to isolate changes to your Knock resources."
+tags: ["version control", "branches", "environments", "commits"]
+section: Version control
+---
+
+<Callout
+  type="beta"
+  text={
+    <>
+      Branches are currently in beta. If you'd like early access, or this is
+      blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Branches">get in touch</a>.
+    </>
+  }
+/>
+
+## What are branches in Knock?
+
+Branches in Knock are a way to isolate changes to your Knock resources. They're like sandboxes for your changes, allowing you to make changes to your resources without affecting the main branch, or other branches in your account.
+
+Knock branches are conceptually similar to Git branches, and are designed to be used in a similar way as part of your development workflow with Knock. You can create a branch, make changes to your resources, and merge those changes into the main branch when you're ready. Your Knock branches can mirror your Git branches, so that you can coordinate feature changes between your application and Knock.
+
+Branches are a completely optional feature in Knock. If you don't use branches, you can still use Knock's [commit model](/version-control/commits) to version changes to your resources [in isolated environments](/version-control/environments).
+
+## Create a branch
+
+**In the dashboard**
+
+You can create a new branch in the Knock dashboard by going to the **Branches** page in your account settings and clicking the "Create branch" button. Alternatively, you can type into the branch selector in the top left of the Knock dashboard to quickly create a new branch.
+
+**In the CLI**
+
+```bash title="Creating a new branch in the CLI"
+knock branch create my-branch
+```
+
+## Making changes on a branch
+
+Once you create a branch, Knock will copy over all of the resources from the main branch into your new branch so they're available to be worked on. You can then select the branch you want to work on in the branch selector in the top left of the Knock dashboard, or alternatively you can work with your resources on the branch via the [Knock CLI](/developer-tools/knock-cli) or [Management API](/developer-tools/management-api).
+
+**In the dashboard**
+
+You can select a branch via the branch selector in the top left of the Knock dashboard. Once you've selected a branch, making changes to your resources on that branch is the same as making changes to your resources on the main branch. You can edit workflows, layouts, audiences, and other resources just as you would on the main branch.
+
+Any changes you've made to your resources will not be able to be called via the API until you commit those changes to the branch. You can commit changes under the "Commits" section of the dashboard, or under each resources "Changes" tab.
+
+**In the CLI**
+
+To work with your resources on a branch via the CLI, you can use the `knock branch switch` command to switch to the branch you want to work on.
+
+```bash title="Switching to a branch in the CLI"
+knock branch switch my-branch
+```
+
+Once you've switched to the branch you want to work on, you can make changes to your resources just as you would on the main branch. You can then push and commit those changes to the branch just as you would on the main branch.
+
+```bash title="Pushing and committing changes in the CLI for a branch"
+knock workflow push my-workflow --commit
+```
+
+Optionally, you can also pass in the `--branch` flag to specify the branch you want to work with.
+
+```bash title="Pushing and committing changes in the CLI for a specific branch"
+knock workflow push my-workflow --branch my-branch --commit
+```
+
+## Merging changes from a branch
+
+**In the dashboard**
+
+You can view the changes made to a branch in the Knock dashboard by going to the **Commits** page. From there you can navigate to the "Unmerged changes" tab to see all changes that have not been merged into the main branch.
+
+When you're ready to merge the changes from a branch into the main branch, you can click the "Merge all changes" button to merge all commits from the branch into the main branch, or you can merge individual commits from the branch into the main branch.
+
+## Delete a branch
+
+Once a branch is merged into the main branch, you may wish to delete the branch from your account. Deleting a branch is a permanent operation and cannot be undone. Doing so will delete all of the resources in the branch, including all commits and changes made to your resources on the branch that have not been merged into `main`.
+
+**In the dashboard**
+
+You can delete a branch in the Knock dashboard by going to the **Branches** page in your account settings and clicking the "Delete branch" button next to the branch you want to delete.
+
+**In the CLI**
+
+```bash title="Deleting a branch in the CLI"
+knock branch delete my-branch
+```
+
+## Working with branches in the API
+
+Branches are fully supported in the Knock API so that you can execute workflows, create users, and manage preferences in a branch-specific environment. When making requests to the API for your branch, you **must use the API key for your `development` environment**, along with a special `X-Knock-Branch` header to specify the branch you want to work with.
+
+```bash title="Specifying a branch in the API"
+curl -X POST "https://api.knock.app/v1/workflows/my-workflow/trigger" \
+  -H "Authorization: Bearer $KNOCK_API_KEY" \
+  -H "X-Knock-Branch: my-branch" \
+  -d '{"recipient": "jhammond"}'
+```
+
+Branches are fully supported in our server-side and client-side SDKs as well.
+
+```javascript title="Specifying a branch in the SDK"
+import Knock from "@knocklabs/node";
+
+const knock = new Knock({
+  apiKey: process.env.KNOCK_API_KEY,
+  branch: "my-branch",
+});
+
+await knock.workflows.trigger("my-workflow", {
+  recipient: "jhammond",
+});
+```
+
+## Working with branches in the CLI
+
+Branches are supported in the Knock CLI for all commands that interact with resources in your Knock account. You can always use the `--branch` flag to specify the branch you want to work with or set a `.knockbranch` file in your home directory to specify the branch you want to work with.
+
+```bash title="Specifying a branch in the CLI"
+knock workflow list --branch my-branch
+```
+
+It's also possible to use the CLI to programmatically create, update, and delete branches.
+
+## Working with branches via the Management API
+
+When using the management API, you can specify the branch you want to work with by passing the `branch` query parameter to the API endpoint, similar to how you would specify the environment.
+
+```bash title="Specifying a branch in the Management API"
+curl -X GET "https://control.knock.app/v1/workflows?branch=my-branch" \
+  -H "Authorization: Bearer $KNOCK_SERVICE_TOKEN"
+```
+
+It's also possible to use the management API to programmatically create, update, and delete branches.
+
+## Limitations
+
+There are a few limitations to branches in Knock:
+
+- Branches are **only** available in the `development` environment.
+- Branches **will not** currently copy over any users, objects, or tenants from your development environment. In order to work with users, objects, or tenants on a branch, you'll need to create them manually in the branch.
+- If you have merge conflicts on a resource that is part of a branch, you will need to resolve the conflicts outside of the dashboard via the CLI in order to continue.
+- There's currently no way to "rebase" a branch against `main` without using the CLI.
+- Branches are not supported for [broadcasts](/concepts/broadcasts).
+- Branches are not supported for [sources](/integrations/sources/overview).
+- Branches are not supported for [webhooks](/integrations/webhooks/overview).
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="What is the difference between a branch and an environment?">
+    A branch is a way to isolate changes to your Knock resources. It's like a
+    sandbox for your changes.
+  </Accordion>
+  <Accordion title="What channel settings are used for a branch?">
+    Branches will always use the channel settings configured for the `development` environment (the `main` branch).
+  </Accordion>
+  <Accordion title="Can I block changes being made directly to my development environment?">
+    No, you cannot yet block changes being made directly to your development
+    environment. However, we're considering this feature and would love to hear
+    your use case if you'd like to see this feature. Please [get in
+    touch](mailto:support@knock.app) and we can discuss your use case further.
+  </Accordion>
+  <Accordion title="Can I put an approval process in place before merging changes from a branch into the main branch?">
+    No, there's not currently a way to put a review process in place before
+    merging changes from a branch into the main branch.
+  </Accordion>
+  <Accordion title="Is there a limit to the number of branches I can have in my account?">
+    No, there's no limit to the number of branches you can have in your account.
+  </Accordion>
+
+</AccordionGroup>
