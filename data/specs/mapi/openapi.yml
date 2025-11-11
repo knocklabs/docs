@@ -511,6 +511,37 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    PaginatedBranchResponse:
+      description: A paginated list of Branch. Contains a list of entries and page information.
+      example:
+        entries:
+          - created_at: "2022-10-31T19:59:03Z"
+            deleted_at: null
+            last_commit_at: "2022-10-31T19:59:03Z"
+            slug: feature-branch
+            updated_at: "2022-10-31T19:59:03Z"
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/Branch'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedBranchResponse
+      type: object
+      x-struct: null
+      x-validate: null
     GuideScheduledActivationParams:
       description: A request to schedule the activation of a guide. At least one of from or until must be provided.
       example:
@@ -6465,6 +6496,54 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.RunWorkflowResponse
       x-validate: null
+    Branch:
+      description: A branch object.
+      example:
+        created_at: "2022-10-31T19:59:03Z"
+        deleted_at: null
+        last_commit_at: "2022-10-31T19:59:03Z"
+        slug: feature-branch
+        updated_at: "2022-10-31T19:59:03Z"
+      properties:
+        created_at:
+          description: The timestamp of when the branch was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        deleted_at:
+          description: The timestamp of when the branch was deleted.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        last_commit_at:
+          description: The timestamp of the most-recent commit in the branch.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        slug:
+          description: A unique slug for the branch. Cannot exceed 255 characters.
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the branch was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - slug
+        - created_at
+        - updated_at
+      title: Branch
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Branch
+      x-validate: null
     Partial:
       description: A partial is a reusable piece of content that can be used in a template.
       example:
@@ -7340,6 +7419,84 @@ paths:
             }
             fmt.Printf("%+v\n", environment.HidePiiData)
           }
+  /v1/branches:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of branches. The branches will be returned in order of their last commit time (newest first).
+      operationId: listBranches
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of Branch. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - created_at: "2022-10-31T19:59:03Z"
+                      deleted_at: null
+                      last_commit_at: "2022-10-31T19:59:03Z"
+                      slug: feature-branch
+                      updated_at: "2022-10-31T19:59:03Z"
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/Branch'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedBranchResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List branches
+      tags:
+        - Branches
   /v1/workflows/{workflow_key}/validate:
     put:
       callbacks: {}
@@ -7363,6 +7520,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -7552,6 +7718,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
       requestBody:
         content:
           application/json:
@@ -7637,6 +7812,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -7866,6 +8050,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The key of the guide to retrieve.
           in: path
           name: guide_key
@@ -7963,6 +8156,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -8189,6 +8391,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
       requestBody:
         content:
           application/json:
@@ -8256,6 +8467,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -8433,6 +8653,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
       requestBody:
         content:
           application/json:
@@ -8555,6 +8784,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -8715,6 +8953,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
       requestBody:
         content:
           application/json:
@@ -8814,6 +9061,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -8937,6 +9193,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -9086,6 +9351,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The key of the partial to retrieve.
           in: path
           name: partial_key
@@ -9183,6 +9457,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -9482,6 +9765,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
@@ -9579,6 +9871,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -9873,6 +10174,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The cursor to fetch entries after.
           in: query
           name: after
@@ -10044,6 +10354,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The cursor to fetch entries after.
           in: query
           name: after
@@ -10168,6 +10487,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -10416,6 +10744,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The cursor to fetch entries after.
           in: query
           name: after
@@ -10549,6 +10886,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -10701,6 +11047,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The key of the partial to validate.
           in: path
           name: partial_key
@@ -10848,6 +11203,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -11020,6 +11384,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: Optionally specify the returned content format. Supports 'json' and 'po'. Defaults to 'json'.
           in: query
           name: format
@@ -11153,6 +11526,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -11453,6 +11835,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
       requestBody:
         content:
           application/json:
@@ -11688,6 +12079,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
       requestBody:
         content:
           application/json:
@@ -11879,6 +12279,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
@@ -11977,6 +12386,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -12173,6 +12591,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
@@ -12270,6 +12697,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -12460,6 +12896,102 @@ paths:
             }
             fmt.Printf("%+v\n", response.Workflow)
           }
+  /v1/branches/{branch_slug}:
+    delete:
+      callbacks: {}
+      description: Deletes a branch by the `branch_slug`.
+      operationId: deleteBranch
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of the branch to delete.
+          in: path
+          name: branch_slug
+          required: true
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "204":
+          description: No Content
+      summary: Delete a branch
+      tags:
+        - Branches
+    get:
+      callbacks: {}
+      description: Returns a single branch by the `branch_slug`.
+      operationId: getBranch
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of the branch to retrieve.
+          in: path
+          name: branch_slug
+          required: true
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: OK
+      summary: Get a branch
+      tags:
+        - Branches
+    post:
+      callbacks: {}
+      description: Creates a new branch off of the development environment with the given slug.
+      operationId: createBranch
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug for the new branch to create.
+          in: path
+          name: branch_slug
+          required: true
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: Created
+      summary: Create a branch
+      tags:
+        - Branches
   /v1/commits/promote:
     put:
       callbacks: {}
@@ -12602,6 +13134,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -12780,6 +13321,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -13008,6 +13558,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
         - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
@@ -13054,6 +13613,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -13159,6 +13727,15 @@ paths:
           required: true
           schema:
             example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
             type: string
             x-struct: null
             x-validate: null
@@ -13332,6 +13909,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
       responses:
         "200":
           content:
@@ -13396,6 +13982,8 @@ tags:
     name: Commits
   - description: Environments are isolated instances of your account that map to your infrastructure.
     name: Environments
+  - description: Branches in Knock are a way to isolate changes to your Knock resources.
+    name: Branches
   - description: Translations are per-locale string files that can be used in your templates.
     name: Translations
   - description: Email layouts wrap your email templates and provide a consistent look and feel.
