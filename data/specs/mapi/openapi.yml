@@ -7497,6 +7497,52 @@ paths:
       summary: List branches
       tags:
         - Branches
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const branch of client.branches.list({ environment: 'development' })) {
+            console.log(branch.created_at);
+          }
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          page = client.branches.list(
+              environment="development",
+          )
+          page = page.entries[0]
+          print(page.created_at)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Branches.List(context.TODO(), knockmapi.BranchListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/workflows/{workflow_key}/validate:
     put:
       callbacks: {}
@@ -12926,6 +12972,50 @@ paths:
       summary: Delete a branch
       tags:
         - Branches
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          await client.branches.delete('feature-branch', { environment: 'development' });
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          client.branches.delete(
+              branch_slug="feature-branch",
+              environment="development",
+          )
+        go: |
+          package main
+
+          import (
+            "context"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            err := client.Branches.Delete(
+              context.TODO(),
+              "feature-branch",
+              knockmapi.BranchDeleteParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+          }
     get:
       callbacks: {}
       description: Returns a single branch by the `branch_slug`.
@@ -12959,6 +13049,55 @@ paths:
       summary: Get a branch
       tags:
         - Branches
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          const branch = await client.branches.retrieve('feature-branch', { environment: 'development' });
+
+          console.log(branch.created_at);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          branch = client.branches.retrieve(
+              branch_slug="feature-branch",
+              environment="development",
+          )
+          print(branch.created_at)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            branch, err := client.Branches.Get(
+              context.TODO(),
+              "feature-branch",
+              knockmapi.BranchGetParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", branch.CreatedAt)
+          }
     post:
       callbacks: {}
       description: Creates a new branch off of the development environment with the given slug.
@@ -12992,6 +13131,55 @@ paths:
       summary: Create a branch
       tags:
         - Branches
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          const branch = await client.branches.create('feature-branch', { environment: 'development' });
+
+          console.log(branch.created_at);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          branch = client.branches.create(
+              branch_slug="feature-branch",
+              environment="development",
+          )
+          print(branch.created_at)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            branch, err := client.Branches.New(
+              context.TODO(),
+              "feature-branch",
+              knockmapi.BranchNewParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", branch.CreatedAt)
+          }
   /v1/commits/promote:
     put:
       callbacks: {}
@@ -13003,10 +13191,18 @@ paths:
 
             For example, if you have three environments “development”, “staging”, and “production” (in that order), setting this param to “production” will promote all commits not currently in production from staging.
 
-            Note: This must be a non-development environment.
+            When this param is set to `"development"`, the `"branch"` param must be provided.
           in: query
           name: to_environment
           required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of the branch to promote all changes from.
+          in: query
+          name: branch
+          required: false
           schema:
             type: string
             x-struct: null
