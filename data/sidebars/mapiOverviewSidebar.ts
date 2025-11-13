@@ -3,6 +3,7 @@ import { SidebarSection } from "../types";
 export const RESOURCE_ORDER = [
   "environments",
   "channels",
+  "broadcasts",
   "workflows",
   "email_layouts",
   "translations",
@@ -13,6 +14,7 @@ export const RESOURCE_ORDER = [
   "message_types",
   "guides",
   "api_keys",
+  "branches",
   "$shared",
 ];
 
