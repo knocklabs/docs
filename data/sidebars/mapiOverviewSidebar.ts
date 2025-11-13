@@ -4,6 +4,7 @@ export const RESOURCE_ORDER = [
   "environments",
   "channels",
   "workflows",
+  "broadcasts",
   "email_layouts",
   "translations",
   "partials",
@@ -13,6 +14,7 @@ export const RESOURCE_ORDER = [
   "message_types",
   "guides",
   "api_keys",
+  "branches",
   "$shared",
 ];
 
