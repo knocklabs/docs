@@ -8501,6 +8501,55 @@ paths:
       summary: Send a broadcast
       tags:
         - Broadcasts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          const response = await client.broadcasts.send('broadcast_key', { environment: 'development' });
+
+          console.log(response.broadcast);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          response = client.broadcasts.send(
+              broadcast_key="broadcast_key",
+              environment="development",
+          )
+          print(response.broadcast)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Broadcasts.Send(
+              context.TODO(),
+              "broadcast_key",
+              knockmapi.BroadcastSendParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Broadcast)
+          }
   /v1/guides:
     get:
       callbacks: {}
@@ -8790,6 +8839,85 @@ paths:
       summary: Validate a broadcast
       tags:
         - Broadcasts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          const response = await client.broadcasts.validate('broadcast_key', {
+            environment: 'development',
+            broadcast: {
+              name: 'My Broadcast',
+              steps: [
+                { ref: 'channel_1', template: { markdown_body: 'Hello **{{ recipient.name }}**' }, type: 'channel' },
+              ],
+            },
+          });
+
+          console.log(response.broadcast);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          response = client.broadcasts.validate(
+              broadcast_key="broadcast_key",
+              environment="development",
+              broadcast={
+                  "name": "My Broadcast",
+                  "steps": [{
+                      "ref": "channel_1",
+                      "template": {
+                          "markdown_body": "Hello **{{ recipient.name }}**"
+                      },
+                      "type": "channel",
+                  }],
+              },
+          )
+          print(response.broadcast)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Broadcasts.Validate(
+              context.TODO(),
+              "broadcast_key",
+              knockmapi.BroadcastValidateParams{
+                Environment: "development",
+                Broadcast: knockmapi.BroadcastRequestParam{
+                  Name: "My Broadcast",
+                  Steps: []knockmapi.BroadcastRequestStepUnionParam{knockmapi.BroadcastRequestStepUnionParam{
+                    OfWorkflowInAppFeedStep: &knockmapi.WorkflowInAppFeedStepParam{
+                      Ref: "channel_1",
+                      Template: knockmapi.InAppFeedTemplateParam{
+                        MarkdownBody: "Hello **{{ recipient.name }}**",
+                      },
+                      Type: knockmapi.WorkflowInAppFeedStepTypeChannel,
+                    },
+                  }},
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Broadcast)
+          }
   /v1/translations:
     get:
       callbacks: {}
@@ -10510,6 +10638,52 @@ paths:
       summary: List broadcasts
       tags:
         - Broadcasts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const broadcast of client.broadcasts.list({ environment: 'development' })) {
+            console.log(broadcast.valid);
+          }
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          page = client.broadcasts.list(
+              environment="development",
+          )
+          page = page.entries[0]
+          print(page.valid)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            page, err := client.Broadcasts.List(context.TODO(), knockmapi.BroadcastListParams{
+              Environment: "development",
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", page)
+          }
   /v1/translations/{locale_code}/validate:
     put:
       callbacks: {}
@@ -13789,6 +13963,55 @@ paths:
       summary: Get a broadcast
       tags:
         - Broadcasts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          const broadcast = await client.broadcasts.retrieve('broadcast_key', { environment: 'development' });
+
+          console.log(broadcast.valid);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          broadcast = client.broadcasts.retrieve(
+              broadcast_key="broadcast_key",
+              environment="development",
+          )
+          print(broadcast.valid)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            broadcast, err := client.Broadcasts.Get(
+              context.TODO(),
+              "broadcast_key",
+              knockmapi.BroadcastGetParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", broadcast.Valid)
+          }
     put:
       callbacks: {}
       description: |
@@ -13911,6 +14134,85 @@ paths:
       summary: Upsert a broadcast
       tags:
         - Broadcasts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          const response = await client.broadcasts.upsert('broadcast_key', {
+            environment: 'development',
+            broadcast: {
+              name: 'My Broadcast',
+              steps: [
+                { ref: 'channel_1', template: { markdown_body: 'Hello **{{ recipient.name }}**' }, type: 'channel' },
+              ],
+            },
+          });
+
+          console.log(response.broadcast);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          response = client.broadcasts.upsert(
+              broadcast_key="broadcast_key",
+              environment="development",
+              broadcast={
+                  "name": "My Broadcast",
+                  "steps": [{
+                      "ref": "channel_1",
+                      "template": {
+                          "markdown_body": "Hello **{{ recipient.name }}**"
+                      },
+                      "type": "channel",
+                  }],
+              },
+          )
+          print(response.broadcast)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Broadcasts.Upsert(
+              context.TODO(),
+              "broadcast_key",
+              knockmapi.BroadcastUpsertParams{
+                Environment: "development",
+                Broadcast: knockmapi.BroadcastRequestParam{
+                  Name: "My Broadcast",
+                  Steps: []knockmapi.BroadcastRequestStepUnionParam{knockmapi.BroadcastRequestStepUnionParam{
+                    OfWorkflowInAppFeedStep: &knockmapi.WorkflowInAppFeedStepParam{
+                      Ref: "channel_1",
+                      Template: knockmapi.InAppFeedTemplateParam{
+                        MarkdownBody: "Hello **{{ recipient.name }}**",
+                      },
+                      Type: knockmapi.WorkflowInAppFeedStepTypeChannel,
+                    },
+                  }},
+                },
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Broadcast)
+          }
   /v1/message_types:
     get:
       callbacks: {}
@@ -14162,6 +14464,55 @@ paths:
       summary: Cancel a scheduled broadcast
       tags:
         - Broadcasts
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: 'My Service Token',
+          });
+
+          const response = await client.broadcasts.cancel('broadcast_key', { environment: 'development' });
+
+          console.log(response.broadcast);
+        python: |-
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token="My Service Token",
+          )
+          response = client.broadcasts.cancel(
+              broadcast_key="broadcast_key",
+              environment="development",
+          )
+          print(response.broadcast)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-mgmt-go"
+            "github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+            client := knockmapi.NewClient(
+              option.WithServiceToken("My Service Token"),
+            )
+            response, err := client.Broadcasts.Cancel(
+              context.TODO(),
+              "broadcast_key",
+              knockmapi.BroadcastCancelParams{
+                Environment: "development",
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", response.Broadcast)
+          }
 security:
   - BearerAuth: []
 servers:
