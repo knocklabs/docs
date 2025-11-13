@@ -3,8 +3,8 @@ import { SidebarSection } from "../types";
 export const RESOURCE_ORDER = [
   "environments",
   "channels",
-  "broadcasts",
   "workflows",
+  "broadcasts",
   "email_layouts",
   "translations",
   "partials",
