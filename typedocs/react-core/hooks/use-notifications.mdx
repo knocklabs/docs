@@ -1,83 +1,80 @@
-The `useNotifications` hook is used to fetch and manage notifications for a user's feed. This hook provides notifications data along with loading states and pagination capabilities.
+The `useNotifications` hook initializes and manages a feed client instance for a user's notification feed. This hook handles the lifecycle of the feed client, including initialization, real-time updates, and cleanup.
 
 ## Parameters
 
-Accepts an object (`UseNotificationsParams`) with the following properties:
-
 <Attributes>
   <Attribute
-    name="feedId"
+    name="knock"
+    type="Knock"
+    description="An authenticated Knock client instance."
+    isRequired
+  />
+  <Attribute
+    name="feedChannelId"
     type="string"
-    description="The ID of the feed to fetch notifications for."
+    description="The UUID of the in-app feed channel from your Knock dashboard."
     isRequired
   />
   <Attribute
     name="options"
     type="FeedClientOptions"
-    description="Optional configuration for the feed client."
+    description="Optional configuration for the feed client (e.g., archived, status, page_size)."
   />
 </Attributes>
 
 ## Returns
 
-A `UseNotificationsReturn` object with the following properties:
+Returns a `Feed` client instance with the following key methods:
 
-<Attributes>
-  <Attribute
-    name="items"
-    type="KnockFeedItem[]"
-    description="Array of notification items."
-  />
-  <Attribute
-    name="metadata"
-    type="FeedMetadata"
-    description="Metadata about the feed including counts and pagination."
-  />
-  <Attribute
-    name="isLoading"
-    type="boolean"
-    description="Whether notifications are being loaded."
-  />
-  <Attribute
-    name="error"
-    type="Error | null"
-    description="Error object if the request failed."
-  />
-  <Attribute
-    name="refresh"
-    type="() => void"
-    description="Function to refresh the notifications feed."
-  />
-</Attributes>
+- `fetch(options?)` - Fetches feed items
+- `fetchNextPage()` - Fetches the next page of items
+- `markAsRead(item)` - Marks one or more items as read
+- `markAllAsRead()` - Marks all items as read
+- `markAsSeen(item)` - Marks one or more items as seen
+- `markAllAsSeen()` - Marks all items as seen
+- `markAsArchived(item)` - Archives one or more items
+- `markAllAsArchived()` - Archives all items
+- `getState()` - Returns the current feed state
+- `on(event, callback)` - Subscribes to feed events
+- `off(event, callback)` - Unsubscribes from feed events
 
 ## Example
 
 ### Basic usage
 
-The following example demonstrates how to use the `useNotifications` hook to display notifications.
+The following example demonstrates how to use the `useNotifications` hook with `useNotificationStore` to display notifications.
 
 ```tsx
-import { useNotifications } from "@knocklabs/react";
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+  useNotificationStore,
+} from "@knocklabs/react";
 
 const MyComponent = () => {
-  const { items, metadata, isLoading, error, refresh } = useNotifications({
-    feedId: "default",
+  const knock = useAuthenticatedKnockClient();
+  const feedClient = useNotifications(knock, "feed-channel-id", {
+    status: "all",
+    archived: "exclude",
   });
 
-  if (isLoading) return <div>Loading notifications...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  const { items, metadata } = useNotificationStore(feedClient);
 
   return (
     <div>
       <div className="header">
         <h2>Notifications ({metadata.unread_count} unread)</h2>
-        <button onClick={refresh}>Refresh</button>
+        <button onClick={() => feedClient.fetch()}>Refresh</button>
+        <button onClick={() => feedClient.markAllAsRead()}>
+          Mark all as read
+        </button>
       </div>
       <ul>
         {items.map((notification) => (
           <li
             key={notification.id}
             className={notification.read_at ? "read" : "unread"}
+            onClick={() => feedClient.markAsRead(notification)}
           >
             {notification.blocks?.[0]?.rendered}
           </li>
@@ -86,4 +83,42 @@ const MyComponent = () => {
     </div>
   );
 };
+```
+
+### Using with KnockProvider and KnockFeedProvider
+
+When using the provider pattern, you can access the feed client through context:
+
+```tsx
+import {
+  KnockProvider,
+  KnockFeedProvider,
+  useKnockFeed,
+} from "@knocklabs/react";
+
+const NotificationList = () => {
+  const { feedClient, items, metadata } = useKnockFeed();
+
+  return (
+    <div>
+      <h2>Notifications ({metadata.unread_count} unread)</h2>
+      <button onClick={() => feedClient.markAllAsRead()}>
+        Mark all as read
+      </button>
+      <ul>
+        {items.map((item) => (
+          <li key={item.id}>{item.blocks?.[0]?.rendered}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+const App = () => (
+  <KnockProvider apiKey="pk_test_123" userId="user-id">
+    <KnockFeedProvider feedId="feed-channel-id">
+      <NotificationList />
+    </KnockFeedProvider>
+  </KnockProvider>
+);
 ```

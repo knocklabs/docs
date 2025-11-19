@@ -1,31 +1,50 @@
-The `useNotificationStore` hook provides direct access to the notification store state and actions. This is a lower-level hook that gives you more control over the notification feed state.
+The `useNotificationStore` hook provides direct access to the feed store state. This is a lower-level hook that subscribes to state changes from a feed client and returns the current state. It supports optional selectors for optimized re-renders.
 
 ## Parameters
 
-Accepts an object (`UseNotificationStoreParams`) with the following properties:
-
 <Attributes>
   <Attribute
-    name="feedId"
-    type="string"
-    description="The ID of the feed to access the store for."
+    name="feedClient"
+    type="Feed"
+    description="A Feed client instance returned from useNotifications."
+    isRequired
+  />
+  <Attribute
+    name="selector"
+    type="(state: FeedStoreState) => T"
+    description="Optional selector function to extract a subset of the state. When provided, only re-renders when the selected value changes."
   />
 </Attributes>
 
 ## Returns
 
-A `UseNotificationStoreReturn` object with the following properties:
+Returns `FeedStoreState` (or `T` if a selector is provided) with the following properties:
 
 <Attributes>
   <Attribute
-    name="store"
-    type="NotificationStore"
-    description="The notification store instance."
+    name="items"
+    type="FeedItem[]"
+    description="Array of notification feed items."
   />
   <Attribute
-    name="state"
-    type="NotificationStoreState"
-    description="The current state of the notification store."
+    name="metadata"
+    type="FeedMetadata"
+    description="Feed metadata including unread_count, unseen_count, and total_count."
+  />
+  <Attribute
+    name="pageInfo"
+    type="PageInfo"
+    description="Pagination information with before, after, and page_size."
+  />
+  <Attribute
+    name="loading"
+    type="boolean"
+    description="Whether the feed is currently loading."
+  />
+  <Attribute
+    name="networkStatus"
+    type="NetworkStatus"
+    description="Current network request status."
   />
 </Attributes>
 
@@ -33,20 +52,71 @@ A `UseNotificationStoreReturn` object with the following properties:
 
 ### Basic usage
 
-The following example demonstrates how to use the `useNotificationStore` hook to access the notification store.
+The following example demonstrates how to use the `useNotificationStore` hook to access feed state.
 
 ```tsx
-import { useNotificationStore } from "@knocklabs/react";
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+  useNotificationStore,
+} from "@knocklabs/react";
 
 const MyComponent = () => {
-  const { store, state } = useNotificationStore({ feedId: "default" });
+  const knock = useAuthenticatedKnockClient();
+  const feedClient = useNotifications(knock, "feed-channel-id");
+  const { items, metadata, loading } = useNotificationStore(feedClient);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div>
-      <p>Total notifications: {state.items.length}</p>
-      <p>Unread count: {state.metadata.unread_count}</p>
-      <button onClick={() => store.markAllAsRead()}>Mark all as read</button>
+      <p>Total notifications: {items.length}</p>
+      <p>Unread count: {metadata.unread_count}</p>
+      <button onClick={() => feedClient.markAllAsRead()}>
+        Mark all as read
+      </button>
+      <ul>
+        {items.map((item) => (
+          <li key={item.id}>{item.blocks?.[0]?.rendered}</li>
+        ))}
+      </ul>
     </div>
   );
 };
+```
+
+### Using with a selector
+
+Use a selector to optimize re-renders by only subscribing to specific state changes:
+
+```tsx
+import {
+  useAuthenticatedKnockClient,
+  useNotifications,
+  useNotificationStore,
+} from "@knocklabs/react";
+
+const UnreadBadge = () => {
+  const knock = useAuthenticatedKnockClient();
+  const feedClient = useNotifications(knock, "feed-channel-id");
+
+  // Only re-renders when unread_count changes
+  const unreadCount = useNotificationStore(
+    feedClient,
+    (state) => state.metadata.unread_count,
+  );
+
+  return <span className="badge">{unreadCount}</span>;
+};
+```
+
+### Accessing multiple state properties
+
+You can select multiple properties at once:
+
+```tsx
+const { items, metadata } = useNotificationStore(feedClient, (state) => ({
+  items: state.items,
+  metadata: state.metadata,
+}));
 ```
