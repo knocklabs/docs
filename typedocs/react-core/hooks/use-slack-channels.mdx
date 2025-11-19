@@ -1,28 +1,36 @@
-The `useSlackChannels` hook is used to retrieve available Slack channels for a connected workspace.
+The `useSlackChannels` hook is used to retrieve available Slack channels for a connected workspace. This hook must be used within a `KnockSlackProvider`.
 
 ## Parameters
 
-This hook does not accept any parameters.
-
-## Returns
-
-A `UseSlackChannelsReturn` object with the following properties:
+Accepts an object with the following properties:
 
 <Attributes>
   <Attribute
-    name="channels"
+    name="queryOptions"
+    type="SlackChannelQueryOptions"
+    description="Optional query options for filtering and pagination. Includes limitPerPage, types, and cursor."
+  />
+</Attributes>
+
+## Returns
+
+Returns an object with the following properties:
+
+<Attributes>
+  <Attribute
+    name="data"
     type="SlackChannel[]"
     description="Array of available Slack channels."
   />
   <Attribute
     name="isLoading"
     type="boolean"
-    description="Whether channels are being loaded."
+    description="Whether channels are being loaded or revalidating."
   />
   <Attribute
-    name="error"
-    type="Error | null"
-    description="Error object if the request failed."
+    name="refetch"
+    type="() => void"
+    description="Function to manually refetch the channels."
   />
 </Attributes>
 
@@ -33,17 +41,17 @@ A `UseSlackChannelsReturn` object with the following properties:
 The following example demonstrates how to use the `useSlackChannels` hook to display available Slack channels.
 
 ```tsx
-import { useSlackChannels } from "@knocklabs/react";
+import { KnockSlackProvider, useSlackChannels } from "@knocklabs/react";
 
-const MyComponent = () => {
-  const { channels, isLoading, error } = useSlackChannels();
+const SlackChannelList = () => {
+  const { data: channels, isLoading, refetch } = useSlackChannels({});
 
   if (isLoading) return <div>Loading channels...</div>;
-  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div>
       <h2>Available Channels</h2>
+      <button onClick={refetch}>Refresh</button>
       <ul>
         {channels.map((channel) => (
           <li key={channel.id}>{channel.name}</li>
@@ -52,4 +60,26 @@ const MyComponent = () => {
     </div>
   );
 };
+
+const App = () => (
+  <KnockSlackProvider
+    knockSlackChannelId="slack-channel-id"
+    tenantId="tenant-id"
+  >
+    <SlackChannelList />
+  </KnockSlackProvider>
+);
+```
+
+### With query options
+
+You can customize the query with pagination and filtering options:
+
+```tsx
+const { data: channels } = useSlackChannels({
+  queryOptions: {
+    limitPerPage: 50,
+    types: ["public_channel", "private_channel"],
+  },
+});
 ```
