@@ -500,6 +500,53 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.ListAudienceMembersResponse
       x-validate: null
+    BulkDeleteSubscriptionsRequest:
+      description: A request to delete subscriptions for many groups of 1 subscribed-to object, N subscriber recipients.
+      example:
+        subscriptions:
+          - id: subscribed-to-object-1
+            recipients:
+              - collection: projects
+                id: subscriber-project-1
+              - subscriber-user-1
+          - id: subscribed-to-object-2
+            recipients:
+              - subscriber-user-2
+      properties:
+        subscriptions:
+          description: A nested list of subscriptions.
+          items:
+            description: A list of subscriptions. 1 subscribed-to id, and N subscriber recipients.
+            properties:
+              id:
+                description: Unique identifier for the object.
+                nullable: false
+                type: string
+                x-struct: null
+                x-validate: null
+              recipients:
+                description: The recipients of the subscription. You can subscribe up to 100 recipients to an object at a time.
+                items:
+                  $ref: '#/components/schemas/RecipientReference'
+                nullable: false
+                type: array
+                x-struct: null
+                x-validate: null
+            required:
+              - id
+              - recipients
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - subscriptions
+      title: BulkDeleteSubscriptionsRequest
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.BulkDeleteSubscriptionsRequest
+      x-validate: null
     InlineChannelDataRequest:
       additionalProperties:
         description: Channel data for a given channel type.
@@ -877,7 +924,7 @@ components:
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Guides.Requests.GuideActionRequest
       x-validate: null
     BulkUpsertSubscriptionsRequest:
-      description: A request to upsert subscriptions for a set of objects in a single collection.
+      description: A request to upsert subscriptions for many groups of 1 subscribed-to object, N subscriber recipients.
       example:
         subscriptions:
           - id: project-1
@@ -886,9 +933,16 @@ components:
               - id: user_1
       properties:
         subscriptions:
-          description: A list of subscriptions.
+          description: A nested list of subscriptions.
           items:
+            description: A list of subscriptions. 1 subscribed-to id, and N subscriber recipients.
             properties:
+              id:
+                description: Unique identifier for the object.
+                nullable: false
+                type: string
+                x-struct: null
+                x-validate: null
               properties:
                 additionalProperties: true
                 description: The custom properties associated with the subscription relationship.
@@ -900,10 +954,12 @@ components:
                 description: The recipients of the subscription. You can subscribe up to 100 recipients to an object at a time.
                 items:
                   $ref: '#/components/schemas/RecipientRequest'
+                nullable: false
                 type: array
                 x-struct: null
                 x-validate: null
             required:
+              - id
               - recipients
             type: object
             x-struct: null
@@ -6824,6 +6880,14 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: When true, merges environment-level default preferences into the tenant's `settings.preference_set` field before returning the response. Defaults to false.
+          in: query
+          name: resolve_full_preference_settings
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
       responses:
         "200":
           content:
@@ -6853,7 +6917,7 @@ paths:
               api_key="My API Key",
           )
           tenant = client.tenants.get(
-              "id",
+              id="id",
           )
           print(tenant.id)
         go: |
@@ -6871,7 +6935,13 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            tenant, err := client.Tenants.Get(context.TODO(), "id")
+            tenant, err := client.Tenants.Get(
+              context.TODO(),
+              "id",
+              knock.TenantGetParams{
+
+              },
+            )
             if err != nil {
               panic(err.Error())
             }
@@ -6896,6 +6966,14 @@ paths:
           required: true
           schema:
             type: string
+            x-struct: null
+            x-validate: null
+        - description: When true, merges environment-level default preferences into the tenant's `settings.preference_set` field before returning the response. Defaults to false.
+          in: query
+          name: resolve_full_preference_settings
+          required: false
+          schema:
+            type: boolean
             x-struct: null
             x-validate: null
       requestBody:
@@ -12230,6 +12308,7 @@ paths:
               "projects",
               knock.ObjectBulkAddSubscriptionsParams{
                 Subscriptions: knock.F([]knock.ObjectBulkAddSubscriptionsParamsSubscription{knock.ObjectBulkAddSubscriptionsParamsSubscription{
+                  ID: knock.F("project-1"),
                   Properties: knock.Null[map[string]interface{}](),
                   Recipients: knock.F([]knock.RecipientRequestUnionParam{knock.InlineIdentifyUserRequestParam{
                     ID: knock.F("user_1"),
@@ -12247,7 +12326,10 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          bulk_operation = knock.objects.bulk.add_subscriptions("projects", subscriptions: [{recipients: [{id: "user_1"}]}])
+          bulk_operation = knock.objects.bulk.add_subscriptions(
+            "projects",
+            subscriptions: [{id: "project-1", recipients: [{id: "user_1"}]}]
+          )
 
           puts(bulk_operation)
   /v1/messages/batch/content:
@@ -16887,6 +16969,51 @@ paths:
           bulk_operation = knock.tenants.bulk.set(tenants: [{id: "tenant_1"}])
 
           puts(bulk_operation)
+  /v1/objects/{collection}/bulk/subscriptions/delete:
+    post:
+      callbacks: {}
+      description: Delete subscriptions for many objects in a single collection type. If a subscription for an object in the collection doesn't exist, it will be skipped.
+      operationId: bulkDeleteSubscriptions
+      parameters:
+        - description: The collection this object belongs to.
+          example: projects
+          in: path
+          name: collection
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            example:
+              subscriptions:
+                - id: subscribed-to-object-1
+                  recipients:
+                    - collection: projects
+                      id: subscriber-project-1
+                    - subscriber-user-1
+                - id: subscribed-to-object-2
+                  recipients:
+                    - subscriber-user-2
+            schema:
+              $ref: '#/components/schemas/BulkDeleteSubscriptionsRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperation'
+          description: OK
+      summary: Bulk delete subscriptions
+      tags:
+        - Objects
+        - Subscriptions
+        - Bulk operations
+      x-ratelimit-tier: 1
   /v1/objects/{collection}/{object_id}/preferences/{id}:
     get:
       callbacks: {}
