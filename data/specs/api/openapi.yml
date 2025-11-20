@@ -17014,6 +17014,96 @@ paths:
         - Subscriptions
         - Bulk operations
       x-ratelimit-tier: 1
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            apiKey: 'My API Key',
+          });
+
+          const bulkOperation = await client.objects.bulk.deleteSubscriptions('projects', {
+            subscriptions: [
+              {
+                id: 'subscribed-to-object-1',
+                recipients: [{ collection: 'projects', id: 'subscriber-project-1' }, 'subscriber-user-1'],
+              },
+              { id: 'subscribed-to-object-2', recipients: ['subscriber-user-2'] },
+            ],
+          });
+
+          console.log(bulkOperation.id);
+        python: |-
+          from knockapi import Knock
+
+          client = Knock(
+              api_key="My API Key",
+          )
+          bulk_operation = client.objects.bulk.delete_subscriptions(
+              collection="projects",
+              subscriptions=[{
+                  "id": "subscribed-to-object-1",
+                  "recipients": [{
+                      "collection": "projects",
+                      "id": "subscriber-project-1",
+                  }, "subscriber-user-1"],
+              }, {
+                  "id": "subscribed-to-object-2",
+                  "recipients": ["subscriber-user-2"],
+              }],
+          )
+          print(bulk_operation.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-go"
+            "github.com/knocklabs/knock-go/option"
+            "github.com/knocklabs/knock-go/shared"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithAPIKey("My API Key"),
+            )
+            bulkOperation, err := client.Objects.Bulk.DeleteSubscriptions(
+              context.TODO(),
+              "projects",
+              knock.ObjectBulkDeleteSubscriptionsParams{
+                Subscriptions: knock.F([]knock.ObjectBulkDeleteSubscriptionsParamsSubscription{knock.ObjectBulkDeleteSubscriptionsParamsSubscription{
+                  ID: knock.F("subscribed-to-object-1"),
+                  Recipients: knock.F([]knock.RecipientReferenceUnionParam{knock.RecipientReferenceObjectReferenceParam{
+                    Collection: knock.F("projects"),
+                    ID: knock.F("subscriber-project-1"),
+                  }, shared.UnionString("subscriber-user-1")}),
+                }, knock.ObjectBulkDeleteSubscriptionsParamsSubscription{
+                  ID: knock.F("subscribed-to-object-2"),
+                  Recipients: knock.F([]knock.RecipientReferenceUnionParam{shared.UnionString("subscriber-user-2")}),
+                }}),
+              },
+            )
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", bulkOperation.ID)
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(api_key: "My API Key")
+
+          bulk_operation = knock.objects.bulk.delete_subscriptions(
+            "projects",
+            subscriptions: [
+              {id: "subscribed-to-object-1", recipients: [{}, "subscriber-user-1"]},
+              {id: "subscribed-to-object-2", recipients: ["subscriber-user-2"]}
+            ]
+          )
+
+          puts(bulk_operation)
   /v1/objects/{collection}/{object_id}/preferences/{id}:
     get:
       callbacks: {}
