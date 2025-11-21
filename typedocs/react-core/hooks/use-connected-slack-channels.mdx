@@ -1,28 +1,47 @@
-The `useConnectedSlackChannels` hook is used to retrieve Slack channels that are currently connected for the user.
+The `useConnectedSlackChannels` hook is used to retrieve and manage Slack channels that are currently connected for a specific recipient object. This hook must be used within a `KnockSlackProvider`.
 
 ## Parameters
 
-This hook does not accept any parameters.
-
-## Returns
-
-A `UseConnectedSlackChannelsReturn` object with the following properties:
+Accepts an object with the following properties:
 
 <Attributes>
   <Attribute
-    name="channels"
-    type="ConnectedSlackChannel[]"
-    description="Array of connected Slack channels."
+    name="slackChannelsRecipientObject"
+    type="RecipientObject"
+    description="The recipient object (with objectId and collection) to get connected channels for."
+    isRequired
+  />
+</Attributes>
+
+## Returns
+
+Returns an object with the following properties:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="SlackChannelConnection[] | null"
+    description="Array of connected Slack channels for the recipient object."
   />
   <Attribute
-    name="isLoading"
+    name="updateConnectedChannels"
+    type="(channels: SlackChannelConnection[]) => Promise<void>"
+    description="Function to update the connected channels for the recipient object."
+  />
+  <Attribute
+    name="loading"
     type="boolean"
-    description="Whether connected channels are being loaded."
+    description="Whether connected channels are being loaded or revalidating."
   />
   <Attribute
     name="error"
-    type="Error | null"
-    description="Error object if the request failed."
+    type="string | null"
+    description="Error message if the request failed."
+  />
+  <Attribute
+    name="updating"
+    type="boolean"
+    description="Whether an update operation is in progress."
   />
 </Attributes>
 
@@ -30,28 +49,85 @@ A `UseConnectedSlackChannelsReturn` object with the following properties:
 
 ### Basic usage
 
-The following example demonstrates how to use the `useConnectedSlackChannels` hook to display connected Slack channels.
+The following example demonstrates how to use the `useConnectedSlackChannels` hook to display and manage connected Slack channels.
 
 ```tsx
-import { useConnectedSlackChannels } from "@knocklabs/react";
+import {
+  KnockSlackProvider,
+  useConnectedSlackChannels,
+} from "@knocklabs/react";
 
-const MyComponent = () => {
-  const { channels, isLoading, error } = useConnectedSlackChannels();
+const ConnectedChannelsList = () => {
+  const {
+    data: channels,
+    loading,
+    error,
+    updateConnectedChannels,
+    updating,
+  } = useConnectedSlackChannels({
+    slackChannelsRecipientObject: {
+      objectId: "project-123",
+      collection: "projects",
+    },
+  });
 
-  if (isLoading) return <div>Loading connected channels...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (loading) return <div>Loading connected channels...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  const handleDisconnect = async (channelId: string) => {
+    const updatedChannels =
+      channels?.filter((ch) => ch.channel_id !== channelId) || [];
+    await updateConnectedChannels(updatedChannels);
+  };
 
   return (
     <div>
-      <h2>Connected Channels</h2>
-      <ul>
-        {channels.map((channel) => (
-          <li key={channel.id}>
-            {channel.name} - {channel.workspace_name}
-          </li>
-        ))}
-      </ul>
+      <h2>Connected channels</h2>
+      {channels && channels.length > 0 ? (
+        <ul>
+          {channels.map((channel) => (
+            <li key={channel.channel_id}>
+              {channel.channel_name}
+              <button
+                onClick={() => handleDisconnect(channel.channel_id)}
+                disabled={updating}
+              >
+                Disconnect
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No channels connected</p>
+      )}
     </div>
   );
+};
+
+const App = () => (
+  <KnockSlackProvider
+    knockSlackChannelId="slack-channel-id"
+    tenantId="tenant-id"
+  >
+    <ConnectedChannelsList />
+  </KnockSlackProvider>
+);
+```
+
+### Updating connected channels
+
+You can add or update connected channels by calling `updateConnectedChannels` with the new array:
+
+```tsx
+const { data: channels, updateConnectedChannels } = useConnectedSlackChannels({
+  slackChannelsRecipientObject: {
+    objectId: "project-123",
+    collection: "projects",
+  },
+});
+
+const handleConnect = async (newChannel: SlackChannelConnection) => {
+  const updatedChannels = [...(channels || []), newChannel];
+  await updateConnectedChannels(updatedChannels);
 };
 ```
