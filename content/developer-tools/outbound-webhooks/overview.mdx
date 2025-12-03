@@ -92,7 +92,7 @@ If your infrastructure uses a firewall that restricts incoming traffic by IP add
 
 We recommend that upon receiving the webhook request you verify the signature before using the contents of the payload. We follow the Stripe specification to add a layer of security to our webhook requests.
 
-The signature is generated with a HMAC using the SHA256 algorithm and, prior to being encoded, is comprised of the timestamp and the stringified JSON payload of the request. We encode `"timestamp in numerical form"."stringified payload"` as the signature of the request.
+The signature is generated with a HMAC using the SHA256 algorithm and, prior to being encoded, is comprised of the timestamp and the stringified JSON payload of the request. We encode `"Unix timestamp in seconds"."stringified payload"` as the signature of the request.
 
 The `x-knock-signature` header is a string comprised of the timestamp used in the encoding and the encoded value above. It will look like this: `t=timestamp,s=encoded-signature`
 
@@ -146,8 +146,9 @@ app.post(
     );
 
     // For additional security, validate that the timestamp is within your
-    // tolerance for proximity to the current time (example shown within 5 minutes)
-    const date = new Date(parseInt(timestamp));
+    // tolerance for proximity to the current time (example shown within 5 minutes).
+    // The timestamp is a Unix timestamp in seconds, so multiply by 1000 to convert to milliseconds.
+    const date = new Date(parseInt(timestamp) * 1000);
     const now = Date.now();
     const isWithinFiveMinutes = Math.abs(now - date.getTime()) < 300000;
 
