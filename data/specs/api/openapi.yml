@@ -3942,6 +3942,8 @@ components:
               key: security-breach-alert
               step_ref: alert_step_1
               version_id: 123e4567-e89b-12d3-a456-426614174000
+              workflow_recipient_run_id: def01234-a56b-78c9-d012-345678901bcd
+              workflow_run_id: 789e0123-f45a-67b8-c901-234567890abc
             status: sent
             tenant: ingen_isla_nublar
             updated_at: "1993-06-11T21:30:05Z"
@@ -5293,6 +5295,8 @@ components:
           key: security-breach-alert
           step_ref: alert_step_1
           version_id: 123e4567-e89b-12d3-a456-426614174000
+          workflow_recipient_run_id: def01234-a56b-78c9-d012-345678901bcd
+          workflow_run_id: 789e0123-f45a-67b8-c901-234567890abc
         status: sent
         tenant: ingen_isla_nublar
         updated_at: "1993-06-11T21:30:05Z"
@@ -5492,6 +5496,8 @@ components:
             key: comment-created
             step_ref: email_step_1
             version_id: 123e4567-e89b-12d3-a456-426614174000
+            workflow_recipient_run_id: 456e7890-a12b-34c5-d678-456789012345
+            workflow_run_id: 987e6543-e21c-34b5-c678-987654321000
           properties:
             __typename:
               example: NotificationSource
@@ -5530,6 +5536,20 @@ components:
             version_id:
               description: The ID of the version of the workflow or guide that triggered the message.
               format: uuid
+              type: string
+              x-struct: null
+              x-validate: null
+            workflow_recipient_run_id:
+              description: The unique identifier for the workflow recipient run that generated this message. Only present for workflow/broadcast messages.
+              format: uuid
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            workflow_run_id:
+              description: The unique identifier for the workflow run that generated this message. Only present for workflow/broadcast messages.
+              format: uuid
+              nullable: true
               type: string
               x-struct: null
               x-validate: null
@@ -8817,6 +8837,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/ChannelsForSlackProviderResponse'
           description: OK
+        "403":
+          content:
+            application/json:
+              schema:
+                description: Authentication error response
+                example:
+                  code: authorization
+                  message: Access token not set.
+                  status: 403
+                  type: authentication_error
+                properties:
+                  code:
+                    description: The error code.
+                    example: authorization
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  message:
+                    description: The error message.
+                    example: Access token not set.
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  status:
+                    description: The HTTP status code.
+                    example: 403
+                    type: integer
+                    x-struct: null
+                    x-validate: null
+                  type:
+                    description: The error type.
+                    example: authentication_error
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - code
+                  - message
+                  - status
+                  - type
+                title: AuthenticationError
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Forbidden
       summary: List channels
       tags:
         - Providers
