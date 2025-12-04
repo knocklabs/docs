@@ -164,6 +164,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/data-obfuscation", title: "Data obfuscation" },
       { slug: "/account-timezone", title: "Account timezone" },
       { slug: "/data-retention", title: "Data retention" },
+      { slug: "/custom-domains", title: "Custom domains" },
     ],
   },
 ];
