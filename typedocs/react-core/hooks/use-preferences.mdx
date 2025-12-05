@@ -2,7 +2,7 @@ The `usePreferences` hook is used to fetch and manage user notification preferen
 
 ## Parameters
 
-Accepts an object (`UsePreferencesParams`) with the following properties:
+Accepts an optional object with the following properties:
 
 <Attributes>
   <Attribute
@@ -10,17 +10,32 @@ Accepts an object (`UsePreferencesParams`) with the following properties:
     type="string"
     description="The preference set ID to fetch. If not provided, the default preference set will be fetched."
   />
+  <Attribute
+    name="tenant"
+    type="string"
+    description="Optional tenant ID for multi-tenant applications."
+  />
 </Attributes>
 
 ## Returns
 
-A `UsePreferencesReturn` object with the following properties:
+Returns an object with the following properties:
 
 <Attributes>
   <Attribute
     name="preferences"
-    type="PreferenceSet"
+    type="PreferenceSet | undefined"
     description="The preference set data including workflows and channels."
+  />
+  <Attribute
+    name="setPreferences"
+    type="(properties: SetPreferencesProperties) => void"
+    description="Function to update user preferences."
+  />
+  <Attribute
+    name="getAllPreferences"
+    type="() => Promise<PreferenceSet[]>"
+    description="Function to retrieve all preference sets for the user."
   />
   <Attribute
     name="isLoading"
@@ -28,14 +43,9 @@ A `UsePreferencesReturn` object with the following properties:
     description="Whether preferences are being loaded."
   />
   <Attribute
-    name="error"
-    type="Error | null"
-    description="Error object if the request failed."
-  />
-  <Attribute
-    name="updatePreferences"
-    type="(updates: PreferenceUpdate) => Promise<void>"
-    description="Function to update user preferences."
+    name="isValidating"
+    type="boolean"
+    description="Whether preferences are being revalidated."
   />
 </Attributes>
 
@@ -49,18 +59,15 @@ The following example demonstrates how to use the `usePreferences` hook to manag
 import { usePreferences } from "@knocklabs/react";
 
 const MyComponent = () => {
-  const { preferences, isLoading, error, updatePreferences } = usePreferences({
+  const { preferences, isLoading, setPreferences } = usePreferences({
     preferenceSet: "default",
   });
 
   if (isLoading) return <div>Loading preferences...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (!preferences) return <div>No preferences found</div>;
 
-  const handleToggleWorkflow = async (
-    workflowKey: string,
-    enabled: boolean,
-  ) => {
-    await updatePreferences({
+  const handleToggleWorkflow = (workflowKey: string, enabled: boolean) => {
+    setPreferences({
       workflows: {
         [workflowKey]: { enabled },
       },
@@ -69,7 +76,7 @@ const MyComponent = () => {
 
   return (
     <div>
-      <h2>Notification Preferences</h2>
+      <h2>Notification preferences</h2>
       {preferences.workflows.map((workflow) => (
         <div key={workflow.key}>
           <label>
@@ -86,5 +93,29 @@ const MyComponent = () => {
       ))}
     </div>
   );
+};
+```
+
+### With tenant
+
+For multi-tenant applications, you can specify a tenant:
+
+```tsx
+const { preferences, setPreferences } = usePreferences({
+  preferenceSet: "default",
+  tenant: "tenant-123",
+});
+```
+
+### Getting all preference sets
+
+You can retrieve all preference sets for the user:
+
+```tsx
+const { getAllPreferences } = usePreferences();
+
+const handleGetAll = async () => {
+  const allPreferences = await getAllPreferences();
+  console.log(allPreferences);
 };
 ```
