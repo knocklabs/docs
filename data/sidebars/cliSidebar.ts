@@ -9,6 +9,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/installation", title: "Install the Knock CLI" },
       { slug: "/authentication", title: "Authentication" },
       { slug: "/global-flags", title: "Global flags" },
+      { slug: "/configuring-your-project", title: "Configuring your project" },
       { slug: "/directory-structure", title: "Directory structure" },
     ],
     sidebarMenuDefaultOpen: true,
@@ -22,6 +23,11 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   {
     title: "Logout",
     slug: "/cli/logout",
+  },
+
+  {
+    title: "Init",
+    slug: "/cli/init",
   },
 
   {
