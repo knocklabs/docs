@@ -1,36 +1,41 @@
-The `useMsTeamsChannels` hook is used to retrieve available Microsoft Teams channels for a specific team.
+The `useMsTeamsChannels` hook is used to retrieve available Microsoft Teams channels for a specific team. This hook must be used within a `KnockMsTeamsProvider`.
 
 ## Parameters
 
-Accepts an object (`UseMsTeamsChannelsParams`) with the following properties:
+Accepts an object with the following properties:
 
 <Attributes>
   <Attribute
     name="teamId"
     type="string"
-    description="The ID of the Microsoft Teams team to get channels for."
+    description="Optional ID of the Microsoft Teams team to get channels for. If not provided, no channels will be fetched."
+  />
+  <Attribute
+    name="queryOptions"
+    type="MsTeamsChannelQueryOptions"
+    description="Optional query options for filtering and selecting channel fields."
   />
 </Attributes>
 
 ## Returns
 
-A `UseMsTeamsChannelsReturn` object with the following properties:
+Returns an object with the following properties:
 
 <Attributes>
   <Attribute
-    name="channels"
+    name="data"
     type="MsTeamsChannel[]"
     description="Array of available Microsoft Teams channels."
   />
   <Attribute
     name="isLoading"
     type="boolean"
-    description="Whether channels are being loaded."
+    description="Whether channels are being loaded or revalidating."
   />
   <Attribute
-    name="error"
-    type="Error | null"
-    description="Error object if the request failed."
+    name="refetch"
+    type="() => void"
+    description="Function to manually refetch the channels."
   />
 </Attributes>
 
@@ -41,17 +46,17 @@ A `UseMsTeamsChannelsReturn` object with the following properties:
 The following example demonstrates how to use the `useMsTeamsChannels` hook to display available Microsoft Teams channels.
 
 ```tsx
-import { useMsTeamsChannels } from "@knocklabs/react";
+import { KnockMsTeamsProvider, useMsTeamsChannels } from "@knocklabs/react";
 
-const MyComponent = ({ teamId }: { teamId: string }) => {
-  const { channels, isLoading, error } = useMsTeamsChannels({ teamId });
+const MsTeamsChannelList = ({ teamId }: { teamId: string }) => {
+  const { data: channels, isLoading, refetch } = useMsTeamsChannels({ teamId });
 
   if (isLoading) return <div>Loading channels...</div>;
-  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div>
-      <h2>Available Channels</h2>
+      <h2>Available channels</h2>
+      <button onClick={refetch}>Refresh</button>
       <ul>
         {channels.map((channel) => (
           <li key={channel.id}>{channel.displayName}</li>
@@ -60,4 +65,27 @@ const MyComponent = ({ teamId }: { teamId: string }) => {
     </div>
   );
 };
+
+const App = () => (
+  <KnockMsTeamsProvider
+    knockMsTeamsChannelId="ms-teams-channel-id"
+    tenantId="tenant-id"
+  >
+    <MsTeamsChannelList teamId="team-123" />
+  </KnockMsTeamsProvider>
+);
+```
+
+### With query options
+
+You can customize the query with filtering and field selection options:
+
+```tsx
+const { data: channels } = useMsTeamsChannels({
+  teamId: "team-123",
+  queryOptions: {
+    filter: "isArchived eq false and membershipType eq 'standard'",
+    select: "id,displayName,description",
+  },
+});
 ```
