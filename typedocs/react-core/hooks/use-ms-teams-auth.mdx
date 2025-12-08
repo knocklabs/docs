@@ -1,28 +1,35 @@
-The `useMsTeamsAuth` hook is used to manage Microsoft Teams authentication for connecting user accounts to Teams workspaces.
+The `useMsTeamsAuth` hook is used to manage Microsoft Teams authentication for connecting user accounts to Teams workspaces. This hook must be used within a `KnockMsTeamsProvider`.
 
 ## Parameters
 
-This hook does not accept any parameters.
+<Attributes>
+  <Attribute
+    name="graphApiClientId"
+    type="string"
+    description="The Microsoft Graph API client ID for your application."
+    isRequired
+  />
+  <Attribute
+    name="redirectUrl"
+    type="string"
+    description="Optional URL to redirect to after authentication completes."
+  />
+</Attributes>
 
 ## Returns
 
-A `UseMsTeamsAuthReturn` object with the following properties:
+Returns an object with the following properties:
 
 <Attributes>
   <Attribute
-    name="authenticate"
-    type="(options?: MsTeamsAuthOptions) => Promise<void>"
-    description="Function to initiate Microsoft Teams authentication flow."
+    name="buildMsTeamsAuthUrl"
+    type="() => string"
+    description="Function that builds the Microsoft Teams OAuth authorization URL."
   />
   <Attribute
-    name="revokeAccess"
+    name="disconnectFromMsTeams"
     type="() => Promise<void>"
     description="Function to revoke Microsoft Teams access for the current user."
-  />
-  <Attribute
-    name="isLoading"
-    type="boolean"
-    description="Whether an authentication operation is in progress."
   />
 </Attributes>
 
@@ -33,28 +40,35 @@ A `UseMsTeamsAuthReturn` object with the following properties:
 The following example demonstrates how to use the `useMsTeamsAuth` hook to manage Microsoft Teams authentication.
 
 ```tsx
-import { useMsTeamsAuth } from "@knocklabs/react";
+import { KnockMsTeamsProvider, useMsTeamsAuth } from "@knocklabs/react";
 
-const MyComponent = () => {
-  const { authenticate, revokeAccess, isLoading } = useMsTeamsAuth();
+const MsTeamsAuthButton = () => {
+  const { buildMsTeamsAuthUrl, disconnectFromMsTeams } = useMsTeamsAuth(
+    "graph-api-client-id",
+    "https://example.com/callback",
+  );
 
-  const handleConnect = async () => {
-    await authenticate();
-  };
-
-  const handleDisconnect = async () => {
-    await revokeAccess();
+  const handleConnect = () => {
+    const authUrl = buildMsTeamsAuthUrl();
+    window.location.href = authUrl;
   };
 
   return (
     <div>
-      <button onClick={handleConnect} disabled={isLoading}>
-        Connect Microsoft Teams
-      </button>
-      <button onClick={handleDisconnect} disabled={isLoading}>
+      <button onClick={handleConnect}>Connect Microsoft Teams</button>
+      <button onClick={disconnectFromMsTeams}>
         Disconnect Microsoft Teams
       </button>
     </div>
   );
 };
+
+const App = () => (
+  <KnockMsTeamsProvider
+    knockMsTeamsChannelId="ms-teams-channel-id"
+    tenantId="tenant-id"
+  >
+    <MsTeamsAuthButton />
+  </KnockMsTeamsProvider>
+);
 ```

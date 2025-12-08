@@ -1,28 +1,36 @@
-The `useMsTeamsTeams` hook is used to retrieve available Microsoft Teams for a connected workspace.
+The `useMsTeamsTeams` hook is used to retrieve available teams within a Microsoft Teams-enabled Microsoft Entra tenant. This hook must be used within a `KnockMsTeamsProvider`.
 
 ## Parameters
 
-This hook does not accept any parameters.
-
-## Returns
-
-A `UseMsTeamsTeamsReturn` object with the following properties:
+Accepts an object with the following properties:
 
 <Attributes>
   <Attribute
-    name="teams"
+    name="queryOptions"
+    type="MsTeamsTeamQueryOptions"
+    description="Optional query options for filtering, pagination, and field selection."
+  />
+</Attributes>
+
+## Returns
+
+Returns an object with the following properties:
+
+<Attributes>
+  <Attribute
+    name="data"
     type="MsTeamsTeam[]"
     description="Array of available Microsoft Teams."
   />
   <Attribute
     name="isLoading"
     type="boolean"
-    description="Whether teams are being loaded."
+    description="Whether teams are being loaded or revalidating."
   />
   <Attribute
-    name="error"
-    type="Error | null"
-    description="Error object if the request failed."
+    name="refetch"
+    type="() => void"
+    description="Function to manually refetch the teams."
   />
 </Attributes>
 
@@ -33,17 +41,17 @@ A `UseMsTeamsTeamsReturn` object with the following properties:
 The following example demonstrates how to use the `useMsTeamsTeams` hook to display available Microsoft Teams.
 
 ```tsx
-import { useMsTeamsTeams } from "@knocklabs/react";
+import { KnockMsTeamsProvider, useMsTeamsTeams } from "@knocklabs/react";
 
-const MyComponent = () => {
-  const { teams, isLoading, error } = useMsTeamsTeams();
+const MsTeamsTeamList = () => {
+  const { data: teams, isLoading, refetch } = useMsTeamsTeams({});
 
   if (isLoading) return <div>Loading teams...</div>;
-  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div>
-      <h2>Available Teams</h2>
+      <h2>Available teams</h2>
+      <button onClick={refetch}>Refresh</button>
       <ul>
         {teams.map((team) => (
           <li key={team.id}>{team.displayName}</li>
@@ -52,4 +60,28 @@ const MyComponent = () => {
     </div>
   );
 };
+
+const App = () => (
+  <KnockMsTeamsProvider
+    knockMsTeamsChannelId="ms-teams-channel-id"
+    tenantId="tenant-id"
+  >
+    <MsTeamsTeamList />
+  </KnockMsTeamsProvider>
+);
+```
+
+### With query options
+
+You can customize the query with pagination and filtering options:
+
+```tsx
+const { data: teams } = useMsTeamsTeams({
+  queryOptions: {
+    maxCount: 500,
+    limitPerPage: 50,
+    filter: "displayName eq 'Engineering'",
+    select: "id,displayName,description",
+  },
+});
 ```
