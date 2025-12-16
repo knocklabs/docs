@@ -9,40 +9,149 @@ layout: integrations
 
 Knock can be integrated as a downstream destination in <a href="https://getcensus.com" target="_blank">Census</a> to sync customer and event data from your data warehouse.
 
-## Use cases
+### Use cases
 
 You can use our Census integration to:
 
-1. Sync customer data into Knock from your data warehouse (identify)
-2. Trigger workflows from records added, changed, or removed in your data warehouse
-3. Populate [Audiences](/concepts/audiences) with data from your data warehouse. Audiences can be used to trigger workflows or power conditional logic during workflow execution.
+1. Sync customer data into Knock from your data warehouse ([identify recipients](/managing-recipients/identifying-recipients)).
+2. [Trigger workflows](/send-notifications/triggering-workflows/overview) from records added, changed, or removed in your data warehouse.
+3. Populate [audiences](/concepts/audiences) with data from your data warehouse. Audiences can be used to trigger workflows or power conditional logic during workflow execution.
 
-## Syncing customer data into Knock from Census
+## Configure Knock as a destination in Census
 
-## Syncing audiences into Knock from Census
-
-Census Sources and Datasets can be synced to Knock audiences by configuring Knock as a Custom Destination or using an HTTP Request destination connected to Knock’s public Audiences API.
+Before you can sync data into Knock from Census, you need to configure Knock as a destination.
 
 ### Prerequisites
 
-1. Determine which Knock environment you want to sync your audience to. You most likely want to sync in the Production environment, unless you’re configuring a test sync.
-2. Create an audience in Knock that will serve as the target for your sync.
-3. Have your Knock environment’s secret API key ready. Each environment has its own unique set of API keys; you can find your secret API key in your dashboard under **Platform** > **API keys**. Be sure that the correct environment is selected in the switcher at the top of the page.
-4. Select a destination type. We recommend using our Custom Destination unless you need to sync [tenant](/concepts/tenants) data. If you need to sync tenant data to your audience, you must use an HTTP Request destination.
+1. Determine which Knock environment you want to sync your data to. You most likely want to sync in the Production environment, unless you’re configuring a test sync.
+2. Have your Knock environment’s secret API key ready. Each environment has its own unique set of API keys; you can find your secret API key in your dashboard under **Platform** > **API keys**. Be sure that the correct environment is selected in the switcher at the top of the page.
+3. Choose your destination type. Your options are:
 
-### Configure Knock as a Census destination
+- **Custom destination** - Our recommended destination type for syncing audiences into Knock from Census. Setup is simpler and includes automatic support for removing a user from an audience during your syncs without additional configuration.
+- **HTTP Request destination** - This destination type is required if you need to [sync users and their properties to Knock](#syncing-customer-data-into-knock-from-census) or if you need to include [tenant](/concepts/tenants) data in your Knock audience.
 
-Before you can sync audiences into Knock from Census, you need to configure Knock as a destination in Census.
+### Configuration instructions
 
 <AccordionGroup>
-  <Accordion title="Custom Destination" description="Our recommended configuration for syncing audiences into Knock from Census.">
-   <>
-   </>
+  <Accordion title="Custom destination" description="Our recommended configuration for syncing audiences into Knock from Census.">
+    <Steps>
+      <Step title="Add destination">
+        Navigate to the **Destinations** tab in Census and click "Add a Destination."
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_destination_1.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Add a new destination in Census"
+        />
+      </Step>
+      <Step title="Select destination type">
+        Select "Custom Destination API."
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_destination_2.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select Custom Destination API as the destination type in the UI"
+        />
+      </Step>
+      <Step title="Configure the destination">
+        **a.** Input a destination name. We recommend something like **Knock Production** that correlates to the Knock environment that you're syncing to.
+        
+        **b.** Copy and paste the following into the API URL field: 
+        ```txt title="Knock Custom Destination API URL"
+        https://api.knock.app/v1/integrations/census/custom-destination
+        ```
+        <br/>
+        **c.** Click the "+ Add Header" button to add an `Authorization` <a href="/api-reference/overview/authentication">header</a>. Be sure to toggle the "Secret" setting for the value:
+
+        | Header | Value |
+        | ------ | ----- |
+        | `Authorization` | `Bearer <your Knock secret API key>` |
+        <br/>
+
+        **d.** Leave “1” selected as the API Version, then click "Connect" to complete the configuration. 
+        
+        Census will now test connectivity with Knock. This process may take a few moments to complete.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_destination_3.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Configure the destination"
+        />
+      </Step>
+    </Steps>
+
   </Accordion>
-  <Accordion title="HTTP Request Destination" description="Our recommended configuration if you need to sync tenant data to your Knock audience.">
-    <>
-    </>
+  <Accordion title="HTTP Request destination" description="Our recommended configuration if you need to sync user properties or include tenant data in your Knock audience.">
+    <Steps>
+      <Step title="Add destination">
+        Navigate to the **Destinations** tab in Census and click "Add a Destination."
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_destination_1.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Add a new destination in Census"
+        />
+      </Step>
+      <Step title="Select destination type">
+        Select "HTTP Request."
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_destination_1.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select HTTP Request as the destination type in the UI"
+        />
+      </Step>
+      <Step title="Configure the destination">
+        **a.** Input a destination name. We recommend something like **Knock Production HTTP API** that correlates to the Knock environment that you're syncing to.
+        
+        **b.** Leave the Authorization Type set to "Manual."
+        
+        **c.** Copy and paste the following into the Base URL field: 
+        ```txt title="Knock API Base URL"
+        https://api.knock.app/v1
+        ```
+        <br/>
+        **d.** Click the "+ Add Header" button to add an `Authorization` <a href="/api-reference/overview/authentication">header</a>. Be sure to toggle the "Secret" setting for the value:
+        
+        | Header | Value |
+        | ------ | ----- |
+        | `Authorization` | `Bearer <your Knock secret API key>` |
+        <br/>
+        **e.** Click "Connect" to complete the configuration.
+        
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_destination_2.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Configure the destination"
+        />
+      </Step>
+    </Steps>
   </Accordion>
 </AccordionGroup>
 
-### Add a sync to your Knock destination
+## Syncing audiences into Knock from Census
+
+Census Sources and Datasets can be synced to Knock audiences by configuring Knock as a custom destination or using an HTTP request destination connected to Knock’s audiences API.
+
+### Prerequisites
+
+1. Complete the steps to [configure Knock as a destination in Census](#configure-knock-as-a-destination-in-census).
+2. Create an audience in Knock that will serve as the target for your sync. Be sure that you create your audience in the same environment that you used to configure your Knock destination.
+
+### Add an audience sync to your Knock destination
+
+## Syncing customer data into Knock from Census
+
+Census user records can be synced to Knock by configuring an HTTP request destination connected to Knock’s users API.
+
+### Prerequisites
+
+1. Complete the steps to [configure Knock as a destination in Census](#configure-knock-as-a-destination-in-census). You'll need to configure an HTTP Request destination.
