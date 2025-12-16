@@ -21,9 +21,21 @@ You can use our Census integration to:
 
 Before you can sync data into Knock from Census, you need to configure Knock as a destination.
 
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      Our Census integration only requires configuration within Census. Once
+      you've completed the setup steps below, you will not need to take any
+      additional steps in the Knock dashboard.
+    </>
+  }
+/>
+
 ### Prerequisites
 
-1. Determine which Knock environment you want to sync your data to. You most likely want to sync in the Production environment, unless you’re configuring a test sync.
+1. Determine which Knock environment you want to sync your Census data to. You most likely want to sync in the Production environment, unless you’re configuring a test sync.
 2. Have your Knock environment’s secret API key ready. Each environment has its own unique set of API keys; you can find your secret API key in your dashboard under **Platform** > **API keys**. Be sure that the correct environment is selected in the switcher at the top of the page.
 3. Choose your destination type. Your options are:
 
@@ -70,8 +82,8 @@ Before you can sync data into Knock from Census, you need to configure Knock as 
         | `Authorization` | `Bearer <your Knock secret API key>` |
         <br/>
 
-        **d.** Leave “1” selected as the API Version, then click "Connect" to complete the configuration. 
-        
+        **d.** Leave “1” selected as the API Version, then click "Connect" to complete the configuration.
+
         Census will now test connectivity with Knock. This process may take a few moments to complete.
 
         <Image
@@ -141,12 +153,161 @@ Before you can sync data into Knock from Census, you need to configure Knock as 
 
 Census Sources and Datasets can be synced to Knock audiences by configuring Knock as a custom destination or using an HTTP request destination connected to Knock’s audiences API.
 
+<Callout
+  type="warning"
+  title="Note:"
+  text={
+    <>
+      This integration will only sync a user's audience membership to Knock. To
+      sync user properties into Knock, see the section below on{" "}
+      <a href="#syncing-customer-data-into-knock-from-census">
+        syncing customer data into Knock from Census
+      </a>
+      .
+    </>
+  }
+/>
+
 ### Prerequisites
 
 1. Complete the steps to [configure Knock as a destination in Census](#configure-knock-as-a-destination-in-census).
-2. Create an audience in Knock that will serve as the target for your sync. Be sure that you create your audience in the same environment that you used to configure your Knock destination.
+2. Create, save, and commit a [static audience](/concepts/audiences#audience-types) in Knock that will serve as the target for your sync. Be sure that you create your audience in the same environment that you used to configure your Knock destination.
+3. Ensure that any Knock workflows that should be [triggered by audience entry](/send-notifications/triggering-workflows/audiences) are configured, committed, and promoted to your Knock environment before finalizing your Census sync.
 
 ### Add an audience sync to your Knock destination
+
+Follow the steps below to add an audience sync to your configured Knock destination in Census.
+
+<AccordionGroup>
+  <Accordion title="Custom destination">
+    <Steps>
+      <Step title="Create a new sync">
+        Navigate to the **Syncs** tab in Census and click "Create a sync."
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_1.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Create a new sync in Census"
+        />
+      </Step>
+      <Step title="Select your source data">
+        You'll be prompted to select a dataset for your source data. Select the dataset that you want to sync to Knock.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_2.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select your source data in Census"
+        />
+      </Step>
+      <Step title="Select a destination">
+        Next, you'll select the Knock custom destination that you created above. The "Audiences" object should be selected by default.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_3.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select a destination in Census"
+        />
+      </Step>
+      <Step title="Select a sync behavior">
+        Select the sync behavior that you want to use.
+
+        - **Create only:** New rows added to your model will be synced to Knock. Removing rows from your model will have no effect on your Knock audience.
+        - **Mirror:** New rows added to your model will be added to your audience and removed rows in your model will be deleted from your audience.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_4.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select a sync behavior in Census"
+        />
+      </Step>
+      <Step title="Select a sync key">
+        Select a sync key from your source to map to the Knock audience User ID field. This field's value must be unique; if Census detects multiple rows with the same sync key value, it marks them as duplicates and does not sync them.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_5.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select a sync key for your user ID mapping"
+        />
+      </Step>
+      <Step title="Add the audience key">
+        Under "Set Up Custom Destination API Field Mappings," you'll add the key of the Knock audience that you want to sync to.
+
+        **a.** Click the "Source value..." dropdown.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_6.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select the source value input for your audience key"
+        />
+        <br/>
+        **b.** Click "Constant Value" on the left-hand side, then enter the key of your Knock audience in the input field.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_7.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Add the audience key to your sync"
+        />
+        <br/>
+        **c.** Click "Save."
+      </Step>
+      <Step title="Test your sync (optional)">
+        We recommend clicking "Run test" to test your sync. If successful, this will sync one row of data to your Knock audience. Any errors with your source data or field mappings will be displayed in the test results.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_8.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Test your sync"
+        />
+      </Step>
+      <Step title="Finalize your sync">
+        Click "Next." You'll be prompted to provide an optional label and select the trigger type for your sync.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_9.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Finalize your sync configuration"
+        />
+        <br/>
+        Click "Create" to complete the sync creation process.
+      </Step>
+    </Steps>
+
+  </Accordion>
+  <Accordion title="HTTP request destination">
+    <Steps>
+      <Step title="Create a new sync">
+        Navigate to the **Syncs** tab in Census and click "Create a sync."
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_1.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Create a new sync in Census"
+        />
+      </Step>
+    </Steps>
+
+  </Accordion>
+</AccordionGroup>
 
 ## Syncing customer data into Knock from Census
 
@@ -155,3 +316,22 @@ Census user records can be synced to Knock by configuring an HTTP request destin
 ### Prerequisites
 
 1. Complete the steps to [configure Knock as a destination in Census](#configure-knock-as-a-destination-in-census). You'll need to configure an HTTP Request destination.
+
+### Add a user sync to your Knock destination
+
+Follow the steps below to add a user data sync to your configured Knock HTTP request destination in Census.
+
+<Steps>
+      <Step title="Create a new sync">
+        Navigate to the **Syncs** tab in Census and click "Create a sync."
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_1.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Create a new sync in Census"
+        />
+      </Step>
+
+</Steps>
