@@ -1,12 +1,28 @@
 The `useGuides` hook returns an array of guides matching the provided filter criteria. It supports typing the guide step content to ensure type safety.
 
+Starting in version 0.10.0 of `@knocklabs/react`, `useGuides` respects [throttling rules](/in-app-ui/guides/order-guides#guide-throttling) by default. This means the hook returns only guides that are not currently throttled or are the highest priority guide. To retrieve all eligible guides regardless of throttling, pass `includeThrottled: true` as an option.
+
 ## Parameters
+
+The hook accepts two parameters: a filter object and an options object.
+
+### Filter
 
 <Attributes>
   <Attribute
     name="type"
     type="string"
     description="Match any guide by its type, which corresponds to the key of a message type."
+  />
+</Attributes>
+
+### Options
+
+<Attributes>
+  <Attribute
+    name="includeThrottled"
+    type="boolean"
+    description="When true, returns all eligible guides regardless of throttling rules. Defaults to false."
   />
 </Attributes>
 
@@ -65,6 +81,31 @@ const MyComponent = () => {
         <div key={guide.key}>{guide.name}</div>
         <p>{guide.step.content.body}</p>
         <p>{guide.step.content.title}</p>
+      ))}
+    </div>
+  );
+};
+```
+
+### Including throttled guides
+
+By default, `useGuides` respects throttling rules. To retrieve all eligible guides regardless of throttling, pass `includeThrottled: true`:
+
+```tsx
+import { useGuides } from "@knocklabs/react";
+
+const MyComponent = () => {
+  const { guides } = useGuides(
+    { type: "my-message-type" },
+    { includeThrottled: true },
+  );
+
+  if (guides.length === 0) return null;
+
+  return (
+    <div>
+      {guides.map((guide) => (
+        <div key={guide.key}>{guide.name}</div>
       ))}
     </div>
   );

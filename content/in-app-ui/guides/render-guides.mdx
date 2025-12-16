@@ -99,7 +99,7 @@ When multiple guides exist for a single `type` (e.g, a generic "Banner" componen
   <Accordion title="When should I use useGuide vs useGuides?">
   The [`useGuide`](/in-app-ui/react/sdk/hooks/use-guide) hook returns a single guide at a time, subject to eligibility criteria, throttling rules, and ordering. This is ideal for components that should only display one guide, like a banner or modal that occupies a specific location in your UI.
 
-The [`useGuides`](/in-app-ui/react/sdk/hooks/use-guides) hook fetches one or more guides, subject to eligibility criteria, in the configured order. This is useful for components that can display multiple guides at once, like a list of changelog cards or announcements in a sidebar. The `useGuides` hook is designed to return multiple guides, so it does not apply throttling rules.
+The [`useGuides`](/in-app-ui/react/sdk/hooks/use-guides) hook fetches one or more guides, subject to eligibility criteria, in the configured order. This is useful for components that can display multiple guides at once, like a list of changelog cards or announcements in a sidebar. Starting in version 0.10.0 of `@knocklabs/react`, `useGuides` respects [throttling rules](/in-app-ui/guides/order-guides#guide-throttling) by default, returning only guides that are not currently throttled or are the highest priority guide. If you need to retrieve all eligible guides regardless of throttling, pass `includeThrottled: true` as an option.
 
   </Accordion>
   <Accordion title="How do I render multiple guides in a single component?">
@@ -126,7 +126,7 @@ The [`useGuides`](/in-app-ui/react/sdk/hooks/use-guides) hook fetches one or mor
 
     This approach is useful for displaying lists of announcements, changelog entries, or other content where multiple guides should be visible simultaneously. You can filter guides by `type` to get all guides using a specific message type, or omit the filter to get all eligible guides for the user.
 
-    **Note:** `useGuides` returns guides ordered per the priority set in the dashboard, but it bypasses [throttling rules](/in-app-ui/guides/order-guides#guide-throttling) since it's intended to return multiple guides.
+    **Note:** Starting in version 0.10.0 of `@knocklabs/react`, `useGuides` respects [throttling rules](/in-app-ui/guides/order-guides#guide-throttling) by default. To retrieve all eligible guides regardless of throttling, pass `includeThrottled: true` as an option: `useGuides({ type: "sidebar-changelog-card" }, { includeThrottled: true })`.
 
   </Accordion>
   <Accordion title="Why am I seeing guides this user isn't eligible for in the response?">
