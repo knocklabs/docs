@@ -80,7 +80,7 @@ const PreferencesPage = () => {
 You can specify which preference set to fetch by passing options to the hook. This is useful when you have multiple preference sets for different contexts or user types.
 
 <Callout
-  emoji="💡"
+  type="info"
   title="Preference updates made simple."
   text={
     <>
@@ -169,38 +169,83 @@ const WorkflowPreferences = ({
             );
           }
 
-          // Handle workflow preferences with channel type settings
-          if (typeof setting === "object" && setting?.channel_types) {
+          // Handle workflow preferences with channel type and/or channel settings
+          if (
+            typeof setting === "object" &&
+            (setting?.channel_types || setting?.channels)
+          ) {
             return (
               <div key={workflowKey} className="workflow-with-channels">
                 <h3>{workflowKey.replace(/-/g, " ")}</h3>
-                {Object.entries(setting.channel_types).map(
-                  ([channelType, channelEnabled]) => (
-                    <div key={channelType} className="channel-preference">
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={channelEnabled}
-                          onChange={(e) => {
-                            setPreferences({
-                              ...preferences,
-                              workflows: {
-                                ...preferences?.workflows,
-                                [workflowKey]: {
-                                  ...setting,
-                                  channel_types: {
-                                    ...setting.channel_types,
-                                    [channelType]: e.target.checked,
+
+                {/* Channel type preferences */}
+                {setting.channel_types && (
+                  <div className="channel-types-section">
+                    <h4>Channel types</h4>
+                    {Object.entries(setting.channel_types).map(
+                      ([channelType, channelEnabled]) => (
+                        <div key={channelType} className="channel-preference">
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={channelEnabled}
+                              onChange={(e) => {
+                                setPreferences({
+                                  ...preferences,
+                                  workflows: {
+                                    ...preferences?.workflows,
+                                    [workflowKey]: {
+                                      ...setting,
+                                      channel_types: {
+                                        ...setting.channel_types,
+                                        [channelType]: e.target.checked,
+                                      },
+                                    },
                                   },
-                                },
-                              },
-                            });
-                          }}
-                        />
-                        {channelType} notifications
-                      </label>
-                    </div>
-                  ),
+                                });
+                              }}
+                            />
+                            {channelType} notifications
+                          </label>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                )}
+
+                {/* Specific channel preferences */}
+                {setting.channels && (
+                  <div className="specific-channels-section">
+                    <h4>Specific channels</h4>
+                    {Object.entries(setting.channels).map(
+                      ([channelId, channelEnabled]) => (
+                        <div key={channelId} className="channel-preference">
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={channelEnabled}
+                              onChange={(e) => {
+                                setPreferences({
+                                  ...preferences,
+                                  workflows: {
+                                    ...preferences?.workflows,
+                                    [workflowKey]: {
+                                      ...setting,
+                                      channels: {
+                                        ...setting.channels,
+                                        [channelId]: e.target.checked,
+                                      },
+                                    },
+                                  },
+                                });
+                              }}
+                            />
+                            Channel {channelId}
+                          </label>
+                        </div>
+                      ),
+                    )}
+                  </div>
                 )}
               </div>
             );
@@ -237,7 +282,7 @@ const CategoryPreferences = ({
   const setPreferences = externalSetPreferences ?? hookSetPreferences;
   const isLoading = externalIsLoading ?? hookIsLoading;
 
-  // Helper function for cleaner preference updates
+  // Helper function for cleaner channel type preference updates
   const updateCategoryChannelPreference = (
     categoryKey,
     channelType,
@@ -258,6 +303,27 @@ const CategoryPreferences = ({
     });
   };
 
+  // Helper function for specific channel preference updates
+  const updateCategorySpecificChannelPreference = (
+    categoryKey,
+    channelId,
+    enabled,
+  ) => {
+    setPreferences({
+      ...preferences,
+      categories: {
+        ...preferences?.categories,
+        [categoryKey]: {
+          ...preferences?.categories?.[categoryKey],
+          channels: {
+            ...preferences?.categories?.[categoryKey]?.channels,
+            [channelId]: enabled,
+          },
+        },
+      },
+    });
+  };
+
   if (isLoading) return <div>Loading...</div>;
 
   return (
@@ -267,28 +333,60 @@ const CategoryPreferences = ({
         ([categoryKey, category]) => (
           <div key={categoryKey} className="category-section">
             <h3>{categoryKey.replace(/-/g, " ")}</h3>
-            <div className="channel-types">
-              {Object.entries(category.channel_types || {}).map(
-                ([channelType, enabled]) => (
-                  <div key={channelType} className="channel-preference">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={enabled}
-                        onChange={(e) =>
-                          updateCategoryChannelPreference(
-                            categoryKey,
-                            channelType,
-                            e.target.checked,
-                          )
-                        }
-                      />
-                      {channelType} notifications
-                    </label>
-                  </div>
-                ),
-              )}
-            </div>
+
+            {/* Channel type preferences */}
+            {category.channel_types && (
+              <div className="channel-types">
+                <h4>Channel types</h4>
+                {Object.entries(category.channel_types).map(
+                  ([channelType, enabled]) => (
+                    <div key={channelType} className="channel-preference">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={enabled}
+                          onChange={(e) =>
+                            updateCategoryChannelPreference(
+                              categoryKey,
+                              channelType,
+                              e.target.checked,
+                            )
+                          }
+                        />
+                        {channelType} notifications
+                      </label>
+                    </div>
+                  ),
+                )}
+              </div>
+            )}
+
+            {/* Specific channel preferences */}
+            {category.channels && (
+              <div className="specific-channels">
+                <h4>Specific channels</h4>
+                {Object.entries(category.channels).map(
+                  ([channelId, enabled]) => (
+                    <div key={channelId} className="channel-preference">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={enabled}
+                          onChange={(e) =>
+                            updateCategorySpecificChannelPreference(
+                              categoryKey,
+                              channelId,
+                              e.target.checked,
+                            )
+                          }
+                        />
+                        Channel {channelId}
+                      </label>
+                    </div>
+                  ),
+                )}
+              </div>
+            )}
           </div>
         ),
       )}
@@ -316,6 +414,16 @@ const PreferenceCenter = () => {
       channel_types: {
         ...preferences?.channel_types,
         [channelType]: enabled,
+      },
+    });
+  };
+
+  const handleSpecificChannelToggle = (channelId, enabled) => {
+    setPreferences({
+      ...preferences,
+      channels: {
+        ...preferences?.channels,
+        [channelId]: enabled,
       },
     });
   };
@@ -377,25 +485,59 @@ const PreferenceCenter = () => {
             <p>
               Choose which types of channels you receive notifications through.
             </p>
-            {Object.entries(preferences?.channel_types || {}).map(
-              ([channelType, enabled]) => (
-                <div key={channelType} className="channel-toggle">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={enabled}
-                      onChange={(e) =>
-                        handleBulkChannelTypeToggle(
-                          channelType,
-                          e.target.checked,
-                        )
-                      }
-                    />
-                    Enable {channelType} notifications
-                  </label>
-                </div>
-              ),
-            )}
+
+            <div className="channel-types-section">
+              <h3>Channel types</h3>
+              <p>
+                Control broad categories of channels (email, SMS, push, etc.)
+              </p>
+              {Object.entries(preferences?.channel_types || {}).map(
+                ([channelType, enabled]) => (
+                  <div key={channelType} className="channel-toggle">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={enabled}
+                        onChange={(e) =>
+                          handleBulkChannelTypeToggle(
+                            channelType,
+                            e.target.checked,
+                          )
+                        }
+                      />
+                      Enable {channelType} notifications
+                    </label>
+                  </div>
+                ),
+              )}
+            </div>
+
+            <div className="specific-channels-section">
+              <h3>Specific channels</h3>
+              <p>
+                Control individual channel instances using their UUID
+                identifiers (takes precedence over channel types)
+              </p>
+              {Object.entries(preferences?.channels || {}).map(
+                ([channelId, enabled]) => (
+                  <div key={channelId} className="channel-toggle">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={enabled}
+                        onChange={(e) =>
+                          handleSpecificChannelToggle(
+                            channelId,
+                            e.target.checked,
+                          )
+                        }
+                      />
+                      Enable channel {channelId}
+                    </label>
+                  </div>
+                ),
+              )}
+            </div>
           </div>
         )}
       </div>

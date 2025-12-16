@@ -1,28 +1,40 @@
-The `useSlackAuth` hook is used to manage Slack authentication for connecting user accounts to Slack workspaces.
+The `useSlackAuth` hook is used to manage Slack authentication for connecting user accounts to Slack workspaces. This hook must be used within a `KnockSlackProvider`.
 
 ## Parameters
 
-This hook does not accept any parameters.
+<Attributes>
+  <Attribute
+    name="slackClientId"
+    type="string"
+    description="The Slack OAuth client ID for your application."
+    isRequired
+  />
+  <Attribute
+    name="redirectUrl"
+    type="string"
+    description="Optional URL to redirect to after authentication completes."
+  />
+  <Attribute
+    name="options"
+    type="UseSlackAuthOptions | string[]"
+    description="Optional configuration for OAuth scopes. Can be an object with scopes/additionalScopes or an array of additional scopes."
+  />
+</Attributes>
 
 ## Returns
 
-A `UseSlackAuthReturn` object with the following properties:
+Returns an object with the following properties:
 
 <Attributes>
   <Attribute
-    name="authenticate"
-    type="(options?: SlackAuthOptions) => Promise<void>"
-    description="Function to initiate Slack authentication flow."
+    name="buildSlackAuthUrl"
+    type="() => string"
+    description="Function that builds the Slack OAuth authorization URL."
   />
   <Attribute
-    name="revokeAccess"
+    name="disconnectFromSlack"
     type="() => Promise<void>"
     description="Function to revoke Slack access for the current user."
-  />
-  <Attribute
-    name="isLoading"
-    type="boolean"
-    description="Whether an authentication operation is in progress."
   />
 </Attributes>
 
@@ -33,28 +45,43 @@ A `UseSlackAuthReturn` object with the following properties:
 The following example demonstrates how to use the `useSlackAuth` hook to manage Slack authentication.
 
 ```tsx
-import { useSlackAuth } from "@knocklabs/react";
+import { KnockSlackProvider, useSlackAuth } from "@knocklabs/react";
 
-const MyComponent = () => {
-  const { authenticate, revokeAccess, isLoading } = useSlackAuth();
+const SlackAuthButton = () => {
+  const { buildSlackAuthUrl, disconnectFromSlack } = useSlackAuth(
+    "slack-client-id",
+    "https://example.com/callback",
+  );
 
-  const handleConnect = async () => {
-    await authenticate();
-  };
-
-  const handleDisconnect = async () => {
-    await revokeAccess();
+  const handleConnect = () => {
+    const authUrl = buildSlackAuthUrl();
+    window.location.href = authUrl;
   };
 
   return (
     <div>
-      <button onClick={handleConnect} disabled={isLoading}>
-        Connect Slack
-      </button>
-      <button onClick={handleDisconnect} disabled={isLoading}>
-        Disconnect Slack
-      </button>
+      <button onClick={handleConnect}>Connect Slack</button>
+      <button onClick={disconnectFromSlack}>Disconnect Slack</button>
     </div>
   );
 };
+
+const App = () => (
+  <KnockSlackProvider
+    knockSlackChannelId="slack-channel-id"
+    tenantId="tenant-id"
+  >
+    <SlackAuthButton />
+  </KnockSlackProvider>
+);
+```
+
+### With custom scopes
+
+You can customize the OAuth scopes requested:
+
+```tsx
+const { buildSlackAuthUrl } = useSlackAuth("slack-client-id", undefined, {
+  additionalScopes: ["users:read", "channels:history"],
+});
 ```

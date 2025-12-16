@@ -1,0 +1,97 @@
+---
+title: Push notification device metadata
+description: How to use channel data to store device-level metadata for push notifications.
+tags:
+  [
+    "push token",
+    "channel data",
+    "device token",
+    "device metadata",
+    "locale",
+    "timezone",
+  ]
+section: Integrations > Push
+layout: integrations
+---
+
+When [setting channel data for push channels](/managing-recipients/setting-channel-data#push-channels), Knock provides the option to set additional metadata alongside a device token. When set, a device-level `locale` will be used when [translating](/concepts/translations) message content for the device, and the `timezone` will be used to evalute [send windows](/designing-workflows/send-windows).
+
+This feature is available for all push providers except OneSignal.
+
+## Availability
+
+| Provider   | Device metadata supported? |
+| ---------- | -------------------------- |
+| APNs       | ✅                         |
+| FCM        | ✅                         |
+| Expo       | ✅                         |
+| Amazon SNS | ✅                         |
+| OneSignal  | ❌                         |
+
+## How it works
+
+When setting a recipient's channel data for a supported push channel, you can pass a list of `devices` objects (containing `token`, `locale`, and `timezone`) rather than a list of `tokens` strings.
+
+When a workflow includes a push channel step and the `recipient` channel data includes device metadata, any device-level values will take precedence over the recipient-level `locale` and `timezone` [properties](/managing-recipients/identifying-recipients#reserved-properties). This means:
+
+- The translation language used to render message content for the device will be according to the device-level `locale` property.
+- The timezone used to evaluate the send window for the device will be according to the device-level `timezone` property.
+
+All other features of push channels (including [token deregistration](/integrations/push/token-deregistration)) will function the same way, regardless of whether device metadata is set.
+
+<Callout
+  type="warning"
+  title="Note:"
+  text={
+    <>
+      If you're using Knock's Amazon SNS push notification integration, a{" "}
+      <code>target_arn</code> or <code>target_arns</code> will take the place of{" "}
+      <code>token</code> or <code>tokens</code> when setting channel data. Their
+      functionality is interchangeable. Reference the{" "}
+      <a href="/integrations/push/aws-sns">provider-specific documentation</a>{" "}
+      for more details.
+    </>
+  }
+/>
+
+### Setting device metadata
+
+In the example below, we're setting a user's device token by passing `devices` rather than `tokens`.
+
+<MultiLangCodeBlock
+  snippet="users.setChannelDataDevices"
+  title="Set push channel data for a user via devices"
+/>
+
+If you do not require device-level locale or timezone properties, you can simply set channel data by passing a list of `tokens` strings.
+
+<MultiLangCodeBlock
+  snippet="users.setChannelData"
+  title="Set push channel data for a user via tokens"
+/>
+
+### Getting push channel data
+
+Regardless of whether you set `tokens` or `devices`, you'll see them returned in both formats when retrieving channel data. Devices will include `null` values for the `locale` and `timezone` properties if they were not provided when channel data was set.
+
+```json title="Example push channel data response"
+{
+  "__typename": "ChannelData",
+  "channel_id": "123e4567-e89b-12d3-a456-426614174000",
+  "data": {
+    "devices": [
+      {
+        "locale": "en-US",
+        "timezone": "America/New_York",
+        "token": "user_device_token_1"
+      },
+      {
+        "locale": null,
+        "timezone": null,
+        "token": "user_device_token_2"
+      }
+    ],
+    "tokens": ["user_device_token_1", "user_device_token_2"]
+  }
+}
+```

@@ -16,28 +16,46 @@ tags:
 section: Concepts
 ---
 
-An Audience is a user segment that you can notify. You can bring audiences into Knock programmatically with our API or a supported reverse-ETL source.
-
-Once you start creating audiences in Knock, you can use them to:
+An Audience is a user segment that you can use to target users for [workflows](/concepts/workflows), [guides](/in-app-ui/guides/overview), and [broadcasts](/concepts/broadcasts). Once you start creating audiences in Knock, you can use them to:
 
 - trigger workflows for lifecycle messaging (such as new user signups) and transactional messaging (such as payment method updates)
 - orchestrate branch and conditional logic within your workflows using audience membership (e.g. if a user is in a `paid users` audience, opt them out of the workflow)
+- target users for an [in-app guide](https://docs.knock.app/in-app-ui/guides/overview)
+- send a one-time message to a specific audience with a [broadcast](/concepts/broadcasts)
+
+## Audience types
+
+<Callout
+  type="beta"
+  title="Note:"
+  text={
+    <>
+      Dynamic audiences are currently in beta. If you'd like early access, or
+      this is blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Dynamic audiences beta access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+There are two types of audiences in Knock:
+
+- **Static audiences.** Static audiences are created by manually adding users, either via a reverse ETL source such as Hightouch or Census, a CSV upload, the API, or manually in the Knock dashboard.
+- **Dynamic audiences.** Dynamic audiences are created through building a set of query rules on top of the [user data in Knock](/concepts/recipients).
 
 ## Creating an audience
 
 Navigate to the **Audiences** page under the **Recipients** section on the Knock dashboard’s sidebar, then click “Create Audience” in the top right corner.
 
+When creating an audience, you must choose between a static or dynamic audience. You cannot change the type of audience after it has been created.
+
 ### Using audiences across environments
 
-When you create an audience, its key instantly exists across all environments. Any users added to an audience are scoped to a specific environment. Audiences do not follow Knock version control and do not need to be committed or promoted to environments.{" "}<a href="/concepts/environments">Learn more about environments.</a>
+When you create an audience, regardless of the type, it will be created in the [environment where you create it](/concepts/environments). You can then use the audience in any environment by promoting it to the environment you want to use it in. [Learn more about environments.](/concepts/environments)
 
-<Image
-  src="/images/concepts/audiences/workflow-editor-audience-selector.png"
-  height={926}
-  width={470}
-  alt="Audience selector in the workflow editor"
-  className="rounded-md mx-auto border border-gray-200"
-/>
+Changes to an audience, like other Knock resources, are [versioned](/version-control/commits) and [promoted](/version-control/commits#promoting-commits) to environments.
 
 ## Using audiences with workflows
 
@@ -58,7 +76,7 @@ Create or open the workflow you’d like to trigger for your audience, then open
 Commit your workflow to development, and when you’re ready promote it to production. At this point, every time a user is added to the selected audience a workflow will be triggered with that user as a recipient.
 
 <Callout
-  emoji="💡"
+  type="info"
   title="Remember: audiences are environment scoped."
   isCentered
   text={
@@ -84,9 +102,34 @@ Audience membership can be checked in [branch](/designing-workflows/branch-funct
   className="rounded-md mx-auto border border-gray-200"
 />
 
-## Populating an audience
+## Building a dynamic audience
 
-Before populating your audience ensure that your user data has been [identified in Knock](/managing-recipients/identifying-recipients) and that you’ve configured and promoted any workflows you want to trigger with the Audience.
+<Callout
+  type="beta"
+  title="Note:"
+  text={
+    <>
+      Dynamic audiences are currently in beta. If you'd like early access, or
+      this is blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Dynamic audiences beta access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+Dynamic audiences are built by creating a set of query rules on top of the [user data in Knock](/concepts/recipients), expressed as [conditions](/concepts/conditions). You can build dynamic audiences using any of the properties available on your user objects.
+
+Knock will automatically update the dynamic audience in real-time as the [user data](/managing-recipients/identifying-recipients) in Knock changes, moving users in and out of the audience as their properties change. These changes are known as "membership events" and are used to trigger workflows.
+
+When building a dynamic audience, you will see a real-time preview of the audience members that match the query rules you've created on the right side of the screen. Remember, these are **users in the current environment** that match the query rules you've created.
+
+All changes to the dynamic audience are [versioned](/version-control/commits) and [promoted](/version-control/commits#promoting-commits) to environments. As soon as your changes are commited or promoted, the dynamic audience will be updated in the environment and user membership will be evaluated in real-time.
+
+## Populating a static audience
+
+Before populating your static audience ensure that your user data has been [identified in Knock](/managing-recipients/identifying-recipients) and that you’ve configured and promoted any workflows you want to trigger with the Audience.
 
 ### Supported reverse ETL vendors
 
@@ -110,6 +153,12 @@ You can manually add existing users to an audience.
 
 ## Using audiences with tenants
 
+<Callout
+  type="info"
+  title="Note:"
+  text="Tenant targeting is currently only supported for static audiences."
+/>
+
 When adding users to an audience you can optionally include a tenant ID to power per-user, per-tenant workflows. A user can exist in an audience with multiple distinct tenants.
 
 <Image
@@ -132,5 +181,20 @@ Tenancy is also taken into account when checking audience membership. For a reci
 
     However, Knock will not retroactively trigger any audience-entry triggered workflows for users that are identified after being added to the audience.
 
+  </Accordion>
+  <Accordion title="Can I create a dynamic audience from user data in Knock?">
+    Yes, you can create a dynamic audience by querying the user data in Knock. Learn more about [building a dynamic audience](/concepts/audiences#building-a-dynamic-audience).
+  </Accordion>
+  <Accordion title="Can I use source event data to build a dynamic audience?">
+    No, currently you cannot use [source event data](/integrations/sources/overview) to build a dynamic audience. We will be adding this capability in the future. Please [get in touch](mailto:support@knock.app) if you have a specific use case for this functionality.
+  </Accordion>
+  <Accordion title="Can I use tenant or other object data to build a dynamic audience?">
+    No, you can currently only build dynamic audiences using user data in Knock. We will be adding support for other object data in the future, including the ability to build a list of users based on their relationship to other objects in your system (like tenants). Please [get in touch](mailto:support@knock.app) if you have a specific use case for this functionality.
+  </Accordion>
+  <Accordion title="How quickly are dynamic audiences updated?">
+    Dynamic audiences are updated in real-time. Any changes to the user data in Knock will be reflected in the dynamic audience immediately. That means if you have a property `plan_type` on the user object, and you build a dynamic audience for users on the `pro` plan, setting the `plan_type` to `pro` will immediately add the user to the dynamic audience.
+  </Accordion>
+  <Accordion title="Can I use audiences on a branch?">
+    While you can use an audience on a development [branch](/version-control/branches) to power workflows, broadcasts, and guides, you cannot make changes to an audience on a branch. You can only make changes to an audience on the main branch.
   </Accordion>
 </AccordionGroup>

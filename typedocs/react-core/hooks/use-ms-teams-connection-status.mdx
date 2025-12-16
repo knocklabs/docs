@@ -1,28 +1,62 @@
-The `useMsTeamsConnectionStatus` hook is used to check the current Microsoft Teams connection status for a user.
+The `useMsTeamsConnectionStatus` hook is used to check and manage the current Microsoft Teams connection status for a user. This hook is typically used internally by the `KnockMsTeamsProvider` and is not commonly used directly in application code.
 
 ## Parameters
 
-This hook does not accept any parameters.
+<Attributes>
+  <Attribute
+    name="knock"
+    type="Knock"
+    description="The authenticated Knock client instance."
+    isRequired
+  />
+  <Attribute
+    name="knockMsTeamsChannelId"
+    type="string"
+    description="The Knock channel ID for the Microsoft Teams integration."
+    isRequired
+  />
+  <Attribute
+    name="tenantId"
+    type="string"
+    description="The tenant ID for multi-tenant applications."
+    isRequired
+  />
+</Attributes>
 
 ## Returns
 
-A `UseMsTeamsConnectionStatusReturn` object with the following properties:
+Returns an object with the following properties:
 
 <Attributes>
   <Attribute
-    name="isConnected"
-    type="boolean"
-    description="Whether the user has a connected Microsoft Teams account."
-  />
-  <Attribute
     name="connectionStatus"
-    type="'connected' | 'disconnected' | 'loading'"
-    description="The current connection status."
+    type="ConnectionStatus"
+    description="The current connection status: 'connecting' | 'connected' | 'disconnected' | 'error' | 'disconnecting'."
   />
   <Attribute
-    name="error"
-    type="Error | null"
-    description="Error object if the status check failed."
+    name="setConnectionStatus"
+    type="(status: ConnectionStatus) => void"
+    description="Function to update the connection status."
+  />
+  <Attribute
+    name="errorLabel"
+    type="string | null"
+    description="Error message if the connection check failed."
+  />
+  <Attribute
+    name="setErrorLabel"
+    type="(errorLabel: string) => void"
+    description="Function to set an error message."
+  />
+  <Attribute
+    name="actionLabel"
+    type="string | null"
+    description="Label for the current action being performed."
+  />
+  <Attribute
+    name="setActionLabel"
+    type="(actionLabel: string | null) => void"
+    description="Function to set an action label."
   />
 </Attributes>
 
@@ -30,21 +64,53 @@ A `UseMsTeamsConnectionStatusReturn` object with the following properties:
 
 ### Basic usage
 
-The following example demonstrates how to use the `useMsTeamsConnectionStatus` hook to check Microsoft Teams connection status.
+This hook is typically used internally by the `KnockMsTeamsProvider`. If you need to access the connection status in your components, use the `useKnockMsTeamsClient` hook instead:
 
 ```tsx
-import { useMsTeamsConnectionStatus } from "@knocklabs/react";
+import { KnockMsTeamsProvider, useKnockMsTeamsClient } from "@knocklabs/react";
 
-const MyComponent = () => {
-  const { isConnected, connectionStatus, error } = useMsTeamsConnectionStatus();
-
-  if (connectionStatus === "loading") return <div>Checking connection...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+const MsTeamsStatus = () => {
+  const { connectionStatus } = useKnockMsTeamsClient();
 
   return (
     <div>
-      <p>Teams Status: {isConnected ? "Connected" : "Not Connected"}</p>
-      {isConnected && <p>You can receive Microsoft Teams notifications</p>}
+      <p>Microsoft Teams status: {connectionStatus}</p>
+    </div>
+  );
+};
+
+const App = () => (
+  <KnockMsTeamsProvider
+    knockMsTeamsChannelId="ms-teams-channel-id"
+    tenantId="tenant-id"
+  >
+    <MsTeamsStatus />
+  </KnockMsTeamsProvider>
+);
+```
+
+### Advanced usage
+
+If you need to use this hook directly:
+
+```tsx
+import { useKnockClient, useMsTeamsConnectionStatus } from "@knocklabs/react";
+
+const MyComponent = () => {
+  const knock = useKnockClient();
+  const { connectionStatus, errorLabel } = useMsTeamsConnectionStatus(
+    knock,
+    "ms-teams-channel-id",
+    "tenant-id",
+  );
+
+  if (connectionStatus === "connecting")
+    return <div>Checking connection...</div>;
+  if (errorLabel) return <div>Error: {errorLabel}</div>;
+
+  return (
+    <div>
+      <p>Status: {connectionStatus}</p>
     </div>
   );
 };

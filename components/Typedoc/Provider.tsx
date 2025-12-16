@@ -1,9 +1,9 @@
 import { createContext, useContext } from "react";
 import { TypedocPage } from "@/lib/typedoc";
 
-const TypedocsContext = createContext<{ typedocs: TypedocPage[] }>({
-  typedocs: [],
-});
+const TypedocsContext = createContext<{ typedocs: TypedocPage[] } | undefined>(
+  undefined,
+);
 
 export const TypedocsProvider = ({
   children,

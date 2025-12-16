@@ -1,28 +1,47 @@
-The `useConnectedMsTeamsChannels` hook is used to retrieve Microsoft Teams channels that are currently connected for the user.
+The `useConnectedMsTeamsChannels` hook is used to retrieve and manage Microsoft Teams channels that are currently connected for a specific recipient object. This hook must be used within a `KnockMsTeamsProvider`.
 
 ## Parameters
 
-This hook does not accept any parameters.
-
-## Returns
-
-A `UseConnectedMsTeamsChannelsReturn` object with the following properties:
+Accepts an object with the following properties:
 
 <Attributes>
   <Attribute
-    name="channels"
-    type="ConnectedMsTeamsChannel[]"
-    description="Array of connected Microsoft Teams channels."
+    name="msTeamsChannelsRecipientObject"
+    type="RecipientObject"
+    description="The recipient object (with objectId and collection) to get connected channels for."
+    isRequired
+  />
+</Attributes>
+
+## Returns
+
+Returns an object with the following properties:
+
+<Attributes>
+  <Attribute
+    name="data"
+    type="MsTeamsChannelConnection[] | null"
+    description="Array of connected Microsoft Teams channels for the recipient object."
   />
   <Attribute
-    name="isLoading"
+    name="updateConnectedChannels"
+    type="(channels: MsTeamsChannelConnection[]) => Promise<void>"
+    description="Function to update the connected channels for the recipient object."
+  />
+  <Attribute
+    name="loading"
     type="boolean"
-    description="Whether connected channels are being loaded."
+    description="Whether connected channels are being loaded or revalidating."
   />
   <Attribute
     name="error"
-    type="Error | null"
-    description="Error object if the request failed."
+    type="string | null"
+    description="Error message if the request failed."
+  />
+  <Attribute
+    name="updating"
+    type="boolean"
+    description="Whether an update operation is in progress."
   />
 </Attributes>
 
@@ -30,28 +49,87 @@ A `UseConnectedMsTeamsChannelsReturn` object with the following properties:
 
 ### Basic usage
 
-The following example demonstrates how to use the `useConnectedMsTeamsChannels` hook to display connected Microsoft Teams channels.
+The following example demonstrates how to use the `useConnectedMsTeamsChannels` hook to display and manage connected Microsoft Teams channels.
 
 ```tsx
-import { useConnectedMsTeamsChannels } from "@knocklabs/react";
+import {
+  KnockMsTeamsProvider,
+  useConnectedMsTeamsChannels,
+} from "@knocklabs/react";
 
-const MyComponent = () => {
-  const { channels, isLoading, error } = useConnectedMsTeamsChannels();
+const ConnectedChannelsList = () => {
+  const {
+    data: channels,
+    loading,
+    error,
+    updateConnectedChannels,
+    updating,
+  } = useConnectedMsTeamsChannels({
+    msTeamsChannelsRecipientObject: {
+      objectId: "project-123",
+      collection: "projects",
+    },
+  });
 
-  if (isLoading) return <div>Loading connected channels...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (loading) return <div>Loading connected channels...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  const handleDisconnect = async (channelId: string) => {
+    const updatedChannels =
+      channels?.filter((ch) => ch.ms_teams_channel_id !== channelId) || [];
+    await updateConnectedChannels(updatedChannels);
+  };
 
   return (
     <div>
-      <h2>Connected Channels</h2>
-      <ul>
-        {channels.map((channel) => (
-          <li key={channel.id}>
-            {channel.displayName} - {channel.teamName}
-          </li>
-        ))}
-      </ul>
+      <h2>Connected channels</h2>
+      {channels && channels.length > 0 ? (
+        <ul>
+          {channels.map((channel) => (
+            <li key={channel.ms_teams_channel_id}>
+              {channel.ms_teams_channel_id}
+              <button
+                onClick={() => handleDisconnect(channel.ms_teams_channel_id)}
+                disabled={updating}
+              >
+                Disconnect
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No channels connected</p>
+      )}
     </div>
   );
+};
+
+const App = () => (
+  <KnockMsTeamsProvider
+    knockMsTeamsChannelId="ms-teams-channel-id"
+    tenantId="tenant-id"
+  >
+    <ConnectedChannelsList />
+  </KnockMsTeamsProvider>
+);
+```
+
+### Updating connected channels
+
+You can add or update connected channels by calling `updateConnectedChannels` with the new array:
+
+```tsx
+const { data: channels, updateConnectedChannels } = useConnectedMsTeamsChannels(
+  {
+    msTeamsChannelsRecipientObject: {
+      objectId: "project-123",
+      collection: "projects",
+    },
+  },
+);
+
+const handleConnect = async (newChannel: MsTeamsChannelConnection) => {
+  const updatedChannels = [...(channels || []), newChannel];
+  await updateConnectedChannels(updatedChannels);
 };
 ```

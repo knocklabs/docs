@@ -3,30 +3,71 @@ import React from "react";
 import { Text } from "@telegraph/typography";
 import { TgphComponentProps } from "@telegraph/helpers";
 
+type CalloutType =
+  | "info"
+  | "warning"
+  | "alert"
+  | "enterprise"
+  | "beta"
+  | "roadmap";
+
+const TYPE_CONFIG: Record<
+  CalloutType,
+  {
+    emoji: string;
+    bgColor: "default" | "blue" | "yellow" | "accent" | "red" | "green";
+  }
+> = {
+  info: { emoji: "💡", bgColor: "default" },
+  warning: { emoji: "⚠️", bgColor: "yellow" },
+  alert: { emoji: "🚨", bgColor: "red" },
+  enterprise: { emoji: "🏢", bgColor: "blue" },
+  beta: { emoji: "🚧", bgColor: "yellow" },
+  roadmap: { emoji: "🛣", bgColor: "default" },
+};
+
 export const Callout = ({
-  emoji,
+  type,
+  emoji: customEmoji,
   text,
   title,
-  bgColor = "default",
+  bgColor: customBgColor,
   isCentered = false,
   maxWidth = "100%",
   style,
 }: {
-  emoji: string;
+  type?: CalloutType;
+  emoji?: string;
   title?: string;
   text?: React.ReactNode | React.ReactNode[];
-  // Blue should be used for beta warnings
-  bgColor?: "default" | "blue" | "yellow" | "accent" | "red";
+  bgColor?: "default" | "blue" | "yellow" | "accent" | "red" | "green";
   isCentered?: boolean;
   maxWidth?: string;
   style?: React.CSSProperties;
-}): JSX.Element => {
+}): React.JSX.Element => {
+  // Determine emoji and bgColor:
+  // 1. If type is provided, use type's config
+  // 2. If custom emoji/bgColor provided, use those
+  // 3. Otherwise, default to "info" type
+  const hasCustomProps =
+    customEmoji !== undefined || customBgColor !== undefined;
+  const effectiveType = type || (hasCustomProps ? undefined : "info");
+
+  const emoji = effectiveType
+    ? TYPE_CONFIG[effectiveType].emoji
+    : customEmoji || "💡";
+  const bgColor = effectiveType
+    ? TYPE_CONFIG[effectiveType].bgColor
+    : customBgColor || "default";
+
+  // Ensure emoji is always a string
+  const emojiString = typeof emoji === "string" ? emoji : String(emoji || "💡");
   const centeredProps: TgphComponentProps<typeof Stack> = isCentered
     ? { mx: "auto", style: { maxWidth: "90%" } }
     : { style: { maxWidth } };
 
   const bgColorMap: Record<
-    typeof bgColor,
+    "default" | "blue" | "yellow" | "accent" | "red" | "green",
     TgphComponentProps<typeof Stack>["backgroundColor"]
   > = {
     default: "gray-1",
@@ -34,10 +75,11 @@ export const Callout = ({
     yellow: "yellow-2",
     accent: "accent-2",
     red: "red-2",
+    green: "green-2",
   };
 
   const textColorMap: Record<
-    typeof bgColor,
+    "default" | "blue" | "yellow" | "accent" | "red" | "green",
     TgphComponentProps<typeof Text>["color"]
   > = {
     default: "black",
@@ -45,6 +87,7 @@ export const Callout = ({
     yellow: "black",
     accent: "black",
     red: "black",
+    green: "black",
   };
 
   return (
@@ -74,7 +117,7 @@ export const Callout = ({
         >
           <Box>
             <Box w="full" h="full">
-              {emoji}
+              {emojiString}
             </Box>
           </Box>
         </Stack>

@@ -47,7 +47,7 @@ The request header will also contain the following:
 - `x-knock-signature`: the encoded result of a timestamp, payload, and shared secret key so you can verify that the contents of the webhook are from Knock and not a result of a [Man in the middle attack](https://en.wikipedia.org/wiki/Man-in-the-middle_attack). Learn more about [verifying signatures below](/developer-tools/outbound-webhooks/overview#verifying-the-signature).
 
 <Callout
-  emoji="🌠"
+  type="info"
   title="Webhooks are single-environment."
   text={
     <>
@@ -92,7 +92,7 @@ If your infrastructure uses a firewall that restricts incoming traffic by IP add
 
 We recommend that upon receiving the webhook request you verify the signature before using the contents of the payload. We follow the Stripe specification to add a layer of security to our webhook requests.
 
-The signature is generated with a HMAC using the SHA256 algorithm and, prior to being encoded, is comprised of the timestamp and the stringified JSON payload of the request. We encode `"timestamp in numerical form"."stringified payload"` as the signature of the request.
+The signature is generated with a HMAC using the SHA256 algorithm and, prior to being encoded, is comprised of the timestamp and the stringified JSON payload of the request. We encode `"timestamp in milliseconds"."stringified payload"` as the signature of the request. Note that unlike Stripe's specification which uses seconds, Knock uses milliseconds.
 
 The `x-knock-signature` header is a string comprised of the timestamp used in the encoding and the encoded value above. It will look like this: `t=timestamp,s=encoded-signature`
 
@@ -130,8 +130,8 @@ app.post(
     // Extract the timestamp and signature from the header and remove the identifiers
     const timestamp = sig.split(",")[0].substring(2);
     const originalSignature = sig.split(",")[1].substring(2);
-    // Construct the value to be encoded (stringify the body)
-    const value = `${timestamp}.${JSON.stringify(request.body)}`;
+    // Construct the value to be encoded (convert the raw body buffer to a string)
+    const value = `${timestamp}.${request.body.toString()}`;
 
     // Generate the signature with a HMAC using the SHA256 algorithm
     const reconstructedSignature = crypto
@@ -146,8 +146,9 @@ app.post(
     );
 
     // For additional security, validate that the timestamp is within your
-    // tolerance for proximity to the current time (example shown within 5 minutes)
-    const date = new Date(timestamp);
+    // tolerance for proximity to the current time (example shown within 5 minutes).
+    // The timestamp is already in milliseconds, so we just need to parse it as an integer.
+    const date = new Date(parseInt(timestamp));
     const now = Date.now();
     const isWithinFiveMinutes = Math.abs(now - date.getTime()) < 300000;
 
@@ -172,7 +173,6 @@ Once you receive a webhook request and return a `2xx` status code, you can make 
 
 <Callout
   emoji="⚠️"
-  bgColor="yellow"
   title="Data subject to retention policy enforcement."
   text={
     <>

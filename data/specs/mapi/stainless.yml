@@ -15,6 +15,11 @@ targets:
     production_repo: knocklabs/knock-mgmt-python
     publish:
       pypi: false
+  go:
+    package_name: knock-mapi
+    production_repo: knocklabs/knock-mgmt-go
+    options:
+      enable_v2: true
 environments:
   production: https://control.knock.app
 resources:
@@ -85,7 +90,12 @@ resources:
       workflow_step: "#/components/schemas/WorkflowStep"
       workflow_batch_step: "#/components/schemas/WorkflowBatchStep"
       workflow_branch_step: "#/components/schemas/WorkflowBranchStep"
-      workflow_channel_step: "#/components/schemas/WorkflowChannelStep"
+      workflow_chat_step: "#/components/schemas/WorkflowChatStep"
+      workflow_in_app_feed_step: "#/components/schemas/WorkflowInAppFeedStep"
+      workflow_email_step: "#/components/schemas/WorkflowEmailStep"
+      workflow_push_step: "#/components/schemas/WorkflowPushStep"
+      workflow_sms_step: "#/components/schemas/WorkflowSmsStep"
+      workflow_webhook_step: "#/components/schemas/WorkflowWebhookStep"
       workflow_delay_step: "#/components/schemas/WorkflowDelayStep"
       workflow_fetch_step: "#/components/schemas/WorkflowFetchStep"
       workflow_throttle_step: "#/components/schemas/WorkflowThrottleStep"
@@ -159,18 +169,39 @@ resources:
     models:
       guide: "#/components/schemas/Guide"
       guide_step: "#/components/schemas/GuideStep"
-      guide_activation_location_rule: "#/components/schemas/GuideActivationLocationRule"
+      guide_activation_url_pattern: "#/components/schemas/GuideActivationUrlPattern"
     methods:
       list:
         endpoint: get /v1/guides
       retrieve:
         endpoint: get /v1/guides/{guide_key}
+      archive:
+        endpoint: delete /v1/guides/{guide_key}
       upsert:
         endpoint: put /v1/guides/{guide_key}
       validate:
         endpoint: put /v1/guides/{guide_key}/validate
       activate:
         endpoint: put /v1/guides/{guide_key}/activate
+  branches:
+    models:
+      branch: "#/components/schemas/Branch"
+    methods:
+      list: get /v1/branches
+      delete: delete /v1/branches/{branch_slug}
+      retrieve: get /v1/branches/{branch_slug}
+      create: post /v1/branches/{branch_slug}
+  broadcasts:
+    models:
+      broadcast_request: "#/components/schemas/BroadcastRequest"
+      broadcast: "#/components/schemas/Broadcast"
+    methods:
+      send: put /v1/broadcasts/{broadcast_key}/send
+      validate: put /v1/broadcasts/{broadcast_key}/validate
+      list: get /v1/broadcasts
+      retrieve: get /v1/broadcasts/{broadcast_key}
+      upsert: put /v1/broadcasts/{broadcast_key}
+      cancel: put /v1/broadcasts/{broadcast_key}/cancel
 settings:
   disable_mock_tests: true
   license: Apache-2.0

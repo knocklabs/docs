@@ -21,7 +21,7 @@ SlackKit connects multiple concepts in Knock to make it easier for your applicat
 If you already use Knock's tenant concept to power other 'account-based' features, you likely create tenants in Knock when an account or organization is created in your application. If you don't already use tenants in Knock, SlackKit can create tenants for you on the fly if they don't already exist.
 
 <Callout
-  emoji="💡"
+  type="info"
   title="Note:"
   text={
     <>
@@ -142,9 +142,25 @@ To send a direct message to a user in Slack, you'll need to resolve their email 
 
 #### Enabling email-based user ID resolution
 
+<Callout
+  emoji="⚠️"
+  bgColor="red"
+  title="Note:"
+  text={
+    <>
+      This feature requires you to store an <code>access_token</code> for the
+      Slack workspace as{" "}
+      <a href="/integrations/chat/slack/overview#tenant-channel-data-requirements">
+        channel data on a tenant
+      </a>{" "}
+      in Knock. Our SlackKit components will do this for you automatically.
+    </>
+  }
+/>
+
 Knock's email-based user ID resolution handles the complexity of resolving a user's Slack ID for you. Here's how it works.
 
-When the email-based user ID resolution setting is enabled and a workflow is triggered for a user recipient, Knock will automatically make a request to the <a href="https://api.slack.com/methods/users.lookupByEmail" target="_blank">`users.lookupByEmail` endpoint of the Slack API</a> to resolve the user's Slack ID before sending the message. When this Slack API request succeeds, Knock will automatically add the Slack user ID to the user's channel data so that the API request does not need to be repeated in the future. Note that this API request will only be made when the user has a [valid email attribute](/concepts/users#optional-attributes).
+When the email-based user ID resolution setting is enabled and a workflow is triggered for a user recipient who does not have stored channel data, Knock will automatically make a request to the <a href="https://api.slack.com/methods/users.lookupByEmail" target="_blank">`users.lookupByEmail` endpoint of the Slack API</a> to resolve the user's Slack ID before sending the message. When this Slack API request succeeds, Knock will automatically add the Slack user ID to the user's channel data so that the API request does not need to be repeated in the future. Note that this API request will only be made when the user has a [valid email attribute](/concepts/users#optional-attributes).
 
 To use this feature, you must request the <a href="https://api.slack.com/scopes/users:read" target="_blank">`users:read`</a> and <a href="https://api.slack.com/scopes/users:read.email" target="_blank">`users:read.email`</a> scopes during the OAuth flow. See [How to connect Slack to Knock](/integrations/chat/slack/overview#how-to-connect-slack-to-knock) for more information about Slack scopes. If you're using SlackKit's `SlackAuthButton` component to manage the OAuth flow, you can use the `additionalScopes` prop to request these scopes.
 
@@ -157,10 +173,8 @@ To use this feature, you must request the <a href="https://api.slack.com/scopes/
 />
 ```
 
-<br />
-
 <Callout
-  emoji="⚠️"
+  type="warning"
   title="Important:"
   text={
     <>

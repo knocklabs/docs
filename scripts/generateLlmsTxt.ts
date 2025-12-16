@@ -92,12 +92,10 @@ async function writeApiMarkdown(name: "api" | "mapi") {
 // Utility functions
 async function parseFrontmatter(markdownContent) {
   const file = await unified()
-    // @ts-expect-error idk
     .use(remarkParse)
     .use(remarkFrontmatter, ["yaml"])
     .parse(markdownContent);
 
-  // @ts-expect-error idk
   const yamlNode = file.children.find((node) => node.type === "yaml");
   if (!yamlNode) return null;
   return yaml.parse(yamlNode.value);

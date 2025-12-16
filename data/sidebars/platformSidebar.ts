@@ -30,8 +30,6 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/broadcasts", title: "Broadcasts" },
       { slug: "/guides", title: "Guides" },
       { slug: "/channels", title: "Channels" },
-      { slug: "/commits", title: "Commits" },
-      { slug: "/environments", title: "Environments" },
       { slug: "/recipients", title: "Recipients" },
       { slug: "/users", title: "Users" },
       { slug: "/preferences", title: "Preferences" },
@@ -143,6 +141,16 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     ],
   },
   {
+    title: "Version control",
+    slug: "/version-control",
+    desc: "Learn how versioning works within your Knock resources.",
+    pages: [
+      { slug: "/environments", title: "Environments" },
+      { slug: "/branches", title: "Branches", isBeta: true },
+      { slug: "/commits", title: "Commits" },
+    ],
+  },
+  {
     title: "Manage your account",
     slug: "/manage-your-account",
     desc: "Learn more about the tools available in managing your Knock account.",
@@ -156,6 +164,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/data-obfuscation", title: "Data obfuscation" },
       { slug: "/account-timezone", title: "Account timezone" },
       { slug: "/data-retention", title: "Data retention" },
+      { slug: "/custom-domains", title: "Custom domains" },
     ],
   },
 ];

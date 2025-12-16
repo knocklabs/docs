@@ -36,6 +36,10 @@ components:
         __typename: ChannelData
         channel_id: 123e4567-e89b-12d3-a456-426614174000
         data:
+          devices:
+            - locale: null
+              timezone: null
+              token: device_1
           tokens:
             - push_token_1
       properties:
@@ -54,8 +58,8 @@ components:
         data:
           description: Channel data for a given channel type.
           oneOf:
-            - $ref: '#/components/schemas/PushChannelDataTokensOnly'
-            - $ref: '#/components/schemas/AWSSNSPushChannelDataTargetARNsOnly'
+            - $ref: '#/components/schemas/PushChannelDataFull'
+            - $ref: '#/components/schemas/AWSSNSPushChannelDataFull'
             - $ref: '#/components/schemas/OneSignalChannelDataPlayerIdsOnly'
             - $ref: '#/components/schemas/SlackChannelData'
             - $ref: '#/components/schemas/MsTeamsChannelData'
@@ -214,6 +218,7 @@ components:
                 - argument: US
                   operator: equal_to
                   variable: recipient.country_code
+          commercial_subscribed: true
           id: default
           workflows: null
       items:
@@ -227,6 +232,8 @@ components:
       example:
         channel_types:
           email: false
+        channels:
+          aef6e715-df82-4ab6-b61e-b743e249f7b6: true
         conditions: null
       properties:
         channel_types:
@@ -236,6 +243,15 @@ components:
               x-struct: null
               x-validate: null
           description: An object where the key is the channel type and the values are the preference settings for that channel type.
+          x-struct: null
+          x-validate: null
+        channels:
+          anyOf:
+            - $ref: '#/components/schemas/PreferenceSetChannels'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the channel ID and the values are the preference settings for that channel ID.
           x-struct: null
           x-validate: null
         conditions:
@@ -484,13 +500,62 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.ListAudienceMembersResponse
       x-validate: null
+    BulkDeleteSubscriptionsRequest:
+      description: A request to delete subscriptions for many groups of 1 subscribed-to object, N subscriber recipients.
+      example:
+        subscriptions:
+          - id: subscribed-to-object-1
+            recipients:
+              - collection: projects
+                id: subscriber-project-1
+              - subscriber-user-1
+          - id: subscribed-to-object-2
+            recipients:
+              - subscriber-user-2
+      properties:
+        subscriptions:
+          description: A nested list of subscriptions.
+          items:
+            description: A list of subscriptions. 1 subscribed-to id, and N subscriber recipients.
+            properties:
+              id:
+                description: Unique identifier for the object.
+                nullable: false
+                type: string
+                x-struct: null
+                x-validate: null
+              recipients:
+                description: The recipients of the subscription. You can subscribe up to 100 recipients to an object at a time.
+                items:
+                  $ref: '#/components/schemas/RecipientReference'
+                nullable: false
+                type: array
+                x-struct: null
+                x-validate: null
+            required:
+              - id
+              - recipients
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - subscriptions
+      title: BulkDeleteSubscriptionsRequest
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.BulkDeleteSubscriptionsRequest
+      x-validate: null
     InlineChannelDataRequest:
       additionalProperties:
         description: Channel data for a given channel type.
         nullable: false
         oneOf:
           - $ref: '#/components/schemas/PushChannelDataTokensOnly'
+          - $ref: '#/components/schemas/PushChannelDataDevicesOnly'
           - $ref: '#/components/schemas/AWSSNSPushChannelDataTargetARNsOnly'
+          - $ref: '#/components/schemas/AWSSNSPushChannelDataDevicesOnly'
           - $ref: '#/components/schemas/OneSignalChannelDataPlayerIdsOnly'
           - $ref: '#/components/schemas/SlackChannelData'
           - $ref: '#/components/schemas/MsTeamsChannelData'
@@ -859,7 +924,7 @@ components:
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Guides.Requests.GuideActionRequest
       x-validate: null
     BulkUpsertSubscriptionsRequest:
-      description: A request to upsert subscriptions for a set of objects in a single collection.
+      description: A request to upsert subscriptions for many groups of 1 subscribed-to object, N subscriber recipients.
       example:
         subscriptions:
           - id: project-1
@@ -868,9 +933,16 @@ components:
               - id: user_1
       properties:
         subscriptions:
-          description: A list of subscriptions.
+          description: A nested list of subscriptions.
           items:
+            description: A list of subscriptions. 1 subscribed-to id, and N subscriber recipients.
             properties:
+              id:
+                description: Unique identifier for the object.
+                nullable: false
+                type: string
+                x-struct: null
+                x-validate: null
               properties:
                 additionalProperties: true
                 description: The custom properties associated with the subscription relationship.
@@ -882,10 +954,12 @@ components:
                 description: The recipients of the subscription. You can subscribe up to 100 recipients to an object at a time.
                 items:
                   $ref: '#/components/schemas/RecipientRequest'
+                nullable: false
                 type: array
                 x-struct: null
                 x-validate: null
             required:
+              - id
               - recipients
             type: object
             x-struct: null
@@ -1374,6 +1448,12 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        name:
+          description: An optional name for the object.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
         preferences:
           $ref: '#/components/schemas/InlinePreferenceSetRequest'
         timezone:
@@ -1427,6 +1507,7 @@ components:
                 - argument: US
                   operator: equal_to
                   variable: recipient.country_code
+          commercial_subscribed: true
           id: default
           workflows: null
       items:
@@ -1555,6 +1636,13 @@ components:
                 email: false
           channel_types:
             email: true
+          channels:
+            2f641633-95d3-4555-9222-9f1eb7888a80:
+              conditions:
+                - argument: US
+                  operator: equal_to
+                  variable: recipient.country_code
+            aef6e715-df82-4ab6-b61e-b743e249f7b6: true
           commercial_subscribed: true
           workflows:
             dinosaurs-loose:
@@ -1634,6 +1722,12 @@ components:
         id:
           description: Unique identifier for the object.
           nullable: false
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: An optional name for the object.
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -1805,6 +1899,7 @@ components:
               - argument: US
                 operator: equal_to
                 variable: recipient.country_code
+        commercial_subscribed: true
         id: default
         workflows: null
       properties:
@@ -1834,6 +1929,21 @@ components:
               x-struct: null
               x-validate: null
           description: An object where the key is the channel type and the values are the preference settings for that channel type.
+          x-struct: null
+          x-validate: null
+        channels:
+          anyOf:
+            - $ref: '#/components/schemas/PreferenceSetChannels'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the channel ID and the values are the preference settings for that channel ID.
+          x-struct: null
+          x-validate: null
+        commercial_subscribed:
+          description: Whether the recipient is subscribed to commercial communications. When false, the recipient will not receive commercial workflow notifications.
+          nullable: true
+          type: boolean
           x-struct: null
           x-validate: null
         id:
@@ -2212,6 +2322,8 @@ components:
       example:
         channel_types:
           email: false
+        channels:
+          aef6e715-df82-4ab6-b61e-b743e249f7b6: true
       oneOf:
         - example: false
           type: boolean
@@ -2221,6 +2333,8 @@ components:
           example:
             channel_types:
               email: false
+            channels:
+              aef6e715-df82-4ab6-b61e-b743e249f7b6: true
             conditions: null
           properties:
             channel_types:
@@ -2230,6 +2344,15 @@ components:
                   x-struct: null
                   x-validate: null
               description: An object where the key is the channel type and the values are the preference settings for that channel type.
+              x-struct: null
+              x-validate: null
+            channels:
+              anyOf:
+                - $ref: '#/components/schemas/PreferenceSetChannels'
+                - nullable: true
+                  x-struct: null
+                  x-validate: null
+              description: An object where the key is the channel ID and the values are the preference settings for that channel ID.
               x-struct: null
               x-validate: null
             conditions:
@@ -2772,6 +2895,12 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        name:
+          description: An optional name for the tenant.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
         preferences:
           description: The preferences for the tenant.
           oneOf:
@@ -3016,6 +3145,50 @@ components:
         - $ref: '#/components/schemas/InlineIdentifyObjectRequest'
       title: RecipientRequest
       x-struct: Elixir.SwitchboardWeb.V1.Specs.RecipientRequest
+      x-validate: null
+    AWSSNSPushChannelDataDevicesOnly:
+      description: AWS SNS push channel data.
+      example:
+        devices:
+          - locale: en-US
+            target_arn: arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+            timezone: America/Los_Angeles
+      properties:
+        devices:
+          description: A list of devices. Each device contains a target_arn, and optionally a locale and timezone.
+          items:
+            properties:
+              locale:
+                description: The locale of the object. Used for [message localization](/concepts/translations).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              target_arn:
+                description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+                type: string
+                x-struct: null
+                x-validate: null
+              timezone:
+                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - target_arn
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - devices
+      title: AWSSNSPushChannelDataDevicesOnly
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.AWSSNSPushChannelDataDevicesOnly
       x-validate: null
     SlackTokenConnection:
       description: A Slack connection token.
@@ -3623,6 +3796,66 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Guides.Responses.GuidesResponse
       x-validate: null
+    PushChannelDataFull:
+      description: Push channel data.
+      example:
+        devices:
+          - locale: en-US
+            timezone: null
+            token: push_token_1
+        tokens:
+          - push_token_1
+          - push_token_2
+      properties:
+        devices:
+          description: A list of devices. Each device contains a token, and optionally a locale and timezone.
+          items:
+            properties:
+              locale:
+                description: The locale of the object. Used for [message localization](/concepts/translations).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              timezone:
+                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              token:
+                description: The device token to send the push notification to.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - token
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        tokens:
+          description: A list of push channel tokens.
+          items:
+            description: The device token to send the push notification to.
+            nullable: false
+            type: string
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - tokens
+        - devices
+      title: PushChannelDataFull
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PushChannelDataFull
+      x-validate: null
     MessageInAppFeedContentBlock:
       description: A block in a message in an app feed.
       example:
@@ -3709,6 +3942,8 @@ components:
               key: security-breach-alert
               step_ref: alert_step_1
               version_id: 123e4567-e89b-12d3-a456-426614174000
+              workflow_recipient_run_id: def01234-a56b-78c9-d012-345678901bcd
+              workflow_run_id: 789e0123-f45a-67b8-c901-234567890abc
             status: sent
             tenant: ingen_isla_nublar
             updated_at: "1993-06-11T21:30:05Z"
@@ -3876,6 +4111,12 @@ components:
         id:
           description: Unique identifier for the object.
           nullable: false
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: An optional name for the object.
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -4394,6 +4635,65 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Activity
       x-validate: null
+    AWSSNSPushChannelDataFull:
+      description: AWS SNS push channel data.
+      example:
+        devices:
+          - locale: en-US
+            target_arn: arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+            timezone: America/Los_Angeles
+        target_arns:
+          - arn:aws:sns:us-west-2:123456789012:endpoint/GCM/gcmpushapp/5e3e9847-3183-3f18-a7e8-671c3a57d4b3
+      properties:
+        devices:
+          description: A list of devices. Each device contains a target_arn, and optionally a locale and timezone.
+          items:
+            properties:
+              locale:
+                description: The locale of the object. Used for [message localization](/concepts/translations).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              target_arn:
+                description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+                type: string
+                x-struct: null
+                x-validate: null
+              timezone:
+                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - target_arn
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        target_arns:
+          description: A list of platform endpoint ARNs. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+          items:
+            description: The ARN of a platform endpoint associated with a platform application and a device token. See [Setting up an Amazon SNS platform endpoint for mobile notifications](https://docs.aws.amazon.com/sns/latest/dg/mobile-platform-endpoint.html).
+            nullable: false
+            type: string
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - target_arns
+        - devices
+      title: AWSSNSPushChannelDataFull
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.AWSSNSPushChannelDataFull
+      x-validate: null
     InlineIdentifyUserRequest:
       additionalProperties: true
       description: A set of parameters to inline-identify a user with. Inline identifying the user will ensure that the user is available before the request is executed in Knock. It will perform an upsert for the user you're supplying, replacing any properties specified.
@@ -4686,6 +4986,28 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.PushChannelDataTokensOnly
       x-validate: null
+    PreferenceSetChannels:
+      additionalProperties:
+        description: Whether the specific channel (by channel_id) is enabled for the preference set, or a settings object with conditions.
+        oneOf:
+          - type: boolean
+            x-struct: null
+            x-validate: null
+          - $ref: '#/components/schemas/PreferenceSetChannelSetting'
+        x-struct: null
+        x-validate: null
+      description: Channel preferences.
+      example:
+        2f641633-95d3-4555-9222-9f1eb7888a80:
+          conditions:
+            - argument: US
+              operator: equal_to
+              variable: recipient.country_code
+        aef6e715-df82-4ab6-b61e-b743e249f7b6: true
+      title: PreferenceSetChannels
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceSetChannels
+      x-validate: null
     BulkOperation:
       description: A bulk operation entity.
       example:
@@ -4888,6 +5210,50 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.MsTeamsChannelData.IncomingWebhookConnection
       x-validate: null
+    PushChannelDataDevicesOnly:
+      description: Push channel data.
+      example:
+        devices:
+          - locale: en-US
+            timezone: America/Los_Angeles
+            token: push_token_1
+      properties:
+        devices:
+          description: A list of devices. Each device contains a token, and optionally a locale and timezone.
+          items:
+            properties:
+              locale:
+                description: The locale of the object. Used for [message localization](/concepts/translations).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              timezone:
+                description: The timezone of the object. Must be a valid [tz database time zone string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Used for [recurring schedules](/concepts/schedules#scheduling-workflows-with-recurring-schedules-for-recipients).
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              token:
+                description: The device token to send the push notification to.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - token
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - devices
+      title: PushChannelDataDevicesOnly
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PushChannelDataDevicesOnly
+      x-validate: null
     Message:
       description: Represents a single message that was generated by a workflow for a given channel.
       example:
@@ -4929,6 +5295,8 @@ components:
           key: security-breach-alert
           step_ref: alert_step_1
           version_id: 123e4567-e89b-12d3-a456-426614174000
+          workflow_recipient_run_id: def01234-a56b-78c9-d012-345678901bcd
+          workflow_run_id: 789e0123-f45a-67b8-c901-234567890abc
         status: sent
         tenant: ingen_isla_nublar
         updated_at: "1993-06-11T21:30:05Z"
@@ -5128,6 +5496,8 @@ components:
             key: comment-created
             step_ref: email_step_1
             version_id: 123e4567-e89b-12d3-a456-426614174000
+            workflow_recipient_run_id: 456e7890-a12b-34c5-d678-456789012345
+            workflow_run_id: 987e6543-e21c-34b5-c678-987654321000
           properties:
             __typename:
               example: NotificationSource
@@ -5166,6 +5536,20 @@ components:
             version_id:
               description: The ID of the version of the workflow or guide that triggered the message.
               format: uuid
+              type: string
+              x-struct: null
+              x-validate: null
+            workflow_recipient_run_id:
+              description: The unique identifier for the workflow recipient run that generated this message. Only present for workflow/broadcast messages.
+              format: uuid
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            workflow_run_id:
+              description: The unique identifier for the workflow run that generated this message. Only present for workflow/broadcast messages.
+              format: uuid
+              nullable: true
               type: string
               x-struct: null
               x-validate: null
@@ -5336,6 +5720,12 @@ components:
               x-struct: null
               x-validate: null
             - $ref: '#/components/schemas/InlineChannelDataRequest'
+          x-struct: null
+          x-validate: null
+        name:
+          description: An optional name for the tenant.
+          nullable: true
+          type: string
           x-struct: null
           x-validate: null
         settings:
@@ -5727,6 +6117,13 @@ components:
               email: false
         channel_types:
           email: true
+        channels:
+          2f641633-95d3-4555-9222-9f1eb7888a80:
+            conditions:
+              - argument: US
+                operator: equal_to
+                variable: recipient.country_code
+          aef6e715-df82-4ab6-b61e-b743e249f7b6: true
         commercial_subscribed: true
         workflows:
           dinosaurs-loose:
@@ -5768,6 +6165,15 @@ components:
               x-struct: null
               x-validate: null
           description: An object where the key is the channel type and the values are the preference settings for that channel type.
+          x-struct: null
+          x-validate: null
+        channels:
+          anyOf:
+            - $ref: '#/components/schemas/PreferenceSetChannels'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the channel ID and the values are the preference settings for that channel ID.
           x-struct: null
           x-validate: null
         commercial_subscribed:
@@ -6190,6 +6596,27 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Condition
       x-validate: null
+    PreferenceSetChannelSetting:
+      description: A set of settings for a specific channel. Currently, this can only be a list of conditions to apply.
+      example:
+        conditions:
+          - argument: US
+            operator: equal_to
+            variable: recipient.country_code
+      properties:
+        conditions:
+          description: A list of conditions to apply to a specific channel.
+          items:
+            $ref: '#/components/schemas/Condition'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - conditions
+      title: PreferenceSetChannelSetting
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceSetChannels.PreferenceSetChannelSetting
+      x-validate: null
     CancelWorkflowRequest:
       description: When invoked using a specific workflow key and cancellation key, will cancel any queued workflow runs associated with that key/cancellation key pair. Can optionally provide one or more recipients to scope the request to.
       example:
@@ -6228,7 +6655,9 @@ components:
           nullable: false
           oneOf:
             - $ref: '#/components/schemas/PushChannelDataTokensOnly'
+            - $ref: '#/components/schemas/PushChannelDataDevicesOnly'
             - $ref: '#/components/schemas/AWSSNSPushChannelDataTargetARNsOnly'
+            - $ref: '#/components/schemas/AWSSNSPushChannelDataDevicesOnly'
             - $ref: '#/components/schemas/OneSignalChannelDataPlayerIdsOnly'
             - $ref: '#/components/schemas/SlackChannelData'
             - $ref: '#/components/schemas/MsTeamsChannelData'
@@ -6418,15 +6847,16 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           await client.tenants.delete('id');
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           client.tenants.delete(
               "id",
@@ -6471,6 +6901,14 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: When true, merges environment-level default preferences into the tenant's `settings.preference_set` field before returning the response. Defaults to false.
+          in: query
+          name: resolve_full_preference_settings
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
       responses:
         "200":
           content:
@@ -6487,20 +6925,21 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const tenant = await client.tenants.get('id');
 
           console.log(tenant.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           tenant = client.tenants.get(
-              "id",
+              id="id",
           )
           print(tenant.id)
         go: |
@@ -6518,7 +6957,13 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            tenant, err := client.Tenants.Get(context.TODO(), "id")
+            tenant, err := client.Tenants.Get(
+              context.TODO(),
+              "id",
+              knock.TenantGetParams{
+
+              },
+            )
             if err != nil {
               panic(err.Error())
             }
@@ -6543,6 +6988,14 @@ paths:
           required: true
           schema:
             type: string
+            x-struct: null
+            x-validate: null
+        - description: When true, merges environment-level default preferences into the tenant's `settings.preference_set` field before returning the response. Defaults to false.
+          in: query
+          name: resolve_full_preference_settings
+          required: false
+          schema:
+            type: boolean
             x-struct: null
             x-validate: null
       requestBody:
@@ -6576,10 +7029,11 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const tenant = await client.tenants.set('id', {
+            name: 'Jurassic Park',
             settings: {
               branding: {
                 icon_url: 'https://example.com/trex_silhouette_icon.png',
@@ -6592,13 +7046,15 @@ paths:
 
           console.log(tenant.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           tenant = client.tenants.set(
               id="id",
+              name="Jurassic Park",
               settings={
                   "branding": {
                       "icon_url": "https://example.com/trex_silhouette_icon.png",
@@ -6628,6 +7084,7 @@ paths:
               context.TODO(),
               "id",
               knock.TenantSetParams{
+                Name: knock.F("Jurassic Park"),
                 Settings: knock.F(knock.TenantSetParamsSettings{
                   Branding: knock.F(knock.TenantSetParamsSettingsBranding{
                     IconURL: knock.F("https://example.com/trex_silhouette_icon.png"),
@@ -6759,6 +7216,15 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: The locale to render the feed items in. Must be in the IETF 5646 format (e.g. `en-US`). When not provided, will default to the locale that the feed items were rendered in. Only available for enterprise plan customers using custom translations.
+          example: en-US
+          in: query
+          name: locale
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
         - description: The cursor to fetch entries after.
           in: query
           name: after
@@ -6800,7 +7266,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -6811,10 +7277,11 @@ paths:
             console.log(feedListItemsResponse.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.users.feeds.list_items(
               user_id="user_id",
@@ -6898,17 +7365,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.users.feeds.getSettings('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
 
           console.log(response.features);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.users.feeds.get_settings(
               user_id="user_id",
@@ -7038,7 +7506,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.integrations.census.customDestination({
@@ -7049,10 +7517,11 @@ paths:
 
           console.log(response.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.integrations.census.custom_destination(
               id="id",
@@ -7124,17 +7593,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.bulkOperations.get('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.bulk_operations.get(
               "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -7248,7 +7718,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -7256,10 +7726,11 @@ paths:
             console.log(subscription.__typename);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.users.list_subscriptions(
               user_id="user_id",
@@ -7327,15 +7798,16 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           await client.users.delete('user_id');
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           client.users.delete(
               "user_id",
@@ -7396,17 +7868,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const user = await client.users.get('user_id');
 
           console.log(user.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           user = client.users.get(
               "user_id",
@@ -7493,7 +7966,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const user = await client.users.update('user_id', {
@@ -7511,10 +7984,11 @@ paths:
 
           console.log(user.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           user = client.users.update(
               user_id="user_id",
@@ -7634,7 +8108,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -7642,10 +8116,11 @@ paths:
             console.log(messageDeliveryLog.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.messages.list_delivery_logs(
               message_id="message_id",
@@ -7899,7 +8374,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -7907,10 +8382,11 @@ paths:
             console.log(message.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.messages.list()
           page = page.items[0]
@@ -8082,7 +8558,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.users.guides.markMessageAsSeen('user_id', 'message_id', {
@@ -8101,10 +8577,11 @@ paths:
 
           console.log(response.status);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.users.guides.mark_message_as_seen(
               user_id="user_id",
@@ -8235,7 +8712,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.objects.bulk.delete('collection', {
@@ -8244,10 +8721,11 @@ paths:
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.objects.bulk.delete(
               collection="collection",
@@ -8359,6 +8837,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/ChannelsForSlackProviderResponse'
           description: OK
+        "403":
+          content:
+            application/json:
+              schema:
+                description: Authentication error response
+                example:
+                  code: authorization
+                  message: Access token not set.
+                  status: 403
+                  type: authentication_error
+                properties:
+                  code:
+                    description: The error code.
+                    example: authorization
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  message:
+                    description: The error message.
+                    example: Access token not set.
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  status:
+                    description: The HTTP status code.
+                    example: 403
+                    type: integer
+                    x-struct: null
+                    x-validate: null
+                  type:
+                    description: The error type.
+                    example: authentication_error
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - code
+                  - message
+                  - status
+                  - type
+                title: AuthenticationError
+                type: object
+                x-struct: null
+                x-validate: null
+          description: Forbidden
       summary: List channels
       tags:
         - Providers
@@ -8369,7 +8892,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -8379,10 +8902,11 @@ paths:
             console.log(slackListChannelsResponse.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.providers.slack.list_channels(
               channel_id="channel_id",
@@ -8504,7 +9028,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -8512,10 +9036,11 @@ paths:
             console.log(schedule.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.objects.list_schedules(
               collection="collection",
@@ -8615,7 +9140,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.workflows.trigger('key', {
@@ -8635,10 +9160,11 @@ paths:
 
           console.log(response.workflow_run_id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.workflows.trigger(
               key="key",
@@ -8680,10 +9206,10 @@ paths:
                 Actor: knock.F[knock.RecipientRequestUnionParam](shared.UnionString("mr_dna")),
                 CancellationKey: knock.F("isla_nublar_incident_1993"),
                 Data: knock.F(map[string]interface{}{
-                "affected_areas": map[string]interface{}{
-                "0": "visitor_center",
-                "1": "raptor_pen",
-                "2": "trex_paddock",
+                "affected_areas": []string{
+                "visitor_center",
+                "raptor_pen",
+                "trex_paddock",
                 },
                 "attraction_id": "paddock_rex_01",
                 "evacuation_protocol": "active",
@@ -8877,7 +9403,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const messages = await client.messages.batch.unarchive({
@@ -8886,10 +9412,11 @@ paths:
 
           console.log(messages);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.unarchive(
               message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
@@ -9030,7 +9557,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.providers.msTeams.checkAuth('channel_id', {
@@ -9039,10 +9566,11 @@ paths:
 
           console.log(response.connection);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.providers.ms_teams.check_auth(
               channel_id="channel_id",
@@ -9150,17 +9678,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const message = await client.messages.markAsUnseen('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
 
           console.log(message.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           message = client.messages.mark_as_unseen(
               "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
@@ -9261,17 +9790,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const message = await client.messages.markAsSeen('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
 
           console.log(message.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           message = client.messages.mark_as_seen(
               "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
@@ -9342,15 +9872,16 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           await client.users.unsetChannelData('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           client.users.unset_channel_data(
               user_id="user_id",
@@ -9426,17 +9957,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const channelData = await client.users.getChannelData('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
 
           console.log(channelData.channel_id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           channel_data = client.users.get_channel_data(
               user_id="user_id",
@@ -9526,7 +10058,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const channelData = await client.users.setChannelData('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
@@ -9535,10 +10067,11 @@ paths:
 
           console.log(channelData.channel_id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           channel_data = client.users.set_channel_data(
               user_id="user_id",
@@ -9569,7 +10102,7 @@ paths:
               "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
               knock.UserSetChannelDataParams{
                 ChannelDataRequest: knock.ChannelDataRequestParam{
-                  Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.ChannelDataRequestDataPushChannelDataTokensOnlyParam{
+                  Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.PushChannelDataTokensOnlyParam{
                     Tokens: knock.F([]string{"push_token_1"}),
                   }),
                 },
@@ -9647,7 +10180,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -9655,10 +10188,11 @@ paths:
             console.log(messageEvent.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.messages.list_events(
               message_id="message_id",
@@ -9740,7 +10274,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.providers.slack.checkAuth('channel_id', {
@@ -9749,10 +10283,11 @@ paths:
 
           console.log(response.connection);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.providers.slack.check_auth(
               channel_id="channel_id",
@@ -9856,7 +10391,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -9864,10 +10399,11 @@ paths:
             console.log(tenant.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.tenants.list()
           page = page.entries[0]
@@ -10008,7 +10544,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const messages = await client.messages.batch.markAsSeen({
@@ -10017,10 +10553,11 @@ paths:
 
           console.log(messages);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_seen(
               message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
@@ -10158,7 +10695,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const messages = await client.messages.batch.markAsUnseen({
@@ -10167,10 +10704,11 @@ paths:
 
           console.log(messages);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_unseen(
               message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
@@ -10248,17 +10786,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const user = await client.users.merge('user_id', { from_user_id: 'user_1' });
 
           console.log(user.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           user = client.users.merge(
               user_id="user_id",
@@ -10531,7 +11070,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -10539,10 +11078,11 @@ paths:
             console.log(message.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.objects.list_messages(
               collection="projects",
@@ -10680,6 +11220,7 @@ paths:
                           - argument: US
                             operator: equal_to
                             variable: recipient.country_code
+                    commercial_subscribed: true
                     id: default
                     workflows: null
                 items:
@@ -10699,17 +11240,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const preferenceSets = await client.objects.listPreferences('collection', 'object_id');
 
           console.log(preferenceSets);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           preference_sets = client.objects.list_preferences(
               collection="collection",
@@ -10816,17 +11358,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const message = await client.messages.markAsUnread('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
 
           console.log(message.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           message = client.messages.mark_as_unread(
               "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
@@ -10928,17 +11471,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const message = await client.messages.markAsRead('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
 
           console.log(message.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           message = client.messages.mark_as_read(
               "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
@@ -10992,6 +11536,13 @@ paths:
                       email: false
                 channel_types:
                   email: true
+                channels:
+                  2f641633-95d3-4555-9222-9f1eb7888a80:
+                    conditions:
+                      - argument: US
+                        operator: equal_to
+                        variable: recipient.country_code
+                  aef6e715-df82-4ab6-b61e-b743e249f7b6: true
                 commercial_subscribed: true
                 workflows:
                   dinosaurs-loose:
@@ -11021,7 +11572,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.users.bulk.setPreferences({
@@ -11029,6 +11580,12 @@ paths:
               __persistence_strategy__: 'merge',
               categories: { marketing: false, transactional: { channel_types: { email: false } } },
               channel_types: { email: true },
+              channels: {
+                '2f641633-95d3-4555-9222-9f1eb7888a80': {
+                  conditions: [{ argument: 'US', operator: 'equal_to', variable: 'recipient.country_code' }],
+                },
+                'aef6e715-df82-4ab6-b61e-b743e249f7b6': true,
+              },
               commercial_subscribed: true,
               workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
             },
@@ -11037,10 +11594,11 @@ paths:
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.users.bulk.set_preferences(
               preferences={
@@ -11055,6 +11613,16 @@ paths:
                   },
                   "channel_types": {
                       "email": True
+                  },
+                  "channels": {
+                      "2f641633-95d3-4555-9222-9f1eb7888a80": {
+                          "conditions": [{
+                              "argument": "US",
+                              "operator": "equal_to",
+                              "variable": "recipient.country_code",
+                          }]
+                      },
+                      "aef6e715-df82-4ab6-b61e-b743e249f7b6": True,
                   },
                   "commercial_subscribed": True,
                   "workflows": {
@@ -11097,6 +11665,16 @@ paths:
                 }),
                 ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
                   Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(true)),
+                }),
+                Channels: knock.F(map[string]knock.PreferenceSetRequestChannelsUnionParam{
+                "2f641633-95d3-4555-9222-9f1eb7888a80": knock.PreferenceSetChannelSettingParam{
+                  Conditions: knock.F([]shared.ConditionParam{shared.ConditionParam{
+                    Argument: knock.F("US"),
+                    Operator: knock.F(shared.ConditionOperatorEqualTo),
+                    Variable: knock.F("recipient.country_code"),
+                  }}),
+                },
+                "aef6e715-df82-4ab6-b61e-b743e249f7b6": shared.UnionBool(true),
                 }),
                 CommercialSubscribed: knock.F(true),
                 Workflows: knock.F(map[string]knock.PreferenceSetRequestWorkflowsUnionParam{
@@ -11205,17 +11783,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.users.guides.getChannel('user_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
 
           console.log(response.guide_group_display_logs);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.users.guides.get_channel(
               user_id="user_id",
@@ -11287,17 +11866,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const schedules = await client.schedules.delete({ schedule_ids: ['123e4567-e89b-12d3-a456-426614174000'] });
 
           console.log(schedules);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           schedules = client.schedules.delete(
               schedule_ids=["123e4567-e89b-12d3-a456-426614174000"],
@@ -11406,7 +11986,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -11414,10 +11994,11 @@ paths:
             console.log(schedule.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.schedules.list(
               workflow="workflow",
@@ -11507,7 +12088,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const schedules = await client.schedules.create({
@@ -11530,10 +12111,11 @@ paths:
 
           console.log(schedules);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           schedules = client.schedules.create(
               recipients=["user_123"],
@@ -11651,7 +12233,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const schedules = await client.schedules.update({
@@ -11673,10 +12255,11 @@ paths:
 
           console.log(schedules);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           schedules = client.schedules.update(
               schedule_ids=["123e4567-e89b-12d3-a456-426614174000"],
@@ -11786,7 +12369,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.objects.bulk.addSubscriptions('projects', {
@@ -11795,10 +12378,11 @@ paths:
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.objects.bulk.add_subscriptions(
               collection="projects",
@@ -11831,6 +12415,7 @@ paths:
               "projects",
               knock.ObjectBulkAddSubscriptionsParams{
                 Subscriptions: knock.F([]knock.ObjectBulkAddSubscriptionsParamsSubscription{knock.ObjectBulkAddSubscriptionsParamsSubscription{
+                  ID: knock.F("project-1"),
                   Properties: knock.Null[map[string]interface{}](),
                   Recipients: knock.F([]knock.RecipientRequestUnionParam{knock.InlineIdentifyUserRequestParam{
                     ID: knock.F("user_1"),
@@ -11848,7 +12433,10 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          bulk_operation = knock.objects.bulk.add_subscriptions("projects", subscriptions: [{recipients: [{id: "user_1"}]}])
+          bulk_operation = knock.objects.bulk.add_subscriptions(
+            "projects",
+            subscriptions: [{id: "project-1", recipients: [{id: "user_1"}]}]
+          )
 
           puts(bulk_operation)
   /v1/messages/batch/content:
@@ -11900,17 +12488,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.messages.batch.getContent({ message_ids: ['string'] });
 
           console.log(response);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.messages.batch.get_content(
               message_ids=["string"],
@@ -11983,7 +12572,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.users.bulk.identify({
@@ -11992,10 +12581,11 @@ paths:
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.users.bulk.identify(
               users=[{
@@ -12073,17 +12663,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.messages.getContent('message_id');
 
           console.log(response.message_id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.messages.get_content(
               "message_id",
@@ -12210,15 +12801,16 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           await client.objects.delete('collection', 'id');
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           client.objects.delete(
               collection="collection",
@@ -12292,17 +12884,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const object = await client.objects.get('collection', 'id');
 
           console.log(object.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           object = client.objects.get(
               collection="collection",
@@ -12404,12 +12997,13 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const object = await client.objects.set('collection', 'id', {
             channel_data: { '97c5837d-c65c-4d54-aa39-080eeb81c69d': { tokens: ['push_token_123'] } },
             locale: 'en-US',
+            name: 'My product',
             preferences: {
               default: {
                 channel_types: { email: true },
@@ -12421,10 +13015,11 @@ paths:
 
           console.log(object.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           object = client.objects.set(
               collection="collection",
@@ -12435,6 +13030,7 @@ paths:
                   }
               },
               locale="en-US",
+              name="My product",
               preferences={
                   "default": {
                       "channel_types": {
@@ -12474,11 +13070,12 @@ paths:
               "id",
               knock.ObjectSetParams{
                 ChannelData: knock.F(knock.InlineChannelDataRequestParam{
-                "97c5837d-c65c-4d54-aa39-080eeb81c69d": knock.InlineChannelDataRequestItemPushChannelDataTokensOnlyParam{
+                "97c5837d-c65c-4d54-aa39-080eeb81c69d": knock.PushChannelDataTokensOnlyParam{
                   Tokens: knock.F([]string{"push_token_123"}),
                 },
                 }),
                 Locale: knock.F("en-US"),
+                Name: knock.F("My product"),
                 Preferences: knock.F(knock.InlinePreferenceSetRequestParam{
                 "default": knock.PreferenceSetRequestParam{
                   ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
@@ -12544,17 +13141,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.tenants.bulk.delete({ tenant_ids: ['string'] });
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.tenants.bulk.delete(
               tenant_ids=["string"],
@@ -12654,7 +13252,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -12662,10 +13260,11 @@ paths:
             console.log(activity.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.messages.list_activities(
               message_id="message_id",
@@ -12783,7 +13382,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.channels.bulk.updateMessageStatus(
@@ -12805,11 +13404,12 @@ paths:
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from datetime import datetime
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.channels.bulk.update_message_status(
               channel_id="182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
@@ -12929,7 +13529,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.users.guides.markMessageAsInteracted('user_id', 'message_id', {
@@ -12941,10 +13541,11 @@ paths:
 
           console.log(response.status);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.users.guides.mark_message_as_interacted(
               user_id="user_id",
@@ -13045,15 +13646,16 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           await client.objects.unsetChannelData('collection', 'object_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           client.objects.unset_channel_data(
               collection="collection",
@@ -13139,7 +13741,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const channelData = await client.objects.getChannelData(
@@ -13150,10 +13752,11 @@ paths:
 
           console.log(channelData.channel_id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           channel_data = client.objects.get_channel_data(
               collection="collection",
@@ -13253,7 +13856,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const channelData = await client.objects.setChannelData(
@@ -13265,10 +13868,11 @@ paths:
 
           console.log(channelData.channel_id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           channel_data = client.objects.set_channel_data(
               collection="collection",
@@ -13301,7 +13905,7 @@ paths:
               "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
               knock.ObjectSetChannelDataParams{
                 ChannelDataRequest: knock.ChannelDataRequestParam{
-                  Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.ChannelDataRequestDataPushChannelDataTokensOnlyParam{
+                  Data: knock.F[knock.ChannelDataRequestDataUnionParam](knock.PushChannelDataTokensOnlyParam{
                     Tokens: knock.F([]string{"push_token_1"}),
                   }),
                 },
@@ -13358,15 +13962,16 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           await client.audiences.removeMembers('key', { members: [{ user: {} }] });
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           client.audiences.remove_members(
               key="key",
@@ -13440,17 +14045,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.audiences.listMembers('key');
 
           console.log(response.entries);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.audiences.list_members(
               "key",
@@ -13522,17 +14128,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           await client.audiences.addMembers('key', {
             members: [{ tenant: 'ingen_isla_nublar', user: { id: 'dr_sattler' } }],
           });
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           client.audiences.add_members(
               key="key",
@@ -13647,7 +14254,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.providers.msTeams.listChannels('channel_id', {
@@ -13657,10 +14264,11 @@ paths:
 
           console.log(response.ms_teams_channels);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.providers.ms_teams.list_channels(
               channel_id="channel_id",
@@ -13738,17 +14346,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.users.bulk.delete({ user_ids: ['user_1', 'user_2'] });
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.users.bulk.delete(
               user_ids=["user_1", "user_2"],
@@ -13883,7 +14492,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.providers.slack.revokeAccess('channel_id', {
@@ -13892,10 +14501,11 @@ paths:
 
           console.log(response.ok);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.providers.slack.revoke_access(
               channel_id="channel_id",
@@ -14042,7 +14652,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const messages = await client.messages.batch.markAsUnread({
@@ -14051,10 +14661,11 @@ paths:
 
           console.log(messages);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_unread(
               message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
@@ -14180,7 +14791,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -14188,10 +14799,11 @@ paths:
             console.log(object.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.objects.list(
               collection="collection",
@@ -14267,6 +14879,7 @@ paths:
                           - argument: US
                             operator: equal_to
                             variable: recipient.country_code
+                    commercial_subscribed: true
                     id: default
                     workflows: null
                 items:
@@ -14286,17 +14899,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const preferenceSets = await client.users.listPreferences('user_id');
 
           console.log(preferenceSets);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           preference_sets = client.users.list_preferences(
               "user_id",
@@ -14402,7 +15016,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -14410,10 +15024,11 @@ paths:
             console.log(schedule.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.users.list_schedules(
               user_id="user_id",
@@ -14493,7 +15108,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.users.guides.markMessageAsArchived('user_id', 'message_id', {
@@ -14505,10 +15120,11 @@ paths:
 
           console.log(response.status);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.users.guides.mark_message_as_archived(
               user_id="user_id",
@@ -14632,17 +15248,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const message = await client.messages.unarchive('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
 
           console.log(message.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           message = client.messages.unarchive(
               "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
@@ -14744,17 +15361,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const message = await client.messages.archive('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
 
           console.log(message.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           message = client.messages.archive(
               "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
@@ -14896,7 +15514,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const messages = await client.messages.batch.archive({
@@ -14905,10 +15523,11 @@ paths:
 
           console.log(messages);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.archive(
               message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
@@ -15167,7 +15786,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -15175,10 +15794,11 @@ paths:
             console.log(message.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.users.list_messages(
               user_id="user-123",
@@ -15291,7 +15911,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.integrations.hightouch.embeddedDestination({
@@ -15302,10 +15922,11 @@ paths:
 
           console.log(response.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.integrations.hightouch.embedded_destination(
               id="id",
@@ -15440,17 +16061,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const message = await client.messages.markAsInteracted('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
 
           console.log(message.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           message = client.messages.mark_as_interacted(
               message_id="1jNaXzB2RZX3LY8wVQnfCKyPnv7",
@@ -15691,7 +16313,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -15699,10 +16321,11 @@ paths:
             console.log(user.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.users.list()
           page = page.entries[0]
@@ -15837,7 +16460,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -15847,10 +16470,11 @@ paths:
             console.log(msTeamListTeamsResponse.id);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.providers.ms_teams.list_teams(
               channel_id="channel_id",
@@ -16000,7 +16624,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const messages = await client.messages.batch.markAsRead({
@@ -16009,10 +16633,11 @@ paths:
 
           console.log(messages);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_read(
               message_ids=["2w3YUpTTOxuDvZFji8OMsKrG176", "2w3YVRbPXMIh8Zq6oBFcVDA5xes"],
@@ -16088,15 +16713,16 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           await client.workflows.cancel('key', { cancellation_key: 'cancel-workflow-123', recipients: ['jhammond'] });
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           client.workflows.cancel(
               key="key",
@@ -16233,7 +16859,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.schedules.bulk.create({
@@ -16281,10 +16907,11 @@ paths:
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.schedules.bulk.create(
               schedules=[{
@@ -16429,20 +17056,145 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
-          const bulkOperation = await client.tenants.bulk.set({ tenants: ['[object Object]'] });
+          const bulkOperation = await client.tenants.bulk.set({
+            tenants: [{ id: 'tenant_1', name: 'Acme Corp, Inc.' }],
+          });
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.tenants.bulk.set(
-              tenants=["[object Object]"],
+              tenants=[{
+                  "id": "tenant_1",
+                  "name": "Acme Corp, Inc.",
+              }],
+          )
+          print(bulk_operation.id)
+        go: |
+          package main
+
+          import (
+            "context"
+            "fmt"
+
+            "github.com/knocklabs/knock-go"
+            "github.com/knocklabs/knock-go/option"
+          )
+
+          func main() {
+            client := knock.NewClient(
+              option.WithAPIKey("My API Key"),
+            )
+            bulkOperation, err := client.Tenants.Bulk.Set(context.TODO(), knock.TenantBulkSetParams{
+              Tenants: knock.F([]knock.InlineTenantRequestUnionParam{knock.TenantRequestParam{
+                ID: knock.F("tenant_1"),
+                Name: knock.F("Acme Corp, Inc."),
+              }}),
+            })
+            if err != nil {
+              panic(err.Error())
+            }
+            fmt.Printf("%+v\n", bulkOperation.ID)
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(api_key: "My API Key")
+
+          bulk_operation = knock.tenants.bulk.set(tenants: [{id: "tenant_1"}])
+
+          puts(bulk_operation)
+  /v1/objects/{collection}/bulk/subscriptions/delete:
+    post:
+      callbacks: {}
+      description: Delete subscriptions for many objects in a single collection type. If a subscription for an object in the collection doesn't exist, it will be skipped.
+      operationId: bulkDeleteSubscriptions
+      parameters:
+        - description: The collection this object belongs to.
+          example: projects
+          in: path
+          name: collection
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            example:
+              subscriptions:
+                - id: subscribed-to-object-1
+                  recipients:
+                    - collection: projects
+                      id: subscriber-project-1
+                    - subscriber-user-1
+                - id: subscribed-to-object-2
+                  recipients:
+                    - subscriber-user-2
+            schema:
+              $ref: '#/components/schemas/BulkDeleteSubscriptionsRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperation'
+          description: OK
+      summary: Bulk delete subscriptions
+      tags:
+        - Objects
+        - Subscriptions
+        - Bulk operations
+      x-ratelimit-tier: 1
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          const bulkOperation = await client.objects.bulk.deleteSubscriptions('projects', {
+            subscriptions: [
+              {
+                id: 'subscribed-to-object-1',
+                recipients: [{ collection: 'projects', id: 'subscriber-project-1' }, 'subscriber-user-1'],
+              },
+              { id: 'subscribed-to-object-2', recipients: ['subscriber-user-2'] },
+            ],
+          });
+
+          console.log(bulkOperation.id);
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          bulk_operation = client.objects.bulk.delete_subscriptions(
+              collection="projects",
+              subscriptions=[{
+                  "id": "subscribed-to-object-1",
+                  "recipients": [{
+                      "collection": "projects",
+                      "id": "subscriber-project-1",
+                  }, "subscriber-user-1"],
+              }, {
+                  "id": "subscribed-to-object-2",
+                  "recipients": ["subscriber-user-2"],
+              }],
           )
           print(bulk_operation.id)
         go: |
@@ -16461,9 +17213,22 @@ paths:
             client := knock.NewClient(
               option.WithAPIKey("My API Key"),
             )
-            bulkOperation, err := client.Tenants.Bulk.Set(context.TODO(), knock.TenantBulkSetParams{
-              Tenants: knock.F([]knock.InlineTenantRequestUnionParam{shared.UnionString("[object Object]")}),
-            })
+            bulkOperation, err := client.Objects.Bulk.DeleteSubscriptions(
+              context.TODO(),
+              "projects",
+              knock.ObjectBulkDeleteSubscriptionsParams{
+                Subscriptions: knock.F([]knock.ObjectBulkDeleteSubscriptionsParamsSubscription{knock.ObjectBulkDeleteSubscriptionsParamsSubscription{
+                  ID: knock.F("subscribed-to-object-1"),
+                  Recipients: knock.F([]knock.RecipientReferenceUnionParam{knock.RecipientReferenceObjectReferenceParam{
+                    Collection: knock.F("projects"),
+                    ID: knock.F("subscriber-project-1"),
+                  }, shared.UnionString("subscriber-user-1")}),
+                }, knock.ObjectBulkDeleteSubscriptionsParamsSubscription{
+                  ID: knock.F("subscribed-to-object-2"),
+                  Recipients: knock.F([]knock.RecipientReferenceUnionParam{shared.UnionString("subscriber-user-2")}),
+                }}),
+              },
+            )
             if err != nil {
               panic(err.Error())
             }
@@ -16474,7 +17239,13 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          bulk_operation = knock.tenants.bulk.set(tenants: ["string"])
+          bulk_operation = knock.objects.bulk.delete_subscriptions(
+            "projects",
+            subscriptions: [
+              {id: "subscribed-to-object-1", recipients: [{}, "subscriber-user-1"]},
+              {id: "subscribed-to-object-2", recipients: ["subscriber-user-2"]}
+            ]
+          )
 
           puts(bulk_operation)
   /v1/objects/{collection}/{object_id}/preferences/{id}:
@@ -16526,17 +17297,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const preferenceSet = await client.objects.getPreferences('collection', 'object_id', 'default');
 
           console.log(preferenceSet.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           preference_set = client.objects.get_preferences(
               collection="collection",
@@ -16621,6 +17393,13 @@ paths:
                     email: false
               channel_types:
                 email: true
+              channels:
+                2f641633-95d3-4555-9222-9f1eb7888a80:
+                  conditions:
+                    - argument: US
+                      operator: equal_to
+                      variable: recipient.country_code
+                aef6e715-df82-4ab6-b61e-b743e249f7b6: true
               commercial_subscribed: true
               workflows:
                 dinosaurs-loose:
@@ -16647,23 +17426,30 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const preferenceSet = await client.objects.setPreferences('collection', 'object_id', 'default', {
             __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
+            channels: {
+              '2f641633-95d3-4555-9222-9f1eb7888a80': {
+                conditions: [{ argument: 'US', operator: 'equal_to', variable: 'recipient.country_code' }],
+              },
+              'aef6e715-df82-4ab6-b61e-b743e249f7b6': true,
+            },
             commercial_subscribed: true,
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
           });
 
           console.log(preferenceSet.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           preference_set = client.objects.set_preferences(
               collection="collection",
@@ -16680,6 +17466,16 @@ paths:
               },
               channel_types={
                   "email": True
+              },
+              channels={
+                  "2f641633-95d3-4555-9222-9f1eb7888a80": {
+                      "conditions": [{
+                          "argument": "US",
+                          "operator": "equal_to",
+                          "variable": "recipient.country_code",
+                      }]
+                  },
+                  "aef6e715-df82-4ab6-b61e-b743e249f7b6": True,
               },
               commercial_subscribed=True,
               workflows={
@@ -16828,7 +17624,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const response = await client.providers.msTeams.revokeAccess('channel_id', {
@@ -16837,10 +17633,11 @@ paths:
 
           console.log(response.ok);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           response = client.providers.ms_teams.revoke_access(
               channel_id="channel_id",
@@ -16914,17 +17711,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const message = await client.messages.get('1jNaXzB2RZX3LY8wVQnfCKyPnv7');
 
           console.log(message.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           message = client.messages.get(
               "1jNaXzB2RZX3LY8wVQnfCKyPnv7",
@@ -17008,17 +17806,18 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const preferenceSet = await client.users.getPreferences('user_id', 'default');
 
           console.log(preferenceSet.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           preference_set = client.users.get_preferences(
               user_id="user_id",
@@ -17096,6 +17895,13 @@ paths:
                     email: false
               channel_types:
                 email: true
+              channels:
+                2f641633-95d3-4555-9222-9f1eb7888a80:
+                  conditions:
+                    - argument: US
+                      operator: equal_to
+                      variable: recipient.country_code
+                aef6e715-df82-4ab6-b61e-b743e249f7b6: true
               commercial_subscribed: true
               workflows:
                 dinosaurs-loose:
@@ -17122,23 +17928,30 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const preferenceSet = await client.users.setPreferences('user_id', 'default', {
             __persistence_strategy__: 'merge',
             categories: { marketing: false, transactional: { channel_types: { email: false } } },
             channel_types: { email: true },
+            channels: {
+              '2f641633-95d3-4555-9222-9f1eb7888a80': {
+                conditions: [{ argument: 'US', operator: 'equal_to', variable: 'recipient.country_code' }],
+              },
+              'aef6e715-df82-4ab6-b61e-b743e249f7b6': true,
+            },
             commercial_subscribed: true,
             workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
           });
 
           console.log(preferenceSet.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           preference_set = client.users.set_preferences(
               user_id="user_id",
@@ -17154,6 +17967,16 @@ paths:
               },
               channel_types={
                   "email": True
+              },
+              channels={
+                  "2f641633-95d3-4555-9222-9f1eb7888a80": {
+                      "conditions": [{
+                          "argument": "US",
+                          "operator": "equal_to",
+                          "variable": "recipient.country_code",
+                      }]
+                  },
+                  "aef6e715-df82-4ab6-b61e-b743e249f7b6": True,
               },
               commercial_subscribed=True,
               workflows={
@@ -17249,7 +18072,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const subscriptions = await client.objects.deleteSubscriptions('collection', 'object_id', {
@@ -17258,10 +18081,11 @@ paths:
 
           console.log(subscriptions);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           subscriptions = client.objects.delete_subscriptions(
               collection="collection",
@@ -17414,7 +18238,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           // Automatically fetches more pages as needed.
@@ -17422,10 +18246,11 @@ paths:
             console.log(subscription.__typename);
           }
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           page = client.objects.list_subscriptions(
               collection="collection",
@@ -17520,7 +18345,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const subscriptions = await client.objects.addSubscriptions('collection', 'object_id', {
@@ -17530,10 +18355,11 @@ paths:
 
           console.log(subscriptions);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           subscriptions = client.objects.add_subscriptions(
               collection="collection",
@@ -17692,7 +18518,7 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const messages = await client.messages.batch.markAsInteracted({
@@ -17702,10 +18528,11 @@ paths:
 
           console.log(messages);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           messages = client.messages.batch.mark_as_interacted(
               message_ids=["1jNaXzB2RZX3LY8wVQnfCKyPnv7"],
@@ -17809,52 +18636,26 @@ paths:
           import Knock from '@knocklabs/node';
 
           const client = new Knock({
-            apiKey: 'My API Key',
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
           const bulkOperation = await client.objects.bulk.set('collection', {
-            objects: [
-              {
-                id: 'project_1',
-                name: {
-                  '0': 'M',
-                  '1': 'y',
-                  '2': ' ',
-                  '3': 'p',
-                  '4': 'r',
-                  '5': 'o',
-                  '6': 'j',
-                  '7': 'e',
-                  '8': 'c',
-                  '9': 't',
-                },
-              },
-            ],
+            objects: [{ id: 'project_1', name: 'My project' }],
           });
 
           console.log(bulkOperation.id);
         python: |-
+          import os
           from knockapi import Knock
 
           client = Knock(
-              api_key="My API Key",
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
           )
           bulk_operation = client.objects.bulk.set(
               collection="collection",
               objects=[{
                   "id": "project_1",
-                  "name": {
-                      "0": "M",
-                      "1": "y",
-                      "2": " ",
-                      "3": "p",
-                      "4": "r",
-                      "5": "o",
-                      "6": "j",
-                      "7": "e",
-                      "8": "c",
-                      "9": "t",
-                  },
+                  "name": "My project",
               }],
           )
           print(bulk_operation.id)
@@ -17879,6 +18680,7 @@ paths:
               knock.ObjectBulkSetParams{
                 Objects: knock.F([]knock.ObjectBulkSetParamsObject{knock.ObjectBulkSetParamsObject{
                   ID: knock.F("project_1"),
+                  Name: knock.F("My project"),
                 }}),
               },
             )

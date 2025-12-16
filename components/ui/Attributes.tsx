@@ -1,8 +1,8 @@
 import { PropertyRow } from "./ApiReference/SchemaProperties/PropertyRow";
 
-const Attributes = ({ children }) => (
-  <PropertyRow.Wrapper>{children}</PropertyRow.Wrapper>
-);
+const Attributes = ({ children }) => {
+  return <PropertyRow.Wrapper>{children}</PropertyRow.Wrapper>;
+};
 
 type Props = {
   name: string;
@@ -19,18 +19,20 @@ const Attribute = ({
   description,
   typeSlug,
   isRequired,
-}: Props) => (
-  <PropertyRow.Container>
-    <PropertyRow.Header>
-      <PropertyRow.Name>{name}</PropertyRow.Name>
-      {/* Pass an optional `typeSlug` to link the `type` to its definition in the docs*/}
-      <PropertyRow.Type href={typeSlug}>{type}</PropertyRow.Type>
-      {isRequired && <PropertyRow.Required />}
-    </PropertyRow.Header>
-    {description && (
-      <PropertyRow.Description>{description}</PropertyRow.Description>
-    )}
-  </PropertyRow.Container>
-);
+}: Props) => {
+  return (
+    <PropertyRow.Container>
+      <PropertyRow.Header>
+        <PropertyRow.Name>{name}</PropertyRow.Name>
+        {/* Pass an optional `typeSlug` to link the `type` to its definition in the docs*/}
+        {type && <PropertyRow.Type href={typeSlug}>{type}</PropertyRow.Type>}
+        {isRequired && <PropertyRow.Required />}
+      </PropertyRow.Header>
+      {description && (
+        <PropertyRow.Description>{description}</PropertyRow.Description>
+      )}
+    </PropertyRow.Container>
+  );
+};
 
 export { Attributes, Attribute };

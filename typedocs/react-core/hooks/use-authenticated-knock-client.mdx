@@ -2,23 +2,25 @@ The `useAuthenticatedKnockClient` hook is used to create and manage an authentic
 
 ## Parameters
 
-Accepts an object (`UseAuthenticatedKnockClientParams`) with the following properties:
+This hook accepts positional parameters:
 
 <Attributes>
   <Attribute
     name="apiKey"
     type="string"
     description="The public API key for the environment."
+    isRequired
   />
   <Attribute
-    name="user"
-    type="UserIdentificationOptions"
-    description="User identification data including id and optional properties."
+    name="userIdOrUserWithProperties"
+    type="UserIdOrUserWithProperties"
+    description="User identification data. Can be a string user ID or an object with id and optional properties."
+    isRequired
   />
   <Attribute
     name="userToken"
     type="string"
-    description="The user token for the authenticated user."
+    description="Optional user token for the authenticated user."
   />
   <Attribute
     name="options"
@@ -29,13 +31,7 @@ Accepts an object (`UseAuthenticatedKnockClientParams`) with the following prope
 
 ## Returns
 
-<Attributes>
-  <Attribute
-    name="knock"
-    type="Knock"
-    description="The authenticated Knock client instance."
-  />
-</Attributes>
+Returns a `Knock` client instance directly (not wrapped in an object).
 
 ## Example
 
@@ -47,11 +43,11 @@ The following example demonstrates how to use the `useAuthenticatedKnockClient` 
 import { useAuthenticatedKnockClient } from "@knocklabs/react";
 
 const MyComponent = () => {
-  const knock = useAuthenticatedKnockClient({
-    apiKey: "pk_test_12345",
-    user: { id: "user-123", name: "John Doe" },
-    userToken: "user-token-abc",
-  });
+  const knock = useAuthenticatedKnockClient(
+    "pk_test_12345",
+    { id: "user-123", name: "John Doe" },
+    "user-token-abc",
+  );
 
   const triggerWorkflow = async () => {
     await knock.workflows.trigger("my-workflow", {
@@ -60,6 +56,42 @@ const MyComponent = () => {
     });
   };
 
-  return <button onClick={triggerWorkflow}>Trigger Workflow</button>;
+  return <button onClick={triggerWorkflow}>Trigger workflow</button>;
 };
+```
+
+### With options
+
+You can pass additional options for the Knock client:
+
+```tsx
+const knock = useAuthenticatedKnockClient(
+  "pk_test_12345",
+  { id: "user-123" },
+  "user-token-abc",
+  {
+    host: "https://api.knock.app",
+    logLevel: "debug",
+  },
+);
+```
+
+### Using string user ID (deprecated)
+
+While you can pass a string user ID directly, it's recommended to use an object:
+
+```tsx
+// Deprecated approach
+const knock = useAuthenticatedKnockClient(
+  "pk_test_12345",
+  "user-123",
+  "user-token-abc",
+);
+
+// Recommended approach
+const knock = useAuthenticatedKnockClient(
+  "pk_test_12345",
+  { id: "user-123" },
+  "user-token-abc",
+);
 ```

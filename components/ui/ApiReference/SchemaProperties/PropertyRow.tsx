@@ -13,9 +13,9 @@ const Header = ({ children }) => (
   </Stack>
 );
 
-const Wrapper = ({ children }) => (
-  <Box data-property-row-wrapper>{children}</Box>
-);
+const Wrapper = ({ children }) => {
+  return <Box data-property-row-wrapper>{children}</Box>;
+};
 
 const Container = ({ children }) => {
   return (
