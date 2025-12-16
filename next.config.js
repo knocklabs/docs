@@ -10,6 +10,25 @@ const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   poweredByHeader: false,
 
+  transpilePackages: ["next-mdx-remote"],
+
+  serverExternalPackages: [
+    "remark-gfm",
+    "micromark-extension-gfm",
+    "micromark-extension-gfm-autolink-literal",
+    "micromark-extension-gfm-footnote",
+    "micromark-extension-gfm-strikethrough",
+    "micromark-extension-gfm-table",
+    "micromark-extension-gfm-tagfilter",
+    "micromark-extension-gfm-task-list-item",
+    "mdast-util-gfm",
+    "mdast-util-gfm-autolink-literal",
+    "mdast-util-gfm-footnote",
+    "mdast-util-gfm-strikethrough",
+    "mdast-util-gfm-table",
+    "mdast-util-gfm-task-list-item",
+  ],
+
   async headers() {
     const isDev = process.env.NODE_ENV === "development";
 

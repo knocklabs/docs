@@ -93,11 +93,11 @@ export async function getStaticProps() {
   );
 
   if (!cachedPreContentMdxMapi) {
-    cachedPreContentMdxMapi = await serialize(preContent, {
+    cachedPreContentMdxMapi = await serialize(preContent.toString(), {
       parseFrontmatter: true,
       mdxOptions: {
         remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeMdxCodeProps] as any,
+        rehypePlugins: [rehypeMdxCodeProps],
       },
     });
   }

@@ -1,11 +1,11 @@
 import { glob } from "glob";
 import fs from "fs";
 import { serialize } from "next-mdx-remote/serialize";
-import remarkSlug from "remark-slug";
-import remarkGfm from "remark-gfm";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { MDXRemoteSerializeResult } from "next-mdx-remote";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
 
 export interface TypedocPage {
   path: string;
@@ -23,8 +23,12 @@ export async function getAllTypedocs() {
       const mdxSource = await serialize(file, {
         parseFrontmatter: true,
         mdxOptions: {
-          remarkPlugins: [[remarkSlug], [remarkGfm]] as any[],
-          rehypePlugins: [rehypeMdxCodeProps, rehypeAutolinkHeadings] as any[],
+          remarkPlugins: [remarkGfm],
+          rehypePlugins: [
+            rehypeSlug,
+            rehypeMdxCodeProps,
+            rehypeAutolinkHeadings,
+          ],
         },
       });
 

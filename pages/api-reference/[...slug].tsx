@@ -121,11 +121,11 @@ export async function getStaticProps() {
   );
 
   if (!cachedPreContentMdx) {
-    cachedPreContentMdx = await serialize(preContent, {
+    cachedPreContentMdx = await serialize(preContent.toString(), {
       parseFrontmatter: true,
       mdxOptions: {
         remarkPlugins: [remarkGfm],
-        rehypePlugins: [rehypeMdxCodeProps] as any,
+        rehypePlugins: [rehypeMdxCodeProps],
       },
     });
   }

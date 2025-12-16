@@ -34,11 +34,11 @@ export async function getStaticProps() {
     `${CONTENT_DIR}/__api-reference/content.mdx`,
   );
 
-  const preContentMdx = await serialize(preContent, {
+  const preContentMdx = await serialize(preContent.toString(), {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeMdxCodeProps] as any,
+      rehypePlugins: [rehypeMdxCodeProps],
     },
   });
 

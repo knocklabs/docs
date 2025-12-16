@@ -44,11 +44,11 @@ export async function getStaticProps() {
   // Read the source content file, checking for .mdx and .md files
   const preContent = fs.readFileSync(sourcePath);
 
-  const mdx = await serialize(preContent, {
+  const mdx = await serialize(preContent.toString(), {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeMdxCodeProps] as any,
+      rehypePlugins: [rehypeMdxCodeProps],
     },
   });
 
