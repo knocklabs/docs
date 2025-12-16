@@ -84,7 +84,7 @@ export async function getStaticProps({ params: { slug } }) {
   const typedocs = await getAllTypedocs();
 
   // Serialize file contents into mdx, and parse frontmatter
-  const mdxSource = await serialize<{}, FrontMatter>(source, {
+  const mdxSource = await serialize<{}, FrontMatter>(source.toString(), {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkGfm],
