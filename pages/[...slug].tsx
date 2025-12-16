@@ -3,9 +3,10 @@ import { join, sep } from "path";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import remarkGfm from "remark-gfm";
-import remarkSlug from "remark-slug";
+import rehypeSlug from "rehype-slug";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
+import remarkGfm from "remark-gfm";
+import type { Pluggable } from "unified";
 
 import MDXLayout from "../layouts/MDXLayout";
 import {
@@ -86,8 +87,8 @@ export async function getStaticProps({ params: { slug } }) {
   const mdxSource = await serialize<{}, FrontMatter>(source, {
     parseFrontmatter: true,
     mdxOptions: {
-      remarkPlugins: [[remarkSlug], [remarkGfm]] as any[],
-      rehypePlugins: [rehypeMdxCodeProps, rehypeAutolinkHeadings] as any[],
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [rehypeSlug, rehypeMdxCodeProps, rehypeAutolinkHeadings],
     },
   });
 
