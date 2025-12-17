@@ -159,7 +159,7 @@ Census Sources and Datasets can be synced to Knock audiences by configuring Knoc
   text={
     <>
       This integration will only sync a user's audience membership to Knock. To
-      sync user properties into Knock, see the section below on{" "}
+      sync users and their properties into Knock, see the section below on{" "}
       <a href="#syncing-customer-data-into-knock-from-census">
         syncing customer data into Knock from Census
       </a>
@@ -563,7 +563,7 @@ Census user records can be synced to Knock by configuring an HTTP request destin
 
 ### Add a user sync to your Knock destination
 
-Follow the steps below to add a user data sync to your configured Knock HTTP request destination in Census.
+Follow the steps below to add a user data sync to your configured Knock HTTP request destination in Census. Note that while these instructions leverage our bulk identify endpoint to optimize migrating large numbers of user records to Knock, you can adapt this approach to use our [identify endpoint](/api-reference/users/identify) for smaller batches of users and ongoing syncs.
 
 <Steps>
       <Step title="Create a new sync">
@@ -574,8 +574,167 @@ Follow the steps below to add a user data sync to your configured Knock HTTP req
           width={1000}
           height={500}
           className="rounded-md mx-auto border border-gray-200"
-          alt="Create a new sync in Census"
+          alt="Create a new sync for identifying users"
         />
+      </Step>
+      <Step title="Select your source data">
+        You'll be prompted to select a dataset for your source data. Select the dataset that you want to sync to Knock.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_2.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select your source data in Census"
+        />
+      </Step>
+      <Step title="Select a destination">
+        Next, you'll select the Knock HTTP request destination that you created above.
+
+        Enter the following into the request endpoint input:
+        ```txt title="Knock API bulk identify endpoint"
+        /users/bulk/identify
+        ```
+        <br/>
+
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_user_sync_1.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select a destination in Census"
+        />
+      </Step>
+      <Step title="Select the request trigger type">
+        Select "Records added" as the trigger type.
+
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_audience_sync_2.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Set the request trigger type"
+        />
+      </Step>
+      <Step title="Specify the number of records in each request">
+        Select "Multiple records per request" to sync audience members in batches. Set the number of rows per batch to 1000.
+
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_user_sync_2.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select the request body in Census"
+        />
+      </Step>
+      <Step title="Select a sync key">
+        Select a sync key from your source to map to the Knock audience User ID field. This field's value must be unique; if Census detects multiple rows with the same sync key value, it marks them as duplicates and does not sync them.
+
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_audience_sync_4.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select a sync key for your user ID mapping"
+        />
+      </Step>
+      <Step title="Choose a request method and payload type">
+        Select `POST` as the request method.
+
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_audience_sync_5.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select the POST request method"
+        />
+        <br/>
+        Then, select "JSON" as the payload type and "Template editor" as the customization option.
+
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_audience_sync_6.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Select the JSON payload type with template editor option"
+        />
+
+      </Step>
+      <Step title="Configure the request body template">
+        Define a template for your request body. The only required Knock field is `id`. To reference source columns, use the `{{ record['source_column_name'] }}` syntax. Note that column names are case-sensitive.
+
+        Here is an example template that identifies `id`, `name`, `email`, and `favorite_color` attributes in Knock using the columns from your source data:
+        
+        ```json title="Request body template"
+        {
+            "users": [
+              {% for record in records %}
+              {
+                "id": "{{ record['user_id'] }}",
+                "name": "{{ record['name'] }}",
+                "email": "{{ record['email'] }}",
+                "favorite_color": "{{ record['fav_color'] }}"
+              },
+              {% endfor %}
+            ]
+        }
+        ```
+        <br/>
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_audience_sync_7.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Edit the request body template"
+        />
+      </Step>
+      <Step title="Configure a rate limit for the sync">
+        The rate limit for “Add member” API requests to Knock is 60 requests per second. We recommend choosing a lower number (such as 10 requests per second) to allow for multiple syncs to run at once.
+
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_audience_sync_8.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Configure a rate limit for the sync"
+        />
+      </Step>
+      <Step title="Choose whether to backfill existing records">
+        Select "Backfill All Records" to sync all existing records in your source data to your Knock audience, or "Skip Current Records" to only sync new records going forward.
+
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_audience_sync_9.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Choose whether to backfill existing records"
+        />
+      </Step>
+      <Step title="Test your sync (optional)">
+        We recommend clicking "Run test" to test your sync. If successful, this will sync one row of data to your Knock audience, which you can confirm in the Knock dashboard. Any errors with your source data or field mappings will be displayed in the test results.
+
+        <Image
+          src="/images/integrations/sources/census/http-destination/census_http_audience_sync_10.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Test your sync"
+        />
+      </Step>
+      <Step title="Finalize your sync">
+        Click "Next." You'll be prompted to provide an optional label and select the trigger type for your sync.
+
+        <Image
+          src="/images/integrations/sources/census/custom-destination/census_custom_audience_sync_9.png"
+          width={1000}
+          height={500}
+          className="rounded-md mx-auto border border-gray-200"
+          alt="Finalize your sync configuration"
+        />
+        <br/>
+        Click "Create" to complete the sync creation process.
+
+        If you want your audience sync to run in “insert only” mode, you’re all set! If you’d like to also remove audience members when rows are deleted from your data source, proceed to the next step.
       </Step>
 
 </Steps>
