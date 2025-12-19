@@ -70,7 +70,11 @@ You can currently target guides to:
 
 It's also possible to specify targeting conditions which can further limit who is eligible for the guide using Knock's [condition model](/concepts/conditions). You can use conditions to target any [data passed to the guides API](/in-app-ui/guides/overview) at runtime, including `data`, `recipient`, and `tenant` properties.
 
-## Tenancy strict mode
+## Working with tenants
+
+When your application uses [tenants](/concepts/tenants) to represent organizations, workspaces, or teams, you have additional options for controlling how and when guides appear to users. This section covers guide scoping and tenant-specific targeting behaviors.
+
+### Tenancy strict mode
 
 When using [audience targeting](/concepts/audiences) with guides, you may want to control how tenant membership is evaluated. Tenancy strict mode determines whether a tenant ID passed via `targetParams` must match the audience membership record for a user to see the guide.
 
@@ -79,7 +83,7 @@ When using [audience targeting](/concepts/audiences) with guides, you may want t
 | **Disabled (default)** | Only the `user_id` must match the audience membership. The user sees the guide regardless of their tenant membership.                                                                                                                |
 | **Enabled**            | Both the `user_id` and `tenant_id` must match the audience membership. Users without a matching tenant in their membership record will not see the guide. Note: Leaving tenant ID blank is interpreted as no tenant, not any tenant. |
 
-### Audience eligibility example
+#### Audience eligibility example
 
 | user_name | user_id | tenant_id |
 | --------- | ------- | --------- |
@@ -92,11 +96,40 @@ Consider a guide targeting the "Power users" audience above. The audience includ
 
 - When tenancy strict mode is **enabled**, Chris will never receive the guide because there's no tenant provided in the audience membership record and your application passes a tenant ID to `KnockGuideProvider`. Sam will only receive the guide if the tenant ID provided is `tenant_a`. If you were to stop passing a tenant ID to `targetParams`, Chris would receive the guide, but Sam would not since Sam is only part of the audience in the context of `tenant_a`.
 
-### Using tenancy strict mode
+#### Using tenancy strict mode
 
 Enable tenancy strict mode when you need to ensure that users only see guides in tenants where they have explicit audience membership. This is useful for B2B applications where guide visibility should be scoped to specific tenant relationships.
 
 Keep tenancy strict mode disabled when you want audience membership to be evaluated based on user identity alone, regardless of which tenant context the user is currently in.
+
+### Per-tenant guides
+
+<Callout
+  type="enterprise"
+  title="Enterprise plan feature."
+  text={
+    <>
+      Per-tenant guides are available on Enterprise plans. Contact{" "}
+      <a href="mailto:sales@knock.app">sales@knock.app</a> to learn more about
+      upgrading.
+    </>
+  }
+/>
+
+You can configure whether your guides render once per user globally, or once for each tenant they belong to. This is controlled by the guide's **Scope** setting:
+
+- **Global scope.** The guide renders once per user, regardless of which tenant they're currently in. This is ideal for feature announcements that users should only see once, like feature releases, general onboarding, and account-level user notifications.
+
+- **Per-tenant scope.** The guide renders once per user-tenant pair. Users will see the guide in each tenant where they're eligible, even if they've dismissed it in another tenant. This is ideal for tenant-specific messaging like billing updates or workspace-specific onboarding.
+
+#### Strict mode with per-tenant guides
+
+When working with per-tenant guides, tenancy strict mode determines how many times and in which tenant contexts a user sees the guide:
+
+| Audience membership  | Strict mode disabled           | Strict mode enabled                             |
+| -------------------- | ------------------------------ | ----------------------------------------------- |
+| `user_a`, `tenant_a` | Receives guide in every tenant | Only receives guide in `tenant_a` context       |
+| `user_b`, `null`     | Receives guide in every tenant | Does not receive guide when tenant ID is passed |
 
 ## Activation
 
