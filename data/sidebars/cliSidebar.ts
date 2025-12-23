@@ -99,7 +99,6 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List translations" },
       { slug: "/get", title: "Get translations" },
-      { slug: "/new", title: "Create a new translation" },
       { slug: "/pull", title: "Pull translations" },
       { slug: "/push", title: "Push translations" },
       { slug: "/validate", title: "Validate translations" },
