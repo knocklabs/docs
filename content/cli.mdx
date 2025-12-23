@@ -132,6 +132,31 @@ The following flags are supported for every command.
 </ContentColumn>
 </Section>
 
+<Section
+  title="Configuring your project"
+  path="/overview/configuring-your-project"
+>
+  <ContentColumn>
+    You can configure your Knock project by creating a `knock.json` file or by using the `knock init` command to generate one for you. This
+    file is a project-level configuration file that tells the Knock CLI where to
+    find your Knock resources.
+
+    For example, if you want to store your Knock resources in the `.knock/` directory, you can create a `knock.json` file with the following content:
+
+{/* prettier-ignore */}
+```json title="Example knock.json file"
+{
+  "knockDir": ".knock/"
+}
+```
+
+    Once you have created the `knock.json` file, all subsequent `knock pull` and `knock push` commands will use the `.knock/` directory as the default target directory relative to the location of the `knock.json` file, regardless of the directory you are currently in.
+
+    If you need to specify a different target directory for a single command, you can use the `--knock-dir` flag, or the `--{resource-type}-dir` flag for specific resource types.
+
+  </ContentColumn>
+</Section>
+
 <Section title="Directory structure" path="/overview/directory-structure">
 <ContentColumn>
 
@@ -139,7 +164,7 @@ There is no required directory structure when working with Knock resources local
 
 For forward compatibility, we recommend using this structure to ensure your local files work seamlessly with future CLI updates.
 
-When you use `knock pull --knock-dir=./knock`, resources will be grouped by resource type within subdirectories. The following directory structure will be created:
+When you use `knock pull`, resources will be grouped by resource type within subdirectories. The following directory structure will be created:
 
 {/* prettier-ignore */}
 <PreTextDiagram description="Recommended directory structure for Knock resources">
@@ -155,6 +180,31 @@ When you use `knock pull --knock-dir=./knock`, resources will be grouped by reso
 Each resource type has its own directory structure, which is described in detail in the sections below for each resource type.
 
 </ContentColumn>
+</Section>
+
+<Section title="knock init [flags]" path="/init">
+<ContentColumn>
+
+Initializes a new Knock project by creating a `knock.json` file in the current working directory.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--knock-dir"
+    type="directory"
+    description="Optional target directory path to point the Knock CLI to. When not provided, the CLI will prompt you for a directory path."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Initialize a new Knock project"
+knock init
+```
+
+</ExampleColumn>
 </Section>
 
 <Section title="knock login" path="/login">
@@ -192,7 +242,7 @@ knock logout
 
 Pulls the contents of all Knock resources (workflows, partials, email layouts, translations, guides, and message-types) from Knock into your local file system.
 
-Resources will be grouped by resource type within subdirectories of the target directory path set by the `--knock-dir` flag. See the [Directory structure](/cli/overview/directory-structure) section for details on the directory structure used by `push` and `pull` commands.
+Resources will be grouped by resource type within subdirectories of the target directory path set either by your `knock.json` file or by the `--knock-dir` flag. See the [Directory structure](/cli/overview/directory-structure) section for details on the directory structure used by `push` and `pull` commands.
 
 ### Flags
 
@@ -237,7 +287,9 @@ knock pull --knock-dir=./knock
 <Section title="knock push [flags]" path="/push">
 <ContentColumn>
 
-Pushes all local resource files (workflows, partials, email layouts, and translations) back to Knock and upserts them. This command expects the directory structure to be the same as the one created by the `knock pull` command.
+Pushes all local resource files (workflows, partials, email layouts, and translations) back to Knock and upserts them.
+
+Resources will be pushed to the target directory path set either by your `knock.json` file or by the `--knock-dir` flag. See the [Directory structure](/cli/overview/directory-structure) section for details on the directory structure used by `push` and `pull` commands.
 
 ### Flags
 
@@ -264,6 +316,78 @@ Pushes all local resource files (workflows, partials, email layouts, and transla
 
 ```bash title="Push all resources"
 knock push --knock-dir=./knock
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock environment list [flags]" path="/environment/list">
+<ContentColumn>
+
+Lists all environments in your Knock account. You can paginate the results using the `--after` and `--before` flags.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="List all environments"
+knock environment list
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock channel list [flags]" path="/channel/list">
+<ContentColumn>
+
+Lists all channels in your Knock account. You can paginate the results using the `--after` and `--before` flags.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="List all channels"
+knock channel list
 ```
 
 </ExampleColumn>
@@ -420,6 +544,40 @@ knock branch exit
 </ExampleColumn>
 </Section>
 
+<Section title="knock branch merge <branch_name> [flags]" path="/branch/merge">
+<ContentColumn>
+
+Merges a branch into the development environment. By default, the branch will be deleted after merging.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+  <Attribute
+    name="--[no-]delete"
+    type="boolean"
+    description="Delete the branch after merging. Defaults to true."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Merge a branch"
+knock branch merge my-branch
+```
+
+```bash title="Merge a branch without deleting it"
+knock branch merge my-branch --no-delete
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="Workflow file structure" path="/workflow/file-structure">
 <ContentColumn>
 
@@ -532,10 +690,86 @@ knock workflow get my-workflow --environment=production
 </ExampleColumn>
 </Section>
 
+<Section title="knock workflow new [workflow_key] [flags]" path="/workflow/new">
+<ContentColumn>
+
+Create a new workflow with a minimal configuration. You can either select steps interactively or use a template to scaffold the workflow.
+
+The command will create a new workflow directory in your local file system. By default, this will be in the workflows resource directory set by your `knock.json` file, or the current working directory if not configured.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--key"
+    type="string"
+    description="The key for the workflow. If not provided, will be prompted or inferred from the workflow directory name."
+  />
+  <Attribute
+    name="--name"
+    type="string"
+    description="The name for the workflow. If not provided, will be generated from the key."
+  />
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--steps"
+    type="string"
+    description="A comma-separated list of step types to include in the workflow (e.g., 'email,sms,in_app_feed'). If not provided, you will be prompted to select steps interactively."
+  />
+  <Attribute
+    name="--template"
+    type="string"
+    description="A template to use for scaffolding the workflow. Can be a GitHub repository path (e.g., 'workflows/digest-email')."
+  />
+  <Attribute
+    name="--push"
+    type="boolean"
+    description="Push the workflow to Knock after creating it locally. Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Overwrites an existing workflow directory without prompting for confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a workflow interactively"
+knock workflow new my-workflow
+```
+
+```bash title="Create a workflow with specific steps"
+knock workflow new my-workflow --steps=email,sms,in_app_feed
+```
+
+```bash title="Create a workflow from a template"
+knock workflow new my-workflow --template=workflows/digest-email
+```
+
+```bash title="Create and push a workflow"
+knock workflow new my-workflow --steps=email --push
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="knock workflow pull [flags]" path="/workflow/pull">
 <ContentColumn>
 
 You can pull and download workflows with its message templates from Knock to a local file system with the `workflow pull` command. Knock CLI will create a new workflow directory or update the existing workflow directory in the local file system.
+
+By default this command will resolve to the workflows resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--workflows-dir` flag.
 
 Note: if pulling the target workflow for the first time (or all workflows), Knock CLI will ask to confirm before writing to the local file system.
 
@@ -596,6 +830,8 @@ knock workflow pull --all --workflows-dir=./workflows
 <ContentColumn>
 
 You can push and upload a workflow directory to Knock with the `workflow push` command. Knock will update an existing workflow by the matching workflow key, or create a new workflow if it does not exist yet.
+
+By default this command will resolve to the workflows resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--workflows-dir` flag.
 
 Note:
 
@@ -955,10 +1191,72 @@ knock layout get default --environment=production
 </ExampleColumn>
 </Section>
 
+<Section title="knock layout new [layout_key] [flags]" path="/email-layout/new">
+<ContentColumn>
+
+Create a new email layout with a minimal configuration.
+
+The command will create a new layout directory in your local file system. By default, this will be in the layouts resource directory set by your `knock.json` file, or the current working directory if not configured.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--key"
+    type="string"
+    description="The key for the email layout. If not provided, will be prompted or inferred from the layout directory name."
+  />
+  <Attribute
+    name="--name"
+    type="string"
+    description="The name for the email layout. If not provided, will be generated from the key."
+  />
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--push"
+    type="boolean"
+    description="Push the email layout to Knock after creating it locally. Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Overwrites an existing layout directory without prompting for confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a layout interactively"
+knock layout new my-layout
+```
+
+```bash title="Create a layout with a specific key and name"
+knock layout new --key=my-layout --name="My Layout"
+```
+
+```bash title="Create and push a layout"
+knock layout new my-layout --push
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="knock layout pull <layout_key> [flags]" path="/email-layout/pull">
 <ContentColumn>
 
 Pulls the contents of one or all email layouts from Knock into your local file system. Using `<layout_key>` you can pull a single email layout specified by the key, or use the `--all` flag to pull all email layouts from Knock at once.
+
+By default this command will resolve to the email layouts resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--email-layouts-dir` flag.
 
 See the [Layout file structure](/cli/email-layout/file-structure) section for details on how layout files are organized.
 
@@ -1003,6 +1301,8 @@ knock layout pull --all
 <ContentColumn>
 
 Pushes local email layouts back to Knock and upserts them. Using `<layout_key>` you can push a single email layout specified by the key, or use the `--all` flag to push all email layouts from Knock at once.
+
+By default this command will resolve to the email layouts resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--email-layouts-dir` flag.
 
 See the [Layout file structure](/cli/email-layout/file-structure) section for details on how layout files are organized.
 
@@ -1207,6 +1507,8 @@ The `<translation_ref>` is a identifier string that refers to a unique translati
 
 When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pulled.
 
+By default this command will resolve to the translations resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--translations-dir` flag.
+
 See the [Translation file structure](/cli/translation/file-structure) section for details on how translation files are organized.
 
 ### Flags
@@ -1273,6 +1575,8 @@ Pushes local translation files back to Knock and upserts them.
 The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
 
 When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pushed.
+
+By default this command will resolve to the translations resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--translations-dir` flag.
 
 See the [Translation file structure](/cli/translation/file-structure) section for details on how translation files are organized.
 
@@ -1436,6 +1740,71 @@ knock partial list
 </ExampleColumn>
 </Section>
 
+<Section title="knock partial new [partial_key] [flags]" path="/partial/new">
+<ContentColumn>
+
+Create a new partial with a minimal configuration.
+
+The command will create a new partial directory in your local file system. By default, this will be in the partials resource directory set by your `knock.json` file, or the current working directory if not configured.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--key"
+    type="string"
+    description="The key for the partial. If not provided, will be prompted or inferred from the partial directory name."
+  />
+  <Attribute
+    name="--name"
+    type="string"
+    description="The name for the partial. If not provided, will be generated from the key."
+  />
+  <Attribute
+    name="--type"
+    type="string"
+    description="The type of partial to create. One of: html, markdown, text, json."
+  />
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--push"
+    type="boolean"
+    description="Push the partial to Knock after creating it locally. Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Overwrites an existing partial directory without prompting for confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a partial interactively"
+knock partial new my-partial
+```
+
+```bash title="Create an HTML partial"
+knock partial new my-partial --type=html
+```
+
+```bash title="Create and push a partial"
+knock partial new my-partial --type=markdown --push
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="knock partial get <partial_key> [flags]" path="/partial/get">
 <ContentColumn>
 
@@ -1477,6 +1846,8 @@ knock partial get my-partial --environment=production
 <ContentColumn>
 
 You can pull and download partial files from Knock to a local file system with the `partial pull` command. Knock CLI will create a new partial directory or update the existing partial directory in the local file system.
+
+By default this command will resolve to the partial resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--partials-dir` flag.
 
 Note: if pulling the target partial for the first time (or all partials), Knock CLI will ask to confirm before writing to the local file system.
 
@@ -1533,6 +1904,8 @@ knock partial pull --all
 <ContentColumn>
 
 You can push and upload a partial directory to Knock with the `partial push` command. Knock will update an existing partial by the matching partial key, or create a new partial if it does not exist yet.
+
+By default this command will resolve to the partial resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--partials-dir` flag.
 
 Note:
 
@@ -1851,6 +2224,71 @@ knock guide list --after=xxx
 </ExampleColumn>
 </Section>
 
+<Section title="knock guide new [guide_key] [flags]" path="/guide/new">
+<ContentColumn>
+
+Create a new guide with a minimal configuration.
+
+The command will create a new guide directory in your local file system. By default, this will be in the guides resource directory set by your `knock.json` file, or the current working directory if not configured.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--key"
+    type="string"
+    description="The key for the guide. If not provided, will be prompted or inferred from the guide directory name."
+  />
+  <Attribute
+    name="--name"
+    type="string"
+    description="The name for the guide. If not provided, will be generated from the key."
+  />
+  <Attribute
+    name="--message-type"
+    type="string"
+    description="The key of the message type to use for the guide. If not provided, you will be prompted to select a message type interactively."
+  />
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--push"
+    type="boolean"
+    description="Push the guide to Knock after creating it locally. Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Overwrites an existing guide directory without prompting for confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a guide interactively"
+knock guide new my-guide
+```
+
+```bash title="Create a guide with a message type"
+knock guide new my-guide --message-type=banner
+```
+
+```bash title="Create and push a guide"
+knock guide new my-guide --message-type=modal --push
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="knock guide get [flags]" path="/guide/get">
 <ContentColumn>
 
@@ -1892,6 +2330,8 @@ knock guide get my-guide --environment=production
 <ContentColumn>
 
 You can pull and download guides from Knock to a local file system with the `guide pull` command. Knock CLI will create a new guide directory or update the existing guide directory in the local file system.
+
+By default this command will resolve to the guides resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--guides-dir` flag.
 
 Note: if pulling the target guide for the first time (or all guides), Knock CLI will ask to confirm before writing to the local file system.
 
@@ -1952,6 +2392,8 @@ knock guide pull --all --guides-dir=./guides
 <ContentColumn>
 
 You can push and upload a guide directory to Knock with the `guide push` command. Knock will update an existing guide by the matching guide key, or create a new guide if it does not exist yet.
+
+By default this command will resolve to the guides resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--guides-dir` flag.
 
 Note:
 
@@ -2159,6 +2601,66 @@ knock message-type list --after=xxx
 </ExampleColumn>
 </Section>
 
+<Section title="knock message-type new [message_type_key] [flags]" path="/message-type/new">
+<ContentColumn>
+
+Create a new message type with a minimal configuration.
+
+The command will create a new message type directory in your local file system. By default, this will be in the message-types resource directory set by your `knock.json` file, or the current working directory if not configured.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--key"
+    type="string"
+    description="The key for the message type. If not provided, will be prompted or inferred from the message type directory name."
+  />
+  <Attribute
+    name="--name"
+    type="string"
+    description="The name for the message type. If not provided, will be generated from the key."
+  />
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--push"
+    type="boolean"
+    description="Push the message type to Knock after creating it locally. Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Overwrites an existing message type directory without prompting for confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a message type interactively"
+knock message-type new my-message-type
+```
+
+```bash title="Create a message type with a specific key and name"
+knock message-type new --key=banner --name="Banner"
+```
+
+```bash title="Create and push a message type"
+knock message-type new my-message-type --push
+```
+
+</ExampleColumn>
+</Section>
+
 <Section title="knock message-type get <message_type_key> [flags]" path="/message-type/get">
 <ContentColumn>
 
@@ -2200,6 +2702,8 @@ knock message-type get my-message-type --environment=production
 <ContentColumn>
 
 Pull one or more in-app message types from an environment into a local file system. Knock CLI will create a new message type directory or update the existing message type directory in the local file system.
+
+By default this command will resolve to the message types resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--message-types-dir` flag.
 
 Note: if pulling the target message type for the first time (or all message types), Knock CLI will ask to confirm before writing to the local file system.
 
@@ -2260,6 +2764,8 @@ knock message-type pull --all --message-types-dir=./message-types
 <ContentColumn>
 
 Push one or more message types from a local file system to Knock. Knock will update an existing message type by the matching message type key, or create a new message type if it does not exist yet.
+
+By default this command will resolve to the message types resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--message-types-dir` flag.
 
 Note:
 
