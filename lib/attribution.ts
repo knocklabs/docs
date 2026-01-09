@@ -5,7 +5,8 @@ const LAST_TOUCH_COOKIE = "knock_lt";
 const SESSION_COOKIE = "knock_session";
 const ATTRIBUTION_EXPIRY_DAYS = 90;
 const SESSION_EXPIRY_MINUTES = 30;
-const COOKIE_DOMAIN = ".knock.app";
+const COOKIE_DOMAIN_PROD = ".knock.app";
+const COOKIE_DOMAIN_DEV = ".knock-dev.app";
 
 const UTM_PARAMS = [
   "utm_source",
@@ -41,10 +42,12 @@ function getReferrer(): string | null {
   if (typeof window === "undefined" || !document.referrer) return null;
   try {
     const referrerUrl = new URL(document.referrer);
-    // Exclude internal knock.app referrers
+    // Exclude internal knock.app and knock-dev.app referrers
     if (
       referrerUrl.hostname.endsWith(".knock.app") ||
-      referrerUrl.hostname === "knock.app"
+      referrerUrl.hostname === "knock.app" ||
+      referrerUrl.hostname.endsWith(".knock-dev.app") ||
+      referrerUrl.hostname === "knock-dev.app"
     ) {
       return null;
     }
@@ -62,7 +65,10 @@ function getCookieDomain(): string | undefined {
     return undefined;
   }
   if (hostname.endsWith(".knock.app") || hostname === "knock.app") {
-    return COOKIE_DOMAIN;
+    return COOKIE_DOMAIN_PROD;
+  }
+  if (hostname.endsWith(".knock-dev.app") || hostname === "knock-dev.app") {
+    return COOKIE_DOMAIN_DEV;
   }
   return undefined;
 }
