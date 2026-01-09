@@ -31,7 +31,7 @@ Here are some other important things to know about guides:
 - **Guides can have personalized content**. Just like workflow templates, you can personalize the contents of a guide message using Liquid.
 - **Guides can be managed by anyone with the owner, admin, or member permission.**
 
-## Runtime data and personalization/targeting
+## Personalization with runtime data
 
 Guides can receive runtime data from your application via the [guides API](/api-reference/users/guides/). You can use this data to personalize the guide's content and set its targeting rules.
 
@@ -57,18 +57,94 @@ Creating the content for a guide is just like creating an in-app message templat
   }}
 />
 
-When creating your template content, you can make personalizations using [Liquid](/designing-workflows/template-editor/overview) and any [data passed to the guides API](/guides#overview) at runtime, including `data`, `recipient`, `tenant`, and `vars` properties.
+When creating your template content, you can make personalizations using [Liquid](/designing-workflows/template-editor/overview) and any [data passed to the guides API](/in-app-ui/guides/overview) at runtime, including `data`, `recipient`, `tenant`, and `vars` properties.
 
-All existing [liquid filters and functions](/designing-workflows/template-editor/reference-liquid-helpers) are available in the guide template, including the ability to use translations via the `t` tag and `t` filter.
+All existing [Liquid filters and functions](/designing-workflows/template-editor/reference-liquid-helpers) are available in the guide template, including the ability to use translations via the `t` tag and `t` filter.
 
 ## Targeting
 
 You can currently target guides to:
 
 - All users (no targeting)
-- A user within a specific [audience](/concepts/audiences)
+- Users within a specific [audience](/concepts/audiences)
 
-It's also possible to specify targeting conditions which can further limit who is eligible for the guide using Knock's [condition model](/concepts/conditions). You can use conditions to target any [data passed to the guides API](/guides#overview) at runtime, including `data`, `recipient`, and `tenant` properties.
+It's also possible to specify targeting conditions which can further limit who is eligible for the guide using Knock's [condition model](/concepts/conditions). You can use conditions to target any [data passed to the guides API](/in-app-ui/guides/overview) at runtime, including `data`, `recipient`, and `tenant` properties.
+
+## Working with tenants
+
+When your application uses [tenants](/concepts/tenants) to represent organizations, workspaces, or teams, you have additional options for controlling how and when guides appear to users. This section covers guide scoping and tenant-specific targeting behaviors.
+
+### Tenancy strict mode
+
+When using [audience targeting](/concepts/audiences) with guides, you may want to control how tenant membership is evaluated. Tenancy strict mode determines whether a tenant ID passed via `targetParams` must match the audience membership record for a user to see the guide.
+
+| Setting                | Behavior                                                                                                                                                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Disabled (default)** | Only the `user_id` must match the audience membership. The user sees the guide regardless of their tenant membership.                                                                                                                |
+| **Enabled**            | Both the `user_id` and `tenant_id` must match the audience membership. Users without a matching tenant in their membership record will not see the guide. Note: Leaving tenant ID blank is interpreted as no tenant, not any tenant. |
+
+#### Audience eligibility example
+
+| user_name | user_id | tenant_id |
+| --------- | ------- | --------- |
+| Sam       | user_1  | tenant_a  |
+| Chris     | user_2  | (null)    |
+
+Consider a guide targeting the "Power users" audience above. The audience includes two unique users, Sam and Chris. A tenant ID is provided for Sam, but not for Chris. While rendering the guide, your application passes a tenant ID to [`KnockGuideProvider`](/in-app-ui/react/sdk/components/knock-guide-provider) via the `targetParams` prop. This could have implications for guide eligibility, depending on which tenancy strict mode setting is applied to the guide.
+
+- When tenancy strict mode is **disabled**, Sam and Chris both receive the guide, since only `user_id` is checked against the audience.
+
+- When tenancy strict mode is **enabled**, Chris will never receive the guide because there's no tenant provided in the audience membership record and your application passes a tenant ID to `KnockGuideProvider`. Sam will only receive the guide if the tenant ID provided is `tenant_a`. If you were to stop passing a tenant ID to `targetParams`, Chris would receive the guide, but Sam would not since Sam is only part of the audience in the context of `tenant_a`.
+
+#### Using tenancy strict mode
+
+Enable tenancy strict mode when you need to ensure that users only see guides in tenants where they have explicit audience membership. This is useful for B2B applications where guide visibility should be scoped to specific tenant relationships.
+
+Keep tenancy strict mode disabled when you want audience membership to be evaluated based on user identity alone, regardless of which tenant context the user is currently in.
+
+To enable tenancy strict mode, toggle the "Tenancy strict mode" setting on in the guide's targeting rules.
+
+<Image
+  src="/images/concepts/guides/GuideTenancyStrictMode.png"
+  alt="Guide tenancy strict mode"
+  width={1356}
+  height={1452}
+  style={{
+    borderRadius: "6px",
+    margin: "0 auto",
+    border: "1px solid #e5e7eb",
+    display: "block",
+  }}
+/>
+
+### Per-tenant guides
+
+<Callout
+  type="enterprise"
+  title="Enterprise plan feature."
+  text={
+    <>
+      Per-tenant guides are available on Enterprise plans. Contact{" "}
+      <a href="mailto:sales@knock.app">sales@knock.app</a> to learn more about
+      upgrading.
+    </>
+  }
+/>
+
+You can configure whether your guides render once per user globally, or once for each tenant they belong to. This is controlled by the guide's **Scope** setting:
+
+- **Global scope.** The guide renders once per user, regardless of which tenant they're currently in. This is ideal for feature announcements that users should only see once, like feature releases, general onboarding, and account-level user notifications.
+
+- **Per-tenant scope.** The guide renders once per user-tenant pair. Users will see the guide in each tenant where they're eligible, even if they've dismissed it in another tenant. This is ideal for tenant-specific messaging like billing updates or workspace-specific onboarding.
+
+#### Strict mode with per-tenant guides
+
+When working with per-tenant guides, tenancy strict mode determines how many times and in which tenant contexts a user sees the guide:
+
+| Audience membership  | Strict mode disabled           | Strict mode enabled                             |
+| -------------------- | ------------------------------ | ----------------------------------------------- |
+| `user_a`, `tenant_a` | Receives guide in every tenant | Only receives guide in `tenant_a` context       |
+| `user_b`, `null`     | Receives guide in every tenant | Does not receive guide when tenant ID is passed |
 
 ## Activation
 
@@ -98,4 +174,4 @@ If you do not provide any activation rules, the guide will activate when you cal
 
 ## Enabling and disabling guides
 
-You can stop serving a guide immediately to all your customers by toggling the "Active" status in each environment. Making the status "Inactive" will immediately stop any guides being displayed to users.
+You can stop serving a guide immediately to all your customers by toggling the "Active" status in each environment. Making the status "Inactive" will immediately stop any guides from being displayed to users.
