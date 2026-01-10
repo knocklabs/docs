@@ -101,6 +101,65 @@ async function parseFrontmatter(markdownContent) {
   return yaml.parse(yamlNode.value);
 }
 
+function convertAttributesToMarkdown(content: string): string {
+  // Extract attributes from <Attributes> tags
+  const attributesRegex = /<Attributes>([\s\S]*?)<\/Attributes>/g;
+
+  return content.replace(attributesRegex, (match, attributesContent) => {
+    // Extract individual attributes - handle multiline attributes
+    const attributeRegex = /<Attribute\s+([\s\S]*?)\/>/g;
+    const attributes: Array<{
+      name: string;
+      type?: string;
+      description?: string;
+      required: boolean;
+    }> = [];
+
+    let attrMatch;
+    while ((attrMatch = attributeRegex.exec(attributesContent)) !== null) {
+      const attrString = attrMatch[1];
+
+      // Extract name
+      const nameMatch = attrString.match(/name="([^"]+)"/);
+      const name = nameMatch ? nameMatch[1] : "";
+
+      // Extract type
+      const typeMatch = attrString.match(/type="([^"]+)"/);
+      const type = typeMatch ? typeMatch[1] : "";
+
+      // Extract description
+      const descMatch = attrString.match(/description="([^"]+)"/);
+      const description = descMatch ? descMatch[1] : "";
+
+      // Check if required
+      const required = attrString.includes("isRequired");
+
+      if (name) {
+        attributes.push({
+          name,
+          type,
+          description,
+          required,
+        });
+      }
+    }
+
+    if (attributes.length === 0) return "";
+
+    // Create markdown table
+    let table = "\n| Property | Type | Description | Required |\n";
+    table += "| --- | --- | --- | --- |\n";
+
+    for (const attr of attributes) {
+      table += `| \`${attr.name}\` | \`${attr.type || "any"}\` | ${
+        attr.description
+      } | ${attr.required ? "Yes" : "No"} |\n`;
+    }
+
+    return table;
+  });
+}
+
 async function writePublicMarkdown(slug, content) {
   try {
     const publicPath = path.join(
@@ -130,8 +189,33 @@ async function getMarkdownContent(slug) {
     }
 
     if (fs.existsSync(markdownPath)) {
-      const content = fs.readFileSync(markdownPath, "utf-8");
+      let content = fs.readFileSync(markdownPath, "utf-8");
       const frontmatter = await parseFrontmatter(content);
+
+      // Check if content contains a Typedoc component reference
+      const typedocMatch = content.match(/<Typedoc\s+file="([^"]+)"\s*\/>/);
+      if (typedocMatch) {
+        const typedocFile = typedocMatch[1];
+        const typedocPath = path.join(
+          process.cwd(),
+          "typedocs",
+          `${typedocFile}.mdx`,
+        );
+
+        if (fs.existsSync(typedocPath)) {
+          let typedocContent = fs.readFileSync(typedocPath, "utf-8");
+          // Remove frontmatter from typedoc content if present
+          typedocContent = typedocContent.replace(
+            /^---\n[\s\S]*?\n---\n\n?/,
+            "",
+          );
+          // Convert Attributes components to markdown tables
+          typedocContent = convertAttributesToMarkdown(typedocContent);
+          // Replace the Typedoc component with the actual content
+          content = content.replace(typedocMatch[0], typedocContent);
+        }
+      }
+
       return {
         ...frontmatter,
         description: frontmatter?.description || "",
