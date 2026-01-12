@@ -15,6 +15,7 @@ import Link from "next/link";
 import { Icon } from "@telegraph/icon";
 import { Feedback } from "./Feedback";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { AskAiContext } from "../AskAiContext";
 
 export const MAX_WIDTH = "1400px";
 
@@ -67,21 +68,43 @@ const Container = ({ children }) => {
   );
 };
 
-const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
-  <Stack
-    data-wrapper
-    className={`layout-grid ${
-      children.length === 3 ? "layout-grid--three-col" : ""
-    }`}
-    style={{
-      display: "grid",
-      maxWidth,
-      margin: "0 auto",
-    }}
-  >
-    {children}
-  </Stack>
-);
+const Wrapper = ({ children }) => {
+  const askAiContext = useContext(AskAiContext);
+  const isOpen = askAiContext ? askAiContext.isOpen : false;
+
+  // Children: [Sidebar, Content, OnThisPage] or [Sidebar, Content]
+  const childArray = Array.isArray(children) ? children : [children];
+  const sidebar = childArray[0];
+  const content = childArray[1];
+  const onThisPage = childArray.length === 3 ? childArray[2] : null;
+
+  return (
+    <div
+      data-wrapper
+      className="layout-grid"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "256px 1fr",
+        width: "100%",
+        paddingRight: isOpen ? "340px" : "0",
+        transition: "padding-right 0.2s ease-in-out",
+      }}
+    >
+      {/* Left sidebar */}
+      {sidebar}
+      
+      {/* Centered content area containing both Content and OnThisPage */}
+      <div
+        data-content-area
+        className="flex max-w-5xl mx-auto w-full"
+        style={{ minWidth: 0 }}
+      >
+        {content}
+        {onThisPage}
+      </div>
+    </div>
+  );
+};
 
 const Masthead = ({
   skipHighlight,
@@ -96,21 +119,16 @@ const Masthead = ({
 };
 
 const Content = ({ children, fullWidth = false }) => (
-  <Box
-    py="8"
-    width="full"
-    pl="20"
-    pr="4"
-    minWidth="0"
-    style={{ maxWidth: fullWidth ? "initial" : "800px" }}
-    className="lg-wrapper-padding"
+  <div
+    className="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-8 pb-8"
+    data-content
   >
-    <Box>{children}</Box>
-  </Box>
+    {children}
+  </div>
 );
 
 const ContentBody = ({ children }) => (
-  <Box mb="6" className="tgraph-content" data-content-body>
+  <Box mb="6" className="" data-content-body>
     {children}
   </Box>
 );
