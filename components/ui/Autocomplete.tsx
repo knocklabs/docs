@@ -89,7 +89,7 @@ const StaticSearch = () => {
   return (
     <Box as="form">
       <Input
-        placeholder="Search the docs..."
+        placeholder="Search"
         size="2"
         className="aa-Input"
         LeadingComponent={
@@ -111,7 +111,7 @@ const StaticSearch = () => {
               size="1"
               color="black"
               weight="medium"
-              style={{ lineHeight: "1", transform: "translateY(-1px)" }}
+              style={{ lineHeight: "1" }}
             >
               /
             </Text>
@@ -515,7 +515,7 @@ const Autocomplete = () => {
 
   const inputProps: unknown = autocomplete.getInputProps({
     inputElement: inputRef.current,
-    placeholder: "Search the docs...",
+    placeholder: "Search",
   });
 
   return (
@@ -528,13 +528,14 @@ const Autocomplete = () => {
       >
         <Input
           tgphRef={inputRef}
-          placeholder="Search the docs.."
+          placeholder="Search"
           className="aa-Input"
           {...(inputProps as React.DetailedHTMLProps<
             React.InputHTMLAttributes<HTMLInputElement>,
             HTMLInputElement
           >)}
           size="2"
+          borderRadius="2"
           w="full"
           LeadingComponent={
             <Icon icon={Search} alt="Search" color="gray" size="1" mr="2" />
@@ -588,7 +589,6 @@ const Autocomplete = () => {
                       weight="medium"
                       style={{
                         lineHeight: "1",
-                        transform: "translateY(-1px)",
                       }}
                     >
                       /
