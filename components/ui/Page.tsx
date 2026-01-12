@@ -92,7 +92,7 @@ const Wrapper = ({ children }) => {
     >
       {/* Left sidebar */}
       {sidebar}
-      
+
       {/* Centered content area containing both Content and OnThisPage */}
       <div
         data-content-area
