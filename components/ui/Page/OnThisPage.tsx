@@ -72,8 +72,11 @@ const HeaderList: React.FC<{ headers: Header[]; nesting: number }> = ({
         <Box
           as="li"
           key={h.id}
-          ml={nesting === 1 ? "3" : "0"}
-          style={{ listStyle: "none", wordBreak: "break-word" }}
+          style={{ 
+            listStyle: "none", 
+            wordBreak: "break-word",
+            marginLeft: nesting === 1 ? "0.75rem" : "0"
+          }}
         >
           <Text
             as={Link}
@@ -131,14 +134,13 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
   }
 
   return (
-    <Box as="aside" className="lg-hidden" pr="4">
+    <Box as="aside" className="lg-hidden" px="4">
       <Box
         position="sticky"
         top="32"
-        right="4"
-        style={{ height: "calc(100vh - 15rem)" }}
+        style={{ height: "calc(100vh - 15rem)", right: "1rem" }}
       >
-        <Stack direction="row" align="center" gap="1" mb="2">
+        <Stack direction="row" align="center" gap="1" style={{ marginBottom: "0.5rem" }}>
           <Icon icon={TextIcon} size="2" color="default" aria-hidden />
           <Text as="span" size="2" weight="medium" color="default">
             On this page
@@ -149,24 +151,22 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
             as="ul"
             direction="column"
             gap="1"
-            style={{ overflowY: "auto" }}
+            style={{ overflowY: "auto", paddingBottom: "2.5rem" }}
             h="full"
             tgphRef={scrollerRef}
-            pb="10"
           >
             <HeaderList headers={headers} nesting={0} />
           </Stack>
           <ScrollerBottomGradient
             scrollerRef={scrollerRef as RefObject<HTMLDivElement>}
           />
-          <Box borderTop="px" borderColor="gray-3" mb="4" />
+          <Box borderTop="px" borderColor="gray-3" style={{ marginBottom: "1rem" }} />
           <Text
             as="a"
             href={`https://github.com/knocklabs/docs/edit/main/${sourcePath}`}
             color="gray"
             size="1"
-            mt="2"
-            style={{ textDecoration: "none", display: "block" }}
+            style={{ textDecoration: "none", display: "block", marginTop: "0.5rem" }}
             target="_blank"
             rel="noreferrer"
           >
