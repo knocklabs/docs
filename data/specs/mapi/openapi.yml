@@ -604,6 +604,7 @@ components:
         send_windows: null
         template:
           settings:
+            delivery_type: content
             payload_overrides: '{"name": "John"}'
           text_body: Hello, world!
           title: Hello, world!
@@ -7242,35 +7243,31 @@ components:
       description: A push notification template.
       example:
         settings:
+          delivery_type: content
           payload_overrides: '{"name": "John"}'
         text_body: Hello, world!
         title: Hello, world!
       properties:
         settings:
-          anyOf:
-            - properties:
-                delivery_type:
-                  description: The delivery type of the push notification. Defaults to `content`. Set as silent to send a data-only notification. When set to `data`, no body will be sent.
-                  enum:
-                    - silent
-                    - content
-                  example: content
-                  type: string
-                  x-struct: null
-                  x-validate: null
-                payload_overrides:
-                  description: A JSON object that overrides the payload sent to the push provider.
-                  example: '{"name": "John"}'
-                  type: string
-                  x-struct: null
-                  x-validate: null
-              type: object
+          description: The [settings](https://docs.knock.app/integrations/sms/settings-and-overrides) for the push template.
+          properties:
+            delivery_type:
+              description: The delivery type of the push notification. Set as silent to send a data-only notification. When set to `silent`, no body will be sent.
+              enum:
+                - silent
+                - content
+              example: content
+              type: string
               x-struct: null
               x-validate: null
-            - nullable: true
+            payload_overrides:
+              description: A JSON object that overrides the payload sent to the push provider.
+              example: '{"name": "John"}'
+              type: string
               x-struct: null
               x-validate: null
-          description: The [settings](https://docs.knock.app/integrations/sms/settings-and-overrides) for the push template. Can be omitted.
+          required:
+            - delivery_type
           type: object
           x-struct: null
           x-validate: null
@@ -7289,6 +7286,7 @@ components:
       required:
         - title
         - text_body
+        - settings
       title: PushTemplate
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PushTemplate
