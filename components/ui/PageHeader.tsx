@@ -4,7 +4,6 @@ import { Tabs } from "@telegraph/tabs";
 import { Text } from "@telegraph/typography";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { MAX_WIDTH } from "./Page";
 import Autocomplete from "@/components/ui/Autocomplete";
 import AskAiButton from "@/components/ui/AskAiButton";
 
@@ -43,6 +42,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
 
   return (
     <Box
+      data-header
       direction="column"
       bg="surface-1"
       borderBottomWidth="px"
@@ -51,7 +51,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
       top="0"
       zIndex="sticky"
     >
-      <Box style={{ maxWidth: MAX_WIDTH, margin: "0 auto" }}>
+      <Box>
         <Stack
           w="full"
           pt="4"

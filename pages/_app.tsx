@@ -11,6 +11,8 @@ import * as gtag from "../lib/gtag";
 import { setClearbitPath } from "../lib/clearbit";
 import { initAttribution } from "../lib/attribution";
 import { useRemoteRefresh } from "next-remote-refresh/hook";
+import { AskAiProvider } from "../components/AskAiContext";
+import AskAiSidebar from "../components/AskAiSidebar";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -45,12 +47,15 @@ function App({ Component, pageProps }) {
   }, [router.events]);
 
   return (
-    <main className={inter.className}>
-      <EventEmitterContext.Provider value={eventEmitter}>
-        <Component {...pageProps} />
-      </EventEmitterContext.Provider>
-      {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
-    </main>
+    <AskAiProvider>
+      <main className={inter.className}>
+        <EventEmitterContext.Provider value={eventEmitter}>
+          <Component {...pageProps} />
+        </EventEmitterContext.Provider>
+        {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
+      </main>
+      <AskAiSidebar />
+    </AskAiProvider>
   );
 }
 
