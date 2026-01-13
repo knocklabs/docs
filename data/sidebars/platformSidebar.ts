@@ -165,6 +165,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/account-timezone", title: "Account timezone" },
       { slug: "/data-retention", title: "Data retention" },
       { slug: "/custom-domains", title: "Custom domains" },
+      { slug: "/managing-assets", title: "Managing assets" },
     ],
   },
 ];
