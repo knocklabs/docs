@@ -71,6 +71,8 @@ const Container = ({ children }) => {
 const Wrapper = ({ children }) => {
   const askAiContext = useContext(AskAiContext);
   const isOpen = askAiContext ? askAiContext.isOpen : false;
+  const sidebarWidth = askAiContext ? askAiContext.sidebarWidth : 340;
+  const isResizing = askAiContext ? askAiContext.isResizing : false;
 
   // Children: [Sidebar, Content, OnThisPage] or [Sidebar, Content]
   const childArray = Array.isArray(children) ? children : [children];
@@ -86,8 +88,8 @@ const Wrapper = ({ children }) => {
         display: "grid",
         gridTemplateColumns: "256px 1fr",
         width: "100%",
-        paddingRight: isOpen ? "340px" : "0",
-        transition: "padding-right 0.2s ease-in-out",
+        paddingRight: isOpen ? `${sidebarWidth}px` : "0",
+        transition: isResizing ? "none" : "padding-right 0.2s ease-in-out",
       }}
     >
       {/* Left sidebar */}
