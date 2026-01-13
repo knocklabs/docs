@@ -55,7 +55,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "inkeep-rag",
+        model: "inkeep-qa-gpt-5.2",
         messages,
         stream: true,
       }),
@@ -76,13 +76,23 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     // Pipe the stream from Inkeep directly to the client
     // Don't try to parse/modify the SSE data - just forward it as-is
     const reader = response.body.getReader();
+    const decoder = new TextDecoder();
 
     try {
+      let chunkCount = 0;
       while (true) {
         const { done, value } = await reader.read();
         
         if (done) {
+          console.log(`[Inkeep] Stream complete. Total chunks: ${chunkCount}`);
           break;
+        }
+
+        chunkCount++;
+        // Log first few chunks to see the format
+        if (chunkCount <= 5) {
+          const text = decoder.decode(value, { stream: true });
+          console.log(`[Inkeep] Chunk ${chunkCount}:`, text.substring(0, 500));
         }
 
         // Forward the raw bytes directly without any modification
