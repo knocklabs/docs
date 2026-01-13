@@ -6,22 +6,29 @@ import { X, ArrowUp, Loader2 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useAskAi } from "./AskAiContext";
 import { useChatStream, type Message } from "../hooks/useChatStream";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { Streamdown } from "streamdown";
 
 function AskAiSidebar() {
-  const { isOpen, closeSidebar, sidebarWidth, setSidebarWidth, isResizing, setIsResizing } = useAskAi();
+  const {
+    isOpen,
+    closeSidebar,
+    sidebarWidth,
+    setSidebarWidth,
+    isResizing,
+    setIsResizing,
+  } = useAskAi();
   const [headerHeight, setHeaderHeight] = useState(100);
   const [inputValue, setInputValue] = useState("");
   const [isHoveringResizeHandle, setIsHoveringResizeHandle] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, error, sendMessage, clearMessages } = useChatStream();
+  const { messages, isLoading, error, sendMessage, clearMessages } =
+    useChatStream();
 
   useEffect(() => {
     const updateHeaderHeight = () => {
-      const header = document.querySelector('[data-header]') as HTMLElement;
+      const header = document.querySelector("[data-header]") as HTMLElement;
       if (header) {
         const rect = header.getBoundingClientRect();
         setHeaderHeight(rect.height);
@@ -29,8 +36,8 @@ function AskAiSidebar() {
     };
 
     updateHeaderHeight();
-    window.addEventListener('resize', updateHeaderHeight);
-    return () => window.removeEventListener('resize', updateHeaderHeight);
+    window.addEventListener("resize", updateHeaderHeight);
+    return () => window.removeEventListener("resize", updateHeaderHeight);
   }, []);
 
   // Auto-scroll to bottom when new messages arrive
@@ -50,7 +57,7 @@ function AskAiSidebar() {
   const handleSubmit = async () => {
     // Get value directly from textarea ref as fallback for controlled input
     const textareaValue = textareaRef.current?.value || inputValue;
-    
+
     if (!textareaValue.trim() || isLoading) {
       return;
     }
@@ -138,7 +145,10 @@ function AskAiSidebar() {
             width: "4px",
             height: "100%",
             cursor: "col-resize",
-            backgroundColor: isResizing || isHoveringResizeHandle ? "var(--tgph-accent-9)" : "transparent",
+            backgroundColor:
+              isResizing || isHoveringResizeHandle
+                ? "var(--tgph-accent-9)"
+                : "transparent",
             zIndex: 11,
             transition: isResizing ? "none" : "background-color 0.2s",
           }}
@@ -240,8 +250,8 @@ function AskAiSidebar() {
                 minHeight: "28px",
                 padding: "0",
                 borderRadius: "8px",
-                backgroundColor: isLoading 
-                  ? "var(--tgph-gray-6)" 
+                backgroundColor: isLoading
+                  ? "var(--tgph-gray-6)"
                   : "var(--tgph-gray-8)",
                 display: "flex",
                 alignItems: "center",
@@ -273,23 +283,23 @@ function AskAiSidebar() {
                 }}
               >
                 {isLoading ? (
-                  <Icon 
-                    icon={Loader2} 
-                    size="1" 
-                    aria-hidden 
-                    style={{ 
+                  <Icon
+                    icon={Loader2}
+                    size="1"
+                    aria-hidden
+                    style={{
                       color: "white",
                       animation: "spin 1s linear infinite",
-                    }} 
+                    }}
                   />
                 ) : (
-                  <Icon 
-                    icon={ArrowUp} 
-                    size="1" 
-                    aria-hidden 
-                    style={{ 
+                  <Icon
+                    icon={ArrowUp}
+                    size="1"
+                    aria-hidden
+                    style={{
                       color: "white",
-                    }} 
+                    }}
                   />
                 )}
               </Box>
@@ -325,22 +335,31 @@ function AskAiSidebar() {
 
           <Stack direction="column" gap="0">
             {messages.map((message, index) => (
-              <MessageBubble 
-                key={message.id} 
-                message={message} 
-                isLoading={isLoading && message.role === "assistant" && index === messages.length - 1}
+              <MessageBubble
+                key={message.id}
+                message={message}
+                isLoading={
+                  isLoading &&
+                  message.role === "assistant" &&
+                  index === messages.length - 1
+                }
               />
             ))}
             <div ref={messagesEndRef} />
           </Stack>
         </Box>
-
       </Box>
     </Box>
   );
 }
 
-function MessageBubble({ message, isLoading }: { message: Message; isLoading?: boolean }) {
+function MessageBubble({
+  message,
+  isLoading,
+}: {
+  message: Message;
+  isLoading?: boolean;
+}) {
   const isUser = message.role === "user";
 
   if (isUser) {
@@ -355,9 +374,9 @@ function MessageBubble({ message, isLoading }: { message: Message; isLoading?: b
           marginBottom: "16px",
         }}
       >
-        <Text 
+        <Text
           as="span"
-          size="2" 
+          size="2"
           weight="medium"
           style={{
             whiteSpace: "pre-wrap",
@@ -374,8 +393,18 @@ function MessageBubble({ message, isLoading }: { message: Message; isLoading?: b
   // Show "Thinking..." when loading and no content yet
   if (isLoading && !message.content) {
     return (
-      <Stack direction="row" gap="2" alignItems="center" style={{ marginBottom: "16px" }}>
-        <Icon icon={Loader2} size="1" aria-hidden style={{ animation: "spin 1s linear infinite" }} />
+      <Stack
+        direction="row"
+        gap="2"
+        alignItems="center"
+        style={{ marginBottom: "16px" }}
+      >
+        <Icon
+          icon={Loader2}
+          size="1"
+          aria-hidden
+          style={{ animation: "spin 1s linear infinite" }}
+        />
         <Text as="span" size="2" color="gray">
           Thinking...
         </Text>
@@ -384,18 +413,25 @@ function MessageBubble({ message, isLoading }: { message: Message; isLoading?: b
   }
 
   // Use tgraph-content class for consistent markdown styling with the rest of the docs
+  // Streamdown is optimized for streaming LLM content and handles incomplete markdown gracefully
   return (
     <div className="tgraph-content" style={{ marginBottom: "16px" }}>
-      <Markdown
-        remarkPlugins={[remarkGfm]}
+      <Streamdown
         components={{
           // Only override what's necessary - CSS handles most styling via tgraph-content class
           code: (props: any) => (
-            <Code as="code" bg="gray-2" borderRadius="2" px="1" size="1" data-tgph-code>
+            <Code
+              as="code"
+              bg="gray-2"
+              borderRadius="2"
+              px="1"
+              size="1"
+              data-tgph-code
+            >
               {props.children}
             </Code>
           ),
-          pre: ({ children }) => (
+          pre: ({ children }: { children?: React.ReactNode }) => (
             <Box
               as="pre"
               bg="gray-2"
@@ -407,7 +443,7 @@ function MessageBubble({ message, isLoading }: { message: Message; isLoading?: b
               {children}
             </Box>
           ),
-          a: ({ href, children }) => (
+          a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
             <a
               href={href}
               target={href?.startsWith("http") ? "_blank" : undefined}
@@ -419,7 +455,7 @@ function MessageBubble({ message, isLoading }: { message: Message; isLoading?: b
         }}
       >
         {message.content}
-      </Markdown>
+      </Streamdown>
     </div>
   );
 }

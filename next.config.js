@@ -10,7 +10,7 @@ const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   poweredByHeader: false,
 
-  transpilePackages: ["next-mdx-remote"],
+  transpilePackages: ["next-mdx-remote", "streamdown"],
 
   serverExternalPackages: [
     "remark-gfm",

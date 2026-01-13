@@ -1,5 +1,8 @@
 import { useState, useCallback, useRef } from "react";
 
+// Debug counter for logging
+let processCallCount = 0;
+
 export type Message = {
   id: string;
   role: "user" | "assistant";
@@ -49,6 +52,9 @@ export function useChatStream(): UseChatStreamReturn {
     }
 
     abortControllerRef.current = new AbortController();
+    
+    // Reset debug counter for new message
+    processCallCount = 0;
 
     try {
       const response = await fetch("/api/chat", {
@@ -145,6 +151,15 @@ function processData(
   assistantMessageId: string,
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
 ) {
+  processCallCount++;
+  const callNum = processCallCount;
+  
+  // Log first few process calls
+  if (callNum <= 10) {
+    console.log(`[useChatStream] processData call #${callNum}, rawData length: ${rawData.length}`);
+    console.log(`[useChatStream] rawData preview:`, rawData.substring(0, 300));
+  }
+
   const lines = rawData.split("\n");
   
   for (const line of lines) {
@@ -175,8 +190,20 @@ function processData(
         const delta = choice.delta;
         const message = choice.message;
         
+        if (callNum <= 10) {
+          console.log(`[useChatStream] Parsed choice:`, {
+            hasDelta: !!delta,
+            deltaContent: delta?.content?.substring(0, 100),
+            hasMessage: !!message,
+            messageContentLength: message?.content?.length,
+          });
+        }
+        
         if (delta?.content) {
           // Streaming format
+          if (callNum <= 10) {
+            console.log(`[useChatStream] Using STREAMING path, delta content:`, delta.content.substring(0, 50));
+          }
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === assistantMessageId
@@ -186,6 +213,7 @@ function processData(
           );
         } else if (message?.content) {
           // Complete response format - content might be stringified JSON (Inkeep format)
+          console.log(`[useChatStream] Using COMPLETE RESPONSE path`);
           const textContent = extractTextContent(message.content);
           
           if (textContent) {
