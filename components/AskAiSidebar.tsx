@@ -443,7 +443,13 @@ function MessageBubble({
               {children}
             </Box>
           ),
-          a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
+          a: ({
+            href,
+            children,
+          }: {
+            href?: string;
+            children?: React.ReactNode;
+          }) => (
             <a
               href={href}
               target={href?.startsWith("http") ? "_blank" : undefined}

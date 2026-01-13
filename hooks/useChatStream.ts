@@ -1,7 +1,8 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
-// Debug counter for logging
-let processCallCount = 0;
+// Streaming configuration
+const STREAM_INTERVAL_MS = 20; // Update UI every 20ms
+const CHARS_PER_UPDATE = 3; // Characters to reveal per update
 
 export type Message = {
   id: string;
@@ -22,6 +23,65 @@ export function useChatStream(): UseChatStreamReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  
+  // Streaming state refs (don't trigger re-renders)
+  const contentBufferRef = useRef<string>(""); // Accumulated content from API
+  const displayedLengthRef = useRef<number>(0); // How much we've shown to user
+  const streamIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const currentMessageIdRef = useRef<string | null>(null);
+  const streamCompleteRef = useRef<boolean>(false);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (streamIntervalRef.current) {
+        clearInterval(streamIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Start the UI streaming interval
+  const startStreamingUI = useCallback((messageId: string) => {
+    // Clear any existing interval
+    if (streamIntervalRef.current) {
+      clearInterval(streamIntervalRef.current);
+    }
+
+    currentMessageIdRef.current = messageId;
+    displayedLengthRef.current = 0;
+    contentBufferRef.current = "";
+    streamCompleteRef.current = false;
+
+    streamIntervalRef.current = setInterval(() => {
+      const buffer = contentBufferRef.current;
+      const currentLength = displayedLengthRef.current;
+      
+      // If we have more content to show
+      if (currentLength < buffer.length) {
+        const nextLength = Math.min(currentLength + CHARS_PER_UPDATE, buffer.length);
+        const displayContent = buffer.substring(0, nextLength);
+        displayedLengthRef.current = nextLength;
+
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId ? { ...msg, content: displayContent } : msg
+          )
+        );
+      } else if (streamCompleteRef.current && currentLength >= buffer.length) {
+        // Stream is done and we've displayed everything
+        if (streamIntervalRef.current) {
+          clearInterval(streamIntervalRef.current);
+          streamIntervalRef.current = null;
+        }
+      }
+    }, STREAM_INTERVAL_MS);
+  }, []);
+
+  // Stop the streaming interval and show remaining content
+  const stopStreamingUI = useCallback(() => {
+    streamCompleteRef.current = true;
+    // Don't clear interval immediately - let it finish displaying remaining content
+  }, []);
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim() || isLoading) return;
@@ -46,15 +106,15 @@ export function useChatStream(): UseChatStreamReturn {
     };
     setMessages((prev) => [...prev, assistantMessage]);
 
+    // Start the UI streaming interval
+    startStreamingUI(assistantMessageId);
+
     // Abort any existing request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
 
     abortControllerRef.current = new AbortController();
-    
-    // Reset debug counter for new message
-    processCallCount = 0;
 
     try {
       const response = await fetch("/api/chat", {
@@ -90,7 +150,7 @@ export function useChatStream(): UseChatStreamReturn {
         if (done) {
           // Process any remaining buffer
           if (buffer.trim()) {
-            processData(buffer.trim(), assistantMessageId, setMessages);
+            processData(buffer.trim(), contentBufferRef);
           }
           break;
         }
@@ -103,11 +163,21 @@ export function useChatStream(): UseChatStreamReturn {
         
         for (const part of parts) {
           if (part.trim()) {
-            processData(part.trim(), assistantMessageId, setMessages);
+            processData(part.trim(), contentBufferRef);
           }
         }
       }
+
+      // Signal that streaming is complete
+      stopStreamingUI();
+
     } catch (err) {
+      // Stop the streaming interval
+      if (streamIntervalRef.current) {
+        clearInterval(streamIntervalRef.current);
+        streamIntervalRef.current = null;
+      }
+
       if (err instanceof Error && err.name === "AbortError") {
         // Request was aborted, remove the assistant message
         setMessages((prev) => prev.filter((msg) => msg.id !== assistantMessageId));
@@ -123,9 +193,14 @@ export function useChatStream(): UseChatStreamReturn {
       setIsLoading(false);
       abortControllerRef.current = null;
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, startStreamingUI, stopStreamingUI]);
 
   const clearMessages = useCallback(() => {
+    // Stop any streaming
+    if (streamIntervalRef.current) {
+      clearInterval(streamIntervalRef.current);
+      streamIntervalRef.current = null;
+    }
     // Abort any ongoing request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -145,21 +220,11 @@ export function useChatStream(): UseChatStreamReturn {
   };
 }
 
-// Helper function to process SSE/JSON data from the chat API
+// Helper function to process SSE/JSON data and accumulate in buffer
 function processData(
   rawData: string,
-  assistantMessageId: string,
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
+  contentBufferRef: React.MutableRefObject<string>
 ) {
-  processCallCount++;
-  const callNum = processCallCount;
-  
-  // Log first few process calls
-  if (callNum <= 10) {
-    console.log(`[useChatStream] processData call #${callNum}, rawData length: ${rawData.length}`);
-    console.log(`[useChatStream] rawData preview:`, rawData.substring(0, 300));
-  }
-
   const lines = rawData.split("\n");
   
   for (const line of lines) {
@@ -190,40 +255,14 @@ function processData(
         const delta = choice.delta;
         const message = choice.message;
         
-        if (callNum <= 10) {
-          console.log(`[useChatStream] Parsed choice:`, {
-            hasDelta: !!delta,
-            deltaContent: delta?.content?.substring(0, 100),
-            hasMessage: !!message,
-            messageContentLength: message?.content?.length,
-          });
-        }
-        
         if (delta?.content) {
-          // Streaming format
-          if (callNum <= 10) {
-            console.log(`[useChatStream] Using STREAMING path, delta content:`, delta.content.substring(0, 50));
-          }
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantMessageId
-                ? { ...msg, content: msg.content + delta.content }
-                : msg
-            )
-          );
+          // Streaming format - append to buffer
+          contentBufferRef.current += delta.content;
         } else if (message?.content) {
-          // Complete response format - content might be stringified JSON (Inkeep format)
-          console.log(`[useChatStream] Using COMPLETE RESPONSE path`);
+          // Complete response format - extract and set buffer
           const textContent = extractTextContent(message.content);
-          
           if (textContent) {
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === assistantMessageId
-                  ? { ...msg, content: textContent }
-                  : msg
-              )
-            );
+            contentBufferRef.current = textContent;
           }
         }
       }
