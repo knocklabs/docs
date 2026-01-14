@@ -8,12 +8,7 @@ function AskAiButton() {
   const { toggleSidebar } = useAskAi();
 
   return (
-    <Button
-      variant="outline"
-      size="2"
-      borderRadius="2"
-      onClick={toggleSidebar}
-    >
+    <Button variant="outline" size="2" borderRadius="2" onClick={toggleSidebar}>
       <Stack direction="row" alignItems="center" gap="2">
         <Icon icon={Sparkles} alt="Sparkles" size="1" />
         <span>Ask AI</span>
