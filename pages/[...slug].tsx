@@ -19,7 +19,6 @@ import {
 import eventPayload from "../data/code/sources/eventPayload";
 import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../content/integrations/extensions/new_relic_dashboard.json";
-import AiChatButton from "../components/AiChatButton";
 
 import { FrontMatter } from "../types";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
@@ -41,7 +40,6 @@ export default function ContentPage({ source, sourcePath, typedocs }) {
               eventPayload,
             }}
           />
-          <AiChatButton />
         </MDXLayout>
       </div>
     </TypedocsProvider>

@@ -6,7 +6,6 @@ import remarkGfm from "remark-gfm";
 
 import { SidebarContent } from "@/data/types";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
-import AiChatButton from "../../components/AiChatButton";
 import datadogDashboardJson from "../../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../../content/integrations/extensions/new_relic_dashboard.json";
 import eventPayload from "../../data/code/sources/eventPayload";
@@ -30,7 +29,6 @@ function CachedCliPageComponent({ source, sourcePath }) {
             eventPayload,
           }}
         />
-        <AiChatButton />
       </MDXLayout>
     );
   }
