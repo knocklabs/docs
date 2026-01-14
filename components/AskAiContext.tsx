@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 
 type AskAiContextType = {
   isOpen: boolean;
@@ -31,17 +37,19 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
   const toggleSidebar = useCallback(() => setIsOpen((prev) => !prev), []);
 
   return (
-    <AskAiContext.Provider value={{ 
-      isOpen, 
-      sidebarWidth,
-      isResizing,
-      openSidebar, 
-      closeSidebar, 
-      toggleSidebar, 
-      setIsOpen,
-      setSidebarWidth,
-      setIsResizing,
-    }}>
+    <AskAiContext.Provider
+      value={{
+        isOpen,
+        sidebarWidth,
+        isResizing,
+        openSidebar,
+        closeSidebar,
+        toggleSidebar,
+        setIsOpen,
+        setSidebarWidth,
+        setIsResizing,
+      }}
+    >
       {children}
     </AskAiContext.Provider>
   );

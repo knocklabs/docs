@@ -6,7 +6,7 @@ const API_KEY = process.env.INKEEP_API_KEY;
 
 if (!API_KEY) {
   console.warn(
-    "Warning: INKEEP_API_KEY not found. The Chat API requires a server-side API key with Chat API access (not the widget key)."
+    "Warning: INKEEP_API_KEY not found. The Chat API requires a server-side API key with Chat API access (not the widget key).",
   );
 }
 
@@ -35,8 +35,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   if (!API_KEY) {
-    return res.status(500).json({ 
-      error: "INKEEP_API_KEY is not configured. The Chat API requires a server-side API key with Chat API access." 
+    return res.status(500).json({
+      error:
+        "INKEEP_API_KEY is not configured. The Chat API requires a server-side API key with Chat API access.",
     });
   }
 
@@ -70,7 +71,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     if (!response.body) {
-      return res.status(500).json({ error: "No response body from Inkeep API." });
+      return res
+        .status(500)
+        .json({ error: "No response body from Inkeep API." });
     }
 
     // Pipe the stream from Inkeep directly to the client
@@ -79,7 +82,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       while (true) {
         const { done, value } = await reader.read();
-        
+
         if (done) {
           break;
         }
@@ -98,7 +101,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(500).json({ error: (error as Error).message });
     }
     // If headers are already sent, try to send an error event
-    res.write(`data: ${JSON.stringify({ error: (error as Error).message })}\n\n`);
+    res.write(
+      `data: ${JSON.stringify({ error: (error as Error).message })}\n\n`,
+    );
     res.end();
   }
 };

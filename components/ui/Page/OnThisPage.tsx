@@ -72,10 +72,10 @@ const HeaderList: React.FC<{ headers: Header[]; nesting: number }> = ({
         <Box
           as="li"
           key={h.id}
-          style={{ 
-            listStyle: "none", 
+          style={{
+            listStyle: "none",
             wordBreak: "break-word",
-            marginLeft: nesting === 1 ? "0.75rem" : "0"
+            marginLeft: nesting === 1 ? "0.75rem" : "0",
           }}
         >
           <Text
@@ -140,7 +140,12 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
         top="32"
         style={{ height: "calc(100vh - 15rem)", right: "1rem" }}
       >
-        <Stack direction="row" align="center" gap="1" style={{ marginBottom: "0.5rem" }}>
+        <Stack
+          direction="row"
+          align="center"
+          gap="1"
+          style={{ marginBottom: "0.5rem" }}
+        >
           <Icon icon={TextIcon} size="2" color="default" aria-hidden />
           <Text as="span" size="2" weight="medium" color="default">
             On this page
@@ -160,13 +165,21 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
           <ScrollerBottomGradient
             scrollerRef={scrollerRef as RefObject<HTMLDivElement>}
           />
-          <Box borderTop="px" borderColor="gray-3" style={{ marginBottom: "1rem" }} />
+          <Box
+            borderTop="px"
+            borderColor="gray-3"
+            style={{ marginBottom: "1rem" }}
+          />
           <Text
             as="a"
             href={`https://github.com/knocklabs/docs/edit/main/${sourcePath}`}
             color="gray"
             size="1"
-            style={{ textDecoration: "none", display: "block", marginTop: "0.5rem" }}
+            style={{
+              textDecoration: "none",
+              display: "block",
+              marginTop: "0.5rem",
+            }}
             target="_blank"
             rel="noreferrer"
           >

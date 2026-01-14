@@ -61,7 +61,12 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
           direction="row"
           style={{ position: "relative" }}
         >
-          <Stack direction="row" alignItems="flex-end" pb="1" style={{ flexShrink: 0 }}>
+          <Stack
+            direction="row"
+            alignItems="flex-end"
+            pb="1"
+            style={{ flexShrink: 0 }}
+          >
             <Link href="/" style={{ display: "block" }}>
               <svg
                 width="130"
@@ -95,14 +100,26 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
               gap: "8px",
             }}
           >
-            <Box style={{ width: "100%", maxWidth: "400px", display: "flex", alignItems: "stretch" }}>
+            <Box
+              style={{
+                width: "100%",
+                maxWidth: "400px",
+                display: "flex",
+                alignItems: "stretch",
+              }}
+            >
               <Autocomplete />
             </Box>
             <Box style={{ display: "flex", alignItems: "stretch" }}>
               <AskAiButton />
             </Box>
           </Box>
-          <Stack marginLeft="auto" gap="2" className="md-hidden" style={{ flexShrink: 0 }}>
+          <Stack
+            marginLeft="auto"
+            gap="2"
+            className="md-hidden"
+            style={{ flexShrink: 0 }}
+          >
             <Button
               as={Link}
               href="mailto:support@knock.app?subject=Support%20request"
