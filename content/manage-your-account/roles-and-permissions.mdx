@@ -11,11 +11,30 @@ Learn more about the roles available to members of your Knock account.
 
 Knock uses an account-level roles model, where a given account member's role determines what they'll be able to do in your account. You set an account member's role when you invite them to the Knock dashboard. You can update their role on the **Members** page under the **Admin** section of your account settings. Learn more in our [managing members documentation](/manage-your-account/managing-members).
 
-Here's an overview of the five roles available to Knock account members:
+<Callout
+  type="info"
+  title="Production write access"
+  text={
+    <>
+      By default, all changes to workflows and guides must be made in
+      development and promoted to production. If you've enabled{" "}
+      <strong>production write access</strong> in your account settings, roles
+      with CRUD access can edit resources directly in production, and the
+      Production Member role becomes available.{" "}
+      <a href="/version-control/environments#production-write-access">
+        Learn more about production write access
+      </a>
+      .
+    </>
+  }
+/>
+
+Here's an overview of the roles available to Knock account members:
 
 - **Owner.** For your primary admin who manages billing. This role can invite and manage members, manage billing, and do anything available in the admin role. Your account must always have at least one account owner.
 - **Admin.** For admins who need to manage account-level settings. This role can invite and manage members (excluding owner and billing roles), manage account branding, manage environments, and manage advanced developer concepts such as signing keys, enhanced security mode, variables, and webhooks. This role has all permissions available to the member role.
 - **Member.** For users who are editing notification workflows and templates in Knock. This role can manage workflows, layouts, users, objects, and tenants. It can make commits and push changes to subsequent environments, and has full access to message and API logs for debugging.
+- **Production Member.** Available when production write access is enabled in your account settings. For team members who should only work in production (such as lifecycle marketers managing in-app announcements). This role has the same permissions as the member role, but only in the production environment.
 - **Support.** For users who shouldn't have access to workflows and templates, but should be able to dig into message and API logs for debugging purposes.
 - **Billing.** For account members who shouldn't have access to anything in Knock but billing.
 
@@ -24,7 +43,14 @@ For a complete overview of which permissions are available to which roles, see o
 ## Roles and permissions lookup table
 
 <FeaturesMatrix
-  columns={["Owner", "Admin", "Member", "Support", "Billing"]}
+  columns={[
+    "Owner",
+    "Admin",
+    "Member",
+    "Production Member",
+    "Support",
+    "Billing",
+  ]}
   rowHeaderWidth="45%"
   rowGroups={[
     {
@@ -48,38 +74,53 @@ For a complete overview of which permissions are available to which roles, see o
       rows: [
         {
           name: "Create and manage workflows/templates",
-          columnsYes: ["Owner", "Admin", "Member"],
+          columnsYes: ["Owner", "Admin", "Member", "Production Member"],
         },
         {
           name: "Create and manage email layouts",
-          columnsYes: ["Owner", "Admin", "Member"],
+          columnsYes: ["Owner", "Admin", "Member", "Production Member"],
         },
         {
           name: "Commit and push changes",
-          columnsYes: ["Owner", "Admin", "Member"],
+          columnsYes: ["Owner", "Admin", "Member", "Production Member"],
         },
         {
           name: "Manage users/objects/tenants",
-          columnsYes: ["Owner", "Admin", "Member"],
+          columnsYes: ["Owner", "Admin", "Member", "Production Member"],
         },
         {
           name: "View users/objects/tenants",
-          columnsYes: ["Owner", "Admin", "Member", "Support"],
+          columnsYes: [
+            "Owner",
+            "Admin",
+            "Member",
+            "Production Member",
+            "Support",
+          ],
         },
         {
           name: "Manage per-tenant branding",
-          columnsYes: ["Owner", "Admin", "Member"],
+          columnsYes: ["Owner", "Admin", "Member", "Production Member"],
         },
         {
           name: "View environment logs (API, messages)",
-          columnsYes: ["Owner", "Admin", "Member", "Support"],
+          columnsYes: [
+            "Owner",
+            "Admin",
+            "Member",
+            "Production Member",
+            "Support",
+          ],
         },
       ],
     },
     {
       name: "Developer",
       rows: [
-        { name: "View API keys", columnsYes: ["Owner", "Admin", "Member"] },
+        {
+          name: "View API keys",
+          columnsYes: ["Owner", "Admin", "Member", "Production Member"],
+        },
         { name: "Create API keys", columnsYes: ["Owner", "Admin"] },
         { name: "Revoke API keys", columnsYes: ["Owner", "Admin"] },
         { name: "Manage variables", columnsYes: ["Owner", "Admin"] },
@@ -89,6 +130,57 @@ For a complete overview of which permissions are available to which roles, see o
     },
   ]}
 />
+
+<Callout
+  type="info"
+  title="Production Member environment access"
+  text={
+    <>
+      The Production Member role can only access the production environment.
+      Team members with this role cannot see or access other environments
+      (development, staging, etc.). This simplified experience enables
+      non-technical team members to manage production content without needing to
+      understand the full version control model.
+    </>
+  }
+/>
+
+## Production write access and roles
+
+By default, Knock requires all changes to workflows and guides to be made in development and promoted to production. This version-controlled approach enables teams to test changes before they go live.
+
+When you enable production write access in your account settings (Settings > Permissions), two changes take effect:
+
+1. **All roles with CRUD access can now edit resources in any environment.** Owner, admin, and member roles can create and edit workflows and guides directly in production (and any other environment), without requiring promotion from development.
+
+2. **The Production Member role becomes available.** This environment-specific role enables you to give team members (such as lifecycle marketers or content managers) access only to production, where they can manage workflows and guides independently.
+
+### When to use production write access
+
+Production write access is designed for use cases where content should be managed directly in production:
+
+- **In-app announcements.** Marketing teams can create and manage guides for feature launches, product updates, or promotional messages without engineering involvement.
+- **Lifecycle campaigns.** Lifecycle marketers can build and iterate on onboarding flows, engagement campaigns, and retention workflows directly.
+- **Rapid content updates.** Content teams can update messaging quickly without waiting for promotion cycles.
+
+### When to continue using promotion
+
+The version control model (development → production) remains best for:
+
+- **Transactional workflows.** Notifications triggered by application events (password resets, order confirmations, etc.) benefit from testing in development before going live.
+- **Engineering-managed workflows.** Any workflows that require coordination with backend changes should follow the promotion model.
+- **High-stakes changes.** When changes need review and testing before going live.
+
+### Origin environment protection
+
+When production write access is enabled, Knock protects version-controlled resources through origin environment tracking. A resource can only be edited in the environment where it was created:
+
+- If a workflow was created in development and promoted to production, it can only be edited in development. Attempting to edit it in production will show a visual indicator directing you to the source environment.
+- If a workflow was created directly in production, it can only be edited in production.
+
+This ensures that promoted resources remain under version control, while production-native resources can be managed directly.
+
+[Learn more about production write access](/version-control/environments#production-write-access)
 
 <Callout
   type="enterprise"

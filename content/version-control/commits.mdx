@@ -21,7 +21,7 @@ tags:
 section: Concepts
 ---
 
-To version the changes you make in your [environments](/concepts/environments), Knock uses a commit model. When you make a change to a workflow or a layout in the Knock dashboard, you'll need to commit it to your development environment before those changes will appear in workflows triggered via the API.
+To version the changes you make in your [environments](/version-control/environments), Knock uses a commit model. When you make a change to a workflow or a layout in the Knock dashboard, you'll need to commit it to your development environment before those changes will appear in workflows triggered via the API. By default, changes must be made in development and promoted to production. If you've enabled [production write access](/version-control/environments#production-write-access), resources can also be edited directly in production.
 
 After you modify a resource, you'll see a "Save" button that allows you to store those changes. When you're ready to permanently store your updates with version control, they should be committed with the "Commit to development" button that will come into focus after changes have been saved.
 
@@ -38,6 +38,23 @@ Clicking the "Commit to development" button will show you a view of changes betw
 ![Commit diffs in Knocks version control](/images/commit-diff-showcase.gif)
 
 ## Promoting commits
+
+<Callout
+  type="info"
+  title="Production write access"
+  text={
+    <>
+      By default, all changes to production must be promoted from development.
+      If you've enabled{" "}
+      <a href="/version-control/environments#production-write-access">
+        production write access
+      </a>
+      , you can choose to edit resources directly in production instead of using
+      promotion. Promotion remains available and is still the recommended
+      approach for version-controlled workflows.
+    </>
+  }
+/>
 
 Knock is designed to allow large teams to create and manage notifications at scale. That means that
 changes must be versioned, tested, and promoted to production environments, so that if there are
@@ -92,3 +109,86 @@ If you've made a change in a commit that you want to revert, you can use the "Re
 - Undo any uncommitted changes on the resource
 
 Because the revert will produce a new commit, you can then promote that commit to other environments to make that change live in those environments.
+
+## Origin environment and editing restrictions
+
+When [production write access](/version-control/environments#production-write-access) is enabled, Knock tracks the origin environment for each resource. A resource can only be edited in the environment where it was originally created. This protects version-controlled resources from unintended production edits while enabling direct production editing for resources created there.
+
+### How origin environment works
+
+Every workflow and guide has an origin environment that determines where it can be edited:
+
+**Development-originated resources**
+
+- Created in development environment
+- Can be promoted to production (and other environments)
+- Can only be edited in development
+- Visible in production with a "Source: Development" indicator
+- Attempting to edit in production shows message: "This resource was created in development and can only be edited there"
+
+**Production-originated resources**
+
+- Created directly in production environment
+- Cannot be promoted to other environments
+- Can only be edited in production
+- Not visible in development or other environments
+- Managed independently from version control workflow
+
+### Visual indicators
+
+When viewing a resource in an environment other than its origin, Knock shows visual indicators:
+
+- **Badge display.** A "Source: [Environment]" badge appears at the top of the resource
+- **Edit restrictions.** Clicking edit shows a helpful message directing you to the origin environment
+- **Origin environment link.** The message includes a link to open the resource in its origin environment
+
+### Use cases
+
+**Version-controlled transactional workflows**
+
+1. Engineer creates "password-reset" workflow in development
+2. Tests it thoroughly in development environment
+3. Promotes to production
+4. Workflow remains editable only in development
+5. Future edits follow: edit in dev → test → promote to production
+
+**Direct production content workflows**
+
+1. Marketer (Production Member role) creates "feature-announcement" guide in production
+2. Edits content directly as needed
+3. No promotion required or available
+4. Changes go live immediately in production
+
+**Hybrid approach**
+
+Teams can use both models simultaneously:
+
+- Engineers manage transactional workflows via promotion (dev → prod)
+- Marketers manage in-app content directly in production
+- Origin environment protection keeps them separate
+
+### Determining a resource's origin
+
+To identify a resource's origin environment:
+
+1. Open the resource in the Knock dashboard
+2. Look for the "Source: [Environment]" badge at the top
+3. If no badge appears, the resource was created in the current environment
+
+Alternatively, when attempting to edit a promoted resource in a non-origin environment, you'll see a message indicating where the resource can be edited.
+
+### Changing a resource's origin
+
+<Callout
+  type="warning"
+  title="Origin cannot be changed"
+  text="A resource's origin environment is permanent and cannot be changed. If you need to move a workflow from version control to direct production editing (or vice versa), you must create a new workflow in the desired environment."
+/>
+
+If you need to transition a workflow from one model to another:
+
+1. Create a new workflow in the desired environment
+2. Copy the configuration and templates from the original workflow
+3. Test the new workflow
+4. Archive the original workflow
+5. Update your trigger calls to use the new workflow key
