@@ -9,6 +9,7 @@ import {
 
 import * as gtag from "../lib/gtag";
 import { setClearbitPath } from "../lib/clearbit";
+import { initAttribution } from "../lib/attribution";
 import { useRemoteRefresh } from "next-remote-refresh/hook";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
@@ -24,11 +25,17 @@ function App({ Component, pageProps }) {
   // Refresh when content pages change
   useRemoteRefresh();
 
+  // Initialize attribution tracking on mount
+  useEffect(() => {
+    initAttribution();
+  }, []);
+
   useEffect(() => {
     const handleRouteChange = (url: URL) => {
       gtag.pageview(url);
       setClearbitPath(url);
       analytics.page();
+      initAttribution();
     };
 
     router.events.on("routeChangeComplete", handleRouteChange);
