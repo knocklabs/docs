@@ -3558,6 +3558,13 @@ components:
             inserted_at: "2025-07-24T21:06:27.394627Z"
             key: default
             updated_at: "2025-10-07T20:39:52.465400Z"
+        ineligible_guides:
+          - key: onboarding-tour
+            message: User has archived this guide already
+            reason: marked_as_archived
+          - key: premium-feature
+            message: User is not a member of the target audience
+            reason: not_in_target_audience
       properties:
         entries:
           description: A list of guides.
@@ -3788,10 +3795,45 @@ components:
           type: array
           x-struct: null
           x-validate: null
+        ineligible_guides:
+          description: Markers for guides the user is not eligible to see.
+          items:
+            properties:
+              key:
+                description: The guide's key identifier
+                type: string
+                x-struct: null
+                x-validate: null
+              message:
+                description: Human-readable explanation of ineligibility
+                type: string
+                x-struct: null
+                x-validate: null
+              reason:
+                description: Reason code for ineligibility
+                enum:
+                  - guide_not_active
+                  - marked_as_archived
+                  - target_conditions_not_met
+                  - not_in_target_audience
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - key
+              - reason
+              - message
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
       required:
         - entries
         - guide_groups
         - guide_group_display_logs
+        - ineligible_guides
       title: GuidesResponse
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.Guides.Responses.GuidesResponse
