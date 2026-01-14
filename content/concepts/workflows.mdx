@@ -7,23 +7,15 @@ section: Concepts
 
 Workflows are triggered journeys that send notifications to your recipients.
 
-Workflows are represented as a set of steps, which are either function or channel steps. Functions apply logic to your workflow run, like batching to collapse multiple calls into single notifications or delays to pause the execution of a workflow for some duration. Channel steps produce a notification that will be delivered via a [configured channel](/concepts/channels). All steps can also have conditions to determine if and when they should run.
+Workflows are represented as a set of steps, which are either function or channel steps. Functions apply logic to your workflow run, like batching and branching. Channel steps produce notifications that are delivered via your [configured channels](/concepts/channels).
 
 Workflows in Knock:
 
-- Always have a unique `key` associated
-- Are always executed for a single recipient at a time
+- Have a unique `key`
+- Execute for a single recipient at a time
 - Contain all of the logic and templates for the notifications you send
-- Can have recipient preferences attached
-- Can be triggered via the API, an event, or on a schedule for a recipient
-
-## Thinking in workflows
-
-A workflow groups together cross-channel notifications and the business logic that governs those notifications into a single entity. Workflows are always executed on behalf of a single recipient and can have other properties associated with them, like the "actor" who performed the action that triggered the notification.
-
-It's highly recommended to group notifications about the same "topic" or "entity" in your system into individual workflows. While it might be tempting to build a single workflow with conditional logic for all of your notification use cases that can be triggered from anywhere within your application with the same workflow `key`, modularizing your workflows by topic and use case allows you to offer the highest level of configurability to your users via [Preferences](/concepts/preferences). Our customers also find that concise, topic-specific workflows are easier to maintain and iterate on.
-
-As an example, if we're building a document collaboration app where users can comment on specific documents, we might group all of the logic about the cross-channel comment notifications we have into a single `new-comment` workflow.
+- Evaluate recipient [preferences](/preferences/overview) automatically
+- Are triggered via API calls, events, audience events, or recipient schedules
 
 <Callout
   type="info"
@@ -46,11 +38,11 @@ The templates associated with a channel step **only** exist in the context of th
 
 ## Managing workflows
 
-Knock workflows can be managed either via the Knock Dashboard or programmatically via the [Management API](/mapi-reference). The [Knock CLI](/cli/overview) offers a convenient way to work with the management API locally to make updates to workflows and their templates.
+Knock workflows can be managed either via the Knock dashboard or programmatically via the [Management API](/mapi-reference). The [Knock CLI](/cli/overview) offers a convenient way to work with the management API locally to make updates to workflows and their templates.
 
 <Callout
   type="info"
-  title="Editing workflows across environments"
+  title="Editing workflows across environments."
   text={
     <>
       By default, workflows can only be edited in development and must be{" "}
@@ -87,7 +79,9 @@ To set a `category` for a given workflow, go to that workflow's page in the dash
 
 ### Version control for workflows
 
-All changes to workflows, including changes made to the templates inside of a workflow, are version controlled. By default, changes must be made in the development environment and then "committed" and "promoted" between environments. If your account has [production write access](/version-control/environments#production-write-access) enabled, workflows can be edited in their [origin environment](/version-control/commits#origin-environment-and-editing-restrictions) (the environment where they were created). This allows you to confidently make changes to workflows while maintaining appropriate controls.
+All changes to workflows, including changes made to the templates inside of a workflow, are version controlled. By default, changes must be made in the development environment and then promoted to your production environment.
+
+If your account has [production write access](/version-control/environments#production-write-access) enabled, you can create and edit workflows directly in production.
 
 Read more about [environments](/version-control/environments) and [versioning](/version-control/commits) in Knock.
 
@@ -167,6 +161,12 @@ You can learn more about automating workflow management in the [Knock CLI refere
   <Accordion title="Is there a limit to the number of workflows I can have in Knock?">
     No, there's no limit to the number of workflows you can have within your
     Knock environment.
+  </Accordion>
+  <Accordion title="Can I build a single workflow for all of my notification use cases?">
+    It's highly recommended to build individual workflows for each use case. While it might be tempting to build a single workflow with conditional logic for all of your notification use cases that can be triggered from anywhere within your application with the same workflow `key`, modularizing your workflows by use case allows you to offer the highest level of configurability to your users via [Preferences](/concepts/preferences). Our customers also find that concise, use-case specific workflows are easier to maintain and iterate on.
+
+    As an example, if we're building a document collaboration app where users can comment on specific documents, we might group all of the logic about the cross-channel comment notifications we have into a single `new-comment` workflow.
+
   </Accordion>
   <Accordion title="Can I create per-tenant/per-customer workflows?">
     While it's possible to create per-customer workflows using the management

@@ -54,10 +54,10 @@ export const Callout = ({
   const effectiveType = type || (hasCustomProps ? undefined : "info");
 
   const emoji = effectiveType
-    ? TYPE_CONFIG[effectiveType].emoji
+    ? TYPE_CONFIG[effectiveType]?.emoji ?? customEmoji ?? "💡"
     : customEmoji || "💡";
   const bgColor = effectiveType
-    ? TYPE_CONFIG[effectiveType].bgColor
+    ? TYPE_CONFIG[effectiveType]?.bgColor ?? customBgColor ?? "default"
     : customBgColor || "default";
 
   // Ensure emoji is always a string

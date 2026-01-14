@@ -1,121 +1,116 @@
 ---
 title: Environments
-description: Learn about how Knock's isolated environment model works and how it fits into your system development lifecycle.
-tags: ["env", "version control", "variables", "promote", "promotion", "staging"]
+description: Learn how to use Knock environments.
+tags:
+  [
+    "env",
+    "version control",
+    "variables",
+    "promote",
+    "promotion",
+    "staging",
+    "production write access",
+    "production member role",
+  ]
 section: Concepts
 ---
 
-Knock uses the concept of environments to ensure logical separation of your data between
-local, staging, and production environments. This means that recipients and preferences created
-in one environment are **never** accessible to another.
+Knock environments enable you to test and review changes before you ship them to production.
 
-The API key you use determines the environment into which you'll be sending data. You can find your environment-specific API keys under the "Developer" section of the Knock dashboard.
+Each Knock environment has its own isolated data (such as users, tenants, and objects) and its own version-controlled resources (such as workflows, layouts, and partials.)
 
-## Working with Knock resources across environments
+## How environments work
 
-By default, Knock prevents unintended changes to resources (like [workflows](/concepts/workflows) and [guides](/in-app-ui/guides/overview)) in production by requiring changes to be committed in development and [promoted](/version-control/commits#promoting-commits) to higher environments. This version control model enables testing and review before changes go live.
+Your Knock account starts with two environments: development and production. You can [create additional environments](/version-control/environments#create-additional-environments) (for example, a Staging environment to mirror your own development lifecycle.)
 
-For use cases where resources should be managed directly in production (such as in-app announcements or lifecycle campaigns), you can enable production write access in your account settings.
+Environments contain isolated data (such as users, objects, and logs) and version-controlled resources (such as workflows, layouts, and partials.)
 
-[Read more about commits](/version-control/commits)
+With Knock environments you:
+
+- Use environment-specific API keys to send data to your environments.
+- Create and update content resources in development, then promote to production.
+
+### Send data to environments
+
+Each environment has a set of **data resources** that are per-environment, isolated resources and will never be shared between environments. These data resources are not version-controlled.
+
+An example: the users you identify in Knock. Your production users are identified in your Production environment, while your development users are identified in your development environment.
+
+Each environment has its own set of API keys which you use to send data to the environment. You can find your environment-specific API keys under "Platform" > "API keys" in the Knock dashboard.
+
+<AccordionGroup>
+  <Accordion title="Data resources">
+    The following data resources are per-environment and not version-controlled.
+    <ul>
+      <li>Users</li>
+      <li>Audiences</li>
+      <li>Tenants</li>
+      <li>Objects</li>
+      <li>Messages</li>
+      <li>Analytics</li>
+      <li>Logs</li>
+      <li>Events</li>
+      <li>Broadcasts</li>
+    </ul>
+  </Accordion>
+</AccordionGroup>
+
+### Create content in environments
+
+Each environment has a set of **content resources** that are managed via version control and promoted between environments. These are resources associated with the creation and orchestration of the content you send to your customers.
+
+Here's how version-controlled content resources work:
+
+1. Create and update the content in your development environment
+2. Commit the changes to your development environment
+3. Promote the changes to your production environment
+
+Learn more about [commits](/version-control/commits).
+
+<AccordionGroup>
+  <Accordion title="Content resources">
+    The following content resources are version-controlled.
+    <ul>
+      <li>Workflows</li>
+      <li>Guides</li>
+      <li>Layouts</li>
+      <li>Partials</li>
+      <li>Translations</li>
+      <li>Reusable requests</li>
+    </ul>
+  </Accordion>
+</AccordionGroup>
 
 ## Production write access
 
-Production write access is an optional feature that enables direct editing of workflows and guides in production, without requiring promotion from development. This feature is designed for use cases where content should be managed by non-technical team members, such as lifecycle marketers or content teams.
+In some cases, you may want to enable non-technical team members to manage content directly in production. Example: a marketer who wants to create content directly in production. You can enable production write access in your account to support this.
+
+Production write access is an opt-in feature that enables you to create and update content resources in any environment, without requiring promotion from development.
+
+Our customers enable production write access when:
+
+1. They have content that doesn't need to be deployed through their environments, such as guides for product announcements.
+2. That content is managed by users that would prefer to work directly in production, such as growth and marketing teams.
 
 ### How it works
 
-When you enable production write access in your account settings (Settings > Permissions):
+To enable production write access, go to account settings, then permissions.
 
-1. **All roles with CRUD access can edit resources in any environment.** Owner, admin, and member roles can create and edit workflows and guides directly in production (and any other environment).
+When you enable production write access in your account:
 
-2. **The Production Member role becomes available.** This environment-specific role provides access only to production, enabling non-technical team members to manage content independently. [Learn more about the Production Member role](/manage-your-account/roles-and-permissions#production-write-access-and-roles).
+1. **All roles with edit permissions can edit resources in any environment.** Owner, admin, and member roles can create and edit content resources (like workflows and guides) directly in production.
 
-3. **Origin environment tracking protects version-controlled resources.** Resources can only be edited in the environment where they were created. This ensures that promoted resources remain under version control.
+2. **The Production Member role becomes available.** This role gives a user access to the production environment, and no others. It enables non-technical team members to work in production without touching any resources that are managed in development. [Learn more about the Production Member role](/manage-your-account/roles-and-permissions#production-write-access-and-roles).
 
-### Affected resource types
+3. **Content resources can only be edited in the environment in which they were created.** This means that any content resources you want to follow your environment lifecycle (create in development, promote to production) are only editable in development. For use cases that don't need the governance of environment promotion, you can create directly in production.
 
-Production write access applies to:
-
-- **Workflows.** Notification journeys triggered by API calls or schedules.
-- **Guides.** In-app messages like announcements, paywalls, and banners.
-
-Other resources (channels, variables, branding) continue to work as before and do not require promotion.
-
-### Origin environment protection
-
-When production write access is enabled, Knock tracks the origin environment for each resource. A resource can only be edited in its origin environment:
-
-**Example: Development-originated workflow**
-
-1. You create a workflow in development
-2. You promote it to production
-3. In production, you see a visual indicator that this workflow originated in development
-4. Attempting to edit it in production shows a message directing you to development
-5. The workflow can only be edited in development and promoted forward
-
-**Example: Production-originated workflow**
-
-1. With production write access enabled, you create a workflow directly in production
-2. This workflow can only be edited in production
-3. It cannot be edited in other environments
-
-This protection ensures that version-controlled workflows (created in development) remain under version control, while production-native workflows can be managed directly.
-
-### When to enable production write access
-
-Enable production write access when:
-
-- **Non-technical team members need production access.** Lifecycle marketers, content managers, or product teams should manage in-app messaging independently.
-- **Content changes frequently.** Announcements, feature launches, and promotional messages benefit from direct editing without promotion overhead.
-- **You want to separate concerns.** Engineers manage transactional workflows through version control, while other teams manage content directly in production.
-
-Continue using the promotion model when:
-
-- **Changes require testing.** Transactional workflows triggered by application events benefit from development environment testing.
-- **Changes coordinate with code.** When notification changes must be synchronized with backend deployments.
-- **You want centralized review.** The promotion model provides a natural review point before production deployment.
-
-### Enabling production write access
+Production write access keeps engineering-governed resources like transactional workflows version controlled by the development environment, while enabling marketing and product teams to work in a simpler, production-only way for lifecycle journeys and product announcements.
 
 <Callout
-  type="info"
-  title="Account-level setting"
-  text="Production write access is an account-level setting that affects all team members. Once enabled, the behavior change applies to all eligible roles."
+  type="tip"
+  title="Tip:"
+  text="Content resources created directly in production are still version controlled and saved via commits. This means you can roll back to prior versions when needed."
 />
-
-To enable production write access:
-
-1. Navigate to **Settings** > **Permissions** in your Knock dashboard
-2. Find the "Production write access" setting
-3. Toggle it on
-4. Review the changes that will take effect
-
-Once enabled:
-
-- Roles with CRUD access can edit workflows and guides in any environment
-- The Production Member role becomes available for assignment
-- Origin environment protection automatically applies to all resources
-
-### Working with both models
-
-You can use both version control and direct production editing simultaneously:
-
-**Version control workflow**
-
-- Engineers create transactional workflows in development
-- Test them thoroughly in development
-- Promote to production when ready
-- These workflows remain editable only in development (origin environment protection)
-
-**Direct production workflow**
-
-- Marketers create lifecycle campaigns directly in production
-- Edit and iterate on content as needed
-- No promotion required
-- These workflows remain editable only in production (origin environment protection)
-
-This hybrid approach enables teams to choose the right workflow for each use case.
 
 ## Create additional environments
 
