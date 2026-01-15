@@ -60,9 +60,7 @@ export function proxy(request: NextRequest) {
   } else {
     // For all other paths, map to the corresponding .md file
     // Remove trailing slash if present
-    const cleanPath = pathname.endsWith("/")
-      ? pathname.slice(0, -1)
-      : pathname;
+    const cleanPath = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 
     // Root path serves llms.txt (index)
     if (cleanPath === "" || cleanPath === "/") {
