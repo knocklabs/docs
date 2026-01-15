@@ -98,7 +98,86 @@ You can create a new Amazon SES channel in the dashboard under **Channels and so
 Here are a few other things to keep in mind once you have your SES channel configured in Knock:
 
 - **SES sandbox mode.** By default, AWS places all new accounts in the SES sandbox. While your account is in the sandbox, you can only send emails to verified email address—keep this in mind if you're testing in development before you've moved your account out of the SES sandbox. For more information on the SES sandbox and how to move your account out of it, see the [SES sandbox documentation](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html).
-- **Deliverability tracking.** We cannot currently track deliverability through SES channels. This means that all notifications sent through SES will show up as "Sent" in the Knock messages log, but not "Delivered."
+- **Deliverability tracking.** By default, SES channels do not track delivery beyond "Sent". However, you can enable [delivery status webhooks](#delivery-status-webhooks) to receive real-time updates about email delivery and bounces.
+
+## Delivery status webhooks
+
+When enabled, SES will send delivery status updates directly to Knock via webhooks, allowing you to track the full lifecycle of your email messages.
+
+### Prerequisites
+
+Before enabling delivery status webhooks, you need:
+
+1. A verified domain or email address in Amazon SES
+2. An SES channel configured in Knock (see the [getting started](#getting-started) section above)
+3. Access to AWS SNS (Simple Notification Service) configuration
+
+### Setting up delivery status webhooks
+
+<Steps titleSize="h3">
+  <Step title="Enable delivery status webhooks in Knock">
+    1. Navigate to **Channels and sources** in your Knock dashboard
+    2. Select your Amazon SES channel
+    3. Click "Manage configuration" for the environment you want to configure
+    4. Scroll to the "Incoming message status updates" section and enable incoming webhooks
+    6. Copy the generated webhook URL - you'll need this in the next step
+  </Step>
+
+  <Step title="Configure SNS topic in AWS">
+    In the AWS Console, configure an SNS topic to receive SES notifications:
+
+    1. Go to the **SNS Console** in AWS
+    2. Create a new SNS topic (or use an existing one) for SES notifications
+    3. Configure the topic to send notifications for:
+       - **Delivery** notifications
+       - **Bounce** notifications
+    4. Add an HTTPS subscription to the topic with the webhook URL from Knock
+    5. Knock will automatically confirm the subscription
+
+  </Step>
+
+  <Step title="Configure SES to publish to SNS">
+    In the AWS SES Console, configure your verified domain or email to publish events to SNS:
+
+    1. Go to **Verified identities** in the SES Console
+    2. Select the domain or email address you're using with Knock
+    3. Go to the **Notifications** tab
+    4. Under **Feedback notifications**, configure:
+       - **Bounces**: Select your SNS topic
+       - **Deliveries**: Select your SNS topic
+    5. Save your configuration
+
+  </Step>
+</Steps>
+
+### Supported delivery statuses
+
+When delivery status webhooks are enabled for SES, Knock will update message statuses based on these SES events:
+
+| SES Event Type | Knock Status | Description                                                         |
+| -------------- | ------------ | ------------------------------------------------------------------- |
+| Delivery       | `delivered`  | The email was successfully delivered to the recipient's mail server |
+| Bounce         | `bounced`    | The bounced due to invalid recipient or domain                      |
+
+### Troubleshooting
+
+If delivery status updates aren't appearing in Knock:
+
+1. **Check SNS subscription status.** Verify the subscription is "Confirmed" in the AWS SNS console.
+2. **Verify SNS topic configuration.** Ensure the SNS topic is correctly configured for Bounce, Complaint, and Delivery notifications.
+3. **Check SES notification settings.** Confirm your verified identity is publishing to the correct SNS topic.
+4. **Test with verified addresses.** If in SES sandbox mode, ensure you're sending to verified addresses.
+
+<Callout
+  type="info"
+  title="Need help?"
+  text={
+    <>
+      If you're having trouble setting up delivery status webhooks, contact our
+      support team at <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
 
 ## Channel configuration
 
