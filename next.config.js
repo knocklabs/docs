@@ -672,6 +672,11 @@ const nextConfig = {
         source: "/mapi-reference/:path+",
         destination: "/mapi-reference",
       },
+      // CLI reference pages all serve the same static content
+      {
+        source: "/cli/:path+",
+        destination: "/cli",
+      },
     ];
   },
 };
