@@ -117,9 +117,69 @@ To send an email notification you'll need a valid `email` property set on your r
 
 If you see an `Identity not found` error in your delivery logs this is because you need to verify your sending domain with Resend (the `From email address`).
 
-## Delivery tracking
+## Delivery status webhooks
 
-Delivery tracking for Resend can result in the following status updates to your message:
+When enabled, Resend will send delivery status updates directly to Knock via webhooks, allowing you to track the full lifecycle of your email messages in real-time.
 
-- The message delivery is confirmed and Knock updates the message to `delivered`
-- The message was not delivered due to a bounce and Knock updates the message to `bounced`
+### Prerequisites
+
+Before enabling delivery status webhooks, you need:
+
+1. A verified domain in Resend
+2. A Resend channel configured in Knock (see the [getting started](#getting-started) section above)
+3. Access to your Resend dashboard webhook settings
+
+### Setting up delivery status webhooks
+
+<Steps titleSize="h3">
+  <Step title="Enable delivery status webhooks in Knock">
+    1. Navigate to **Channels and sources** in your Knock dashboard
+    2. Select your Resend channel
+    3. Click "Manage configuration" for the environment you want to configure
+    4. Scroll to the "Incoming message status updates" section and enable incoming webhooks
+    5. Copy the generated webhook URL - you'll need this in the next step
+  </Step>
+
+  <Step title="Add webhook endpoint in Resend">
+    In the Resend dashboard, configure webhooks to send delivery events to Knock:
+
+    1. Go to the [Webhooks section](https://resend.com/webhooks) in your Resend dashboard
+    2. Click "Add Endpoint"
+    3. Paste the webhook URL from Knock
+    4. Select the events you want to track:
+       - **email.delivered** - Tracks successful delivery
+       - **email.bounced** - Tracks bounce events
+    5. Click "Add Endpoint" to save
+    6. Resend will automatically verify the endpoint
+
+  </Step>
+</Steps>
+
+### Supported delivery statuses
+
+When delivery status webhooks are enabled for Resend, Knock will update message statuses based on these Resend webhook events:
+
+| Resend Event Type | Knock Status | Description                                                         |
+| ----------------- | ------------ | ------------------------------------------------------------------- |
+| email.delivered   | `delivered`  | The email was successfully delivered to the recipient's mail server |
+| email.bounced     | `bounced`    | The email bounced due to invalid recipient or domain                |
+
+### Troubleshooting
+
+If delivery status updates aren't appearing in Knock:
+
+1. **Check webhook endpoint status.** Verify the endpoint shows as "Active" in the Resend webhooks dashboard.
+2. **Verify event selection.** Ensure you've enabled both `email.delivered` and `email.bounced` events.
+3. **Test with verified domains.** Ensure you're sending from a verified domain in Resend.
+4. **Check webhook payload.** Review webhook delivery logs in Resend to ensure events are being sent.
+
+<Callout
+  type="info"
+  title="Need help?"
+  text={
+    <>
+      If you're having trouble setting up delivery status webhooks, contact our
+      support team at <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
