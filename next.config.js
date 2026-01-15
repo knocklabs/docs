@@ -659,6 +659,21 @@ const nextConfig = {
       },
     ];
   },
+
+  async rewrites() {
+    return [
+      // API reference pages all serve the same static content
+      // The URL paths are used for client-side navigation to sections
+      {
+        source: "/api-reference/:path+",
+        destination: "/api-reference",
+      },
+      {
+        source: "/mapi-reference/:path+",
+        destination: "/mapi-reference",
+      },
+    ];
+  },
 };
 
 module.exports = withRemoteRefresh(nextConfig);
