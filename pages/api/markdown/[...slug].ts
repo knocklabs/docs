@@ -16,11 +16,23 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       .json({ error: `${req.method} method is not accepted.` });
   }
 
-  const { slug } = req.query;
+  // Get slug from query params, or parse from URL path if not available
+  // (middleware rewrites may not populate req.query properly)
+  let slug: string | string[] | undefined = req.query.slug;
 
-  if (!slug || !Array.isArray(slug)) {
+  if (!slug || (Array.isArray(slug) && slug.length === 0)) {
+    // Parse slug from the URL path: /api/markdown/path/to/page -> ["path", "to", "page"]
+    const urlPath = req.url?.split("?")[0] || "";
+    const pathSegments = urlPath.replace(/^\/api\/markdown\/?/, "").split("/");
+    slug = pathSegments.filter((s) => s.length > 0);
+  }
+
+  if (!slug || (Array.isArray(slug) && slug.length === 0)) {
     return res.status(400).json({ error: "Invalid slug parameter" });
   }
+
+  // Ensure slug is an array
+  const slugArray = Array.isArray(slug) ? slug : [slug];
 
   // Try to find the content file with .mdx or .md extension
   let source: Buffer | null = null;
@@ -29,8 +41,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   for (const ext of DOCS_FILE_EXTENSIONS) {
     const candidatePath = join(
       CONTENT_DIR,
-      ...slug.slice(0, slug.length - 1),
-      `${slug[slug.length - 1]}${ext}`,
+      ...slugArray.slice(0, slugArray.length - 1),
+      `${slugArray[slugArray.length - 1]}${ext}`,
     );
 
     if (fs.existsSync(candidatePath)) {
