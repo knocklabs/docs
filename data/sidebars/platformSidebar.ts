@@ -146,7 +146,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     desc: "Learn how versioning works within your Knock resources.",
     pages: [
       { slug: "/environments", title: "Environments" },
-      { slug: "/branches", title: "Branches", isBeta: true },
+      { slug: "/branches", title: "Branches" },
       { slug: "/commits", title: "Commits" },
     ],
   },
