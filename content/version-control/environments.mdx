@@ -1,21 +1,156 @@
 ---
 title: Environments
-description: Learn about how Knock's isolated environment model works and how it fits into your system development lifecycle.
-tags: ["env", "version control", "variables", "promote", "promotion", "staging"]
+description: Learn how to use Knock environments.
+tags:
+  [
+    "env",
+    "version control",
+    "variables",
+    "promote",
+    "promotion",
+    "staging",
+    "production write access",
+    "production member role",
+  ]
 section: Concepts
 ---
 
-Knock uses the concept of environments to ensure logical separation of your data between
-local, staging, and production environments. This means that recipients and preferences created
-in one environment are **never** accessible to another.
+Knock environments enable you to test and review changes before you ship them to production.
 
-The API key you use determines the environment into which you'll be sending data. You can find your environment-specific API keys under the "Developer" section of the Knock dashboard.
+Each Knock environment has its own isolated data (such as users, tenants, and objects) and its own version-controlled content (such as workflows, guides, and layouts.)
 
-## Working with Knock resources across environments
+## How environments work
 
-In order to prevent unintended changes to Knock resources (like a [workflow](/concepts/workflows) or [layout](/integrations/email/layouts)) in a production setting, we use a commit model that requires changes to be saved and committed in your Development environment and [promoted](/concepts/commits#promotion-and-rollback) to higher environments.
+Your Knock account starts with two environments: development and production.
 
-[Read more about Commits](/concepts/commits)
+You can [create additional environments](/version-control/environments#create-additional-environments) (for example, a Staging environment to mirror your own development lifecycle.)
+
+Environments contain isolated data (such as users, objects, and logs) and version-controlled content (such as workflows, layouts, and partials.)
+
+With Knock environments you:
+
+- Use environment-specific API keys to send data to your environments.
+- Create, update, and version content within any environment.
+- For production-critical use cases, create content in your development environment, then **promote** it to production.
+
+<AccordionGroup>
+  <Accordion title="A typical Knock customer setup">
+    Here's a typical setup for customers using Knock with two environments.
+    <ul>
+      <li>
+        **Development environment.** Usually used by engineering and product
+        teams. Contains your development data, and any transactional workflows
+        or other content you don't want people updating directly in production.
+      </li>
+      <li>
+        **Production environment.** Usually used by growth and marketing teams.
+        Contains your production data, and your lower-risk content that doesn't
+        need to follow promotion, such as lifecycle workflows and one-time
+        announcements.
+      </li>
+    </ul>
+  </Accordion>
+</AccordionGroup>
+
+### Send data to environments
+
+Each environment has a set of **data resources** that are per-environment and will never be shared between environments. These data resources are not version-controlled.
+
+<AccordionGroup>
+  <Accordion title="Data resources">
+    The following data resources are per-environment and not version-controlled.
+    <ul>
+      <li>Users</li>
+      <li>Audiences</li>
+      <li>Tenants</li>
+      <li>Objects</li>
+      <li>Messages</li>
+      <li>Analytics</li>
+      <li>Logs</li>
+      <li>Events</li>
+      <li>Broadcasts</li>
+    </ul>
+  </Accordion>
+</AccordionGroup>
+
+An example: the users you identify in Knock. Your real production users are identified in your production environment, while your test development users are identified in your development environment.
+
+Each environment has its own set of API keys which you use to send data to the environment. You can find your environment-specific API keys under "Platform" > "API keys" in the Knock dashboard.
+
+### Create content in environments
+
+Each environment has a set of **content resources** that are managed via version control. These are resources associated with the creation and orchestration of the content you send to your customers, such as workflows, layouts, and templates.
+
+<AccordionGroup>
+  <Accordion title="Content resources">
+    The following content resources are version-controlled.
+    <ul>
+      <li>Workflows</li>
+      <li>Guides</li>
+      <li>Layouts</li>
+      <li>Partials</li>
+      <li>Translations</li>
+      <li>Reusable requests</li>
+    </ul>
+  </Accordion>
+</AccordionGroup>
+
+Here's how content resources work:
+
+- Content can be created in any environment.
+- Content can be promoted upwards through environments.
+- Content can only be edited in the environment in which it was created.
+- Content is versioned with [commits](/version-control/commits). You can roll back to earlier commits at any time.
+
+These rules enable two ways of working with content and shipping it to your end users in production:
+
+<AccordionGroup>
+  <Accordion title="Create in development and promote to production">
+    For content managed by engineering, such as high-volume transactional workflows, this path ensures that content can only be updated in development before being promoted to production.
+
+    <ol>
+     <li>Create and update the content in your development environment</li>
+     <li>Commit the changes to your development environment</li>
+     <li>Promote the changes to your production environment when ready</li>
+    </ol>
+
+  </Accordion>
+  <Accordion title="Create directly in production">
+    For content managed by growth, marketing, and product, such as feature announcements and lifecycle workflows, this path is faster and doesn't require the promotion step.
+    <ol>
+     <li>Create and update the content in your production environment</li>
+     <li>Publish (commit) the changes to your production environment when ready</li>
+    </ol>
+
+    <Callout
+      type="tip"
+      title="Tip:"
+      text={
+        <>
+          If you want to disable the ability to create content directly in production, you can do so in account settings under the <span className="font-semibold">Permissions</span> page.
+        </>
+      }
+    />
+
+  </Accordion>
+</AccordionGroup>
+
+<Callout
+  type="warning"
+  title="For pre-2026 customers."
+  text={
+    <>
+      If you are a pre-January-2026 customer, your account will default to
+      having production write access disabled. This means that your users will
+      only be able to create content in the development environment, then
+      promote it to production. <br />
+      <br />
+      You can enable production write access in account settings under the{" "}
+      <span className="font-semibold">Permissions</span> page, at which point
+      your users will be able to create content directly in production.
+    </>
+  }
+/>
 
 ## Create additional environments
 
@@ -31,13 +166,13 @@ In order to prevent unintended changes to Knock resources (like a [workflow](/co
   }
 />
 
-By default your Knock account comes with two environments: Development and Production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a Staging environment) you can add it on the settings page of the Knock dashboard.
+By default your Knock account comes with two environments: development and production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a staging environment) you can add it on the settings page of the Knock dashboard.
 
 To create a new environment, go to the **Environments** page under the **Version control** section of your account settings. You'll see a button to "Create environment."
 
-When you create an additional environment, it will be inserted between Development and Production. This means all changes will continue to be introduced in your Development environment and will need to be promoted through additional environments until they land in Production. Subsequent new environments will always be added one "level" lower than Production; environments cannot be re-ordered, as this would break the promotion model for previously-promoted changes.
+When you create an additional environment, it will be inserted between development and production for environment promotion purposes. Any additional new environments will always be added one "level" lower than Production; environments cannot be re-ordered, as this would break the promotion model for previously-promoted changes.
 
-## Environment-based access controls
+## Environment access controls
 
 We recognize the importance of protecting your sensitive data, so we designed Knock from the ground-up with privacy and security in mind.
 
