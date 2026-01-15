@@ -17,6 +17,7 @@ import {
   API_REFERENCE_OVERVIEW_CONTENT,
   RESOURCE_ORDER as API_RESOURCE_ORDER,
 } from "../data/sidebars/apiOverviewSidebar";
+import { CLI_SIDEBAR } from "../data/sidebars/cliSidebar";
 
 // Utility functions
 async function parseFrontmatter(markdownContent) {
@@ -30,21 +31,10 @@ async function parseFrontmatter(markdownContent) {
   return yaml.parse(yamlNode.value);
 }
 
-// Parse section-based MDX content and extract sections by slug
-function parseSectionContent(mdxContent: string): Map<string, string> {
-  const sections = new Map<string, string>();
-
-  // Match Section components with their slug and content
-  const sectionRegex =
-    /<Section[^>]*slug="([^"]+)"[^>]*>([\s\S]*?)<\/Section>/g;
-
-  let match;
-  while ((match = sectionRegex.exec(mdxContent)) !== null) {
-    const slug = match[1];
-    let content = match[2];
-
-    // Strip wrapper components but keep inner content
-    content = content
+// Clean JSX content to plain markdown
+function cleanJsxContent(content: string): string {
+  return (
+    content
       // Remove ContentColumn and ExampleColumn wrappers
       .replace(/<ContentColumn>/g, "")
       .replace(/<\/ContentColumn>/g, "")
@@ -66,6 +56,17 @@ function parseSectionContent(mdxContent: string): Map<string, string> {
       )
       // Simpler Callout format
       .replace(/<Callout[^>]*title="([^"]*)"[^>]*\/>/g, "> **$1**\n\n")
+      // Remove Callout with just type and text
+      .replace(
+        /<Callout[^>]*text=\{[^}]*<>([\s\S]*?)<\/>[^}]*\}[^/]*\/>/g,
+        (_, text) => {
+          const cleanText = text
+            .replace(/<[^>]+>/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+          return `> ${cleanText}\n\n`;
+        },
+      )
       // Remove Table components (they use JSX)
       .replace(/<Table[\s\S]*?\/>/g, "")
       // Remove Attributes/Attribute components
@@ -78,7 +79,12 @@ function parseSectionContent(mdxContent: string): Map<string, string> {
       .replace(/<ErrorExample[\s\S]*?\/>/g, "")
       // Remove RateLimit components
       .replace(/<RateLimit[^>]*\/>/g, "")
-      // Remove span tags
+      // Remove PreTextDiagram wrapper but keep content
+      .replace(/<PreTextDiagram[^>]*>/g, "")
+      .replace(/<\/PreTextDiagram>/g, "")
+      // Remove JSX comments
+      .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+      // Remove span tags but keep content
       .replace(/<span[^>]*>([^<]*)<\/span>/g, "$1")
       // Remove anchor tags but keep text
       .replace(/<a[^>]*>([^<]*)<\/a>/g, "$1")
@@ -88,9 +94,28 @@ function parseSectionContent(mdxContent: string): Map<string, string> {
       .replace(/^\s+/, "")
       .replace(/\s+$/, "")
       // Normalize multiple newlines
-      .replace(/\n{3,}/g, "\n\n");
+      .replace(/\n{3,}/g, "\n\n")
+  );
+}
 
-    sections.set(slug, content);
+// Parse section-based MDX content and extract sections by slug or path
+function parseSectionContent(
+  mdxContent: string,
+  keyAttribute: "slug" | "path" = "slug",
+): Map<string, string> {
+  const sections = new Map<string, string>();
+
+  // Match Section components with their slug/path and content
+  const sectionRegex = new RegExp(
+    `<Section[^>]*${keyAttribute}="([^"]+)"[^>]*>([\\s\\S]*?)<\\/Section>`,
+    "g",
+  );
+
+  let match;
+  while ((match = sectionRegex.exec(mdxContent)) !== null) {
+    const key = match[1];
+    const content = cleanJsxContent(match[2]);
+    sections.set(key, content);
   }
 
   return sections;
@@ -138,7 +163,9 @@ async function generateApiReferenceMarkdownFiles(
             resourceOrder: MAPI_RESOURCE_ORDER,
           };
 
-    let content = `# ${apiType === "api" ? "API" : "Management API"} Reference\n\n`;
+    let content = `# ${
+      apiType === "api" ? "API" : "Management API"
+    } Reference\n\n`;
 
     // Load overview content from section-based MDX file
     const sectionContent = loadOverviewContent(apiType);
@@ -173,11 +200,7 @@ async function generateApiReferenceMarkdownFiles(
       // Add method content
       if (resource.methods) {
         for (const [methodName, method] of Object.entries(resource.methods)) {
-          content += getMethodMarkdownContent(
-            methodName,
-            method,
-            openApiSpec,
-          );
+          content += getMethodMarkdownContent(methodName, method, openApiSpec);
         }
       }
 
@@ -412,7 +435,9 @@ function getSubresourceMarkdownContent(
         if (pathParams.length > 0) {
           content += `**Path parameters:**\n\n`;
           for (const param of pathParams) {
-            content += `- **${param.name}** (${param.schema?.type || "string"})`;
+            content += `- **${param.name}** (${
+              param.schema?.type || "string"
+            })`;
             if (param.required) content += ` *required*`;
             if (param.description) content += ` - ${param.description}`;
             content += "\n";
@@ -423,7 +448,9 @@ function getSubresourceMarkdownContent(
         if (queryParams.length > 0) {
           content += `**Query parameters:**\n\n`;
           for (const param of queryParams) {
-            content += `- **${param.name}** (${param.schema?.type || "string"})`;
+            content += `- **${param.name}** (${
+              param.schema?.type || "string"
+            })`;
             if (param.required) content += ` *required*`;
             if (param.description) content += ` - ${param.description}`;
             content += "\n";
@@ -495,18 +522,73 @@ function getSchemaMarkdownContent(
   return content;
 }
 
+// Generate CLI reference markdown file
+async function generateCliReferenceMarkdownFile() {
+  try {
+    const fileName = "cli.md";
+    const filePath = path.join(process.cwd(), "public", fileName);
+
+    // Load CLI content from MDX file
+    const contentPath = path.join(
+      process.cwd(),
+      "content",
+      "__cli",
+      "content.mdx",
+    );
+
+    if (!fs.existsSync(contentPath)) {
+      console.warn("⚠️ CLI content file not found, skipping CLI reference");
+      return;
+    }
+
+    const mdxContent = fs.readFileSync(contentPath, "utf-8");
+    const sectionContent = parseSectionContent(mdxContent, "path");
+
+    let content = `# CLI Reference\n\n`;
+
+    // Iterate through CLI sidebar to maintain order
+    for (const section of CLI_SIDEBAR) {
+      if (section.title) {
+        content += `## ${section.title}\n\n`;
+      }
+
+      if (section.pages) {
+        for (const page of section.pages) {
+          // Build the full path from section slug + page slug
+          const fullPath = `${section.slug.replace("/cli", "")}${page.slug}`;
+          const pageContent = sectionContent.get(fullPath) || "";
+
+          if (page.title) {
+            content += `### ${page.title}\n\n`;
+          }
+
+          if (pageContent) {
+            content += pageContent + "\n\n";
+          }
+        }
+      }
+    }
+
+    fs.writeFileSync(filePath, content, "utf-8");
+    console.log("✅ CLI reference markdown file generated successfully");
+  } catch (error) {
+    console.error("Error generating CLI reference markdown file:", error);
+    throw error;
+  }
+}
+
 async function run() {
   try {
-    console.log("🚀 Generating API and MAPI reference markdown files...");
+    console.log("🚀 Generating API, MAPI, and CLI reference markdown files...");
     await generateAllApiReferenceMarkdownFiles();
-    console.log(
-      "✅ API and MAPI reference markdown files generated successfully!",
-    );
+    await generateCliReferenceMarkdownFile();
+    console.log("✅ All reference markdown files generated successfully!");
     console.log("  - public/api-reference.md");
     console.log("  - public/mapi-reference.md");
+    console.log("  - public/cli.md");
     process.exit(0);
   } catch (error) {
-    console.error("❌ Error generating API reference files:", error);
+    console.error("❌ Error generating reference files:", error);
     process.exit(1);
   }
 }
@@ -519,4 +601,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 export {
   generateApiReferenceMarkdownFiles,
   generateAllApiReferenceMarkdownFiles,
+  generateCliReferenceMarkdownFile,
 };
