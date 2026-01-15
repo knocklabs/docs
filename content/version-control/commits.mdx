@@ -25,11 +25,14 @@ To version the content changes you make in your [environments](/version-control/
 
 ## How commits work
 
-When you make a change to a content resource (like a workflow or a layout) in the Knock dashboard, you need to commit it to your development environment before those changes will appear in workflows triggered via the API.
+When you make a change to a content resource (like a workflow or a layout) in the Knock dashboard, you need to commit it to your current environment before those changes will appear in workflows triggered via the API.
 
-A few notes:
+Commits can be promoted to higher environments, such as production, and they can also be rolled back to prior commits. Lastly, commits provide a comprehensive version history for all content resources in your account.
+
+A few additional notes:
 
 - **A commit is not a save.** When you're drafting a workflow or a template, you can save and test your changes. Saved changes apply when you're using the test runner, but they do not apply to workflow runs or guide renders that are invoked via the API. To test changes via the API, you must commit them.
+- **"Publish" in production = commit to production.** If you're working [directly in production](/version-control/environments), the "Publish" button is the same as the "Commit" button. You'll still get a commit history and be able to roll back to prior versions if needed.
 - **Account-level resources are not version controlled.** Channel configurations, branding, and variables do not need to be committed, as they live at the account-level. This means that if you make a change to a channel configuration, it will update immediately on notifications sent in that environment.
 - **You can commit changes using our CLI and management API.** We offer both a [Management API](/developer-tools/management-api) and a [command line interface](/developer-tools/knock-cli) for interacting with Knock resources programmatically, both of which support programmatic commits.
 
@@ -41,64 +44,11 @@ Clicking the "Commit to development" button will show you a view of changes betw
 
 ## Promoting commits
 
-Knock is designed to allow large teams to create and manage notifications at scale. That means that
-changes must be versioned, tested, and promoted to production environments, so that if there are
-any issues they can be rolled back with ease.
+If you're working in a non-production environment such as development, you can promote your changes to the production environment when you're ready to go live.
 
-Knock uses a model where all changes are first made in the development environment, before being **promoted** to the production environment.
+You can promote your commits from a given resource's page. You can also view all commits in one place in the **Commits** page, where you can promote individual or multiple commits at once.
 
-<Callout
-  type="warning"
-  title="Note."
-  text={
-    <>
-      There is one exception to the commit and promotion process: the{" "}
-      <a href="/concepts/workflows#workflow-status">active/inactive status</a>{" "}
-      of a workflow.
-      <br />
-      <br />
-      Status is managed outside of promotion so you disable a workflow in any environment
-      instantly. A workflow's status is specific to each environment.
-    </>
-  }
-/>
-
-You can promote your commits from a given content resource's page. You can also view all commits in one place in the "Commits" page.
-
-<AccordionGroup>
-  <Accordion title="A typical deployment lifecycle in Knock">
-    <ol>
-      <li>
-        Introduce any backend changes to support a new workflow (such as users
-        and preference properties).
-      </li>
-      <li>
-        Build the workflow in a development environment in Knock and commit it
-        to that environment.
-      </li>
-      <li>Test the workflow.</li>
-      <li>When you're ready to go live, promote the workflow to production.</li>
-    </ol>
-  </Accordion>
-</AccordionGroup>
-
-<Callout
-  type="tip"
-  title="Production write access."
-  text={
-    <>
-      In some cases you may want to enable your team to create content directly
-      in production.
-      <br />
-      <br />
-      With <a href="/version-control/environments#production-write-access">
-        production write access
-      </a> enabled, you can edit lower-risk resources directly in production instead
-      of using promotion. Promotion is still available for higher-risk resources
-      that need to follow the environment lifecycle.
-    </>
-  }
-/>
+Learn more about promoting commits in our [environments documentation](/version-control/environments).
 
 ## Reverting a commit
 

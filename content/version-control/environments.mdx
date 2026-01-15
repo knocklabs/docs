@@ -17,26 +17,44 @@ section: Concepts
 
 Knock environments enable you to test and review changes before you ship them to production.
 
-Each Knock environment has its own isolated data (such as users, tenants, and objects) and its own version-controlled resources (such as workflows, layouts, and partials.)
+Each Knock environment has its own isolated data (such as users, tenants, and objects) and its own version-controlled content (such as workflows, guides, and layouts.)
 
 ## How environments work
 
-Your Knock account starts with two environments: development and production. You can [create additional environments](/version-control/environments#create-additional-environments) (for example, a Staging environment to mirror your own development lifecycle.)
+Your Knock account starts with two environments: development and production.
 
-Environments contain isolated data (such as users, objects, and logs) and version-controlled resources (such as workflows, layouts, and partials.)
+You can [create additional environments](/version-control/environments#create-additional-environments) (for example, a Staging environment to mirror your own development lifecycle.)
+
+Environments contain isolated data (such as users, objects, and logs) and version-controlled content (such as workflows, layouts, and partials.)
 
 With Knock environments you:
 
 - Use environment-specific API keys to send data to your environments.
-- Create and update content resources in development, then promote to production.
+- Create, update, and version content within any environment.
+- For production-critical use cases, create content in your development environment, then **promote** it to production.
+
+<AccordionGroup>
+  <Accordion title="A typical Knock customer setup">
+    Here's a typical setup for customers using Knock with two environments.
+    <ul>
+      <li>
+        **Development environment.** Usually used by engineering and product
+        teams. Contains your development data, and any transactional workflows
+        or other content you don't want people updating directly in production.
+      </li>
+      <li>
+        **Production environment.** Usually used by growth and marketing teams.
+        Contains your production data, and your lower-risk content that doesn't
+        need to follow promotion, such as lifecycle workflows and one-time
+        announcements.
+      </li>
+    </ul>
+  </Accordion>
+</AccordionGroup>
 
 ### Send data to environments
 
-Each environment has a set of **data resources** that are per-environment, isolated resources and will never be shared between environments. These data resources are not version-controlled.
-
-An example: the users you identify in Knock. Your production users are identified in your Production environment, while your development users are identified in your development environment.
-
-Each environment has its own set of API keys which you use to send data to the environment. You can find your environment-specific API keys under "Platform" > "API keys" in the Knock dashboard.
+Each environment has a set of **data resources** that are per-environment and will never be shared between environments. These data resources are not version-controlled.
 
 <AccordionGroup>
   <Accordion title="Data resources">
@@ -55,17 +73,13 @@ Each environment has its own set of API keys which you use to send data to the e
   </Accordion>
 </AccordionGroup>
 
+An example: the users you identify in Knock. Your real production users are identified in your production environment, while your test development users are identified in your development environment.
+
+Each environment has its own set of API keys which you use to send data to the environment. You can find your environment-specific API keys under "Platform" > "API keys" in the Knock dashboard.
+
 ### Create content in environments
 
-Each environment has a set of **content resources** that are managed via version control and promoted between environments. These are resources associated with the creation and orchestration of the content you send to your customers.
-
-Here's how version-controlled content resources work:
-
-1. Create and update the content in your development environment
-2. Commit the changes to your development environment
-3. Promote the changes to your production environment
-
-Learn more about [commits](/version-control/commits).
+Each environment has a set of **content resources** that are managed via version control. These are resources associated with the creation and orchestration of the content you send to your customers, such as workflows, layouts, and templates.
 
 <AccordionGroup>
   <Accordion title="Content resources">
@@ -81,35 +95,61 @@ Learn more about [commits](/version-control/commits).
   </Accordion>
 </AccordionGroup>
 
-## Production write access
+Here's how content resources work:
 
-In some cases, you may want to enable non-technical team members to manage content directly in production. For example, a marketer who wants to create content directly in production. You can enable production write access in your account to support this.
+- Content can be created in any environment.
+- Content can be promoted upwards through environments.
+- Content can only be edited in the environment in which it was created.
+- Content is versioned with [commits](/version-control/commits). You can roll back to earlier commits at any time.
 
-Production write access is an opt-in feature that enables you to create and update content resources in any environment, without requiring promotion from development.
+These rules enable two ways of working with content and shipping it to your end users in production:
 
-Our customers enable production write access when:
+<AccordionGroup>
+  <Accordion title="Create in development and promote to production">
+    For content managed by engineering, such as high-volume transactional workflows, this path ensures that content can only be updated in development before being promoted to production.
 
-1. They have content that doesn't need to be deployed through their environments, such as guides for product announcements.
-2. That content is managed by users that would prefer to work directly in production, such as growth and marketing teams.
+    <ol>
+     <li>Create and update the content in your development environment</li>
+     <li>Commit the changes to your development environment</li>
+     <li>Promote the changes to your production environment when ready</li>
+    </ol>
 
-### How it works
+  </Accordion>
+  <Accordion title="Create directly in production">
+    For content managed by growth, marketing, and product, such as feature announcements and lifecycle workflows, this path is faster and doesn't require the promotion step.
+    <ol>
+     <li>Create and update the content in your production environment</li>
+     <li>Publish (commit) the changes to your production environment when ready</li>
+    </ol>
 
-To enable production write access, navigate to the **Permissions** page under the **Admin** section of your account settings.
+    <Callout
+      type="tip"
+      title="Tip:"
+      text={
+        <>
+          If you want to disable the ability to create content directly in production, you can do so in account settings under the <span className="font-semibold">Permissions</span> page.
+        </>
+      }
+    />
 
-When you enable production write access in your account:
-
-1. **All roles with edit permissions can edit resources in any environment.** Owner, admin, and member roles can create and edit content resources (like workflows and guides) directly in production.
-
-2. **The Production-only Member role becomes available.** This role gives a user access to the production environment, and no others. It enables non-technical team members to work in production without touching any resources that are managed in development. [Learn more about the Production-only Member role](/manage-your-account/roles-and-permissions#production-write-access-and-roles).
-
-3. **Content resources can only be edited in the environment in which they were created.** This means that any content resources you want to follow your environment lifecycle (create in development, promote to production) are only editable in development. For use cases that don't need the governance of environment promotion, you can create directly in production.
-
-Production write access keeps engineering-governed resources like transactional workflows version controlled by the development environment, while enabling marketing and product teams to work in a simpler, production-only way for lifecycle journeys and product announcements.
+  </Accordion>
+</AccordionGroup>
 
 <Callout
-  type="tip"
-  title="Tip:"
-  text="Content resources created directly in production are still version controlled and saved via commits. This means you can roll back to prior versions when needed."
+  type="warning"
+  title="For pre-2026 customers."
+  text={
+    <>
+      If you are a pre-January-2026 customer, your account will default to
+      having production write access disabled. This means that your users will
+      only be able to create content in the development environment, then
+      promote it to production. <br />
+      <br />
+      You can enable production write access in account settings under the{" "}
+      <span className="font-semibold">Permissions</span> page, at which point
+      your users will be able to create content directly in production.
+    </>
+  }
 />
 
 ## Create additional environments
@@ -126,13 +166,13 @@ Production write access keeps engineering-governed resources like transactional 
   }
 />
 
-By default your Knock account comes with two environments: Development and Production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a Staging environment) you can add it on the settings page of the Knock dashboard.
+By default your Knock account comes with two environments: development and production. If you need an additional environment in Knock to mirror your own development lifecycle (for example, a staging environment) you can add it on the settings page of the Knock dashboard.
 
 To create a new environment, go to the **Environments** page under the **Version control** section of your account settings. You'll see a button to "Create environment."
 
-When you create an additional environment, it will be inserted between Development and Production. This means all changes will continue to be introduced in your Development environment and will need to be promoted through additional environments until they land in Production. Subsequent new environments will always be added one "level" lower than Production; environments cannot be re-ordered, as this would break the promotion model for previously-promoted changes.
+When you create an additional environment, it will be inserted between development and production for environment promotion purposes. Any additional new environments will always be added one "level" lower than Production; environments cannot be re-ordered, as this would break the promotion model for previously-promoted changes.
 
-## Environment-based access controls
+## Environment access controls
 
 We recognize the importance of protecting your sensitive data, so we designed Knock from the ground-up with privacy and security in mind.
 
