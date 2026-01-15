@@ -25,8 +25,8 @@ export const CliReferenceLayout = ({ frontMatter, children }) => {
   return (
     <Page.Container>
       <Meta
-        title={`${frontMatter.title} | Knock Docs`}
-        description={frontMatter.description}
+        title={`${frontMatter.metaTitle ?? frontMatter.title} | Knock Docs`}
+        description={frontMatter.metaDescription ?? frontMatter.description}
         canonical="/cli"
       />
       <Page.Masthead
