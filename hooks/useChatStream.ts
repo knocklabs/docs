@@ -22,6 +22,7 @@ type UseChatStreamReturn = {
   error: string | null;
   sendMessage: (content: string) => Promise<void>;
   clearMessages: () => void;
+  stopStream: () => void;
 };
 
 export function useChatStream(): UseChatStreamReturn {
@@ -37,6 +38,7 @@ export function useChatStream(): UseChatStreamReturn {
   const streamIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const currentMessageIdRef = useRef<string | null>(null);
   const streamCompleteRef = useRef<boolean>(false);
+  const userStoppedRef = useRef<boolean>(false);
 
   // Cleanup interval on unmount
   useEffect(() => {
@@ -59,6 +61,7 @@ export function useChatStream(): UseChatStreamReturn {
     contentBufferRef.current = "";
     sourcesBufferRef.current = [];
     streamCompleteRef.current = false;
+    userStoppedRef.current = false;
 
     streamIntervalRef.current = setInterval(() => {
       const buffer = contentBufferRef.current;
@@ -75,9 +78,7 @@ export function useChatStream(): UseChatStreamReturn {
 
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === messageId
-              ? { ...msg, content: displayContent }
-              : msg,
+            msg.id === messageId ? { ...msg, content: displayContent } : msg,
           ),
         );
       } else if (streamCompleteRef.current && currentLength >= buffer.length) {
@@ -85,9 +86,12 @@ export function useChatStream(): UseChatStreamReturn {
         if (streamIntervalRef.current) {
           clearInterval(streamIntervalRef.current);
           streamIntervalRef.current = null;
-          
+
           // Now that content is fully displayed, add sources to the message
-          if (currentMessageIdRef.current && sourcesBufferRef.current.length > 0) {
+          if (
+            currentMessageIdRef.current &&
+            sourcesBufferRef.current.length > 0
+          ) {
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === currentMessageIdRef.current
@@ -200,15 +204,22 @@ export function useChatStream(): UseChatStreamReturn {
 
         // Signal that streaming is complete
         stopStreamingUI();
-        
+
         // Extract sources from the final text content (footnote references)
         // Sources will be added to the message after the UI finishes revealing content
         const textSources = extractSourcesFromText(contentBufferRef.current);
         if (textSources.length > 0) {
           // Merge with any existing sources, avoiding duplicates
-          const existingUrls = new Set(sourcesBufferRef.current.map(s => s.url));
-          const newSources = textSources.filter(s => !existingUrls.has(s.url));
-          sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+          const existingUrls = new Set(
+            sourcesBufferRef.current.map((s) => s.url),
+          );
+          const newSources = textSources.filter(
+            (s) => !existingUrls.has(s.url),
+          );
+          sourcesBufferRef.current = [
+            ...sourcesBufferRef.current,
+            ...newSources,
+          ];
         }
       } catch (err) {
         // Stop the streaming interval
@@ -218,7 +229,16 @@ export function useChatStream(): UseChatStreamReturn {
         }
 
         if (err instanceof Error && err.name === "AbortError") {
-          // Request was aborted, remove the assistant message
+          // Check if user manually stopped the stream
+          if (userStoppedRef.current) {
+            // User stopped - preserve the partially streamed content
+            // Content and sources have already been updated by stopStream
+            // Just reset the flag and return
+            userStoppedRef.current = false;
+            return;
+          }
+
+          // Request was aborted for other reasons, remove the assistant message
           setMessages((prev) =>
             prev.filter((msg) => msg.id !== assistantMessageId),
           );
@@ -241,6 +261,58 @@ export function useChatStream(): UseChatStreamReturn {
     [messages, isLoading, startStreamingUI, stopStreamingUI],
   );
 
+  const stopStream = useCallback(() => {
+    // Mark that user manually stopped the stream
+    userStoppedRef.current = true;
+
+    // Abort the current request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Stop the streaming interval
+    if (streamIntervalRef.current) {
+      clearInterval(streamIntervalRef.current);
+      streamIntervalRef.current = null;
+    }
+
+    // Mark stream as complete so remaining buffered content gets displayed
+    streamCompleteRef.current = true;
+
+    // Display any remaining buffered content immediately
+    if (currentMessageIdRef.current) {
+      const buffer = contentBufferRef.current;
+      const currentLength = displayedLengthRef.current;
+
+      if (currentLength < buffer.length) {
+        // Show all remaining content
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === currentMessageIdRef.current
+              ? { ...msg, content: buffer }
+              : msg,
+          ),
+        );
+        displayedLengthRef.current = buffer.length;
+      }
+
+      // Add sources if any
+      if (sourcesBufferRef.current.length > 0) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === currentMessageIdRef.current
+              ? { ...msg, sources: sourcesBufferRef.current }
+              : msg,
+          ),
+        );
+      }
+    }
+
+    // Set loading to false to re-enable input
+    setIsLoading(false);
+    abortControllerRef.current = null;
+  }, []);
+
   const clearMessages = useCallback(() => {
     // Stop any streaming
     if (streamIntervalRef.current) {
@@ -255,6 +327,7 @@ export function useChatStream(): UseChatStreamReturn {
     setMessages([]);
     setError(null);
     setIsLoading(false);
+    userStoppedRef.current = false;
   }, []);
 
   return {
@@ -263,6 +336,7 @@ export function useChatStream(): UseChatStreamReturn {
     error,
     sendMessage,
     clearMessages,
+    stopStream,
   };
 }
 
@@ -302,19 +376,28 @@ function processData(
 
       // Helper to extract sources from a links/citations array
       const extractSourcesFromArray = (arr: any[]): Source[] => {
-        return arr.map((item: any) => ({
-          title: item.title || item.name || item.text || item.label || "",
-          url: item.url || item.link || item.href || "",
-        })).filter((s: Source) => s.title);
+        return arr
+          .map((item: any) => ({
+            title: item.title || item.name || item.text || item.label || "",
+            url: item.url || item.link || item.href || "",
+          }))
+          .filter((s: Source) => s.title);
       };
 
       // Check for links at top level
       if (parsed.links && Array.isArray(parsed.links)) {
         const linkSources = extractSourcesFromArray(parsed.links);
         if (linkSources.length > 0) {
-          const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
-          const newSources = linkSources.filter(s => !existingTitles.has(s.title));
-          sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+          const existingTitles = new Set(
+            sourcesBufferRef.current.map((s) => s.title),
+          );
+          const newSources = linkSources.filter(
+            (s) => !existingTitles.has(s.title),
+          );
+          sourcesBufferRef.current = [
+            ...sourcesBufferRef.current,
+            ...newSources,
+          ];
         }
       }
 
@@ -327,9 +410,16 @@ function processData(
         if (delta?.links && Array.isArray(delta.links)) {
           const linkSources = extractSourcesFromArray(delta.links);
           if (linkSources.length > 0) {
-            const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
-            const newSources = linkSources.filter(s => !existingTitles.has(s.title));
-            sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+            const existingTitles = new Set(
+              sourcesBufferRef.current.map((s) => s.title),
+            );
+            const newSources = linkSources.filter(
+              (s) => !existingTitles.has(s.title),
+            );
+            sourcesBufferRef.current = [
+              ...sourcesBufferRef.current,
+              ...newSources,
+            ];
           }
         }
 
@@ -337,9 +427,16 @@ function processData(
         if (delta?.citations && Array.isArray(delta.citations)) {
           const citationSources = extractSourcesFromArray(delta.citations);
           if (citationSources.length > 0) {
-            const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
-            const newSources = citationSources.filter(s => !existingTitles.has(s.title));
-            sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+            const existingTitles = new Set(
+              sourcesBufferRef.current.map((s) => s.title),
+            );
+            const newSources = citationSources.filter(
+              (s) => !existingTitles.has(s.title),
+            );
+            sourcesBufferRef.current = [
+              ...sourcesBufferRef.current,
+              ...newSources,
+            ];
           }
         }
 
@@ -371,9 +468,16 @@ function processData(
               contentBufferRef.current += text;
             }
             if (sources.length > 0) {
-              const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
-              const newSources = sources.filter(s => !existingTitles.has(s.title));
-              sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+              const existingTitles = new Set(
+                sourcesBufferRef.current.map((s) => s.title),
+              );
+              const newSources = sources.filter(
+                (s) => !existingTitles.has(s.title),
+              );
+              sourcesBufferRef.current = [
+                ...sourcesBufferRef.current,
+                ...newSources,
+              ];
             }
           }
         } else if (message?.content) {
@@ -384,9 +488,16 @@ function processData(
           }
           if (sources.length > 0) {
             // Merge with existing sources, avoiding duplicates
-            const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
-            const newSources = sources.filter(s => !existingTitles.has(s.title));
-            sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+            const existingTitles = new Set(
+              sourcesBufferRef.current.map((s) => s.title),
+            );
+            const newSources = sources.filter(
+              (s) => !existingTitles.has(s.title),
+            );
+            sourcesBufferRef.current = [
+              ...sourcesBufferRef.current,
+              ...newSources,
+            ];
           }
         }
       }
@@ -395,9 +506,16 @@ function processData(
       if (parsed.citations && Array.isArray(parsed.citations)) {
         const citationSources = extractSourcesFromArray(parsed.citations);
         if (citationSources.length > 0) {
-          const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
-          const newSources = citationSources.filter(s => !existingTitles.has(s.title));
-          sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+          const existingTitles = new Set(
+            sourcesBufferRef.current.map((s) => s.title),
+          );
+          const newSources = citationSources.filter(
+            (s) => !existingTitles.has(s.title),
+          );
+          sourcesBufferRef.current = [
+            ...sourcesBufferRef.current,
+            ...newSources,
+          ];
         }
       }
 
@@ -407,9 +525,16 @@ function processData(
         if (choice.links && Array.isArray(choice.links)) {
           const linkSources = extractSourcesFromArray(choice.links);
           if (linkSources.length > 0) {
-            const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
-            const newSources = linkSources.filter(s => !existingTitles.has(s.title));
-            sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+            const existingTitles = new Set(
+              sourcesBufferRef.current.map((s) => s.title),
+            );
+            const newSources = linkSources.filter(
+              (s) => !existingTitles.has(s.title),
+            );
+            sourcesBufferRef.current = [
+              ...sourcesBufferRef.current,
+              ...newSources,
+            ];
           }
         }
       }
@@ -454,14 +579,14 @@ function titleFromUrl(url: string): string {
   try {
     const urlObj = new URL(url);
     // Get the last meaningful path segment
-    const pathParts = urlObj.pathname.split('/').filter(p => p.length > 0);
+    const pathParts = urlObj.pathname.split("/").filter((p) => p.length > 0);
     if (pathParts.length === 0) return url;
-    
+
     const lastPart = pathParts[pathParts.length - 1];
     // Convert kebab-case or snake_case to Title Case
     return lastPart
-      .replace(/[-_]/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
+      .replace(/[-_]/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
   } catch {
     return url;
   }
@@ -483,10 +608,10 @@ function extractSourcesFromText(text: string): Source[] {
 
     // Skip if we've already seen this URL
     if (seenUrls.has(url)) continue;
-    
+
     // Skip non-http links
-    if (!url.startsWith('http')) continue;
-    
+    if (!url.startsWith("http")) continue;
+
     seenUrls.add(url);
 
     // If the link text is a footnote number like (1), (2), derive title from URL
@@ -504,7 +629,10 @@ function extractSourcesFromText(text: string): Source[] {
 }
 
 // Extract both text content and sources from Inkeep's nested content format
-function extractContentWithSources(content: string | any): { text: string; sources: Source[] } {
+function extractContentWithSources(content: string | any): {
+  text: string;
+  sources: Source[];
+} {
   const sources: Source[] = [];
   const seenSources = new Set<string>(); // For deduplication
 
@@ -569,7 +697,10 @@ function extractContentWithSources(content: string | any): { text: string; sourc
         text += item.text;
       }
     }
-    return { text: text || (typeof content === "string" ? content : ""), sources };
+    return {
+      text: text || (typeof content === "string" ? content : ""),
+      sources,
+    };
   }
 
   // Handle object with content array
@@ -622,7 +753,10 @@ function extractContentWithSources(content: string | any): { text: string; sourc
         text += item.text;
       }
     }
-    return { text: text || (typeof content === "string" ? content : ""), sources };
+    return {
+      text: text || (typeof content === "string" ? content : ""),
+      sources,
+    };
   }
 
   // Handle plain string content
@@ -631,5 +765,8 @@ function extractContentWithSources(content: string | any): { text: string; sourc
   }
 
   // Fallback: return content as-is
-  return { text: typeof content === "string" ? content : JSON.stringify(contentObj), sources };
+  return {
+    text: typeof content === "string" ? content : JSON.stringify(contentObj),
+    sources,
+  };
 }

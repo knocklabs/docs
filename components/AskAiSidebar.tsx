@@ -87,7 +87,7 @@ function AskAiSidebar() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
   const processedInitialPromptRef = useRef<string | null>(null);
-  const { messages, isLoading, error, sendMessage, clearMessages } =
+  const { messages, isLoading, error, sendMessage, clearMessages, stopStream } =
     useChatStream();
 
   useEffect(() => {
@@ -281,48 +281,41 @@ function AskAiSidebar() {
         >
           <button
             type="button"
-            onClick={handleSubmit}
-            disabled={isLoading || isEmpty}
+            onClick={isLoading ? stopStream : handleSubmit}
+            disabled={isEmpty}
             style={{
-              width: "24px",
-              height: "24px",
-              minWidth: "24px",
-              minHeight: "24px",
-              padding: "5px",
-              borderRadius: "4px",
-              backgroundColor: isLoading
-                ? "var(--tgph-gray-2)"
-                : isEmpty
-                ? "var(--tgph-gray-2)"
-                : "#e4f7ec",
+              width: "28px",
+              height: "28px",
+              minWidth: "28px",
+              minHeight: "28px",
+              padding: "0",
+              borderRadius: "50%",
+              backgroundColor: isEmpty ? "var(--tgph-gray-4)" : "#000",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               border: "none",
-              cursor: isLoading || isEmpty ? "not-allowed" : "pointer",
+              cursor: isEmpty ? "not-allowed" : "pointer",
               margin: "0",
               boxSizing: "border-box",
               transition: "background-color 0.2s",
             }}
           >
             {isLoading ? (
-              <Icon
-                icon={Loader2}
-                size="1"
+              <div
                 aria-hidden
                 style={{
-                  color: "#cbcfd5",
-                  animation: "spin 1s linear infinite",
+                  width: "12px",
+                  height: "12px",
+                  backgroundColor: "#fff",
+                  borderRadius: "2px",
                 }}
               />
             ) : (
-              <Icon
-                icon={ArrowUp}
-                size="1"
-                aria-hidden
-                style={{
-                  color: isEmpty ? "#cbcfd5" : "#009c68",
-                }}
+              <ArrowUp
+                size={14}
+                strokeWidth={2}
+                color={isEmpty ? "var(--tgph-gray-10)" : "#fff"}
               />
             )}
           </button>
