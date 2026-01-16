@@ -2,11 +2,23 @@ import { Box, Stack } from "@telegraph/layout";
 import { Text, Code } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 import { Icon } from "@telegraph/icon";
-import { X, ArrowUp, Loader2, ChevronDown } from "lucide-react";
+import { X, ArrowUp, Loader2, ChevronDown, Brain, ChevronRight } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useAskAi } from "./AskAiContext";
 import { useChatStream, type Message } from "../hooks/useChatStream";
 import { Streamdown } from "streamdown";
+import React from "react";
+
+// Helper function to convert source references like (1), (2) to superscripts in markdown
+function processSourceReferences(content: string): string {
+  if (typeof content !== "string") {
+    return content;
+  }
+
+  // Match patterns like (1), (2), (3), etc. and replace with superscript HTML
+  // Preserves the color (inherits from parent), no underline, smaller size
+  return content.replace(/\((\d+)\)/g, '<sup style="color: inherit; font-size: 0.6rem; text-decoration: none;">$1</sup>');
+}
 
 function AskAiSidebar() {
   const {
@@ -390,7 +402,10 @@ function AskAiSidebar() {
             flex: 1,
             overflowY: "auto",
             minWidth: `${sidebarWidth}px`,
-            padding: "16px",
+            padding: "8px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
           }}
         >
           {error && (
@@ -443,21 +458,22 @@ function MessageBubble({
   const isUser = message.role === "user";
 
   if (isUser) {
-    // User message - rounded bubble style
+    // User message - full-width container with border
     return (
       <Box
         style={{
-          display: "inline-block",
-          padding: "12px 16px",
+          width: "100%",
+          padding: "8px 12px",
           borderRadius: "8px",
-          backgroundColor: "var(--tgph-gray-4)",
-          marginBottom: "16px",
+          backgroundColor: "var(--tgph-surface-1)",
+          position: "relative",
+          boxShadow: "inset 0px 0px 0px 1px var(--tgph-gray-5)",
         }}
       >
         <Text
           as="span"
           size="2"
-          weight="medium"
+          weight="regular"
           style={{
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
@@ -473,76 +489,215 @@ function MessageBubble({
   // Show "Thinking..." when loading and no content yet
   if (isLoading && !message.content) {
     return (
-      <Stack
-        direction="row"
-        gap="2"
-        alignItems="center"
-        style={{ marginBottom: "16px" }}
+      <Box
+        style={{
+          padding: "6px 8px",
+        }}
       >
-        <Icon
-          icon={Loader2}
-          size="1"
-          aria-hidden
-          style={{ animation: "spin 1s linear infinite" }}
-        />
-        <Text as="span" size="2" color="gray">
-          Thinking...
-        </Text>
-      </Stack>
+        <Stack
+          direction="row"
+          gap="2"
+          alignItems="center"
+        >
+          <Icon
+            icon={Loader2}
+            size="1"
+            aria-hidden
+            style={{ animation: "spin 1s linear infinite" }}
+          />
+          <Text as="span" size="2" color="gray">
+            Thinking...
+          </Text>
+        </Stack>
+      </Box>
     );
   }
 
+  // Assistant response wrapped in AgentResponse container
   // Use tgraph-content class for consistent markdown styling with the rest of the docs
   // Streamdown is optimized for streaming LLM content and handles incomplete markdown gracefully
   return (
-    <div className="tgraph-content" style={{ marginBottom: "16px" }}>
-      <Streamdown
-        components={{
-          // Only override what's necessary - CSS handles most styling via tgraph-content class
-          code: (props: any) => (
-            <Code
-              as="code"
-              bg="gray-2"
-              borderRadius="2"
-              px="1"
-              size="1"
-              data-tgph-code
-            >
-              {props.children}
-            </Code>
-          ),
-          pre: ({ children }: { children?: React.ReactNode }) => (
-            <Box
-              as="pre"
-              bg="gray-2"
-              borderRadius="3"
-              p="3"
-              mb="3"
-              style={{ overflow: "auto", fontSize: "13px", lineHeight: "1.5" }}
-            >
-              {children}
-            </Box>
-          ),
-          a: ({
-            href,
-            children,
-          }: {
-            href?: string;
-            children?: React.ReactNode;
-          }) => (
-            <a
-              href={href}
-              target={href?.startsWith("http") ? "_blank" : undefined}
-              rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
-            >
-              {children}
-            </a>
-          ),
+    <Box
+      bg="surface-3"
+      style={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* Response text section */}
+      <Box
+        bg="surface-1"
+        style={{
+          padding: "6px 8px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
         }}
       >
-        {message.content}
-      </Streamdown>
-    </div>
+        <div className="tgraph-content">
+          <Streamdown
+            components={{
+              // Only override what's necessary - CSS handles most styling via tgraph-content class
+              code: (props: any) => (
+                <Code
+                  as="code"
+                  bg="gray-2"
+                  borderRadius="2"
+                  px="1"
+                  size="1"
+                  data-tgph-code
+                >
+                  {props.children}
+                </Code>
+              ),
+              pre: ({ children }: { children?: React.ReactNode }) => (
+                <Box
+                  as="pre"
+                  bg="gray-2"
+                  borderRadius="3"
+                  p="3"
+                  mb="3"
+                  style={{ overflow: "auto", fontSize: "13px", lineHeight: "1.5" }}
+                >
+                  {children}
+                </Box>
+              ),
+              a: ({
+                href,
+                children,
+              }: {
+                href?: string;
+                children?: React.ReactNode;
+              }) => {
+                // Check if children contain a sup element
+                const hasSup = React.Children.toArray(children).some(
+                  (child: any) =>
+                    React.isValidElement(child) &&
+                    (child.type === "sup" ||
+                      (typeof child.type === "string" && child.type === "sup"))
+                );
+                
+                return (
+                  <a
+                    href={href}
+                    target={href?.startsWith("http") ? "_blank" : undefined}
+                    rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
+                    style={hasSup ? { textDecoration: "none" } : undefined}
+                  >
+                    {children}
+                  </a>
+                );
+              },
+              sup: ({ children }: { children?: React.ReactNode }) => (
+                <sup
+                  style={{
+                    fontSize: "0.6rem",
+                    textDecoration: "none",
+                    borderBottom: "none",
+                  }}
+                >
+                  {children}
+                </sup>
+              ),
+            }}
+          >
+            {processSourceReferences(message.content)}
+          </Streamdown>
+        </div>
+      </Box>
+
+      {/* Sources section */}
+      <SourcesSection sources={undefined} />
+    </Box>
+  );
+}
+
+
+function SourcesSection({ sources }: { sources?: Array<{ title: string; icon?: React.ReactNode }> }) {
+  // Placeholder structure - actual source data will come from backend later
+  if (!sources || sources.length === 0) {
+    return null;
+  }
+
+  return (
+    <Box
+      style={{
+        padding: "8px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
+      }}
+    >
+      <Box
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+        }}
+      >
+        <Text
+          as="span"
+          size="0"
+          weight="semibold"
+          style={{
+            color: "var(--tgph-gray-12)",
+            width: "100%",
+          }}
+        >
+          Sources
+        </Text>
+      </Box>
+      <Box
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+        }}
+      >
+        {sources.map((source, index) => (
+          <Box
+            key={index}
+            bg="surface-3"
+            style={{
+              height: "24px",
+              display: "flex",
+              gap: "4px",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0 6px",
+              borderRadius: "4px",
+              border: "1px solid var(--tgph-gray-6)",
+            }}
+          >
+            {source.icon && (
+              <Box
+                style={{
+                  width: "14px",
+                  height: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {source.icon}
+              </Box>
+            )}
+            <Text
+              as="span"
+              size="1"
+              weight="medium"
+              style={{
+                color: "var(--tgph-gray-12)",
+              }}
+            >
+              {source.title}
+            </Text>
+          </Box>
+        ))}
+      </Box>
+    </Box>
   );
 }
 
