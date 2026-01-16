@@ -2,7 +2,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { Text, Code } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 import { Icon } from "@telegraph/icon";
-import { X, ArrowUp, Loader2 } from "lucide-react";
+import { X, ArrowUp, Loader2, ChevronDown } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useAskAi } from "./AskAiContext";
 import { useChatStream, type Message } from "../hooks/useChatStream";
@@ -156,100 +156,92 @@ function AskAiSidebar() {
   };
 
   // Input area component - conditionally rendered at top or bottom
-  const inputArea = (isAtTop: boolean) => (
-    <Box
-      p="4"
-      borderBottomWidth={isAtTop ? "px" : undefined}
-      borderTopWidth={!isAtTop ? "px" : undefined}
-      borderColor="gray-4"
-      style={{
-        minWidth: `${sidebarWidth}px`,
-      }}
-    >
+  const inputArea = (isAtTop: boolean) => {
+    const hasInput = inputValue.trim().length > 0;
+    const isEmpty = !hasInput && !isLoading;
+
+    return (
       <Box
+        borderBottomWidth={isAtTop ? "px" : undefined}
+        borderTopWidth={!isAtTop ? "px" : undefined}
+        borderColor="gray-4"
         style={{
+          minWidth: `${sidebarWidth}px`,
           position: "relative",
+          boxShadow: isAtTop
+            ? "inset 0px -1px 0px 0px var(--tgph-gray-5)"
+            : "inset 0px 1px 0px 0px var(--tgph-gray-5)",
         }}
       >
-        <textarea
-          ref={textareaRef}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask questions about the docs"
-          rows={1}
-          disabled={isLoading}
+        {/* Textarea */}
+        <Box>
+          <textarea
+            ref={textareaRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask questions about the docs"
+            rows={1}
+            disabled={isLoading}
+            style={{
+              width: "100%",
+              height: "104px",
+              minHeight: "104px",
+              maxHeight: "104px",
+              padding: "8px 12px",
+              border: "none",
+              fontSize: "13px",
+              outline: "none",
+              resize: "none",
+              fontFamily: "inherit",
+              boxSizing: "border-box",
+              verticalAlign: "top",
+              textAlign: "left",
+              lineHeight: "20px",
+              display: "block",
+              backgroundColor: "var(--tgph-surface-1)",
+              color: isEmpty ? "var(--tgph-gray-10)" : "var(--tgph-gray-12)",
+              opacity: isLoading ? 0.6 : 1,
+              cursor: isLoading ? "not-allowed" : "text",
+            }}
+          />
+        </Box>
+
+        {/* PromptInputActions bar */}
+        <Box
           style={{
-            width: "100%",
-            height: "80px",
-            minHeight: "80px",
-            maxHeight: "80px",
-            paddingTop: "8px",
-            paddingRight: "44px",
-            paddingBottom: "8px",
-            paddingLeft: "12px",
-            border: "1px solid",
-            borderColor: "var(--tgph-gray-4)",
-            borderRadius: "6px",
-            fontSize: "14px",
-            outline: "none",
-            resize: "none",
-            fontFamily: "inherit",
-            boxSizing: "border-box",
-            verticalAlign: "top",
-            textAlign: "left",
-            lineHeight: "1.5",
-            display: "block",
-            backgroundColor: "var(--tgph-surface-1)",
-            color: "var(--tgph-gray-12)",
-            opacity: isLoading ? 0.6 : 1,
-            cursor: isLoading ? "not-allowed" : "text",
-          }}
-        />
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isLoading}
-          style={{
-            position: "absolute",
-            right: "8px",
-            bottom: "8px",
-            width: "28px",
-            height: "28px",
-            minWidth: "28px",
-            minHeight: "28px",
-            padding: "0",
-            borderRadius: "8px",
-            backgroundColor: isLoading
-              ? "var(--tgph-gray-6)"
-              : "var(--tgph-gray-8)",
             display: "flex",
+            gap: "8px",
             alignItems: "center",
-            justifyContent: "center",
-            border: "none",
-            cursor: isLoading ? "not-allowed" : "pointer",
-            margin: "0",
-            boxSizing: "border-box",
-            transition: "background-color 0.2s",
-          }}
-          onMouseEnter={(e) => {
-            if (!isLoading) {
-              e.currentTarget.style.backgroundColor = "var(--tgph-gray-9)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading) {
-              e.currentTarget.style.backgroundColor = "var(--tgph-gray-8)";
-            }
+            justifyContent: "flex-end",
+            padding: "8px",
+            backgroundColor: "var(--tgph-surface-1)",
           }}
         >
-          <Box
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isLoading || isEmpty}
             style={{
+              width: "24px",
+              height: "24px",
+              minWidth: "24px",
+              minHeight: "24px",
+              padding: "5px",
+              borderRadius: "4px",
+              backgroundColor: isLoading
+                ? "var(--tgph-gray-2)"
+                : isEmpty
+                ? "var(--tgph-gray-2)"
+                : "#e4f7ec",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "100%",
-              height: "100%",
+              border: "none",
+              cursor: isLoading || isEmpty ? "not-allowed" : "pointer",
+              margin: "0",
+              boxSizing: "border-box",
+              transition: "background-color 0.2s",
             }}
           >
             {isLoading ? (
@@ -258,7 +250,7 @@ function AskAiSidebar() {
                 size="1"
                 aria-hidden
                 style={{
-                  color: "white",
+                  color: "#cbcfd5",
                   animation: "spin 1s linear infinite",
                 }}
               />
@@ -268,15 +260,15 @@ function AskAiSidebar() {
                 size="1"
                 aria-hidden
                 style={{
-                  color: "white",
+                  color: isEmpty ? "#cbcfd5" : "#009c68",
                 }}
               />
             )}
-          </Box>
-        </button>
+          </button>
+        </Box>
       </Box>
-    </Box>
-  );
+    );
+  };
 
   return (
     <Box
@@ -321,40 +313,73 @@ function AskAiSidebar() {
         }}
       >
         {/* Header with close button */}
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          p="4"
-          borderBottomWidth="px"
-          borderColor="gray-4"
+        <Box
           style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "8px 12px",
             minWidth: `${sidebarWidth}px`,
-            minHeight: "48px",
+            backgroundColor: "var(--tgph-surface-3)",
+            position: "relative",
+            boxShadow: "inset 0px -1px 0px 0px var(--tgph-gray-5)",
           }}
         >
-          <Text as="span" size="2" weight="medium">
-            Assistant
-          </Text>
-          <Button
-            variant="ghost"
-            size="1"
-            onClick={closeSidebar}
-            icon={{
-              icon: X,
-              "aria-hidden": true,
-            }}
+          <Box
             style={{
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              width: "28px",
-              height: "28px",
-              padding: 0,
-              minWidth: "28px",
+              gap: "4px",
             }}
-          />
-        </Stack>
+          >
+            <Text as="span" size="1" weight="medium">
+              New assistant
+            </Text>
+            <Icon
+              icon={ChevronDown}
+              size="1"
+              aria-hidden
+              style={{
+                color: "var(--tgph-gray-10)",
+              }}
+            />
+          </Box>
+          <Box
+            style={{
+              display: "flex",
+              gap: "4px",
+              alignItems: "center",
+            }}
+          >
+            <button
+              type="button"
+              onClick={closeSidebar}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "24px",
+                height: "24px",
+                padding: "5px",
+                borderRadius: "4px",
+                border: "none",
+                backgroundColor: "transparent",
+                cursor: "pointer",
+                minWidth: "24px",
+              }}
+            >
+              <Icon
+                icon={X}
+                size="1"
+                aria-hidden
+                style={{
+                  color: "var(--tgph-gray-10)",
+                }}
+              />
+            </button>
+          </Box>
+        </Box>
 
         {/* Input at top when no messages */}
         {messages.length === 0 && inputArea(true)}
