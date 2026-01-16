@@ -16,6 +16,8 @@ function AskAiSidebar() {
     setSidebarWidth,
     isResizing,
     setIsResizing,
+    initialPrompt,
+    clearInitialPrompt,
   } = useAskAi();
   const [headerHeight, setHeaderHeight] = useState(100);
   const [inputValue, setInputValue] = useState("");
@@ -23,6 +25,7 @@ function AskAiSidebar() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
+  const processedInitialPromptRef = useRef<string | null>(null);
   const { messages, isLoading, error, sendMessage, clearMessages } =
     useChatStream();
 
@@ -53,6 +56,42 @@ function AskAiSidebar() {
       }, 100);
     }
   }, [isOpen]);
+
+  // Auto-submit initial prompt when sidebar opens with one
+  useEffect(() => {
+    if (
+      isOpen &&
+      initialPrompt &&
+      !isLoading &&
+      processedInitialPromptRef.current !== initialPrompt
+    ) {
+      // Mark this prompt as processed
+      processedInitialPromptRef.current = initialPrompt;
+
+      // Set the input value
+      setInputValue(initialPrompt);
+      if (textareaRef.current) {
+        textareaRef.current.value = initialPrompt;
+      }
+
+      // Submit the message
+      sendMessage(initialPrompt)
+        .then(() => {
+          // Clear the input and initial prompt after submission
+          setInputValue("");
+          if (textareaRef.current) {
+            textareaRef.current.value = "";
+          }
+          clearInitialPrompt();
+          processedInitialPromptRef.current = null;
+        })
+        .catch(() => {
+          // Clear the prompt even on error to prevent retry loops
+          clearInitialPrompt();
+          processedInitialPromptRef.current = null;
+        });
+    }
+  }, [isOpen, initialPrompt, isLoading, sendMessage, clearInitialPrompt]);
 
   const handleSubmit = async () => {
     // Get value directly from textarea ref as fallback for controlled input
