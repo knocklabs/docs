@@ -19,6 +19,7 @@ export type Message = {
 type UseChatStreamReturn = {
   messages: Message[];
   isLoading: boolean;
+  isStreaming: boolean;
   error: string | null;
   sendMessage: (content: string) => Promise<void>;
   clearMessages: () => void;
@@ -28,6 +29,7 @@ type UseChatStreamReturn = {
 export function useChatStream(): UseChatStreamReturn {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -62,6 +64,7 @@ export function useChatStream(): UseChatStreamReturn {
     sourcesBufferRef.current = [];
     streamCompleteRef.current = false;
     userStoppedRef.current = false;
+    setIsStreaming(true);
 
     streamIntervalRef.current = setInterval(() => {
       const buffer = contentBufferRef.current;
@@ -86,6 +89,7 @@ export function useChatStream(): UseChatStreamReturn {
         if (streamIntervalRef.current) {
           clearInterval(streamIntervalRef.current);
           streamIntervalRef.current = null;
+          setIsStreaming(false);
 
           // Now that content is fully displayed, add sources to the message
           if (
@@ -284,32 +288,44 @@ export function useChatStream(): UseChatStreamReturn {
       const buffer = contentBufferRef.current;
       const currentLength = displayedLengthRef.current;
 
-      if (currentLength < buffer.length) {
-        // Show all remaining content
+      if (buffer.length === 0) {
+        // No content was received - show a message indicating the user stopped the assistant
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === currentMessageIdRef.current
-              ? { ...msg, content: buffer }
+              ? { ...msg, content: "You stopped the assistant." }
               : msg,
           ),
         );
-        displayedLengthRef.current = buffer.length;
-      }
+      } else {
+        if (currentLength < buffer.length) {
+          // Show all remaining content
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === currentMessageIdRef.current
+                ? { ...msg, content: buffer }
+                : msg,
+            ),
+          );
+          displayedLengthRef.current = buffer.length;
+        }
 
-      // Add sources if any
-      if (sourcesBufferRef.current.length > 0) {
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === currentMessageIdRef.current
-              ? { ...msg, sources: sourcesBufferRef.current }
-              : msg,
-          ),
-        );
+        // Add sources if any
+        if (sourcesBufferRef.current.length > 0) {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === currentMessageIdRef.current
+                ? { ...msg, sources: sourcesBufferRef.current }
+                : msg,
+            ),
+          );
+        }
       }
     }
 
-    // Set loading to false to re-enable input
+    // Set loading/streaming to false to re-enable input
     setIsLoading(false);
+    setIsStreaming(false);
     abortControllerRef.current = null;
   }, []);
 
@@ -327,12 +343,14 @@ export function useChatStream(): UseChatStreamReturn {
     setMessages([]);
     setError(null);
     setIsLoading(false);
+    setIsStreaming(false);
     userStoppedRef.current = false;
   }, []);
 
   return {
     messages,
     isLoading,
+    isStreaming,
     error,
     sendMessage,
     clearMessages,

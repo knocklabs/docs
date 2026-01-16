@@ -87,8 +87,15 @@ function AskAiSidebar() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
   const processedInitialPromptRef = useRef<string | null>(null);
-  const { messages, isLoading, error, sendMessage, clearMessages, stopStream } =
-    useChatStream();
+  const {
+    messages,
+    isLoading,
+    isStreaming,
+    error,
+    sendMessage,
+    clearMessages,
+    stopStream,
+  } = useChatStream();
 
   useEffect(() => {
     const updateHeaderHeight = () => {
@@ -219,7 +226,9 @@ function AskAiSidebar() {
   // Input area component - conditionally rendered at top or bottom
   const inputArea = (isAtTop: boolean) => {
     const hasInput = inputValue.trim().length > 0;
-    const isEmpty = !hasInput && !isLoading;
+    // Button is enabled when loading/streaming (to stop) or when there's input (to submit)
+    const isActive = isLoading || isStreaming;
+    const isButtonEnabled = isActive || hasInput;
 
     return (
       <Box
@@ -243,7 +252,7 @@ function AskAiSidebar() {
             onKeyDown={handleKeyDown}
             placeholder="Ask questions about the docs"
             rows={1}
-            disabled={isLoading}
+            disabled={isActive}
             style={{
               width: "100%",
               height: "104px",
@@ -261,9 +270,12 @@ function AskAiSidebar() {
               lineHeight: "20px",
               display: "block",
               backgroundColor: "var(--tgph-surface-1)",
-              color: isEmpty ? "var(--tgph-gray-10)" : "var(--tgph-gray-12)",
-              opacity: isLoading ? 0.6 : 1,
-              cursor: isLoading ? "not-allowed" : "text",
+              color:
+                hasInput || isActive
+                  ? "var(--tgph-gray-12)"
+                  : "var(--tgph-gray-10)",
+              opacity: isActive ? 0.6 : 1,
+              cursor: isActive ? "not-allowed" : "text",
             }}
           />
         </Box>
@@ -281,8 +293,8 @@ function AskAiSidebar() {
         >
           <button
             type="button"
-            onClick={isLoading ? stopStream : handleSubmit}
-            disabled={isEmpty}
+            onClick={isActive ? stopStream : handleSubmit}
+            disabled={!isButtonEnabled}
             style={{
               width: "28px",
               height: "28px",
@@ -290,18 +302,18 @@ function AskAiSidebar() {
               minHeight: "28px",
               padding: "0",
               borderRadius: "50%",
-              backgroundColor: isEmpty ? "var(--tgph-gray-4)" : "#000",
+              backgroundColor: isButtonEnabled ? "#000" : "var(--tgph-gray-4)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               border: "none",
-              cursor: isEmpty ? "not-allowed" : "pointer",
+              cursor: isButtonEnabled ? "pointer" : "not-allowed",
               margin: "0",
               boxSizing: "border-box",
               transition: "background-color 0.2s",
             }}
           >
-            {isLoading ? (
+            {isActive ? (
               <div
                 aria-hidden
                 style={{
@@ -315,7 +327,7 @@ function AskAiSidebar() {
               <ArrowUp
                 size={14}
                 strokeWidth={2}
-                color={isEmpty ? "var(--tgph-gray-10)" : "#fff"}
+                color={isButtonEnabled ? "#fff" : "var(--tgph-gray-10)"}
               />
             )}
           </button>
@@ -470,17 +482,23 @@ function AskAiSidebar() {
           )}
 
           <Stack direction="column" gap="0">
-            {messages.map((message, index) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isLoading={
-                  isLoading &&
-                  message.role === "assistant" &&
-                  index === messages.length - 1
-                }
-              />
-            ))}
+            {messages.map((message, index) => {
+              const prevMessage = index > 0 ? messages[index - 1] : null;
+              const isConsecutiveUserMessage =
+                message.role === "user" && prevMessage?.role === "user";
+              return (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isLoading={
+                    isLoading &&
+                    message.role === "assistant" &&
+                    index === messages.length - 1
+                  }
+                  isConsecutiveUserMessage={isConsecutiveUserMessage}
+                />
+              );
+            })}
             <div ref={messagesEndRef} />
           </Stack>
         </Box>
@@ -495,9 +513,11 @@ function AskAiSidebar() {
 function MessageBubble({
   message,
   isLoading,
+  isConsecutiveUserMessage,
 }: {
   message: Message;
   isLoading?: boolean;
+  isConsecutiveUserMessage?: boolean;
 }) {
   const isUser = message.role === "user";
 
@@ -512,6 +532,7 @@ function MessageBubble({
           backgroundColor: "var(--tgph-surface-1)",
           position: "relative",
           boxShadow: "inset 0px 0px 0px 1px var(--tgph-gray-5)",
+          marginTop: isConsecutiveUserMessage ? "12px" : undefined,
         }}
       >
         <Text
