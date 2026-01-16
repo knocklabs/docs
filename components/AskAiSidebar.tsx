@@ -6,7 +6,6 @@ import {
   X,
   ArrowUp,
   Loader2,
-  ChevronDown,
   Brain,
   ChevronRight,
   ExternalLink,
@@ -405,14 +404,6 @@ function AskAiSidebar() {
             <Text as="span" size="1" weight="medium">
               New assistant
             </Text>
-            <Icon
-              icon={ChevronDown}
-              size="1"
-              aria-hidden
-              style={{
-                color: "var(--tgph-gray-10)",
-              }}
-            />
           </Box>
           <Box
             style={{
