@@ -723,7 +723,7 @@ function getIconForUrl(url: string | undefined): React.ComponentType {
   try {
     const hostname = new URL(url).hostname.toLowerCase();
 
-    if (hostname.includes("slack.com")) {
+    if (hostname.includes("slack.com") || hostname.includes("slack.dev")) {
       return Icons.slack;
     }
     if (
@@ -749,7 +749,7 @@ function buildBreadcrumbs(url: string | undefined): string[] {
 
     // Determine the root label based on domain
     let rootLabel = "Docs";
-    if (hostname.includes("slack.com")) {
+    if (hostname.includes("slack.com") || hostname.includes("slack.dev")) {
       rootLabel = "Slack";
     } else if (hostname.includes("microsoft.com")) {
       rootLabel = "Teams";
