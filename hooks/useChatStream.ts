@@ -4,10 +4,16 @@ import { useState, useCallback, useRef, useEffect } from "react";
 const STREAM_INTERVAL_MS = 20; // Update UI every 20ms
 const CHARS_PER_UPDATE = 3; // Characters to reveal per update
 
+export type Source = {
+  title: string;
+  url?: string;
+};
+
 export type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
+  sources?: Source[];
 };
 
 type UseChatStreamReturn = {
@@ -26,6 +32,7 @@ export function useChatStream(): UseChatStreamReturn {
 
   // Streaming state refs (don't trigger re-renders)
   const contentBufferRef = useRef<string>(""); // Accumulated content from API
+  const sourcesBufferRef = useRef<Source[]>([]); // Accumulated sources from API
   const displayedLengthRef = useRef<number>(0); // How much we've shown to user
   const streamIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const currentMessageIdRef = useRef<string | null>(null);
@@ -50,6 +57,7 @@ export function useChatStream(): UseChatStreamReturn {
     currentMessageIdRef.current = messageId;
     displayedLengthRef.current = 0;
     contentBufferRef.current = "";
+    sourcesBufferRef.current = [];
     streamCompleteRef.current = false;
 
     streamIntervalRef.current = setInterval(() => {
@@ -67,7 +75,9 @@ export function useChatStream(): UseChatStreamReturn {
 
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === messageId ? { ...msg, content: displayContent } : msg,
+            msg.id === messageId
+              ? { ...msg, content: displayContent }
+              : msg,
           ),
         );
       } else if (streamCompleteRef.current && currentLength >= buffer.length) {
@@ -75,6 +85,17 @@ export function useChatStream(): UseChatStreamReturn {
         if (streamIntervalRef.current) {
           clearInterval(streamIntervalRef.current);
           streamIntervalRef.current = null;
+          
+          // Now that content is fully displayed, add sources to the message
+          if (currentMessageIdRef.current && sourcesBufferRef.current.length > 0) {
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === currentMessageIdRef.current
+                  ? { ...msg, sources: sourcesBufferRef.current }
+                  : msg,
+              ),
+            );
+          }
         }
       }
     }, STREAM_INTERVAL_MS);
@@ -159,7 +180,7 @@ export function useChatStream(): UseChatStreamReturn {
           if (done) {
             // Process any remaining buffer
             if (buffer.trim()) {
-              processData(buffer.trim(), contentBufferRef);
+              processData(buffer.trim(), contentBufferRef, sourcesBufferRef);
             }
             break;
           }
@@ -172,13 +193,23 @@ export function useChatStream(): UseChatStreamReturn {
 
           for (const part of parts) {
             if (part.trim()) {
-              processData(part.trim(), contentBufferRef);
+              processData(part.trim(), contentBufferRef, sourcesBufferRef);
             }
           }
         }
 
         // Signal that streaming is complete
         stopStreamingUI();
+        
+        // Extract sources from the final text content (footnote references)
+        // Sources will be added to the message after the UI finishes revealing content
+        const textSources = extractSourcesFromText(contentBufferRef.current);
+        if (textSources.length > 0) {
+          // Merge with any existing sources, avoiding duplicates
+          const existingUrls = new Set(sourcesBufferRef.current.map(s => s.url));
+          const newSources = textSources.filter(s => !existingUrls.has(s.url));
+          sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+        }
       } catch (err) {
         // Stop the streaming interval
         if (streamIntervalRef.current) {
@@ -239,6 +270,7 @@ export function useChatStream(): UseChatStreamReturn {
 function processData(
   rawData: string,
   contentBufferRef: React.MutableRefObject<string>,
+  sourcesBufferRef: React.MutableRefObject<Source[]>,
 ) {
   const lines = rawData.split("\n");
 
@@ -265,19 +297,119 @@ function processData(
     try {
       const parsed = JSON.parse(data);
 
+      // Uncomment for debugging:
+      // console.log("Inkeep response chunk:", JSON.stringify(parsed, null, 2));
+
+      // Helper to extract sources from a links/citations array
+      const extractSourcesFromArray = (arr: any[]): Source[] => {
+        return arr.map((item: any) => ({
+          title: item.title || item.name || item.text || item.label || "",
+          url: item.url || item.link || item.href || "",
+        })).filter((s: Source) => s.title);
+      };
+
+      // Check for links at top level
+      if (parsed.links && Array.isArray(parsed.links)) {
+        const linkSources = extractSourcesFromArray(parsed.links);
+        if (linkSources.length > 0) {
+          const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
+          const newSources = linkSources.filter(s => !existingTitles.has(s.title));
+          sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+        }
+      }
+
       if (parsed.choices && parsed.choices[0]) {
         const choice = parsed.choices[0];
         const delta = choice.delta;
         const message = choice.message;
 
+        // Check for links in delta (streaming format)
+        if (delta?.links && Array.isArray(delta.links)) {
+          const linkSources = extractSourcesFromArray(delta.links);
+          if (linkSources.length > 0) {
+            const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
+            const newSources = linkSources.filter(s => !existingTitles.has(s.title));
+            sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+          }
+        }
+
+        // Check for citations in delta (streaming format)
+        if (delta?.citations && Array.isArray(delta.citations)) {
+          const citationSources = extractSourcesFromArray(delta.citations);
+          if (citationSources.length > 0) {
+            const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
+            const newSources = citationSources.filter(s => !existingTitles.has(s.title));
+            sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+          }
+        }
+
+        // Check for links in message (complete format)
+        if (message?.links && Array.isArray(message.links)) {
+          const linkSources = extractSourcesFromArray(message.links);
+          if (linkSources.length > 0) {
+            sourcesBufferRef.current = linkSources;
+          }
+        }
+
+        // Check for citations in message (complete format)
+        if (message?.citations && Array.isArray(message.citations)) {
+          const citationSources = extractSourcesFromArray(message.citations);
+          if (citationSources.length > 0) {
+            sourcesBufferRef.current = citationSources;
+          }
+        }
+
         if (delta?.content) {
           // Streaming format - append to buffer
-          contentBufferRef.current += delta.content;
+          // delta.content can be string or object
+          if (typeof delta.content === "string") {
+            contentBufferRef.current += delta.content;
+          } else {
+            // If content is an object, try to extract text and sources
+            const { text, sources } = extractContentWithSources(delta.content);
+            if (text) {
+              contentBufferRef.current += text;
+            }
+            if (sources.length > 0) {
+              const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
+              const newSources = sources.filter(s => !existingTitles.has(s.title));
+              sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+            }
+          }
         } else if (message?.content) {
           // Complete response format - extract and set buffer
-          const textContent = extractTextContent(message.content);
-          if (textContent) {
-            contentBufferRef.current = textContent;
+          const { text, sources } = extractContentWithSources(message.content);
+          if (text) {
+            contentBufferRef.current = text;
+          }
+          if (sources.length > 0) {
+            // Merge with existing sources, avoiding duplicates
+            const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
+            const newSources = sources.filter(s => !existingTitles.has(s.title));
+            sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+          }
+        }
+      }
+
+      // Check for citations field at the top level
+      if (parsed.citations && Array.isArray(parsed.citations)) {
+        const citationSources = extractSourcesFromArray(parsed.citations);
+        if (citationSources.length > 0) {
+          const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
+          const newSources = citationSources.filter(s => !existingTitles.has(s.title));
+          sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
+        }
+      }
+
+      // Also check at choice level
+      if (parsed.choices && parsed.choices[0]) {
+        const choice = parsed.choices[0];
+        if (choice.links && Array.isArray(choice.links)) {
+          const linkSources = extractSourcesFromArray(choice.links);
+          if (linkSources.length > 0) {
+            const existingTitles = new Set(sourcesBufferRef.current.map(s => s.title));
+            const newSources = linkSources.filter(s => !existingTitles.has(s.title));
+            sourcesBufferRef.current = [...sourcesBufferRef.current, ...newSources];
           }
         }
       }
@@ -315,4 +447,189 @@ function extractTextContent(content: string): string {
     // Content is plain text, not JSON
     return content;
   }
+}
+
+// Derive a human-readable title from a URL path
+function titleFromUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    // Get the last meaningful path segment
+    const pathParts = urlObj.pathname.split('/').filter(p => p.length > 0);
+    if (pathParts.length === 0) return url;
+    
+    const lastPart = pathParts[pathParts.length - 1];
+    // Convert kebab-case or snake_case to Title Case
+    return lastPart
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  } catch {
+    return url;
+  }
+}
+
+// Extract sources from footnote references in markdown text
+// Looks for markdown links like [(1)](url) which are footnote references
+function extractSourcesFromText(text: string): Source[] {
+  const sources: Source[] = [];
+  const seenUrls = new Set<string>();
+
+  // Match markdown links [title](url)
+  const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let match;
+
+  while ((match = linkPattern.exec(text)) !== null) {
+    const linkText = match[1].trim();
+    const url = match[2].trim();
+
+    // Skip if we've already seen this URL
+    if (seenUrls.has(url)) continue;
+    
+    // Skip non-http links
+    if (!url.startsWith('http')) continue;
+    
+    seenUrls.add(url);
+
+    // If the link text is a footnote number like (1), (2), derive title from URL
+    let title: string;
+    if (/^\(\d+\)$/.test(linkText) || /^\d+$/.test(linkText)) {
+      title = titleFromUrl(url);
+    } else {
+      title = linkText;
+    }
+
+    sources.push({ title, url });
+  }
+
+  return sources;
+}
+
+// Extract both text content and sources from Inkeep's nested content format
+function extractContentWithSources(content: string | any): { text: string; sources: Source[] } {
+  const sources: Source[] = [];
+  const seenSources = new Set<string>(); // For deduplication
+
+  // Handle case where content is already an object
+  let contentObj: any;
+  if (typeof content === "string") {
+    try {
+      contentObj = JSON.parse(content);
+    } catch {
+      // Content is plain text, not JSON
+      return { text: content, sources };
+    }
+  } else {
+    contentObj = content;
+  }
+
+  // Handle array of content items
+  if (Array.isArray(contentObj)) {
+    let text = "";
+    for (const item of contentObj) {
+      if (item.type === "text" && item.text) {
+        text += item.text;
+      } else if (item.type === "document") {
+        // Extract text from document if present
+        if (item.text) {
+          text += item.text;
+        }
+        if (item.source?.content) {
+          for (const sourceItem of item.source.content) {
+            if (sourceItem.type === "text" && sourceItem.text) {
+              text += sourceItem.text;
+            }
+          }
+        }
+
+        // Extract source metadata
+        const sourceTitle =
+          item.source?.title ||
+          item.source?.name ||
+          item.title ||
+          item.source?.metadata?.title ||
+          item.source?.document_title ||
+          "";
+        const sourceUrl =
+          item.source?.url ||
+          item.source?.link ||
+          item.url ||
+          item.source?.metadata?.url ||
+          item.source?.document_url ||
+          undefined;
+
+        if (sourceTitle) {
+          if (!seenSources.has(sourceTitle)) {
+            seenSources.add(sourceTitle);
+            sources.push({
+              title: sourceTitle,
+              url: sourceUrl,
+            });
+          }
+        }
+      } else if (item.text) {
+        text += item.text;
+      }
+    }
+    return { text: text || (typeof content === "string" ? content : ""), sources };
+  }
+
+  // Handle object with content array
+  if (contentObj.content && Array.isArray(contentObj.content)) {
+    let text = "";
+    for (const item of contentObj.content) {
+      if (item.type === "text" && item.text) {
+        text += item.text;
+      } else if (item.type === "document") {
+        // Extract text from document if present
+        if (item.text) {
+          text += item.text;
+        }
+        if (item.source?.content) {
+          for (const sourceItem of item.source.content) {
+            if (sourceItem.type === "text" && sourceItem.text) {
+              text += sourceItem.text;
+            }
+          }
+        }
+
+        // Extract source metadata - try multiple possible field names
+        const sourceTitle =
+          item.source?.title ||
+          item.source?.name ||
+          item.title ||
+          item.source?.metadata?.title ||
+          item.source?.document_title ||
+          item.document_title ||
+          "";
+        const sourceUrl =
+          item.source?.url ||
+          item.source?.link ||
+          item.url ||
+          item.source?.metadata?.url ||
+          item.source?.document_url ||
+          item.document_url ||
+          undefined;
+
+        if (sourceTitle) {
+          if (!seenSources.has(sourceTitle)) {
+            seenSources.add(sourceTitle);
+            sources.push({
+              title: sourceTitle,
+              url: sourceUrl,
+            });
+          }
+        }
+      } else if (item.text) {
+        text += item.text;
+      }
+    }
+    return { text: text || (typeof content === "string" ? content : ""), sources };
+  }
+
+  // Handle plain string content
+  if (typeof contentObj === "string") {
+    return { text: contentObj, sources };
+  }
+
+  // Fallback: return content as-is
+  return { text: typeof content === "string" ? content : JSON.stringify(contentObj), sources };
 }
