@@ -1,20 +1,12 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect } from "react";
+import { useAskAi, type Message, type Source } from "../components/AskAiContext";
+
+// Re-export types for backward compatibility
+export type { Message, Source };
 
 // Streaming configuration
 const STREAM_INTERVAL_MS = 20; // Update UI every 20ms
 const CHARS_PER_UPDATE = 3; // Characters to reveal per update
-
-export type Source = {
-  title: string;
-  url?: string;
-};
-
-export type Message = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  sources?: Source[];
-};
 
 type UseChatStreamReturn = {
   messages: Message[];
@@ -27,10 +19,19 @@ type UseChatStreamReturn = {
 };
 
 export function useChatStream(): UseChatStreamReturn {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Get chat state from context (persists across navigation)
+  const {
+    messages,
+    setMessages,
+    isLoading,
+    setIsLoading,
+    isStreaming,
+    setIsStreaming,
+    error,
+    setError,
+    clearMessages: contextClearMessages,
+  } = useAskAi();
+
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Streaming state refs (don't trigger re-renders)
@@ -340,12 +341,10 @@ export function useChatStream(): UseChatStreamReturn {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
-    setMessages([]);
-    setError(null);
-    setIsLoading(false);
-    setIsStreaming(false);
+    // Use context's clearMessages which handles all state resets
+    contextClearMessages();
     userStoppedRef.current = false;
-  }, []);
+  }, [contextClearMessages]);
 
   return {
     messages,
