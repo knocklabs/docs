@@ -22,18 +22,51 @@ import { Streamdown } from "streamdown";
 import React from "react";
 import { Icons } from "./ui/Icons";
 
-// Helper function to convert source references like (1), (2) to superscripts in markdown
+// Helper function to convert source references like (1), (2) to superscript links
+// Also handles incomplete markdown link syntax during streaming to prevent "[blocked]" from appearing
 function processSourceReferences(content: string): string {
   if (typeof content !== "string") {
     return content;
   }
 
-  // Match patterns like (1), (2), (3), etc. and replace with superscript HTML
-  // Preserves the color (inherits from parent), no underline, smaller size
-  return content.replace(
-    /\((\d+)\)/g,
-    '<sup style="color: inherit; font-size: 0.6rem; text-decoration: none;">$1</sup>',
+  let processed = content;
+
+  // First, convert COMPLETE markdown links with numeric text like [(1)](url) to clickable superscript links
+  processed = processed.replace(
+    /\[(\(?\d+\)?)\]\(([^)]+)\)/g,
+    (match, num, url) => {
+      const justNumber = num.replace(/[()]/g, "");
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: var(--tgph-accent-9); text-decoration: none; cursor: pointer;"><sup style="font-size: 0.6rem;">${justNumber}</sup></a>`;
+    },
   );
+
+  // Handle incomplete markdown link syntax during streaming to prevent "[blocked]"
+  // Match patterns like [(1)]( or [(1)](http... that don't have a closing )
+  // These are incomplete links being streamed - show as plain superscript temporarily
+  processed = processed.replace(/\[(\(?\d+\)?)\]\([^)]*$/g, (match, num) => {
+    const justNumber = num.replace(/[()]/g, "");
+    return `<sup style="color: var(--tgph-accent-9); font-size: 0.6rem;">${justNumber}</sup>`;
+  });
+
+  // Also handle even more incomplete patterns like [(1)] at end of string (no URL yet)
+  processed = processed.replace(/\[(\(?\d+\)?)\]$/g, (match, num) => {
+    const justNumber = num.replace(/[()]/g, "");
+    return `<sup style="color: var(--tgph-accent-9); font-size: 0.6rem;">${justNumber}</sup>`;
+  });
+
+  // Handle [(1) at end of string (bracket not closed yet)
+  processed = processed.replace(/\[(\(?\d+\)?)$/g, (match, num) => {
+    const justNumber = num.replace(/[()]/g, "");
+    return `<sup style="color: var(--tgph-accent-9); font-size: 0.6rem;">${justNumber}</sup>`;
+  });
+
+  // Handle any remaining standalone (1), (2), etc. that aren't part of links
+  processed = processed.replace(
+    /(?<!\[)\((\d+)\)(?!\])/g,
+    '<sup style="color: var(--tgph-accent-9); font-size: 0.6rem;">$1</sup>',
+  );
+
+  return processed;
 }
 
 function AskAiSidebar() {
