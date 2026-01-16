@@ -119,11 +119,11 @@ function AskAiSidebar() {
   return (
     <Box
       borderLeftWidth={isOpen ? "px" : "0"}
-      borderColor="gray-4"
+      borderColor={isHoveringResizeHandle ? "gray-6" : "gray-4"}
       style={{
         width: isOpen ? `${sidebarWidth}px` : "0",
         overflow: "hidden",
-        transition: isResizing ? "none" : "width 0.2s ease-in-out",
+        transition: isResizing ? "none" : "width 0.2s ease-in-out, border-color 0.2s ease-in-out",
         position: "fixed",
         top: `${headerHeight}px`,
         right: 0,
@@ -145,12 +145,8 @@ function AskAiSidebar() {
             width: "4px",
             height: "100%",
             cursor: "col-resize",
-            backgroundColor:
-              isResizing || isHoveringResizeHandle
-                ? "var(--tgph-accent-9)"
-                : "transparent",
+            backgroundColor: "transparent",
             zIndex: 11,
-            transition: isResizing ? "none" : "background-color 0.2s",
           }}
         />
       )}
@@ -172,6 +168,7 @@ function AskAiSidebar() {
           borderColor="gray-4"
           style={{
             minWidth: `${sidebarWidth}px`,
+            minHeight: "48px",
           }}
         >
           <Text as="span" size="2" weight="medium">
@@ -181,10 +178,20 @@ function AskAiSidebar() {
             variant="ghost"
             size="1"
             onClick={closeSidebar}
-            style={{ padding: "4px" }}
-          >
-            <Icon icon={X} size="1" aria-hidden />
-          </Button>
+            icon={{
+              icon: X,
+              "aria-hidden": true,
+            }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "28px",
+              height: "28px",
+              padding: 0,
+              minWidth: "28px",
+            }}
+          />
         </Stack>
 
         {/* Input area */}
