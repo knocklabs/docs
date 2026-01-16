@@ -155,6 +155,129 @@ function AskAiSidebar() {
     setIsResizing(true);
   };
 
+  // Input area component - conditionally rendered at top or bottom
+  const inputArea = (isAtTop: boolean) => (
+    <Box
+      p="4"
+      borderBottomWidth={isAtTop ? "px" : undefined}
+      borderTopWidth={!isAtTop ? "px" : undefined}
+      borderColor="gray-4"
+      style={{
+        minWidth: `${sidebarWidth}px`,
+      }}
+    >
+      <Box
+        style={{
+          position: "relative",
+        }}
+      >
+        <textarea
+          ref={textareaRef}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask questions about the docs"
+          rows={1}
+          disabled={isLoading}
+          style={{
+            width: "100%",
+            height: "80px",
+            minHeight: "80px",
+            maxHeight: "80px",
+            paddingTop: "8px",
+            paddingRight: "44px",
+            paddingBottom: "8px",
+            paddingLeft: "12px",
+            border: "1px solid",
+            borderColor: "var(--tgph-gray-4)",
+            borderRadius: "6px",
+            fontSize: "14px",
+            outline: "none",
+            resize: "none",
+            fontFamily: "inherit",
+            boxSizing: "border-box",
+            verticalAlign: "top",
+            textAlign: "left",
+            lineHeight: "1.5",
+            display: "block",
+            backgroundColor: "var(--tgph-surface-1)",
+            color: "var(--tgph-gray-12)",
+            opacity: isLoading ? 0.6 : 1,
+            cursor: isLoading ? "not-allowed" : "text",
+          }}
+        />
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isLoading}
+          style={{
+            position: "absolute",
+            right: "8px",
+            bottom: "8px",
+            width: "28px",
+            height: "28px",
+            minWidth: "28px",
+            minHeight: "28px",
+            padding: "0",
+            borderRadius: "8px",
+            backgroundColor: isLoading
+              ? "var(--tgph-gray-6)"
+              : "var(--tgph-gray-8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "none",
+            cursor: isLoading ? "not-allowed" : "pointer",
+            margin: "0",
+            boxSizing: "border-box",
+            transition: "background-color 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            if (!isLoading) {
+              e.currentTarget.style.backgroundColor = "var(--tgph-gray-9)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isLoading) {
+              e.currentTarget.style.backgroundColor = "var(--tgph-gray-8)";
+            }
+          }}
+        >
+          <Box
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            {isLoading ? (
+              <Icon
+                icon={Loader2}
+                size="1"
+                aria-hidden
+                style={{
+                  color: "white",
+                  animation: "spin 1s linear infinite",
+                }}
+              />
+            ) : (
+              <Icon
+                icon={ArrowUp}
+                size="1"
+                aria-hidden
+                style={{
+                  color: "white",
+                }}
+              />
+            )}
+          </Box>
+        </button>
+      </Box>
+    </Box>
+  );
+
   return (
     <Box
       borderLeftWidth={isOpen ? "px" : "0"}
@@ -233,125 +356,8 @@ function AskAiSidebar() {
           />
         </Stack>
 
-        {/* Input area */}
-        <Box
-          p="4"
-          borderBottomWidth="px"
-          borderColor="gray-4"
-          style={{
-            minWidth: `${sidebarWidth}px`,
-          }}
-        >
-          <Box
-            style={{
-              position: "relative",
-            }}
-          >
-            <textarea
-              ref={textareaRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask questions about the docs"
-              rows={1}
-              disabled={isLoading}
-              style={{
-                width: "100%",
-                height: "80px",
-                minHeight: "80px",
-                maxHeight: "80px",
-                paddingTop: "8px",
-                paddingRight: "44px",
-                paddingBottom: "8px",
-                paddingLeft: "12px",
-                border: "1px solid",
-                borderColor: "var(--tgph-gray-4)",
-                borderRadius: "6px",
-                fontSize: "14px",
-                outline: "none",
-                resize: "none",
-                fontFamily: "inherit",
-                boxSizing: "border-box",
-                verticalAlign: "top",
-                textAlign: "left",
-                lineHeight: "1.5",
-                display: "block",
-                backgroundColor: "var(--tgph-surface-1)",
-                color: "var(--tgph-gray-12)",
-                opacity: isLoading ? 0.6 : 1,
-                cursor: isLoading ? "not-allowed" : "text",
-              }}
-            />
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isLoading}
-              style={{
-                position: "absolute",
-                right: "8px",
-                bottom: "8px",
-                width: "28px",
-                height: "28px",
-                minWidth: "28px",
-                minHeight: "28px",
-                padding: "0",
-                borderRadius: "8px",
-                backgroundColor: isLoading
-                  ? "var(--tgph-gray-6)"
-                  : "var(--tgph-gray-8)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "none",
-                cursor: isLoading ? "not-allowed" : "pointer",
-                margin: "0",
-                boxSizing: "border-box",
-                transition: "background-color 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = "var(--tgph-gray-9)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.backgroundColor = "var(--tgph-gray-8)";
-                }
-              }}
-            >
-              <Box
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                  height: "100%",
-                }}
-              >
-                {isLoading ? (
-                  <Icon
-                    icon={Loader2}
-                    size="1"
-                    aria-hidden
-                    style={{
-                      color: "white",
-                      animation: "spin 1s linear infinite",
-                    }}
-                  />
-                ) : (
-                  <Icon
-                    icon={ArrowUp}
-                    size="1"
-                    aria-hidden
-                    style={{
-                      color: "white",
-                    }}
-                  />
-                )}
-              </Box>
-            </button>
-          </Box>
-        </Box>
+        {/* Input at top when no messages */}
+        {messages.length === 0 && inputArea(true)}
 
         {/* Messages area */}
         <Box
@@ -394,6 +400,9 @@ function AskAiSidebar() {
             <div ref={messagesEndRef} />
           </Stack>
         </Box>
+
+        {/* Input at bottom when has messages */}
+        {messages.length > 0 && inputArea(false)}
       </Box>
     </Box>
   );
