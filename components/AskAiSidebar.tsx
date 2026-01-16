@@ -238,9 +238,6 @@ function AskAiSidebar() {
         style={{
           minWidth: `${sidebarWidth}px`,
           position: "relative",
-          boxShadow: isAtTop
-            ? "inset 0px -1px 0px 0px var(--tgph-gray-5)"
-            : "inset 0px 1px 0px 0px var(--tgph-gray-5)",
         }}
       >
         {/* Textarea */}
