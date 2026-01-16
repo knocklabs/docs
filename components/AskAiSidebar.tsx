@@ -31,6 +31,10 @@ function processSourceReferences(content: string): string {
 
   let processed = content;
 
+  // Convert single newlines to double newlines so markdown creates separate paragraphs
+  // This ensures proper spacing between paragraphs in the response
+  processed = processed.replace(/\n(?!\n)/g, "\n\n");
+
   // First, convert COMPLETE markdown links with numeric text like [(1)](url) to clickable superscript links
   processed = processed.replace(
     /\[(\(?\d+\)?)\]\(([^)]+)\)/g,
@@ -595,6 +599,7 @@ function MessageBubble({
       >
         <div className="tgraph-content">
           <Streamdown
+            parseIncompleteMarkdown={false}
             components={{
               // Only override what's necessary - CSS handles most styling via tgraph-content class
               code: (props: any) => (
@@ -665,6 +670,9 @@ function MessageBubble({
                 >
                   {children}
                 </sup>
+              ),
+              p: ({ children }: { children?: React.ReactNode }) => (
+                <p style={{ marginBottom: "12px" }}>{children}</p>
               ),
             }}
           >
