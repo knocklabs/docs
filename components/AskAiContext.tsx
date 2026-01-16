@@ -10,9 +10,12 @@ type AskAiContextType = {
   isOpen: boolean;
   sidebarWidth: number;
   isResizing: boolean;
+  initialPrompt: string | null;
   openSidebar: () => void;
   closeSidebar: () => void;
   toggleSidebar: () => void;
+  openSidebarWithPrompt: (prompt: string) => void;
+  clearInitialPrompt: () => void;
   setIsOpen: (open: boolean) => void;
   setSidebarWidth: (width: number) => void;
   setIsResizing: (resizing: boolean) => void;
@@ -23,6 +26,7 @@ export const AskAiContext = createContext<AskAiContextType | null>(null);
 export function AskAiProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     // Load saved width from localStorage, default to 340px
     if (typeof window !== "undefined") {
@@ -35,6 +39,11 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
   const openSidebar = useCallback(() => setIsOpen(true), []);
   const closeSidebar = useCallback(() => setIsOpen(false), []);
   const toggleSidebar = useCallback(() => setIsOpen((prev) => !prev), []);
+  const openSidebarWithPrompt = useCallback((prompt: string) => {
+    setInitialPrompt(prompt);
+    setIsOpen(true);
+  }, []);
+  const clearInitialPrompt = useCallback(() => setInitialPrompt(null), []);
 
   return (
     <AskAiContext.Provider
@@ -42,9 +51,12 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
         isOpen,
         sidebarWidth,
         isResizing,
+        initialPrompt,
         openSidebar,
         closeSidebar,
         toggleSidebar,
+        openSidebarWithPrompt,
+        clearInitialPrompt,
         setIsOpen,
         setSidebarWidth,
         setIsResizing,

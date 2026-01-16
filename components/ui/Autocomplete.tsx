@@ -25,30 +25,17 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import "@algolia/autocomplete-theme-classic";
 
-import {
-  AIChatFunctions,
-  type InkeepModalSearchAndChat,
-} from "@inkeep/cxkit-react";
 import { Input } from "@telegraph/input";
 import { Box, Stack } from "@telegraph/layout";
 import { Tag } from "@telegraph/tag";
 import { Search, Sparkles, X } from "lucide-react";
-
-const InKeepTrigger = dynamic(
-  () =>
-    import("@inkeep/cxkit-react").then((mod) => mod.InkeepModalSearchAndChat),
-  {
-    ssr: false,
-  },
-) as typeof InkeepModalSearchAndChat;
 
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { Button } from "@telegraph/button";
 import { Icon } from "@telegraph/icon";
 import { MenuItem } from "@telegraph/menu";
 import { Code, Text } from "@telegraph/typography";
-import dynamic from "next/dynamic";
-import useInkeepSettings from "../../hooks/useInKeepSettings";
+import { useAskAi } from "../AskAiContext";
 import { usePageContext } from "./Page";
 import { highlightResource } from "./Page/helpers";
 
@@ -245,17 +232,10 @@ const EndpointSearchResult = ({
 
 const Autocomplete = () => {
   const { setIsSearchOpen } = usePageContext();
+  const { openSidebarWithPrompt } = useAskAi();
   const [autocompleteState, setAutocompleteState] =
     useState<AutocompleteState<BaseItem> | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
-
-  // Add state for the AI chat
-  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
-  const [aiSearchTerm, setAiSearchTerm] = useState("");
-  const chatFunctionsRef = useRef<AIChatFunctions | null>(null);
-
-  const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
-    useInkeepSettings();
 
   const inputRef = useRef(null);
   const router = useRouter();
@@ -263,32 +243,6 @@ const Autocomplete = () => {
     () => algoliasearch(algoliaAppId, algoliaSearchApiKey),
     [],
   );
-
-  // Function to handle opening the AI chat
-  const handleOpenAiChat = useCallback((searchTerm: string) => {
-    setAiSearchTerm(searchTerm);
-    setIsAiChatOpen(true);
-  }, []);
-
-  // Function to handle closing the AI chat
-  const handleCloseAiChat = useCallback(() => {
-    setIsAiChatOpen(false);
-  }, []);
-
-  // Add this effect to update the chat input when aiSearchTerm changes
-  useEffect(() => {
-    if (isAiChatOpen && chatFunctionsRef.current && aiSearchTerm) {
-      // Update the input message with the search term
-      chatFunctionsRef.current.updateInputMessage(aiSearchTerm);
-
-      // Use a small timeout to ensure the chat is fully loaded before submitting
-      setTimeout(() => {
-        if (chatFunctionsRef.current) {
-          chatFunctionsRef.current.submitMessage();
-        }
-      }, 500);
-    }
-  }, [isAiChatOpen, aiSearchTerm]);
 
   const autocomplete = useMemo(
     () =>
@@ -415,7 +369,7 @@ const Autocomplete = () => {
           navigate({ itemUrl, item, state }) {
             // Check if this is our Ask AI item
             if ((item as any).__isAskAiItem) {
-              handleOpenAiChat(state.query);
+              openSidebarWithPrompt(`Can you tell me about ${state.query}`);
               return;
             }
 
@@ -429,7 +383,7 @@ const Autocomplete = () => {
           },
         },
       }),
-    [router, searchClient, handleOpenAiChat, setIsSearchOpen],
+    [router, searchClient, openSidebarWithPrompt, setIsSearchOpen],
   );
 
   useHotkeys("/, cmd+k", (e) => {
@@ -494,9 +448,11 @@ const Autocomplete = () => {
     if (e.key === "Enter") {
       e.preventDefault();
       e.stopPropagation();
-      // Open the AI chat
+      // Open the AI sidebar
       if (autocompleteState?.query && !hasResults) {
-        handleOpenAiChat(autocompleteState.query);
+        openSidebarWithPrompt(
+          `Can you tell me about ${autocompleteState.query}`,
+        );
         return;
       } else {
         // Navigate to the first item that is not the "Ask AI" item
@@ -675,9 +631,14 @@ const Autocomplete = () => {
                             source,
                           }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
                           color="default"
-                          onClick={() =>
-                            handleOpenAiChat((inputProps as any).value)
-                          }
+                          onClick={() => {
+                            const query = (inputProps as any).value;
+                            if (query) {
+                              openSidebarWithPrompt(
+                                `Can you tell me about ${query}`,
+                              );
+                            }
+                          }}
                         >
                           <Stack
                             py="3"
@@ -778,9 +739,14 @@ const Autocomplete = () => {
                       <Link
                         href="javascript:void(0)"
                         className="text-brand"
-                        onClick={() =>
-                          handleOpenAiChat((inputProps as any).value)
-                        }
+                        onClick={() => {
+                          const query = (inputProps as any).value;
+                          if (query) {
+                            openSidebarWithPrompt(
+                              `Can you tell me about ${query}`,
+                            );
+                          }
+                        }}
                       >
                         Ask AI ✨
                       </Link>
@@ -792,49 +758,6 @@ const Autocomplete = () => {
           </Box>
         </Box>
       )}
-
-      {/* Add the InKeep trigger component directly in the Autocomplete component */}
-      <InKeepTrigger
-        defaultView="chat"
-        baseSettings={{
-          ...baseSettings,
-          theme: {
-            styles: [
-              {
-                key: "knock-autocomplete-style",
-                type: "style",
-                // InkeepModalSearchAndChat does not accept a canToggleView prop,
-                // so we apply a custom style to hide the header. Without this style,
-                // the AI chat displays a header that allows the user to toggle between
-                // a normal search and an AI chat.
-                value: `
-                .ikp-ai-chat-header {
-                  display: none;
-                }
-                `,
-              },
-            ],
-          },
-        }}
-        aiChatSettings={{
-          ...aiChatSettings,
-          chatFunctionsRef,
-          placeholder: "Ask a question...",
-        }}
-        modalSettings={{
-          ...modalSettings,
-          isOpen: isAiChatOpen,
-          onOpenChange: (open) => {
-            if (!open) {
-              handleCloseAiChat();
-            }
-          },
-        }}
-        searchSettings={{
-          ...searchSettings,
-          defaultQuery: aiSearchTerm,
-        }}
-      />
     </Box>
   );
 };
