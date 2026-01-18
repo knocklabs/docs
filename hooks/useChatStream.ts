@@ -1,5 +1,9 @@
 import { useCallback, useRef, useEffect } from "react";
-import { useAskAi, type Message, type Source } from "../components/AskAiContext";
+import {
+  useAskAi,
+  type Message,
+  type Source,
+} from "../components/AskAiContext";
 
 // Re-export types for backward compatibility
 export type { Message, Source };
