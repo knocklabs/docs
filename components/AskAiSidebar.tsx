@@ -31,9 +31,46 @@ function processSourceReferences(content: string): string {
 
   let processed = content;
 
-  // Convert single newlines to double newlines so markdown creates separate paragraphs
-  // This ensures proper spacing between paragraphs in the response
-  processed = processed.replace(/\n(?!\n)/g, "\n\n");
+  // Convert single newlines to double newlines for better paragraph spacing,
+  // but preserve markdown list structures (lines starting with -, *, or digits followed by .)
+  // This ensures proper spacing between paragraphs without breaking lists
+  processed = processed.replace(/\n(?!\n)/g, (match, offset) => {
+    const beforeNewline = content.substring(0, offset);
+    const afterNewline = content.substring(offset + 1);
+
+    // Get the current line (before the newline)
+    const currentLineMatch = beforeNewline.match(/[^\n]*$/);
+    const currentLine = currentLineMatch ? currentLineMatch[0] : '';
+
+    // Get the next line (after the newline)
+    const nextLineMatch = afterNewline.match(/^[^\n]*/);
+    const nextLine = nextLineMatch ? nextLineMatch[0] : '';
+
+    // Check if current or next line is a list item (including indented ones)
+    const isListItem = /^\s*[-*]|\d+\./.test(currentLine.trim()) || /^\s*[-*]|\d+\./.test(nextLine.trim());
+
+    // If either line is a list item, keep single newline to preserve list structure
+    if (isListItem) {
+      return '\n';
+    }
+
+    // Otherwise, convert to double newline for paragraph spacing
+    return '\n\n';
+  });
+
+  // Remove reference links that immediately follow regular markdown links (they're redundant)
+  // Match patterns like: [Text](url)[(2)](source-url) or [Text](url)(2)
+  processed = processed.replace(
+    /(\[([^\]]+)\]\(([^)]+)\))(?:\s*)(?:\[?\(?\d+\)?\]?\([^)]+\)|\(\d+\))/g,
+    "$1",
+  );
+
+  // Remove numeric references that follow code blocks (they're listed in Sources section)
+  // Match: closing code fence (```) followed by optional whitespace/newlines and a reference
+  processed = processed.replace(
+    /(```[a-z]*\s*)\[(\(?\d+\)?)\]\(([^)]+)\)/gi,
+    "$1",
+  );
 
   // First, convert COMPLETE markdown links with numeric text like [(1)](url) to clickable superscript links
   processed = processed.replace(
@@ -667,6 +704,15 @@ function MessageBubble({
               ),
               p: ({ children }: { children?: React.ReactNode }) => (
                 <p style={{ marginBottom: "12px" }}>{children}</p>
+              ),
+              ul: ({ children }: { children?: React.ReactNode }) => (
+                <ul style={{ paddingLeft: "24px" }}>{children}</ul>
+              ),
+              ol: ({ children }: { children?: React.ReactNode }) => (
+                <ol style={{ paddingLeft: "24px" }}>{children}</ol>
+              ),
+              li: ({ children }: { children?: React.ReactNode }) => (
+                <li data-tgph-list-item>{children}</li>
               ),
             }}
           >
