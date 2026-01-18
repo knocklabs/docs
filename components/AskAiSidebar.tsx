@@ -40,22 +40,24 @@ function processSourceReferences(content: string): string {
 
     // Get the current line (before the newline)
     const currentLineMatch = beforeNewline.match(/[^\n]*$/);
-    const currentLine = currentLineMatch ? currentLineMatch[0] : '';
+    const currentLine = currentLineMatch ? currentLineMatch[0] : "";
 
     // Get the next line (after the newline)
     const nextLineMatch = afterNewline.match(/^[^\n]*/);
-    const nextLine = nextLineMatch ? nextLineMatch[0] : '';
+    const nextLine = nextLineMatch ? nextLineMatch[0] : "";
 
     // Check if current or next line is a list item (including indented ones)
-    const isListItem = /^\s*[-*]|\d+\./.test(currentLine.trim()) || /^\s*[-*]|\d+\./.test(nextLine.trim());
+    const isListItem =
+      /^\s*[-*]|\d+\./.test(currentLine.trim()) ||
+      /^\s*[-*]|\d+\./.test(nextLine.trim());
 
     // If either line is a list item, keep single newline to preserve list structure
     if (isListItem) {
-      return '\n';
+      return "\n";
     }
 
     // Otherwise, convert to double newline for paragraph spacing
-    return '\n\n';
+    return "\n\n";
   });
 
   // Remove reference links that immediately follow regular markdown links (they're redundant)
@@ -609,7 +611,7 @@ function MessageBubble({
   // Streamdown is optimized for streaming LLM content and handles incomplete markdown gracefully
   return (
     <Box
-      bg="surface-3"
+      bg="surface-1"
       style={{
         width: "100%",
         display: "flex",
