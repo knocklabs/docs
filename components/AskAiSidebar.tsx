@@ -20,6 +20,7 @@ import {
 import { Streamdown } from "streamdown";
 import React from "react";
 import { Icons } from "./ui/Icons";
+import { CodeBlock } from "./ui/CodeBlock";
 
 // Helper function to convert source references like (1), (2) to superscript links
 // Also handles incomplete markdown link syntax during streaming to prevent "[blocked]" from appearing
@@ -605,22 +606,24 @@ function MessageBubble({
                   {props.children}
                 </Code>
               ),
-              pre: ({ children }: { children?: React.ReactNode }) => (
-                <Box
-                  as="pre"
-                  bg="gray-2"
-                  borderRadius="3"
-                  p="3"
-                  mb="3"
-                  style={{
-                    overflow: "auto",
-                    fontSize: "13px",
-                    lineHeight: "1.5",
-                  }}
-                >
-                  {children}
-                </Box>
-              ),
+              pre: ({ children }: { children?: React.ReactNode }) => {
+                // Extract language from code element className (e.g., "language-javascript")
+                const codeElement = React.Children.toArray(children).find(
+                  (child) =>
+                    React.isValidElement(child) && child.type === "code",
+                );
+
+                let language: string | undefined;
+                if (React.isValidElement(codeElement)) {
+                  const props = codeElement.props as { className?: string };
+                  if (props.className) {
+                    const match = /language-(\w+)/.exec(props.className);
+                    language = match ? match[1] : undefined;
+                  }
+                }
+
+                return <CodeBlock language={language}>{children}</CodeBlock>;
+              },
               a: ({
                 href,
                 children,
