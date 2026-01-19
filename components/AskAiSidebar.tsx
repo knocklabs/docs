@@ -15,6 +15,7 @@ import {
   Plus,
 } from "lucide-react";
 import { Popover } from "@telegraph/popover";
+import { Tooltip } from "@telegraph/tooltip";
 import { useEffect, useState, useRef } from "react";
 import { useAskAi } from "./AskAiContext";
 import {
@@ -27,12 +28,6 @@ import React from "react";
 import { Icons } from "./ui/Icons";
 import { CodeBlock } from "./ui/CodeBlock";
 
-// Stub data for testing - will be replaced with localStorage
-const STUB_PREVIOUS_CHATS = [
-  { id: "chat-1", title: "Chat #1" },
-  { id: "chat-2", title: "Chat #2" },
-  { id: "chat-3", title: "Chat #3" },
-];
 
 // Helper function to convert source references like (1), (2) to superscript links
 // Also handles incomplete markdown link syntax during streaming to prevent "[blocked]" from appearing
@@ -134,11 +129,14 @@ function AskAiSidebar() {
     setIsResizing,
     initialPrompt,
     clearInitialPrompt,
+    chatSessions,
+    currentChatId,
+    createNewSession,
+    selectSession,
   } = useAskAi();
   const [headerHeight, setHeaderHeight] = useState(100);
   const [inputValue, setInputValue] = useState("");
   const [isHoveringResizeHandle, setIsHoveringResizeHandle] = useState(false);
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -243,22 +241,25 @@ function AskAiSidebar() {
 
   // Get the title of the selected chat
   const getSelectedChatTitle = () => {
-    if (!selectedChatId) return "New assistant";
-    const chat = STUB_PREVIOUS_CHATS.find((c) => c.id === selectedChatId);
-    return chat?.title || "New assistant";
+    if (!currentChatId) return "New chat";
+    const chat = chatSessions.find((c) => c.id === currentChatId);
+    return chat?.title || "New chat";
   };
+
+  // Get other chat sessions (excluding current)
+  const otherChatSessions = chatSessions.filter(
+    (session) => session.id !== currentChatId,
+  );
 
   // Handle starting a new chat
   const handleNewChat = () => {
-    clearMessages();
-    setSelectedChatId(null);
+    createNewSession();
     setIsDropdownOpen(false);
   };
 
   // Handle selecting a previous chat
   const handleSelectChat = (chatId: string) => {
-    clearMessages();
-    setSelectedChatId(chatId);
+    selectSession(chatId);
     setIsDropdownOpen(false);
   };
 
@@ -469,133 +470,72 @@ function AskAiSidebar() {
             boxShadow: "inset 0px -1px 0px 0px var(--tgph-gray-5)",
           }}
         >
-          <Popover.Root open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-            <Popover.Trigger asChild>
-              <Button
-                variant="soft"
-                color="gray"
-                size="1"
-              >
-                <Stack direction="row" alignItems="center" gap="1">
-                  {getSelectedChatTitle()}
-                  <Icon
-                    icon={ChevronsUpDown}
+          {chatSessions.length === 0 ? (
+            <Text as="span" size="2" weight="medium">
+              New chat
+            </Text>
+          ) : (
+            <>
+              <Popover.Root open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                <Popover.Trigger asChild>
+                  <Button
+                    variant="soft"
+                    color="gray"
                     size="1"
-                    aria-hidden
-                  />
-                </Stack>
-              </Button>
-            </Popover.Trigger>
-            <Popover.Content
-              sideOffset={4}
-              align="start"
-              p="1"
-              gap="0"
-              style={{ zIndex: 100 }}
-            >
-              {/* New chat option */}
-              <button
-                type="button"
-                onClick={handleNewChat}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  width: "100%",
-                  padding: "6px 8px",
-                  backgroundColor:
-                    selectedChatId === null
-                      ? "var(--tgph-gray-4)"
-                      : "transparent",
-                  borderRadius: "4px",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
-              >
-                <Box
+                  >
+                    <Stack direction="row" alignItems="center" gap="1">
+                      {getSelectedChatTitle()}
+                      <Icon
+                        icon={ChevronsUpDown}
+                        size="1"
+                        aria-hidden
+                      />
+                    </Stack>
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Content
+                  sideOffset={4}
+                  align="start"
+                  p="1"
+                  gap="0"
+                  style={{ zIndex: 100, maxWidth: "320px" }}
+                >
+                  {/* Currently selected chat at top */}
+                  {currentChatId && (
+                    <button
+                  type="button"
+                  onClick={() => handleSelectChat(currentChatId)}
                   style={{
-                    width: "16px",
-                    height: "20px",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
+                    gap: "6px",
+                    width: "100%",
+                    padding: "6px 8px",
+                    backgroundColor: "var(--tgph-gray-4)",
+                    borderRadius: "4px",
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
                   }}
                 >
-                  {selectedChatId === null ? (
+                  <Box
+                    style={{
+                      width: "16px",
+                      height: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
                     <Icon
                       icon={Check}
                       size="1"
                       aria-hidden
                       style={{ color: "var(--tgph-gray-12)" }}
                     />
-                  ) : (
-                    <Icon
-                      icon={Plus}
-                      size="1"
-                      aria-hidden
-                      style={{ color: "var(--tgph-gray-10)" }}
-                    />
-                  )}
-                </Box>
-                <Text as="span" size="2" weight="medium">
-                  New chat
-                </Text>
-              </button>
-
-              {/* Previous chats section */}
-              <Box style={{ padding: "4px" }}>
-                <Box style={{ padding: "8px" }}>
-                  <Text
-                    as="span"
-                    size="1"
-                    weight="medium"
-                    style={{ color: "var(--tgph-gray-11)" }}
-                  >
-                    Previous chats
-                  </Text>
-                </Box>
-
-                {/* List of previous chats */}
-                {STUB_PREVIOUS_CHATS.map((chat) => (
-                  <button
-                    key={chat.id}
-                    type="button"
-                    onClick={() => handleSelectChat(chat.id)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      width: "100%",
-                      padding: "6px 8px",
-                      backgroundColor:
-                        selectedChatId === chat.id
-                          ? "var(--tgph-gray-4)"
-                          : "transparent",
-                      borderRadius: "4px",
-                      border: "none",
-                      cursor: "pointer",
-                      textAlign: "left",
-                    }}
-                  >
-                    <Box
-                      style={{
-                        width: "16px",
-                        height: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {selectedChatId === chat.id && (
-                        <Icon
-                          icon={Check}
-                          size="1"
-                          aria-hidden
-                          style={{ color: "var(--tgph-gray-12)" }}
-                        />
-                      )}
-                    </Box>
+                  </Box>
+                  <Tooltip label={getSelectedChatTitle()}>
                     <Text
                       as="span"
                       size="2"
@@ -604,15 +544,164 @@ function AskAiSidebar() {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
+                        flex: 1,
+                        minWidth: 0,
                       }}
                     >
-                      {chat.title}
+                      {getSelectedChatTitle()}
                     </Text>
-                  </button>
-                ))}
-              </Box>
-            </Popover.Content>
-          </Popover.Root>
+                  </Tooltip>
+                    </button>
+                  )}
+
+                  {/* New chat button - shows below selected chat when a previous chat is selected */}
+                  {currentChatId && (
+                    <button
+                  type="button"
+                  onClick={handleNewChat}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    width: "100%",
+                    padding: "6px 8px",
+                    backgroundColor: "transparent",
+                    borderRadius: "4px",
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    marginTop: "4px",
+                  }}
+                >
+                  <Box
+                    style={{
+                      width: "16px",
+                      height: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Icon
+                      icon={Plus}
+                      size="1"
+                      aria-hidden
+                      style={{ color: "var(--tgph-gray-10)" }}
+                    />
+                  </Box>
+                  <Text as="span" size="2" weight="medium">
+                    New chat
+                  </Text>
+                    </button>
+                  )}
+
+                  {/* New chat option - shows at top when no chat is selected */}
+                  {!currentChatId && (
+                    <button
+                  type="button"
+                  onClick={handleNewChat}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    width: "100%",
+                    padding: "6px 8px",
+                    backgroundColor: "var(--tgph-gray-4)",
+                    borderRadius: "4px",
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  <Box
+                    style={{
+                      width: "16px",
+                      height: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Icon
+                      icon={Check}
+                      size="1"
+                      aria-hidden
+                      style={{ color: "var(--tgph-gray-12)" }}
+                    />
+                  </Box>
+                  <Text as="span" size="2" weight="medium">
+                    New chat
+                  </Text>
+                    </button>
+                  )}
+
+                  {/* Previous chats section - only show if there are other sessions */}
+                  {otherChatSessions.length > 0 && (
+                    <Box style={{ padding: "4px", marginTop: currentChatId ? "4px" : "0" }}>
+                      <Box style={{ padding: "8px" }}>
+                        <Text
+                          as="span"
+                          size="1"
+                          weight="medium"
+                          style={{ color: "var(--tgph-gray-11)" }}
+                        >
+                          Previous chats
+                        </Text>
+                      </Box>
+
+                      {/* List of previous chats */}
+                      {otherChatSessions.map((chat) => (
+                        <button
+                      key={chat.id}
+                      type="button"
+                      onClick={() => handleSelectChat(chat.id)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        width: "100%",
+                        padding: "6px 8px",
+                        backgroundColor: "transparent",
+                        borderRadius: "4px",
+                        border: "none",
+                        cursor: "pointer",
+                        textAlign: "left",
+                      }}
+                    >
+                      <Box
+                        style={{
+                          width: "16px",
+                          height: "20px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      />
+                      <Tooltip label={chat.title}>
+                        <Text
+                          as="span"
+                          size="2"
+                          weight="medium"
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            flex: 1,
+                            minWidth: 0,
+                          }}
+                        >
+                          {chat.title}
+                        </Text>
+                      </Tooltip>
+                        </button>
+                      ))}
+                    </Box>
+                  )}
+                </Popover.Content>
+              </Popover.Root>
+            </>
+          )}
           <Box
             style={{
               display: "flex",
