@@ -34,6 +34,9 @@ export function useChatStream(): UseChatStreamReturn {
     error,
     setError,
     clearMessages: contextClearMessages,
+    currentChatId,
+    createNewSession,
+    generateSessionTitle,
   } = useAskAi();
 
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -123,6 +126,13 @@ export function useChatStream(): UseChatStreamReturn {
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim() || isLoading) return;
+
+      // Create a new session if we don't have one yet
+      const wasNewSession = currentChatId === null;
+      const sessionId = wasNewSession ? createNewSession() : currentChatId;
+      const isFirstMessage = messages.length === 0; // Capture before adding messages
+      // A session is "new" if it was just created OR if it has no messages yet
+      const isNewSession = wasNewSession || isFirstMessage;
 
       // Add user message immediately
       const userMessage: Message = {
@@ -230,6 +240,41 @@ export function useChatStream(): UseChatStreamReturn {
             ...newSources,
           ];
         }
+
+        // Generate title for new sessions after first assistant response
+        if (isNewSession && isFirstMessage && sessionId) {
+          console.log("[Title Generation] Triggering title generation", {
+            isNewSession,
+            isFirstMessage,
+            sessionId,
+            assistantContentLength: contentBufferRef.current.length,
+          });
+          // Wait a bit for the UI to finish updating, then generate title
+          setTimeout(() => {
+            // Construct the messages array with user message and assistant response
+            const finalAssistantMessage: Message = {
+              ...assistantMessage,
+              content: contentBufferRef.current,
+              sources: sourcesBufferRef.current.length > 0
+                ? sourcesBufferRef.current
+                : undefined,
+            };
+            const messagesForTitle = [userMessage, finalAssistantMessage];
+            console.log("[Title Generation] Calling generateSessionTitle", {
+              sessionId,
+              messagesCount: messagesForTitle.length,
+            });
+            generateSessionTitle(sessionId, messagesForTitle).catch((err) => {
+              console.error("Failed to generate session title:", err);
+            });
+          }, 500);
+        } else {
+          console.log("[Title Generation] Skipped", {
+            isNewSession,
+            isFirstMessage,
+            sessionId,
+          });
+        }
       } catch (err) {
         // Stop the streaming interval
         if (streamIntervalRef.current) {
@@ -267,7 +312,15 @@ export function useChatStream(): UseChatStreamReturn {
         abortControllerRef.current = null;
       }
     },
-    [messages, isLoading, startStreamingUI, stopStreamingUI],
+    [
+      messages,
+      isLoading,
+      startStreamingUI,
+      stopStreamingUI,
+      currentChatId,
+      createNewSession,
+      generateSessionTitle,
+    ],
   );
 
   const stopStream = useCallback(() => {
