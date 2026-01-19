@@ -23,7 +23,7 @@ function sanitizeTitle(rawTitle: string, fallbackContent: string): string {
   // Remove quotes, markdown links, and extra whitespace
   let title = rawTitle
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Remove markdown links, keep text
-    .replace(/["\[\]()]/g, "") // Remove quotes and brackets
+    .replace(/["[\]()]/g, "") // Remove quotes and brackets
     .replace(/\n/g, " ") // Replace newlines with spaces
     .replace(/\s+/g, " ") // Collapse multiple spaces
     .trim();
@@ -39,13 +39,14 @@ function sanitizeTitle(rawTitle: string, fallbackContent: string): string {
   if (!title || title.length > 50) {
     // Extract first few words from user message
     const fallbackWords = fallbackContent
-      .replace(/["\[\]()]/g, "")
+      .replace(/["[\]()]/g, "")
       .split(/\s+/)
       .slice(0, 5)
       .join(" ");
-    title = fallbackWords.length > 40
-      ? fallbackWords.substring(0, 40) + "..."
-      : fallbackWords;
+    title =
+      fallbackWords.length > 40
+        ? fallbackWords.substring(0, 40) + "..."
+        : fallbackWords;
   }
 
   // Capitalize first letter
@@ -82,7 +83,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const firstUserMessage = messages.find((m) => m.role === "user");
 
     if (!firstUserMessage) {
-      return res.status(400).json({ error: "At least one user message is required." });
+      return res
+        .status(400)
+        .json({ error: "At least one user message is required." });
     }
 
     // Generate title from the user's question
@@ -101,9 +104,7 @@ Topic:`;
       },
       body: JSON.stringify({
         model: "inkeep-qa-gpt-5.2",
-        messages: [
-          { role: "user", content: titlePrompt },
-        ],
+        messages: [{ role: "user", content: titlePrompt }],
         max_tokens: 15,
         temperature: 0.3,
       }),
