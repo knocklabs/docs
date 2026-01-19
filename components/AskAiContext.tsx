@@ -59,7 +59,10 @@ type AskAiContextType = {
   currentChatId: string | null;
   createNewSession: () => string;
   selectSession: (sessionId: string) => void;
-  generateSessionTitle: (sessionId: string, messages: Message[]) => Promise<void>;
+  generateSessionTitle: (
+    sessionId: string,
+    messages: Message[],
+  ) => Promise<void>;
 };
 
 export const AskAiContext = createContext<AskAiContextType | null>(null);
@@ -137,7 +140,12 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
   // Save current messages to the current session whenever messages change
   useEffect(() => {
-    if (!hasLoadedFromStorage || !currentChatId || typeof window === "undefined") return;
+    if (
+      !hasLoadedFromStorage ||
+      !currentChatId ||
+      typeof window === "undefined"
+    )
+      return;
 
     setChatSessions((prev) =>
       prev.map((session) =>
@@ -213,9 +221,12 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
           content,
         }));
 
-        console.log("[generateSessionTitle] Making API request to /api/chat-title", {
-          messagesCount: apiMessages.length,
-        });
+        console.log(
+          "[generateSessionTitle] Making API request to /api/chat-title",
+          {
+            messagesCount: apiMessages.length,
+          },
+        );
 
         const response = await fetch("/api/chat-title", {
           method: "POST",

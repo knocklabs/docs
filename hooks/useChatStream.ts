@@ -255,9 +255,10 @@ export function useChatStream(): UseChatStreamReturn {
             const finalAssistantMessage: Message = {
               ...assistantMessage,
               content: contentBufferRef.current,
-              sources: sourcesBufferRef.current.length > 0
-                ? sourcesBufferRef.current
-                : undefined,
+              sources:
+                sourcesBufferRef.current.length > 0
+                  ? sourcesBufferRef.current
+                  : undefined,
             };
             const messagesForTitle = [userMessage, finalAssistantMessage];
             console.log("[Title Generation] Calling generateSessionTitle", {
