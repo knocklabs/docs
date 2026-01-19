@@ -138,6 +138,7 @@ function AskAiSidebar() {
   const [inputValue, setInputValue] = useState("");
   const [isHoveringResizeHandle, setIsHoveringResizeHandle] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isHoveringChatButton, setIsHoveringChatButton] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
@@ -479,9 +480,17 @@ function AskAiSidebar() {
               <Popover.Root open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                 <Popover.Trigger asChild>
                   <Button
-                    variant="soft"
+                    variant="ghost"
                     color="gray"
                     size="1"
+                    onMouseEnter={() => setIsHoveringChatButton(true)}
+                    onMouseLeave={() => setIsHoveringChatButton(false)}
+                    style={{
+                      backgroundColor: isHoveringChatButton
+                        ? "var(--tgph-gray-3)"
+                        : "#FFFFFF",
+                      transition: "background-color 0.2s",
+                    }}
                   >
                     <Stack direction="row" alignItems="center" gap="1">
                       {getSelectedChatTitle()}
