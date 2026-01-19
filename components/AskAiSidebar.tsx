@@ -17,6 +17,7 @@ import {
 import { Popover } from "@telegraph/popover";
 import { Tooltip } from "@telegraph/tooltip";
 import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/router";
 import { useAskAi } from "./AskAiContext";
 import {
   useChatStream,
@@ -152,6 +153,8 @@ function AskAiSidebar() {
     stopStream,
   } = useChatStream();
 
+  const router = useRouter();
+
   useEffect(() => {
     const updateHeaderHeight = () => {
       const header = document.querySelector("[data-header]") as HTMLElement;
@@ -163,8 +166,16 @@ function AskAiSidebar() {
 
     updateHeaderHeight();
     window.addEventListener("resize", updateHeaderHeight);
-    return () => window.removeEventListener("resize", updateHeaderHeight);
-  }, []);
+
+    // Also update header height after route changes complete
+    // This fixes positioning issues when navigating between sections
+    router.events.on("routeChangeComplete", updateHeaderHeight);
+
+    return () => {
+      window.removeEventListener("resize", updateHeaderHeight);
+      router.events.off("routeChangeComplete", updateHeaderHeight);
+    };
+  }, [router.events]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
