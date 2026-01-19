@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, MutableRefObject } from "react";
 import {
   useAskAi,
   type Message,
@@ -243,12 +243,6 @@ export function useChatStream(): UseChatStreamReturn {
 
         // Generate title for new sessions after first assistant response
         if (isNewSession && isFirstMessage && sessionId) {
-          console.log("[Title Generation] Triggering title generation", {
-            isNewSession,
-            isFirstMessage,
-            sessionId,
-            assistantContentLength: contentBufferRef.current.length,
-          });
           // Wait a bit for the UI to finish updating, then generate title
           setTimeout(() => {
             // Construct the messages array with user message and assistant response
@@ -261,20 +255,8 @@ export function useChatStream(): UseChatStreamReturn {
                   : undefined,
             };
             const messagesForTitle = [userMessage, finalAssistantMessage];
-            console.log("[Title Generation] Calling generateSessionTitle", {
-              sessionId,
-              messagesCount: messagesForTitle.length,
-            });
-            generateSessionTitle(sessionId, messagesForTitle).catch((err) => {
-              console.error("Failed to generate session title:", err);
-            });
+            generateSessionTitle(sessionId, messagesForTitle);
           }, 500);
-        } else {
-          console.log("[Title Generation] Skipped", {
-            isNewSession,
-            isFirstMessage,
-            sessionId,
-          });
         }
       } catch (err) {
         // Stop the streaming interval
@@ -415,12 +397,32 @@ export function useChatStream(): UseChatStreamReturn {
   };
 }
 
+// Helper to extract sources from a links/citations array
+function extractSourcesFromArray(arr: any[]): Source[] {
+  return arr
+    .map((item: any) => ({
+      title: item.title || item.name || item.text || item.label || "",
+      url: item.url || item.link || item.href || "",
+    }))
+    .filter((s: Source) => s.title);
+}
+
+// Merge new sources into existing sources, avoiding duplicates by title
+function mergeSources(existing: Source[], newSources: Source[]): Source[] {
+  if (newSources.length === 0) return existing;
+  const existingTitles = new Set(existing.map((s) => s.title));
+  const uniqueNewSources = newSources.filter(
+    (s) => !existingTitles.has(s.title),
+  );
+  return [...existing, ...uniqueNewSources];
+}
+
 // Helper function to process SSE/JSON data and accumulate in buffer
 function processData(
   rawData: string,
-  contentBufferRef: React.MutableRefObject<string>,
-  sourcesBufferRef: React.MutableRefObject<Source[]>,
-) {
+  contentBufferRef: MutableRefObject<string>,
+  sourcesBufferRef: MutableRefObject<Source[]>,
+): void {
   const lines = rawData.split("\n");
 
   for (const line of lines) {
@@ -446,34 +448,13 @@ function processData(
     try {
       const parsed = JSON.parse(data);
 
-      // Uncomment for debugging:
-      // console.log("Inkeep response chunk:", JSON.stringify(parsed, null, 2));
-
-      // Helper to extract sources from a links/citations array
-      const extractSourcesFromArray = (arr: any[]): Source[] => {
-        return arr
-          .map((item: any) => ({
-            title: item.title || item.name || item.text || item.label || "",
-            url: item.url || item.link || item.href || "",
-          }))
-          .filter((s: Source) => s.title);
-      };
-
       // Check for links at top level
       if (parsed.links && Array.isArray(parsed.links)) {
         const linkSources = extractSourcesFromArray(parsed.links);
-        if (linkSources.length > 0) {
-          const existingTitles = new Set(
-            sourcesBufferRef.current.map((s) => s.title),
-          );
-          const newSources = linkSources.filter(
-            (s) => !existingTitles.has(s.title),
-          );
-          sourcesBufferRef.current = [
-            ...sourcesBufferRef.current,
-            ...newSources,
-          ];
-        }
+        sourcesBufferRef.current = mergeSources(
+          sourcesBufferRef.current,
+          linkSources,
+        );
       }
 
       if (parsed.choices && parsed.choices[0]) {
@@ -484,38 +465,22 @@ function processData(
         // Check for links in delta (streaming format)
         if (delta?.links && Array.isArray(delta.links)) {
           const linkSources = extractSourcesFromArray(delta.links);
-          if (linkSources.length > 0) {
-            const existingTitles = new Set(
-              sourcesBufferRef.current.map((s) => s.title),
-            );
-            const newSources = linkSources.filter(
-              (s) => !existingTitles.has(s.title),
-            );
-            sourcesBufferRef.current = [
-              ...sourcesBufferRef.current,
-              ...newSources,
-            ];
-          }
+          sourcesBufferRef.current = mergeSources(
+            sourcesBufferRef.current,
+            linkSources,
+          );
         }
 
         // Check for citations in delta (streaming format)
         if (delta?.citations && Array.isArray(delta.citations)) {
           const citationSources = extractSourcesFromArray(delta.citations);
-          if (citationSources.length > 0) {
-            const existingTitles = new Set(
-              sourcesBufferRef.current.map((s) => s.title),
-            );
-            const newSources = citationSources.filter(
-              (s) => !existingTitles.has(s.title),
-            );
-            sourcesBufferRef.current = [
-              ...sourcesBufferRef.current,
-              ...newSources,
-            ];
-          }
+          sourcesBufferRef.current = mergeSources(
+            sourcesBufferRef.current,
+            citationSources,
+          );
         }
 
-        // Check for links in message (complete format)
+        // Check for links in message (complete format) - replaces existing
         if (message?.links && Array.isArray(message.links)) {
           const linkSources = extractSourcesFromArray(message.links);
           if (linkSources.length > 0) {
@@ -523,7 +488,7 @@ function processData(
           }
         }
 
-        // Check for citations in message (complete format)
+        // Check for citations in message (complete format) - replaces existing
         if (message?.citations && Array.isArray(message.citations)) {
           const citationSources = extractSourcesFromArray(message.citations);
           if (citationSources.length > 0) {
@@ -533,7 +498,6 @@ function processData(
 
         if (delta?.content) {
           // Streaming format - append to buffer
-          // delta.content can be string or object
           if (typeof delta.content === "string") {
             contentBufferRef.current += delta.content;
           } else {
@@ -542,18 +506,10 @@ function processData(
             if (text) {
               contentBufferRef.current += text;
             }
-            if (sources.length > 0) {
-              const existingTitles = new Set(
-                sourcesBufferRef.current.map((s) => s.title),
-              );
-              const newSources = sources.filter(
-                (s) => !existingTitles.has(s.title),
-              );
-              sourcesBufferRef.current = [
-                ...sourcesBufferRef.current,
-                ...newSources,
-              ];
-            }
+            sourcesBufferRef.current = mergeSources(
+              sourcesBufferRef.current,
+              sources,
+            );
           }
         } else if (message?.content) {
           // Complete response format - extract and set buffer
@@ -561,37 +517,20 @@ function processData(
           if (text) {
             contentBufferRef.current = text;
           }
-          if (sources.length > 0) {
-            // Merge with existing sources, avoiding duplicates
-            const existingTitles = new Set(
-              sourcesBufferRef.current.map((s) => s.title),
-            );
-            const newSources = sources.filter(
-              (s) => !existingTitles.has(s.title),
-            );
-            sourcesBufferRef.current = [
-              ...sourcesBufferRef.current,
-              ...newSources,
-            ];
-          }
+          sourcesBufferRef.current = mergeSources(
+            sourcesBufferRef.current,
+            sources,
+          );
         }
       }
 
       // Check for citations field at the top level
       if (parsed.citations && Array.isArray(parsed.citations)) {
         const citationSources = extractSourcesFromArray(parsed.citations);
-        if (citationSources.length > 0) {
-          const existingTitles = new Set(
-            sourcesBufferRef.current.map((s) => s.title),
-          );
-          const newSources = citationSources.filter(
-            (s) => !existingTitles.has(s.title),
-          );
-          sourcesBufferRef.current = [
-            ...sourcesBufferRef.current,
-            ...newSources,
-          ];
-        }
+        sourcesBufferRef.current = mergeSources(
+          sourcesBufferRef.current,
+          citationSources,
+        );
       }
 
       // Also check at choice level
@@ -599,53 +538,15 @@ function processData(
         const choice = parsed.choices[0];
         if (choice.links && Array.isArray(choice.links)) {
           const linkSources = extractSourcesFromArray(choice.links);
-          if (linkSources.length > 0) {
-            const existingTitles = new Set(
-              sourcesBufferRef.current.map((s) => s.title),
-            );
-            const newSources = linkSources.filter(
-              (s) => !existingTitles.has(s.title),
-            );
-            sourcesBufferRef.current = [
-              ...sourcesBufferRef.current,
-              ...newSources,
-            ];
-          }
+          sourcesBufferRef.current = mergeSources(
+            sourcesBufferRef.current,
+            linkSources,
+          );
         }
       }
     } catch {
       // Skip invalid JSON
     }
-  }
-}
-
-// Extract text from Inkeep's nested content format
-function extractTextContent(content: string): string {
-  try {
-    const contentObj = JSON.parse(content);
-
-    if (contentObj.content && Array.isArray(contentObj.content)) {
-      let text = "";
-      for (const item of contentObj.content) {
-        if (item.type === "text" && item.text) {
-          text += item.text;
-        } else if (item.type === "document" && item.source?.content) {
-          for (const sourceItem of item.source.content) {
-            if (sourceItem.type === "text" && sourceItem.text) {
-              text += sourceItem.text;
-            }
-          }
-        } else if (item.text) {
-          text += item.text;
-        }
-      }
-      return text || content;
-    }
-
-    return typeof contentObj === "string" ? contentObj : content;
-  } catch {
-    // Content is plain text, not JSON
-    return content;
   }
 }
 
@@ -675,7 +576,7 @@ function extractSourcesFromText(text: string): Source[] {
 
   // Match markdown links [title](url)
   const linkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
-  let match;
+  let match: RegExpExecArray | null;
 
   while ((match = linkPattern.exec(text)) !== null) {
     const linkText = match[1].trim();

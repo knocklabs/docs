@@ -20,7 +20,10 @@ type ChatRequest = {
   conversationId?: string;
 };
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
   if (req.method !== "POST") {
     return res
       .status(405)
@@ -107,6 +110,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     );
     res.end();
   }
-};
+}
 
 export default handler;

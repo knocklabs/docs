@@ -204,13 +204,7 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
   // Generate AI title for a session
   const generateSessionTitle = useCallback(
     async (sessionId: string, messagesToUse: Message[]) => {
-      console.log("[generateSessionTitle] Called", {
-        sessionId,
-        messagesCount: messagesToUse.length,
-      });
-
       if (messagesToUse.length === 0) {
-        console.log("[generateSessionTitle] Skipped - no messages");
         return;
       }
 
@@ -221,13 +215,6 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
           content,
         }));
 
-        console.log(
-          "[generateSessionTitle] Making API request to /api/chat-title",
-          {
-            messagesCount: apiMessages.length,
-          },
-        );
-
         const response = await fetch("/api/chat-title", {
           method: "POST",
           headers: {
@@ -236,38 +223,22 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify({ messages: apiMessages }),
         });
 
-        console.log("[generateSessionTitle] API response", {
-          ok: response.ok,
-          status: response.status,
-        });
-
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("[generateSessionTitle] API error", {
-            status: response.status,
-            error: errorText,
-          });
           throw new Error(`Failed to generate title: ${response.status}`);
         }
 
         const data = await response.json();
         const title = data.title || "New chat";
 
-        console.log("[generateSessionTitle] Title generated", { title });
-
         setChatSessions((prev) =>
           prev.map((s) => (s.id === sessionId ? { ...s, title } : s)),
         );
-      } catch (error) {
-        console.error("[generateSessionTitle] Error", error);
+      } catch {
         // If title generation fails, use first user message as fallback
         const firstUserMessage = messagesToUse.find((m) => m.role === "user");
         if (firstUserMessage) {
           const fallbackTitle =
             firstUserMessage.content.substring(0, 30).trim() + "...";
-          console.log("[generateSessionTitle] Using fallback title", {
-            fallbackTitle,
-          });
           setChatSessions((prev) =>
             prev.map((s) =>
               s.id === sessionId ? { ...s, title: fallbackTitle } : s,
