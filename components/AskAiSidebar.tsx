@@ -486,31 +486,27 @@ function AskAiSidebar() {
               New chat
             </Text>
           ) : (
-            <>
-              <Popover.Root
-                open={isDropdownOpen}
-                onOpenChange={setIsDropdownOpen}
-              >
-                <Popover.Trigger asChild>
-                  <Button
-                    variant="ghost"
-                    color="gray"
-                    size="1"
-                    onMouseEnter={() => setIsHoveringChatButton(true)}
-                    onMouseLeave={() => setIsHoveringChatButton(false)}
-                    style={{
-                      backgroundColor: isHoveringChatButton
-                        ? "var(--tgph-gray-3)"
-                        : "#FFFFFF",
-                      transition: "background-color 0.2s",
-                    }}
-                  >
-                    <Stack direction="row" alignItems="center" gap="1">
-                      {getSelectedChatTitle()}
-                      <Icon icon={ChevronsUpDown} size="1" aria-hidden />
-                    </Stack>
-                  </Button>
-                </Popover.Trigger>
+            <Popover.Root open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+              <Popover.Trigger asChild>
+                <Button
+                  variant="ghost"
+                  color="gray"
+                  size="1"
+                  onMouseEnter={() => setIsHoveringChatButton(true)}
+                  onMouseLeave={() => setIsHoveringChatButton(false)}
+                  style={{
+                    backgroundColor: isHoveringChatButton
+                      ? "var(--tgph-gray-3)"
+                      : "#FFFFFF",
+                    transition: "background-color 0.2s",
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" gap="1">
+                    {getSelectedChatTitle()}
+                    <Icon icon={ChevronsUpDown} size="1" aria-hidden />
+                  </Stack>
+                </Button>
+              </Popover.Trigger>
                 <Popover.Content
                   sideOffset={4}
                   align="start"
@@ -722,8 +718,7 @@ function AskAiSidebar() {
                     </Box>
                   )}
                 </Popover.Content>
-              </Popover.Root>
-            </>
+            </Popover.Root>
           )}
           <Box
             style={{

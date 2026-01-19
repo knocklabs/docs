@@ -57,7 +57,10 @@ function sanitizeTitle(rawTitle: string, fallbackContent: string): string {
   return title || "New chat";
 }
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
   if (req.method !== "POST") {
     return res
       .status(405)
@@ -127,6 +130,6 @@ Topic:`;
     console.error("Chat title API error:", error);
     return res.status(500).json({ error: (error as Error).message });
   }
-};
+}
 
 export default handler;
