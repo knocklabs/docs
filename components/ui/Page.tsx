@@ -70,9 +70,9 @@ const Container = ({ children }) => {
 
 const Wrapper = ({ children }) => {
   const askAiContext = useContext(AskAiContext);
-  const isOpen = askAiContext ? askAiContext.isOpen : false;
-  const sidebarWidth = askAiContext ? askAiContext.sidebarWidth : 340;
-  const isResizing = askAiContext ? askAiContext.isResizing : false;
+  const isOpen = askAiContext?.isOpen ?? false;
+  const sidebarWidth = askAiContext?.sidebarWidth ?? 340;
+  const isResizing = askAiContext?.isResizing ?? false;
   const [viewportWidth, setViewportWidth] = useState(0);
 
   // Track viewport width for dynamic ToC visibility

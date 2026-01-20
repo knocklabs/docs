@@ -131,9 +131,8 @@ function TruncatedTextWithTooltip({
   const [isTruncated, setIsTruncated] = useState(false);
 
   const checkTruncation = useCallback(() => {
-    if (wrapperRef.current) {
-      const element = wrapperRef.current;
-      // Check if content is truncated by comparing scrollWidth to clientWidth
+    const element = wrapperRef.current;
+    if (element) {
       setIsTruncated(element.scrollWidth > element.clientWidth);
     }
   }, []);
