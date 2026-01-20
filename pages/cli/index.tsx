@@ -11,8 +11,12 @@ import newRelicDashboardJson from "../../content/integrations/extensions/new_rel
 import eventPayload from "../../data/code/sources/eventPayload";
 import MDXLayout from "../../layouts/MDXLayout";
 import { CONTENT_DIR } from "../../lib/content.server";
+import { useRouter } from "next/router";
 
 function CliPage({ source, sourcePath }) {
+  const router = useRouter();
+  if (!router.isReady) return null;
+  
   return (
     <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
       <MDXRemote

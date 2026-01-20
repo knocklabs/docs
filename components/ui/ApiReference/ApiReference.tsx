@@ -33,6 +33,8 @@ function ApiReference({
   const basePath = router.pathname.split("/")[1];
   useInitialScrollState();
 
+  if (!router.isReady) return null;
+
   return (
     <TelegraphPage.Container>
       <Meta
