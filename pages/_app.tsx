@@ -1,25 +1,25 @@
-import React, { useRouter } from "next/router";
-import { Inter } from "next/font/google";
-import { useEffect } from "react";
-import * as analytics from "../lib/analytics";
 import {
   EventEmitterContext,
   useEventEmitterInstance,
 } from "@byteclaw/use-event-emitter";
-
-import * as gtag from "../lib/gtag";
-import { setClearbitPath } from "../lib/clearbit";
-import { initAttribution } from "../lib/attribution";
+import { Inter } from "next/font/google";
+import { useRouter } from "next/router";
 import { useRemoteRefresh } from "next-remote-refresh/hook";
+import { useEffect } from "react";
+
+import { InkeepModalProvider } from "../components/AiChatButton";
 import { AskAiProvider } from "../components/AskAiContext";
 import AskAiSidebar from "../components/AskAiSidebar";
-import { InkeepModalProvider } from "../components/AiChatButton";
-
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+import * as analytics from "../lib/analytics";
+import { initAttribution } from "../lib/attribution";
+import { setClearbitPath } from "../lib/clearbit";
+import * as gtag from "../lib/gtag";
 
 import "../styles/index.css";
 import "../styles/global.css";
 import "../styles/responsive.css";
+
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 function App({ Component, pageProps }) {
   const router = useRouter();

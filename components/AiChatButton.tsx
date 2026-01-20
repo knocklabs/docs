@@ -2,9 +2,9 @@ import {
   InkeepModalChatProps,
   type InkeepModalChat,
 } from "@inkeep/cxkit-react";
-import dynamic from "next/dynamic";
-import { useState, createContext, useContext, useCallback, ReactNode } from "react";
 import { MessageSquare } from "lucide-react";
+import dynamic from "next/dynamic";
+import { createContext, ReactNode, useCallback, useContext, useState } from "react";
 
 import useInkeepSettings from "../hooks/useInKeepSettings";
 
@@ -47,11 +47,9 @@ export function InkeepModalProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Merge initialQuery into aiChatSettings if provided
-  const aiChatSettings = {
-    ...baseAiChatSettings,
-    ...(initialQuery ? { initialQuery } : {}),
-  };
+  const aiChatSettings = initialQuery
+    ? { ...baseAiChatSettings, initialQuery }
+    : baseAiChatSettings;
 
   const modalChatProps: InkeepModalChatProps = {
     baseSettings,
@@ -80,8 +78,7 @@ export function InkeepModalProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function AiChatButton() {
+// Legacy export for backwards compatibility - component renders nothing
+export default function AiChatButton(): null {
   return null;
 }
-
-export default AiChatButton;
