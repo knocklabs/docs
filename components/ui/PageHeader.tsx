@@ -141,11 +141,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             >
               API reference
             </Tabs.Tab>
-            <Tabs.Tab
-              value="cli-reference"
-              as="a"
-              href="/cli/overview"
-            >
+            <Tabs.Tab value="cli-reference" as="a" href="/cli/overview">
               CLI reference
             </Tabs.Tab>
             <Tabs.Tab
