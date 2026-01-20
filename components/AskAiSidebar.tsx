@@ -855,6 +855,11 @@ function MessageBubble({
     );
   }
 
+  // Guard against non-string content during SSR/hydration transition
+  if (typeof message.content !== "string") {
+    return null;
+  }
+
   // Assistant response wrapped in AgentResponse container
   // Use tgraph-content class for consistent markdown styling with the rest of the docs
   // Streamdown is optimized for streaming LLM content and handles incomplete markdown gracefully
@@ -967,7 +972,7 @@ function MessageBubble({
               ),
             }}
           >
-            {processSourceReferences(message.content || "")}
+            {processSourceReferences(String(message.content ?? ""))}
           </Streamdown>
         </div>
       </Box>
