@@ -112,8 +112,6 @@ const Wrapper = ({ children }) => {
       data-wrapper
       className="layout-grid"
       style={{
-        display: "grid",
-        gridTemplateColumns: "256px 1fr",
         width: "100%",
         paddingRight: isOpen ? `${sidebarWidth}px` : "0",
         transition: isResizing ? "none" : "padding-right 0.2s ease-in-out",
