@@ -4,7 +4,13 @@ import {
 } from "@inkeep/cxkit-react";
 import { MessageSquare } from "lucide-react";
 import dynamic from "next/dynamic";
-import { createContext, ReactNode, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useState,
+} from "react";
 
 import useInkeepSettings from "../hooks/useInKeepSettings";
 
@@ -31,8 +37,14 @@ export function useInkeepModal() {
 
 export function InkeepModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [initialQuery, setInitialQuery] = useState<string | undefined>(undefined);
-  const { baseSettings, aiChatSettings: baseAiChatSettings, modalSettings } = useInkeepSettings();
+  const [initialQuery, setInitialQuery] = useState<string | undefined>(
+    undefined,
+  );
+  const {
+    baseSettings,
+    aiChatSettings: baseAiChatSettings,
+    modalSettings,
+  } = useInkeepSettings();
 
   const openWithPrompt = useCallback((prompt: string) => {
     setInitialQuery(prompt);
