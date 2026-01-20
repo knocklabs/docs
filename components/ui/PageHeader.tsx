@@ -137,7 +137,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             <Tabs.Tab
               value="api-reference"
               as={Link}
-              href="/api-reference/overview"
+              href="/api-reference"
               prefetch={false}
             >
               API reference
@@ -145,7 +145,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             <Tabs.Tab
               value="cli-reference"
               as={Link}
-              href="/cli/overview"
+              href="/cli"
               prefetch={false}
             >
               CLI reference
@@ -153,7 +153,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             <Tabs.Tab
               value="mapi-reference"
               as={Link}
-              href="/mapi-reference/overview"
+              href="/mapi-reference"
               prefetch={false}
             >
               Management API
