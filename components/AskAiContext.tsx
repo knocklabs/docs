@@ -167,15 +167,6 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
     );
   }, [messages, currentChatId, hasLoadedFromStorage]);
 
-  const openSidebar = useCallback(() => setIsOpen(true), []);
-  const closeSidebar = useCallback(() => setIsOpen(false), []);
-  const toggleSidebar = useCallback(() => setIsOpen((prev) => !prev), []);
-  const openSidebarWithPrompt = useCallback((prompt: string) => {
-    setInitialPrompt(prompt);
-    setIsOpen(true);
-  }, []);
-  const clearInitialPrompt = useCallback(() => setInitialPrompt(null), []);
-
   // Create a new chat session
   const createNewSession = useCallback(() => {
     const sessionId = `chat-${Date.now()}`;
@@ -196,6 +187,20 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
     return sessionId;
   }, []);
+
+  const openSidebar = useCallback(() => setIsOpen(true), []);
+  const closeSidebar = useCallback(() => setIsOpen(false), []);
+  const toggleSidebar = useCallback(() => setIsOpen((prev) => !prev), []);
+  const openSidebarWithPrompt = useCallback(
+    (prompt: string) => {
+      // Create new session before setting prompt to ensure each query starts fresh
+      createNewSession();
+      setInitialPrompt(prompt);
+      setIsOpen(true);
+    },
+    [createNewSession],
+  );
+  const clearInitialPrompt = useCallback(() => setInitialPrompt(null), []);
 
   // Select an existing chat session
   const selectSession = useCallback(
