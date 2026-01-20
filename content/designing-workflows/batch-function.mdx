@@ -272,7 +272,7 @@ Here's a list of the variables that you can use to work with batch-related state
 
 - `total_activities`. The number of activities included within the batch. (An example: In the notification "Dennis Nedry left 8 comments for you", the `total_activities` count equals eight).
 - `total_actors`. The number of unique actors that triggered activities included within the batch. (An example: In the notification "Dennis Nedry and two others left comments for you", the `total_actors` count equals three, Dennis plus the two others you mentioned in the notification).
-- `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your trigger call. The `activities` variable lists the _first_ or _last_ ten activity objects added to the batch (configurable by setting the [batch order](#setting-the-batch-order)). Each activity includes any data properties you sent along in the trigger call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
+- `activities`. A list of up to ten of the activity objects included within the batch, where each activity equals the state sent across in your trigger call. The `activities` variable lists the _first_ or _last_ ten activity objects added to the batch (configurable by setting the [batch order](#setting-the-batch-order)). Each activity includes any `data` properties you sent along in the trigger call, as well as any user properties for your actor and recipient(s). You can use the activities variable to create templates like this:
 
   ```
   {% for activity in activities %}
@@ -302,6 +302,17 @@ Here's a list of the variables that you can use to work with batch-related state
 By default, up to ten items will be returned in `activities` and `actors` variables inside your templates after the batch window closes.
 
 On the Enterprise plan, you can configure the maximum number of `activities` and `actors` to be rendered in your templates beyond the default limit of 10, to any number between 2 and 100.
+
+### The `data` payload
+
+When a workflow includes a batch step, the `data` payload that is available to your message templates after the batch window closes (and via the API, wherever trigger data is returned alongside a message or used as a [filter](/api-reference/overview/trigger-data-filtering)) will be combined and truncated according to the following rules:
+
+- Nested data structures (objects and arrays) are removed. The available `data` will be a JSON object with a single level of key-value pairs.
+- Supported values are the JSON scalars string, number, boolean, and `null`.
+- String values are limited to 256 characters in length. Strings that exceed this limit are truncated to the maximum.
+- When payloads are combined, they are merged in the order in which they are received. Any keys that are used in multiple trigger calls will have the value of the most-recent trigger's `data` payload.
+
+For this reason, we recommend referencing the `activities` array to access data from a specific trigger event when your workflow includes a batch step.
 
 ## Using workflow cancellation with batches
 

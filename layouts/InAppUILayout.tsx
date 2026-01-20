@@ -171,8 +171,8 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   return (
     <Page.Container>
       <Meta
-        title={`${frontMatter.title} | Knock Docs`}
-        description={frontMatter.description}
+        title={`${frontMatter.metaTitle ?? frontMatter.title} | Knock Docs`}
+        description={frontMatter.metaDescription ?? frontMatter.description}
       />
       <Page.Masthead
         title={frontMatter.title}

@@ -64,12 +64,13 @@ export async function getStaticProps({ params: { slug } }) {
   }
 
   // These are not content pages, should not render here
-  // the __mapi-reference or __api-reference sections of content
+  // the __mapi-reference, __api-reference, or __cli sections of content
   // also skips indexing in algolia search
-  const isApiPage =
+  const isSpecialPage =
     sourcePath.includes("content/__mapi-reference") ||
-    sourcePath.includes("content/__api-reference");
-  if (isApiPage) {
+    sourcePath.includes("content/__api-reference") ||
+    sourcePath.includes("content/__cli");
+  if (isSpecialPage) {
     return {
       notFound: true,
     };
