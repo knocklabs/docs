@@ -147,7 +147,12 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
   // Save current messages to the current session whenever messages change
   useEffect(() => {
-    if (!hasLoadedFromStorage || !currentChatId || typeof window === "undefined") return;
+    if (
+      !hasLoadedFromStorage ||
+      !currentChatId ||
+      typeof window === "undefined"
+    )
+      return;
 
     setChatSessions((prev) =>
       prev.map((session) =>
@@ -235,7 +240,8 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
       } catch {
         const firstUserMessage = messagesToUse.find((m) => m.role === "user");
         if (firstUserMessage) {
-          const fallbackTitle = firstUserMessage.content.substring(0, 30).trim() + "...";
+          const fallbackTitle =
+            firstUserMessage.content.substring(0, 30).trim() + "...";
           updateSessionTitle(fallbackTitle);
         }
       }
