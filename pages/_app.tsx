@@ -13,6 +13,7 @@ import { initAttribution } from "../lib/attribution";
 import { useRemoteRefresh } from "next-remote-refresh/hook";
 import { AskAiProvider } from "../components/AskAiContext";
 import AskAiSidebar from "../components/AskAiSidebar";
+import AiChatButton from "../components/AiChatButton";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -55,6 +56,9 @@ function App({ Component, pageProps }) {
         {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
       </main>
       <AskAiSidebar />
+      <div className="md-visible">
+        <AiChatButton />
+      </div>
     </AskAiProvider>
   );
 }
