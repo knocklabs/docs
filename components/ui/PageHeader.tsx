@@ -12,29 +12,19 @@ type PageHeaderProps = {
   skipHighlight?: boolean;
 };
 
-function selectedTab(pathname: string) {
-  if (pathname.startsWith("/in-app-ui")) {
-    return "in-app-ui";
-  }
-  if (pathname.startsWith("/developer-tools")) {
-    return "developer-tools";
-  }
-  if (pathname.startsWith("/api-reference")) {
-    return "api-reference";
-  }
-  if (pathname.startsWith("/mapi-reference")) {
-    return "mapi-reference";
-  }
-  if (pathname.startsWith("/cli")) {
-    return "cli-reference";
-  }
-  if (pathname.startsWith("/tutorials")) {
-    return "tutorials";
-  }
-  if (pathname.startsWith("/integrations")) {
-    return "integrations";
-  }
-  return "platform";
+const TAB_ROUTES: Array<{ prefix: string; tab: string }> = [
+  { prefix: "/in-app-ui", tab: "in-app-ui" },
+  { prefix: "/developer-tools", tab: "developer-tools" },
+  { prefix: "/api-reference", tab: "api-reference" },
+  { prefix: "/mapi-reference", tab: "mapi-reference" },
+  { prefix: "/cli", tab: "cli-reference" },
+  { prefix: "/tutorials", tab: "tutorials" },
+  { prefix: "/integrations", tab: "integrations" },
+];
+
+function selectedTab(pathname: string): string {
+  const match = TAB_ROUTES.find((route) => pathname.startsWith(route.prefix));
+  return match?.tab ?? "platform";
 }
 
 const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
@@ -143,7 +133,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
               Get started
             </Button>
           </Stack>
-          {mobileSidebar && mobileSidebar}
+          {mobileSidebar}
         </Stack>
         <Tabs
           value={skipHighlight ? "" : selectedTab(asPath)}
