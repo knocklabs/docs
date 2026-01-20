@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Popover } from "@telegraph/popover";
 import { Tooltip } from "@telegraph/tooltip";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useAskAi } from "./AskAiContext";
 import {
@@ -117,6 +117,59 @@ function processSourceReferences(content: string): string {
   );
 
   return processed;
+}
+
+// Component that conditionally shows tooltip only when text is truncated
+function TruncatedTextWithTooltip({
+  text,
+  children,
+}: {
+  text: string;
+  children: React.ReactElement;
+}) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  const checkTruncation = useCallback(() => {
+    if (wrapperRef.current) {
+      const element = wrapperRef.current;
+      // Check if content is truncated by comparing scrollWidth to clientWidth
+      setIsTruncated(element.scrollWidth > element.clientWidth);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Check after a brief delay to ensure DOM is updated
+    const timeoutId = setTimeout(checkTruncation, 0);
+    // Recheck on resize
+    window.addEventListener("resize", checkTruncation);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", checkTruncation);
+    };
+  }, [checkTruncation, text]);
+
+  // Wrap children in a div that preserves the flex properties
+  const content = (
+    <div
+      ref={wrapperRef}
+      style={{
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        flex: 1,
+        minWidth: 0,
+      }}
+    >
+      {children}
+    </div>
+  );
+
+  if (isTruncated) {
+    return <Tooltip label={text}>{content}</Tooltip>;
+  }
+
+  return content;
 }
 
 function AskAiSidebar() {
@@ -549,22 +602,15 @@ function AskAiSidebar() {
                           style={{ color: "var(--tgph-gray-12)" }}
                         />
                       </Box>
-                      <Tooltip label={getSelectedChatTitle()}>
+                      <TruncatedTextWithTooltip text={getSelectedChatTitle()}>
                         <Text
                           as="span"
                           size="2"
                           weight="medium"
-                          style={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            flex: 1,
-                            minWidth: 0,
-                          }}
                         >
                           {getSelectedChatTitle()}
                         </Text>
-                      </Tooltip>
+                      </TruncatedTextWithTooltip>
                     </button>
                   )}
 
@@ -697,22 +743,15 @@ function AskAiSidebar() {
                               flexShrink: 0,
                             }}
                           />
-                          <Tooltip label={chat.title}>
+                          <TruncatedTextWithTooltip text={chat.title}>
                             <Text
                               as="span"
                               size="2"
                               weight="medium"
-                              style={{
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                flex: 1,
-                                minWidth: 0,
-                              }}
                             >
                               {chat.title}
                             </Text>
-                          </Tooltip>
+                          </TruncatedTextWithTooltip>
                         </button>
                       ))}
                     </Box>
