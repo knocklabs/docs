@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 function CliPage({ source, sourcePath }) {
   const router = useRouter();
   if (!router.isReady) return null;
-  
+
   return (
     <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
       <MDXRemote
