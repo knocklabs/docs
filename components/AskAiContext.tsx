@@ -99,14 +99,18 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
       if (savedSessions) {
         const sessions = JSON.parse(savedSessions) as ChatSession[];
-        // Validate and sanitize messages to ensure content is always a string
-        const sanitizedSessions = sessions.map((session) => ({
-          ...session,
-          messages: session.messages.map((msg) => ({
-            ...msg,
-            content: typeof msg.content === "string" ? msg.content : "",
-          })),
-        }));
+        // Validate and sanitize sessions/messages to handle malformed localStorage data
+        const sanitizedSessions = sessions
+          .filter((session) => session && Array.isArray(session.messages))
+          .map((session) => ({
+            ...session,
+            messages: session.messages
+              .filter((msg) => msg && typeof msg === "object")
+              .map((msg) => ({
+                ...msg,
+                content: typeof msg.content === "string" ? msg.content : "",
+              })),
+          }));
         setChatSessions(sanitizedSessions);
 
         if (savedCurrentChatId) {
