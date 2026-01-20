@@ -29,6 +29,26 @@ import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import { lightCodeTheme } from "../styles/codeThemes";
 import { useClipboard } from "@/hooks/useClipboard";
 
+// Extract text content from React children (handles strings, elements, and arrays)
+function extractTextContent(children: React.ReactNode): string {
+  if (typeof children === "string") {
+    return children;
+  }
+  if (React.isValidElement(children)) {
+    const innerChildren = (children.props as { children?: React.ReactNode })
+      .children;
+    if (typeof innerChildren === "string") {
+      return innerChildren;
+    }
+    if (Array.isArray(innerChildren)) {
+      return innerChildren
+        .filter((c): c is string => typeof c === "string")
+        .join("");
+    }
+  }
+  return "";
+}
+
 // Simplified code block component optimized for streaming
 // Unlike the main CodeBlock, this doesn't use useIsMounted to avoid flash during streaming
 function StreamingCodeBlock({
@@ -38,23 +58,7 @@ function StreamingCodeBlock({
   children?: React.ReactNode;
   language?: string;
 }) {
-  // Extract code content from children
-  let codeContent = "";
-  if (typeof children === "string") {
-    codeContent = children;
-  } else if (React.isValidElement(children)) {
-    const childProps = children.props as { children?: React.ReactNode };
-    if (typeof childProps.children === "string") {
-      codeContent = childProps.children;
-    } else if (Array.isArray(childProps.children)) {
-      codeContent = childProps.children
-        .filter((c): c is string => typeof c === "string")
-        .join("");
-    }
-  }
-
-  // Normalize the code content (trim trailing newlines)
-  const normalizedContent = codeContent.replace(/\n+$/, "");
+  const normalizedContent = extractTextContent(children).replace(/\n+$/, "");
 
   const [isCopied, setCopied] = useClipboard(normalizedContent, {
     successDuration: 2000,
@@ -150,9 +154,11 @@ function processSourceReferences(content: string): string {
   processed = processed.replace(/\[(\(?\d+\)?)\]\([^)]+\)/g, "");
 
   // Remove incomplete markdown link syntax during streaming to prevent "[blocked]"
-  processed = processed.replace(/\[(\(?\d+\)?)\]\([^)]*$/g, "");
-  processed = processed.replace(/\[(\(?\d+\)?)\]$/g, "");
-  processed = processed.replace(/\[(\(?\d+\)?)$/g, "");
+  // These handle progressively incomplete states: [(1)](url..., [(1)], [(1), [1), [1
+  processed = processed
+    .replace(/\[(\(?\d+\)?)\]\([^)]*$/g, "")
+    .replace(/\[(\(?\d+\)?)\]$/g, "")
+    .replace(/\[(\(?\d+\)?)$/g, "");
 
   // Remove any remaining standalone (1), (2), etc. that aren't part of links
   processed = processed.replace(/(?<!\[)\((\d+)\)(?!\])/g, "");
@@ -972,7 +978,11 @@ function MessageBubble({
                   }
                 }
 
-                return <StreamingCodeBlock language={language}>{children}</StreamingCodeBlock>;
+                return (
+                  <StreamingCodeBlock language={language}>
+                    {children}
+                  </StreamingCodeBlock>
+                );
               },
               a: ({
                 href,
