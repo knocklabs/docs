@@ -73,12 +73,9 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
   const [isResizing, setIsResizing] = useState(false);
   const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(() => {
-    // Load saved width from localStorage, default to 340px
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("askAiSidebarWidth");
-      return saved ? parseInt(saved, 10) : 340;
-    }
-    return 340;
+    if (typeof window === "undefined") return 340;
+    const saved = localStorage.getItem("askAiSidebarWidth");
+    return saved ? parseInt(saved, 10) : 340;
   });
 
   // Chat sessions state
@@ -102,10 +99,20 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
       if (savedSessions) {
         const sessions = JSON.parse(savedSessions) as ChatSession[];
-        setChatSessions(sessions);
+        // Validate and sanitize messages to ensure content is always a string
+        const sanitizedSessions = sessions.map((session) => ({
+          ...session,
+          messages: session.messages.map((msg) => ({
+            ...msg,
+            content: typeof msg.content === "string" ? msg.content : "",
+          })),
+        }));
+        setChatSessions(sanitizedSessions);
 
         if (savedCurrentChatId) {
-          const session = sessions.find((s) => s.id === savedCurrentChatId);
+          const session = sanitizedSessions.find(
+            (s) => s.id === savedCurrentChatId,
+          );
           if (session) {
             setCurrentChatId(savedCurrentChatId);
             setMessages(session.messages);
@@ -140,12 +147,7 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
   // Save current messages to the current session whenever messages change
   useEffect(() => {
-    if (
-      !hasLoadedFromStorage ||
-      !currentChatId ||
-      typeof window === "undefined"
-    )
-      return;
+    if (!hasLoadedFromStorage || !currentChatId || typeof window === "undefined") return;
 
     setChatSessions((prev) =>
       prev.map((session) =>
@@ -204,12 +206,15 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
   // Generate AI title for a session
   const generateSessionTitle = useCallback(
     async (sessionId: string, messagesToUse: Message[]) => {
-      if (messagesToUse.length === 0) {
-        return;
-      }
+      if (messagesToUse.length === 0) return;
+
+      const updateSessionTitle = (title: string) => {
+        setChatSessions((prev) =>
+          prev.map((s) => (s.id === sessionId ? { ...s, title } : s)),
+        );
+      };
 
       try {
-        // Convert messages to API format (without id and sources)
         const apiMessages = messagesToUse.map(({ role, content }) => ({
           role,
           content,
@@ -217,9 +222,7 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
         const response = await fetch("/api/chat-title", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: apiMessages }),
         });
 
@@ -228,22 +231,12 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
         }
 
         const data = await response.json();
-        const title = data.title || "New chat";
-
-        setChatSessions((prev) =>
-          prev.map((s) => (s.id === sessionId ? { ...s, title } : s)),
-        );
+        updateSessionTitle(data.title || "New chat");
       } catch {
-        // If title generation fails, use first user message as fallback
         const firstUserMessage = messagesToUse.find((m) => m.role === "user");
         if (firstUserMessage) {
-          const fallbackTitle =
-            firstUserMessage.content.substring(0, 30).trim() + "...";
-          setChatSessions((prev) =>
-            prev.map((s) =>
-              s.id === sessionId ? { ...s, title: fallbackTitle } : s,
-            ),
-          );
+          const fallbackTitle = firstUserMessage.content.substring(0, 30).trim() + "...";
+          updateSessionTitle(fallbackTitle);
         }
       }
     },

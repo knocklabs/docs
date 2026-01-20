@@ -1,14 +1,11 @@
 import { Box, Stack } from "@telegraph/layout";
 import { Text, Code } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
-import { Icon } from "@telegraph/icon";
+import { Icon, LucideIcon } from "@telegraph/icon";
 import {
   X,
   ArrowUp,
   Loader2,
-  Brain,
-  ChevronRight,
-  ChevronDown,
   ChevronsUpDown,
   ExternalLink,
   Check,
@@ -32,88 +29,75 @@ import { CodeBlock } from "./ui/CodeBlock";
 // Helper function to convert source references like (1), (2) to superscript links
 // Also handles incomplete markdown link syntax during streaming to prevent "[blocked]" from appearing
 function processSourceReferences(content: string): string {
-  if (typeof content !== "string") {
-    return content;
+  if (typeof content !== "string") return "";
+
+  const superscriptStyle = "color: var(--tgph-accent-9); font-size: 0.6rem;";
+
+  function makeSuperscript(num: string): string {
+    const justNumber = num.replace(/[()]/g, "");
+    return `<sup style="${superscriptStyle}">${justNumber}</sup>`;
+  }
+
+  function makeSuperscriptLink(num: string, url: string): string {
+    const justNumber = num.replace(/[()]/g, "");
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: var(--tgph-accent-9); text-decoration: none; cursor: pointer;"><sup style="font-size: 0.6rem;">${justNumber}</sup></a>`;
   }
 
   let processed = content;
 
   // Convert single newlines to double newlines for better paragraph spacing,
   // but preserve markdown list structures (lines starting with -, *, or digits followed by .)
-  // This ensures proper spacing between paragraphs without breaking lists
-  processed = processed.replace(/\n(?!\n)/g, (match, offset) => {
+  processed = processed.replace(/\n(?!\n)/g, (_match, offset) => {
     const beforeNewline = content.substring(0, offset);
     const afterNewline = content.substring(offset + 1);
 
-    // Get the current line (before the newline)
     const currentLineMatch = beforeNewline.match(/[^\n]*$/);
     const currentLine = currentLineMatch ? currentLineMatch[0] : "";
 
-    // Get the next line (after the newline)
     const nextLineMatch = afterNewline.match(/^[^\n]*/);
     const nextLine = nextLineMatch ? nextLineMatch[0] : "";
 
-    // Check if current or next line is a list item (including indented ones)
     const isListItem =
       /^\s*[-*]|\d+\./.test(currentLine.trim()) ||
       /^\s*[-*]|\d+\./.test(nextLine.trim());
 
-    // If either line is a list item, keep single newline to preserve list structure
-    if (isListItem) {
-      return "\n";
-    }
-
-    // Otherwise, convert to double newline for paragraph spacing
-    return "\n\n";
+    return isListItem ? "\n" : "\n\n";
   });
 
   // Remove reference links that immediately follow regular markdown links (they're redundant)
-  // Match patterns like: [Text](url)[(2)](source-url) or [Text](url)(2)
   processed = processed.replace(
     /(\[([^\]]+)\]\(([^)]+)\))(?:\s*)(?:\[?\(?\d+\)?\]?\([^)]+\)|\(\d+\))/g,
     "$1",
   );
 
   // Remove numeric references that follow code blocks (they're listed in Sources section)
-  // Match: closing code fence (```) followed by optional whitespace/newlines and a reference
   processed = processed.replace(
     /(```[a-z]*\s*)\[(\(?\d+\)?)\]\(([^)]+)\)/gi,
     "$1",
   );
 
-  // First, convert COMPLETE markdown links with numeric text like [(1)](url) to clickable superscript links
+  // Convert COMPLETE markdown links with numeric text like [(1)](url) to clickable superscript links
   processed = processed.replace(
     /\[(\(?\d+\)?)\]\(([^)]+)\)/g,
-    (match, num, url) => {
-      const justNumber = num.replace(/[()]/g, "");
-      return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: var(--tgph-accent-9); text-decoration: none; cursor: pointer;"><sup style="font-size: 0.6rem;">${justNumber}</sup></a>`;
-    },
+    (_match, num, url) => makeSuperscriptLink(num, url),
   );
 
   // Handle incomplete markdown link syntax during streaming to prevent "[blocked]"
-  // Match patterns like [(1)]( or [(1)](http... that don't have a closing )
-  // These are incomplete links being streamed - show as plain superscript temporarily
-  processed = processed.replace(/\[(\(?\d+\)?)\]\([^)]*$/g, (match, num) => {
-    const justNumber = num.replace(/[()]/g, "");
-    return `<sup style="color: var(--tgph-accent-9); font-size: 0.6rem;">${justNumber}</sup>`;
-  });
-
-  // Also handle even more incomplete patterns like [(1)] at end of string (no URL yet)
-  processed = processed.replace(/\[(\(?\d+\)?)\]$/g, (match, num) => {
-    const justNumber = num.replace(/[()]/g, "");
-    return `<sup style="color: var(--tgph-accent-9); font-size: 0.6rem;">${justNumber}</sup>`;
-  });
-
-  // Handle [(1) at end of string (bracket not closed yet)
-  processed = processed.replace(/\[(\(?\d+\)?)$/g, (match, num) => {
-    const justNumber = num.replace(/[()]/g, "");
-    return `<sup style="color: var(--tgph-accent-9); font-size: 0.6rem;">${justNumber}</sup>`;
-  });
+  // These patterns match incomplete links being streamed - show as plain superscript temporarily
+  processed = processed.replace(/\[(\(?\d+\)?)\]\([^)]*$/g, (_match, num) =>
+    makeSuperscript(num),
+  );
+  processed = processed.replace(/\[(\(?\d+\)?)\]$/g, (_match, num) =>
+    makeSuperscript(num),
+  );
+  processed = processed.replace(/\[(\(?\d+\)?)$/g, (_match, num) =>
+    makeSuperscript(num),
+  );
 
   // Handle any remaining standalone (1), (2), etc. that aren't part of links
   processed = processed.replace(
     /(?<!\[)\((\d+)\)(?!\])/g,
-    '<sup style="color: var(--tgph-accent-9); font-size: 0.6rem;">$1</sup>',
+    `<sup style="${superscriptStyle}">$1</sup>`,
   );
 
   return processed;
@@ -126,7 +110,7 @@ function TruncatedTextWithTooltip({
 }: {
   text: string;
   children: React.ReactElement;
-}) {
+}): React.ReactElement {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
 
@@ -138,9 +122,7 @@ function TruncatedTextWithTooltip({
   }, []);
 
   useEffect(() => {
-    // Check after a brief delay to ensure DOM is updated
     const timeoutId = setTimeout(checkTruncation, 0);
-    // Recheck on resize
     window.addEventListener("resize", checkTruncation);
     return () => {
       clearTimeout(timeoutId);
@@ -148,7 +130,6 @@ function TruncatedTextWithTooltip({
     };
   }, [checkTruncation, text]);
 
-  // Wrap children in a div that preserves the flex properties
   const content = (
     <div
       ref={wrapperRef}
@@ -169,6 +150,84 @@ function TruncatedTextWithTooltip({
   }
 
   return content;
+}
+
+// Shared styles for chat option buttons in the popover
+const chatOptionButtonStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
+  width: "100%",
+  padding: "6px 8px",
+  borderRadius: "4px",
+  border: "none",
+  cursor: "pointer",
+  textAlign: "left",
+};
+
+const chatOptionIconContainerStyle: React.CSSProperties = {
+  width: "16px",
+  height: "20px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexShrink: 0,
+};
+
+type ChatOptionButtonProps = {
+  onClick: () => void;
+  isSelected?: boolean;
+  icon?: LucideIcon;
+  iconColor?: string;
+  title: string;
+  showTruncatedTooltip?: boolean;
+  style?: React.CSSProperties;
+};
+
+function ChatOptionButton({
+  onClick,
+  isSelected = false,
+  icon: IconComponent,
+  iconColor,
+  title,
+  showTruncatedTooltip = false,
+  style,
+}: ChatOptionButtonProps): React.ReactElement {
+  const titleContent = (
+    <Text as="span" size="2" weight="medium">
+      {title}
+    </Text>
+  );
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        ...chatOptionButtonStyle,
+        backgroundColor: isSelected ? "var(--tgph-gray-4)" : "transparent",
+        ...style,
+      }}
+    >
+      <Box style={chatOptionIconContainerStyle}>
+        {IconComponent && (
+          <Icon
+            icon={IconComponent}
+            size="1"
+            aria-hidden
+            style={{ color: iconColor }}
+          />
+        )}
+      </Box>
+      {showTruncatedTooltip ? (
+        <TruncatedTextWithTooltip text={title}>
+          {titleContent}
+        </TruncatedTextWithTooltip>
+      ) : (
+        titleContent
+      )}
+    </button>
+  );
 }
 
 function AskAiSidebar() {
@@ -571,126 +630,36 @@ function AskAiSidebar() {
               >
                 {/* Currently selected chat at top */}
                 {currentChatId && (
-                  <button
-                    type="button"
+                  <ChatOptionButton
                     onClick={() => handleSelectChat(currentChatId)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      width: "100%",
-                      padding: "6px 8px",
-                      backgroundColor: "var(--tgph-gray-4)",
-                      borderRadius: "4px",
-                      border: "none",
-                      cursor: "pointer",
-                      textAlign: "left",
-                    }}
-                  >
-                    <Box
-                      style={{
-                        width: "16px",
-                        height: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <Icon
-                        icon={Check}
-                        size="1"
-                        aria-hidden
-                        style={{ color: "var(--tgph-gray-12)" }}
-                      />
-                    </Box>
-                    <TruncatedTextWithTooltip text={getSelectedChatTitle()}>
-                      <Text as="span" size="2" weight="medium">
-                        {getSelectedChatTitle()}
-                      </Text>
-                    </TruncatedTextWithTooltip>
-                  </button>
+                    isSelected
+                    icon={Check}
+                    iconColor="var(--tgph-gray-12)"
+                    title={getSelectedChatTitle()}
+                    showTruncatedTooltip
+                  />
                 )}
 
                 {/* New chat button - shows below selected chat when a previous chat is selected */}
                 {currentChatId && (
-                  <button
-                    type="button"
+                  <ChatOptionButton
                     onClick={handleNewChat}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      width: "100%",
-                      padding: "6px 8px",
-                      backgroundColor: "transparent",
-                      borderRadius: "4px",
-                      border: "none",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      marginTop: "4px",
-                    }}
-                  >
-                    <Box
-                      style={{
-                        width: "16px",
-                        height: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Icon
-                        icon={Plus}
-                        size="1"
-                        aria-hidden
-                        style={{ color: "var(--tgph-gray-10)" }}
-                      />
-                    </Box>
-                    <Text as="span" size="2" weight="medium">
-                      New chat
-                    </Text>
-                  </button>
+                    icon={Plus}
+                    iconColor="var(--tgph-gray-10)"
+                    title="New chat"
+                    style={{ marginTop: "4px" }}
+                  />
                 )}
 
                 {/* New chat option - shows at top when no chat is selected */}
                 {!currentChatId && (
-                  <button
-                    type="button"
+                  <ChatOptionButton
                     onClick={handleNewChat}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      width: "100%",
-                      padding: "6px 8px",
-                      backgroundColor: "var(--tgph-gray-4)",
-                      borderRadius: "4px",
-                      border: "none",
-                      cursor: "pointer",
-                      textAlign: "left",
-                    }}
-                  >
-                    <Box
-                      style={{
-                        width: "16px",
-                        height: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Icon
-                        icon={Check}
-                        size="1"
-                        aria-hidden
-                        style={{ color: "var(--tgph-gray-12)" }}
-                      />
-                    </Box>
-                    <Text as="span" size="2" weight="medium">
-                      New chat
-                    </Text>
-                  </button>
+                    isSelected
+                    icon={Check}
+                    iconColor="var(--tgph-gray-12)"
+                    title="New chat"
+                  />
                 )}
 
                 {/* Previous chats section - only show if there are other sessions */}
@@ -712,41 +681,13 @@ function AskAiSidebar() {
                       </Text>
                     </Box>
 
-                    {/* List of previous chats */}
                     {otherChatSessions.map((chat) => (
-                      <button
+                      <ChatOptionButton
                         key={chat.id}
-                        type="button"
                         onClick={() => handleSelectChat(chat.id)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          width: "100%",
-                          padding: "6px 8px",
-                          backgroundColor: "transparent",
-                          borderRadius: "4px",
-                          border: "none",
-                          cursor: "pointer",
-                          textAlign: "left",
-                        }}
-                      >
-                        <Box
-                          style={{
-                            width: "16px",
-                            height: "20px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0,
-                          }}
-                        />
-                        <TruncatedTextWithTooltip text={chat.title}>
-                          <Text as="span" size="2" weight="medium">
-                            {chat.title}
-                          </Text>
-                        </TruncatedTextWithTooltip>
-                      </button>
+                        title={chat.title}
+                        showTruncatedTooltip
+                      />
                     ))}
                   </Box>
                 )}
@@ -1026,7 +967,7 @@ function MessageBubble({
               ),
             }}
           >
-            {processSourceReferences(message.content)}
+            {processSourceReferences(message.content || "")}
           </Streamdown>
         </div>
       </Box>
