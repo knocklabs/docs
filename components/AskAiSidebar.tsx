@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Check,
   Plus,
+  Copy,
 } from "lucide-react";
 import { Popover } from "@telegraph/popover";
 import { Tooltip } from "@telegraph/tooltip";
@@ -24,7 +25,88 @@ import {
 import { Streamdown } from "streamdown";
 import React from "react";
 import { Icons } from "./ui/Icons";
-import { CodeBlock } from "./ui/CodeBlock";
+import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
+import { lightCodeTheme } from "../styles/codeThemes";
+import { useClipboard } from "@/hooks/useClipboard";
+
+// Simplified code block component optimized for streaming
+// Unlike the main CodeBlock, this doesn't use useIsMounted to avoid flash during streaming
+function StreamingCodeBlock({
+  children,
+  language,
+}: {
+  children?: React.ReactNode;
+  language?: string;
+}) {
+  // Extract code content from children
+  let codeContent = "";
+  if (typeof children === "string") {
+    codeContent = children;
+  } else if (React.isValidElement(children)) {
+    const childProps = children.props as { children?: React.ReactNode };
+    if (typeof childProps.children === "string") {
+      codeContent = childProps.children;
+    } else if (Array.isArray(childProps.children)) {
+      codeContent = childProps.children
+        .filter((c): c is string => typeof c === "string")
+        .join("");
+    }
+  }
+
+  // Normalize the code content (trim trailing newlines)
+  const normalizedContent = codeContent.replace(/\n+$/, "");
+
+  const [isCopied, setCopied] = useClipboard(normalizedContent, {
+    successDuration: 2000,
+  });
+
+  return (
+    <Box
+      border="px"
+      borderColor="gray-4"
+      borderRadius="4"
+      style={{ overflow: "hidden", width: "100%", marginBottom: "16px" }}
+      data-code-block
+    >
+      <Stack
+        direction="row"
+        bg="gray-2"
+        borderBottomWidth="px"
+        borderColor="gray-2"
+        p="2"
+        alignItems="center"
+        justifyContent="flex-end"
+      >
+        <Button
+          variant="ghost"
+          size="0"
+          onClick={setCopied}
+          px="1"
+          icon={{
+            icon: isCopied ? Check : Copy,
+            "aria-hidden": true,
+          }}
+        />
+      </Stack>
+      <SyntaxHighlighter
+        showLineNumbers
+        lineNumberStyle={{
+          color: "var(--tgph-gray-8)",
+          display: "inline-block",
+          minWidth: "2.25em",
+          paddingRight: "1em",
+          textAlign: "right",
+          userSelect: "none",
+          paddingLeft: "0px",
+        }}
+        language={language || "shell"}
+        style={lightCodeTheme}
+      >
+        {normalizedContent}
+      </SyntaxHighlighter>
+    </Box>
+  );
+}
 
 // Helper function to process content and remove inline source references
 // Sources are displayed in a separate section at the bottom of responses
@@ -859,7 +941,7 @@ function MessageBubble({
       >
         <div className="tgraph-content">
           <Streamdown
-            parseIncompleteMarkdown={false}
+            parseIncompleteMarkdown={true}
             components={{
               // Only override what's necessary - CSS handles most styling via tgraph-content class
               code: (props: any) => (
@@ -890,7 +972,7 @@ function MessageBubble({
                   }
                 }
 
-                return <CodeBlock language={language}>{children}</CodeBlock>;
+                return <StreamingCodeBlock language={language}>{children}</StreamingCodeBlock>;
               },
               a: ({
                 href,
