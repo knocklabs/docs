@@ -259,7 +259,10 @@ const Autocomplete = () => {
 
   // Helper function to handle Ask AI clicks based on device type
   const handleAskAi = useCallback(
-    (query: string, autocompleteInstance?: ReturnType<typeof createAutocomplete>) => {
+    (
+      query: string,
+      autocompleteInstance?: ReturnType<typeof createAutocomplete>,
+    ) => {
       const prompt = createAskAiPrompt(query);
       if (isMobile) {
         openInkeepModal(prompt);
@@ -418,7 +421,13 @@ const Autocomplete = () => {
           },
         },
       }),
-    [router, searchClient, openSidebarWithPrompt, openInkeepModal, setIsSearchOpen],
+    [
+      router,
+      searchClient,
+      openSidebarWithPrompt,
+      openInkeepModal,
+      setIsSearchOpen,
+    ],
   );
 
   // Store the close function in a ref so it can be accessed from navigator
