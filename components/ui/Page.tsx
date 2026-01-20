@@ -123,7 +123,7 @@ const Wrapper = ({ children }) => {
       {/* Centered content area containing both Content and OnThisPage */}
       <div
         data-content-area
-        className="flex max-w-5xl mx-auto w-full"
+        className={`flex w-full ${onThisPage ? "max-w-5xl mx-auto" : "max-w-[800px]"}`}
         style={{ minWidth: 0 }}
       >
         {content}
