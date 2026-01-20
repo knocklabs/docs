@@ -115,18 +115,23 @@ const Wrapper = ({ children }) => {
         width: "100%",
         paddingRight: isOpen ? `${sidebarWidth}px` : "0",
         transition: isResizing ? "none" : "padding-right 0.2s ease-in-out",
-      }}
+        "--ask-ai-sidebar-width": isOpen ? `${sidebarWidth}px` : "0px",
+      } as React.CSSProperties}
     >
       {/* Left sidebar */}
       {sidebar}
 
-      {/* Centered content area containing both Content and OnThisPage */}
+      {/* Content area with max-gap constraint from sidebar */}
       <div
         data-content-area
-        className={`flex w-full ${
-          onThisPage ? "max-w-5xl mx-auto" : "max-w-[800px]"
-        }`}
-        style={{ minWidth: 0 }}
+        className="flex w-full"
+        style={{
+          minWidth: 0,
+          maxWidth: onThisPage ? "1024px" : "800px",
+          marginLeft: onThisPage
+            ? "clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - 1024px) * 0.25), 200px)"
+            : "clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - 800px) * 0.25), 200px)",
+        }}
       >
         {content}
         {showToc && onThisPage}
