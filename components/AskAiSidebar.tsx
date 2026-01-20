@@ -603,7 +603,7 @@ function AskAiSidebar() {
       borderColor={isHoveringResizeHandle ? "gray-6" : "gray-4"}
       style={{
         width: isOpen ? `${sidebarWidth}px` : "0",
-        overflow: "hidden",
+        overflow: "visible",
         transition: isResizing
           ? "none"
           : "width 0.2s ease-in-out, border-color 0.2s ease-in-out",
@@ -623,13 +623,14 @@ function AskAiSidebar() {
           onMouseLeave={() => setIsHoveringResizeHandle(false)}
           style={{
             position: "absolute",
-            left: 0,
+            left: "-8px",
             top: 0,
-            width: "4px",
+            width: "16px",
             height: "100%",
             cursor: "col-resize",
             backgroundColor: "transparent",
-            zIndex: 11,
+            zIndex: 100,
+            pointerEvents: "auto",
           }}
         />
       )}
@@ -639,6 +640,7 @@ function AskAiSidebar() {
           display: "flex",
           flexDirection: "column",
           height: "100%",
+          overflow: "hidden",
         }}
       >
         {/* Header with close button */}
