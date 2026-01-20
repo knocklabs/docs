@@ -489,7 +489,7 @@ function AskAiSidebar() {
         position: "fixed",
         top: `${headerHeight}px`,
         right: 0,
-        zIndex: 10,
+        zIndex: 50,
         height: `calc(100vh - ${headerHeight}px)`,
       }}
     >
