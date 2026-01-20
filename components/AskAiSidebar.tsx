@@ -26,22 +26,10 @@ import React from "react";
 import { Icons } from "./ui/Icons";
 import { CodeBlock } from "./ui/CodeBlock";
 
-// Helper function to convert source references like (1), (2) to superscript links
-// Also handles incomplete markdown link syntax during streaming to prevent "[blocked]" from appearing
+// Helper function to process content and remove inline source references
+// Sources are displayed in a separate section at the bottom of responses
 function processSourceReferences(content: string): string {
   if (typeof content !== "string") return "";
-
-  const superscriptStyle = "color: var(--tgph-accent-9); font-size: 0.6rem;";
-
-  function makeSuperscript(num: string): string {
-    const justNumber = num.replace(/[()]/g, "");
-    return `<sup style="${superscriptStyle}">${justNumber}</sup>`;
-  }
-
-  function makeSuperscriptLink(num: string, url: string): string {
-    const justNumber = num.replace(/[()]/g, "");
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: var(--tgph-accent-9); text-decoration: none; cursor: pointer;"><sup style="font-size: 0.6rem;">${justNumber}</sup></a>`;
-  }
 
   let processed = content;
 
@@ -76,29 +64,16 @@ function processSourceReferences(content: string): string {
     "$1",
   );
 
-  // Convert COMPLETE markdown links with numeric text like [(1)](url) to clickable superscript links
-  processed = processed.replace(
-    /\[(\(?\d+\)?)\]\(([^)]+)\)/g,
-    (_match, num, url) => makeSuperscriptLink(num, url),
-  );
+  // Remove inline footnote references like [(1)](url) - sources shown in separate section
+  processed = processed.replace(/\[(\(?\d+\)?)\]\([^)]+\)/g, "");
 
-  // Handle incomplete markdown link syntax during streaming to prevent "[blocked]"
-  // These patterns match incomplete links being streamed - show as plain superscript temporarily
-  processed = processed.replace(/\[(\(?\d+\)?)\]\([^)]*$/g, (_match, num) =>
-    makeSuperscript(num),
-  );
-  processed = processed.replace(/\[(\(?\d+\)?)\]$/g, (_match, num) =>
-    makeSuperscript(num),
-  );
-  processed = processed.replace(/\[(\(?\d+\)?)$/g, (_match, num) =>
-    makeSuperscript(num),
-  );
+  // Remove incomplete markdown link syntax during streaming to prevent "[blocked]"
+  processed = processed.replace(/\[(\(?\d+\)?)\]\([^)]*$/g, "");
+  processed = processed.replace(/\[(\(?\d+\)?)\]$/g, "");
+  processed = processed.replace(/\[(\(?\d+\)?)$/g, "");
 
-  // Handle any remaining standalone (1), (2), etc. that aren't part of links
-  processed = processed.replace(
-    /(?<!\[)\((\d+)\)(?!\])/g,
-    `<sup style="${superscriptStyle}">$1</sup>`,
-  );
+  // Remove any remaining standalone (1), (2), etc. that aren't part of links
+  processed = processed.replace(/(?<!\[)\((\d+)\)(?!\])/g, "");
 
   return processed;
 }
