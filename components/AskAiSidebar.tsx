@@ -538,7 +538,10 @@ function AskAiSidebar() {
               New chat
             </Text>
           ) : (
-            <Popover.Root open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+            <Popover.Root
+              open={isDropdownOpen}
+              onOpenChange={setIsDropdownOpen}
+            >
               <Popover.Trigger asChild>
                 <Button
                   variant="ghost"
@@ -559,203 +562,195 @@ function AskAiSidebar() {
                   </Stack>
                 </Button>
               </Popover.Trigger>
-                <Popover.Content
-                  sideOffset={4}
-                  align="start"
-                  p="1"
-                  gap="0"
-                  style={{ zIndex: 100, maxWidth: "320px" }}
-                >
-                  {/* Currently selected chat at top */}
-                  {currentChatId && (
-                    <button
-                      type="button"
-                      onClick={() => handleSelectChat(currentChatId)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        width: "100%",
-                        padding: "6px 8px",
-                        backgroundColor: "var(--tgph-gray-4)",
-                        borderRadius: "4px",
-                        border: "none",
-                        cursor: "pointer",
-                        textAlign: "left",
-                      }}
-                    >
-                      <Box
-                        style={{
-                          width: "16px",
-                          height: "20px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <Icon
-                          icon={Check}
-                          size="1"
-                          aria-hidden
-                          style={{ color: "var(--tgph-gray-12)" }}
-                        />
-                      </Box>
-                      <TruncatedTextWithTooltip text={getSelectedChatTitle()}>
-                        <Text
-                          as="span"
-                          size="2"
-                          weight="medium"
-                        >
-                          {getSelectedChatTitle()}
-                        </Text>
-                      </TruncatedTextWithTooltip>
-                    </button>
-                  )}
-
-                  {/* New chat button - shows below selected chat when a previous chat is selected */}
-                  {currentChatId && (
-                    <button
-                      type="button"
-                      onClick={handleNewChat}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        width: "100%",
-                        padding: "6px 8px",
-                        backgroundColor: "transparent",
-                        borderRadius: "4px",
-                        border: "none",
-                        cursor: "pointer",
-                        textAlign: "left",
-                        marginTop: "4px",
-                      }}
-                    >
-                      <Box
-                        style={{
-                          width: "16px",
-                          height: "20px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Icon
-                          icon={Plus}
-                          size="1"
-                          aria-hidden
-                          style={{ color: "var(--tgph-gray-10)" }}
-                        />
-                      </Box>
-                      <Text as="span" size="2" weight="medium">
-                        New chat
-                      </Text>
-                    </button>
-                  )}
-
-                  {/* New chat option - shows at top when no chat is selected */}
-                  {!currentChatId && (
-                    <button
-                      type="button"
-                      onClick={handleNewChat}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        width: "100%",
-                        padding: "6px 8px",
-                        backgroundColor: "var(--tgph-gray-4)",
-                        borderRadius: "4px",
-                        border: "none",
-                        cursor: "pointer",
-                        textAlign: "left",
-                      }}
-                    >
-                      <Box
-                        style={{
-                          width: "16px",
-                          height: "20px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Icon
-                          icon={Check}
-                          size="1"
-                          aria-hidden
-                          style={{ color: "var(--tgph-gray-12)" }}
-                        />
-                      </Box>
-                      <Text as="span" size="2" weight="medium">
-                        New chat
-                      </Text>
-                    </button>
-                  )}
-
-                  {/* Previous chats section - only show if there are other sessions */}
-                  {otherChatSessions.length > 0 && (
+              <Popover.Content
+                sideOffset={4}
+                align="start"
+                p="1"
+                gap="0"
+                style={{ zIndex: 100, maxWidth: "320px" }}
+              >
+                {/* Currently selected chat at top */}
+                {currentChatId && (
+                  <button
+                    type="button"
+                    onClick={() => handleSelectChat(currentChatId)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      width: "100%",
+                      padding: "6px 8px",
+                      backgroundColor: "var(--tgph-gray-4)",
+                      borderRadius: "4px",
+                      border: "none",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
                     <Box
                       style={{
-                        padding: "4px",
-                        marginTop: currentChatId ? "4px" : "0",
+                        width: "16px",
+                        height: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
                       }}
                     >
-                      <Box style={{ padding: "8px" }}>
-                        <Text
-                          as="span"
-                          size="1"
-                          weight="medium"
-                          style={{ color: "var(--tgph-gray-11)" }}
-                        >
-                          Previous chats
-                        </Text>
-                      </Box>
+                      <Icon
+                        icon={Check}
+                        size="1"
+                        aria-hidden
+                        style={{ color: "var(--tgph-gray-12)" }}
+                      />
+                    </Box>
+                    <TruncatedTextWithTooltip text={getSelectedChatTitle()}>
+                      <Text as="span" size="2" weight="medium">
+                        {getSelectedChatTitle()}
+                      </Text>
+                    </TruncatedTextWithTooltip>
+                  </button>
+                )}
 
-                      {/* List of previous chats */}
-                      {otherChatSessions.map((chat) => (
-                        <button
-                          key={chat.id}
-                          type="button"
-                          onClick={() => handleSelectChat(chat.id)}
+                {/* New chat button - shows below selected chat when a previous chat is selected */}
+                {currentChatId && (
+                  <button
+                    type="button"
+                    onClick={handleNewChat}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      width: "100%",
+                      padding: "6px 8px",
+                      backgroundColor: "transparent",
+                      borderRadius: "4px",
+                      border: "none",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <Box
+                      style={{
+                        width: "16px",
+                        height: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Icon
+                        icon={Plus}
+                        size="1"
+                        aria-hidden
+                        style={{ color: "var(--tgph-gray-10)" }}
+                      />
+                    </Box>
+                    <Text as="span" size="2" weight="medium">
+                      New chat
+                    </Text>
+                  </button>
+                )}
+
+                {/* New chat option - shows at top when no chat is selected */}
+                {!currentChatId && (
+                  <button
+                    type="button"
+                    onClick={handleNewChat}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      width: "100%",
+                      padding: "6px 8px",
+                      backgroundColor: "var(--tgph-gray-4)",
+                      borderRadius: "4px",
+                      border: "none",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <Box
+                      style={{
+                        width: "16px",
+                        height: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Icon
+                        icon={Check}
+                        size="1"
+                        aria-hidden
+                        style={{ color: "var(--tgph-gray-12)" }}
+                      />
+                    </Box>
+                    <Text as="span" size="2" weight="medium">
+                      New chat
+                    </Text>
+                  </button>
+                )}
+
+                {/* Previous chats section - only show if there are other sessions */}
+                {otherChatSessions.length > 0 && (
+                  <Box
+                    style={{
+                      padding: "4px",
+                      marginTop: currentChatId ? "4px" : "0",
+                    }}
+                  >
+                    <Box style={{ padding: "8px" }}>
+                      <Text
+                        as="span"
+                        size="1"
+                        weight="medium"
+                        style={{ color: "var(--tgph-gray-11)" }}
+                      >
+                        Previous chats
+                      </Text>
+                    </Box>
+
+                    {/* List of previous chats */}
+                    {otherChatSessions.map((chat) => (
+                      <button
+                        key={chat.id}
+                        type="button"
+                        onClick={() => handleSelectChat(chat.id)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          width: "100%",
+                          padding: "6px 8px",
+                          backgroundColor: "transparent",
+                          borderRadius: "4px",
+                          border: "none",
+                          cursor: "pointer",
+                          textAlign: "left",
+                        }}
+                      >
+                        <Box
                           style={{
+                            width: "16px",
+                            height: "20px",
                             display: "flex",
                             alignItems: "center",
-                            gap: "6px",
-                            width: "100%",
-                            padding: "6px 8px",
-                            backgroundColor: "transparent",
-                            borderRadius: "4px",
-                            border: "none",
-                            cursor: "pointer",
-                            textAlign: "left",
+                            justifyContent: "center",
+                            flexShrink: 0,
                           }}
-                        >
-                          <Box
-                            style={{
-                              width: "16px",
-                              height: "20px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              flexShrink: 0,
-                            }}
-                          />
-                          <TruncatedTextWithTooltip text={chat.title}>
-                            <Text
-                              as="span"
-                              size="2"
-                              weight="medium"
-                            >
-                              {chat.title}
-                            </Text>
-                          </TruncatedTextWithTooltip>
-                        </button>
-                      ))}
-                    </Box>
-                  )}
-                </Popover.Content>
+                        />
+                        <TruncatedTextWithTooltip text={chat.title}>
+                          <Text as="span" size="2" weight="medium">
+                            {chat.title}
+                          </Text>
+                        </TruncatedTextWithTooltip>
+                      </button>
+                    ))}
+                  </Box>
+                )}
+              </Popover.Content>
             </Popover.Root>
           )}
           <Box
