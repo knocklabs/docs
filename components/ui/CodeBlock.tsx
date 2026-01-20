@@ -143,26 +143,25 @@ export const CodeBlock: React.FC<Props> = ({
 
   const [content] = useMemo(() => {
     // Extract code content from children, ensuring we always get a string
-    let codeContent: string = "";
-
     if (typeof children === "string") {
-      codeContent = children;
-    } else if (
-      children != null &&
-      typeof children === "object" &&
-      "props" in children &&
-      children.props?.children != null
-    ) {
-      // children is a React element (e.g., <code>...</code>)
-      // Extract the text content, ensuring it's a string
-      const innerContent = children.props.children;
-      codeContent = typeof innerContent === "string" ? innerContent : "";
+      return normalize(children, className);
     }
-
-    return normalize(codeContent, className);
+    if (children?.props?.children != null) {
+      const innerContent = children.props.children;
+      if (typeof innerContent === "string") {
+        return normalize(innerContent, className);
+      }
+      if (Array.isArray(innerContent)) {
+        const text = innerContent
+          .filter((c): c is string => typeof c === "string")
+          .join("");
+        return normalize(text, className);
+      }
+    }
+    return normalize("", className);
   }, [children, className]);
 
-  const title = props.title || children.props.metastring;
+  const title = props.title || children?.props?.metastring;
 
   const [isCopied, setCopied] = useClipboard(content, {
     successDuration: 2000,
