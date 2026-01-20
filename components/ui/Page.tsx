@@ -111,12 +111,14 @@ const Wrapper = ({ children }) => {
     <div
       data-wrapper
       className="layout-grid"
-      style={{
-        width: "100%",
-        paddingRight: isOpen ? `${sidebarWidth}px` : "0",
-        transition: isResizing ? "none" : "padding-right 0.2s ease-in-out",
-        "--ask-ai-sidebar-width": isOpen ? `${sidebarWidth}px` : "0px",
-      } as React.CSSProperties}
+      style={
+        {
+          width: "100%",
+          paddingRight: isOpen ? `${sidebarWidth}px` : "0",
+          transition: isResizing ? "none" : "padding-right 0.2s ease-in-out",
+          "--ask-ai-sidebar-width": isOpen ? `${sidebarWidth}px` : "0px",
+        } as React.CSSProperties
+      }
     >
       {/* Left sidebar */}
       {sidebar}
@@ -128,9 +130,7 @@ const Wrapper = ({ children }) => {
         style={{
           minWidth: 0,
           maxWidth: onThisPage ? "1024px" : "800px",
-          marginLeft: onThisPage
-            ? "clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - 1024px) * 0.25), 200px)"
-            : "clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - 800px) * 0.25), 200px)",
+          marginLeft: `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - ${onThisPage ? "1024px" : "800px"}) * 0.25), 200px)`,
         }}
       >
         {content}
