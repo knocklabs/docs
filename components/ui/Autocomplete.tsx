@@ -7,9 +7,9 @@ import {
   getAlgoliaResults,
   parseAlgoliaHitHighlight,
 } from "@algolia/autocomplete-preset-algolia";
+import "@algolia/autocomplete-theme-classic";
 import algoliasearch from "algoliasearch/lite";
-import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
-
+import { Search, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, {
@@ -20,25 +20,23 @@ import React, {
   useRef,
   useState,
 } from "react";
-
 import { useHotkeys } from "react-hotkeys-hook";
 
-import "@algolia/autocomplete-theme-classic";
-
-import { Input } from "@telegraph/input";
-import { Box, Stack } from "@telegraph/layout";
-import { Tag } from "@telegraph/tag";
-import { Search, Sparkles, X } from "lucide-react";
-
-import { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { Button } from "@telegraph/button";
 import { Icon } from "@telegraph/icon";
+import { Input } from "@telegraph/input";
+import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
+import { Tag } from "@telegraph/tag";
 import { Code, Text } from "@telegraph/typography";
-import { useAskAi } from "../AskAiContext";
+
+import { DocsSearchItem, EndpointSearchItem } from "@/types";
+
 import { useInkeepModal } from "../AiChatButton";
+import { useAskAi } from "../AskAiContext";
 import { usePageContext } from "./Page";
 import { highlightResource } from "./Page/helpers";
+import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
 
 // This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
@@ -59,6 +57,11 @@ const highlightingStyles = {
 // These are the number of hits we want to show for each section
 const NUM_DOCS_HITS = 12;
 const NUM_ENDPOINT_HITS = 5;
+const MOBILE_BREAKPOINT = 768;
+
+function createAskAiPrompt(query: string): string {
+  return `Can you tell me about ${query}`;
+}
 
 type ResultItem = (DocsSearchItem & BaseItem) | (EndpointSearchItem & BaseItem);
 
@@ -247,7 +250,7 @@ const Autocomplete = () => {
   // Detect mobile on mount and resize
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -257,13 +260,12 @@ const Autocomplete = () => {
   // Helper function to handle Ask AI clicks based on device type
   const handleAskAi = useCallback(
     (query: string, autocompleteInstance?: ReturnType<typeof createAutocomplete>) => {
-      const prompt = `Can you tell me about ${query}`;
+      const prompt = createAskAiPrompt(query);
       if (isMobile) {
         openInkeepModal(prompt);
       } else {
         openSidebarWithPrompt(prompt);
       }
-      // Close the autocomplete dropdown
       if (autocompleteInstance) {
         autocompleteInstance.setIsOpen(false);
       }
@@ -300,11 +302,10 @@ const Autocomplete = () => {
                   return [];
                 }
 
-                // Create our custom "Ask AI" item
                 const askAiItem = {
                   objectID: "ask-ai",
                   path: "#",
-                  title: `Can you tell me about ${query}`,
+                  title: createAskAiPrompt(query),
                   section: "Use AI to answer your question",
                   __isAskAiItem: true,
                 };
@@ -398,28 +399,19 @@ const Autocomplete = () => {
         },
         navigator: {
           navigate({ itemUrl, item, state }) {
-            // Check if this is our Ask AI item
+            // Handle Ask AI item separately (check mobile inline since useMemo can't access state)
             if ((item as any).__isAskAiItem) {
-              // handleAskAi will be called, but we need to check mobile here too
-              // since this is inside useMemo and can't access the callback
-              const isMobileCheck = window.innerWidth <= 768;
-              const prompt = `Can you tell me about ${state.query}`;
-              if (isMobileCheck) {
+              const prompt = createAskAiPrompt(state.query);
+              if (window.innerWidth <= MOBILE_BREAKPOINT) {
                 openInkeepModal(prompt);
               } else {
                 openSidebarWithPrompt(prompt);
               }
-              // Close the autocomplete dropdown
-              if (closeAutocompleteRef.current) {
-                closeAutocompleteRef.current();
-              }
+              closeAutocompleteRef.current?.();
               return;
             }
 
-            // Handle regular navigation
             router.push(`/${itemUrl}`);
-
-            // Clear the query when navigating
             if (state.query) {
               autocomplete.setQuery("");
             }
