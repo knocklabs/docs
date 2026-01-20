@@ -134,7 +134,11 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
   }
 
   return (
-    <Box as="aside" className="lg-hidden" px="4">
+    <Box
+      as="aside"
+      px="4"
+      style={{ minWidth: "200px", width: "200px", flexShrink: 0 }}
+    >
       <Box
         position="sticky"
         top="32"
