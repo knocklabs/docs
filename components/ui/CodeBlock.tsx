@@ -141,19 +141,26 @@ export const CodeBlock: React.FC<Props> = ({
     }
   }, [language, languages, params.language]);
 
-  const [content] = useMemo(
-    () =>
-      normalize(
-        children != null &&
-          typeof children !== "string" &&
-          children.props &&
-          children.props.children
-          ? children.props.children
-          : children ?? "",
-        className,
-      ),
-    [children, className],
-  );
+  const [content] = useMemo(() => {
+    // Extract code content from children, ensuring we always get a string
+    let codeContent: string = "";
+
+    if (typeof children === "string") {
+      codeContent = children;
+    } else if (
+      children != null &&
+      typeof children === "object" &&
+      "props" in children &&
+      children.props?.children != null
+    ) {
+      // children is a React element (e.g., <code>...</code>)
+      // Extract the text content, ensuring it's a string
+      const innerContent = children.props.children;
+      codeContent = typeof innerContent === "string" ? innerContent : "";
+    }
+
+    return normalize(codeContent, className);
+  }, [children, className]);
 
   const title = props.title || children.props.metastring;
 
