@@ -36,6 +36,7 @@ import { Icon } from "@telegraph/icon";
 import { MenuItem } from "@telegraph/menu";
 import { Code, Text } from "@telegraph/typography";
 import { useAskAi } from "../AskAiContext";
+import { useInkeepModal } from "../AiChatButton";
 import { usePageContext } from "./Page";
 import { highlightResource } from "./Page/helpers";
 
@@ -233,12 +234,42 @@ const EndpointSearchResult = ({
 const Autocomplete = () => {
   const { setIsSearchOpen } = usePageContext();
   const { openSidebarWithPrompt } = useAskAi();
+  const { openWithPrompt: openInkeepModal } = useInkeepModal();
   const [autocompleteState, setAutocompleteState] =
     useState<AutocompleteState<BaseItem> | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const closeAutocompleteRef = useRef<(() => void) | null>(null);
 
   const inputRef = useRef(null);
   const router = useRouter();
+
+  // Detect mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Helper function to handle Ask AI clicks based on device type
+  const handleAskAi = useCallback(
+    (query: string, autocompleteInstance?: ReturnType<typeof createAutocomplete>) => {
+      const prompt = `Can you tell me about ${query}`;
+      if (isMobile) {
+        openInkeepModal(prompt);
+      } else {
+        openSidebarWithPrompt(prompt);
+      }
+      // Close the autocomplete dropdown
+      if (autocompleteInstance) {
+        autocompleteInstance.setIsOpen(false);
+      }
+    },
+    [isMobile, openInkeepModal, openSidebarWithPrompt],
+  );
   const searchClient = useMemo(
     () => algoliasearch(algoliaAppId, algoliaSearchApiKey),
     [],
@@ -369,7 +400,19 @@ const Autocomplete = () => {
           navigate({ itemUrl, item, state }) {
             // Check if this is our Ask AI item
             if ((item as any).__isAskAiItem) {
-              openSidebarWithPrompt(`Can you tell me about ${state.query}`);
+              // handleAskAi will be called, but we need to check mobile here too
+              // since this is inside useMemo and can't access the callback
+              const isMobileCheck = window.innerWidth <= 768;
+              const prompt = `Can you tell me about ${state.query}`;
+              if (isMobileCheck) {
+                openInkeepModal(prompt);
+              } else {
+                openSidebarWithPrompt(prompt);
+              }
+              // Close the autocomplete dropdown
+              if (closeAutocompleteRef.current) {
+                closeAutocompleteRef.current();
+              }
               return;
             }
 
@@ -383,8 +426,15 @@ const Autocomplete = () => {
           },
         },
       }),
-    [router, searchClient, openSidebarWithPrompt, setIsSearchOpen],
+    [router, searchClient, openSidebarWithPrompt, openInkeepModal, setIsSearchOpen],
   );
+
+  // Store the close function in a ref so it can be accessed from navigator
+  useEffect(() => {
+    closeAutocompleteRef.current = () => {
+      autocomplete.setIsOpen(false);
+    };
+  }, [autocomplete]);
 
   useHotkeys("/, cmd+k", (e) => {
     // adding small timeout so event doesn't get to the focused input resulting
@@ -448,11 +498,9 @@ const Autocomplete = () => {
     if (e.key === "Enter") {
       e.preventDefault();
       e.stopPropagation();
-      // Open the AI sidebar
+      // Open the AI sidebar or modal
       if (autocompleteState?.query && !hasResults) {
-        openSidebarWithPrompt(
-          `Can you tell me about ${autocompleteState.query}`,
-        );
+        handleAskAi(autocompleteState.query, autocomplete);
         return;
       } else {
         // Navigate to the first item that is not the "Ask AI" item
@@ -634,9 +682,7 @@ const Autocomplete = () => {
                           onClick={() => {
                             const query = (inputProps as any).value;
                             if (query) {
-                              openSidebarWithPrompt(
-                                `Can you tell me about ${query}`,
-                              );
+                              handleAskAi(query, autocomplete);
                             }
                           }}
                         >
@@ -742,9 +788,7 @@ const Autocomplete = () => {
                         onClick={() => {
                           const query = (inputProps as any).value;
                           if (query) {
-                            openSidebarWithPrompt(
-                              `Can you tell me about ${query}`,
-                            );
+                            handleAskAi(query, autocomplete);
                           }
                         }}
                       >
