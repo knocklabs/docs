@@ -243,6 +243,7 @@ const Autocomplete = () => {
   const [isMobile, setIsMobile] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const closeAutocompleteRef = useRef<(() => void) | null>(null);
+  const clearQueryRef = useRef<(() => void) | null>(null);
 
   const inputRef = useRef(null);
   const router = useRouter();
@@ -402,21 +403,24 @@ const Autocomplete = () => {
         },
         navigator: {
           navigate({ itemUrl, item, state }) {
-            // Handle Ask AI item separately (check mobile inline since useMemo can't access state)
+            // Handle Ask AI navigation (check window.innerWidth inline since useMemo can't access isMobile state)
             if ((item as any).__isAskAiItem) {
-              const prompt = createAskAiPrompt(state.query);
-              if (window.innerWidth <= MOBILE_BREAKPOINT) {
-                openInkeepModal(prompt);
-              } else {
-                openSidebarWithPrompt(prompt);
-              }
               closeAutocompleteRef.current?.();
+              // Defer opening sidebar/modal to next tick to avoid UI conflicts during close
+              setTimeout(() => {
+                const prompt = createAskAiPrompt(state.query);
+                if (window.innerWidth <= MOBILE_BREAKPOINT) {
+                  openInkeepModal(prompt);
+                } else {
+                  openSidebarWithPrompt(prompt);
+                }
+              }, 0);
               return;
             }
 
             router.push(`/${itemUrl}`);
             if (state.query) {
-              autocomplete.setQuery("");
+              clearQueryRef.current?.();
             }
           },
         },
@@ -430,10 +434,13 @@ const Autocomplete = () => {
     ],
   );
 
-  // Store the close function in a ref so it can be accessed from navigator
+  // Store the close and clear query functions in refs so they can be accessed from navigator
   useEffect(() => {
     closeAutocompleteRef.current = () => {
       autocomplete.setIsOpen(false);
+    };
+    clearQueryRef.current = () => {
+      autocomplete.setQuery("");
     };
   }, [autocomplete]);
 
