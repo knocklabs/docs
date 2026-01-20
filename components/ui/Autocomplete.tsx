@@ -504,19 +504,25 @@ const Autocomplete = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === "Enter") {
+      // If an item is actively selected (user navigated with arrow keys),
+      // let the autocomplete navigator handle it instead
+      if (autocompleteState?.activeItemId !== null) {
+        return;
+      }
+
       e.preventDefault();
       e.stopPropagation();
-      // Open the AI sidebar or modal
+
+      // Open the AI sidebar or modal when no results
       if (autocompleteState?.query && !hasResults) {
         handleAskAi(autocompleteState.query, autocomplete);
         return;
-      } else {
-        // Navigate to the first item that is not the "Ask AI" item
-        const firstItem = autocompleteState?.collections[0]?.items[1];
-        if (firstItem) {
-          handleSearchNavigation(e, router, firstItem?.path, () => {});
-        }
-        return;
+      }
+
+      // Navigate to the first item that is not the "Ask AI" item
+      const firstItem = autocompleteState?.collections[0]?.items[1];
+      if (firstItem) {
+        handleSearchNavigation(e, router, firstItem?.path, () => {});
       }
     }
   };
