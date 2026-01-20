@@ -130,7 +130,9 @@ const Wrapper = ({ children }) => {
         style={{
           minWidth: 0,
           maxWidth: onThisPage ? "1024px" : "800px",
-          marginLeft: `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - ${onThisPage ? "1024px" : "800px"}) * 0.25), 200px)`,
+          marginLeft: `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - ${
+            onThisPage ? "1024px" : "800px"
+          }) * 0.25), 200px)`,
         }}
       >
         {content}
