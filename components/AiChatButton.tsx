@@ -1,46 +1,46 @@
 import {
-  InkeepChatButtonProps,
-  type InkeepChatButton,
+  InkeepModalChatProps,
+  type InkeepModalChat,
 } from "@inkeep/cxkit-react";
 import dynamic from "next/dynamic";
+import { useState } from "react";
+import { MessageSquare } from "lucide-react";
 
 import useInkeepSettings from "../hooks/useInKeepSettings";
 
-const ChatButton = dynamic(
-  () => import("@inkeep/cxkit-react").then((mod) => mod.InkeepChatButton),
+const ModalChat = dynamic(
+  () => import("@inkeep/cxkit-react").then((mod) => mod.InkeepModalChat),
   {
     ssr: false,
   },
-) as typeof InkeepChatButton;
+) as typeof InkeepModalChat;
 
 function AiChatButton() {
-  const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
-    useInkeepSettings();
+  const [isOpen, setIsOpen] = useState(false);
+  const { baseSettings, aiChatSettings, modalSettings } = useInkeepSettings();
 
-  const chatButtonProps: InkeepChatButtonProps = {
-    baseSettings: {
-      ...baseSettings,
-      theme: {
-        styles: [
-          {
-            key: "knock-ai-chat-style",
-            type: "style",
-            value: `
-              .ikp-chat-button__button {
-                background-color: #262626;
-              }
-          `,
-          },
-        ],
-      },
-    },
+  const modalChatProps: InkeepModalChatProps = {
+    baseSettings,
     aiChatSettings,
-    searchSettings,
-    modalSettings,
-    canToggleView: false,
+    modalSettings: {
+      ...modalSettings,
+      isOpen,
+      onOpenChange: setIsOpen,
+    },
   };
 
-  return <ChatButton {...chatButtonProps} />;
+  return (
+    <>
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed right-4 bottom-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white shadow-lg"
+        aria-label="Open chat"
+      >
+        <MessageSquare className="h-5 w-5 text-black" />
+      </button>
+      <ModalChat {...modalChatProps} />
+    </>
+  );
 }
 
 export default AiChatButton;
