@@ -8,7 +8,7 @@ import { Sidebar, SidebarContext } from "./Page/Sidebar";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ContentActions } from "./ContentActions";
 
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext, useRef, useState, useEffect } from "react";
 import { MobileSidebar } from "./Page/MobileSidebar";
 import { Button } from "@telegraph/button";
 import Link from "next/link";
@@ -73,12 +73,39 @@ const Wrapper = ({ children }) => {
   const isOpen = askAiContext ? askAiContext.isOpen : false;
   const sidebarWidth = askAiContext ? askAiContext.sidebarWidth : 340;
   const isResizing = askAiContext ? askAiContext.isResizing : false;
+  const [viewportWidth, setViewportWidth] = useState(0);
+
+  // Track viewport width for dynamic ToC visibility
+  useEffect(() => {
+    const updateViewportWidth = () => {
+      setViewportWidth(window.innerWidth);
+    };
+
+    // Set initial width
+    updateViewportWidth();
+
+    // Update on resize
+    window.addEventListener("resize", updateViewportWidth);
+    return () => window.removeEventListener("resize", updateViewportWidth);
+  }, []);
 
   // Children: [Sidebar, Content, OnThisPage] or [Sidebar, Content]
   const childArray = Array.isArray(children) ? children : [children];
   const sidebar = childArray[0];
   const content = childArray[1];
   const onThisPage = childArray.length === 3 ? childArray[2] : null;
+
+  // Calculate if ToC should be visible
+  // Formula: availableForToc = viewportWidth - leftSidebarWidth(256 or 0 if mobile) - contentMinWidth(600) - askAiSidebarWidth(if open)
+  // Show ToC if availableForToc >= 200
+  // Left sidebar is hidden at <=768px (mobile), so it doesn't take up space
+  const leftSidebarWidth = viewportWidth > 768 ? 256 : 0;
+  const contentMinWidth = 600;
+  const tocMinWidth = 200;
+  const askAiWidth = isOpen ? sidebarWidth : 0;
+  const availableForToc =
+    viewportWidth - leftSidebarWidth - contentMinWidth - askAiWidth;
+  const showToc = availableForToc >= tocMinWidth && onThisPage !== null;
 
   return (
     <div
@@ -102,7 +129,7 @@ const Wrapper = ({ children }) => {
         style={{ minWidth: 0 }}
       >
         {content}
-        {onThisPage}
+        {showToc && onThisPage}
       </div>
     </div>
   );
@@ -123,6 +150,7 @@ const Masthead = ({
 const Content = ({ children, fullWidth = false }) => (
   <div
     className="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-8 pb-8"
+    style={{ minWidth: "min(600px, 100%)" }}
     data-content
   >
     {children}
@@ -130,7 +158,7 @@ const Content = ({ children, fullWidth = false }) => (
 );
 
 const ContentBody = ({ children }) => (
-  <Box mb="6" className="" data-content-body>
+  <Box mb="6" className="tgraph-content" data-content-body>
     {children}
   </Box>
 );
