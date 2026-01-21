@@ -1,21 +1,20 @@
+import { createContext, useContext, useRef, useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { Button } from "@telegraph/button";
+import { Icon } from "@telegraph/icon";
 import { Box, Stack } from "@telegraph/layout";
 import { Text, Heading } from "@telegraph/typography";
 
-import { PageHeader } from "./PageHeader";
-
-import { OnThisPage } from "./Page/OnThisPage";
-import { Sidebar, SidebarContext } from "./Page/Sidebar";
+import { AskAiContext } from "../AskAiContext";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ContentActions } from "./ContentActions";
-
-import { createContext, useContext, useRef, useState, useEffect } from "react";
-import { MobileSidebar } from "./Page/MobileSidebar";
-import { Button } from "@telegraph/button";
-import Link from "next/link";
-import { Icon } from "@telegraph/icon";
 import { Feedback } from "./Feedback";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { AskAiContext } from "../AskAiContext";
+import { MobileSidebar } from "./Page/MobileSidebar";
+import { OnThisPage } from "./Page/OnThisPage";
+import { Sidebar, SidebarContext } from "./Page/Sidebar";
+import { PageHeader } from "./PageHeader";
 
 export const MAX_WIDTH = "1400px";
 
@@ -40,8 +39,11 @@ export const TopContainer = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const Container = ({ children }) => {
-  // Wider context for whether search input is open
+function Container({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   return (
     <PageContext.Provider value={{ isSearchOpen, setIsSearchOpen }}>
@@ -66,46 +68,24 @@ const Container = ({ children }) => {
       </Box>
     </PageContext.Provider>
   );
-};
+}
 
-const Wrapper = ({ children }) => {
+function Wrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
   const askAiContext = useContext(AskAiContext);
   const isOpen = askAiContext?.isOpen ?? false;
   const sidebarWidth = askAiContext?.sidebarWidth ?? 340;
   const isResizing = askAiContext?.isResizing ?? false;
-  const [viewportWidth, setViewportWidth] = useState(0);
 
-  // Track viewport width for dynamic ToC visibility
-  useEffect(() => {
-    const updateViewportWidth = () => {
-      setViewportWidth(window.innerWidth);
-    };
-
-    // Set initial width
-    updateViewportWidth();
-
-    // Update on resize
-    window.addEventListener("resize", updateViewportWidth);
-    return () => window.removeEventListener("resize", updateViewportWidth);
-  }, []);
-
-  // Children: [Sidebar, Content, OnThisPage] or [Sidebar, Content]
+  // Children expected: [Sidebar, Content] or [Sidebar, Content, OnThisPage]
   const childArray = Array.isArray(children) ? children : [children];
   const sidebar = childArray[0];
   const content = childArray[1];
   const onThisPage = childArray.length === 3 ? childArray[2] : null;
-
-  // Calculate if ToC should be visible
-  // Formula: availableForToc = viewportWidth - leftSidebarWidth(256 or 0 if mobile) - contentMinWidth(600) - askAiSidebarWidth(if open)
-  // Show ToC if availableForToc >= 200
-  // Left sidebar is hidden at <=768px (mobile), so it doesn't take up space
-  const leftSidebarWidth = viewportWidth > 768 ? 256 : 0;
-  const contentMinWidth = 600;
-  const tocMinWidth = 200;
-  const askAiWidth = isOpen ? sidebarWidth : 0;
-  const availableForToc =
-    viewportWidth - leftSidebarWidth - contentMinWidth - askAiWidth;
-  const showToc = availableForToc >= tocMinWidth && onThisPage !== null;
+  const hasToc = onThisPage !== null;
 
   return (
     <div
@@ -120,27 +100,25 @@ const Wrapper = ({ children }) => {
         } as React.CSSProperties
       }
     >
-      {/* Left sidebar */}
       {sidebar}
 
-      {/* Content area with max-gap constraint from sidebar */}
       <div
         data-content-area
         className="flex w-full"
         style={{
           minWidth: 0,
-          maxWidth: onThisPage ? "1024px" : "800px",
+          maxWidth: hasToc ? "1024px" : "800px",
           marginLeft: `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - ${
-            onThisPage ? "1024px" : "800px"
+            hasToc ? "1024px" : "800px"
           }) * 0.25), 200px)`,
         }}
       >
         {content}
-        {showToc && onThisPage}
+        {hasToc && onThisPage}
       </div>
     </div>
   );
-};
+}
 
 const Masthead = ({
   skipHighlight,
@@ -154,21 +132,33 @@ const Masthead = ({
   );
 };
 
-const Content = ({ children, fullWidth = false }) => (
-  <div
-    className="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-8 pb-8"
-    style={{ minWidth: "min(600px, 100%)" }}
-    data-content
-  >
-    {children}
-  </div>
-);
+function Content({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
+  return (
+    <div
+      className="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-8 pb-8"
+      style={{ minWidth: "min(600px, 100%)" }}
+      data-content
+    >
+      {children}
+    </div>
+  );
+}
 
-const ContentBody = ({ children }) => (
-  <Box mb="6" className="tgraph-content" data-content-body>
-    {children}
-  </Box>
-);
+function ContentBody({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
+  return (
+    <Box mb="6" className="tgraph-content" data-content-body>
+      {children}
+    </Box>
+  );
+}
 
 type PageNeighbor = {
   title: string;

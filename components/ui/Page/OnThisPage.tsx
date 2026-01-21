@@ -1,10 +1,13 @@
-import React, { useEffect, useState, useRef, RefObject } from "react";
+import React, { useEffect, useState, useRef, type RefObject } from "react";
 import Link from "next/link";
-import { Box, Stack } from "@telegraph/layout";
 import { Text as TextIcon } from "lucide-react";
-import { Text } from "@telegraph/typography";
+
 import { Icon } from "@telegraph/icon";
+import { Box, Stack } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
+
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
+
 export interface Props {
   title: string;
   sourcePath: string;
@@ -129,14 +132,12 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
     setHeaders(buildHeaderTree(documentHeaders));
   }, [title, sourcePath]);
 
-  if (headers.length === 0) {
-    return null;
-  }
-
+  // Always render container to reserve space; CSS hides on mobile via .toc-aside
   return (
     <Box
       as="aside"
       px="4"
+      className="toc-aside"
       style={{ minWidth: "200px", width: "200px", flexShrink: 0 }}
     >
       <Box
@@ -144,52 +145,56 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
         top="32"
         style={{ height: "calc(100vh - 15rem)", right: "1rem" }}
       >
-        <Stack
-          direction="row"
-          align="center"
-          gap="1"
-          style={{ marginBottom: "0.5rem" }}
-        >
-          <Icon icon={TextIcon} size="2" color="default" aria-hidden />
-          <Text as="span" size="2" weight="medium" color="default">
-            On this page
-          </Text>
-        </Stack>
-        <Box position="relative" h="full">
-          <Stack
-            as="ul"
-            direction="column"
-            gap="1"
-            style={{ overflowY: "auto", paddingBottom: "2.5rem" }}
-            h="full"
-            tgphRef={scrollerRef}
-          >
-            <HeaderList headers={headers} nesting={0} />
-          </Stack>
-          <ScrollerBottomGradient
-            scrollerRef={scrollerRef as RefObject<HTMLDivElement>}
-          />
-          <Box
-            borderTop="px"
-            borderColor="gray-3"
-            style={{ marginBottom: "1rem" }}
-          />
-          <Text
-            as="a"
-            href={`https://github.com/knocklabs/docs/edit/main/${sourcePath}`}
-            color="gray"
-            size="1"
-            style={{
-              textDecoration: "none",
-              display: "block",
-              marginTop: "0.5rem",
-            }}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Edit this page on GitHub &rarr;
-          </Text>
-        </Box>
+        {headers.length > 0 && (
+          <>
+            <Stack
+              direction="row"
+              align="center"
+              gap="1"
+              style={{ marginBottom: "0.5rem" }}
+            >
+              <Icon icon={TextIcon} size="2" color="default" aria-hidden />
+              <Text as="span" size="2" weight="medium" color="default">
+                On this page
+              </Text>
+            </Stack>
+            <Box position="relative" h="full">
+              <Stack
+                as="ul"
+                direction="column"
+                gap="1"
+                style={{ overflowY: "auto", paddingBottom: "2.5rem" }}
+                h="full"
+                tgphRef={scrollerRef}
+              >
+                <HeaderList headers={headers} nesting={0} />
+              </Stack>
+              <ScrollerBottomGradient
+                scrollerRef={scrollerRef as RefObject<HTMLDivElement>}
+              />
+              <Box
+                borderTop="px"
+                borderColor="gray-3"
+                style={{ marginBottom: "1rem" }}
+              />
+              <Text
+                as="a"
+                href={`https://github.com/knocklabs/docs/edit/main/${sourcePath}`}
+                color="gray"
+                size="1"
+                style={{
+                  textDecoration: "none",
+                  display: "block",
+                  marginTop: "0.5rem",
+                }}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Edit this page on GitHub &rarr;
+              </Text>
+            </Box>
+          </>
+        )}
       </Box>
     </Box>
   );
