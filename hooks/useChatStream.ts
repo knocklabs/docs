@@ -37,6 +37,7 @@ export function useChatStream(): UseChatStreamReturn {
     currentChatId,
     createNewSession,
     generateSessionTitle,
+    registerBeforeSessionChange,
   } = useAskAi();
 
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -58,6 +59,53 @@ export function useChatStream(): UseChatStreamReturn {
       }
     };
   }, []);
+
+  // Register cleanup callback for session changes
+  // Called by the context before switching sessions to abort streams and save partial content
+  useEffect(() => {
+    const handleBeforeSessionChange = () => {
+      const hasActiveStream =
+        abortControllerRef.current || streamIntervalRef.current;
+      if (!hasActiveStream) return;
+
+      // Abort fetch request and clear streaming interval
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = null;
+
+      if (streamIntervalRef.current) {
+        clearInterval(streamIntervalRef.current);
+        streamIntervalRef.current = null;
+      }
+
+      // Save buffered content to preserve partial response before session switch
+      const buffer = contentBufferRef.current;
+      const sources = sourcesBufferRef.current;
+      if (currentMessageIdRef.current && buffer.length > 0) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === currentMessageIdRef.current
+              ? {
+                  ...msg,
+                  content: buffer,
+                  sources: sources.length > 0 ? sources : msg.sources,
+                }
+              : msg,
+          ),
+        );
+      }
+
+      // Reset streaming state
+      currentMessageIdRef.current = null;
+      contentBufferRef.current = "";
+      sourcesBufferRef.current = [];
+      displayedLengthRef.current = 0;
+      streamCompleteRef.current = false;
+      userStoppedRef.current = false;
+    };
+
+    registerBeforeSessionChange(handleBeforeSessionChange);
+    return () => registerBeforeSessionChange(null);
+  }, [registerBeforeSessionChange, setMessages]);
 
   // Start the UI streaming interval
   const startStreamingUI = useCallback((messageId: string) => {
