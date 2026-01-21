@@ -25,12 +25,14 @@ interface FeaturesMatrixProps {
   columns: (string | MatrixColumn)[];
   rowGroups: MatrixRowGroup[];
   rowHeaderWidth?: string;
+  columnMinWidth?: string;
 }
 
 const FeaturesMatrix = ({
   columns,
   rowGroups,
   rowHeaderWidth = "35%",
+  columnMinWidth = "120px",
 }: FeaturesMatrixProps) => {
   const normalizedColumns = columns.map((column) =>
     typeof column === "string" ? { name: column } : column,
@@ -94,6 +96,7 @@ const FeaturesMatrix = ({
                   className="px-2 py-3 text-center font-semibold text-xs border-t border-gray-200"
                   style={{
                     width: baseWidth,
+                    minWidth: columnMinWidth,
                     borderLeft: isFirst
                       ? "1px solid rgb(229, 231, 235)"
                       : "0.5px solid rgb(229, 231, 235)",
@@ -102,7 +105,7 @@ const FeaturesMatrix = ({
                       : "0.5px solid rgb(229, 231, 235)",
                   }}
                 >
-                  <div className="overflow-hidden leading-tight">
+                  <div className="leading-tight">
                     {column.href ? (
                       <Link
                         href={column.href}
