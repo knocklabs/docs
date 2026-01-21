@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -63,6 +64,8 @@ type AskAiContextType = {
     sessionId: string,
     messages: Message[],
   ) => Promise<void>;
+  // Callback registration for stream cleanup before session changes
+  registerBeforeSessionChange: (callback: (() => void) | null) => void;
 };
 
 export const AskAiContext = createContext<AskAiContextType | null>(null);
@@ -88,6 +91,17 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Ref to hold cleanup callback from useChatStream for aborting streams before session changes
+  const beforeSessionChangeRef = useRef<(() => void) | null>(null);
+
+  // Register a callback to be called before session changes (used by useChatStream)
+  const registerBeforeSessionChange = useCallback(
+    (callback: (() => void) | null) => {
+      beforeSessionChangeRef.current = callback;
+    },
+    [],
+  );
 
   // Load chat sessions and current chat from localStorage after mount
   useEffect(() => {
@@ -169,6 +183,10 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
   // Create a new chat session
   const createNewSession = useCallback(() => {
+    // Abort any ongoing stream before switching sessions
+    // This saves partial content to the current session
+    beforeSessionChangeRef.current?.();
+
     const sessionId = `chat-${Date.now()}`;
     const newSession: ChatSession = {
       id: sessionId,
@@ -207,6 +225,10 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
     (sessionId: string) => {
       const session = chatSessions.find((s) => s.id === sessionId);
       if (session) {
+        // Abort any ongoing stream before switching sessions
+        // This saves partial content to the current session
+        beforeSessionChangeRef.current?.();
+
         setCurrentChatId(sessionId);
         setMessages(session.messages);
         setError(null);
@@ -298,6 +320,8 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
         createNewSession,
         selectSession,
         generateSessionTitle,
+        // Stream cleanup registration
+        registerBeforeSessionChange,
       }}
     >
       {children}
