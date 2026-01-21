@@ -10,6 +10,14 @@ import {
   useState,
 } from "react";
 
+const STORAGE_KEYS = {
+  sidebarWidth: "askAiSidebarWidth",
+  chatSessions: "askAiChatSessions",
+  currentChatId: "askAiCurrentChatId",
+} as const;
+
+const DEFAULT_SIDEBAR_WIDTH = 340;
+
 // Define types here to avoid circular dependency with useChatStream
 export type Source = {
   title: string;
@@ -70,16 +78,33 @@ type AskAiContextType = {
 
 export const AskAiContext = createContext<AskAiContextType | null>(null);
 
+function truncateToTitle(text: string, maxLength = 30): string {
+  const trimmed = text.trim();
+  if (trimmed.length <= maxLength) return trimmed;
+  return trimmed.substring(0, maxLength).trim() + "...";
+}
+
+// Validate and sanitize sessions/messages to handle malformed localStorage data
+function sanitizeChatSessions(sessions: ChatSession[]): ChatSession[] {
+  return sessions
+    .filter((session) => session && Array.isArray(session.messages))
+    .map((session) => ({
+      ...session,
+      messages: session.messages
+        .filter((msg) => msg && typeof msg === "object")
+        .map((msg) => ({
+          ...msg,
+          content: typeof msg.content === "string" ? msg.content : "",
+        })),
+    }));
+}
+
 export function AskAiProvider({ children }: { children: ReactNode }) {
   // UI state
   const [isOpen, setIsOpen] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [initialPrompt, setInitialPrompt] = useState<string | null>(null);
-  const [sidebarWidth, setSidebarWidth] = useState(() => {
-    if (typeof window === "undefined") return 340;
-    const saved = localStorage.getItem("askAiSidebarWidth");
-    return saved ? parseInt(saved, 10) : 340;
-  });
+  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
 
   // Chat sessions state
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
@@ -103,28 +128,28 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  // Load sidebar width from localStorage after mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem(STORAGE_KEYS.sidebarWidth);
+    if (saved) {
+      setSidebarWidth(parseInt(saved, 10));
+    }
+  }, []);
+
   // Load chat sessions and current chat from localStorage after mount
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     try {
-      const savedSessions = localStorage.getItem("askAiChatSessions");
-      const savedCurrentChatId = localStorage.getItem("askAiCurrentChatId");
+      const savedSessions = localStorage.getItem(STORAGE_KEYS.chatSessions);
+      const savedCurrentChatId = localStorage.getItem(
+        STORAGE_KEYS.currentChatId,
+      );
 
       if (savedSessions) {
         const sessions = JSON.parse(savedSessions) as ChatSession[];
-        // Validate and sanitize sessions/messages to handle malformed localStorage data
-        const sanitizedSessions = sessions
-          .filter((session) => session && Array.isArray(session.messages))
-          .map((session) => ({
-            ...session,
-            messages: session.messages
-              .filter((msg) => msg && typeof msg === "object")
-              .map((msg) => ({
-                ...msg,
-                content: typeof msg.content === "string" ? msg.content : "",
-              })),
-          }));
+        const sanitizedSessions = sanitizeChatSessions(sessions);
         setChatSessions(sanitizedSessions);
 
         if (savedCurrentChatId) {
@@ -135,13 +160,12 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
             setCurrentChatId(savedCurrentChatId);
             setMessages(session.messages);
           } else {
-            // Session not found, clear the saved ID
-            localStorage.removeItem("askAiCurrentChatId");
+            localStorage.removeItem(STORAGE_KEYS.currentChatId);
           }
         }
       }
     } catch {
-      // Invalid JSON, ignore
+      // Invalid JSON in localStorage, ignore
     }
 
     setHasLoadedFromStorage(true);
@@ -150,16 +174,19 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
   // Persist chat sessions to localStorage when they change
   useEffect(() => {
     if (!hasLoadedFromStorage || typeof window === "undefined") return;
-    localStorage.setItem("askAiChatSessions", JSON.stringify(chatSessions));
+    localStorage.setItem(
+      STORAGE_KEYS.chatSessions,
+      JSON.stringify(chatSessions),
+    );
   }, [chatSessions, hasLoadedFromStorage]);
 
   // Persist current chat ID to localStorage when it changes
   useEffect(() => {
     if (!hasLoadedFromStorage || typeof window === "undefined") return;
     if (currentChatId) {
-      localStorage.setItem("askAiCurrentChatId", currentChatId);
+      localStorage.setItem(STORAGE_KEYS.currentChatId, currentChatId);
     } else {
-      localStorage.removeItem("askAiCurrentChatId");
+      localStorage.removeItem(STORAGE_KEYS.currentChatId);
     }
   }, [currentChatId, hasLoadedFromStorage]);
 
@@ -271,9 +298,7 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
       } catch {
         const firstUserMessage = messagesToUse.find((m) => m.role === "user");
         if (firstUserMessage) {
-          const fallbackTitle =
-            firstUserMessage.content.substring(0, 30).trim() + "...";
-          updateSessionTitle(fallbackTitle);
+          updateSessionTitle(truncateToTitle(firstUserMessage.content));
         }
       }
     },
