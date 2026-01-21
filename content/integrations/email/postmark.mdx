@@ -133,12 +133,69 @@ You can learn about the role of these Postmark attributes in the <a href="https:
 
 In order to send an email notification you'll need a valid `email` property set on your recipient.
 
-## Delivery tracking
+## Delivery status webhooks
 
-Delivery tracking for Postmark can result in the following status updates to your message:
+When enabled, Postmark will send delivery status updates directly to Knock via webhooks, allowing you to track the full lifecycle of your email messages in real-time.
 
-- The message delivery is confirmed and Knock updates the message to `delivered`
-- The message was not delivered due to bad recipient(s) and Knock updates the message to `bounced`
+### Prerequisites
+
+Before enabling delivery status webhooks, you need:
+
+1. A verified sender signature or domain in Postmark
+2. A Postmark channel configured in Knock (see the [getting started](#getting-started) section above)
+3. Access to your Postmark server webhook settings
+
+### Setting up delivery status webhooks
+
+<Steps titleSize="h3">
+  <Step title="Enable delivery status webhooks in Knock">
+    1. Navigate to **Channels and sources** in your Knock dashboard
+    2. Select your Postmark channel
+    3. Click "Manage configuration" for the environment you want to configure
+    4. Scroll to the "Incoming message status updates" section and enable incoming webhooks
+    5. Copy the generated webhook URL - you'll need this in the next step
+  </Step>
+
+  <Step title="Configure webhooks in Postmark">
+    In the Postmark dashboard, configure webhooks to send delivery events to Knock:
+
+    1. Go to your <a href="https://account.postmarkapp.com/servers" target="_blank">Postmark server</a> and select the server you're using with Knock
+    2. Navigate to the **Webhooks** tab
+    3. Add the webhook URL from Knock to both webhook configurations:
+       - **Delivery webhook** - Add the Knock webhook URL and click "Save delivery webhook"
+       - **Bounce webhook** - Add the Knock webhook URL and click "Save bounce webhook"
+    4. Postmark will automatically begin sending events to Knock
+
+  </Step>
+</Steps>
+
+### Supported delivery statuses
+
+When delivery status webhooks are enabled for Postmark, Knock will update message statuses based on these Postmark webhook events:
+
+| Postmark Event Type | Knock Status | Description                                                         |
+| ------------------- | ------------ | ------------------------------------------------------------------- |
+| Delivery            | `delivered`  | The email was successfully delivered to the recipient's mail server |
+| Bounce              | `bounced`    | The email bounced due to invalid recipient or domain                |
+
+### Troubleshooting
+
+If delivery status updates aren't appearing in Knock:
+
+1. **Check webhook configuration.** Verify both the Delivery and Bounce webhooks are configured with the correct Knock webhook URL in your Postmark server settings.
+2. **Verify sender signature.** Ensure you're sending from a verified sender signature or domain in Postmark.
+3. **Check Postmark activity.** Review the Activity page in Postmark to ensure emails are being sent successfully.
+
+<Callout
+  type="info"
+  title="Need help?"
+  text={
+    <>
+      If you're having trouble setting up delivery status webhooks, contact our
+      support team at <a href="mailto:support@knock.app">support@knock.app</a>.
+    </>
+  }
+/>
 
 ## Using overrides to customize notifications
 
