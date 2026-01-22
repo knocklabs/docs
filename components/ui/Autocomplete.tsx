@@ -29,6 +29,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import { Tag } from "@telegraph/tag";
 import { Code, Text } from "@telegraph/typography";
+import { Kbd } from "@telegraph/kbd";
 
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 
@@ -546,31 +547,38 @@ const Autocomplete = () => {
       >
         <Input
           tgphRef={inputRef}
-          placeholder="Search"
           className="aa-Input"
           {...(inputProps as React.DetailedHTMLProps<
             React.InputHTMLAttributes<HTMLInputElement>,
             HTMLInputElement
           >)}
-          size="2"
-          borderRadius="2"
+          variant="ghost"
+          size="1"
+          placeholder="Search"
           w="full"
           LeadingComponent={
-            <Icon icon={Search} alt="Search" color="gray" size="1" mr="2" />
+            <Icon
+              icon={Search}
+              alt="Search"
+              color="gray"
+              size="1"
+              mr="1"
+              aria-hidden="true"
+            />
           }
           TrailingComponent={
             <>
               {autocompleteState?.query ? (
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="1"
-                  weight="regular"
-                  bg="gray-1"
-                  color="gray"
+                  color="default"
+                  iconOnly={true}
                   icon={{
                     icon: X,
-                    "aria-hidden": true,
+                    alt: "Clear",
                     color: "black",
+                    "aria-hidden": true
                   }}
                   onClick={() => {
                     autocomplete.setQuery("");
@@ -578,47 +586,9 @@ const Autocomplete = () => {
                       (inputRef.current as HTMLInputElement).focus();
                     }
                   }}
-                  py="2"
-                  px="1"
-                  ml="2"
-                  style={{
-                    height: "20px",
-                  }}
-                >
-                  Clear
-                </Button>
+                />
               ) : (
-                <>
-                  <Stack
-                    bg="gray-1"
-                    borderRadius="1"
-                    border="px"
-                    borderColor="gray-3"
-                    justifyContent="center"
-                    alignItems="center"
-                    width="5"
-                    height="5"
-                    className="md-hidden"
-                  >
-                    <Text
-                      as="span"
-                      size="1"
-                      color="black"
-                      weight="medium"
-                      style={{
-                        lineHeight: "1",
-                      }}
-                    >
-                      /
-                    </Text>
-                  </Stack>
-                  <Box
-                    borderRadius="1"
-                    width="5"
-                    height="5"
-                    className="md-visible"
-                  ></Box>
-                </>
+                <Kbd className="md-hidden" label="/" />
               )}
             </>
           }
