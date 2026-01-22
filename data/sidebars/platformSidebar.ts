@@ -75,11 +75,15 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/email-templates", title: "Email templates" },
       { slug: "/variables", title: "Variables" },
       { slug: "/referencing-data", title: "Referencing data" },
-      { slug: "/partials", title: "Partials", pages: [
-        { slug: "/overview", title: "Overview" },
-        { slug: "/html-partials", title: "HTML partials" },
-        { slug: "/schema-reference", title: "Schema reference" },
-      ] },
+      {
+        slug: "/partials",
+        title: "Partials",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/html-partials", title: "HTML partials" },
+          { slug: "/schema-reference", title: "Schema reference" },
+        ],
+      },
       { slug: "/branding", title: "Branding" },
       { slug: "/translations", title: "Translations (i18n)" },
       { slug: "/testing-and-debugging", title: "Testing & debugging" },
