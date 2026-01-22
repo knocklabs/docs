@@ -12,6 +12,7 @@ import {
   Check,
   Plus,
   Copy,
+  Dot,
 } from "lucide-react";
 import { Popover } from "@telegraph/popover";
 import { Tooltip } from "@telegraph/tooltip";
@@ -247,15 +248,16 @@ function ChatOptionButton({
   style,
 }: ChatOptionButtonProps): React.ReactElement {
   const titleContent = (
-    <Text as="span" size="2" weight="medium">
+    <Text as="span" size="1" weight="medium">
       {title}
     </Text>
   );
-
   return (
     <Button
       variant="ghost"
       size="1"
+      w="full"
+      justifyContent="flex-start"
       onClick={onClick}
       icon={
         IconComponent
@@ -505,6 +507,7 @@ function AskAiSidebar() {
             p="4"
             pb="0"
             maxH="400px"
+            bg="surface-1"
             style={{
               minHeight: "120px",
               maxHeight: "400px",
@@ -645,7 +648,7 @@ function AskAiSidebar() {
               <Popover.Trigger asChild>
                 <Button
                   variant="ghost"
-                  color="gray"
+                  color="default"
                   size="1"
                   trailingIcon={{
                     icon: ChevronsUpDown,
@@ -660,7 +663,7 @@ function AskAiSidebar() {
                 align="start"
                 p="1"
                 gap="0"
-                style={{ zIndex: 100, maxWidth: "320px" }}
+                style={{ zIndex: 100, minWidth: "176px", maxWidth: "320px" }}
               >
                 {/* Currently selected chat at top */}
                 {currentChatId && (
@@ -679,7 +682,6 @@ function AskAiSidebar() {
                     onClick={handleNewChat}
                     icon={Plus}
                     title="New chat"
-                    style={{ marginTop: "4px" }}
                   />
                 )}
 
@@ -697,25 +699,25 @@ function AskAiSidebar() {
                 {otherChatSessions.length > 0 && (
                   <Box
                     style={{
-                      padding: "4px",
                       marginTop: currentChatId ? "4px" : "0",
                     }}
-                  >
-                    <Box style={{ padding: "8px" }}>
-                      <Text
-                        as="span"
-                        size="1"
-                        weight="medium"
-                        style={{ color: "var(--tgph-gray-11)" }}
-                      >
-                        Previous chats
-                      </Text>
-                    </Box>
-
+                  > 
+                    <Text
+                      as="span"
+                      size="1"
+                      weight="medium"
+                      color="gray"
+                      px="2"
+                      py="2"
+                      w="full"                      
+                    >
+                      Previous chats
+                    </Text>
                     {otherChatSessions.map((chat) => (
                       <ChatOptionButton
                         key={chat.id}
                         onClick={() => handleSelectChat(chat.id)}
+                        icon={Dot}
                         title={chat.title}
                         showTruncatedTooltip
                       />
@@ -725,24 +727,16 @@ function AskAiSidebar() {
               </Popover.Content>
             </Popover.Root>
           )}
-          <Box
-            style={{
-              display: "flex",
-              gap: "4px",
-              alignItems: "center",
+          <Button
+            variant="ghost"
+            size="1"
+            iconOnly
+            icon={{
+              icon: X,
+              "aria-hidden": true,
             }}
-          >
-            <Button
-              variant="ghost"
-              size="1"
-              iconOnly
-              icon={{
-                icon: X,
-                "aria-hidden": true,
-              }}
-              onClick={closeSidebar}
-            />
-          </Box>
+            onClick={closeSidebar}
+          />
         </Box>
 
         {/* Input at top when no messages */}
