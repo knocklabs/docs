@@ -47,6 +47,24 @@ export type DocsSearchItem = {
   index: "pages" | "endpoints";
 };
 
+// Enhanced search item type for improved Algolia indexing
+// This extends the basic DocsSearchItem with content and heading information
+export type EnhancedDocsSearchItem = {
+  objectID: string; // Unique ID (page-path or page-path#heading-slug)
+  path: string; // URL path (with optional anchor)
+  title: string; // Page title OR heading title
+  pageTitle: string; // Always the parent page title
+  description?: string; // From frontmatter (page-level only)
+  content: string; // Text content (truncated ~300-500 words)
+  section: string; // Top-level section (Concepts, Getting Started, etc.)
+  tags: string[]; // Tags from frontmatter
+  headingLevel: number; // 0 for page, 2 for H2, 3 for H3
+  contentType: "document" | "api-reference";
+  index: "pages" | "endpoints";
+  // Ranking fields
+  isPageLevel: boolean; // True if this is a page-level record (not a heading)
+};
+
 export type EndpointSearchItem = DocsSearchItem & {
   method: string;
   endpoint: string;
