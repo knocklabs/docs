@@ -189,9 +189,13 @@ function extractHeadings(mdxContent: string): Heading[] {
     const current = matches[i];
     const next = matches[i + 1];
 
-    const contentStart = current.index + `${"#".repeat(current.level)} ${current.title}`.length;
+    const contentStart =
+      current.index + `${"#".repeat(current.level)} ${current.title}`.length;
     const contentEnd = next ? next.index : contentWithoutFrontmatter.length;
-    const rawContent = contentWithoutFrontmatter.slice(contentStart, contentEnd);
+    const rawContent = contentWithoutFrontmatter.slice(
+      contentStart,
+      contentEnd,
+    );
 
     const cleanContent = extractTextContent(rawContent);
 
@@ -219,12 +223,18 @@ function getIntroContent(mdxContent: string): string {
   const firstHeadingMatch = contentWithoutFrontmatter.match(/^#{2,3}\s+/m);
 
   if (firstHeadingMatch && firstHeadingMatch.index !== undefined) {
-    const introRaw = contentWithoutFrontmatter.slice(0, firstHeadingMatch.index);
+    const introRaw = contentWithoutFrontmatter.slice(
+      0,
+      firstHeadingMatch.index,
+    );
     return extractTextContent(introRaw).slice(0, MAX_CONTENT_LENGTH);
   }
 
   // No headings found, use all content
-  return extractTextContent(contentWithoutFrontmatter).slice(0, MAX_CONTENT_LENGTH);
+  return extractTextContent(contentWithoutFrontmatter).slice(
+    0,
+    MAX_CONTENT_LENGTH,
+  );
 }
 
 /**
@@ -246,14 +256,14 @@ const itemsToSave: EnhancedDocsSearchItem[] = [];
 async function queueItem(item: EnhancedDocsSearchItem) {
   // Validate path doesn't start with /
   if (item.path.startsWith("/")) {
-    console.error(
-      `Path may not start with "/". Violating path: ${item.path}`,
-    );
+    console.error(`Path may not start with "/". Violating path: ${item.path}`);
     return;
   }
 
   console.log(
-    `Indexing ${item.isPageLevel ? "page" : "heading"}: ${item.title} -> ${item.path}`,
+    `Indexing ${item.isPageLevel ? "page" : "heading"}: ${item.title} -> ${
+      item.path
+    }`,
   );
   itemsToSave.push(item);
 }
@@ -375,7 +385,9 @@ async function main() {
       const batch = itemsToSave.slice(i, i + BATCH_SIZE);
       await index.saveObjects(batch);
       console.log(
-        `   Saved batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(itemsToSave.length / BATCH_SIZE)}`,
+        `   Saved batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(
+          itemsToSave.length / BATCH_SIZE,
+        )}`,
       );
     }
 
