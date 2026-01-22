@@ -2,6 +2,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { Text, Code } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 import { Icon, LucideIcon } from "@telegraph/icon";
+import { TextArea } from "@telegraph/textarea";
 import {
   X,
   ArrowUp,
@@ -228,20 +229,10 @@ const chatOptionButtonStyle: React.CSSProperties = {
   textAlign: "left",
 };
 
-const chatOptionIconContainerStyle: React.CSSProperties = {
-  width: "16px",
-  height: "20px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  flexShrink: 0,
-};
-
 type ChatOptionButtonProps = {
   onClick: () => void;
   isSelected?: boolean;
   icon?: LucideIcon;
-  iconColor?: string;
   title: string;
   showTruncatedTooltip?: boolean;
   style?: React.CSSProperties;
@@ -251,7 +242,6 @@ function ChatOptionButton({
   onClick,
   isSelected = false,
   icon: IconComponent,
-  iconColor,
   title,
   showTruncatedTooltip = false,
   style,
@@ -263,25 +253,19 @@ function ChatOptionButton({
   );
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="1"
       onClick={onClick}
-      style={{
-        ...chatOptionButtonStyle,
-        backgroundColor: isSelected ? "var(--tgph-gray-4)" : "transparent",
-        ...style,
-      }}
+      icon={
+        IconComponent
+          ? {
+              icon: IconComponent,
+              "aria-hidden": true,
+            }
+          : undefined
+      }
     >
-      <Box style={chatOptionIconContainerStyle}>
-        {IconComponent && (
-          <Icon
-            icon={IconComponent}
-            size="1"
-            aria-hidden
-            style={{ color: iconColor }}
-          />
-        )}
-      </Box>
       {showTruncatedTooltip ? (
         <TruncatedTextWithTooltip text={title}>
           {titleContent}
@@ -289,7 +273,7 @@ function ChatOptionButton({
       ) : (
         titleContent
       )}
-    </button>
+    </Button>
   );
 }
 
@@ -505,8 +489,9 @@ function AskAiSidebar() {
         }}
       >
         {/* Textarea */}
-        <Box>
-          <textarea
+        <Box p="0">
+          <TextArea
+            as="textarea"
             ref={textareaRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -514,27 +499,17 @@ function AskAiSidebar() {
             placeholder="Ask questions about the docs"
             rows={1}
             disabled={isActive}
+            variant="ghost"
+            w="full"
+            size="2"
+            p="4"
+            pb="0"
+            maxH="400px"
             style={{
-              width: "100%",
-              height: "104px",
-              minHeight: "104px",
-              maxHeight: "104px",
-              padding: "8px 12px",
-              border: "none",
-              fontSize: "13px",
+              minHeight: "120px",
+              maxHeight: "400px",
               outline: "none",
               resize: "none",
-              fontFamily: "inherit",
-              boxSizing: "border-box",
-              verticalAlign: "top",
-              textAlign: "left",
-              lineHeight: "20px",
-              display: "block",
-              backgroundColor: "var(--tgph-surface-1)",
-              color:
-                hasInput || isActive
-                  ? "var(--tgph-gray-12)"
-                  : "var(--tgph-gray-10)",
               opacity: isActive ? 0.6 : 1,
               cursor: isActive ? "not-allowed" : "text",
             }}
@@ -542,28 +517,26 @@ function AskAiSidebar() {
         </Box>
 
         {/* PromptInputActions bar */}
-        <Box
-          style={{
-            display: "flex",
-            gap: "8px",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            padding: "8px",
-            backgroundColor: "var(--tgph-surface-1)",
-          }}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="flex-end"
+          px="2"
+          pt="0"
+          pb="2"
+          gap="2"
         >
-          <button
-            type="button"
+          <Button
             onClick={isActive ? stopStream : handleSubmit}
             disabled={!isButtonEnabled}
+            size="1"
+            w="7"
+            h="7"
+            variant="solid"
+            borderRadius="full"
+            aria-label={isActive ? "Stop" : "Send"}
             style={{
-              width: "28px",
-              height: "28px",
-              minWidth: "28px",
-              minHeight: "28px",
-              padding: "0",
-              borderRadius: "50%",
-              backgroundColor: isButtonEnabled ? "#000" : "var(--tgph-gray-4)",
+              backgroundColor: isButtonEnabled ? "var(--tgph-gray-12)" : "var(--tgph-gray-4)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -586,13 +559,13 @@ function AskAiSidebar() {
               />
             ) : (
               <ArrowUp
-                size={14}
+                size="14px"
                 strokeWidth={2}
                 color={isButtonEnabled ? "#fff" : "var(--tgph-gray-10)"}
               />
             )}
-          </button>
-        </Box>
+          </Button>
+        </Stack>
       </Box>
     );
   };
@@ -600,7 +573,7 @@ function AskAiSidebar() {
   return (
     <Box
       borderLeftWidth={isOpen ? "px" : "0"}
-      borderColor={isHoveringResizeHandle ? "gray-6" : "gray-4"}
+      borderColor={isHoveringResizeHandle ? "gray-7" : "gray-4"}
       style={{
         width: isOpen ? `${sidebarWidth}px` : "0",
         overflow: "visible",
@@ -645,20 +618,23 @@ function AskAiSidebar() {
       >
         {/* Header with close button */}
         <Box
+          p="2"
+          pr="4"
+          borderBottom="px"
+          borderColor="gray-4"
+          bg="surface-1"
           style={{
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "8px 12px",
             minWidth: `${sidebarWidth}px`,
-            backgroundColor: "var(--tgph-surface-3)",
             position: "relative",
-            boxShadow: "inset 0px -1px 0px 0px var(--tgph-gray-5)",
+            
           }}
         >
           {chatSessions.length === 0 ? (
-            <Text as="span" size="2" weight="medium">
+            <Text as="span" size="1" weight="medium" ml="2">
               New chat
             </Text>
           ) : (
@@ -671,19 +647,12 @@ function AskAiSidebar() {
                   variant="ghost"
                   color="gray"
                   size="1"
-                  onMouseEnter={() => setIsHoveringChatButton(true)}
-                  onMouseLeave={() => setIsHoveringChatButton(false)}
-                  style={{
-                    backgroundColor: isHoveringChatButton
-                      ? "var(--tgph-gray-3)"
-                      : "#FFFFFF",
-                    transition: "background-color 0.2s",
+                  trailingIcon={{
+                    icon: ChevronsUpDown,
+                    "aria-hidden": true,
                   }}
                 >
-                  <Stack direction="row" alignItems="center" gap="1">
-                    {getSelectedChatTitle()}
-                    <Icon icon={ChevronsUpDown} size="1" aria-hidden />
-                  </Stack>
+                  {getSelectedChatTitle()}                  
                 </Button>
               </Popover.Trigger>
               <Popover.Content
@@ -699,7 +668,6 @@ function AskAiSidebar() {
                     onClick={() => handleSelectChat(currentChatId)}
                     isSelected
                     icon={Check}
-                    iconColor="var(--tgph-gray-12)"
                     title={getSelectedChatTitle()}
                     showTruncatedTooltip
                   />
@@ -710,7 +678,6 @@ function AskAiSidebar() {
                   <ChatOptionButton
                     onClick={handleNewChat}
                     icon={Plus}
-                    iconColor="var(--tgph-gray-10)"
                     title="New chat"
                     style={{ marginTop: "4px" }}
                   />
@@ -722,7 +689,6 @@ function AskAiSidebar() {
                     onClick={handleNewChat}
                     isSelected
                     icon={Check}
-                    iconColor="var(--tgph-gray-12)"
                     title="New chat"
                   />
                 )}
@@ -766,32 +732,16 @@ function AskAiSidebar() {
               alignItems: "center",
             }}
           >
-            <button
-              type="button"
-              onClick={closeSidebar}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "24px",
-                height: "24px",
-                padding: "5px",
-                borderRadius: "4px",
-                border: "none",
-                backgroundColor: "transparent",
-                cursor: "pointer",
-                minWidth: "24px",
+            <Button
+              variant="ghost"
+              size="1"
+              iconOnly
+              icon={{
+                icon: X,
+                "aria-hidden": true,
               }}
-            >
-              <Icon
-                icon={X}
-                size="1"
-                aria-hidden
-                style={{
-                  color: "var(--tgph-gray-10)",
-                }}
-              />
-            </button>
+              onClick={closeSidebar}
+            />
           </Box>
         </Box>
 
@@ -871,14 +821,15 @@ function MessageBubble({
     // User message - full-width container with border
     return (
       <Box
+        w="full"
+        px="3"
+        py="2"
+        rounded="3"
+        bg="surface-1"
+        border="px"
+        position="relative"
         style={{
-          width: "100%",
-          padding: "8px 12px",
-          borderRadius: "8px",
-          backgroundColor: "var(--tgph-surface-1)",
-          position: "relative",
-          boxShadow: "inset 0px 0px 0px 1px var(--tgph-gray-5)",
-          marginTop: isConsecutiveUserMessage ? "12px" : undefined,
+          marginTop: isConsecutiveUserMessage ? "8px" : undefined,
         }}
       >
         <Text
