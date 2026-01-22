@@ -145,16 +145,11 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
       <Box
         position="sticky"
         top="32"
-        style={{ height: "calc(100vh - 15rem)", right: "1rem"}}
+        style={{ height: "calc(100vh - 15rem)", right: "1rem" }}
       >
         {headers.length > 0 && (
           <>
-            <Stack
-              direction="row"
-              align="center"
-              gap="1"
-              height="7"
-            >
+            <Stack direction="row" align="center" gap="1" height="7">
               <Icon icon={TextIcon} size="1" color="default" aria-hidden />
               <Text as="span" size="1" weight="medium" color="default">
                 On this page

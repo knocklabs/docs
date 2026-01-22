@@ -539,7 +539,9 @@ function AskAiSidebar() {
             borderRadius="full"
             aria-label={isActive ? "Stop" : "Send"}
             style={{
-              backgroundColor: isButtonEnabled ? "var(--tgph-gray-12)" : "var(--tgph-gray-4)",
+              backgroundColor: isButtonEnabled
+                ? "var(--tgph-gray-12)"
+                : "var(--tgph-gray-4)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -633,7 +635,6 @@ function AskAiSidebar() {
             alignItems: "center",
             minWidth: `${sidebarWidth}px`,
             position: "relative",
-            
           }}
         >
           {chatSessions.length === 0 ? (
@@ -655,7 +656,7 @@ function AskAiSidebar() {
                     "aria-hidden": true,
                   }}
                 >
-                  {getSelectedChatTitle()}                  
+                  {getSelectedChatTitle()}
                 </Button>
               </Popover.Trigger>
               <Popover.Content
@@ -701,7 +702,7 @@ function AskAiSidebar() {
                     style={{
                       marginTop: currentChatId ? "4px" : "0",
                     }}
-                  > 
+                  >
                     <Text
                       as="span"
                       size="1"
@@ -709,7 +710,7 @@ function AskAiSidebar() {
                       color="gray"
                       px="2"
                       py="2"
-                      w="full"                      
+                      w="full"
                     >
                       Previous chats
                     </Text>
