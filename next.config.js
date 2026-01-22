@@ -205,8 +205,7 @@ const nextConfig = {
       },
       {
         source: "/send-notifications/reference-liquid-helpers",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
@@ -261,19 +260,52 @@ const nextConfig = {
       },
       {
         source: "/designing-workflows/references",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
         source: "/designing-workflows/references/reference-liquid-helpers",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
         source: "/designing-workflows/template-editor",
-        destination: "/designing-workflows/template-editor/overview",
+        destination: "/template-editor/overview",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/template-editor/overview",
+        destination: "/template-editor/overview",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/template-editor/variables",
+        destination: "/template-editor/variables",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/template-editor/referencing-data",
+        destination: "/template-editor/referencing-data",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/template-editor/reference-liquid-helpers",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/partials",
+        destination: "/template-editor/partials",
+        permanent: true,
+      },
+      {
+        source: "/template-editor",
+        destination: "/template-editor/overview",
+        permanent: true,
+      },
+      {
+        source: "/concepts/translations",
+        destination: "/template-editor/translations",
         permanent: true,
       },
       {

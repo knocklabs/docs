@@ -1,0 +1,94 @@
+---
+title: HTML partials
+description: Learn how to create reusable pieces of content using HTML partials.
+tags: ["partials", "templates", "custom blocks", "message templates", "workflows"]
+section: Working with templates
+---
+
+HTML partials are reusable components that can be used across any of your email templates. You can use HTML partials in Knock to create an email design system to empower your product and marketing teams to create consistent, brand-compliant emails.
+
+Learn more about partials in the [Partials overview](/template-editor/partials/overview) page.
+
+## Enabling HTML partials as blocks
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      You can also disable any of the prebuilt HTML blocks that come with Knock by going to <strong>Settings</strong> &gt; <strong>Templates</strong>.
+    </>
+  }
+/>
+
+To enable an HTML partial as a block in, you can set the "Enable as block" property when creating or editing the partial. Enabling as a block will ensure that the partial is displayed in the blocks menu in the visual editor.
+
+When enabling a partial as a block, you can also set the icon that's displayed for the partial in the visual editor.
+
+## Schemas for HTML partials
+
+HTML partials support the ability to include schemas that define the fields that can be used in the partial. If you're used to a component way of thinking, you can think of the schema as the "props" for the partial.
+
+You can create a schema for an HTML partial by clicking the "Edit schema" button in the partial overview page. The schema editor allows you to define the fields that are displayed in the partial's block in the visual editor.
+
+```json title="An example schema for an HTML partial"
+[
+  {
+    "type": "text",
+    "key": "title",
+    "label": "Title"
+  },
+  {
+    "type": "boolean",
+    "key": "show_warning",
+    "label": "Show warning icon"
+  },
+  {
+    "type": "select",
+    "key": "icon",
+    "label": "Icon",
+    "settings": {
+      "options": [
+        { "label": "Skull", "value": "skull-icon.svg" },
+        { "label": "Heart", "value": "heart-icon.svg" }
+      ],
+      "default": "skull-icon.svg"
+    }
+  }
+]
+```
+
+Read more about the schema reference for HTML partials in the [Partial schema reference](/template-editor/partials/schema-reference) page.
+
+
+## Isolating CSS within partials
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      Partial styles can still be affected by global styles in your email layout, especially if you're inlining CSS within your emails.
+    </>
+  }
+/>
+
+HTML partials support the ability to include isolated CSS styles within the partial template, that are included within yor emails **only** when the partial is used within a template.
+
+This is a powerful feature that allows you to create reusable components with consistent styles, without having to worry about stuffing your email layout with CSS that is only used in a single partial.
+
+Here's an example of how it works.
+
+```html title="HTML partial with isolated CSS"
+<style>
+  .partial-css {
+    color: red;
+  }
+</style>
+
+<div class="partial-css">
+  <p>This is a partial CSS example.</p>
+</div>
+```
+
+When I include this partial in an email template, either via a render tag or as a block in the visual editor, the CSS from this partial will be extracted and included within the `<head>` of the compiled email template. Styles are deduplicated and are only included at-most once in the final email template.
