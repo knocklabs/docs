@@ -44,9 +44,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
       <Box>
         <Stack
           w="full"
-          pt="4"
-          pb="2"
-          px="4"
+          p="4"
           alignItems="center"
           justifyContent="space-between"
           gap="1"
@@ -83,20 +81,24 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             </Box>
           </Stack>
           {/* Center section: Search + Ask AI (desktop only, centered) */}
-          <Box
+          <Stack
             className="md-hidden"
+            direction="row"
+            alignItems="center"
+            gap="1"
             style={{
               position: "absolute",
               left: "50%",
               transform: "translateX(-50%)",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
             }}
+            // Style the search + ask ai button to be a box with a border
+            p="1"
+            border="px"
+            borderRadius="4"
           >
             <Autocomplete />
             <AskAiButton />
-          </Box>
+          </Stack>
           {/* Right section: Nav buttons (desktop only) */}
           <Stack
             marginLeft="auto"

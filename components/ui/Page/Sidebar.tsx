@@ -253,10 +253,10 @@ const FullLayout = ({ children, scrollerRef }: SidebarProps) => {
         width="64"
         position="fixed"
         bottom="0"
-        pr="4"
+        pr="3"
         pl="3"
-        pt="6"
-        pb="0"
+        pt="3"
+        pb="3"
         style={{
           height: "calc(100vh - var(--header-height))",
           top: "var(--header-height)",
