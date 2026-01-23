@@ -8,11 +8,11 @@ import {
   ArrowUp,
   Loader2,
   ChevronsUpDown,
+  ExternalLink,
   Check,
   Plus,
   Copy,
   Dot,
-  ArrowUpRight,
 } from "lucide-react";
 import { Popover } from "@telegraph/popover";
 import { Tooltip } from "@telegraph/tooltip";
@@ -624,25 +624,27 @@ function AskAiSidebar() {
           }}
         />
       )}
-      <Stack
-        direction="column"
+      <Box
         bg="surface-1"
         style={{
+          display: "flex",
+          flexDirection: "column",
           height: "100%",
           overflow: "hidden",
         }}
       >
         {/* Header with close button */}
-        <Stack
-          direction="row"
+        <Box
           p="2"
           pr="4"
           borderBottom="px"
           borderColor="gray-4"
           bg="surface-1"
-          justifyContent="space-between"
-          alignItems="center"
           style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
             minWidth: `${sidebarWidth}px`,
             position: "relative",
           }}
@@ -748,20 +750,21 @@ function AskAiSidebar() {
             }}
             onClick={closeSidebar}
           />
-        </Stack>
+        </Box>
 
         {/* Input at top when no messages */}
         {messages.length === 0 && inputArea(true)}
 
         {/* Messages area */}
-        <Stack
-          direction="column"
-          gap="3"
+        <Box
           style={{
             flex: 1,
             overflowY: "auto",
             minWidth: `${sidebarWidth}px`,
             padding: "8px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
           }}
         >
           {error && (
@@ -799,11 +802,11 @@ function AskAiSidebar() {
             })}
             <div ref={messagesEndRef} />
           </Stack>
-        </Stack>
+        </Box>
 
         {/* Input at bottom when has messages */}
         {messages.length > 0 && inputArea(false)}
-      </Stack>
+      </Box>
     </Box>
   );
 }
@@ -841,7 +844,6 @@ function MessageBubble({
           style={{
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
-            fontSize: "13px",
           }}
         >
           {message.content}
@@ -866,7 +868,7 @@ function MessageBubble({
             aria-hidden
             style={{ animation: "spin 1s linear infinite" }}
           />
-          <Text as="span" size="2" color="gray" style={{ fontSize: "13px" }}>
+          <Text as="span" size="2" color="gray">
             Thinking...
           </Text>
         </Stack>
@@ -884,10 +886,11 @@ function MessageBubble({
   // Streamdown is optimized for streaming LLM content and handles incomplete markdown gracefully
   return (
     <Stack
-      direction="column"
       bg="surface-1"
       style={{
         width: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {/* Response text section */}
@@ -1119,32 +1122,32 @@ function SourceCard({ source }: { source: Source }) {
   const breadcrumbs = buildBreadcrumbs(source.url);
 
   const content = (
-    <Stack
-      direction="column"
+    <Box
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      px="4"
-      py="3"
-      gap="1"
-      rounded="3"
-      bg={`${isHovered ? "blue-2" : "surface-1"}`}
-      borderColor={`${isHovered ? "blue-7" : "gray-4"}`}
-      border="px"
       style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "4px",
+        padding: "10px 12px",
+        borderRadius: "8px",
+        border: `1px solid ${
+          isHovered ? "var(--tgph-accent-9)" : "var(--tgph-gray-4)"
+        }`,
+        backgroundColor: "var(--tgph-surface-1)",
         cursor: source.url ? "pointer" : "default",
         width: "75%",
         position: "relative",
-        transition:
-          "border-color 0.2s ease-out, background-color 0.2s ease-out",
+        transition: "border-color 0.2s ease",
       }}
     >
       {/* Breadcrumbs */}
       {breadcrumbs.length > 0 && (
-        <Stack
-          direction="row"
-          alignItems="center"
-          gap="1"
+        <Box
           style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
             flexWrap: "wrap",
           }}
         >
@@ -1153,33 +1156,48 @@ function SourceCard({ source }: { source: Source }) {
               <Text
                 as="span"
                 size="0"
-                color="gray"
                 style={{
+                  color: "var(--tgph-gray-9)",
                   whiteSpace: "nowrap",
                 }}
               >
                 {crumb}
               </Text>
               {i < breadcrumbs.length - 1 && (
-                <Text as="span" size="0" color="disabled">
+                <Text
+                  as="span"
+                  size="0"
+                  style={{
+                    color: "var(--tgph-gray-7)",
+                  }}
+                >
                   ›
                 </Text>
               )}
             </React.Fragment>
           ))}
-        </Stack>
+        </Box>
       )}
       {/* Title with icon */}
-      <Stack direction="row" alignItems="center" gap="1">
-        <Stack
-          w="4"
-          h="4"
-          alignItems="center"
-          justifyContent="center"
-          flexShrink="0"
+      <Box
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+        }}
+      >
+        <Box
+          style={{
+            width: "16px",
+            height: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
         >
           <IconComponent />
-        </Stack>
+        </Box>
         <Text
           as="span"
           size="2"
@@ -1195,23 +1213,33 @@ function SourceCard({ source }: { source: Source }) {
         >
           {source.title}
         </Text>
-      </Stack>
+      </Box>
       {/* External link icon - vertically centered */}
       {isHovered && source.url && (
         <Box
-          position="absolute"
-          right="4"
-          top="3"
-          w="4"
-          h="4"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+          style={{
+            position: "absolute",
+            right: "12px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: "16px",
+            height: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
-          <Icon icon={ArrowUpRight} size="1" aria-hidden color="blue" />
+          <Icon
+            icon={ExternalLink}
+            size="1"
+            aria-hidden
+            style={{
+              color: "var(--tgph-accent-9)",
+            }}
+          />
         </Box>
       )}
-    </Stack>
+    </Box>
   );
 
   if (source.url) {
@@ -1243,11 +1271,17 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
       <Text as="span" size="1" weight="medium" color="default">
         Sources
       </Text>
-      <Stack direction="column" gap="2">
+      <Box
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+        }}
+      >
         {sources.map((source, index) => (
           <SourceCard key={index} source={source} />
         ))}
-      </Stack>
+      </Box>
     </Stack>
   );
 }
