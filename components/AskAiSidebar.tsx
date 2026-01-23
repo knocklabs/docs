@@ -489,11 +489,13 @@ function AskAiSidebar() {
           border="px"
           borderColor="gray-6"
           m="2"
+          mt="0"
           rounded="5"
-          bg="surface-1"
           boxShadow="1"
+          bg="surface-1"
+          position="relative"
           style={{
-            position: "relative",
+            overflow: "hidden",
             minWidth: `${sidebarWidth - 16}px`,
           }}
         >
@@ -514,6 +516,7 @@ function AskAiSidebar() {
               p="2"
               pb="0"
               maxH="400px"
+              bg="surface-1"
               style={{
                 fontSize: "13px",
                 minHeight: "120px",
@@ -765,12 +768,10 @@ function AskAiSidebar() {
             <Box
               p="3"
               mb="3"
-              style={{
-                backgroundColor: "var(--tgph-red-2)",
-                border: "1px solid",
-                borderColor: "var(--tgph-red-4)",
-                borderRadius: "6px",
-              }}
+              bg="red-2"
+              border="px"
+              borderColor="red-4"
+              rounded="3"
             >
               <Text as="p" size="1" color="red">
                 {error}
@@ -825,7 +826,7 @@ function MessageBubble({
         w="full"
         px="3"
         py="2"
-        rounded="3"
+        rounded="4"
         bg="surface-1"
         border="px"
         position="relative"
