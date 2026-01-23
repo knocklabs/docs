@@ -255,7 +255,9 @@ function ChatOptionButton({
   return (
     <Button
       variant="ghost"
-      size="1"
+      size="2"
+      fontSize="13px"
+      fontWeight="medium"
       w="full"
       justifyContent="flex-start"
       onClick={onClick}
@@ -263,6 +265,7 @@ function ChatOptionButton({
         IconComponent
           ? {
               icon: IconComponent,
+              size: "1",
               "aria-hidden": true,
             }
           : undefined
@@ -484,7 +487,7 @@ function AskAiSidebar() {
       <Box w="full">
         <Box
           border="px"
-          borderColor="gray-7"
+          borderColor="gray-6"
           m="2"
           rounded="5"
           bg="surface-1"
