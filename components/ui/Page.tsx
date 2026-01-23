@@ -90,7 +90,7 @@ function Wrapper({
   return (
     <div
       data-wrapper
-      className="layout-grid"
+      className={hasToc ? "layout-grid layout-grid--three-col" : "layout-grid"}
       style={
         {
           width: "100%",
@@ -104,18 +104,18 @@ function Wrapper({
 
       <div
         data-content-area
-        className="flex w-full"
         style={{
           minWidth: 0,
-          maxWidth: hasToc ? "1024px" : "800px",
-          marginLeft: `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - ${
-            hasToc ? "1024px" : "800px"
-          }) * 0.25), 200px)`,
+          maxWidth: hasToc ? "800px" : "960px",
+          marginLeft: hasToc
+            ? `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - 800px - 240px) * 0.25), 200px)`
+            : `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - 960px) * 0.25), 200px)`,
         }}
       >
         {content}
-        {hasToc && onThisPage}
       </div>
+
+      {hasToc && onThisPage}
     </div>
   );
 }
