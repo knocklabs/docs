@@ -891,14 +891,7 @@ function MessageBubble({
       }}
     >
       {/* Response text section */}
-      <Stack
-        direction="column"
-        gap="2"
-        bg="surface-1"
-        style={{
-          padding: "6px 8px",
-        }}
-      >
+      <Stack direction="column" gap="2" bg="surface-1" p="3">
         <div className="tgraph-content">
           <Streamdown
             parseIncompleteMarkdown={true}
@@ -1246,13 +1239,7 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
   }
 
   return (
-    <Stack
-      direction="column"
-      gap="2"
-      style={{
-        padding: "8px",
-      }}
-    >
+    <Stack direction="column" gap="2" mb="4" p="3">
       <Text as="span" size="1" weight="medium" color="default">
         Sources
       </Text>
