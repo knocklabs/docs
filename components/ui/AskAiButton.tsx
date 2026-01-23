@@ -1,13 +1,15 @@
 import { Button } from "@telegraph/button";
 import { Sparkles } from "lucide-react";
 import { useAskAi } from "../AskAiContext";
+import { useDarkMode } from "../../hooks/useDarkMode";
 
 function AskAiButton() {
   const { toggleSidebar } = useAskAi();
+  const isDark = useDarkMode();
 
   return (
     <Button
-      variant="solid"
+      variant={!isDark ? "soft" : "solid"}
       size="1"
       onClick={toggleSidebar}
       leadingIcon={{
