@@ -42,7 +42,7 @@ const InKeepTrigger = dynamic(
   },
 ) as typeof InkeepModalSearchAndChat;
 
-import { DocsSearchItem, EndpointSearchItem } from "@/types";
+import { DocsSearchItem, EndpointSearchItem, EnhancedDocsSearchItem } from "@/types";
 import { Button } from "@telegraph/button";
 import { Icon } from "@telegraph/icon";
 import { MenuItem } from "@telegraph/menu";
@@ -72,7 +72,7 @@ const highlightingStyles = {
 const NUM_DOCS_HITS = 12;
 const NUM_ENDPOINT_HITS = 5;
 
-type ResultItem = (DocsSearchItem & BaseItem) | (EndpointSearchItem & BaseItem);
+type ResultItem = (EnhancedDocsSearchItem & BaseItem) | (EndpointSearchItem & BaseItem);
 
 const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || "";
 const algoliaSearchApiKey =
@@ -178,7 +178,7 @@ const DocsSearchResult = ({
           )}
         </Text>
         <Text as="span" size="1" color="gray" weight="regular">
-          {item.section}
+          {item.pageTitle ? `${item.pageTitle as string} •` : ""} {item.section}
         </Text>
       </Box>
     </Link>
@@ -757,7 +757,7 @@ const Autocomplete = () => {
                                   />
                                 ) : (
                                   <DocsSearchResult
-                                    item={item as DocsSearchItem}
+                                    item={item as EnhancedDocsSearchItem}
                                     onClick={() => autocomplete.setQuery("")}
                                   />
                                 )}
