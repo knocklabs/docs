@@ -1026,11 +1026,11 @@ function MessageBubble({
             {processSourceReferences(String(message.content ?? ""))}
           </Streamdown>
         </div>
-      </Box>
+      </Stack>
 
       {/* Sources section - only show after streaming completes */}
       {!isLoading && <SourcesSection sources={message.sources} />}
-    </Box>
+    </Stack>
   );
 }
 
@@ -1214,21 +1214,9 @@ function SourceCard({ source }: { source: Source }) {
           {source.title}
         </Text>
       </Box>
-      </Box>
       {/* External link icon - vertically centered */}
       {isHovered && source.url && (
         <Box
-          style={{
-            position: "absolute",
-            right: "12px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: "16px",
-            height: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
           style={{
             position: "absolute",
             right: "12px",
@@ -1249,17 +1237,8 @@ function SourceCard({ source }: { source: Source }) {
               color: "var(--tgph-accent-9)",
             }}
           />
-          <Icon
-            icon={ExternalLink}
-            size="1"
-            aria-hidden
-            style={{
-              color: "var(--tgph-accent-9)",
-            }}
-          />
         </Box>
       )}
-    </Box>
     </Box>
   );
 
@@ -1292,13 +1271,6 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
       <Text as="span" size="1" weight="medium" color="default">
         Sources
       </Text>
-      <Box
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-        }}
-      >
       <Box
         style={{
           display: "flex",
