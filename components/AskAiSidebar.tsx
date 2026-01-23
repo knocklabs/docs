@@ -513,7 +513,7 @@ function AskAiSidebar() {
               variant="ghost"
               w="full"
               size="2"
-              p="2"
+              p="3"
               pb="0"
               maxH="400px"
               bg="surface-1"
@@ -891,7 +891,7 @@ function MessageBubble({
       }}
     >
       {/* Response text section */}
-      <Stack direction="column" gap="2" bg="surface-1" p="3">
+      <Stack direction="column" gap="2" bg="surface-1" px="3">
         <div className="tgraph-content">
           <Streamdown
             parseIncompleteMarkdown={true}
@@ -1239,7 +1239,7 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
   }
 
   return (
-    <Stack direction="column" gap="2" mb="4" p="3">
+    <Stack direction="column" gap="2" px="3" pt="0" pb="4">
       <Text as="span" size="1" weight="medium" color="default">
         Sources
       </Text>
