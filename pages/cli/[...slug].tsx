@@ -37,7 +37,7 @@ function CachedCliPageComponent({ source, sourcePath }) {
 
 // Get the props for a single path
 export async function getStaticProps() {
-  const sourcePath = `${CONTENT_DIR}/cli.mdx`;
+  const sourcePath = `${CONTENT_DIR}__cli/content.mdx`;
 
   // Read the source content file, checking for .mdx and .md files
   const preContent = fs.readFileSync(sourcePath);
