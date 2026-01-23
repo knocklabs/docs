@@ -481,15 +481,19 @@ function AskAiSidebar() {
     const isButtonEnabled = isActive || hasInput;
 
     return (
-      <Box
-        borderBottomWidth={isAtTop ? "px" : undefined}
-        borderTopWidth={!isAtTop ? "px" : undefined}
-        borderColor="gray-4"
-        style={{
-          minWidth: `${sidebarWidth}px`,
-          position: "relative",
-        }}
-      >
+      <Box w="full">
+        <Box
+          border="px"
+          borderColor="gray-7"
+          m="2"
+          rounded="5"
+          bg="surface-1"
+          boxShadow="1"
+          style={{
+            position: "relative",
+            minWidth: `${sidebarWidth - 16}px`,
+          }}
+        >
         {/* Textarea */}
         <Box p="0">
           <TextArea
@@ -504,11 +508,11 @@ function AskAiSidebar() {
             variant="ghost"
             w="full"
             size="2"
-            p="4"
+            p="2"
             pb="0"
             maxH="400px"
-            bg="surface-1"
             style={{
+              fontSize: "13px",
               minHeight: "120px",
               maxHeight: "400px",
               outline: "none",
@@ -529,6 +533,7 @@ function AskAiSidebar() {
           pb="2"
           gap="2"
         >
+          {/* Send button */}
           <Button
             onClick={isActive ? stopStream : handleSubmit}
             disabled={!isButtonEnabled}
@@ -536,7 +541,7 @@ function AskAiSidebar() {
             w="7"
             h="7"
             variant="solid"
-            borderRadius="full"
+            rounded="4"
             aria-label={isActive ? "Stop" : "Send"}
             style={{
               backgroundColor: isButtonEnabled
@@ -571,6 +576,7 @@ function AskAiSidebar() {
             )}
           </Button>
         </Stack>
+      </Box>
       </Box>
     );
   };
