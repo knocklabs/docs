@@ -1163,11 +1163,7 @@ function SourceCard({ source }: { source: Source }) {
                 {crumb}
               </Text>
               {i < breadcrumbs.length - 1 && (
-                <Text
-                  as="span"
-                  size="0"
-                  color="disabled"
-                >
+                <Text as="span" size="0" color="disabled">
                   ›
                 </Text>
               )}
@@ -1221,12 +1217,7 @@ function SourceCard({ source }: { source: Source }) {
             top: "6px",
           }}
         >
-          <Icon
-            icon={ArrowUpRight}
-            size="1"
-            color="blue"
-            aria-hidden
-          />
+          <Icon icon={ArrowUpRight} size="1" color="blue" aria-hidden />
         </Box>
       )}
     </Box>
