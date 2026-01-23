@@ -304,6 +304,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/template-editor/partials",
+        destination: "/template-editor/partials/overview",
+        permanent: true,
+      },
+      {
         source: "/concepts/translations",
         destination: "/template-editor/translations",
         permanent: true,
