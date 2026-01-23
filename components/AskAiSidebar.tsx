@@ -497,89 +497,89 @@ function AskAiSidebar() {
             minWidth: `${sidebarWidth - 16}px`,
           }}
         >
-        {/* Textarea */}
-        <Box p="0">
-          <TextArea
-            as="textarea"
-            ref={textareaRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask questions about the docs"
-            rows={1}
-            disabled={isActive}
-            variant="ghost"
-            w="full"
-            size="2"
-            p="2"
-            pb="0"
-            maxH="400px"
-            style={{
-              fontSize: "13px",
-              minHeight: "120px",
-              maxHeight: "400px",
-              outline: "none",
-              resize: "none",
-              opacity: isActive ? 0.6 : 1,
-              cursor: isActive ? "not-allowed" : "text",
-            }}
-          />
-        </Box>
+          {/* Textarea */}
+          <Box p="0">
+            <TextArea
+              as="textarea"
+              ref={textareaRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask questions about the docs"
+              rows={1}
+              disabled={isActive}
+              variant="ghost"
+              w="full"
+              size="2"
+              p="2"
+              pb="0"
+              maxH="400px"
+              style={{
+                fontSize: "13px",
+                minHeight: "120px",
+                maxHeight: "400px",
+                outline: "none",
+                resize: "none",
+                opacity: isActive ? 0.6 : 1,
+                cursor: isActive ? "not-allowed" : "text",
+              }}
+            />
+          </Box>
 
-        {/* PromptInputActions bar */}
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="flex-end"
-          px="2"
-          pt="0"
-          pb="2"
-          gap="2"
-        >
-          {/* Send button */}
-          <Button
-            onClick={isActive ? stopStream : handleSubmit}
-            disabled={!isButtonEnabled}
-            size="1"
-            w="7"
-            h="7"
-            variant="solid"
-            rounded="4"
-            aria-label={isActive ? "Stop" : "Send"}
-            style={{
-              backgroundColor: isButtonEnabled
-                ? "var(--tgph-gray-12)"
-                : "var(--tgph-gray-4)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "none",
-              cursor: isButtonEnabled ? "pointer" : "not-allowed",
-              margin: "0",
-              boxSizing: "border-box",
-              transition: "background-color 0.2s",
-            }}
+          {/* PromptInputActions bar */}
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-end"
+            px="2"
+            pt="0"
+            pb="2"
+            gap="2"
           >
-            {isActive ? (
-              <div
-                aria-hidden
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  backgroundColor: "#fff",
-                  borderRadius: "2px",
-                }}
-              />
-            ) : (
-              <ArrowUp
-                size="14px"
-                strokeWidth={2}
-                color={isButtonEnabled ? "#fff" : "var(--tgph-gray-10)"}
-              />
-            )}
-          </Button>
-        </Stack>
-      </Box>
+            {/* Send button */}
+            <Button
+              onClick={isActive ? stopStream : handleSubmit}
+              disabled={!isButtonEnabled}
+              size="1"
+              w="7"
+              h="7"
+              variant="solid"
+              rounded="4"
+              aria-label={isActive ? "Stop" : "Send"}
+              style={{
+                backgroundColor: isButtonEnabled
+                  ? "var(--tgph-gray-12)"
+                  : "var(--tgph-gray-4)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "none",
+                cursor: isButtonEnabled ? "pointer" : "not-allowed",
+                margin: "0",
+                boxSizing: "border-box",
+                transition: "background-color 0.2s",
+              }}
+            >
+              {isActive ? (
+                <div
+                  aria-hidden
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    backgroundColor: "#fff",
+                    borderRadius: "2px",
+                  }}
+                />
+              ) : (
+                <ArrowUp
+                  size="14px"
+                  strokeWidth={2}
+                  color={isButtonEnabled ? "#fff" : "var(--tgph-gray-10)"}
+                />
+              )}
+            </Button>
+          </Stack>
+        </Box>
       </Box>
     );
   };
