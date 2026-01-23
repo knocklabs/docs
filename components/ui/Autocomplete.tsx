@@ -42,7 +42,11 @@ const InKeepTrigger = dynamic(
   },
 ) as typeof InkeepModalSearchAndChat;
 
-import { DocsSearchItem, EndpointSearchItem, EnhancedDocsSearchItem } from "@/types";
+import {
+  DocsSearchItem,
+  EndpointSearchItem,
+  EnhancedDocsSearchItem,
+} from "@/types";
 import { Button } from "@telegraph/button";
 import { Icon } from "@telegraph/icon";
 import { MenuItem } from "@telegraph/menu";
@@ -72,7 +76,9 @@ const highlightingStyles = {
 const NUM_DOCS_HITS = 12;
 const NUM_ENDPOINT_HITS = 5;
 
-type ResultItem = (EnhancedDocsSearchItem & BaseItem) | (EndpointSearchItem & BaseItem);
+type ResultItem =
+  | (EnhancedDocsSearchItem & BaseItem)
+  | (EndpointSearchItem & BaseItem);
 
 const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || "";
 const algoliaSearchApiKey =
