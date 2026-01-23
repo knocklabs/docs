@@ -8,11 +8,11 @@ import {
   ArrowUp,
   Loader2,
   ChevronsUpDown,
-  ExternalLink,
   Check,
   Plus,
   Copy,
   Dot,
+  ArrowUpRight,
 } from "lucide-react";
 import { Popover } from "@telegraph/popover";
 import { Tooltip } from "@telegraph/tooltip";
@@ -842,6 +842,7 @@ function MessageBubble({
           size="2"
           weight="regular"
           style={{
+            fontSize: "13px",
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
           }}
@@ -1125,20 +1126,20 @@ function SourceCard({ source }: { source: Source }) {
     <Box
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      bg={isHovered ? "blue-1" : "surface-1"}
+      border="px"
+      borderColor={isHovered ? "blue-7" : "gray-4"}
+      rounded="3"
+      py="3"
+      px="4"
       style={{
         display: "flex",
         flexDirection: "column",
         gap: "4px",
-        padding: "10px 12px",
-        borderRadius: "8px",
-        border: `1px solid ${
-          isHovered ? "var(--tgph-accent-9)" : "var(--tgph-gray-4)"
-        }`,
-        backgroundColor: "var(--tgph-surface-1)",
         cursor: source.url ? "pointer" : "default",
         width: "75%",
         position: "relative",
-        transition: "border-color 0.2s ease",
+        transition: "background-color 0.2s ease, border-color 0.2s ease",
       }}
     >
       {/* Breadcrumbs */}
@@ -1156,10 +1157,8 @@ function SourceCard({ source }: { source: Source }) {
               <Text
                 as="span"
                 size="0"
-                style={{
-                  color: "var(--tgph-gray-9)",
-                  whiteSpace: "nowrap",
-                }}
+                color="gray"
+                style={{ textWrap: "nowrap" }}
               >
                 {crumb}
               </Text>
@@ -1167,9 +1166,7 @@ function SourceCard({ source }: { source: Source }) {
                 <Text
                   as="span"
                   size="0"
-                  style={{
-                    color: "var(--tgph-gray-7)",
-                  }}
+                  color="disabled"
                 >
                   ›
                 </Text>
@@ -1201,9 +1198,10 @@ function SourceCard({ source }: { source: Source }) {
         <Text
           as="span"
           size="2"
+          color="default"
           weight="medium"
           style={{
-            color: "var(--tgph-gray-12)",
+            fontSize: "13px",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -1219,23 +1217,15 @@ function SourceCard({ source }: { source: Source }) {
         <Box
           style={{
             position: "absolute",
-            right: "12px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: "16px",
-            height: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            right: "8px",
+            top: "6px",
           }}
         >
           <Icon
-            icon={ExternalLink}
+            icon={ArrowUpRight}
             size="1"
+            color="blue"
             aria-hidden
-            style={{
-              color: "var(--tgph-accent-9)",
-            }}
           />
         </Box>
       )}
