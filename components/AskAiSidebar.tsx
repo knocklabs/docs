@@ -907,12 +907,16 @@ function MessageBubble({
               code: (props: any) => (
                 <Code
                   as="code"
-                  bg="gray-1"
-                  borderRadius="2"
-                  px="1"
-                  size="2"
-                  style={{ fontSize: "13px" }}
+                  color="blue"
+                  border="px"
+                  borderColor="blue-4"
+                  rounded="2"
                   data-tgph-code
+                  style={{
+                    fontSize: "11px",
+                    padding: "2px 3px",
+                    margin: "0 2px",
+                  }}
                 >
                   {props.children}
                 </Code>
@@ -981,18 +985,45 @@ function MessageBubble({
                 </sup>
               ),
               p: ({ children }: { children?: React.ReactNode }) => (
-                <p style={{ margin: "12px 0", fontSize: "13px", lineHeight: "1.625" }}>
+                <p
+                  style={{
+                    margin: "12px 0",
+                    fontSize: "13px",
+                    lineHeight: "1.625",
+                  }}
+                >
                   {children}
                 </p>
               ),
               ul: ({ children }: { children?: React.ReactNode }) => (
-                <ul style={{ paddingLeft: "24px", fontSize: "13px", lineHeight: "1.625" }}>{children}</ul>
+                <ul
+                  style={{
+                    paddingLeft: "24px",
+                    fontSize: "13px",
+                    lineHeight: "1.625",
+                  }}
+                >
+                  {children}
+                </ul>
               ),
               ol: ({ children }: { children?: React.ReactNode }) => (
-                <ol style={{ paddingLeft: "24px", fontSize: "13px", lineHeight: "1.625" }}>{children}</ol>
+                <ol
+                  style={{
+                    paddingLeft: "24px",
+                    fontSize: "13px",
+                    lineHeight: "1.625",
+                  }}
+                >
+                  {children}
+                </ol>
               ),
               li: ({ children }: { children?: React.ReactNode }) => (
-                <li data-tgph-list-item style={{ fontSize: "13px", lineHeight: "1.625" }}>{children}</li>
+                <li
+                  data-tgph-list-item
+                  style={{ fontSize: "13px", lineHeight: "1.625" }}
+                >
+                  {children}
+                </li>
               ),
             }}
           >
