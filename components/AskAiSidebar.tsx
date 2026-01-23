@@ -8,11 +8,11 @@ import {
   ArrowUp,
   Loader2,
   ChevronsUpDown,
-  ExternalLink,
   Check,
   Plus,
   Copy,
   Dot,
+  ArrowUpRight,
 } from "lucide-react";
 import { Popover } from "@telegraph/popover";
 import { Tooltip } from "@telegraph/tooltip";
@@ -621,27 +621,25 @@ function AskAiSidebar() {
           }}
         />
       )}
-      <Box
+      <Stack
+        direction="column"
         bg="surface-1"
         style={{
-          display: "flex",
-          flexDirection: "column",
           height: "100%",
           overflow: "hidden",
         }}
       >
         {/* Header with close button */}
-        <Box
+        <Stack
+          direction="row"
           p="2"
           pr="4"
           borderBottom="px"
           borderColor="gray-4"
           bg="surface-1"
+          justifyContent="space-between"
+          alignItems="center"
           style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
             minWidth: `${sidebarWidth}px`,
             position: "relative",
           }}
@@ -747,21 +745,20 @@ function AskAiSidebar() {
             }}
             onClick={closeSidebar}
           />
-        </Box>
+        </Stack>
 
         {/* Input at top when no messages */}
         {messages.length === 0 && inputArea(true)}
 
         {/* Messages area */}
-        <Box
+        <Stack
+          direction="column"
+          gap="3"
           style={{
             flex: 1,
             overflowY: "auto",
             minWidth: `${sidebarWidth}px`,
             padding: "8px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
           }}
         >
           {error && (
@@ -801,11 +798,11 @@ function AskAiSidebar() {
             })}
             <div ref={messagesEndRef} />
           </Stack>
-        </Box>
+        </Stack>
 
         {/* Input at bottom when has messages */}
         {messages.length > 0 && inputArea(false)}
-      </Box>
+      </Stack>
     </Box>
   );
 }
@@ -843,6 +840,7 @@ function MessageBubble({
           style={{
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
+            fontSize: "13px",
           }}
         >
           {message.content}
@@ -867,7 +865,7 @@ function MessageBubble({
             aria-hidden
             style={{ animation: "spin 1s linear infinite" }}
           />
-          <Text as="span" size="2" color="gray">
+          <Text as="span" size="2" color="gray" style={{ fontSize: "13px" }}>
             Thinking...
           </Text>
         </Stack>
@@ -884,22 +882,20 @@ function MessageBubble({
   // Use tgraph-content class for consistent markdown styling with the rest of the docs
   // Streamdown is optimized for streaming LLM content and handles incomplete markdown gracefully
   return (
-    <Box
+    <Stack
+      direction="column"
       bg="surface-1"
       style={{
         width: "100%",
-        display: "flex",
-        flexDirection: "column",
       }}
     >
       {/* Response text section */}
-      <Box
+      <Stack
+        direction="column"
+        gap="2"
         bg="surface-1"
         style={{
           padding: "6px 8px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
         }}
       >
         <div className="tgraph-content">
@@ -910,10 +906,11 @@ function MessageBubble({
               code: (props: any) => (
                 <Code
                   as="code"
-                  bg="gray-2"
+                  bg="gray-1"
                   borderRadius="2"
                   px="1"
-                  size="1"
+                  size="2"
+                  style={{ fontSize: "13px" }}
                   data-tgph-code
                 >
                   {props.children}
@@ -983,27 +980,29 @@ function MessageBubble({
                 </sup>
               ),
               p: ({ children }: { children?: React.ReactNode }) => (
-                <p style={{ marginBottom: "12px" }}>{children}</p>
+                <p style={{ margin: "12px 0", fontSize: "13px", lineHeight: "1.625" }}>
+                  {children}
+                </p>
               ),
               ul: ({ children }: { children?: React.ReactNode }) => (
-                <ul style={{ paddingLeft: "24px" }}>{children}</ul>
+                <ul style={{ paddingLeft: "24px", fontSize: "13px", lineHeight: "1.625" }}>{children}</ul>
               ),
               ol: ({ children }: { children?: React.ReactNode }) => (
-                <ol style={{ paddingLeft: "24px" }}>{children}</ol>
+                <ol style={{ paddingLeft: "24px", fontSize: "13px", lineHeight: "1.625" }}>{children}</ol>
               ),
               li: ({ children }: { children?: React.ReactNode }) => (
-                <li data-tgph-list-item>{children}</li>
+                <li data-tgph-list-item style={{ fontSize: "13px", lineHeight: "1.625" }}>{children}</li>
               ),
             }}
           >
             {processSourceReferences(String(message.content ?? ""))}
           </Streamdown>
         </div>
-      </Box>
+      </Stack>
 
       {/* Sources section - only show after streaming completes */}
       {!isLoading && <SourcesSection sources={message.sources} />}
-    </Box>
+    </Stack>
   );
 }
 
@@ -1095,32 +1094,32 @@ function SourceCard({ source }: { source: Source }) {
   const breadcrumbs = buildBreadcrumbs(source.url);
 
   const content = (
-    <Box
+    <Stack
+      direction="column"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      px="4"
+      py="3"
+      gap="1"
+      rounded="3"
+      bg={`${isHovered ? "blue-2" : "surface-1"}`}
+      borderColor={`${isHovered ? "blue-7" : "gray-4"}`}
+      border="px"
       style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "4px",
-        padding: "10px 12px",
-        borderRadius: "8px",
-        border: `1px solid ${
-          isHovered ? "var(--tgph-accent-9)" : "var(--tgph-gray-4)"
-        }`,
-        backgroundColor: "var(--tgph-surface-1)",
         cursor: source.url ? "pointer" : "default",
         width: "75%",
         position: "relative",
-        transition: "border-color 0.2s ease",
+        transition:
+          "border-color 0.2s ease-out, background-color 0.2s ease-out",
       }}
     >
       {/* Breadcrumbs */}
       {breadcrumbs.length > 0 && (
-        <Box
+        <Stack
+          direction="row"
+          alignItems="center"
+          gap="1"
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
             flexWrap: "wrap",
           }}
         >
@@ -1129,48 +1128,33 @@ function SourceCard({ source }: { source: Source }) {
               <Text
                 as="span"
                 size="0"
+                color="gray"
                 style={{
-                  color: "var(--tgph-gray-9)",
                   whiteSpace: "nowrap",
                 }}
               >
                 {crumb}
               </Text>
               {i < breadcrumbs.length - 1 && (
-                <Text
-                  as="span"
-                  size="0"
-                  style={{
-                    color: "var(--tgph-gray-7)",
-                  }}
-                >
+                <Text as="span" size="0" color="disabled">
                   ›
                 </Text>
               )}
             </React.Fragment>
           ))}
-        </Box>
+        </Stack>
       )}
       {/* Title with icon */}
-      <Box
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-        }}
-      >
-        <Box
-          style={{
-            width: "16px",
-            height: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
+      <Stack direction="row" alignItems="center" gap="1">
+        <Stack
+          w="4"
+          h="4"
+          alignItems="center"
+          justifyContent="center"
+          flexShrink="0"
         >
           <IconComponent />
-        </Box>
+        </Stack>
         <Text
           as="span"
           size="2"
@@ -1186,33 +1170,23 @@ function SourceCard({ source }: { source: Source }) {
         >
           {source.title}
         </Text>
-      </Box>
+      </Stack>
       {/* External link icon - vertically centered */}
       {isHovered && source.url && (
         <Box
-          style={{
-            position: "absolute",
-            right: "12px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: "16px",
-            height: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          position="absolute"
+          right="4"
+          top="3"
+          w="4"
+          h="4"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
         >
-          <Icon
-            icon={ExternalLink}
-            size="1"
-            aria-hidden
-            style={{
-              color: "var(--tgph-accent-9)",
-            }}
-          />
+          <Icon icon={ArrowUpRight} size="1" aria-hidden color="blue" />
         </Box>
       )}
-    </Box>
+    </Stack>
   );
 
   if (source.url) {
@@ -1240,36 +1214,22 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
   }
 
   return (
-    <Box
+    <Stack
+      direction="column"
+      gap="2"
       style={{
         padding: "8px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
       }}
     >
-      <Text
-        as="span"
-        size="1"
-        weight="semi-bold"
-        style={{
-          color: "var(--tgph-gray-11)",
-        }}
-      >
+      <Text as="span" size="1" weight="medium" color="default">
         Sources
       </Text>
-      <Box
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-        }}
-      >
+      <Stack direction="column" gap="2">
         {sources.map((source, index) => (
           <SourceCard key={index} source={source} />
         ))}
-      </Box>
-    </Box>
+      </Stack>
+    </Stack>
   );
 }
 
