@@ -44,7 +44,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     ],
   },
   {
-    title: "Designing workflows",
+    title: "Workflows",
     slug: "/designing-workflows",
     desc: "Learn how to design notifications using Knock's workflow builder, then explore advanced features such as batching, delays, and more.",
     pages: [
@@ -67,7 +67,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
   },
 
   {
-    title: "Working with templates",
+    title: "Templates",
     slug: "/template-editor",
     desc: "Learn how to work with templates in Knock.",
     pages: [
@@ -92,19 +92,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
   },
 
   {
-    title: "Managing recipients",
-    slug: "/managing-recipients",
-    desc: "Learn more about how to manage notification recipients with Knock.",
-    pages: [
-      { slug: "/overview", title: "Overview" },
-      { slug: "/identifying-recipients", title: "Identifying recipients" },
-      { slug: "/setting-channel-data", title: "Setting channel data" },
-      { slug: "/deleting-users", title: "Deleting users" },
-      { slug: "/merging-users", title: "Merging users" },
-    ],
-  },
-  {
-    title: "Send notifications",
+    title: "Send messages",
     slug: "/send-notifications",
     desc: "Learn how to send and debug notifications using Knock.",
     pages: [
@@ -127,6 +115,20 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/debugging-workflows", title: "Debugging workflows" },
     ],
   },
+
+  {
+    title: "Recipients",
+    slug: "/managing-recipients",
+    desc: "Learn more about how to manage notification recipients with Knock.",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/identifying-recipients", title: "Identifying recipients" },
+      { slug: "/setting-channel-data", title: "Setting channel data" },
+      { slug: "/deleting-users", title: "Deleting users" },
+      { slug: "/merging-users", title: "Merging users" },
+    ],
+  },
+
   {
     title: "Preferences",
     slug: "/preferences",
