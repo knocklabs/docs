@@ -61,11 +61,11 @@ components:
         ref: channel_step
         send_windows: null
         template:
-          html_body: <p>Hello, world!</p>
+          html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.sign_in_url }}'>Get started here</a>.</p>
           settings:
             layout_key: default
-          subject: Hello, world!
-          text_body: Hello, world!
+          subject: Welcome to {{ vars.app_name }}
+          text_body: 'Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} Get started here: {{ data.sign_in_url }}.'
         type: channel
       title: WorkflowStep
       type: object
@@ -75,7 +75,6 @@ components:
       description: An image block in an email template.
       example:
         alt: Example image
-        id: 123e4567-e89b-12d3-a456-426614174000
         layout_attrs:
           horizontal_align: center
           padding_bottom: 4
@@ -86,7 +85,6 @@ components:
           width: 25%
         type: image
         url: https://example.com/image.jpg
-        version: 1
       properties:
         action:
           description: Optional action URL for the image.
@@ -162,6 +160,9 @@ components:
           x-validate: null
         type:
           description: The type of the block.
+          enum:
+            - image
+          example: image
           type: string
           x-struct: null
           x-validate: null
@@ -172,15 +173,13 @@ components:
           x-struct: null
           x-validate: null
         version:
-          description: The version of the block.
+          description: The version of the block schema. This is automatically managed by Knock and should not be set manually. Currently all blocks are at version 1.
           example: 1
           type: integer
           x-struct: null
           x-validate: null
       required:
-        - id
         - type
-        - version
         - url
       title: EmailImageBlock
       type: object
@@ -224,11 +223,11 @@ components:
         content_type: email
         result: success
         template:
-          html_body: <p>Hello, world!</p>
+          html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.sign_in_url }}'>Get started here</a>.</p>
           settings:
             layout_key: default
-          subject: Hello, world!
-          text_body: Hello, world!
+          subject: Welcome to {{ vars.app_name }}
+          text_body: 'Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} Get started here: {{ data.sign_in_url }}.'
       properties:
         content_type:
           description: The content type of the preview.
@@ -574,6 +573,15 @@ components:
           description: This is a test partial
           environment: development
           icon_name: icon-name
+          input_schema:
+            - key: text_field
+              label: My text field
+              settings:
+                description: A description of the text field
+                max_length: 100
+                min_length: 10
+                required: true
+              type: text
           inserted_at: "2021-01-01T00:00:00Z"
           key: my-partial
           name: My Partial
@@ -604,20 +612,21 @@ components:
         send_windows: null
         template:
           settings:
+            delivery_type: content
             payload_overrides: '{"name": "John"}'
           text_body: Hello, world!
           title: Hello, world!
         type: channel
       properties:
         channel_group_key:
-          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of the channel group to which the channel step will be sending a notification. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: email
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         channel_key:
-          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of a specific configured channel instance (e.g., 'knock-email', 'postmark', 'sendgrid-marketing') to send the notification through. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: postmark
           nullable: true
           type: string
@@ -1263,14 +1272,14 @@ components:
         type: channel
       properties:
         channel_group_key:
-          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of the channel group to which the channel step will be sending a notification. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: email
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         channel_key:
-          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of a specific configured channel instance (e.g., 'knock-email', 'postmark', 'sendgrid-marketing') to send the notification through. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: postmark
           nullable: true
           type: string
@@ -1354,8 +1363,8 @@ components:
       description: A button set block in an email template.
       example:
         buttons:
-          - action: https://example.com/button1
-            label: Button 1
+          - action: https://example.com/button-action
+            label: Click me
             size_attrs:
               is_fullwidth: false
               size: sm
@@ -1365,8 +1374,7 @@ components:
               border_radius: 6
               border_width: 1
               text_color: '#FFFFFF'
-            variant: primary
-        id: 123e4567-e89b-12d3-a456-426614174000
+            variant: solid
         layout_attrs:
           column_gap: 8
           horizontal_align: left
@@ -1375,7 +1383,6 @@ components:
           padding_right: 4
           padding_top: 8
         type: button_set
-        version: 1
       properties:
         buttons:
           description: A list of buttons in the button set.
@@ -1440,19 +1447,20 @@ components:
           x-validate: null
         type:
           description: The type of the block.
+          enum:
+            - button_set
+          example: button_set
           type: string
           x-struct: null
           x-validate: null
         version:
-          description: The version of the block.
+          description: The version of the block schema. This is automatically managed by Knock and should not be set manually. Currently all blocks are at version 1.
           example: 1
           type: integer
           x-struct: null
           x-validate: null
       required:
-        - id
         - type
-        - version
         - buttons
       title: EmailButtonSetBlock
       type: object
@@ -1952,14 +1960,14 @@ components:
         type: channel
       properties:
         channel_group_key:
-          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of the channel group to which the channel step will be sending a notification. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: email
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         channel_key:
-          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of a specific configured channel instance (e.g., 'knock-email', 'postmark', 'sendgrid-marketing') to send the notification through. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: postmark
           nullable: true
           type: string
@@ -2108,7 +2116,7 @@ components:
           x-validate: null
         trigger_data_json_schema:
           additionalProperties: true
-          description: A JSON schema for the expected structure of the workflow trigger's data payload. Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
+          description: A JSON schema for the expected structure of the workflow trigger's `data` payload (available in templates as `{{ data.field_name }}`). Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
           x-struct: null
           x-validate: null
@@ -2134,7 +2142,6 @@ components:
       example:
         attrs:
           foo: bar
-        id: 123e4567-e89b-12d3-a456-426614174000
         key: my_partial
         layout_attrs:
           padding_bottom: 8
@@ -2143,7 +2150,6 @@ components:
           padding_top: 8
         name: my_partial
         type: partial
-        version: 1
       properties:
         attrs:
           additionalProperties: true
@@ -2201,19 +2207,20 @@ components:
           x-validate: null
         type:
           description: The type of the block.
+          enum:
+            - partial
+          example: partial
           type: string
           x-struct: null
           x-validate: null
         version:
-          description: The version of the block.
+          description: The version of the block schema. This is automatically managed by Knock and should not be set manually. Currently all blocks are at version 1.
           example: 1
           type: integer
           x-struct: null
           x-validate: null
       required:
-        - id
         - type
-        - version
         - name
         - key
         - attrs
@@ -2345,22 +2352,22 @@ components:
         ref: channel_step
         send_windows: null
         template:
-          html_body: <p>Hello, world!</p>
+          html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.sign_in_url }}'>Get started here</a>.</p>
           settings:
             layout_key: default
-          subject: Hello, world!
-          text_body: Hello, world!
+          subject: Welcome to {{ vars.app_name }}
+          text_body: 'Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} Get started here: {{ data.sign_in_url }}.'
         type: channel
       properties:
         channel_group_key:
-          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of the channel group to which the channel step will be sending a notification. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: email
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         channel_key:
-          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of a specific configured channel instance (e.g., 'knock-email', 'postmark', 'sendgrid-marketing') to send the notification through. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: postmark
           nullable: true
           type: string
@@ -2377,7 +2384,7 @@ components:
           x-struct: null
           x-validate: null
         channel_type:
-          description: The type of the channel step. Always `email` for email steps.
+          description: The category of channel for this step. Always `email` for email steps. This identifies the type of notification (email, sms, push, etc.) while `channel_key` specifies which configured provider instance to use.
           enum:
             - email
           example: email
@@ -2439,6 +2446,45 @@ components:
       title: WorkflowEmailStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowEmailStep
+      x-validate: null
+    EmailVisualBlocks:
+      description: The visual blocks that make up the email template.
+      example:
+        - content: |-
+            # Hello, {{ recipient.name }}!
+
+            Welcome to **{{ vars.app_name }}**. [Get started here]({{ data.sign_in_url }}).
+          type: markdown
+        - content: <p>Hello, {{ recipient.name }}!</p><p>Welcome to <strong>{{ vars.app_name }}</strong>. <a href='{{ data.sign_in_url }}'>Get started here</a>.</p>
+          type: html
+        - type: divider
+        - attrs:
+            foo: bar
+          key: my-partial
+          name: My partial
+          type: partial
+        - type: image
+          url: https://example.com/image.png
+        - buttons:
+            - action: https://example.com/button-action
+              label: Click me
+              type: button
+              variant: solid
+          type: button_set
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/EmailButtonSetBlock'
+          - $ref: '#/components/schemas/EmailDividerBlock'
+          - $ref: '#/components/schemas/EmailHtmlBlock'
+          - $ref: '#/components/schemas/EmailImageBlock'
+          - $ref: '#/components/schemas/EmailMarkdownBlock'
+          - $ref: '#/components/schemas/EmailPartialBlock'
+        type: object
+        x-struct: null
+        x-validate: null
+      title: EmailVisualBlocks
+      type: array
+      x-struct: Elixir.ControlWeb.V1.Specs.EmailTemplate.EmailVisualBlocks
       x-validate: null
     ConditionGroupAnyMatch:
       description: A group of conditions that any must be met. Can contain nested alls.
@@ -2560,86 +2606,74 @@ components:
     EmailTemplate:
       description: An email message template.
       example:
-        html_body: <p>Hello, world!</p>
+        html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.sign_in_url }}'>Get started here</a>.</p>
         settings:
           layout_key: default
-        subject: Hello, world!
-        text_body: Hello, world!
+        subject: Welcome to {{ vars.app_name }}
+        text_body: 'Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} Get started here: {{ data.sign_in_url }}.'
       properties:
         html_body:
-          description: An HTML template for the email body. Either `html_body` or `visual_blocks` must be provided.
+          description: An HTML template for the email body. **Required** if `visual_blocks` is not provided. Only one of `html_body` or `visual_blocks` should be set. Supports Liquid templating with variables like `{{ recipient.name }}`, `{{ actor.name }}`, `{{ vars.app_name }}`, `{{ data.custom_field }}`, and `{{ tenant.name }}`. See the [template variables reference](https://docs.knock.app/designing-workflows/template-editor/variables) for available variables.
           example: <p>Hello, world!</p>
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
         settings:
-          anyOf:
-            - description: The [settings](https://docs.knock.app/integrations/email/settings) for the email template.
-              example:
-                layout_key: default
-              properties:
-                attachment_key:
-                  description: The object path in the data payload (of the workflow trigger call) to resolve attachments.
-                  example: attachments
-                  nullable: true
-                  type: string
-                  x-struct: null
-                  x-validate: null
-                layout_key:
-                  description: The key of the email layout which the step is using.
-                  example: default
-                  nullable: true
-                  type: string
-                  x-struct: null
-                  x-validate: null
-                pre_content:
-                  description: A liquid template that will be injected into the layout above the message template content.
-                  nullable: true
-                  type: string
-                  x-struct: null
-                  x-validate: null
-              title: EmailTemplateSettings
-              type: object
+          description: The [settings](https://docs.knock.app/integrations/email/settings) for the email template. Must be supplied with at least `layout_key`.
+          example:
+            layout_key: default
+          properties:
+            attachment_key:
+              description: The object path in the workflow trigger's `data` payload to resolve attachments.Defaults to `attachments`.
+              example: attachments
+              nullable: true
+              type: string
               x-struct: null
               x-validate: null
-            - nullable: true
+            layout_key:
+              description: The `key` of the [email layout](https://docs.knock.app/integrations/email/layouts) that wraps the email template. When omitted, the email template will need to define the `<html>` structure.
+              example: default
+              nullable: true
+              type: string
               x-struct: null
               x-validate: null
-          description: The [settings](https://docs.knock.app/integrations/email/settings) for the email template. Can be omitted.
+            pre_content:
+              description: A liquid template that will be injected into the email layout above the message template content. Useful for setting variables that should be available to the email layout.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          title: EmailTemplateSettings
           type: object
           x-struct: null
           x-validate: null
         subject:
-          description: The subject of the email.
+          description: The subject of the email. Supports Liquid templating with variables like `{{ recipient.name }}`, `{{ actor.name }}`, `{{ vars.app_name }}`, `{{ data.custom_field }}`, and `{{ tenant.name }}`. See the [template variables reference](https://docs.knock.app/designing-workflows/template-editor/variables) for available variables.
           example: Hello, world!
           type: string
           x-struct: null
           x-validate: null
         text_body:
-          description: A text template for the email body. Only present if opted out from autogenerating it from the HTML template.
+          description: A text template for the email body. When omitted, the email template will be autogenerated from the `html_body` or `visual_blocks`.
           example: Hello, world!
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         visual_blocks:
-          description: The visual blocks of the email. Either `html_body` or `visual_blocks` must be provided.
-          items:
-            anyOf:
-              - $ref: '#/components/schemas/EmailButtonSetBlock'
-              - $ref: '#/components/schemas/EmailDividerBlock'
-              - $ref: '#/components/schemas/EmailHtmlBlock'
-              - $ref: '#/components/schemas/EmailImageBlock'
-              - $ref: '#/components/schemas/EmailMarkdownBlock'
-              - $ref: '#/components/schemas/EmailPartialBlock'
-            type: object
-            x-struct: null
-            x-validate: null
-          type: array
+          anyOf:
+            - $ref: '#/components/schemas/EmailVisualBlocks'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: The visual blocks that make up the email template. **Required** if `html_body` is not provided. Only one of `html_body` or `visual_blocks` should be set.
+          type: object
           x-struct: null
           x-validate: null
       required:
         - subject
+        - settings
       title: EmailTemplate
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EmailTemplate
@@ -2686,14 +2720,12 @@ components:
     EmailDividerBlock:
       description: A divider block in an email template.
       example:
-        id: 123e4567-e89b-12d3-a456-426614174000
         layout_attrs:
           padding_bottom: 8
           padding_left: 4
           padding_right: 4
           padding_top: 8
         type: divider
-        version: 1
       properties:
         id:
           description: The ID of the block.
@@ -2735,19 +2767,20 @@ components:
           x-validate: null
         type:
           description: The type of the block.
+          enum:
+            - divider
+          example: divider
           type: string
           x-struct: null
           x-validate: null
         version:
-          description: The version of the block.
+          description: The version of the block schema. This is automatically managed by Knock and should not be set manually. Currently all blocks are at version 1.
           example: 1
           type: integer
           x-struct: null
           x-validate: null
       required:
-        - id
         - type
-        - version
       title: EmailDividerBlock
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EmailBlocks.DividerBlock
@@ -2775,19 +2808,35 @@ components:
             sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
             steps:
               - channel_key: in-app-feed
+                channel_type: in_app_feed
                 description: Main in-app feed
                 name: In-app step
                 ref: in_app_feed_1
                 template:
-                  action_url: '{{ vars.app_url }}'
-                  markdown_body: Hello **{{ recipient.name }}**
+                  action_url: '{{ data.onboarding_url }}'
+                  markdown_body: Hello **{{ recipient.name }}**. Click here to get started.
+                type: channel
+              - ref: delay_1
+                settings:
+                  delay_for:
+                    unit: hours
+                    value: 1
+                type: delay
+              - channel_key: postmark
+                channel_type: email
+                ref: email_1
+                template:
+                  html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.onboarding_url }}'>Get started here</a>.</p>
+                  settings:
+                    layout_key: default
+                  subject: Welcome to {{ vars.app_name }}!
                 type: channel
             trigger_data_json_schema:
               properties:
-                name:
+                onboarding_url:
                   type: string
               required:
-                - name
+                - onboarding_url
               type: object
             trigger_frequency: every_trigger
             updated_at: "2023-02-08T22:15:19.846681Z"
@@ -3627,7 +3676,7 @@ components:
           x-validate: null
         data:
           additionalProperties: true
-          description: A map of data to be used in the workflow run.
+          description: A map of data to be used in the workflow run. The structure should conform to the workflow's `trigger_data_json_schema` if one is defined. Available in templates as `{{ data.field_name }}`. See [trigger data validation docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
           x-struct: null
           x-validate: null
@@ -3910,7 +3959,7 @@ components:
       x-struct: null
       x-validate: null
     Workflow:
-      description: A workflow object.
+      description: A workflow object. Read more in the [docs](https://docs.knock.app/concepts/workflows).
       example:
         active: false
         categories:
@@ -3931,19 +3980,35 @@ components:
         sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
         steps:
           - channel_key: in-app-feed
+            channel_type: in_app_feed
             description: Main in-app feed
             name: In-app step
             ref: in_app_feed_1
             template:
-              action_url: '{{ vars.app_url }}'
-              markdown_body: Hello **{{ recipient.name }}**
+              action_url: '{{ data.onboarding_url }}'
+              markdown_body: Hello **{{ recipient.name }}**. Click here to get started.
+            type: channel
+          - ref: delay_1
+            settings:
+              delay_for:
+                unit: hours
+                value: 1
+            type: delay
+          - channel_key: postmark
+            channel_type: email
+            ref: email_1
+            template:
+              html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.onboarding_url }}'>Get started here</a>.</p>
+              settings:
+                layout_key: default
+              subject: Welcome to {{ vars.app_name }}!
             type: channel
         trigger_data_json_schema:
           properties:
-            name:
+            onboarding_url:
               type: string
           required:
-            - name
+            - onboarding_url
           type: object
         trigger_frequency: every_trigger
         updated_at: "2023-02-08T22:15:19.846681Z"
@@ -4037,7 +4102,7 @@ components:
           x-validate: null
         trigger_data_json_schema:
           additionalProperties: true
-          description: A JSON schema for the expected structure of the workflow trigger's data payload. Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
+          description: A JSON schema for the expected structure of the workflow trigger's `data` payload (available in templates as `{{ data.field_name }}`). Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
           x-struct: null
           x-validate: null
@@ -4224,8 +4289,14 @@ components:
             - not_contains
             - contains_all
             - not_contains_all
+            - is_timestamp_before
+            - is_timestamp_after
+            - is_timestamp_before_date
+            - is_timestamp_after_date
+            - is_timestamp_between
             - empty
             - not_empty
+            - is_timestamp
             - is_audience_member
             - is_not_audience_member
           example: equal_to
@@ -4433,7 +4504,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.Broadcast
       x-validate: null
     WorkflowWebhookStep:
-      description: A webhook step within a workflow. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
+      description: A webhook step within a workflow to send an HTTP request to a generic channel. Read more in the [docs](https://docs.knock.app/designing-workflows/channel-step).
       example:
         channel_group_key: null
         channel_key: pagerduty
@@ -4456,14 +4527,14 @@ components:
         type: channel
       properties:
         channel_group_key:
-          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of the channel group to which the channel step will be sending a notification. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: email
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         channel_key:
-          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of a specific configured channel instance (e.g., 'knock-email', 'postmark', 'sendgrid-marketing') to send the notification through. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: postmark
           nullable: true
           type: string
@@ -4556,19 +4627,35 @@ components:
           sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
           steps:
             - channel_key: in-app-feed
+              channel_type: in_app_feed
               description: Main in-app feed
               name: In-app step
               ref: in_app_feed_1
               template:
-                action_url: '{{ vars.app_url }}'
-                markdown_body: Hello **{{ recipient.name }}**
+                action_url: '{{ data.onboarding_url }}'
+                markdown_body: Hello **{{ recipient.name }}**. Click here to get started.
+              type: channel
+            - ref: delay_1
+              settings:
+                delay_for:
+                  unit: hours
+                  value: 1
+              type: delay
+            - channel_key: postmark
+              channel_type: email
+              ref: email_1
+              template:
+                html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.onboarding_url }}'>Get started here</a>.</p>
+                settings:
+                  layout_key: default
+                subject: Welcome to {{ vars.app_name }}!
               type: channel
           trigger_data_json_schema:
             properties:
-              name:
+              onboarding_url:
                 type: string
             required:
-              - name
+              - onboarding_url
             type: object
           trigger_frequency: every_trigger
           updated_at: "2023-02-08T22:15:19.846681Z"
@@ -4720,8 +4807,8 @@ components:
     EmailButtonSetBlockButton:
       description: A button in a button set block.
       example:
-        action: https://example.com/button1
-        label: Button 1
+        action: https://example.com/button-action
+        label: Click me
         size_attrs:
           is_fullwidth: false
           size: sm
@@ -4731,7 +4818,7 @@ components:
           border_radius: 6
           border_width: 1
           text_color: '#FFFFFF'
-        variant: primary
+        variant: solid
       properties:
         action:
           description: The action of the button.
@@ -4796,6 +4883,10 @@ components:
           x-validate: null
         variant:
           description: The variant of the button.
+          enum:
+            - solid
+            - outline
+          example: solid
           type: string
           x-struct: null
           x-validate: null
@@ -5166,7 +5257,7 @@ components:
           x-validate: null
         trigger_data_json_schema:
           additionalProperties: true
-          description: A JSON schema for the expected structure of the workflow trigger's data payload. Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
+          description: A JSON schema for the expected structure of the workflow trigger's `data` payload (available in templates as `{{ data.field_name }}`). Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
           type: object
           x-struct: null
           x-validate: null
@@ -5234,14 +5325,14 @@ components:
         type: channel
       properties:
         channel_group_key:
-          description: The key of the channel group to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of the channel group to which the channel step will be sending a notification. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: email
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         channel_key:
-          description: The key of the channel to which the channel step will be sending a notification. A channel step can have either a channel key or a channel group key, but not both.
+          description: The key of a specific configured channel instance (e.g., 'knock-email', 'postmark', 'sendgrid-marketing') to send the notification through. Either `channel_key` or `channel_group_key` must be provided, but not both.
           example: postmark
           nullable: true
           type: string
@@ -5614,7 +5705,7 @@ components:
       x-struct: null
       x-validate: null
     WorkflowUserInfo:
-      description: User information.
+      description: Information about a user within the Knock dashboard. Not to be confused with an external user (recipient) of a workflow.
       example:
         email: john@example.com
         id: user_123
@@ -5648,18 +5739,15 @@ components:
       description: A markdown block in an email template.
       example:
         content: '# Hello, world!'
-        id: 123e4567-e89b-12d3-a456-426614174000
         layout_attrs:
           padding_bottom: 8
           padding_left: 4
           padding_right: 4
           padding_top: 8
         type: markdown
-        variant: default
-        version: 1
       properties:
         content:
-          description: The markdown content of the block.
+          description: The markdown content of the block. Supports Liquid templating with variables like `{{ recipient.name }}`, `{{ actor.name }}`, `{{ vars.app_name }}`, `{{ data.custom_field }}`, and `{{ tenant.name }}`. See the [template variables reference](https://docs.knock.app/designing-workflows/template-editor/variables) for available variables.
           type: string
           x-struct: null
           x-validate: null
@@ -5703,27 +5791,29 @@ components:
           x-validate: null
         type:
           description: The type of the block.
+          enum:
+            - markdown
+          example: markdown
           type: string
           x-struct: null
           x-validate: null
         variant:
           description: The flavor of markdown to use for the block.
+          enum:
+            - default
           example: default
           type: string
           x-struct: null
           x-validate: null
         version:
-          description: The version of the block.
+          description: The version of the block schema. This is automatically managed by Knock and should not be set manually. Currently all blocks are at version 1.
           example: 1
           type: integer
           x-struct: null
           x-validate: null
       required:
-        - id
         - type
-        - version
         - content
-        - variant
       title: EmailMarkdownBlock
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EmailBlocks.MarkdownBlock
@@ -6380,26 +6470,26 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewWorkflowTemplateRequest
       x-validate: null
     EmailTemplateSettings:
-      description: The [settings](https://docs.knock.app/integrations/email/settings) for the email template.
+      description: The [settings](https://docs.knock.app/integrations/email/settings) for the email template. Must be supplied with at least `layout_key`.
       example:
         layout_key: default
       properties:
         attachment_key:
-          description: The object path in the data payload (of the workflow trigger call) to resolve attachments.
+          description: The object path in the workflow trigger's `data` payload to resolve attachments.Defaults to `attachments`.
           example: attachments
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         layout_key:
-          description: The key of the email layout which the step is using.
+          description: The `key` of the [email layout](https://docs.knock.app/integrations/email/layouts) that wraps the email template. When omitted, the email template will need to define the `<html>` structure.
           example: default
           nullable: true
           type: string
           x-struct: null
           x-validate: null
         pre_content:
-          description: A liquid template that will be injected into the layout above the message template content.
+          description: A liquid template that will be injected into the email layout above the message template content. Useful for setting variables that should be available to the email layout.
           nullable: true
           type: string
           x-struct: null
@@ -6412,12 +6502,15 @@ components:
       description: An HTML block in an email template.
       example:
         content: <p>Hello, world!</p>
-        id: 123e4567-e89b-12d3-a456-426614174000
+        layout_attrs:
+          padding_bottom: 8
+          padding_left: 4
+          padding_right: 4
+          padding_top: 8
         type: html
-        version: 1
       properties:
         content:
-          description: The HTML content of the block.
+          description: The HTML content of the block. Supports Liquid templating with variables like `{{ recipient.name }}`, `{{ actor.name }}`, `{{ vars.app_name }}`, `{{ data.custom_field }}`, and `{{ tenant.name }}`. See the [template variables reference](https://docs.knock.app/designing-workflows/template-editor/variables) for available variables.
           type: string
           x-struct: null
           x-validate: null
@@ -6428,21 +6521,53 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        layout_attrs:
+          description: The layout attributes of the block.
+          properties:
+            padding_bottom:
+              description: The padding_bottom layout attribute of the block.
+              type: integer
+              x-struct: null
+              x-validate: null
+            padding_left:
+              description: The padding_left layout attribute of the block.
+              type: integer
+              x-struct: null
+              x-validate: null
+            padding_right:
+              description: The padding_right layout attribute of the block.
+              type: integer
+              x-struct: null
+              x-validate: null
+            padding_top:
+              description: The padding_top layout attribute of the block.
+              type: integer
+              x-struct: null
+              x-validate: null
+          required:
+            - padding_top
+            - padding_right
+            - padding_bottom
+            - padding_left
+          type: object
+          x-struct: null
+          x-validate: null
         type:
           description: The type of the block.
+          enum:
+            - html
+          example: html
           type: string
           x-struct: null
           x-validate: null
         version:
-          description: The version of the block.
+          description: The version of the block schema. This is automatically managed by Knock and should not be set manually. Currently all blocks are at version 1.
           example: 1
           type: integer
           x-struct: null
           x-validate: null
       required:
-        - id
         - type
-        - version
         - content
       title: EmailHtmlBlock
       type: object
@@ -6557,6 +6682,15 @@ components:
         description: This is a test partial
         environment: development
         icon_name: icon-name
+        input_schema:
+          - key: text_field
+            label: My text field
+            settings:
+              description: A description of the text field
+              max_length: 100
+              min_length: 10
+              required: true
+            type: text
         inserted_at: "2021-01-01T00:00:00Z"
         key: my-partial
         name: My Partial
@@ -6583,6 +6717,25 @@ components:
         icon_name:
           description: The name of the icon to be used in the visual editor.
           type: string
+          x-struct: null
+          x-validate: null
+        input_schema:
+          description: The field types available for the partial.
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/MessageTypeBooleanField'
+              - $ref: '#/components/schemas/MessageTypeButtonField'
+              - $ref: '#/components/schemas/MessageTypeImageField'
+              - $ref: '#/components/schemas/MessageTypeMarkdownField'
+              - $ref: '#/components/schemas/MessageTypeMultiSelectField'
+              - $ref: '#/components/schemas/MessageTypeSelectField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
+              - $ref: '#/components/schemas/MessageTypeTextareaField'
+              - $ref: '#/components/schemas/MessageTypeUrlField'
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
           x-struct: null
           x-validate: null
         inserted_at:
@@ -6782,7 +6935,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.MessageType
       x-validate: null
     WorkflowFetchStep:
-      description: A fetch function step. Read more in the [docs](https://docs.knock.app/designing-workflows/fetch-function).
+      description: A fetch function step. Retrieves data from an external source and merges it into the workflow's `data` scope for use in later steps. Read more in the [docs](https://docs.knock.app/designing-workflows/fetch-function).
       example:
         name: Fetch step
         ref: fetch_1
@@ -6854,6 +7007,15 @@ components:
             description: This is a test partial
             environment: development
             icon_name: icon-name
+            input_schema:
+              - key: text_field
+                label: My text field
+                settings:
+                  description: A description of the text field
+                  max_length: 100
+                  min_length: 10
+                  required: true
+                type: text
             inserted_at: "2021-01-01T00:00:00Z"
             key: my-partial
             name: My Partial
@@ -7217,8 +7379,14 @@ components:
             - not_contains
             - contains_all
             - not_contains_all
+            - is_timestamp_before
+            - is_timestamp_after
+            - is_timestamp_before_date
+            - is_timestamp_after_date
+            - is_timestamp_between
             - empty
             - not_empty
+            - is_timestamp
             - is_audience_member
             - is_not_audience_member
           example: equal_to
@@ -7242,35 +7410,31 @@ components:
       description: A push notification template.
       example:
         settings:
+          delivery_type: content
           payload_overrides: '{"name": "John"}'
         text_body: Hello, world!
         title: Hello, world!
       properties:
         settings:
-          anyOf:
-            - properties:
-                delivery_type:
-                  description: The delivery type of the push notification. Defaults to `content`. Set as silent to send a data-only notification. When set to `data`, no body will be sent.
-                  enum:
-                    - silent
-                    - content
-                  example: content
-                  type: string
-                  x-struct: null
-                  x-validate: null
-                payload_overrides:
-                  description: A JSON object that overrides the payload sent to the push provider.
-                  example: '{"name": "John"}'
-                  type: string
-                  x-struct: null
-                  x-validate: null
-              type: object
+          description: The [settings](https://docs.knock.app/integrations/sms/settings-and-overrides) for the push template.
+          properties:
+            delivery_type:
+              description: The delivery type of the push notification. Set as silent to send a data-only notification. When set to `silent`, no body will be sent.
+              enum:
+                - silent
+                - content
+              example: content
+              type: string
               x-struct: null
               x-validate: null
-            - nullable: true
+            payload_overrides:
+              description: A JSON object that overrides the payload sent to the push provider.
+              example: '{"name": "John"}'
+              type: string
               x-struct: null
               x-validate: null
-          description: The [settings](https://docs.knock.app/integrations/sms/settings-and-overrides) for the push template. Can be omitted.
+          required:
+            - delivery_type
           type: object
           x-struct: null
           x-validate: null
@@ -7289,6 +7453,7 @@ components:
       required:
         - title
         - text_body
+        - settings
       title: PushTemplate
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PushTemplate
@@ -7640,19 +7805,35 @@ paths:
                     sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
                     steps:
                       - channel_key: in-app-feed
+                        channel_type: in_app_feed
                         description: Main in-app feed
                         name: In-app step
                         ref: in_app_feed_1
                         template:
-                          action_url: '{{ vars.app_url }}'
-                          markdown_body: Hello **{{ recipient.name }}**
+                          action_url: '{{ data.onboarding_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**. Click here to get started.
+                        type: channel
+                      - ref: delay_1
+                        settings:
+                          delay_for:
+                            unit: hours
+                            value: 1
+                        type: delay
+                      - channel_key: postmark
+                        channel_type: email
+                        ref: email_1
+                        template:
+                          html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.onboarding_url }}'>Get started here</a>.</p>
+                          settings:
+                            layout_key: default
+                          subject: Welcome to {{ vars.app_name }}!
                         type: channel
                     trigger_data_json_schema:
                       properties:
-                        name:
+                        onboarding_url:
                           type: string
                       required:
-                        - name
+                        - onboarding_url
                       type: object
                     trigger_frequency: every_trigger
                     updated_at: "2023-02-08T22:15:19.846681Z"
@@ -9467,6 +9648,15 @@ paths:
                       description: This is a test partial
                       environment: development
                       icon_name: icon-name
+                      input_schema:
+                        - key: text_field
+                          label: My text field
+                          settings:
+                            description: A description of the text field
+                            max_length: 100
+                            min_length: 10
+                            required: true
+                          type: text
                       inserted_at: "2021-01-01T00:00:00Z"
                       key: my-partial
                       name: My Partial
@@ -9746,6 +9936,15 @@ paths:
                     description: This is a test partial
                     environment: development
                     icon_name: icon-name
+                    input_schema:
+                      - key: text_field
+                        label: My text field
+                        settings:
+                          description: A description of the text field
+                          max_length: 100
+                          min_length: 10
+                          required: true
+                        type: text
                     inserted_at: "2021-01-01T00:00:00Z"
                     key: my-partial
                     name: My Partial
@@ -10473,19 +10672,35 @@ paths:
                       sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
                       steps:
                         - channel_key: in-app-feed
+                          channel_type: in_app_feed
                           description: Main in-app feed
                           name: In-app step
                           ref: in_app_feed_1
                           template:
-                            action_url: '{{ vars.app_url }}'
-                            markdown_body: Hello **{{ recipient.name }}**
+                            action_url: '{{ data.onboarding_url }}'
+                            markdown_body: Hello **{{ recipient.name }}**. Click here to get started.
+                          type: channel
+                        - ref: delay_1
+                          settings:
+                            delay_for:
+                              unit: hours
+                              value: 1
+                          type: delay
+                        - channel_key: postmark
+                          channel_type: email
+                          ref: email_1
+                          template:
+                            html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.onboarding_url }}'>Get started here</a>.</p>
+                            settings:
+                              layout_key: default
+                            subject: Welcome to {{ vars.app_name }}!
                           type: channel
                       trigger_data_json_schema:
                         properties:
-                          name:
+                          onboarding_url:
                             type: string
                         required:
-                          - name
+                          - onboarding_url
                         type: object
                       trigger_frequency: every_trigger
                       updated_at: "2023-02-08T22:15:19.846681Z"
@@ -11220,19 +11435,35 @@ paths:
                     sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
                     steps:
                       - channel_key: in-app-feed
+                        channel_type: in_app_feed
                         description: Main in-app feed
                         name: In-app step
                         ref: in_app_feed_1
                         template:
-                          action_url: '{{ vars.app_url }}'
-                          markdown_body: Hello **{{ recipient.name }}**
+                          action_url: '{{ data.onboarding_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**. Click here to get started.
+                        type: channel
+                      - ref: delay_1
+                        settings:
+                          delay_for:
+                            unit: hours
+                            value: 1
+                        type: delay
+                      - channel_key: postmark
+                        channel_type: email
+                        ref: email_1
+                        template:
+                          html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.onboarding_url }}'>Get started here</a>.</p>
+                          settings:
+                            layout_key: default
+                          subject: Welcome to {{ vars.app_name }}!
                         type: channel
                     trigger_data_json_schema:
                       properties:
-                        name:
+                        onboarding_url:
                           type: string
                       required:
-                        - name
+                        - onboarding_url
                       type: object
                     trigger_frequency: every_trigger
                     updated_at: "2023-02-08T22:15:19.846681Z"
@@ -11373,6 +11604,15 @@ paths:
                     description: This is a test partial
                     environment: development
                     icon_name: icon-name
+                    input_schema:
+                      - key: text_field
+                        label: My text field
+                        settings:
+                          description: A description of the text field
+                          max_length: 100
+                          min_length: 10
+                          required: true
+                        type: text
                     inserted_at: "2021-01-01T00:00:00Z"
                     key: my-partial
                     name: My Partial
@@ -13085,19 +13325,35 @@ paths:
                     sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
                     steps:
                       - channel_key: in-app-feed
+                        channel_type: in_app_feed
                         description: Main in-app feed
                         name: In-app step
                         ref: in_app_feed_1
                         template:
-                          action_url: '{{ vars.app_url }}'
-                          markdown_body: Hello **{{ recipient.name }}**
+                          action_url: '{{ data.onboarding_url }}'
+                          markdown_body: Hello **{{ recipient.name }}**. Click here to get started.
+                        type: channel
+                      - ref: delay_1
+                        settings:
+                          delay_for:
+                            unit: hours
+                            value: 1
+                        type: delay
+                      - channel_key: postmark
+                        channel_type: email
+                        ref: email_1
+                        template:
+                          html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.onboarding_url }}'>Get started here</a>.</p>
+                          settings:
+                            layout_key: default
+                          subject: Welcome to {{ vars.app_name }}!
                         type: channel
                     trigger_data_json_schema:
                       properties:
-                        name:
+                        onboarding_url:
                           type: string
                       required:
-                        - name
+                        - onboarding_url
                       type: object
                     trigger_frequency: every_trigger
                     updated_at: "2023-02-08T22:15:19.846681Z"
