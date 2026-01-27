@@ -128,13 +128,16 @@ const StaticSearch = () => {
   );
 };
 
+// Check if a path is an API reference path
+const isApiReferencePath = (path: string) =>
+  path.startsWith("api-reference") || path.startsWith("mapi-reference");
+
 const handleSearchNavigation = (
   e: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent<HTMLFormElement>,
   router,
   itemUrl,
   onSearch: () => void,
 ) => {
-  e.preventDefault();
   const pathname = router.asPath;
   const isMapiReference =
     itemUrl.startsWith("mapi-reference") &&
@@ -146,12 +149,20 @@ const handleSearchNavigation = (
 
   // If the item is in the same reference, highlight the item, don't navigate
   if (isSamePageReferenceResult) {
+    e.preventDefault();
     highlightResource(`/${itemUrl}`, { moveToItem: true });
+    onSearch();
+  } else if (isApiReferencePath(itemUrl)) {
+    // For API reference items when not on the same reference page,
+    // allow default anchor behavior (full page reload) to ensure
+    // the ApiReferenceProvider context is properly initialized
+    onSearch();
   } else {
-    // Handle regular navigation
+    // Handle regular navigation with client-side routing
+    e.preventDefault();
     router.push(`/${itemUrl}`);
+    onSearch();
   }
-  onSearch();
 };
 
 const DocsSearchResult = ({
@@ -162,31 +173,51 @@ const DocsSearchResult = ({
   onClick: () => void;
 }) => {
   const router = useRouter();
+  const href = `/${item.path}`;
+  const isApiRef = isApiReferencePath(item.path);
+
+  const content = (
+    <Box w="full" h="full" px="2" py="2">
+      <Text as="p" size="2" color="black" weight="regular">
+        {/* @ts-expect-error not sure about these algolia types */}
+        {parseAlgoliaHitHighlight({ hit: item, attribute: "title" }).map(
+          (x, index) => {
+            if (x.isHighlighted) {
+              return (
+                <mark key={index} style={highlightingStyles}>
+                  {x.value}
+                </mark>
+              );
+            }
+            return x.value;
+          },
+        )}
+      </Text>
+      <Text as="span" size="1" color="gray" weight="regular">
+        {item.section}
+      </Text>
+    </Box>
+  );
+
+  // Use regular anchor for API reference to ensure full page reload
+  // and proper context initialization
+  if (isApiRef) {
+    return (
+      <a
+        href={href}
+        onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
     <Link
-      href={`/${item.path}`}
+      href={href}
       onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
     >
-      <Box w="full" h="full" px="2" py="2">
-        <Text as="p" size="2" color="black" weight="regular">
-          {/* @ts-expect-error not sure about these algolia types */}
-          {parseAlgoliaHitHighlight({ hit: item, attribute: "title" }).map(
-            (x, index) => {
-              if (x.isHighlighted) {
-                return (
-                  <mark key={index} style={highlightingStyles}>
-                    {x.value}
-                  </mark>
-                );
-              }
-              return x.value;
-            },
-          )}
-        </Text>
-        <Text as="span" size="1" color="gray" weight="regular">
-          {item.section}
-        </Text>
-      </Box>
+      {content}
     </Link>
   );
 };
@@ -199,6 +230,8 @@ const EndpointSearchResult = ({
   onClick: () => void;
 }) => {
   const router = useRouter();
+  const href = `/${item.path}`;
+  const isApiRef = isApiReferencePath(item.path);
   const colors = {
     get: "blue",
     post: "green",
@@ -206,45 +239,63 @@ const EndpointSearchResult = ({
     delete: "red",
     patch: "purple",
   } as const;
+
+  const content = (
+    <Stack w="full" h="full" px="1" py="2" gap="2" alignItems="center">
+      <Tag size="0" color={colors[item.method as keyof typeof colors]}>
+        {item.method?.toUpperCase()}
+      </Tag>
+      <Code as="p" size="1" color="black" weight="regular">
+        {/* @ts-expect-error not sure about these algolia types */}
+        {parseAlgoliaHitHighlight({ hit: item, attribute: "endpoint" }).map(
+          (x, index) => {
+            if (x.isHighlighted) {
+              return (
+                <mark key={index} style={highlightingStyles}>
+                  {x.value}
+                </mark>
+              );
+            }
+            return x.value;
+          },
+        )}
+      </Code>
+      <Text
+        as="span"
+        size="1"
+        color="gray"
+        weight="regular"
+        style={{
+          textOverflow: "ellipsis",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          maxWidth: "100%",
+        }}
+      >
+        {item.title}
+      </Text>
+    </Stack>
+  );
+
+  // Use regular anchor for API reference to ensure full page reload
+  // and proper context initialization
+  if (isApiRef) {
+    return (
+      <a
+        href={href}
+        onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
     <Link
-      href={`/${item.path}`}
+      href={href}
       onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
     >
-      <Stack w="full" h="full" px="1" py="2" gap="2" alignItems="center">
-        <Tag size="0" color={colors[item.method as keyof typeof colors]}>
-          {item.method?.toUpperCase()}
-        </Tag>
-        <Code as="p" size="1" color="black" weight="regular">
-          {/* @ts-expect-error not sure about these algolia types */}
-          {parseAlgoliaHitHighlight({ hit: item, attribute: "endpoint" }).map(
-            (x, index) => {
-              if (x.isHighlighted) {
-                return (
-                  <mark key={index} style={highlightingStyles}>
-                    {x.value}
-                  </mark>
-                );
-              }
-              return x.value;
-            },
-          )}
-        </Code>
-        <Text
-          as="span"
-          size="1"
-          color="gray"
-          weight="regular"
-          style={{
-            textOverflow: "ellipsis",
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            maxWidth: "100%",
-          }}
-        >
-          {item.title}
-        </Text>
-      </Stack>
+      {content}
     </Link>
   );
 };
@@ -433,7 +484,13 @@ const Autocomplete = () => {
               return;
             }
 
-            router.push(`/${itemUrl}`);
+            // For API reference items, use window.location for full page reload
+            // to ensure the ApiReferenceProvider context is properly initialized
+            if (isApiReferencePath(itemUrl)) {
+              window.location.href = `/${itemUrl}`;
+            } else {
+              router.push(`/${itemUrl}`);
+            }
             if (state.query) {
               clearQueryRef.current?.();
             }
@@ -535,9 +592,16 @@ const Autocomplete = () => {
       }
 
       // Navigate to the first item that is not the "Ask AI" item
-      const firstItem = autocompleteState?.collections[0]?.items[1];
-      if (firstItem) {
-        handleSearchNavigation(e, router, firstItem?.path, () => {});
+      const firstItem = autocompleteState?.collections[0]?.items[1] as
+        | ResultItem
+        | undefined;
+      if (firstItem?.path) {
+        // For API reference items, use window.location for full page reload
+        if (isApiReferencePath(firstItem.path)) {
+          window.location.href = `/${firstItem.path}`;
+        } else {
+          router.push(`/${firstItem.path}`);
+        }
       }
     }
   };
