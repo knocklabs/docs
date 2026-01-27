@@ -79,6 +79,7 @@ const HeaderList: React.FC<{ headers: Header[]; nesting: number }> = ({
             listStyle: "none",
             wordBreak: "break-word",
             marginLeft: nesting === 1 ? "0.75rem" : "0",
+            lineHeight: "1.5",
           }}
         >
           <Text
@@ -100,8 +101,9 @@ const HeaderList: React.FC<{ headers: Header[]; nesting: number }> = ({
                 history.replaceState(null, "", `#${h.id}`);
               }
             }}
-            size="2"
+            size="1"
             color="gray"
+            data-toc-link
             style={{
               textDecoration: "none",
               textOverflow: "ellipsis",
@@ -147,14 +149,9 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
       >
         {headers.length > 0 && (
           <>
-            <Stack
-              direction="row"
-              align="center"
-              gap="1"
-              style={{ marginBottom: "0.5rem" }}
-            >
-              <Icon icon={TextIcon} size="2" color="default" aria-hidden />
-              <Text as="span" size="2" weight="medium" color="default">
+            <Stack direction="row" align="center" gap="1" height="7">
+              <Icon icon={TextIcon} size="1" color="default" aria-hidden />
+              <Text as="span" size="1" weight="medium" color="default">
                 On this page
               </Text>
             </Stack>
@@ -162,7 +159,8 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
               <Stack
                 as="ul"
                 direction="column"
-                gap="1"
+                gap="2"
+                mt="1"
                 style={{ overflowY: "auto", paddingBottom: "2.5rem" }}
                 h="full"
                 tgphRef={scrollerRef}
@@ -174,7 +172,7 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
               />
               <Box
                 borderTop="px"
-                borderColor="gray-3"
+                borderColor="gray-4"
                 style={{ marginBottom: "1rem" }}
               />
               <Text

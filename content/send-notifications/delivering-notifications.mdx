@@ -28,9 +28,19 @@ We will also change the [message delivery status](/send-notifications/message-st
 - A `bounced` status when the provider indicates a message has been bounced and Knock will not retry.
 - An `undelivered` status when Knock has failed to deliver the message and will not retry (either retries have been exhausted or an unretryable error was encountered).
 
-### Delivery status retries
+### Delivery status tracking
 
-For certain channel types where it is supported by the provider, we run [delivery status](/send-notifications/message-statuses#delivery-status) checks. In these cases, we poll the provider's API to try to confirm delivery.
+For certain channel types where it is supported by the provider, Knock tracks [delivery status](/send-notifications/message-statuses#delivery-status) updates. Knock supports two methods for tracking delivery status:
+
+#### Provider webhooks
+
+When provider webhooks are enabled, your provider sends delivery status updates directly to Knock.
+
+To enable provider webhooks, configure the webhook URL in your channel settings and add it to your provider's webhook configuration. See your provider's integration page for detailed setup instructions.
+
+#### Polling
+
+If provider webhooks are unsupported or not enabled, Knock periodically polls the provider's API to check delivery status.
 
 On success, we update the message delivery status to `delivered`. We retry a delivery status check when:
 

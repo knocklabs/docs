@@ -35,6 +35,46 @@ function getIcon(icon?: IconType): IconComponent | LucideIcon {
   return icon as unknown as LucideIcon;
 }
 
+// Shared component for rendering icons (either custom IconComponent or LucideIcon)
+function IconRenderer({
+  icon,
+  size = "10",
+  bg = "gray-2",
+}: {
+  icon: IconComponent | LucideIcon;
+  size?: "8" | "10";
+  bg?: "black" | "gray-2";
+}) {
+  if (typeof icon === "function" && !("render" in icon)) {
+    // Custom IconComponent
+    return (
+      <Box
+        w={size}
+        h={size}
+        bg={bg}
+        color={bg === "black" ? "white" : undefined}
+        p="2"
+        borderRadius="2"
+      >
+        {(icon as IconComponent)()}
+      </Box>
+    );
+  }
+  // LucideIcon
+  return (
+    <Icon
+      icon={icon as LucideIcon}
+      aria-hidden={true}
+      w={size}
+      h={size}
+      bg={bg}
+      color={bg === "black" ? "white" : undefined}
+      p="2"
+      borderRadius="2"
+    />
+  );
+}
+
 export const Tool = ({
   icon,
   title,
@@ -64,22 +104,7 @@ export const Tool = ({
         justifyContent="center"
         alignItems="center"
       >
-        {typeof _icon === "function" ? (
-          <Box w="8" h="8" bg="black" color="white" p="2" borderRadius="2">
-            {(_icon as IconComponent)()}
-          </Box>
-        ) : (
-          <Icon
-            icon={_icon as LucideIcon}
-            aria-hidden={true}
-            w="8"
-            h="8"
-            bg="black"
-            color="white"
-            p="2"
-            borderRadius="2"
-          />
-        )}
+        <IconRenderer icon={_icon} size="8" bg="black" />
         <Box mt="2">
           <Heading as="h4" size="2" weight="medium" mb="1" align="center">
             {title}
@@ -132,21 +157,7 @@ export const ContentCard = ({
         p="3"
         data-content-card-inner
       >
-        {typeof _icon === "function" ? (
-          <Box w="10" h="10" bg="gray-2" p="2" borderRadius="2">
-            {(_icon as IconComponent)()}
-          </Box>
-        ) : (
-          <Icon
-            icon={_icon as LucideIcon}
-            aria-hidden={true}
-            w="10"
-            h="10"
-            bg="gray-2"
-            p="2"
-            borderRadius="2"
-          />
-        )}
+        <IconRenderer icon={_icon} size="10" bg="gray-2" />
         <Heading as="span" size="3" weight="medium" mb="0">
           {title}
         </Heading>
@@ -185,6 +196,7 @@ export const ConceptCard = ({
           alt={title}
           width={2200}
           height={2200}
+          priority
           style={{
             objectFit: "cover",
             width: "100%",
@@ -258,12 +270,16 @@ export const BuildingBlock = ({
   );
 };
 
-type ResponsiveThreeColumnProps = TgphComponentProps<typeof Stack>;
+type ResponsiveGridProps = TgphComponentProps<typeof Stack> & {
+  columns?: 2 | 3;
+};
 
-export const ResponsiveThreeColumn = ({
+// Consolidated responsive grid component
+const ResponsiveGrid = ({
   children,
+  columns = 2,
   ...props
-}: ResponsiveThreeColumnProps) => {
+}: ResponsiveGridProps) => {
   return (
     <Stack
       direction="row"
@@ -274,7 +290,7 @@ export const ResponsiveThreeColumn = ({
       {...props}
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
+        gridTemplateColumns: `repeat(${columns}, 1fr)`,
         ...props.style,
       }}
     >
@@ -282,28 +298,25 @@ export const ResponsiveThreeColumn = ({
     </Stack>
   );
 };
+
+type ResponsiveThreeColumnProps = TgphComponentProps<typeof Stack>;
+
+export const ResponsiveThreeColumn = ({
+  children,
+  ...props
+}: ResponsiveThreeColumnProps) => (
+  <ResponsiveGrid columns={3} {...props}>
+    {children}
+  </ResponsiveGrid>
+);
 
 type ResponsiveTwoColumnProps = TgphComponentProps<typeof Stack>;
 
 export const ResponsiveTwoColumn = ({
   children,
   ...props
-}: ResponsiveTwoColumnProps) => {
-  return (
-    <Stack
-      direction="row"
-      gap="6"
-      w="full"
-      justifyContent="space-between"
-      className="md-one-column"
-      {...props}
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        ...props.style,
-      }}
-    >
-      {children}
-    </Stack>
-  );
-};
+}: ResponsiveTwoColumnProps) => (
+  <ResponsiveGrid columns={2} {...props}>
+    {children}
+  </ResponsiveGrid>
+);

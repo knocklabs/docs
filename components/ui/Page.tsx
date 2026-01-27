@@ -139,7 +139,7 @@ function Content({
 }): React.ReactElement {
   return (
     <div
-      className="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-8 pb-8"
+      className="flex-1 min-w-0 space-y-8 px-6 py-9"
       style={{ minWidth: "min(600px, 100%)" }}
       data-content
     >

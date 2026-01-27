@@ -11,10 +11,7 @@ Knock integrates with <a href="https://sendgrid.com" target="_blank">SendGrid</a
 
 - Attachments support
 - Delivery tracking
-  - Only supported for SendGrid accounts with Email Activity.
 - Bounce support
-  - Only supported for SendGrid accounts with Email Activity.
-  - Currently, only synchronous bounce updates are reflected.
 - Knock link and open tracking
 - SendGrid link and open tracking
 - Per environment configuration
@@ -28,8 +25,8 @@ You can create a new SendGrid channel in the dashboard under the **Channels and 
 
 Here are a few things to note as you configure your SendGrid provider:
 
-- **API key.** At a minimum, Knock needs an API key with full access to the **Mail Send** permission. If you're looking to support delivery tracking, you'll need to provide Knock with a SendGrid API key that includes read access to the **Email Activity** permission. (Note: email activity requires <a href="https://www.twilio.com/en-us/products/email-api/pricing#analytics" target="_blank">a paid "Additional Email Activity History" add-on</a> from SendGrid.)
-- **Check delivery status.** If enabled, you can go to the email activity page in SendGrid to check the delivery status of a given email.
+- **API key.** At a minimum, Knock needs an API key with full access to the **Mail Send** permission. For webhook-based delivery tracking (recommended), no additional permissions are needed. If you're using polling-based delivery tracking, you'll need to provide an API key with read access to the **Email Activity** permission (requires <a href="https://sendgrid.com/solutions/add-ons/30-days-additional-email-activity-history/" target="_blank">a SendGrid paid add-on</a>).
+- **Delivery tracking.** We recommend using webhook-based delivery tracking, which provides real-time updates without requiring the Email Activity add-on. See the [delivery status webhooks](#delivery-status-webhooks) section below for setup instructions.
 - **Enable email open tracking.** If enabled, you can go to the email activity page in SendGrid to check the open status of a given email.
 - **Enable email link tracking.** If enabled, you can go to the email activity page in SendGrid to check the link open status of a given email.
 
@@ -152,7 +149,7 @@ You can learn about the role of these SendGrid attributes in the <a href="https:
 
 In order to send an email notification you'll need a valid `email` property set on your recipient.
 
-## Delivery tracking
+## Delivery status webhooks
 
 Delivery tracking for SendGrid can result in the following status updates to your message:
 
@@ -160,13 +157,68 @@ Delivery tracking for SendGrid can result in the following status updates to you
 - The message was not delivered and Knock updates the message to `undelivered`
 - The message was not delivered due to a synchronous bounce and Knock updates the message to `bounced`
 
+When enabled, SendGrid will send delivery status updates directly to Knock via webhooks, allowing you to track the full lifecycle of your email messages in real-time. This provides more reliable tracking than polling-based methods and captures both synchronous and asynchronous bounce events.
+
+### Prerequisites
+
+Before enabling delivery status webhooks, you need:
+
+1. A verified sender identity or domain in SendGrid
+2. A SendGrid channel configured in Knock (see the [getting started](#getting-started) section above)
+3. Access to your SendGrid webhook settings
+
+### Setting up delivery status webhooks
+
+<Steps titleSize="h3">
+  <Step title="Enable delivery status webhooks in Knock">
+    1. Navigate to **Channels and sources** in your Knock dashboard
+    2. Select your SendGrid channel
+    3. Click "Manage configuration" for the environment you want to configure
+    4. Scroll to the "Incoming message status updates" section and enable incoming webhooks
+    5. Copy the generated webhook URL - you'll need this in the next step
+  </Step>
+
+  <Step title="Configure Event Webhook in SendGrid">
+    In the SendGrid dashboard, configure the Event Webhook to send delivery events to Knock:
+
+    1. Go to <a href="https://app.sendgrid.com/settings/mail_settings" target="_blank">Settings > Mail Settings > Event Webhook</a> in your SendGrid dashboard
+    2. Enable the Event Webhook if it's not already enabled
+    3. In the "HTTP POST URL" field, paste the webhook URL from Knock
+    4. Under "Select Actions", enable these event types:
+       - **Delivered** - Tracks successful delivery
+       - **Bounce** - Tracks bounce events (both hard and soft bounces)
+    5. Click "Save" to activate the webhook
+    6. SendGrid will begin sending events to Knock immediately
+
+  </Step>
+</Steps>
+
+### Supported delivery statuses
+
+When delivery status webhooks are enabled for SendGrid, Knock will update message statuses based on these SendGrid webhook events:
+
+| SendGrid Event Type | Knock Status | Description                                                         |
+| ------------------- | ------------ | ------------------------------------------------------------------- |
+| delivered           | `delivered`  | The email was successfully delivered to the recipient's mail server |
+| bounce              | `bounced`    | The email bounced due to invalid recipient, domain, or mailbox full |
+
+### Troubleshooting
+
+If delivery status updates aren't appearing in Knock:
+
+1. **Check Event Webhook status.** Verify the Event Webhook is enabled in your SendGrid Mail Settings.
+2. **Verify event selection.** Ensure both "Delivered" and "Bounce" events are selected in your Event Webhook configuration.
+3. **Verify sender identity.** Ensure you're sending from a verified sender identity or domain in SendGrid.
+4. **Test the webhook.** Use SendGrid's "Test Your Integration" button to send a test event and verify connectivity.
+5. **Check event history.** Review the Event Webhook activity in SendGrid to ensure events are being sent.
+
 <Callout
-  type="alert"
-  title="Note:"
+  type="info"
+  title="Need help?"
   text={
     <>
-      Asynchronous bounces that occur after initial delivery are not currently
-      reflected in Knock's delivery status.
+      If you're having trouble setting up delivery status webhooks, contact our
+      support team at <a href="mailto:support@knock.app">support@knock.app</a>.
     </>
   }
 />

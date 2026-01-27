@@ -2,15 +2,17 @@ import { Box, Stack } from "@telegraph/layout";
 import { Text, Code } from "@telegraph/typography";
 import { Button } from "@telegraph/button";
 import { Icon, LucideIcon } from "@telegraph/icon";
+import { TextArea } from "@telegraph/textarea";
 import {
   X,
   ArrowUp,
   Loader2,
   ChevronsUpDown,
-  ExternalLink,
   Check,
   Plus,
   Copy,
+  Dot,
+  ArrowUpRight,
 } from "lucide-react";
 import { Popover } from "@telegraph/popover";
 import { Tooltip } from "@telegraph/tooltip";
@@ -228,20 +230,10 @@ const chatOptionButtonStyle: React.CSSProperties = {
   textAlign: "left",
 };
 
-const chatOptionIconContainerStyle: React.CSSProperties = {
-  width: "16px",
-  height: "20px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  flexShrink: 0,
-};
-
 type ChatOptionButtonProps = {
   onClick: () => void;
   isSelected?: boolean;
   icon?: LucideIcon;
-  iconColor?: string;
   title: string;
   showTruncatedTooltip?: boolean;
   style?: React.CSSProperties;
@@ -251,37 +243,34 @@ function ChatOptionButton({
   onClick,
   isSelected = false,
   icon: IconComponent,
-  iconColor,
   title,
   showTruncatedTooltip = false,
   style,
 }: ChatOptionButtonProps): React.ReactElement {
   const titleContent = (
-    <Text as="span" size="2" weight="medium">
+    <Text as="span" size="1" weight="medium">
       {title}
     </Text>
   );
-
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="2"
+      fontSize="13px"
+      fontWeight="medium"
+      w="full"
+      justifyContent="flex-start"
       onClick={onClick}
-      style={{
-        ...chatOptionButtonStyle,
-        backgroundColor: isSelected ? "var(--tgph-gray-4)" : "transparent",
-        ...style,
-      }}
+      icon={
+        IconComponent
+          ? {
+              icon: IconComponent,
+              size: "1",
+              "aria-hidden": true,
+            }
+          : undefined
+      }
     >
-      <Box style={chatOptionIconContainerStyle}>
-        {IconComponent && (
-          <Icon
-            icon={IconComponent}
-            size="1"
-            aria-hidden
-            style={{ color: iconColor }}
-          />
-        )}
-      </Box>
       {showTruncatedTooltip ? (
         <TruncatedTextWithTooltip text={title}>
           {titleContent}
@@ -289,7 +278,7 @@ function ChatOptionButton({
       ) : (
         titleContent
       )}
-    </button>
+    </Button>
   );
 }
 
@@ -312,7 +301,6 @@ function AskAiSidebar() {
   const [inputValue, setInputValue] = useState("");
   const [isHoveringResizeHandle, setIsHoveringResizeHandle] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isHoveringChatButton, setIsHoveringChatButton] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
@@ -488,110 +476,111 @@ function AskAiSidebar() {
   };
 
   // Input area component - conditionally rendered at top or bottom
-  const inputArea = (isAtTop: boolean) => {
+  const inputArea = () => {
     const hasInput = inputValue.trim().length > 0;
     // Button is enabled when loading/streaming (to stop) or when there's input (to submit)
     const isActive = isLoading || isStreaming;
     const isButtonEnabled = isActive || hasInput;
 
     return (
-      <Box
-        borderBottomWidth={isAtTop ? "px" : undefined}
-        borderTopWidth={!isAtTop ? "px" : undefined}
-        borderColor="gray-4"
-        style={{
-          minWidth: `${sidebarWidth}px`,
-          position: "relative",
-        }}
-      >
-        {/* Textarea */}
-        <Box>
-          <textarea
-            ref={textareaRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask questions about the docs"
-            rows={1}
-            disabled={isActive}
-            style={{
-              width: "100%",
-              height: "104px",
-              minHeight: "104px",
-              maxHeight: "104px",
-              padding: "8px 12px",
-              border: "none",
-              fontSize: "13px",
-              outline: "none",
-              resize: "none",
-              fontFamily: "inherit",
-              boxSizing: "border-box",
-              verticalAlign: "top",
-              textAlign: "left",
-              lineHeight: "20px",
-              display: "block",
-              backgroundColor: "var(--tgph-surface-1)",
-              color:
-                hasInput || isActive
-                  ? "var(--tgph-gray-12)"
-                  : "var(--tgph-gray-10)",
-              opacity: isActive ? 0.6 : 1,
-              cursor: isActive ? "not-allowed" : "text",
-            }}
-          />
-        </Box>
-
-        {/* PromptInputActions bar */}
+      <Box w="full">
         <Box
+          border="px"
+          borderColor="gray-6"
+          m="2"
+          mt="2"
+          rounded="5"
+          boxShadow="1"
+          bg="surface-1"
+          position="relative"
           style={{
-            display: "flex",
-            gap: "8px",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            padding: "8px",
-            backgroundColor: "var(--tgph-surface-1)",
+            overflow: "hidden",
+            minWidth: `${sidebarWidth - 16}px`,
           }}
         >
-          <button
-            type="button"
-            onClick={isActive ? stopStream : handleSubmit}
-            disabled={!isButtonEnabled}
-            style={{
-              width: "28px",
-              height: "28px",
-              minWidth: "28px",
-              minHeight: "28px",
-              padding: "0",
-              borderRadius: "50%",
-              backgroundColor: isButtonEnabled ? "#000" : "var(--tgph-gray-4)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "none",
-              cursor: isButtonEnabled ? "pointer" : "not-allowed",
-              margin: "0",
-              boxSizing: "border-box",
-              transition: "background-color 0.2s",
-            }}
+          {/* Textarea */}
+          <Box p="0">
+            <TextArea
+              as="textarea"
+              ref={textareaRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask questions about the docs"
+              rows={1}
+              disabled={isActive}
+              variant="ghost"
+              w="full"
+              size="2"
+              p="3"
+              pb="0"
+              maxH="400px"
+              bg="surface-1"
+              style={{
+                fontSize: "13px",
+                minHeight: "120px",
+                maxHeight: "400px",
+                outline: "none",
+                resize: "none",
+                opacity: isActive ? 0.6 : 1,
+                cursor: isActive ? "not-allowed" : "text",
+              }}
+            />
+          </Box>
+
+          {/* PromptInputActions bar */}
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="flex-end"
+            px="2"
+            pt="0"
+            pb="2"
+            gap="2"
           >
-            {isActive ? (
-              <div
-                aria-hidden
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  backgroundColor: "#fff",
-                  borderRadius: "2px",
-                }}
-              />
-            ) : (
-              <ArrowUp
-                size={14}
-                strokeWidth={2}
-                color={isButtonEnabled ? "#fff" : "var(--tgph-gray-10)"}
-              />
-            )}
-          </button>
+            {/* Send button */}
+            <Button
+              onClick={isActive ? stopStream : handleSubmit}
+              disabled={!isButtonEnabled}
+              size="1"
+              w="7"
+              h="7"
+              variant="solid"
+              rounded="4"
+              aria-label={isActive ? "Stop" : "Send"}
+              style={{
+                backgroundColor: isButtonEnabled
+                  ? "var(--tgph-gray-12)"
+                  : "var(--tgph-gray-4)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "none",
+                cursor: isButtonEnabled ? "pointer" : "not-allowed",
+                margin: "0",
+                boxSizing: "border-box",
+                transition: "background-color 0.2s",
+              }}
+            >
+              {isActive ? (
+                <div
+                  aria-hidden
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    backgroundColor: "#fff",
+                    borderRadius: "2px",
+                  }}
+                />
+              ) : (
+                <ArrowUp
+                  size="14px"
+                  strokeWidth={2}
+                  color={isButtonEnabled ? "#fff" : "var(--tgph-gray-10)"}
+                />
+              )}
+            </Button>
+          </Stack>
         </Box>
       </Box>
     );
@@ -600,7 +589,7 @@ function AskAiSidebar() {
   return (
     <Box
       borderLeftWidth={isOpen ? "px" : "0"}
-      borderColor={isHoveringResizeHandle ? "gray-6" : "gray-4"}
+      borderColor={isHoveringResizeHandle ? "gray-7" : "gray-4"}
       style={{
         width: isOpen ? `${sidebarWidth}px` : "0",
         overflow: "visible",
@@ -645,20 +634,22 @@ function AskAiSidebar() {
       >
         {/* Header with close button */}
         <Box
+          p="2"
+          pr="4"
+          borderBottom="px"
+          borderColor="gray-4"
+          bg="surface-1"
           style={{
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "8px 12px",
             minWidth: `${sidebarWidth}px`,
-            backgroundColor: "var(--tgph-surface-3)",
             position: "relative",
-            boxShadow: "inset 0px -1px 0px 0px var(--tgph-gray-5)",
           }}
         >
           {chatSessions.length === 0 ? (
-            <Text as="span" size="2" weight="medium">
+            <Text as="span" size="1" weight="medium" ml="2">
               New chat
             </Text>
           ) : (
@@ -669,21 +660,14 @@ function AskAiSidebar() {
               <Popover.Trigger asChild>
                 <Button
                   variant="ghost"
-                  color="gray"
+                  color="default"
                   size="1"
-                  onMouseEnter={() => setIsHoveringChatButton(true)}
-                  onMouseLeave={() => setIsHoveringChatButton(false)}
-                  style={{
-                    backgroundColor: isHoveringChatButton
-                      ? "var(--tgph-gray-3)"
-                      : "#FFFFFF",
-                    transition: "background-color 0.2s",
+                  trailingIcon={{
+                    icon: ChevronsUpDown,
+                    "aria-hidden": true,
                   }}
                 >
-                  <Stack direction="row" alignItems="center" gap="1">
-                    {getSelectedChatTitle()}
-                    <Icon icon={ChevronsUpDown} size="1" aria-hidden />
-                  </Stack>
+                  {getSelectedChatTitle()}
                 </Button>
               </Popover.Trigger>
               <Popover.Content
@@ -691,7 +675,7 @@ function AskAiSidebar() {
                 align="start"
                 p="1"
                 gap="0"
-                style={{ zIndex: 100, maxWidth: "320px" }}
+                style={{ zIndex: 100, minWidth: "176px", maxWidth: "320px" }}
               >
                 {/* Currently selected chat at top */}
                 {currentChatId && (
@@ -699,7 +683,6 @@ function AskAiSidebar() {
                     onClick={() => handleSelectChat(currentChatId)}
                     isSelected
                     icon={Check}
-                    iconColor="var(--tgph-gray-12)"
                     title={getSelectedChatTitle()}
                     showTruncatedTooltip
                   />
@@ -710,9 +693,7 @@ function AskAiSidebar() {
                   <ChatOptionButton
                     onClick={handleNewChat}
                     icon={Plus}
-                    iconColor="var(--tgph-gray-10)"
                     title="New chat"
-                    style={{ marginTop: "4px" }}
                   />
                 )}
 
@@ -722,7 +703,6 @@ function AskAiSidebar() {
                     onClick={handleNewChat}
                     isSelected
                     icon={Check}
-                    iconColor="var(--tgph-gray-12)"
                     title="New chat"
                   />
                 )}
@@ -731,25 +711,25 @@ function AskAiSidebar() {
                 {otherChatSessions.length > 0 && (
                   <Box
                     style={{
-                      padding: "4px",
                       marginTop: currentChatId ? "4px" : "0",
                     }}
                   >
-                    <Box style={{ padding: "8px" }}>
-                      <Text
-                        as="span"
-                        size="1"
-                        weight="medium"
-                        style={{ color: "var(--tgph-gray-11)" }}
-                      >
-                        Previous chats
-                      </Text>
-                    </Box>
-
+                    <Text
+                      as="span"
+                      size="1"
+                      weight="medium"
+                      color="gray"
+                      px="2"
+                      py="2"
+                      w="full"
+                    >
+                      Previous chats
+                    </Text>
                     {otherChatSessions.map((chat) => (
                       <ChatOptionButton
                         key={chat.id}
                         onClick={() => handleSelectChat(chat.id)}
+                        icon={Dot}
                         title={chat.title}
                         showTruncatedTooltip
                       />
@@ -759,44 +739,20 @@ function AskAiSidebar() {
               </Popover.Content>
             </Popover.Root>
           )}
-          <Box
-            style={{
-              display: "flex",
-              gap: "4px",
-              alignItems: "center",
+          <Button
+            variant="ghost"
+            size="1"
+            iconOnly
+            icon={{
+              icon: X,
+              "aria-hidden": true,
             }}
-          >
-            <button
-              type="button"
-              onClick={closeSidebar}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "24px",
-                height: "24px",
-                padding: "5px",
-                borderRadius: "4px",
-                border: "none",
-                backgroundColor: "transparent",
-                cursor: "pointer",
-                minWidth: "24px",
-              }}
-            >
-              <Icon
-                icon={X}
-                size="1"
-                aria-hidden
-                style={{
-                  color: "var(--tgph-gray-10)",
-                }}
-              />
-            </button>
-          </Box>
+            onClick={closeSidebar}
+          />
         </Box>
 
         {/* Input at top when no messages */}
-        {messages.length === 0 && inputArea(true)}
+        {messages.length === 0 && inputArea()}
 
         {/* Messages area */}
         <Box
@@ -814,12 +770,10 @@ function AskAiSidebar() {
             <Box
               p="3"
               mb="3"
-              style={{
-                backgroundColor: "var(--tgph-red-2)",
-                border: "1px solid",
-                borderColor: "var(--tgph-red-4)",
-                borderRadius: "6px",
-              }}
+              bg="red-2"
+              border="px"
+              borderColor="red-4"
+              rounded="3"
             >
               <Text as="p" size="1" color="red">
                 {error}
@@ -850,7 +804,7 @@ function AskAiSidebar() {
         </Box>
 
         {/* Input at bottom when has messages */}
-        {messages.length > 0 && inputArea(false)}
+        {messages.length > 0 && inputArea()}
       </Box>
     </Box>
   );
@@ -871,14 +825,15 @@ function MessageBubble({
     // User message - full-width container with border
     return (
       <Box
+        w="full"
+        px="3"
+        py="2"
+        rounded="4"
+        bg="surface-1"
+        border="px"
+        position="relative"
         style={{
-          width: "100%",
-          padding: "8px 12px",
-          borderRadius: "8px",
-          backgroundColor: "var(--tgph-surface-1)",
-          position: "relative",
-          boxShadow: "inset 0px 0px 0px 1px var(--tgph-gray-5)",
-          marginTop: isConsecutiveUserMessage ? "12px" : undefined,
+          marginTop: isConsecutiveUserMessage ? "8px" : undefined,
         }}
       >
         <Text
@@ -886,6 +841,7 @@ function MessageBubble({
           size="2"
           weight="regular"
           style={{
+            fontSize: "13px",
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
           }}
@@ -929,7 +885,7 @@ function MessageBubble({
   // Use tgraph-content class for consistent markdown styling with the rest of the docs
   // Streamdown is optimized for streaming LLM content and handles incomplete markdown gracefully
   return (
-    <Box
+    <Stack
       bg="surface-1"
       style={{
         width: "100%",
@@ -938,15 +894,7 @@ function MessageBubble({
       }}
     >
       {/* Response text section */}
-      <Box
-        bg="surface-1"
-        style={{
-          padding: "6px 8px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-        }}
-      >
+      <Stack direction="column" gap="2" bg="surface-1" px="3">
         <div className="tgraph-content">
           <Streamdown
             parseIncompleteMarkdown={true}
@@ -955,11 +903,16 @@ function MessageBubble({
               code: (props: any) => (
                 <Code
                   as="code"
-                  bg="gray-2"
-                  borderRadius="2"
-                  px="1"
-                  size="1"
+                  color="blue"
+                  border="px"
+                  borderColor="blue-4"
+                  rounded="2"
                   data-tgph-code
+                  style={{
+                    fontSize: "11px",
+                    padding: "2px 3px",
+                    margin: "0 2px",
+                  }}
                 >
                   {props.children}
                 </Code>
@@ -1028,27 +981,56 @@ function MessageBubble({
                 </sup>
               ),
               p: ({ children }: { children?: React.ReactNode }) => (
-                <p style={{ marginBottom: "12px" }}>{children}</p>
+                <p
+                  style={{
+                    margin: "12px 0",
+                    fontSize: "13px",
+                    lineHeight: "1.625",
+                  }}
+                >
+                  {children}
+                </p>
               ),
               ul: ({ children }: { children?: React.ReactNode }) => (
-                <ul style={{ paddingLeft: "24px" }}>{children}</ul>
+                <ul
+                  style={{
+                    paddingLeft: "24px",
+                    fontSize: "13px",
+                    lineHeight: "1.625",
+                  }}
+                >
+                  {children}
+                </ul>
               ),
               ol: ({ children }: { children?: React.ReactNode }) => (
-                <ol style={{ paddingLeft: "24px" }}>{children}</ol>
+                <ol
+                  style={{
+                    paddingLeft: "24px",
+                    fontSize: "13px",
+                    lineHeight: "1.625",
+                  }}
+                >
+                  {children}
+                </ol>
               ),
               li: ({ children }: { children?: React.ReactNode }) => (
-                <li data-tgph-list-item>{children}</li>
+                <li
+                  data-tgph-list-item
+                  style={{ fontSize: "13px", lineHeight: "1.625" }}
+                >
+                  {children}
+                </li>
               ),
             }}
           >
             {processSourceReferences(String(message.content ?? ""))}
           </Streamdown>
         </div>
-      </Box>
+      </Stack>
 
       {/* Sources section - only show after streaming completes */}
       {!isLoading && <SourcesSection sources={message.sources} />}
-    </Box>
+    </Stack>
   );
 }
 
@@ -1143,20 +1125,20 @@ function SourceCard({ source }: { source: Source }) {
     <Box
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      bg={isHovered ? "blue-1" : "surface-1"}
+      border="px"
+      borderColor={isHovered ? "blue-7" : "gray-4"}
+      rounded="3"
+      py="3"
+      px="4"
       style={{
         display: "flex",
         flexDirection: "column",
         gap: "4px",
-        padding: "10px 12px",
-        borderRadius: "8px",
-        border: `1px solid ${
-          isHovered ? "var(--tgph-accent-9)" : "var(--tgph-gray-4)"
-        }`,
-        backgroundColor: "var(--tgph-surface-1)",
         cursor: source.url ? "pointer" : "default",
         width: "75%",
         position: "relative",
-        transition: "border-color 0.2s ease",
+        transition: "background-color 0.2s ease, border-color 0.2s ease",
       }}
     >
       {/* Breadcrumbs */}
@@ -1174,21 +1156,13 @@ function SourceCard({ source }: { source: Source }) {
               <Text
                 as="span"
                 size="0"
-                style={{
-                  color: "var(--tgph-gray-9)",
-                  whiteSpace: "nowrap",
-                }}
+                color="gray"
+                style={{ textWrap: "nowrap" }}
               >
                 {crumb}
               </Text>
               {i < breadcrumbs.length - 1 && (
-                <Text
-                  as="span"
-                  size="0"
-                  style={{
-                    color: "var(--tgph-gray-7)",
-                  }}
-                >
+                <Text as="span" size="0" color="disabled">
                   ›
                 </Text>
               )}
@@ -1219,9 +1193,10 @@ function SourceCard({ source }: { source: Source }) {
         <Text
           as="span"
           size="2"
+          color="default"
           weight="medium"
           style={{
-            color: "var(--tgph-gray-12)",
+            fontSize: "13px",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -1237,24 +1212,11 @@ function SourceCard({ source }: { source: Source }) {
         <Box
           style={{
             position: "absolute",
-            right: "12px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: "16px",
-            height: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            right: "8px",
+            top: "6px",
           }}
         >
-          <Icon
-            icon={ExternalLink}
-            size="1"
-            aria-hidden
-            style={{
-              color: "var(--tgph-accent-9)",
-            }}
-          />
+          <Icon icon={ArrowUpRight} size="1" color="blue" aria-hidden />
         </Box>
       )}
     </Box>
@@ -1285,22 +1247,8 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
   }
 
   return (
-    <Box
-      style={{
-        padding: "8px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-      }}
-    >
-      <Text
-        as="span"
-        size="1"
-        weight="semi-bold"
-        style={{
-          color: "var(--tgph-gray-11)",
-        }}
-      >
+    <Stack direction="column" gap="2" px="3" pt="0" pb="4">
+      <Text as="span" size="1" weight="medium" color="default">
         Sources
       </Text>
       <Box
@@ -1314,7 +1262,7 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
           <SourceCard key={index} source={source} />
         ))}
       </Box>
-    </Box>
+    </Stack>
   );
 }
 
