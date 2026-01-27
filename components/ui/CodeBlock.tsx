@@ -141,21 +141,27 @@ export const CodeBlock: React.FC<Props> = ({
     }
   }, [language, languages, params.language]);
 
-  const [content] = useMemo(
-    () =>
-      normalize(
-        children != null &&
-          typeof children !== "string" &&
-          children.props &&
-          children.props.children
-          ? children.props.children
-          : children ?? "",
-        className,
-      ),
-    [children, className],
-  );
+  const [content] = useMemo(() => {
+    // Extract code content from children, ensuring we always get a string
+    if (typeof children === "string") {
+      return normalize(children, className);
+    }
+    if (children?.props?.children != null) {
+      const innerContent = children.props.children;
+      if (typeof innerContent === "string") {
+        return normalize(innerContent, className);
+      }
+      if (Array.isArray(innerContent)) {
+        const text = innerContent
+          .filter((c): c is string => typeof c === "string")
+          .join("");
+        return normalize(text, className);
+      }
+    }
+    return normalize("", className);
+  }, [children, className]);
 
-  const title = props.title || children.props.metastring;
+  const title = props.title || children?.props?.metastring;
 
   const [isCopied, setCopied] = useClipboard(content, {
     successDuration: 2000,
