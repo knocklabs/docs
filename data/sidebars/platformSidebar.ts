@@ -39,13 +39,12 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/audiences", title: "Audiences" },
       { slug: "/schedules", title: "Schedules" },
       { slug: "/messages", title: "Messages" },
-      { slug: "/translations", title: "Translations" },
       { slug: "/conditions", title: "Conditions" },
       { slug: "/variables", title: "Variables" },
     ],
   },
   {
-    title: "Designing workflows",
+    title: "Workflows",
     slug: "/designing-workflows",
     desc: "Learn how to design notifications using Knock's workflow builder, then explore advanced features such as batching, delays, and more.",
     pages: [
@@ -63,46 +62,37 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
       { slug: "/send-windows", title: "Send windows" },
-      { slug: "/partials", title: "Partials" },
-      {
-        title: "Template editor",
-        slug: "/template-editor",
-        pages: [
-          {
-            slug: "/overview",
-            title: "Overview",
-          },
-          {
-            slug: "/variables",
-            title: "Variables",
-          },
-          {
-            slug: "/referencing-data",
-            title: "Referencing data",
-          },
-          {
-            slug: "/reference-liquid-helpers",
-            title: "Liquid helpers",
-          },
-        ],
-      },
       { slug: "/validating-trigger-data", title: "Validating trigger data" },
     ],
   },
+
   {
-    title: "Managing recipients",
-    slug: "/managing-recipients",
-    desc: "Learn more about how to manage notification recipients with Knock.",
+    title: "Templates",
+    slug: "/template-editor",
+    desc: "Learn how to work with templates in Knock.",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/identifying-recipients", title: "Identifying recipients" },
-      { slug: "/setting-channel-data", title: "Setting channel data" },
-      { slug: "/deleting-users", title: "Deleting users" },
-      { slug: "/merging-users", title: "Merging users" },
+      { slug: "/email-templates", title: "Email templates" },
+      { slug: "/variables", title: "Variables" },
+      { slug: "/referencing-data", title: "Referencing data" },
+      {
+        slug: "/partials",
+        title: "Partials",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/html-partials", title: "HTML partials" },
+          { slug: "/schema-reference", title: "Schema reference" },
+        ],
+      },
+      { slug: "/branding", title: "Branding" },
+      { slug: "/translations", title: "Translations (i18n)" },
+      { slug: "/testing-and-debugging", title: "Testing & debugging" },
+      { slug: "/reference-liquid-helpers", title: "Liquid helpers reference" },
     ],
   },
+
   {
-    title: "Send notifications",
+    title: "Send messages",
     slug: "/send-notifications",
     desc: "Learn how to send and debug notifications using Knock.",
     pages: [
@@ -125,6 +115,20 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/debugging-workflows", title: "Debugging workflows" },
     ],
   },
+
+  {
+    title: "Recipients",
+    slug: "/managing-recipients",
+    desc: "Learn more about how to manage notification recipients with Knock.",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/identifying-recipients", title: "Identifying recipients" },
+      { slug: "/setting-channel-data", title: "Setting channel data" },
+      { slug: "/deleting-users", title: "Deleting users" },
+      { slug: "/merging-users", title: "Merging users" },
+    ],
+  },
+
   {
     title: "Preferences",
     slug: "/preferences",
