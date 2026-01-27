@@ -97,11 +97,7 @@ const StaticKbd = ({
         padding: "var(--tgph-spacing-1)",
       }}
     >
-      <Text
-        as="span"
-        size="0"
-        style={{ color: "var(--tgph-gray-12)" }}
-      >
+      <Text as="span" size="0" style={{ color: "var(--tgph-gray-12)" }}>
         {label}
       </Text>
     </Stack>
