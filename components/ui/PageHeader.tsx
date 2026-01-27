@@ -90,6 +90,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
               position: "absolute",
               left: "50%",
               transform: "translateX(-50%)",
+              zIndex: 100,
             }}
             // Style the search + ask ai button to be a box with a border
             p="1"
