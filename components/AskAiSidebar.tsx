@@ -301,7 +301,6 @@ function AskAiSidebar() {
   const [inputValue, setInputValue] = useState("");
   const [isHoveringResizeHandle, setIsHoveringResizeHandle] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isHoveringChatButton, setIsHoveringChatButton] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
@@ -477,7 +476,7 @@ function AskAiSidebar() {
   };
 
   // Input area component - conditionally rendered at top or bottom
-  const inputArea = (isAtTop: boolean) => {
+  const inputArea = () => {
     const hasInput = inputValue.trim().length > 0;
     // Button is enabled when loading/streaming (to stop) or when there's input (to submit)
     const isActive = isLoading || isStreaming;
@@ -753,7 +752,7 @@ function AskAiSidebar() {
         </Box>
 
         {/* Input at top when no messages */}
-        {messages.length === 0 && inputArea(true)}
+        {messages.length === 0 && inputArea()}
 
         {/* Messages area */}
         <Box
@@ -805,7 +804,7 @@ function AskAiSidebar() {
         </Box>
 
         {/* Input at bottom when has messages */}
-        {messages.length > 0 && inputArea(false)}
+        {messages.length > 0 && inputArea()}
       </Box>
     </Box>
   );
