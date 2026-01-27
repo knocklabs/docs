@@ -367,11 +367,16 @@ const nextConfig = {
         destination: "/developer-tools/security",
         permanent: true,
       },
-      {
-        source: "/getting-started/how-knock-works",
-        destination: "/getting-started/what-is-knock",
-        permanent: true,
-      },
+            {
+              source: "/getting-started/how-knock-works",
+              destination: "/getting-started/what-is-knock",
+              permanent: true,
+            },
+            {
+              source: "/getting-started/knocks-features",
+              destination: "/getting-started/what-is-knock",
+              permanent: true,
+            },
       {
         source: "/getting-started/example-app",
         destination: "/getting-started/example-apps",
