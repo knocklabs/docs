@@ -97,7 +97,9 @@ components:
         members:
           - tenant: ingen_isla_nublar
             user:
+              email: ellie@ingen.net
               id: dr_sattler
+              name: Dr. Ellie Sattler
       properties:
         members:
           description: A list of audience members to add. Limited to 1,000 members per request.
@@ -5694,7 +5696,9 @@ components:
       example:
         tenant: ingen_isla_nublar
         user:
+          email: ellie@ingen.net
           id: dr_sattler
+          name: Dr. Ellie Sattler
       properties:
         tenant:
           description: The unique identifier for the tenant.
@@ -5704,15 +5708,9 @@ components:
           x-struct: null
           x-validate: null
         user:
-          description: An object containing the user's ID.
-          properties:
-            id:
-              description: The unique identifier of the user.
-              example: dr_sattler
-              type: string
-              x-struct: null
-              x-validate: null
-          type: object
+          allOf:
+            - $ref: '#/components/schemas/InlineIdentifyUserRequest'
+          description: A user object. At minimum must contain an `id` property.
           x-struct: null
           x-validate: null
       required:
@@ -5727,7 +5725,9 @@ components:
         members:
           - tenant: ingen_isla_nublar
             user:
+              email: ellie@ingen.net
               id: dr_sattler
+              name: Dr. Ellie Sattler
       properties:
         members:
           description: A list of audience members to remove.
@@ -6615,8 +6615,10 @@ components:
             - contains_all
             - is_timestamp
             - is_not_timestamp
-            - is_timestamp_after
+            - is_timestamp_on_or_after
             - is_timestamp_before
+            - is_timestamp_on_or_after_date
+            - is_timestamp_before_date
             - is_timestamp_between
             - is_audience_member
             - is_not_audience_member
@@ -7161,6 +7163,7 @@ paths:
         **Notes:**
         * When making this call from a client-side environment, use your publishable key along with a user token.
         * This endpoint’s rate limit is always scoped per-user and per-environment. This is true even for requests made without a signed user token.
+        * Any [attachments](/integrations/email/attachments) present in trigger data are automatically excluded from both the `data` and `activities` fields of `UserInAppFeedResponse`.
       operationId: listUserInAppFeedItems
       parameters:
         - description: The unique identifier of the user.
@@ -14054,7 +14057,7 @@ paths:
             apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
           });
 
-          await client.audiences.removeMembers('key', { members: [{ user: {} }] });
+          await client.audiences.removeMembers('key', { members: [{ user: { id: 'dr_sattler' } }] });
         python: |-
           import os
           from knockapi import Knock
@@ -14065,7 +14068,9 @@ paths:
           client.audiences.remove_members(
               key="key",
               members=[{
-                  "user": {}
+                  "user": {
+                      "id": "dr_sattler"
+                  }
               }],
           )
         go: |
@@ -14087,8 +14092,8 @@ paths:
               "key",
               knock.AudienceRemoveMembersParams{
                 Members: knock.F([]knock.AudienceRemoveMembersParamsMember{knock.AudienceRemoveMembersParamsMember{
-                  User: knock.F(knock.AudienceRemoveMembersParamsMembersUser{
-
+                  User: knock.F(knock.InlineIdentifyUserRequestParam{
+                    ID: knock.F("dr_sattler"),
                   }),
                 }}),
               },
@@ -14102,7 +14107,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          result = knock.audiences.remove_members("key", members: [{user: {}}])
+          result = knock.audiences.remove_members("key", members: [{user: {id: "dr_sattler"}}])
 
           puts(result)
     get:
@@ -14200,7 +14205,9 @@ paths:
               members:
                 - tenant: ingen_isla_nublar
                   user:
+                    email: ellie@ingen.net
                     id: dr_sattler
+                    name: Dr. Ellie Sattler
             schema:
               $ref: '#/components/schemas/AddAudienceMembersRequest'
         description: Params
@@ -14224,7 +14231,11 @@ paths:
             members: [
               {
                 tenant: 'ingen_isla_nublar',
-                user: { id: 'dr_sattler' },
+                user: {
+                  email: 'ellie@ingen.net',
+                  id: 'dr_sattler',
+                  name: 'Dr. Ellie Sattler',
+                },
               },
             ],
           });
@@ -14240,7 +14251,9 @@ paths:
               members=[{
                   "tenant": "ingen_isla_nublar",
                   "user": {
-                      "id": "dr_sattler"
+                      "email": "ellie@ingen.net",
+                      "id": "dr_sattler",
+                      "name": "Dr. Ellie Sattler",
                   },
               }],
           )
@@ -14264,8 +14277,10 @@ paths:
               knock.AudienceAddMembersParams{
                 Members: knock.F([]knock.AudienceAddMembersParamsMember{knock.AudienceAddMembersParamsMember{
                   Tenant: knock.F("ingen_isla_nublar"),
-                  User: knock.F(knock.AudienceAddMembersParamsMembersUser{
+                  User: knock.F(knock.InlineIdentifyUserRequestParam{
+                    Email: knock.F("ellie@ingen.net"),
                     ID: knock.F("dr_sattler"),
+                    Name: knock.F("Dr. Ellie Sattler"),
                   }),
                 }}),
               },
@@ -14279,7 +14294,7 @@ paths:
 
           knock = Knockapi::Client.new(api_key: "My API Key")
 
-          result = knock.audiences.add_members("key", members: [{user: {}}])
+          result = knock.audiences.add_members("key", members: [{user: {id: "dr_sattler"}}])
 
           puts(result)
   /v1/providers/ms-teams/{channel_id}/channels:
