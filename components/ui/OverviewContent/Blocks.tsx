@@ -185,6 +185,7 @@ export const ConceptCard = ({
           alt={title}
           width={2200}
           height={2200}
+          priority
           style={{
             objectFit: "cover",
             width: "100%",

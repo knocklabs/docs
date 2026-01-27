@@ -15,6 +15,7 @@ import { initAttribution } from "../lib/attribution";
 import { setClearbitPath } from "../lib/clearbit";
 import * as gtag from "../lib/gtag";
 
+import "@algolia/autocomplete-theme-classic";
 import "../styles/index.css";
 import "../styles/global.css";
 import "../styles/responsive.css";

@@ -94,6 +94,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             // Style the search + ask ai button to be a box with a border
             p="1"
             border="px"
+            borderColor="gray-6"
             borderRadius="4"
           >
             <Autocomplete />

@@ -7,7 +7,6 @@ import {
   getAlgoliaResults,
   parseAlgoliaHitHighlight,
 } from "@algolia/autocomplete-preset-algolia";
-import "@algolia/autocomplete-theme-classic";
 import algoliasearch from "algoliasearch/lite";
 import { Search, Sparkles, X } from "lucide-react";
 import Link from "next/link";
@@ -79,37 +78,43 @@ const algoliaEndpointIndex =
 // Prevents loading jank
 const StaticSearch = () => {
   return (
-    <Box as="form">
-      <Input
-        placeholder="Search"
-        size="2"
-        className="aa-Input"
-        LeadingComponent={
-          <Icon icon={Search} alt="Search" color="gray" size="1" mr="2" />
-        }
-        TrailingComponent={
-          <Stack
-            bg="gray-1"
-            borderRadius="1"
-            border="px"
-            borderColor="gray-3"
-            justifyContent="center"
-            alignItems="center"
-            width="5"
-            height="5"
-          >
-            <Text
-              as="span"
-              size="1"
-              color="black"
-              weight="medium"
-              style={{ lineHeight: "1" }}
-            >
-              /
-            </Text>
-          </Stack>
-        }
-      />
+    <Box w="full">
+      <Box as="form" className="aa-Form">
+        <Input
+          placeholder="Search"
+          variant="ghost"
+          size="1"
+          className="aa-Input"
+          w="full"
+          LeadingComponent={
+            <Icon icon={Search} alt="Search" color="gray" size="1" mr="1" />
+          }
+          TrailingComponent={
+            <Box className="md-hidden">
+              <Stack
+                bg="gray-1"
+                borderRadius="1"
+                border="px"
+                borderColor="gray-3"
+                justifyContent="center"
+                alignItems="center"
+                width="5"
+                height="5"
+              >
+                <Text
+                  as="span"
+                  size="1"
+                  color="black"
+                  weight="medium"
+                  style={{ lineHeight: "1" }}
+                >
+                  /
+                </Text>
+              </Stack>
+            </Box>
+          }
+        />
+      </Box>
     </Box>
   );
 };
