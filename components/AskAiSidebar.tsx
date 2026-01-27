@@ -489,7 +489,7 @@ function AskAiSidebar() {
           border="px"
           borderColor="gray-6"
           m="2"
-          mt="0"
+          mt="2"
           rounded="5"
           boxShadow="1"
           bg="surface-1"
