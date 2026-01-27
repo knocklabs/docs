@@ -72,6 +72,38 @@ const algoliaIndex = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || "";
 const algoliaEndpointIndex =
   process.env.NEXT_PUBLIC_ALGOLIA_ENDPOINT_INDEX_NAME || "";
 
+// SSR-safe keyboard shortcut indicator that matches Telegraph Kbd styling
+// Used in StaticSearch to avoid hydration errors (Kbd uses navigator which isn't available during SSR)
+const StaticKbd = ({
+  label,
+  className,
+}: {
+  label: string;
+  className?: string;
+}) => {
+  return (
+    <Stack
+      as="span"
+      className={className}
+      bg="surface-1"
+      border="px"
+      borderColor="gray-3"
+      borderRadius="1"
+      alignItems="center"
+      justifyContent="center"
+      style={{
+        minWidth: "var(--tgph-spacing-5)",
+        height: "var(--tgph-spacing-5)",
+        padding: "var(--tgph-spacing-1)",
+      }}
+    >
+      <Text as="span" size="0" color="gray">
+        {label}
+      </Text>
+    </Stack>
+  );
+};
+
 // We do some delayed rendering below to avoid hydration errors
 // Instead of returning null when the component isn't ready, we return a static version
 // This makes sure the server renders the same element and client will do a hot-swap with the real thing
@@ -89,30 +121,7 @@ const StaticSearch = () => {
           LeadingComponent={
             <Icon icon={Search} alt="Search" color="gray" size="1" mr="1" />
           }
-          TrailingComponent={
-            <Box className="md-hidden">
-              <Stack
-                bg="gray-1"
-                borderRadius="1"
-                border="px"
-                borderColor="gray-3"
-                justifyContent="center"
-                alignItems="center"
-                width="5"
-                height="5"
-              >
-                <Text
-                  as="span"
-                  size="1"
-                  color="black"
-                  weight="medium"
-                  style={{ lineHeight: "1" }}
-                >
-                  /
-                </Text>
-              </Stack>
-            </Box>
-          }
+          TrailingComponent={<StaticKbd className="md-hidden" label="/" />}
         />
       </Box>
     </Box>
