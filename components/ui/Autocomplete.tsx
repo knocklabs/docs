@@ -687,7 +687,7 @@ const Autocomplete = () => {
           p="2"
           style={{
             overscrollBehavior: "none",
-            zIndex: 50,
+            zIndex: 9999,
             overflow: "hidden",
             transition: "opacity 0.15s ease-in-out",
             width: "clamp(200px, 500px, 90vw)",
