@@ -81,21 +81,19 @@ const ItemWithSubpages = ({
     defaultOpen ?? getOpenState(section.pages ?? [], slug, pathNoHash),
   );
 
-  // Update isOpen when the path changes
+  // Update isOpen when the path changes (e.g. after client-side navigation from search)
   useEffect(() => {
     // Have to do an initialization check like this so we can control it manually still
     if (pathNoHash !== initializedOnPath) {
       setInitializedOnPath(pathNoHash);
-      if (!isOpen) {
-        const isDeterminedOpen = getOpenState(
-          section.pages ?? [],
-          slug,
-          pathNoHash,
-        );
-        setIsOpen(defaultOpen ?? isDeterminedOpen);
-      }
+      const isDeterminedOpen = getOpenState(
+        section.pages ?? [],
+        slug,
+        pathNoHash,
+      );
+      setIsOpen(defaultOpen ?? isDeterminedOpen);
     }
-  }, [section, slug, pathNoHash, isOpen, defaultOpen, initializedOnPath]);
+  }, [section, slug, pathNoHash, defaultOpen, initializedOnPath]);
 
   // Create the debounced function once when component mounts
   // This helps produce a smoother experience when scrolling fast
