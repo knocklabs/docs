@@ -145,13 +145,21 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
           style={{ overflowX: "auto" }}
         >
           <Tabs.List mb="0" px="4">
-            <Tabs.Tab value="platform" as={Link} href="/">
+            <Tabs.Tab
+              value="platform"
+              as={Link}
+              href="/getting-started/what-is-knock"
+            >
               Platform
             </Tabs.Tab>
-            <Tabs.Tab value="integrations" as={Link} href="/integrations">
+            <Tabs.Tab
+              value="integrations"
+              as={Link}
+              href="/integrations/overview"
+            >
               Integrations
             </Tabs.Tab>
-            <Tabs.Tab value="in-app-ui" as={Link} href="/in-app-ui">
+            <Tabs.Tab value="in-app-ui" as={Link} href="/in-app-ui/overview">
               In-app UI
             </Tabs.Tab>
             <Tabs.Tab
@@ -171,10 +179,14 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             >
               Management API
             </Tabs.Tab>
-            <Tabs.Tab value="developer-tools" as={Link} href="/developer-tools">
+            <Tabs.Tab
+              value="developer-tools"
+              as={Link}
+              href="/developer-tools/overview"
+            >
               Developer tools
             </Tabs.Tab>
-            <Tabs.Tab value="tutorials" as={Link} href="/tutorials">
+            <Tabs.Tab value="tutorials" as={Link} href="/tutorials/overview">
               Tutorials
             </Tabs.Tab>
           </Tabs.List>
