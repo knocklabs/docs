@@ -64,9 +64,17 @@ You can create a schema for an HTML partial by clicking the "Edit schema" button
 
 Read more about the schema reference for HTML partials in the [Partial schema reference](/template-editor/partials/schema-reference) page.
 
+## Editing HTML partial content
+
+HTML partials display a preview alongside the editor. Open the preview by clicking the "Preview" button or using the `Cmd + ]` keyboard shortcut on Mac, or `Ctrl + ]` on Windows.
+
+- Select an [email layout](/integrations/email/layouts) to preview the partial within.
+- Use the `<style>` tag to add CSS to your partial, which will be inlined when rendering your email messages.
+- Edit the placeholder variable values in the preview sidebar. These values are just for the preview and will not be used in your final messages. The preview text will also appear alongside the variable name in the code editor typeahead information.
+
 ## Isolating CSS within partials
 
-HTML partials support the ability to include isolated CSS styles within the partial template, that are included within your emails **only** when the partial is used within a template.
+HTML partials support the ability to include isolated CSS styles within the partial template that are included within your emails **only** when the partial is used within a template.
 
 <Callout
   type="info"
@@ -75,13 +83,17 @@ HTML partials support the ability to include isolated CSS styles within the part
     <>
       Partial styles can still be affected by global styles in your email
       layout, especially if you're inlining CSS within your emails.
+      <br />
+      <br />
+      In the case that there is a conflict between the global style in an email layout
+      and the styles provided on a partial, the partial styles will take precedence.
     </>
   }
 />
 
 This is a powerful feature that allows you to create reusable components with consistent styles, without having to worry about stuffing your email layout with CSS that is only used in a single partial.
 
-Here's an example of how it works.
+Here's an example of how it works. Note that you may include multiple `<style>` tags in a partial, as long as they are contained within the same parent element.
 
 ```html title="HTML partial with isolated CSS"
 <style>
@@ -90,9 +102,19 @@ Here's an example of how it works.
   }
 </style>
 
+<style>
+  @media all and (max-width: 480px) {
+    .partial-css p {
+      display: block !important;
+      width: 100% !important;
+      text-align: center !important;
+    }
+  }
+</style>
+
 <div class="partial-css">
   <p>This is a partial CSS example.</p>
 </div>
 ```
 
-When I include this partial in an email template, either via a render tag or as a block in the visual editor, the CSS from this partial will be extracted and included within the `<head>` of the compiled email template. Styles are deduplicated and are only included at-most once in the final email template.
+When you include this partial in an email template, either via a render tag or as a block in the visual editor, the CSS from this partial will be extracted and included within the `<head>` of the compiled email template. Styles are deduplicated and are only included at-most once in the final email template.
