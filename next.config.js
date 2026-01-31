@@ -410,6 +410,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/getting-started/knocks-features",
+        destination: "/getting-started/what-is-knock",
+        permanent: true,
+      },
+      {
         source: "/getting-started/example-app",
         destination: "/getting-started/example-apps",
         permanent: true,
