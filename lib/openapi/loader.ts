@@ -13,10 +13,7 @@ import type { SpecName, StainlessConfig } from "./types";
  */
 export const getOpenApiSpec = cache(
   async (specName: SpecName): Promise<OpenAPIV3.Document> => {
-    const spec = await readFile(
-      `./data/specs/${specName}/openapi.yml`,
-      "utf8",
-    );
+    const spec = await readFile(`./data/specs/${specName}/openapi.yml`, "utf8");
     const { schema } = await dereference(parse(spec));
     return JSON.parse(safeStringify(schema));
   },

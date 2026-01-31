@@ -20,8 +20,19 @@ export function OperationParametersServer({
         const typeRef = schemaReferences[typeString];
 
         return (
-          <Box key={parameter.name} py="3" borderBottom="px" borderColor="gray-3">
-            <Stack direction="row" alignItems="center" gap="2" mb="1" flexWrap="wrap">
+          <Box
+            key={parameter.name}
+            py="3"
+            borderBottom="px"
+            borderColor="gray-3"
+          >
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap="2"
+              mb="1"
+              flexWrap="wrap"
+            >
               <Code as="span" size="1" weight="semi-bold">
                 {parameter.name}
               </Code>

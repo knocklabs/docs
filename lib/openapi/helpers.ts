@@ -129,7 +129,9 @@ export function formatResponseStatusCodes(
   return Object.entries(method.responses ?? {}).map(
     ([statusCode, respObject]) =>
       (respObject as OpenAPIV3.ResponseObject).description
-        ? `${statusCode} ${(respObject as OpenAPIV3.ResponseObject).description}`
+        ? `${statusCode} ${
+            (respObject as OpenAPIV3.ResponseObject).description
+          }`
         : statusCode,
   );
 }
@@ -206,7 +208,11 @@ function buildSidebarPages(
     pages.push(
       ...Object.entries(resource.methods).map(([methodName, method]) => {
         const [methodType, endpoint] = resolveEndpoint(method);
-        const openApiOperation = getOperation(openApiSpec, methodType, endpoint);
+        const openApiOperation = getOperation(
+          openApiSpec,
+          methodType,
+          endpoint,
+        );
 
         return {
           title: openApiOperation?.summary || methodName,

@@ -23,7 +23,8 @@ export function SchemaPropertiesServer({
       {Object.entries(schema.properties || {}).map(
         ([propertyName, property]) => {
           const propSchema = property as OpenAPIV3.SchemaObject;
-          const isRequired = !hideRequired && schema.required?.includes(propertyName);
+          const isRequired =
+            !hideRequired && schema.required?.includes(propertyName);
           return (
             <SchemaPropertyServer
               key={propertyName}
@@ -151,13 +152,15 @@ function SchemaPropertyServer({
       {unionSchema && (
         <Box mt="2">
           <Text as="p" size="1" color="gray" mb="2">
-            {schema.oneOf
-              ? "One of:"
-              : schema.anyOf
-                ? "Any of:"
-                : "All of:"}
+            {schema.oneOf ? "One of:" : schema.anyOf ? "Any of:" : "All of:"}
           </Text>
-          <Stack direction="column" gap="2" pl="4" borderLeft="2" borderColor="gray-3">
+          <Stack
+            direction="column"
+            gap="2"
+            pl="4"
+            borderLeft="2"
+            borderColor="gray-3"
+          >
             {unionSchema.map((unionItem, index) => {
               const item = unionItem as OpenAPIV3.SchemaObject;
               const itemTypeString = getTypeString(item);

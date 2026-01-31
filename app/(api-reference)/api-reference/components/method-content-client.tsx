@@ -57,7 +57,8 @@ export function MethodContentClient({
       ? (rateLimitRaw as 1 | 2 | 3 | 4 | 5)
       : null;
   const isIdempotent = (operation["x-idempotent"] as boolean) ?? false;
-  const isRetentionSubject = (operation["x-retention-policy"] as boolean) ?? false;
+  const isRetentionSubject =
+    (operation["x-retention-policy"] as boolean) ?? false;
   const isBeta = (operation["x-beta"] as boolean) ?? false;
 
   const snippets = operation["x-stainless-snippets"] as
@@ -89,8 +90,8 @@ export function MethodContentClient({
         {isBeta && (
           <div className="my-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
-              🚧 This endpoint is currently in beta. If you'd like early
-              access, or this is blocking your adoption of Knock, please{" "}
+              🚧 This endpoint is currently in beta. If you'd like early access,
+              or this is blocking your adoption of Knock, please{" "}
               <a
                 href="mailto:support@knock.app?subject=Beta%20feature%20request"
                 className="text-blue-600 underline"
@@ -200,7 +201,9 @@ export function MethodContentClient({
                       ) : (
                         <ChevronRight className="w-4 h-4" />
                       )}
-                      {isResponseExpanded ? "Hide properties" : "Show properties"}
+                      {isResponseExpanded
+                        ? "Hide properties"
+                        : "Show properties"}
                     </button>
 
                     <AnimatePresence initial={false}>
@@ -231,7 +234,9 @@ export function MethodContentClient({
           <div className="py-3">
             {Object.entries(responses || {}).map(([statusCode, resp]: any) => (
               <code key={statusCode} className="text-sm font-semibold pl-0">
-                {resp.description ? `${statusCode} ${resp.description}` : statusCode}
+                {resp.description
+                  ? `${statusCode} ${resp.description}`
+                  : statusCode}
               </code>
             ))}
           </div>
@@ -332,8 +337,7 @@ function SchemaProperties({
       {Object.entries(schema.properties).map(([propName, propSchema]: any) => {
         const typeString = getTypeString(propSchema);
         const typeRef = schemaReferences[typeString];
-        const isRequired =
-          !hideRequired && schema.required?.includes(propName);
+        const isRequired = !hideRequired && schema.required?.includes(propName);
 
         return (
           <div key={propName} className="py-3 border-b border-gray-200">
@@ -361,7 +365,8 @@ function SchemaProperties({
             )}
             {propSchema.enum && (
               <p className="text-xs text-gray-500 mt-1">
-                One of: {propSchema.enum.map((e: string) => `"${e}"`).join(", ")}
+                One of:{" "}
+                {propSchema.enum.map((e: string) => `"${e}"`).join(", ")}
               </p>
             )}
             {propSchema.default !== undefined && (

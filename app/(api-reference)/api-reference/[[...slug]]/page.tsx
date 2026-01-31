@@ -1,8 +1,19 @@
 import { Suspense } from "react";
 import { getStainlessSpec } from "../../../../lib/openapi/loader";
-import { buildSchemaReferences, getSidebarContent } from "../../../../lib/openapi/helpers";
-import { RESOURCE_ORDER, API_REFERENCE_OVERVIEW_CONTENT } from "../../../../data/sidebars/apiOverviewSidebar";
-import { PageShell, ResourceSection, PreContent, ResourceSectionSkeleton } from "../components";
+import {
+  buildSchemaReferences,
+  getSidebarContent,
+} from "../../../../lib/openapi/helpers";
+import {
+  RESOURCE_ORDER,
+  API_REFERENCE_OVERVIEW_CONTENT,
+} from "../../../../data/sidebars/apiOverviewSidebar";
+import {
+  PageShell,
+  ResourceSection,
+  PreContent,
+  ResourceSectionSkeleton,
+} from "../components";
 import type { Metadata } from "next";
 
 export const dynamic = "force-static";
@@ -65,9 +76,11 @@ export async function generateStaticParams() {
 
     // Subresource paths
     if (resource.subresources) {
-      Object.entries(resource.subresources).forEach(([subName, subResource]) => {
-        addResourcePaths(subName, subResource, resourcePath);
-      });
+      Object.entries(resource.subresources).forEach(
+        ([subName, subResource]) => {
+          addResourcePaths(subName, subResource, resourcePath);
+        },
+      );
     }
   }
 

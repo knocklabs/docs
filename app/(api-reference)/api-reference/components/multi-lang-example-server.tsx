@@ -9,7 +9,10 @@ import {
   CodeBlock,
   SupportedLanguage,
 } from "../../../../components/ui/CodeBlock";
-import { EVENT_NAME, LOCAL_STORAGE_KEY } from "../../../../components/ui/MultiLangCodeBlock";
+import {
+  EVENT_NAME,
+  LOCAL_STORAGE_KEY,
+} from "../../../../components/ui/MultiLangCodeBlock";
 
 interface MultiLangExampleServerProps {
   examples: Record<string, string>;

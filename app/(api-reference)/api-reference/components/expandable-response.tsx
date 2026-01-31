@@ -99,7 +99,8 @@ function SchemaPropertiesClient({
       {Object.entries(schema.properties || {}).map(
         ([propertyName, property]) => {
           const prop = property as OpenAPIV3.SchemaObject;
-          const isRequired = !hideRequired && schema.required?.includes(propertyName);
+          const isRequired =
+            !hideRequired && schema.required?.includes(propertyName);
           const typeString = getTypeString(prop);
           const typeRef = schemaReferences[typeString];
 

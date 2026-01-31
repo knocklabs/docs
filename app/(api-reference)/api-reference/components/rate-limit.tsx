@@ -62,10 +62,7 @@ export function RateLimitAppRouter({ tier, isBatch = false }: Props) {
 
   if (renderLink) {
     return (
-      <Link
-        href={`/${basePath}/overview/rate-limits`}
-        className="no-underline"
-      >
+      <Link href={`/${basePath}/overview/rate-limits`} className="no-underline">
         {content}
       </Link>
     );

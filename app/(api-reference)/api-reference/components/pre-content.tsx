@@ -7,7 +7,10 @@ interface PreContentProps {
 // Simplified pre-content - MDX content will be rendered elsewhere
 export async function PreContent({ specName }: PreContentProps) {
   return (
-    <section className="py-16 border-b border-gray-200" data-resource-path="/overview">
+    <section
+      className="py-16 border-b border-gray-200"
+      data-resource-path="/overview"
+    >
       <h2 className="text-2xl font-bold mb-4">Overview</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>

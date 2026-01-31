@@ -54,7 +54,9 @@ export function SchemaSectionClient({
                         {typeString}
                       </Link>
                     ) : (
-                      <code className="text-xs text-gray-500">{typeString}</code>
+                      <code className="text-xs text-gray-500">
+                        {typeString}
+                      </code>
                     )}
                     {isRequired && (
                       <span className="text-xs text-red-600">required</span>

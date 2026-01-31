@@ -84,7 +84,10 @@ export function PageShell({
             <nav className="p-4">
               <SidebarContext.Provider value={{ samePageRouting: true }}>
                 {sidebarContent.map((section) => (
-                  <SidebarSectionComponent key={section.slug} section={section} />
+                  <SidebarSectionComponent
+                    key={section.slug}
+                    section={section}
+                  />
                 ))}
               </SidebarContext.Provider>
             </nav>
@@ -111,7 +114,8 @@ export function PageShell({
           style={{
             minWidth: 0,
             maxWidth: "800px",
-            marginLeft: "clamp(16px, calc((100vw - 256px - 800px) * 0.25 + 256px), 456px)",
+            marginLeft:
+              "clamp(16px, calc((100vw - 256px - 800px) * 0.25 + 256px), 456px)",
           }}
         >
           <div
@@ -156,11 +160,7 @@ function SidebarSectionComponent({ section }: { section: SidebarSection }) {
       {isOpen && (
         <div className="ml-2 border-l border-gray-200 pl-3">
           {section.pages.map((page) => (
-            <SidebarItem
-              key={page.slug}
-              item={page}
-              basePath={section.slug}
-            />
+            <SidebarItem key={page.slug} item={page} basePath={section.slug} />
           ))}
         </div>
       )}

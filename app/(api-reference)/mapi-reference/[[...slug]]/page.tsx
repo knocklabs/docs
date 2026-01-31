@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import { getStainlessSpec } from "../../../../lib/openapi/loader";
-import { buildSchemaReferences, getSidebarContent } from "../../../../lib/openapi/helpers";
+import {
+  buildSchemaReferences,
+  getSidebarContent,
+} from "../../../../lib/openapi/helpers";
 import {
   RESOURCE_ORDER,
   MAPI_REFERENCE_OVERVIEW_CONTENT,
@@ -19,7 +22,8 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Management API reference | Knock Docs",
-    description: "Complete reference documentation for the Knock Management API.",
+    description:
+      "Complete reference documentation for the Knock Management API.",
     alternates: {
       canonical: "/mapi-reference",
     },
@@ -73,9 +77,11 @@ export async function generateStaticParams() {
 
     // Subresource paths
     if (resource.subresources) {
-      Object.entries(resource.subresources).forEach(([subName, subResource]) => {
-        addResourcePaths(subName, subResource, resourcePath);
-      });
+      Object.entries(resource.subresources).forEach(
+        ([subName, subResource]) => {
+          addResourcePaths(subName, subResource, resourcePath);
+        },
+      );
     }
   }
 

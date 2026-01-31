@@ -100,7 +100,10 @@ export function ResourceSectionClient({
       </div>
 
       {methods.map((method) => (
-        <div key={`${method.methodName}-${method.endpoint}`} data-resource-path={method.path}>
+        <div
+          key={`${method.methodName}-${method.endpoint}`}
+          data-resource-path={method.path}
+        >
           <MethodContentClient
             {...method}
             baseUrl={baseUrl}
