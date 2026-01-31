@@ -1,47 +1,27 @@
-import { Box, Stack } from "@telegraph/layout";
-
 export function ResourceSectionSkeleton() {
   return (
-    <Box py="16" borderBottom="px" borderColor="gray-3">
-      <Stack direction="column" gap="4">
-        <Box
-          h="8"
-          w="48"
-          bg="gray-3"
-          borderRadius="2"
-          className="animate-pulse"
+    <div className="py-16 border-b border-gray-200">
+      <div className="flex flex-col gap-4">
+        <div
+          className="h-8 bg-gray-200 rounded animate-pulse"
+          style={{ width: "200px" }}
         />
-        <Box
-          h="4"
-          w="full"
-          bg="gray-2"
-          borderRadius="2"
-          className="animate-pulse"
+        <div className="h-4 w-full bg-gray-100 rounded animate-pulse" />
+        <div
+          className="h-4 bg-gray-100 rounded animate-pulse"
+          style={{ width: "75%" }}
         />
-        <Box
-          h="4"
-          w="3/4"
-          bg="gray-2"
-          borderRadius="2"
-          className="animate-pulse"
-        />
-        <Stack direction="row" gap="4" mt="4">
-          <Box
-            h="32"
-            w="1/2"
-            bg="gray-2"
-            borderRadius="2"
-            className="animate-pulse"
+        <div className="flex flex-row gap-4 mt-4">
+          <div
+            className="h-32 bg-gray-100 rounded animate-pulse"
+            style={{ width: "50%" }}
           />
-          <Box
-            h="32"
-            w="1/2"
-            bg="gray-2"
-            borderRadius="2"
-            className="animate-pulse"
+          <div
+            className="h-32 bg-gray-100 rounded animate-pulse"
+            style={{ width: "50%" }}
           />
-        </Stack>
-      </Stack>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }

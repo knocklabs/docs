@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo } from "react";
 import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import javascript from "react-syntax-highlighter/dist/cjs/languages/hljs/javascript";

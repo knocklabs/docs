@@ -1,7 +1,16 @@
+"use client";
+
 import { Tag } from "@telegraph/tag";
 import { Tooltip } from "@telegraph/tooltip";
-import { useRouter } from "next/router";
 import Link from "next/link";
+
+// Try to get pathname from window.location for App Router compatibility
+function useCurrentPath() {
+  if (typeof window !== "undefined") {
+    return window.location.pathname;
+  }
+  return "";
+}
 
 type Props = {
   tier: 1 | 2 | 3 | 4 | 5;
@@ -9,9 +18,9 @@ type Props = {
 };
 
 const RateLimit: React.FC<Props> = ({ tier, isBatch = false }) => {
-  const router = useRouter();
-  const paths = router.asPath.split("/");
-  const pathname = paths[1];
+  const currentPath = useCurrentPath();
+  const paths = currentPath.split("/");
+  const pathname = paths[1] || "";
   const inOverview = paths[2] === "overview";
   const tierConfig = {
     5: {

@@ -21,20 +21,19 @@ export function SchemaPropertiesServer({
   return (
     <Box>
       {Object.entries(schema.properties || {}).map(
-        ([propertyName, property]) => (
-          <SchemaPropertyServer
-            key={propertyName}
-            name={propertyName}
-            schema={{
-              ...(property as OpenAPIV3.SchemaObject),
-              required: !hideRequired
-                ? (property as OpenAPIV3.SchemaObject).required ||
-                  schema.required?.includes(propertyName)
-                : false,
-            }}
-            schemaReferences={schemaReferences}
-          />
-        ),
+        ([propertyName, property]) => {
+          const propSchema = property as OpenAPIV3.SchemaObject;
+          const isRequired = !hideRequired && schema.required?.includes(propertyName);
+          return (
+            <SchemaPropertyServer
+              key={propertyName}
+              name={propertyName}
+              schema={propSchema}
+              schemaReferences={schemaReferences}
+              isRequired={isRequired}
+            />
+          );
+        },
       )}
       {schema.additionalProperties && (
         <SchemaPropertyServer
@@ -42,7 +41,6 @@ export function SchemaPropertiesServer({
           schema={{
             type: "object",
             description: "Any additional custom properties.",
-            additionalProperties: schema.additionalProperties,
           }}
           schemaReferences={schemaReferences}
         />
@@ -53,6 +51,7 @@ export function SchemaPropertiesServer({
           name={schema.title}
           schema={schema}
           schemaReferences={schemaReferences}
+          isRequired={false}
         />
       )}
     </Box>
@@ -61,20 +60,19 @@ export function SchemaPropertiesServer({
 
 interface SchemaPropertyServerProps {
   name?: string;
-  schema: OpenAPIV3.SchemaObject & { required?: boolean | string[] };
+  schema: OpenAPIV3.SchemaObject;
   schemaReferences: Record<string, string>;
+  isRequired?: boolean;
 }
 
 function SchemaPropertyServer({
   name,
   schema,
   schemaReferences,
+  isRequired = false,
 }: SchemaPropertyServerProps) {
   const typeString = getTypeString(schema);
   const typeRef = schemaReferences[typeString];
-  const isRequired =
-    schema.required === true ||
-    (Array.isArray(schema.required) && name && schema.required.includes(name));
   const isNullable = schema.nullable;
 
   // Handle union types (oneOf, anyOf, allOf)

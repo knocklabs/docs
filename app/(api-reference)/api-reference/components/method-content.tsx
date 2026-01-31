@@ -3,8 +3,8 @@ import Markdown from "react-markdown";
 import { Box } from "@telegraph/layout";
 import { Code, Heading } from "@telegraph/typography";
 import { Callout } from "../../../../components/ui/Callout";
-import RateLimit from "../../../../components/ui/RateLimit";
-import { ContentColumn, ExampleColumn, Section } from "../../../../components/ui/ApiSections";
+import { ContentColumn, ExampleColumn, Section } from "./api-sections";
+import { RateLimitAppRouter } from "./rate-limit";
 import { CodeBlock } from "../../../../components/ui/CodeBlock";
 import { Endpoint } from "../../../../components/ui/Endpoints";
 import { getOpenApiSpec } from "../../../../lib/openapi/loader";
@@ -59,9 +59,13 @@ export async function MethodContent({
     | OpenAPIV3.SchemaObject
     | undefined;
 
-  const rateLimit = (method as Record<string, unknown>)?.["x-ratelimit-tier"] as
-    | number
-    | null;
+  const rateLimitRaw = (method as Record<string, unknown>)?.[
+    "x-ratelimit-tier"
+  ] as number | null;
+  const rateLimit =
+    rateLimitRaw && [1, 2, 3, 4, 5].includes(rateLimitRaw)
+      ? (rateLimitRaw as 1 | 2 | 3 | 4 | 5)
+      : null;
   const isIdempotent =
     ((method as Record<string, unknown>)?.["x-idempotent"] as boolean) ?? false;
   const isRetentionSubject =
@@ -124,7 +128,7 @@ export async function MethodContent({
             <Heading as="h3" weight="medium" size="3" mb="1">
               Rate limit
             </Heading>
-            <RateLimit tier={rateLimit} />
+            <RateLimitAppRouter tier={rateLimit} />
           </Box>
         )}
 

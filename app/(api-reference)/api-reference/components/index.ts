@@ -1,9 +1,7 @@
 export { PageShell } from "./page-shell";
 export { ResourceSection } from "./resource-section";
-export { MethodContent } from "./method-content";
-export { SchemaPropertiesServer } from "./schema-properties-server";
-export { OperationParametersServer } from "./operation-parameters-server";
-export { MultiLangExampleServer } from "./multi-lang-example-server";
-export { ExpandableResponse } from "./expandable-response";
+export { ResourceSectionClient } from "./resource-section-client";
+export { MethodContentClient } from "./method-content-client";
+export { SchemaSectionClient } from "./schema-section-client";
 export { PreContent } from "./pre-content";
 export { ResourceSectionSkeleton } from "./loading-skeleton";

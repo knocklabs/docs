@@ -1,23 +1,14 @@
-import React from "react";
 import type { OpenAPIV3 } from "@scalar/openapi-types";
-import Markdown from "react-markdown";
-import { Box } from "@telegraph/layout";
-import { Heading } from "@telegraph/typography";
-import { CodeBlock } from "../../../../components/ui/CodeBlock";
-import { Endpoint, Endpoints } from "../../../../components/ui/Endpoints";
-import { ContentColumn, ExampleColumn, Section } from "../../../../components/ui/ApiSections";
 import { getOpenApiSpec, getStainlessSpec } from "../../../../lib/openapi/loader";
 import {
   resolveEndpoint,
-  getOperation,
   getSchemaByRef,
-  getResourceMethods,
-  getResourceSchemas,
-  buildSchemaReferences,
+  getOperation,
 } from "../../../../lib/openapi/helpers";
 import type { SpecName, StainlessResource } from "../../../../lib/openapi/types";
-import { MethodContent } from "./method-content";
-import { SchemaPropertiesServer } from "./schema-properties-server";
+import { ResourceSectionClient } from "./resource-section-client";
+import { MethodContentClient } from "./method-content-client";
+import { SchemaSectionClient } from "./schema-section-client";
 
 interface ResourceSectionProps {
   specName: SpecName;
@@ -51,274 +42,122 @@ export async function ResourceSection({
   const resourcePath = path ?? `/${resourceName}`;
   const apiSurface = basePath.replace("/", "");
 
-  return (
-    <>
-      <Box data-resource-path={resourcePath}>
-        <Section
-          title={resource.name || resourceName}
-          path={resourcePath}
-          mdPath={`/${apiSurface}${resourcePath}/index.md`}
-        >
-          <ContentColumn>
-            {resource.description && (
-              <Markdown>{resource.description}</Markdown>
-            )}
-          </ContentColumn>
-          <ExampleColumn>
-            {Object.entries(methods).length > 0 && (
-              <Endpoints>
-                {Object.entries(methods).map(
-                  ([methodName, endpointOrMethodConfig]) => {
-                    const [methodType, endpoint] = resolveEndpoint(
-                      endpointOrMethodConfig,
-                    );
-
-                    return (
-                      <Endpoint
-                        key={`${methodName}-${endpoint}`}
-                        method={methodType.toUpperCase()}
-                        path={endpoint}
-                        name={methodName}
-                        withLink
-                      />
-                    );
-                  },
-                )}
-              </Endpoints>
-            )}
-          </ExampleColumn>
-        </Section>
-      </Box>
-
-      {Object.entries(methods).map(([methodName, endpointOrMethodConfig]) => {
-        const [methodType, endpoint] = resolveEndpoint(endpointOrMethodConfig);
-        const methodPath = `${resourcePath}/${methodName}`;
-        const methodMdPath = `/${apiSurface}${resourcePath}/${methodName}.md`;
-
-        return (
-          <Box key={`${methodName}-${endpoint}`} data-resource-path={methodPath}>
-            <MethodContent
-              specName={specName}
-              methodName={methodName}
-              methodType={methodType as "get" | "post" | "put" | "delete"}
-              endpoint={endpoint}
-              path={methodPath}
-              mdPath={methodMdPath}
-              baseUrl={baseUrl}
-              schemaReferences={schemaReferences}
-            />
-          </Box>
-        );
-      })}
-
-      {Object.entries(resource.subresources ?? {}).map(
-        ([subresourceName, subresource]) => {
-          return (
-            <SubResourceSection
-              key={subresourceName}
-              specName={specName}
-              resource={subresource}
-              resourceName={subresourceName}
-              basePath={basePath}
-              baseUrl={baseUrl}
-              schemaReferences={schemaReferences}
-              path={`${resourcePath}/${subresourceName}`}
-            />
-          );
-        },
-      )}
-
-      {Object.entries(models).map(([modelName, modelReference]) => {
-        const schema = getSchemaByRef(openApiSpec, modelReference);
-
-        if (!schema) {
-          return null;
-        }
-
-        const schemaPath = `${resourcePath}/schemas/${modelName}`;
-        const schemaMdPath = `/${apiSurface}${resourcePath}/schemas/${modelName}.md`;
-
-        return (
-          <Box key={modelName} data-resource-path={schemaPath}>
-            <Section
-              title={schema.title}
-              path={schemaPath}
-              mdPath={schemaMdPath}
-            >
-              <ContentColumn>
-                {schema.description && (
-                  <Markdown>{schema.description}</Markdown>
-                )}
-
-                <Heading
-                  as="h3"
-                  size="3"
-                  weight="medium"
-                  borderBottom="px"
-                  borderColor="gray-3"
-                  pb="2"
-                >
-                  Attributes
-                </Heading>
-                <SchemaPropertiesServer
-                  schema={schema}
-                  schemaReferences={schemaReferences}
-                  hideRequired
-                />
-              </ContentColumn>
-              <ExampleColumn>
-                <CodeBlock
-                  title={schema.title}
-                  language="json"
-                  languages={["json"]}
-                >
-                  {JSON.stringify(schema.example, null, 2)}
-                </CodeBlock>
-              </ExampleColumn>
-            </Section>
-          </Box>
-        );
-      })}
-    </>
+  // Prepare endpoints data for client
+  const endpoints = Object.entries(methods).map(
+    ([methodName, endpointOrMethodConfig]) => {
+      const [methodType, endpoint] = resolveEndpoint(endpointOrMethodConfig);
+      return { methodName, methodType, endpoint };
+    },
   );
-}
 
-interface SubResourceSectionProps {
-  specName: SpecName;
-  resource: StainlessResource;
-  resourceName: string;
-  basePath: string;
-  baseUrl: string;
-  schemaReferences: Record<string, string>;
-  path: string;
-}
+  // Prepare method data for client
+  const methodsData = Object.entries(methods).map(
+    ([methodName, endpointOrMethodConfig]) => {
+      const [methodType, endpoint] = resolveEndpoint(endpointOrMethodConfig);
+      const operation = getOperation(openApiSpec, methodType, endpoint);
+      if (!operation) return null;
 
-async function SubResourceSection({
-  specName,
-  resource,
-  resourceName,
-  basePath,
-  baseUrl,
-  schemaReferences,
-  path,
-}: SubResourceSectionProps) {
-  const openApiSpec = await getOpenApiSpec(specName);
+      const methodPath = `${resourcePath}/${methodName}`;
+      const methodMdPath = `/${apiSurface}${resourcePath}/${methodName}.md`;
 
-  const methods = resource.methods || {};
-  const models = resource.models || {};
-  const apiSurface = basePath.replace("/", "");
+      return {
+        methodName,
+        methodType,
+        endpoint,
+        path: methodPath,
+        mdPath: methodMdPath,
+        operation: JSON.parse(JSON.stringify(operation)), // Serialize for client
+      };
+    },
+  ).filter(Boolean);
+
+  // Prepare schema data for client
+  const schemasData = Object.entries(models).map(([modelName, modelReference]) => {
+    const schema = getSchemaByRef(openApiSpec, modelReference);
+    if (!schema) return null;
+
+    const schemaPath = `${resourcePath}/schemas/${modelName}`;
+    const schemaMdPath = `/${apiSurface}${resourcePath}/schemas/${modelName}.md`;
+
+    return {
+      modelName,
+      path: schemaPath,
+      mdPath: schemaMdPath,
+      schema: JSON.parse(JSON.stringify(schema)), // Serialize for client
+    };
+  }).filter(Boolean);
+
+  // Prepare subresources data
+  const subresourcesData = await Promise.all(
+    Object.entries(resource.subresources ?? {}).map(
+      async ([subresourceName, subresource]) => {
+        const subPath = `${resourcePath}/${subresourceName}`;
+        const subMethods = subresource.methods || {};
+        const subModels = subresource.models || {};
+
+        const subEndpoints = Object.entries(subMethods).map(
+          ([methodName, endpointOrMethodConfig]) => {
+            const [methodType, endpoint] = resolveEndpoint(endpointOrMethodConfig);
+            return { methodName, methodType, endpoint };
+          },
+        );
+
+        const subMethodsData = Object.entries(subMethods).map(
+          ([methodName, endpointOrMethodConfig]) => {
+            const [methodType, endpoint] = resolveEndpoint(endpointOrMethodConfig);
+            const operation = getOperation(openApiSpec, methodType, endpoint);
+            if (!operation) return null;
+
+            return {
+              methodName,
+              methodType,
+              endpoint,
+              path: `${subPath}/${methodName}`,
+              mdPath: `/${apiSurface}${subPath}/${methodName}.md`,
+              operation: JSON.parse(JSON.stringify(operation)),
+            };
+          },
+        ).filter(Boolean);
+
+        const subSchemasData = Object.entries(subModels).map(
+          ([modelName, modelReference]) => {
+            const schema = getSchemaByRef(openApiSpec, modelReference);
+            if (!schema) return null;
+
+            return {
+              modelName,
+              path: `${subPath}/schemas/${modelName}`,
+              mdPath: `/${apiSurface}${subPath}/schemas/${modelName}.md`,
+              schema: JSON.parse(JSON.stringify(schema)),
+            };
+          },
+        ).filter(Boolean);
+
+        return {
+          name: subresource.name || subresourceName,
+          description: subresource.description,
+          path: subPath,
+          mdPath: `/${apiSurface}${subPath}/index.md`,
+          endpoints: subEndpoints,
+          methods: subMethodsData.filter((m): m is NonNullable<typeof m> => m !== null),
+          schemas: subSchemasData.filter((s): s is NonNullable<typeof s> => s !== null),
+        };
+      },
+    ),
+  );
 
   return (
-    <>
-      <Box data-resource-path={path}>
-        <Section
-          title={resource.name || resourceName}
-          path={path}
-          mdPath={`/${apiSurface}${path}/index.md`}
-        >
-          <ContentColumn>
-            {resource.description && (
-              <Markdown>{resource.description}</Markdown>
-            )}
-          </ContentColumn>
-          <ExampleColumn>
-            {Object.entries(methods).length > 0 && (
-              <Endpoints>
-                {Object.entries(methods).map(
-                  ([methodName, endpointOrMethodConfig]) => {
-                    const [methodType, endpoint] = resolveEndpoint(
-                      endpointOrMethodConfig,
-                    );
-
-                    return (
-                      <Endpoint
-                        key={`${methodName}-${endpoint}`}
-                        method={methodType.toUpperCase()}
-                        path={endpoint}
-                        name={methodName}
-                        withLink
-                      />
-                    );
-                  },
-                )}
-              </Endpoints>
-            )}
-          </ExampleColumn>
-        </Section>
-      </Box>
-
-      {Object.entries(methods).map(([methodName, endpointOrMethodConfig]) => {
-        const [methodType, endpoint] = resolveEndpoint(endpointOrMethodConfig);
-        const methodPath = `${path}/${methodName}`;
-        const methodMdPath = `/${apiSurface}${path}/${methodName}.md`;
-
-        return (
-          <Box key={`${methodName}-${endpoint}`} data-resource-path={methodPath}>
-            <MethodContent
-              specName={specName}
-              methodName={methodName}
-              methodType={methodType as "get" | "post" | "put" | "delete"}
-              endpoint={endpoint}
-              path={methodPath}
-              mdPath={methodMdPath}
-              baseUrl={baseUrl}
-              schemaReferences={schemaReferences}
-            />
-          </Box>
-        );
-      })}
-
-      {Object.entries(models).map(([modelName, modelReference]) => {
-        const schema = getSchemaByRef(openApiSpec, modelReference);
-
-        if (!schema) {
-          return null;
-        }
-
-        const schemaPath = `${path}/schemas/${modelName}`;
-        const schemaMdPath = `/${apiSurface}${path}/schemas/${modelName}.md`;
-
-        return (
-          <Box key={modelName} data-resource-path={schemaPath}>
-            <Section
-              title={schema.title}
-              path={schemaPath}
-              mdPath={schemaMdPath}
-            >
-              <ContentColumn>
-                {schema.description && (
-                  <Markdown>{schema.description}</Markdown>
-                )}
-
-                <Heading
-                  as="h3"
-                  size="3"
-                  weight="medium"
-                  borderBottom="px"
-                  borderColor="gray-3"
-                  pb="2"
-                >
-                  Attributes
-                </Heading>
-                <SchemaPropertiesServer
-                  schema={schema}
-                  schemaReferences={schemaReferences}
-                  hideRequired
-                />
-              </ContentColumn>
-              <ExampleColumn>
-                <CodeBlock
-                  title={schema.title}
-                  language="json"
-                  languages={["json"]}
-                >
-                  {JSON.stringify(schema.example, null, 2)}
-                </CodeBlock>
-              </ExampleColumn>
-            </Section>
-          </Box>
-        );
-      })}
-    </>
+    <ResourceSectionClient
+      name={resource.name || resourceName}
+      description={resource.description}
+      path={resourcePath}
+      mdPath={`/${apiSurface}${resourcePath}/index.md`}
+      endpoints={endpoints}
+      methods={methodsData as any}
+      schemas={schemasData as any}
+      subresources={subresourcesData}
+      baseUrl={baseUrl}
+      schemaReferences={schemaReferences}
+    />
   );
 }

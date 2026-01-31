@@ -1,14 +1,23 @@
 "use client";
 
-import { useRef, useContext } from "react";
-import { Box, Stack } from "@telegraph/layout";
-import { Heading, Text } from "@telegraph/typography";
-import { PageHeader } from "../../../../components/ui/PageHeader";
-import { MobileSidebar } from "../../../../components/ui/Page/MobileSidebar";
-import { Sidebar, SidebarContext } from "../../../../components/ui/Page/Sidebar";
-import { ContentActions } from "../../../../components/ui/ContentActions";
-import { AskAiContext } from "../../../../components/AskAiContext";
-import type { SidebarSection } from "../../../../data/types";
+import { useRef, useState, createContext } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, ChevronDown, ChevronRight, X } from "lucide-react";
+import { ContentActionsAppRouter } from "./content-actions";
+
+interface SidebarPage {
+  slug: string;
+  title: string;
+  pages?: SidebarPage[];
+}
+
+interface SidebarSection {
+  title: string;
+  slug: string;
+  pages: SidebarPage[];
+  sidebarMenuDefaultOpen?: boolean;
+}
 
 interface PageShellProps {
   children: React.ReactNode;
@@ -17,6 +26,11 @@ interface PageShellProps {
   description: string;
 }
 
+// Simple sidebar context for same-page routing
+const SidebarContext = createContext<{ samePageRouting: boolean }>({
+  samePageRouting: true,
+});
+
 export function PageShell({
   children,
   sidebarContent,
@@ -24,53 +38,80 @@ export function PageShell({
   description,
 }: PageShellProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const askAiContext = useContext(AskAiContext);
-  const isOpen = askAiContext?.isOpen ?? false;
-  const sidebarWidth = askAiContext?.sidebarWidth ?? 340;
-  const isResizing = askAiContext?.isResizing ?? false;
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
-    <Box position="relative">
-      <PageHeader
-        mobileSidebar={
-          <MobileSidebar>
+    <div className="relative">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-4">
+            <button
+              className="lg:hidden p-2"
+              onClick={() => setIsMobileSidebarOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <Link href="/" className="font-semibold text-lg">
+              Knock Docs
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-50 lg:hidden"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        >
+          <div className="absolute inset-0 bg-black/50" />
+          <div
+            className="absolute left-0 top-0 h-full w-80 bg-white overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b">
+              <span className="font-semibold">Navigation</span>
+              <button
+                className="p-1"
+                onClick={() => setIsMobileSidebarOpen(false)}
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <nav className="p-4">
+              <SidebarContext.Provider value={{ samePageRouting: true }}>
+                {sidebarContent.map((section) => (
+                  <SidebarSectionComponent key={section.slug} section={section} />
+                ))}
+              </SidebarContext.Provider>
+            </nav>
+          </div>
+        </div>
+      )}
+
+      {/* Main Layout */}
+      <div className="layout-grid" style={{ width: "100%" }}>
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:block fixed left-0 top-14 bottom-0 w-64 border-r border-gray-200 overflow-y-auto">
+          <nav className="p-4" ref={scrollerRef}>
             <SidebarContext.Provider value={{ samePageRouting: true }}>
               {sidebarContent.map((section) => (
-                <Sidebar.Section key={section.slug} section={section} />
+                <SidebarSectionComponent key={section.slug} section={section} />
               ))}
             </SidebarContext.Provider>
-          </MobileSidebar>
-        }
-      />
-      <div
-        data-wrapper
-        className="layout-grid"
-        style={
-          {
-            width: "100%",
-            paddingRight: isOpen ? `${sidebarWidth}px` : "0",
-            transition: isResizing ? "none" : "padding-right 0.2s ease-in-out",
-            "--ask-ai-sidebar-width": isOpen ? `${sidebarWidth}px` : "0px",
-          } as React.CSSProperties
-        }
-      >
-        <SidebarContext.Provider value={{ samePageRouting: true }}>
-          <Sidebar.FullLayout scrollerRef={scrollerRef}>
-            <Sidebar.ScrollContainer scrollerRef={scrollerRef}>
-              {sidebarContent.map((section) => (
-                <Sidebar.Section key={section.slug} section={section} />
-              ))}
-            </Sidebar.ScrollContainer>
-          </Sidebar.FullLayout>
-        </SidebarContext.Provider>
+          </nav>
+        </aside>
 
+        {/* Content Area */}
         <div
-          data-content-area
-          className="flex w-full"
+          className="lg:ml-64 flex w-full"
           style={{
             minWidth: 0,
             maxWidth: "800px",
-            marginLeft: `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - 800px) * 0.25), 200px)`,
+            marginLeft: "clamp(16px, calc((100vw - 256px - 800px) * 0.25 + 256px), 456px)",
           }}
         >
           <div
@@ -78,23 +119,111 @@ export function PageShell({
             style={{ minWidth: "min(600px, 100%)" }}
             data-content
           >
-            <Box mb="6">
-              <Heading as="h1" size="7" mb="2">
-                {title}
-              </Heading>
-              <Text as="p" size="3" color="gray" weight="medium">
-                {description}
-              </Text>
-              <Box mt="4">
-                <ContentActions showOnMobile style={{ marginLeft: "-6px" }} />
-              </Box>
-            </Box>
-            <Box mb="6" className="tgraph-content" data-content-body>
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold mb-2">{title}</h1>
+              <p className="text-gray-600">{description}</p>
+              <div className="mt-4" style={{ marginLeft: "-6px" }}>
+                <ContentActionsAppRouter showOnMobile />
+              </div>
+            </div>
+            <div className="mb-6 tgraph-content" data-content-body>
               {children}
-            </Box>
+            </div>
           </div>
         </div>
       </div>
-    </Box>
+    </div>
+  );
+}
+
+// Sidebar Section Component
+function SidebarSectionComponent({ section }: { section: SidebarSection }) {
+  const [isOpen, setIsOpen] = useState(section.sidebarMenuDefaultOpen ?? false);
+
+  return (
+    <div className="mb-4">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-full text-left font-medium text-sm py-2 hover:text-blue-600"
+      >
+        <span>{section.title}</span>
+        {isOpen ? (
+          <ChevronDown className="w-4 h-4 text-gray-400" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        )}
+      </button>
+      {isOpen && (
+        <div className="ml-2 border-l border-gray-200 pl-3">
+          {section.pages.map((page) => (
+            <SidebarItem
+              key={page.slug}
+              item={page}
+              basePath={section.slug}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Sidebar Item Component
+function SidebarItem({
+  item,
+  basePath,
+}: {
+  item: SidebarPage;
+  basePath: string;
+}) {
+  const pathname = usePathname() ?? "";
+  const [isOpen, setIsOpen] = useState(false);
+  const hasChildren = item.pages && item.pages.length > 0;
+  const fullPath = `${basePath}${item.slug}`;
+  const isActive = pathname.includes(fullPath.replace(/\/$/, ""));
+
+  const handleClick = () => {
+    if (hasChildren) {
+      setIsOpen(!isOpen);
+    } else {
+      // Navigate to the section
+      const element = document.querySelector(
+        `[data-resource-path="${item.slug.replace(/^\//, "")}"]`,
+      );
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState({}, "", fullPath);
+      }
+    }
+  };
+
+  return (
+    <div>
+      <button
+        onClick={handleClick}
+        className={`flex items-center justify-between w-full text-left text-sm py-1.5 hover:text-blue-600 ${
+          isActive ? "text-blue-600 font-medium" : "text-gray-700"
+        }`}
+      >
+        <span>{item.title}</span>
+        {hasChildren &&
+          (isOpen ? (
+            <ChevronDown className="w-3 h-3 text-gray-400" />
+          ) : (
+            <ChevronRight className="w-3 h-3 text-gray-400" />
+          ))}
+      </button>
+      {hasChildren && isOpen && (
+        <div className="ml-2 border-l border-gray-200 pl-3">
+          {item.pages?.map((subItem) => (
+            <SidebarItem
+              key={subItem.slug}
+              item={subItem}
+              basePath={fullPath}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

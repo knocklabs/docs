@@ -6,9 +6,6 @@ import {
   EventEmitterContext,
   useEventEmitterInstance,
 } from "@byteclaw/use-event-emitter";
-import { InkeepModalProvider } from "../../components/AiChatButton";
-import { AskAiProvider } from "../../components/AskAiContext";
-import AskAiSidebar from "../../components/AskAiSidebar";
 import * as analytics from "../../lib/analytics";
 import { initAttribution } from "../../lib/attribution";
 import { setClearbitPath } from "../../lib/clearbit";
@@ -30,16 +27,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   return (
-    <AskAiProvider>
-      <InkeepModalProvider>
-        <main>
-          <EventEmitterContext.Provider value={eventEmitter}>
-            {children}
-          </EventEmitterContext.Provider>
-          {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
-        </main>
-        <AskAiSidebar />
-      </InkeepModalProvider>
-    </AskAiProvider>
+    <main>
+      <EventEmitterContext.Provider value={eventEmitter}>
+        {children}
+      </EventEmitterContext.Provider>
+      {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
+    </main>
   );
 }
