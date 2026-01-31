@@ -628,16 +628,7 @@ const nextConfig = {
         destination: "/cli/overview",
         permanent: false,
       },
-      {
-        source: "/api-reference",
-        destination: "/api-reference/overview",
-        permanent: false,
-      },
-      {
-        source: "/mapi-reference",
-        destination: "/mapi-reference/overview",
-        permanent: false,
-      },
+      // API reference pages are now handled by App Router - no redirects needed
       // CLI guides redirects (plural to singular)
       {
         source: "/cli/guides",
@@ -699,16 +690,7 @@ const nextConfig = {
 
   async rewrites() {
     return [
-      // API reference pages all serve the same static content
-      // The URL paths are used for client-side navigation to sections
-      {
-        source: "/api-reference/:path+",
-        destination: "/api-reference",
-      },
-      {
-        source: "/mapi-reference/:path+",
-        destination: "/mapi-reference",
-      },
+      // API reference pages are now handled by App Router with [[...slug]] catch-all
       // CLI reference pages all serve the same static content
       {
         source: "/cli/:path+",
