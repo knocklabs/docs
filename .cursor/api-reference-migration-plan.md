@@ -54,12 +54,12 @@ The App Router with React Server Components solves these problems by:
 
 ### Expected outcomes
 
-| Metric | Current | After migration |
-|--------|---------|-----------------|
-| HTML payload size | 2-5MB | ~50-100KB |
+| Metric               | Current   | After migration        |
+| -------------------- | --------- | ---------------------- |
+| HTML payload size    | 2-5MB     | ~50-100KB              |
 | JavaScript hydration | Full spec | Minimal (islands only) |
-| Build memory | High | Reduced (cached) |
-| Time to Interactive | Slow | Fast |
+| Build memory         | High      | Reduced (cached)       |
+| Time to Interactive  | Slow      | Fast                   |
 
 ---
 
@@ -160,19 +160,19 @@ lib/
 
 ### Server vs Client component split
 
-| Component | Type | Reason |
-|-----------|------|--------|
-| `page.tsx` | Server | Loads spec, renders static content |
-| `resource-section.tsx` | Server | Renders resource overview |
-| `method-content.tsx` | Server | Renders endpoint documentation |
-| `schema-content.tsx` | Server | Renders schema/model documentation |
-| `parameter-list.tsx` | Server | Renders parameter tables |
-| `property-list.tsx` | Server | Renders property tables |
-| `endpoint-list.tsx` | Server | Renders endpoint summary list |
-| `expandable-properties.tsx` | Client | Toggle expand/collapse state |
-| `code-example-tabs.tsx` | Client | Language selection state |
-| `sidebar-nav.tsx` | Client | Active state, scroll tracking |
-| `providers.tsx` | Client | Analytics, AI chat context |
+| Component                   | Type   | Reason                             |
+| --------------------------- | ------ | ---------------------------------- |
+| `page.tsx`                  | Server | Loads spec, renders static content |
+| `resource-section.tsx`      | Server | Renders resource overview          |
+| `method-content.tsx`        | Server | Renders endpoint documentation     |
+| `schema-content.tsx`        | Server | Renders schema/model documentation |
+| `parameter-list.tsx`        | Server | Renders parameter tables           |
+| `property-list.tsx`         | Server | Renders property tables            |
+| `endpoint-list.tsx`         | Server | Renders endpoint summary list      |
+| `expandable-properties.tsx` | Client | Toggle expand/collapse state       |
+| `code-example-tabs.tsx`     | Client | Language selection state           |
+| `sidebar-nav.tsx`           | Client | Active state, scroll tracking      |
+| `providers.tsx`             | Client | Analytics, AI chat context         |
 
 ---
 
@@ -183,6 +183,7 @@ lib/
 Set up the core infrastructure for the App Router migration.
 
 **Deliverables:**
+
 - Cached OpenAPI spec loader
 - Shared layout and providers
 - Basic routing structure
@@ -193,6 +194,7 @@ Set up the core infrastructure for the App Router migration.
 Create the core Server Components that render API documentation.
 
 **Deliverables:**
+
 - Resource section component
 - Method content component
 - Schema content component
@@ -204,6 +206,7 @@ Create the core Server Components that render API documentation.
 Extract interactive features into minimal Client Components.
 
 **Deliverables:**
+
 - Expandable response properties
 - Code example language tabs
 - Sidebar navigation with active state
@@ -213,6 +216,7 @@ Extract interactive features into minimal Client Components.
 Wire up the pages and implement static generation.
 
 **Deliverables:**
+
 - Overview page
 - Resource pages
 - Method pages
@@ -224,6 +228,7 @@ Wire up the pages and implement static generation.
 Ensure feature parity with the current implementation.
 
 **Deliverables:**
+
 - Mobile sidebar
 - Hash navigation
 - Scroll behavior
@@ -236,6 +241,7 @@ Ensure feature parity with the current implementation.
 Comprehensive testing and gradual rollout.
 
 **Deliverables:**
+
 - Visual regression testing
 - Performance benchmarking
 - Staged rollout via feature flag or redirect
@@ -268,13 +274,10 @@ type SpecName = "api" | "mapi";
  */
 export const getOpenApiSpec = cache(
   async (specName: SpecName): Promise<OpenAPIV3.Document> => {
-    const spec = await readFile(
-      `./data/specs/${specName}/openapi.yml`,
-      "utf8"
-    );
+    const spec = await readFile(`./data/specs/${specName}/openapi.yml`, "utf8");
     const { schema } = await dereference(parse(spec));
     return JSON.parse(safeStringify(schema));
-  }
+  },
 );
 
 /**
@@ -287,11 +290,12 @@ export const getStainlessSpec = cache(
       readFile(`./data/specs/${specName}/customizations.yml`, "utf8"),
     ]);
     return deepmerge(parse(specFile), parse(customizationsFile));
-  }
+  },
 );
 ```
 
 **Acceptance criteria:**
+
 - [ ] Specs are loaded once per build/request
 - [ ] Subsequent calls return cached data
 - [ ] TypeScript types are properly exported
@@ -344,6 +348,7 @@ export interface ResourceData {
 ```
 
 **Acceptance criteria:**
+
 - [ ] All types match existing data structures
 - [ ] Types are exported for use in components
 
@@ -354,13 +359,13 @@ Create `lib/openapi/helpers.ts`:
 ```typescript
 import type { OpenAPIV3 } from "@scalar/openapi-types";
 import JSONPointer from "jsonpointer";
-import type { 
-  StainlessMethodConfig, 
-  StainlessResource, 
+import type {
+  StainlessMethodConfig,
+  StainlessResource,
   StainlessConfig,
   MethodData,
   SchemaData,
-  SpecName 
+  SpecName,
 } from "./types";
 import { getOpenApiSpec, getStainlessSpec } from "./loader";
 
@@ -368,7 +373,7 @@ import { getOpenApiSpec, getStainlessSpec } from "./loader";
  * Resolve endpoint from Stainless method config.
  */
 export function resolveEndpoint(
-  config: StainlessMethodConfig
+  config: StainlessMethodConfig,
 ): [string, string] {
   const endpoint = typeof config === "string" ? config : config.endpoint;
   const [method, path] = endpoint.split(" ");
@@ -381,7 +386,7 @@ export function resolveEndpoint(
 export function getOperation(
   spec: OpenAPIV3.Document,
   methodType: string,
-  endpoint: string
+  endpoint: string,
 ): OpenAPIV3.OperationObject | undefined {
   return spec.paths?.[endpoint]?.[methodType];
 }
@@ -391,7 +396,7 @@ export function getOperation(
  */
 export function getSchemaByRef(
   spec: OpenAPIV3.Document,
-  ref: string
+  ref: string,
 ): OpenAPIV3.SchemaObject | undefined {
   return JSONPointer.get(spec, ref.replace("#", ""));
 }
@@ -401,7 +406,7 @@ export function getSchemaByRef(
  */
 export async function buildSchemaReferences(
   specName: SpecName,
-  basePath: string
+  basePath: string,
 ): Promise<Record<string, string>> {
   const [spec, stainless] = await Promise.all([
     getOpenApiSpec(specName),
@@ -438,7 +443,7 @@ export async function buildSchemaReferences(
  */
 export function getResourceMethods(
   spec: OpenAPIV3.Document,
-  resource: StainlessResource
+  resource: StainlessResource,
 ): MethodData[] {
   if (!resource.methods) return [];
 
@@ -457,7 +462,7 @@ export function getResourceMethods(
  */
 export function getResourceSchemas(
   spec: OpenAPIV3.Document,
-  resource: StainlessResource
+  resource: StainlessResource,
 ): SchemaData[] {
   if (!resource.models) return [];
 
@@ -472,6 +477,7 @@ export function getResourceSchemas(
 ```
 
 **Acceptance criteria:**
+
 - [ ] All helper functions are pure and testable
 - [ ] Functions work with cached spec data
 - [ ] Type safety is maintained
@@ -507,6 +513,7 @@ export default function ApiReferenceLayout({
 ```
 
 **Acceptance criteria:**
+
 - [ ] Layout loads global styles
 - [ ] Font is configured
 - [ ] Providers wrap children
@@ -564,6 +571,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 ```
 
 **Acceptance criteria:**
+
 - [ ] Analytics tracking works on navigation
 - [ ] AI chat sidebar is available
 - [ ] Event emitter context is provided
@@ -579,11 +587,13 @@ Create `app/(api-reference)/api-reference/components/resource-section.tsx`:
 This is a Server Component that renders a resource overview section.
 
 **Props:**
+
 - `specName: SpecName` - Which spec to use
 - `resourceName: string` - Resource identifier
 - `basePath: string` - URL base path for links
 
 **Responsibilities:**
+
 - Load resource data from cached spec
 - Render resource title and description
 - Render endpoint summary list
@@ -592,6 +602,7 @@ This is a Server Component that renders a resource overview section.
 - Recursively render subresources
 
 **Acceptance criteria:**
+
 - [ ] No `"use client"` directive
 - [ ] Uses only server-safe APIs
 - [ ] Passes data to child components, not context
@@ -603,11 +614,13 @@ Create `app/(api-reference)/api-reference/components/method-content.tsx`:
 This is a Server Component that renders a single API method.
 
 **Props:**
+
 - `method: MethodData` - Method information
 - `baseUrl: string` - API base URL for examples
 - `schemaReferences: Record<string, string>` - Schema link map
 
 **Sections to render:**
+
 1. Title (operation.summary)
 2. Description (operation.description)
 3. Beta badge if applicable
@@ -620,6 +633,7 @@ This is a Server Component that renders a single API method.
 10. Code examples with language tabs (Client Component island)
 
 **Acceptance criteria:**
+
 - [ ] All static content rendered on server
 - [ ] Interactive elements use Client Component islands
 - [ ] Proper heading hierarchy (h2, h3)
@@ -632,16 +646,19 @@ Create `app/(api-reference)/api-reference/components/schema-content.tsx`:
 This is a Server Component that renders a schema/model definition.
 
 **Props:**
+
 - `schema: SchemaData` - Schema information
 - `schemaReferences: Record<string, string>` - Schema link map
 
 **Sections to render:**
+
 1. Title (schema.title)
 2. Description
 3. Attributes table with all properties
 4. Example JSON
 
 **Acceptance criteria:**
+
 - [ ] Properties rendered with type information
 - [ ] Required fields marked
 - [ ] Enum values displayed
@@ -654,10 +671,12 @@ Create `app/(api-reference)/api-reference/components/parameter-list.tsx`:
 Server Component for rendering parameter tables.
 
 **Props:**
+
 - `parameters: OpenAPIV3.ParameterObject[]`
 - `schemaReferences: Record<string, string>`
 
 **Acceptance criteria:**
+
 - [ ] Name, type, required status shown
 - [ ] Description rendered as markdown
 - [ ] Default values shown if present
@@ -670,11 +689,13 @@ Create `app/(api-reference)/api-reference/components/property-list.tsx`:
 Server Component for rendering schema properties.
 
 **Props:**
+
 - `schema: OpenAPIV3.SchemaObject`
 - `schemaReferences: Record<string, string>`
 - `showRequired?: boolean`
 
 **Acceptance criteria:**
+
 - [ ] Nested properties handled
 - [ ] Array types shown correctly
 - [ ] References linked to schema pages
@@ -687,9 +708,11 @@ Create `app/(api-reference)/api-reference/components/endpoint-list.tsx`:
 Server Component for the endpoint summary in resource overviews.
 
 **Props:**
+
 - `methods: MethodData[]`
 
 **Acceptance criteria:**
+
 - [ ] Method badge with color coding
 - [ ] Path displayed in monospace
 - [ ] Links to method sections
@@ -758,6 +781,7 @@ export function ExpandableProperties({
 ```
 
 **Acceptance criteria:**
+
 - [ ] Smooth expand/collapse animation
 - [ ] Accessible button with aria-expanded
 - [ ] Children rendered only when expanded (optional optimization)
@@ -825,6 +849,7 @@ export function CodeExampleTabs({ examples, title }: Props) {
 ```
 
 **Acceptance criteria:**
+
 - [ ] Language tabs switch content
 - [ ] Active tab visually indicated
 - [ ] Code syntax highlighted
@@ -835,15 +860,18 @@ export function CodeExampleTabs({ examples, title }: Props) {
 Create `app/(api-reference)/api-reference/components/sidebar-nav.tsx`:
 
 This is a Client Component that handles:
+
 - Active section tracking based on scroll position
 - Collapse/expand for nested items
 - Hash navigation on click
 
 **Props:**
+
 - `sections: SidebarSection[]` - Sidebar structure
 - `basePath: string` - Base URL path
 
 **Acceptance criteria:**
+
 - [ ] Active section highlighted on scroll
 - [ ] Nested sections collapsible
 - [ ] Smooth scroll to section on click
@@ -887,12 +915,9 @@ export default async function ApiReferencePage() {
   return (
     <PageShell specName="api" basePath="/api-reference">
       <PreContent specName="api" />
-      
+
       {RESOURCE_ORDER.map((resourceName) => (
-        <Suspense
-          key={resourceName}
-          fallback={<ResourceSectionSkeleton />}
-        >
+        <Suspense key={resourceName} fallback={<ResourceSectionSkeleton />}>
           <ResourceSection
             specName="api"
             resourceName={resourceName}
@@ -908,6 +933,7 @@ export default async function ApiReferencePage() {
 ```
 
 **Acceptance criteria:**
+
 - [ ] Page renders all resources
 - [ ] Each resource section can suspend independently
 - [ ] Metadata set correctly
@@ -929,10 +955,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const stainless = await getStainlessSpec("api");
   const resource = stainless.resources[params.resource];
-  
+
   return {
     title: `${resource?.name || params.resource} | API reference | Knock Docs`,
-    description: resource?.description || `API reference for ${params.resource}`,
+    description:
+      resource?.description || `API reference for ${params.resource}`,
   };
 }
 
@@ -942,6 +969,7 @@ export default async function ResourcePage({ params }) {
 ```
 
 **Acceptance criteria:**
+
 - [ ] All resource paths generated at build
 - [ ] Metadata generated per resource
 - [ ] 404 for unknown resources
@@ -968,6 +996,7 @@ export async function generateStaticParams() {
 ```
 
 **Acceptance criteria:**
+
 - [ ] All method paths generated at build
 - [ ] Renders single method documentation
 - [ ] Links to related schemas work
@@ -977,6 +1006,7 @@ export async function generateStaticParams() {
 Create `app/(api-reference)/api-reference/[resource]/schemas/[schema]/page.tsx`:
 
 **Acceptance criteria:**
+
 - [ ] All schema paths generated at build
 - [ ] Renders schema with all properties
 - [ ] Example JSON displayed
@@ -990,6 +1020,7 @@ Create `app/(api-reference)/api-reference/[resource]/schemas/[schema]/page.tsx`:
 Ensure the mobile sidebar component works with App Router navigation.
 
 **Acceptance criteria:**
+
 - [ ] Opens/closes correctly
 - [ ] Navigation works
 - [ ] Closes on route change
@@ -999,6 +1030,7 @@ Ensure the mobile sidebar component works with App Router navigation.
 Ensure clicking sidebar items scrolls to the correct section and updates the URL hash.
 
 **Acceptance criteria:**
+
 - [ ] Smooth scroll to sections
 - [ ] URL hash reflects current section
 - [ ] Browser back/forward works
@@ -1009,6 +1041,7 @@ Ensure clicking sidebar items scrolls to the correct section and updates the URL
 Track scroll position to highlight the active sidebar item.
 
 **Acceptance criteria:**
+
 - [ ] Intersection Observer used for performance
 - [ ] Active item updated on scroll
 - [ ] Works with nested sections
@@ -1018,6 +1051,7 @@ Track scroll position to highlight the active sidebar item.
 Port the "Copy link" and "Ask AI" buttons.
 
 **Acceptance criteria:**
+
 - [ ] Copy link copies correct URL with hash
 - [ ] Ask AI opens with current context
 - [ ] Buttons positioned correctly
@@ -1027,6 +1061,7 @@ Port the "Copy link" and "Ask AI" buttons.
 Ensure breadcrumbs work with App Router.
 
 **Acceptance criteria:**
+
 - [ ] Correct hierarchy shown
 - [ ] Links work
 - [ ] Updates on navigation
@@ -1036,6 +1071,7 @@ Ensure breadcrumbs work with App Router.
 Ensure proper SEO for all pages.
 
 **Acceptance criteria:**
+
 - [ ] Unique title per page
 - [ ] Description for each page
 - [ ] Canonical URLs set
@@ -1050,6 +1086,7 @@ Ensure proper SEO for all pages.
 Compare screenshots of old and new implementations.
 
 **Acceptance criteria:**
+
 - [ ] All sections render identically
 - [ ] Code blocks styled correctly
 - [ ] Tables formatted properly
@@ -1060,6 +1097,7 @@ Compare screenshots of old and new implementations.
 Measure and compare performance metrics.
 
 **Metrics to measure:**
+
 - HTML payload size
 - Time to First Byte (TTFB)
 - First Contentful Paint (FCP)
@@ -1068,6 +1106,7 @@ Measure and compare performance metrics.
 - Total Blocking Time (TBT)
 
 **Acceptance criteria:**
+
 - [ ] HTML payload reduced by >90%
 - [ ] LCP improved
 - [ ] TTI improved
@@ -1077,11 +1116,13 @@ Measure and compare performance metrics.
 Roll out to a percentage of traffic first.
 
 **Options:**
+
 1. Feature flag with percentage rollout
 2. Subdomain preview (e.g., api-preview.docs.knock.app)
 3. URL-based opt-in (e.g., ?new-api-reference=true)
 
 **Acceptance criteria:**
+
 - [ ] Rollout mechanism in place
 - [ ] Monitoring dashboards set up
 - [ ] Quick rollback capability
@@ -1091,6 +1132,7 @@ Roll out to a percentage of traffic first.
 Once validated, remove the Pages Router implementation.
 
 **Acceptance criteria:**
+
 - [ ] Old pages removed
 - [ ] Redirects in place if needed
 - [ ] No dead code remaining
@@ -1103,37 +1145,37 @@ Once validated, remove the Pages Router implementation.
 
 These components can be reused with minimal changes:
 
-| Component | Path | Changes needed |
-|-----------|------|----------------|
-| `CodeBlock` | `components/ui/CodeBlock.tsx` | None |
-| `Callout` | `components/ui/Callout.tsx` | None |
-| `RateLimit` | `components/ui/RateLimit.tsx` | None |
-| `Endpoints` | `components/ui/Endpoints.tsx` | None |
-| `PageHeader` | `components/ui/PageHeader.tsx` | None |
+| Component    | Path                           | Changes needed |
+| ------------ | ------------------------------ | -------------- |
+| `CodeBlock`  | `components/ui/CodeBlock.tsx`  | None           |
+| `Callout`    | `components/ui/Callout.tsx`    | None           |
+| `RateLimit`  | `components/ui/RateLimit.tsx`  | None           |
+| `Endpoints`  | `components/ui/Endpoints.tsx`  | None           |
+| `PageHeader` | `components/ui/PageHeader.tsx` | None           |
 
 ### Existing components to refactor
 
 These components need Server/Client splitting:
 
-| Component | Current | After |
-|-----------|---------|-------|
-| `ApiReferenceSection` | Client | Server + Client islands |
-| `ApiReferenceMethod` | Client | Server + Client islands |
-| `SchemaProperties` | Client | Server + Client island for expandable |
-| `MultiLangExample` | Client | Client (language state) |
-| `Sidebar` | Client | Server for structure, Client for state |
+| Component             | Current | After                                  |
+| --------------------- | ------- | -------------------------------------- |
+| `ApiReferenceSection` | Client  | Server + Client islands                |
+| `ApiReferenceMethod`  | Client  | Server + Client islands                |
+| `SchemaProperties`    | Client  | Server + Client island for expandable  |
+| `MultiLangExample`    | Client  | Client (language state)                |
+| `Sidebar`             | Client  | Server for structure, Client for state |
 
 ### New components to create
 
-| Component | Type | Purpose |
-|-----------|------|---------|
-| `PageShell` | Client | Layout with sidebar state |
-| `ResourceSection` | Server | Resource overview rendering |
-| `MethodContent` | Server | Method documentation |
-| `SchemaContent` | Server | Schema documentation |
-| `ExpandableProperties` | Client | Expand/collapse UI |
-| `CodeExampleTabs` | Client | Language selection |
-| `SidebarNav` | Client | Navigation with active state |
+| Component              | Type   | Purpose                      |
+| ---------------------- | ------ | ---------------------------- |
+| `PageShell`            | Client | Layout with sidebar state    |
+| `ResourceSection`      | Server | Resource overview rendering  |
+| `MethodContent`        | Server | Method documentation         |
+| `SchemaContent`        | Server | Schema documentation         |
+| `ExpandableProperties` | Client | Expand/collapse UI           |
+| `CodeExampleTabs`      | Client | Language selection           |
+| `SidebarNav`           | Client | Navigation with active state |
 
 ---
 
@@ -1261,11 +1303,11 @@ No data migration is involved, so no data rollback is needed.
 
 ### Why App Router over other solutions?
 
-| Alternative | Pros | Cons | Decision |
-|-------------|------|------|----------|
-| Pre-split JSON files | Minimal changes | Still requires client fetch | Rejected |
-| API routes for data | Keeps Pages Router | Adds complexity, latency | Rejected |
-| App Router | Best performance, future-proof | Migration effort | **Selected** |
+| Alternative          | Pros                           | Cons                        | Decision     |
+| -------------------- | ------------------------------ | --------------------------- | ------------ |
+| Pre-split JSON files | Minimal changes                | Still requires client fetch | Rejected     |
+| API routes for data  | Keeps Pages Router             | Adds complexity, latency    | Rejected     |
+| App Router           | Best performance, future-proof | Migration effort            | **Selected** |
 
 ### Why not split the spec files?
 
@@ -1274,6 +1316,7 @@ With Server Components, the spec stays on the server. Splitting would add comple
 ### Why client component islands?
 
 Some features require client-side state:
+
 - Expand/collapse toggle
 - Language selection for code examples
 - Scroll position tracking
