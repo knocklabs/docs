@@ -9,7 +9,7 @@ curl -X POST https://api.knock.app/v1/workflows/new-user-invited/cancel \\
 `,
   node: `
 import Knock from "@knocklabs/node";
-const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+const knock = new Knock({ apiKey: process.env.KNOCK_SECRET_API_KEY });
 
 const userInvite = await invites.approve(inviteToken);
 

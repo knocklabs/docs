@@ -1,7 +1,7 @@
 const languages = {
   node: `
 import Knock from "@knocklabs/node";
-const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+const knock = new Knock({ apiKey: process.env.KNOCK_SECRET_API_KEY });
 
 await knock.workflows.trigger("new-comment", {
   recipients: [
