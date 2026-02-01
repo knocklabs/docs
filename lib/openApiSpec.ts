@@ -163,22 +163,85 @@ function resolveEndpoint(
 }
 
 // ============================================================================
-// Spec Loading Functions
+// Spec Loading Functions (with caching)
 // ============================================================================
 
-async function readOpenApiSpec(specName: string) {
-  const spec = await readFile(`./data/specs/${specName}/openapi.yml`, "utf8");
-  const jsonSpec = yamlToJson(spec);
-  const { schema } = await dereference(jsonSpec);
+// Module-level caches to avoid re-reading and re-parsing specs for each page
+const openApiSpecCache: Record<string, OpenAPIV3.Document> = {};
+const stainlessSpecCache: Record<string, StainlessConfig> = {};
+const schemaReferencesCache: Record<string, Record<string, string>> = {};
+const sidebarDataCache: Record<string, SidebarData> = {};
 
-  return JSON.parse(safeStringify(schema)) as OpenAPIV3.Document;
+// Promises to handle concurrent requests for the same spec
+const openApiSpecPromises: Record<
+  string,
+  Promise<OpenAPIV3.Document> | undefined
+> = {};
+const stainlessSpecPromises: Record<
+  string,
+  Promise<StainlessConfig> | undefined
+> = {};
+
+async function readOpenApiSpec(specName: string): Promise<OpenAPIV3.Document> {
+  // Return cached result if available
+  if (openApiSpecCache[specName]) {
+    return openApiSpecCache[specName];
+  }
+
+  // If already loading, wait for that promise
+  const existingPromise = openApiSpecPromises[specName];
+  if (existingPromise) {
+    return existingPromise;
+  }
+
+  // Start loading and cache the promise
+  const loadPromise = (async (): Promise<OpenAPIV3.Document> => {
+    const spec = await readFile(
+      `./data/specs/${specName}/openapi.yml`,
+      "utf8",
+    );
+    const jsonSpec = yamlToJson(spec);
+    const { schema } = await dereference(jsonSpec);
+
+    const result = JSON.parse(safeStringify(schema)) as OpenAPIV3.Document;
+    openApiSpecCache[specName] = result;
+    return result;
+  })();
+
+  openApiSpecPromises[specName] = loadPromise;
+  return loadPromise;
 }
 
 async function readStainlessSpec(specName: string): Promise<StainlessConfig> {
-  const customizations = await readSpecCustomizations(specName);
-  const spec = await readFile(`./data/specs/${specName}/stainless.yml`, "utf8");
-  const stainlessSpec = parse(spec);
-  return deepmerge(stainlessSpec, customizations);
+  // Return cached result if available
+  if (stainlessSpecCache[specName]) {
+    return stainlessSpecCache[specName];
+  }
+
+  // If already loading, wait for that promise
+  const existingPromise = stainlessSpecPromises[specName];
+  if (existingPromise) {
+    return existingPromise;
+  }
+
+  // Start loading and cache the promise
+  const loadPromise = (async (): Promise<StainlessConfig> => {
+    const customizations = await readSpecCustomizations(specName);
+    const spec = await readFile(
+      `./data/specs/${specName}/stainless.yml`,
+      "utf8",
+    );
+    const stainlessSpec = parse(spec);
+    const result = deepmerge(
+      stainlessSpec,
+      customizations,
+    ) as StainlessConfig;
+    stainlessSpecCache[specName] = result;
+    return result;
+  })();
+
+  stainlessSpecPromises[specName] = loadPromise;
+  return loadPromise;
 }
 
 async function readSpecCustomizations(specName: string) {
@@ -583,6 +646,11 @@ function buildResourceSidebarPages(
  * Includes links to all resources, methods, and schemas.
  */
 async function getSidebarData(specName: SpecName): Promise<SidebarData> {
+  // Return cached result if available
+  if (sidebarDataCache[specName]) {
+    return sidebarDataCache[specName];
+  }
+
   const [openApiSpec, stainlessSpec] = await Promise.all([
     readOpenApiSpec(specName),
     readStainlessSpec(specName),
@@ -602,7 +670,9 @@ async function getSidebarData(specName: SpecName): Promise<SidebarData> {
     };
   });
 
-  return { resources };
+  const result = { resources };
+  sidebarDataCache[specName] = result;
+  return result;
 }
 
 // ============================================================================
@@ -660,6 +730,11 @@ function buildSchemaReferencesForResource(
 async function buildSchemaReferences(
   specName: SpecName,
 ): Promise<Record<string, string>> {
+  // Return cached result if available
+  if (schemaReferencesCache[specName]) {
+    return schemaReferencesCache[specName];
+  }
+
   const [openApiSpec, stainlessSpec] = await Promise.all([
     readOpenApiSpec(specName),
     readStainlessSpec(specName),
@@ -681,6 +756,7 @@ async function buildSchemaReferences(
     },
   );
 
+  schemaReferencesCache[specName] = schemaReferences;
   return schemaReferences;
 }
 
