@@ -7,3 +7,4 @@ export {
   SubresourceList,
   SchemaList,
 } from "./ResourceOverviewPage";
+export { ResourceFullPage } from "./ResourceFullPage";

@@ -755,6 +755,56 @@ async function buildSchemaReferences(
 }
 
 // ============================================================================
+// Full Resource Page Data (for per-resource pages)
+// ============================================================================
+
+/**
+ * Data for a full resource page that renders all methods, schemas, and subresources
+ */
+type FullResourcePageData = {
+  resourceName: string;
+  resource: StainlessResource;
+  openApiSpec: OpenAPIV3.Document;
+  stainlessConfig: StainlessConfig;
+  baseUrl: string;
+  schemaReferences: Record<string, string>;
+};
+
+/**
+ * Load all data needed to render a full resource page.
+ * This includes the resource definition and the OpenAPI spec for resolving operations/schemas.
+ */
+async function getFullResourcePageData(
+  specName: SpecName,
+  resourceName: string,
+): Promise<FullResourcePageData | null> {
+  const [openApiSpec, stainlessSpec, schemaReferences] = await Promise.all([
+    readOpenApiSpec(specName),
+    readStainlessSpec(specName),
+    buildSchemaReferences(specName),
+  ]);
+
+  const resource = stainlessSpec.resources[resourceName];
+  if (!resource) {
+    return null;
+  }
+
+  const baseUrl =
+    stainlessSpec.environments[
+      specName === "api" ? "production" : "production"
+    ] || "";
+
+  return {
+    resourceName,
+    resource,
+    openApiSpec,
+    stainlessConfig: stainlessSpec,
+    baseUrl,
+    schemaReferences,
+  };
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
@@ -773,6 +823,7 @@ export type {
   SidebarData,
   ApiReferencePath,
   SpecName,
+  FullResourcePageData,
 };
 
 export {
@@ -785,6 +836,7 @@ export {
   getMethodPageData,
   getSchemaPageData,
   getResourceOverviewData,
+  getFullResourcePageData,
   // Path generation
   getAllApiReferencePaths,
   getResourceOrder,

@@ -706,9 +706,13 @@ const nextConfig = {
 
   async rewrites() {
     return [
-      // Note: API reference pages now use multi-page architecture
-      // Individual pages are generated for each resource, method, and schema
-      // The old single-page rewrite for /api-reference/:path+ has been removed
+      // API reference: deep links within resources serve the resource page
+      // e.g. /api-reference/users/get -> serves /api-reference/users
+      // The page handles scrolling to the correct section client-side
+      {
+        source: "/api-reference/:resource/:path+",
+        destination: "/api-reference/:resource",
+      },
 
       // MAPI reference still uses single-page approach
       {

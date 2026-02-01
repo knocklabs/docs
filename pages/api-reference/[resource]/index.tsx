@@ -1,17 +1,17 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import {
-  getResourceOverviewData,
+  getFullResourcePageData,
   getSidebarData,
-  ResourceOverviewData,
+  FullResourcePageData,
   SidebarData,
 } from "@/lib/openApiSpec";
 import { ApiReferenceLayout } from "@/components/api-reference";
-import { ResourceOverviewPage } from "@/components/api-reference";
+import { ResourceFullPage } from "@/components/api-reference";
 import { API_REFERENCE_OVERVIEW_CONTENT } from "@/data/sidebars/apiOverviewSidebar";
 
 interface ResourcePageProps {
   sidebarData: SidebarData;
-  resourceData: ResourceOverviewData;
+  resourceData: FullResourcePageData;
 }
 
 export default function ResourcePage({
@@ -34,7 +34,7 @@ export default function ResourcePage({
       currentPath={basePath}
       breadcrumbs={[{ label: "API reference", href: "/api-reference" }]}
     >
-      <ResourceOverviewPage data={resourceData} basePath={basePath} />
+      <ResourceFullPage data={resourceData} basePath={basePath} />
     </ApiReferenceLayout>
   );
 }
@@ -58,7 +58,7 @@ export const getStaticProps: GetStaticProps<ResourcePageProps> = async ({
 
   const [sidebarData, resourceData] = await Promise.all([
     getSidebarData("api"),
-    getResourceOverviewData("api", resourceName),
+    getFullResourcePageData("api", resourceName),
   ]);
 
   if (!resourceData) {
