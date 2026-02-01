@@ -707,11 +707,9 @@ const nextConfig = {
         source: "/api-reference/:resource/:path+",
         destination: "/api-reference/:resource",
       },
-
-      // MAPI reference still uses single-page approach
       {
-        source: "/mapi-reference/:path+",
-        destination: "/mapi-reference",
+        source: "/mapi-reference/:resource/:path+",
+        destination: "/mapi-reference/:resource",
       },
       // CLI reference pages all serve the same static content
       {

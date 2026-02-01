@@ -1,5 +1,5 @@
 import fs from "fs";
-import { GetStaticProps } from "next";
+import { GetStaticPaths, GetStaticProps } from "next";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import { serialize } from "next-mdx-remote/serialize";
@@ -27,6 +27,7 @@ function MapiReferenceOverview({
       preSidebarContent={MAPI_REFERENCE_OVERVIEW_CONTENT}
       title="Management API reference"
       description="Complete reference documentation for the Knock Management API."
+      currentPath="/mapi-reference/overview"
     >
       <Box className="tgraph-content">
         <MDXRemote {...overviewContentMdx} components={MDX_COMPONENTS as any} />
@@ -34,6 +35,38 @@ function MapiReferenceOverview({
     </ApiReferenceLayout>
   );
 }
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Generate paths for all overview sections from the sidebar config
+  const overviewPages = MAPI_REFERENCE_OVERVIEW_CONTENT[0]?.pages || [];
+
+  const paths = [
+    // Base overview path (no section)
+    { params: { section: [] } },
+    // All section paths
+    ...overviewPages.map((page) => ({
+      params: {
+        section: page.slug === "/" ? [] : [page.slug.replace(/^\//, "")],
+      },
+    })),
+  ];
+
+  // Remove duplicates (the "/" slug creates a duplicate of the base path)
+  const uniquePaths = paths.filter(
+    (path, index, self) =>
+      index ===
+      self.findIndex(
+        (p) =>
+          JSON.stringify(p.params.section) ===
+          JSON.stringify(path.params.section),
+      ),
+  );
+
+  return {
+    paths: uniquePaths,
+    fallback: false,
+  };
+};
 
 export const getStaticProps: GetStaticProps<
   MapiReferenceOverviewProps
