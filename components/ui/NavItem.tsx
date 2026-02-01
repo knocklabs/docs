@@ -35,12 +35,16 @@ const NavItem = ({
     useMobileSidebar();
 
   // Determine if this link should use same-page routing (scroll to element)
-  // If currentResourcePath is set, only use same-page routing for links within that resource
-  const shouldUseSamePageRouting = samePageRouting
-    ? currentResourcePath
-      ? href.startsWith(currentResourcePath)
-      : true
+  // If currentResourcePath is set, only use same-page routing for links that:
+  // 1. Exactly match currentResourcePath (e.g., /api-reference/users)
+  // 2. OR are sub-paths of currentResourcePath (e.g., /api-reference/users/get)
+  // This prevents /api-reference matching /api-reference/overview/... or /api-reference/users
+  const isWithinCurrentResource = currentResourcePath
+    ? href === currentResourcePath ||
+      href.startsWith(currentResourcePath + "/")
     : false;
+
+  const shouldUseSamePageRouting = samePageRouting && isWithinCurrentResource;
 
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (shouldUseSamePageRouting) {

@@ -18,6 +18,11 @@ export default function ResourcePage({
   sidebarData,
   resourceData,
 }: ResourcePageProps) {
+  // Guard against undefined resourceData during client-side transitions
+  if (!resourceData) {
+    return null;
+  }
+
   const basePath = `/api-reference/${resourceData.resourceName}`;
 
   return (
