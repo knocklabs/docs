@@ -1,4 +1,3 @@
-import React from "react";
 import { ApiReferenceProvider } from "@/components/ui/ApiReference/ApiReferenceContext";
 import { ApiReferenceSection } from "@/components/ui/ApiReference";
 import { FullResourcePageData } from "@/lib/openApiSpec";

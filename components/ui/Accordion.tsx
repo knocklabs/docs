@@ -8,7 +8,7 @@ import { ChevronRight } from "lucide-react";
 
 const AccordionGroup = ({ children }) => (
   <div
-    className="[&>div]:border-0 [&>div]:rounded-none [&>div>button]:rounded-none [&>div]:mb-0 overflow-hidden mt-0 mb-3 rounded-xl divide-y divide-inherit border dark:border-zinc-800"
+    className="[&>div]:border-0 [&>div]:rounded-none [&>div>button]:rounded-none [&>div]:mb-0 overflow-hidden mt-0 mb-6 rounded-xl divide-y divide-inherit border dark:border-zinc-800"
     role="list"
   >
     {children}
@@ -37,8 +37,7 @@ const Accordion = ({
         onClick={() => setOpen(!open)}
         aria-controls={title + "Children"}
         aria-expanded={open}
-        py="8"
-        px="8"
+        p="6"
         w="full"
         justifyContent="flex-start"
         alignItems="center"
@@ -54,10 +53,10 @@ const Accordion = ({
               flexShrink: 0,
             }}
           />
-          <Box ml="2">
+          <Box>
             <Text
               as="span"
-              size="3"
+              size="2"
               leading="2"
               weight="medium"
               // eslint-disable-next-line

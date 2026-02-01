@@ -628,16 +628,10 @@ const nextConfig = {
         destination: "/cli/overview",
         permanent: false,
       },
-      // API reference now uses multi-page architecture
-      // Redirect overview paths to main page for backward compatibility
+      // Redirect /api-reference to /api-reference/overview
       {
-        source: "/api-reference/overview",
-        destination: "/api-reference",
-        permanent: false,
-      },
-      {
-        source: "/api-reference/overview/:section",
-        destination: "/api-reference#:section",
+        source: "/api-reference",
+        destination: "/api-reference/overview",
         permanent: false,
       },
       {

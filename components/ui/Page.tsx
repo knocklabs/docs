@@ -87,6 +87,8 @@ function Wrapper({
   const onThisPage = childArray.length === 3 ? childArray[2] : null;
   const hasToc = onThisPage !== null;
 
+  const pageWidth = "1024px";
+
   return (
     <div
       data-wrapper
@@ -107,10 +109,8 @@ function Wrapper({
         className="flex w-full"
         style={{
           minWidth: 0,
-          maxWidth: hasToc ? "1024px" : "800px",
-          marginLeft: `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - ${
-            hasToc ? "1024px" : "800px"
-          }) * 0.25), 200px)`,
+          maxWidth: pageWidth,
+          marginLeft: `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - ${pageWidth}) * 0.25), 200px)`,
         }}
       >
         {content}
@@ -305,11 +305,11 @@ const ContentHeader = ({
   children,
 }: ContentHeaderProps) => (
   <Box mb="6">
-    <Heading as="h1" size="7" mb="2">
+    <Heading as="h1" size="6" mb="1">
       {title}
     </Heading>
     {description && (
-      <Text as="p" size="3" color="gray" weight="medium">
+      <Text as="p" size="2" color="gray" weight="medium">
         {description}
         {children}
       </Text>

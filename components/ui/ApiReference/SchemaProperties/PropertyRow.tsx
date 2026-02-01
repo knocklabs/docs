@@ -14,16 +14,20 @@ const Header = ({ children }) => (
 );
 
 const Wrapper = ({ children }) => {
-  return <Box data-property-row-wrapper>{children}</Box>;
+  return (
+    <Stack direction="column" pt="2" gap="3" data-property-row-wrapper>
+      {children}
+    </Stack>
+  );
 };
 
 const Container = ({ children }) => {
   return (
     <Box
-      py="3"
       borderBottom="px"
       borderColor="gray-3"
       data-property-row-container
+      pb="2"
     >
       {children}
     </Box>

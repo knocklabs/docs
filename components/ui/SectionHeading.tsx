@@ -28,14 +28,14 @@ const SectionHeading = ({
     tag === "h1"
       ? "6"
       : tag === "h2"
-      ? "6"
-      : tag === "h3"
       ? "4"
+      : tag === "h3"
+      ? "3"
       : tag === "h4"
-      ? "3"
+      ? "2"
       : tag === "h5"
-      ? "3"
-      : "3";
+      ? "2"
+      : "2";
 
   const [showCopied, setShowCopied] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,10 +53,8 @@ const SectionHeading = ({
         "/" +
         window.location.pathname.split("/")[1] +
         path;
-    }
-
-    // Use the ID for regular routes
-    if (id) {
+    } else if (id) {
+      // Use the ID for regular routes (only if path is not set)
       url = window.location.origin + window.location.pathname + "#" + id;
     }
 

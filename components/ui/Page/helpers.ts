@@ -11,9 +11,10 @@ export const stripTrailingSlash = (path: string) => {
 };
 
 export const isPathTheSame = (path1: string, path2: string) => {
-  return (
-    path1 === path2 || path1.replace(/\/$/, "") === path2.replace(/\/$/, "")
-  );
+  // Strip hash fragments and trailing slashes before comparing
+  // This prevents hydration mismatches since server doesn't see hash fragments
+  const normalize = (path: string) => path.split("#")[0].replace(/\/$/, "");
+  return normalize(path1) === normalize(path2);
 };
 
 // This is the main function that coordinates the synchronization between the sidebar and the content

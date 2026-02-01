@@ -39,8 +39,9 @@ function convertToLegacySidebarFormat(
         ...resource.pages.map((page) => ({
           slug: page.slug.replace(resource.slug, ""),
           title: page.title,
+          // subPage slugs need to be relative to their parent page, not the resource
           pages: page.pages?.map((subPage) => ({
-            slug: subPage.slug.replace(resource.slug, ""),
+            slug: subPage.slug.replace(page.slug, ""),
             title: subPage.title,
           })),
         })),

@@ -24,18 +24,17 @@ export default function ResourcePage({
   }
 
   const basePath = `/api-reference/${resourceData.resourceName}`;
+  const title = resourceData.resource.name || resourceData.resourceName;
+  const description = `Complete reference documentation for the ${title} resource.`;
 
   return (
     <ApiReferenceLayout
       sidebarData={sidebarData}
       preSidebarContent={API_REFERENCE_OVERVIEW_CONTENT}
-      title={resourceData.resource.name || resourceData.resourceName}
-      description={
-        resourceData.resource.description ||
-        `${
-          resourceData.resource.name || resourceData.resourceName
-        } API reference`
-      }
+      title={`${
+        resourceData.resource.name || resourceData.resourceName
+      } API reference`}
+      description={description}
       currentPath={basePath}
       breadcrumbs={[{ label: "API reference", href: "/api-reference" }]}
     >

@@ -52,7 +52,7 @@ const RateLimit: React.FC<Props> = ({ tier, isBatch = false }) => {
     <Tooltip label={tooltip} side="right">
       <Tag
         as={renderLink ? Link : "div"}
-        href={renderLink ? `/${pathname}/overview/rate-limits` : ``}
+        href={renderLink ? `/${pathname}/overview/rate-limits` : undefined}
         color={isBatch ? batchConfig[tier].color : tierConfig[tier].color}
         style={{
           cursor: "pointer",

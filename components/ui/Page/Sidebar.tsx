@@ -71,10 +71,11 @@ const ItemWithSubpages = ({
   defaultOpen,
 }: ItemProps) => {
   const router = useRouter();
-  const basePath = router.asPath.split("/")[1];
+  const pathNoHash = router.asPath.split("#")[0];
+  // Extract basePath from path without hash to avoid "api-reference#section" issues
+  const basePath = pathNoHash.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
   const resourceSection = stripPrefix(slug);
-  const pathNoHash = router.asPath.split("#")[0];
   const [initializedOnPath, setInitializedOnPath] = useState(pathNoHash);
   const { samePageRouting } = useSidebar();
   const { isSearchOpen } = usePageContext();

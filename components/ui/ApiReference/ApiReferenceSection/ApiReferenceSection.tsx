@@ -10,7 +10,7 @@ import { StainlessResource } from "../../../../lib/openApiSpec";
 import { useApiReference } from "../ApiReferenceContext";
 import { resolveEndpointFromMethod } from "../helpers";
 import { SchemaProperties } from "../SchemaProperties";
-import { Box } from "@telegraph/layout";
+import { Box, Stack } from "@telegraph/layout";
 import { Heading } from "@telegraph/typography";
 import { useRouter } from "next/router";
 
@@ -38,13 +38,15 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
   return (
     <>
       <Box data-resource-path={basePath}>
-        <Section title={resource.name} path={basePath} mdPath={resourceMdPath}>
+        <Section
+          title={resource.name}
+          description={
+            resource.description && <Markdown>{resource.description}</Markdown>
+          }
+          path={basePath}
+          mdPath={resourceMdPath}
+        >
           <ContentColumn>
-            {resource.description && (
-              <Markdown>{resource.description}</Markdown>
-            )}
-          </ContentColumn>
-          <ExampleColumn>
             {Object.entries(methods).length > 0 && (
               <Endpoints>
                 {Object.entries(methods).map(
@@ -66,7 +68,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
                 )}
               </Endpoints>
             )}
-          </ExampleColumn>
+          </ContentColumn>
         </Section>
       </Box>
 
@@ -124,25 +126,19 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
           <Box key={modelName} data-resource-path={schemaPath}>
             <Section
               title={schema.title}
+              description={
+                schema.description && <Markdown>{schema.description}</Markdown>
+              }
               path={schemaPath}
               mdPath={schemaMdPath}
             >
               <ContentColumn>
-                {schema.description && (
-                  <Markdown>{schema.description}</Markdown>
-                )}
-
-                <Heading
-                  as="h3"
-                  size="3"
-                  weight="medium"
-                  borderBottom="px"
-                  borderColor="gray-3"
-                  pb="2"
-                >
-                  Attributes
-                </Heading>
-                <SchemaProperties schema={schema} hideRequired />
+                <Stack direction="column" gap="1">
+                  <Heading as="h3" size="2" weight="medium">
+                    Attributes
+                  </Heading>
+                  <SchemaProperties schema={schema} hideRequired />
+                </Stack>
               </ContentColumn>
               <ExampleColumn>
                 <CodeBlock
