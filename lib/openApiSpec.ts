@@ -49,7 +49,8 @@ type MethodPageData = {
   operation: OpenAPIV3.OperationObject;
   baseUrl: string;
   // Subresource path if this method is in a subresource (e.g., ["feeds"])
-  subresourcePath?: string[];
+  // Use null instead of undefined for JSON serialization compatibility
+  subresourcePath: string[] | null;
 };
 
 /**
@@ -62,7 +63,8 @@ type SchemaPageData = {
   schemaRef: string;
   schema: OpenAPIV3.SchemaObject;
   // Subresource path if this schema is in a subresource
-  subresourcePath?: string[];
+  // Use null instead of undefined for JSON serialization compatibility
+  subresourcePath: string[] | null;
 };
 
 /**
@@ -98,8 +100,8 @@ type SubresourceSummary = {
 type ResourceOverviewData = {
   resourceName: string;
   resource: {
-    name?: string;
-    description?: string;
+    name: string | null;
+    description: string | null;
   };
   methods: MethodSummary[];
   schemas: SchemaSummary[];
@@ -279,7 +281,7 @@ async function getMethodPageData(
     endpoint,
     operation,
     baseUrl: stainlessSpec.environments.production,
-    subresourcePath: subresourcePath.length > 0 ? subresourcePath : undefined,
+    subresourcePath: subresourcePath.length > 0 ? subresourcePath : null,
   };
 }
 
@@ -334,7 +336,7 @@ async function getSchemaPageData(
     schemaName,
     schemaRef,
     schema,
-    subresourcePath: subresourcePath.length > 0 ? subresourcePath : undefined,
+    subresourcePath: subresourcePath.length > 0 ? subresourcePath : null,
   };
 }
 
@@ -412,8 +414,8 @@ async function getResourceOverviewData(
   return {
     resourceName,
     resource: {
-      name: targetResource.name,
-      description: targetResource.description,
+      name: targetResource.name || null,
+      description: targetResource.description || null,
     },
     methods,
     schemas,

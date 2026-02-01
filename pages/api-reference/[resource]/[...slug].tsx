@@ -103,14 +103,15 @@ export default function ApiReferenceDynamicPage(props: PageProps) {
 
   // Method page (default)
   const methodData = data as MethodPageData;
-  const subresourceBreadcrumbs = methodData.subresourcePath
-    ? methodData.subresourcePath.map((sub, index) => ({
-        label: sub,
-        href: `/api-reference/${
-          methodData.resourceName
-        }/${methodData.subresourcePath?.slice(0, index + 1).join("/")}`,
-      }))
-    : [];
+  const subresourceBreadcrumbs =
+    methodData.subresourcePath && methodData.subresourcePath.length > 0
+      ? methodData.subresourcePath.map((sub, index) => ({
+          label: sub,
+          href: `/api-reference/${methodData.resourceName}/${methodData
+            .subresourcePath!.slice(0, index + 1)
+            .join("/")}`,
+        }))
+      : [];
 
   return (
     <ApiReferenceLayout
@@ -122,7 +123,7 @@ export default function ApiReferenceDynamicPage(props: PageProps) {
         `${methodData.methodName} API reference`
       }
       currentPath={`/api-reference/${methodData.resourceName}${
-        methodData.subresourcePath
+        methodData.subresourcePath && methodData.subresourcePath.length > 0
           ? "/" + methodData.subresourcePath.join("/")
           : ""
       }/${methodData.methodName}`}

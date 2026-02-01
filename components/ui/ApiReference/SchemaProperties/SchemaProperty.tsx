@@ -10,7 +10,7 @@ import {
   resolveChildProperties,
   hydrateRequiredChildProperties,
 } from "./helpers";
-import { useApiReference } from "../ApiReferenceContext";
+import { useSchemaReferences } from "../ApiReferenceContext";
 import { Stack } from "@telegraph/layout";
 import { Text } from "@telegraph/typography";
 import { AnimatePresence, motion } from "framer-motion";
@@ -21,7 +21,7 @@ type Props = {
 };
 
 const SchemaProperty = ({ name, schema }: Props) => {
-  const { schemaReferences } = useApiReference();
+  const schemaReferences = useSchemaReferences();
   const [isPossibleTypesOpen, setIsPossibleTypesOpen] = useState(false);
   const [isChildPropertiesOpen, setIsChildPropertiesOpen] = useState(false);
   // If the schema is an array, then we want to show the possible types that the array can contain.
