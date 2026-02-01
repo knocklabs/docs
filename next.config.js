@@ -628,9 +628,16 @@ const nextConfig = {
         destination: "/cli/overview",
         permanent: false,
       },
+      // API reference now uses multi-page architecture
+      // Redirect overview paths to main page for backward compatibility
       {
-        source: "/api-reference",
-        destination: "/api-reference/overview",
+        source: "/api-reference/overview",
+        destination: "/api-reference",
+        permanent: false,
+      },
+      {
+        source: "/api-reference/overview/:section",
+        destination: "/api-reference#:section",
         permanent: false,
       },
       {
@@ -699,12 +706,11 @@ const nextConfig = {
 
   async rewrites() {
     return [
-      // API reference pages all serve the same static content
-      // The URL paths are used for client-side navigation to sections
-      {
-        source: "/api-reference/:path+",
-        destination: "/api-reference",
-      },
+      // Note: API reference pages now use multi-page architecture
+      // Individual pages are generated for each resource, method, and schema
+      // The old single-page rewrite for /api-reference/:path+ has been removed
+
+      // MAPI reference still uses single-page approach
       {
         source: "/mapi-reference/:path+",
         destination: "/mapi-reference",

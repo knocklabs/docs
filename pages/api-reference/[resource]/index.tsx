@@ -25,11 +25,14 @@ export default function ResourcePage({
       sidebarData={sidebarData}
       preSidebarContent={API_REFERENCE_OVERVIEW_CONTENT}
       title={resourceData.resource.name || resourceData.resourceName}
-      description={resourceData.resource.description || `${resourceData.resource.name || resourceData.resourceName} API reference`}
+      description={
+        resourceData.resource.description ||
+        `${
+          resourceData.resource.name || resourceData.resourceName
+        } API reference`
+      }
       currentPath={basePath}
-      breadcrumbs={[
-        { label: "API reference", href: "/api-reference" },
-      ]}
+      breadcrumbs={[{ label: "API reference", href: "/api-reference" }]}
     >
       <ResourceOverviewPage data={resourceData} basePath={basePath} />
     </ApiReferenceLayout>

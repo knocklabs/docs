@@ -318,10 +318,9 @@ async function getSchemaPageData(
   }
 
   const schemaRef = targetResource.models[schemaName];
-  const schema = JSONPointer.get(
-    openApiSpec,
-    schemaRef.replace("#", ""),
-  ) as OpenAPIV3.SchemaObject | undefined;
+  const schema = JSONPointer.get(openApiSpec, schemaRef.replace("#", "")) as
+    | OpenAPIV3.SchemaObject
+    | undefined;
 
   if (!schema) {
     return null;
@@ -392,10 +391,9 @@ async function getResourceOverviewData(
   const schemas: SchemaSummary[] = Object.entries(
     targetResource.models || {},
   ).map(([schemaName, ref]) => {
-    const schema = JSONPointer.get(
-      openApiSpec,
-      ref.replace("#", ""),
-    ) as OpenAPIV3.SchemaObject | undefined;
+    const schema = JSONPointer.get(openApiSpec, ref.replace("#", "")) as
+      | OpenAPIV3.SchemaObject
+      | undefined;
     return {
       schemaName,
       title: schema?.title || schemaName,
@@ -537,21 +535,19 @@ function buildResourceSidebarPages(
 
   // Subresources
   if (resource.subresources) {
-    Object.entries(resource.subresources).forEach(
-      ([subName, subResource]) => {
-        const subPages = buildResourceSidebarPages(
-          subResource,
-          openApiSpec,
-          `${pathPrefix}/${subName}`,
-        );
+    Object.entries(resource.subresources).forEach(([subName, subResource]) => {
+      const subPages = buildResourceSidebarPages(
+        subResource,
+        openApiSpec,
+        `${pathPrefix}/${subName}`,
+      );
 
-        pages.push({
-          slug: `${pathPrefix}/${subName}`,
-          title: subResource.name || subName,
-          pages: subPages,
-        });
-      },
-    );
+      pages.push({
+        slug: `${pathPrefix}/${subName}`,
+        title: subResource.name || subName,
+        pages: subPages,
+      });
+    });
   }
 
   // Schemas
@@ -624,10 +620,9 @@ function buildSchemaReferencesForResource(
 
   if (resource.models) {
     Object.entries(resource.models).forEach(([modelName, modelRef]) => {
-      const schema = JSONPointer.get(
-        openApiSpec,
-        modelRef.replace("#", ""),
-      ) as OpenAPIV3.SchemaObject | undefined;
+      const schema = JSONPointer.get(openApiSpec, modelRef.replace("#", "")) as
+        | OpenAPIV3.SchemaObject
+        | undefined;
 
       const title = schema?.title ?? modelName;
 

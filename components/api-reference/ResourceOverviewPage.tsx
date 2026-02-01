@@ -2,7 +2,11 @@ import Link from "next/link";
 import Markdown from "react-markdown";
 import { Box, Stack } from "@telegraph/layout";
 import { Heading, Text } from "@telegraph/typography";
-import { ResourceOverviewData, SchemaSummary, SubresourceSummary } from "@/lib/openApiSpec";
+import {
+  ResourceOverviewData,
+  SchemaSummary,
+  SubresourceSummary,
+} from "@/lib/openApiSpec";
 import { EndpointList } from "./EndpointList";
 
 interface SubresourceListProps {
@@ -113,7 +117,10 @@ interface ResourceOverviewPageProps {
  * - List of subresources
  * - List of object definitions
  */
-export function ResourceOverviewPage({ data, basePath }: ResourceOverviewPageProps) {
+export function ResourceOverviewPage({
+  data,
+  basePath,
+}: ResourceOverviewPageProps) {
   const { resource, methods, schemas, subresources } = data;
 
   return (

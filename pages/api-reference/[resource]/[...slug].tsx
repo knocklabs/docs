@@ -53,12 +53,21 @@ export default function ApiReferenceDynamicPage(props: PageProps) {
         sidebarData={sidebarData}
         preSidebarContent={API_REFERENCE_OVERVIEW_CONTENT}
         title={schemaData.schema.title || schemaData.schemaName}
-        description={schemaData.schema.description || `${schemaData.schemaName} schema reference`}
+        description={
+          schemaData.schema.description ||
+          `${schemaData.schemaName} schema reference`
+        }
         currentPath={`/api-reference/${schemaData.resourceName}/schemas/${schemaData.schemaName}`}
         breadcrumbs={[
           { label: "API reference", href: "/api-reference" },
-          { label: schemaData.resourceTitle, href: `/api-reference/${schemaData.resourceName}` },
-          { label: "Object definitions", href: `/api-reference/${schemaData.resourceName}` },
+          {
+            label: schemaData.resourceTitle,
+            href: `/api-reference/${schemaData.resourceName}`,
+          },
+          {
+            label: "Object definitions",
+            href: `/api-reference/${schemaData.resourceName}`,
+          },
         ]}
       >
         <SchemaPage data={schemaData} schemaReferences={schemaReferences} />
@@ -74,11 +83,17 @@ export default function ApiReferenceDynamicPage(props: PageProps) {
         sidebarData={sidebarData}
         preSidebarContent={API_REFERENCE_OVERVIEW_CONTENT}
         title={subresourceData.resource.name || subresourceData.resourceName}
-        description={subresourceData.resource.description || `${subresourceData.resource.name} API reference`}
+        description={
+          subresourceData.resource.description ||
+          `${subresourceData.resource.name} API reference`
+        }
         currentPath={basePath}
         breadcrumbs={[
           { label: "API reference", href: "/api-reference" },
-          { label: subresourceData.resourceName, href: `/api-reference/${subresourceData.resourceName}` },
+          {
+            label: subresourceData.resourceName,
+            href: `/api-reference/${subresourceData.resourceName}`,
+          },
         ]}
       >
         <ResourceOverviewPage data={subresourceData} basePath={basePath} />
@@ -91,7 +106,9 @@ export default function ApiReferenceDynamicPage(props: PageProps) {
   const subresourceBreadcrumbs = methodData.subresourcePath
     ? methodData.subresourcePath.map((sub, index) => ({
         label: sub,
-        href: `/api-reference/${methodData.resourceName}/${methodData.subresourcePath?.slice(0, index + 1).join("/")}`,
+        href: `/api-reference/${
+          methodData.resourceName
+        }/${methodData.subresourcePath?.slice(0, index + 1).join("/")}`,
       }))
     : [];
 
@@ -100,11 +117,21 @@ export default function ApiReferenceDynamicPage(props: PageProps) {
       sidebarData={sidebarData}
       preSidebarContent={API_REFERENCE_OVERVIEW_CONTENT}
       title={methodData.operation.summary || methodData.methodName}
-      description={methodData.operation.description || `${methodData.methodName} API reference`}
-      currentPath={`/api-reference/${methodData.resourceName}${methodData.subresourcePath ? "/" + methodData.subresourcePath.join("/") : ""}/${methodData.methodName}`}
+      description={
+        methodData.operation.description ||
+        `${methodData.methodName} API reference`
+      }
+      currentPath={`/api-reference/${methodData.resourceName}${
+        methodData.subresourcePath
+          ? "/" + methodData.subresourcePath.join("/")
+          : ""
+      }/${methodData.methodName}`}
       breadcrumbs={[
         { label: "API reference", href: "/api-reference" },
-        { label: methodData.resourceTitle, href: `/api-reference/${methodData.resourceName}` },
+        {
+          label: methodData.resourceTitle,
+          href: `/api-reference/${methodData.resourceName}`,
+        },
         ...subresourceBreadcrumbs,
       ]}
     >

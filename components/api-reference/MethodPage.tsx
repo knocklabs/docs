@@ -7,7 +7,11 @@ import { Callout } from "@/components/ui/Callout";
 import RateLimit from "@/components/ui/RateLimit";
 import { Box, Stack } from "@telegraph/layout";
 import { Code, Heading, Text } from "@telegraph/typography";
-import { ContentColumn, ExampleColumn, Section } from "@/components/ui/ApiSections";
+import {
+  ContentColumn,
+  ExampleColumn,
+  Section,
+} from "@/components/ui/ApiSections";
 import { CodeBlock } from "@/components/ui/CodeBlock";
 import { Endpoint } from "@/components/ui/Endpoints";
 import MultiLangExample from "@/components/ui/ApiReference/MultiLangExample";
@@ -55,13 +59,24 @@ export function MethodPage({ data, schemaReferences }: MethodPageProps) {
 
   const requestBody: OpenAPIV3.SchemaObject | undefined = (
     operation.requestBody as OpenAPIV3.RequestBodyObject
-  )?.content?.["application/json"]?.schema as OpenAPIV3.SchemaObject | undefined;
+  )?.content?.["application/json"]?.schema as
+    | OpenAPIV3.SchemaObject
+    | undefined;
 
-  const rateLimitRaw = (operation as Record<string, unknown>)?.["x-ratelimit-tier"] as number | null ?? null;
+  const rateLimitRaw =
+    ((operation as Record<string, unknown>)?.["x-ratelimit-tier"] as
+      | number
+      | null) ?? null;
   const rateLimit = rateLimitRaw as 1 | 2 | 3 | 4 | 5 | null;
-  const isIdempotent = (operation as Record<string, unknown>)?.["x-idempotent"] as boolean ?? false;
-  const isRetentionSubject = (operation as Record<string, unknown>)?.["x-retention-policy"] as boolean ?? false;
-  const isBeta = (operation as Record<string, unknown>)?.["x-beta"] as boolean ?? false;
+  const isIdempotent =
+    ((operation as Record<string, unknown>)?.["x-idempotent"] as boolean) ??
+    false;
+  const isRetentionSubject =
+    ((operation as Record<string, unknown>)?.[
+      "x-retention-policy"
+    ] as boolean) ?? false;
+  const isBeta =
+    ((operation as Record<string, unknown>)?.["x-beta"] as boolean) ?? false;
 
   return (
     <Section
@@ -77,8 +92,8 @@ export function MethodPage({ data, schemaReferences }: MethodPageProps) {
             bgColor="blue"
             text={
               <>
-                This endpoint is currently in beta. If you&apos;d like early access,
-                or this is blocking your adoption of Knock, please{" "}
+                This endpoint is currently in beta. If you&apos;d like early
+                access, or this is blocking your adoption of Knock, please{" "}
                 <a href="mailto:support@knock.app?subject=Beta%20feature%20request">
                   get in touch
                 </a>
@@ -231,17 +246,19 @@ export function MethodPage({ data, schemaReferences }: MethodPageProps) {
 
         {responseSchemas.length === 0 && (
           <Box py="3">
-            {formatResponseStatusCodes(operation).map((formattedStatus, index) => (
-              <Code
-                key={`response-status-${index}`}
-                as="span"
-                size="1"
-                pl="0"
-                weight="semi-bold"
-              >
-                {formattedStatus}
-              </Code>
-            ))}
+            {formatResponseStatusCodes(operation).map(
+              (formattedStatus, index) => (
+                <Code
+                  key={`response-status-${index}`}
+                  as="span"
+                  size="1"
+                  pl="0"
+                  weight="semi-bold"
+                >
+                  {formattedStatus}
+                </Code>
+              ),
+            )}
           </Box>
         )}
       </ContentColumn>
@@ -249,7 +266,9 @@ export function MethodPage({ data, schemaReferences }: MethodPageProps) {
         <MultiLangExample
           title={`${operation.summary} (example)`}
           examples={augmentSnippetsWithCurlRequest(
-            (operation as Record<string, unknown>)["x-stainless-snippets"] as Record<string, string> || {},
+            ((operation as Record<string, unknown>)[
+              "x-stainless-snippets"
+            ] as Record<string, string>) || {},
             {
               baseUrl,
               methodType,

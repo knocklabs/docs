@@ -1,7 +1,11 @@
 import Markdown from "react-markdown";
 import { Box } from "@telegraph/layout";
 import { Heading } from "@telegraph/typography";
-import { ContentColumn, ExampleColumn, Section } from "@/components/ui/ApiSections";
+import {
+  ContentColumn,
+  ExampleColumn,
+  Section,
+} from "@/components/ui/ApiSections";
 import { CodeBlock } from "@/components/ui/CodeBlock";
 import { SchemaProperties } from "@/components/ui/ApiReference/SchemaProperties";
 import { SchemaPageData } from "@/lib/openApiSpec";
