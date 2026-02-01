@@ -71,6 +71,13 @@ export function ApiReferenceLayout({
     preSidebarContent,
   );
 
+  // For per-resource pages, currentPath is the resource base path (e.g., /api-reference/users)
+  // This enables same-page routing for links within the current resource
+  const sidebarContextValue = {
+    samePageRouting: true,
+    currentResourcePath: currentPath,
+  };
+
   return (
     <TelegraphPage.Container>
       <Meta
@@ -80,14 +87,16 @@ export function ApiReferenceLayout({
       />
       <TelegraphPage.Masthead
         mobileSidebar={
-          <TelegraphPage.MobileSidebar
-            samePageRouting={false}
-            content={sidebarContent}
-          />
+          <SidebarContext.Provider value={sidebarContextValue}>
+            <TelegraphPage.MobileSidebar
+              samePageRouting
+              content={sidebarContent}
+            />
+          </SidebarContext.Provider>
         }
       />
       <TelegraphPage.Wrapper>
-        <SidebarContext.Provider value={{ samePageRouting: false }}>
+        <SidebarContext.Provider value={sidebarContextValue}>
           <Sidebar.FullLayout scrollerRef={scrollerRef}>
             <Sidebar.ScrollContainer scrollerRef={scrollerRef}>
               {sidebarContent.map((section) => (

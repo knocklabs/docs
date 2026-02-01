@@ -23,6 +23,9 @@ import { TgphComponentProps } from "@telegraph/helpers";
 
 interface SidebarContextType {
   samePageRouting: boolean;
+  // For per-resource pages, this is the base path of the current resource
+  // e.g., "/api-reference/users" - used to determine if a link is on the same page
+  currentResourcePath?: string;
 }
 
 export const SidebarContext = createContext<SidebarContextType>({

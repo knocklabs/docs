@@ -30,12 +30,20 @@ const NavItem = ({
   className,
   ...textProps
 }: NavItemProps) => {
-  const { samePageRouting } = useSidebar();
+  const { samePageRouting, currentResourcePath } = useSidebar();
   const { isOpen: isMobileSidebarOpen, closeSidebar: closeMobileSidebar } =
     useMobileSidebar();
 
+  // Determine if this link should use same-page routing (scroll to element)
+  // If currentResourcePath is set, only use same-page routing for links within that resource
+  const shouldUseSamePageRouting = samePageRouting
+    ? currentResourcePath
+      ? href.startsWith(currentResourcePath)
+      : true
+    : false;
+
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (samePageRouting) {
+    if (shouldUseSamePageRouting) {
       e.preventDefault();
       highlightResource(href, { moveToItem: true });
     } else {
@@ -47,7 +55,7 @@ const NavItem = ({
   };
 
   // Next.js is really annoying if you have prefetch={true} so let's just NOT
-  const prefetchProps = samePageRouting ? { prefetch: false } : {};
+  const prefetchProps = shouldUseSamePageRouting ? { prefetch: false } : {};
 
   const textPropsWithoutStyle = { ...textProps };
   delete textPropsWithoutStyle.style;
