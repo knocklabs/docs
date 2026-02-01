@@ -1,18 +1,17 @@
 # API reference migration plan: Multi-page with ISR
 
-This document outlines the plan for migrating the API reference from a single large page to multiple smaller pages using Incremental Static Regeneration (ISR).
+This document outlines the plan for migrating the API reference from a single large page to multiple smaller pages using Incremental Static Regeneration (ISR). Each method and schema gets its own URL path for clean, shareable links.
 
 ## Table of contents
 
 1. [Problem statement](#problem-statement)
 2. [Solution overview](#solution-overview)
-3. [Page structure options](#page-structure-options)
-4. [Recommended architecture](#recommended-architecture)
-5. [Implementation plan](#implementation-plan)
-6. [Data loading strategy](#data-loading-strategy)
-7. [Navigation and UX](#navigation-and-ux)
-8. [Migration steps](#migration-steps)
-9. [Testing and rollout](#testing-and-rollout)
+3. [Recommended architecture](#recommended-architecture)
+4. [Implementation plan](#implementation-plan)
+5. [Data loading strategy](#data-loading-strategy)
+6. [Navigation and UX](#navigation-and-ux)
+7. [Migration steps](#migration-steps)
+8. [Testing and rollout](#testing-and-rollout)
 
 ---
 
@@ -37,144 +36,87 @@ This document outlines the plan for migrating the API reference from a single la
 
 ## Solution overview
 
-Split the API reference into multiple smaller static pages, each containing only the data needed for that specific resource. Use ISR to keep pages fresh without full rebuilds.
+Split the API reference into individual pages for each resource, method, and schema. Use clean URL paths (`/api-reference/users/get`) instead of hash fragments. Use ISR to keep pages fresh without full rebuilds.
 
 ### Key benefits
 
-| Aspect         | Current                | After migration              |
-| -------------- | ---------------------- | ---------------------------- |
-| HTML per page  | 2-5MB (full spec)      | 50-150KB (single resource)   |
-| Build strategy | Single page, full spec | Multiple pages, partial spec |
-| Updates        | Full rebuild           | ISR per page                 |
-| Hydration      | Full spec              | Resource data only           |
-
----
-
-## Page structure options
-
-### Option A: One page per resource
-
-Each resource (users, workflows, etc.) gets its own page containing the resource overview, all methods, and all schemas.
-
-```
-pages/api-reference/
-├── index.tsx                    # Overview + intro content
-├── [resource].tsx               # Dynamic route for each resource
-```
-
-**Pros:**
-
-- Simple routing (12 resource pages + overview)
-- Each page is self-contained
-- Maintains scroll experience within a resource
-- Easier to implement
-
-**Cons:**
-
-- Resource pages can still be moderately large (100-300KB for resources with many methods)
-- All methods load even if user only wants one
-
-### Option B: One page per method
-
-Every method gets its own dedicated page.
-
-```
-pages/api-reference/
-├── index.tsx                    # Overview
-├── [resource]/
-│   ├── index.tsx                # Resource overview
-│   ├── [method].tsx             # Individual method
-│   └── schemas/
-│       └── [schema].tsx         # Individual schema
-```
-
-**Pros:**
-
-- Smallest possible pages (~20-50KB each)
-- Maximum granularity for caching
-- Fast navigation to specific endpoints
-
-**Cons:**
-
-- Many more pages to generate (100+ pages)
-- Loses the scroll-through experience
-- More complex navigation
-- Users need more clicks to browse
-
-### Option C: Hybrid - Resource pages with linked schemas
-
-Resource pages contain the overview and all methods. Schemas are separate pages linked from method responses.
-
-```
-pages/api-reference/
-├── index.tsx                    # Overview
-├── [resource]/
-│   ├── index.tsx                # Resource overview + all methods
-│   └── schemas/
-│       └── [schema].tsx         # Individual schema
-```
-
-**Pros:**
-
-- Balanced page sizes
-- Methods stay together (common browsing pattern)
-- Schemas separately addressable
-
-**Cons:**
-
-- More complex than Option A
-- Schema pages add navigation complexity
+| Aspect         | Current                   | After migration              |
+| -------------- | ------------------------- | ---------------------------- |
+| HTML per page  | 2-5MB (full spec)         | 20-50KB (single method)      |
+| URL structure  | Hash-based (`#users-get`) | Path-based (`/users/get`)    |
+| Build strategy | Single page, full spec    | Multiple pages, partial spec |
+| Updates        | Full rebuild              | ISR per page                 |
+| Hydration      | Full spec                 | Single method data only      |
 
 ---
 
 ## Recommended architecture
 
-**Option A: One page per resource** is recommended for the initial migration.
-
-### Rationale
-
-1. **Simplest implementation.** Fewest routing changes, minimal new pages.
-2. **Good payload reduction.** 2-5MB → 50-150KB per page (90%+ reduction).
-3. **Preserves scroll experience.** Users can scroll through all methods in a resource.
-4. **Easy to enhance later.** Can split further into per-method pages if needed.
-
 ### Page structure
 
 ```
-pages/
-├── api-reference/
-│   ├── index.tsx                # Overview page (intro, auth, errors, etc.)
-│   └── [resource].tsx           # Resource page (overview + methods + schemas)
-│
-├── mapi-reference/
-│   ├── index.tsx                # Management API overview
-│   └── [resource].tsx           # Management API resources
+pages/api-reference/
+├── index.tsx                           # Overview (intro, auth, errors)
+├── [resource]/
+│   ├── index.tsx                       # Resource overview + endpoint list
+│   ├── [method].tsx                    # Individual method page
+│   └── schemas/
+│       └── [schema].tsx                # Individual schema page
 ```
 
 ### URL structure
 
-| URL                        | Content                                         |
-| -------------------------- | ----------------------------------------------- |
-| `/api-reference`           | Overview, authentication, errors, etc.          |
-| `/api-reference/users`     | Users resource with all methods and schemas     |
-| `/api-reference/workflows` | Workflows resource with all methods and schemas |
-| `/api-reference/messages`  | Messages resource with all methods and schemas  |
-| ...                        | ...                                             |
+| URL                                 | Content                                            |
+| ----------------------------------- | -------------------------------------------------- |
+| `/api-reference`                    | Overview, authentication, errors, pagination, etc. |
+| `/api-reference/users`              | Users resource overview with endpoint list         |
+| `/api-reference/users/get`          | Get user method documentation                      |
+| `/api-reference/users/list`         | List users method documentation                    |
+| `/api-reference/users/update`       | Update user method documentation                   |
+| `/api-reference/users/schemas/user` | User schema definition                             |
+| `/api-reference/workflows`          | Workflows resource overview                        |
+| `/api-reference/workflows/trigger`  | Trigger workflow method                            |
+| ...                                 | ...                                                |
 
 ### Handling subresources
 
-Resources with subresources (like `users` with `feeds`, `guides`) will include the subresource content on the parent resource page:
+Subresources use nested paths. The `[method].tsx` catch-all handles the nesting:
+
+| URL                                       | Content                  |
+| ----------------------------------------- | ------------------------ |
+| `/api-reference/users/feeds/list_items`   | List feed items method   |
+| `/api-reference/users/guides/get_channel` | Get guide channel method |
+
+To handle this, use a catch-all route:
 
 ```
-/api-reference/users
-├── Users overview
-├── Users methods (get, list, update, delete, merge, etc.)
-├── Users > Feeds methods
-├── Users > Guides methods
-└── Users schemas
+pages/api-reference/
+├── index.tsx
+├── [resource]/
+│   ├── index.tsx
+│   ├── [...slug].tsx                   # Catches /method, /subresource/method, /schemas/name
 ```
 
-This keeps related content together and avoids deep nesting.
+### Estimated page counts
+
+| Type               | Count    | Example                             |
+| ------------------ | -------- | ----------------------------------- |
+| Overview           | 1        | `/api-reference`                    |
+| Resource overviews | 12       | `/api-reference/users`              |
+| Method pages       | ~80      | `/api-reference/users/get`          |
+| Schema pages       | ~40      | `/api-reference/users/schemas/user` |
+| **Total**          | **~133** |                                     |
+
+### Page size estimates
+
+| Page type         | Estimated size |
+| ----------------- | -------------- |
+| Overview          | ~30KB          |
+| Resource overview | ~15KB          |
+| Method page       | ~20-40KB       |
+| Schema page       | ~10-20KB       |
+
+**Compare to current:** Single page with 2-5MB payload
 
 ---
 
@@ -182,21 +124,90 @@ This keeps related content together and avoids deep nesting.
 
 ### Phase 1: Data loading refactor
 
-Create utilities to load partial spec data for a single resource.
+Create utilities to load data for individual pages.
 
-#### Task 1.1: Create resource-specific loader
+#### Task 1.1: Create method-specific loader
 
 ```typescript
 // lib/openApiSpec.ts - add new functions
 
 /**
- * Load only the data needed for a specific resource page.
- * This avoids loading the full spec into page props.
+ * Load data for a single method page.
  */
-export async function getResourcePageData(
+export async function getMethodPageData(
   specName: "api" | "mapi",
   resourceName: string,
-): Promise<ResourcePageData> {
+  methodName: string,
+): Promise<MethodPageData | null> {
+  const [openApiSpec, stainlessSpec] = await Promise.all([
+    readOpenApiSpec(specName),
+    readStainlessSpec(specName),
+  ]);
+
+  const resource = stainlessSpec.resources[resourceName];
+  if (!resource?.methods?.[methodName]) {
+    return null;
+  }
+
+  const methodConfig = resource.methods[methodName];
+  const [methodType, endpoint] = resolveEndpoint(methodConfig);
+  const operation = openApiSpec.paths?.[endpoint]?.[methodType];
+
+  if (!operation) {
+    return null;
+  }
+
+  return {
+    resourceName,
+    resourceTitle: resource.name || resourceName,
+    methodName,
+    methodType,
+    endpoint,
+    operation,
+    baseUrl: stainlessSpec.environments.production,
+  };
+}
+
+/**
+ * Load data for a single schema page.
+ */
+export async function getSchemaPageData(
+  specName: "api" | "mapi",
+  resourceName: string,
+  schemaName: string,
+): Promise<SchemaPageData | null> {
+  const [openApiSpec, stainlessSpec] = await Promise.all([
+    readOpenApiSpec(specName),
+    readStainlessSpec(specName),
+  ]);
+
+  const resource = stainlessSpec.resources[resourceName];
+  if (!resource?.models?.[schemaName]) {
+    return null;
+  }
+
+  const schemaRef = resource.models[schemaName];
+  const schema = JSONPointer.get(openApiSpec, schemaRef.replace("#", ""));
+
+  if (!schema) {
+    return null;
+  }
+
+  return {
+    resourceName,
+    resourceTitle: resource.name || resourceName,
+    schemaName,
+    schema,
+  };
+}
+
+/**
+ * Load data for a resource overview page.
+ */
+export async function getResourceOverviewData(
+  specName: "api" | "mapi",
+  resourceName: string,
+): Promise<ResourceOverviewData | null> {
   const [openApiSpec, stainlessSpec] = await Promise.all([
     readOpenApiSpec(specName),
     readStainlessSpec(specName),
@@ -207,85 +218,207 @@ export async function getResourcePageData(
     return null;
   }
 
-  // Extract only the paths/schemas needed for this resource
-  const methods = extractMethodsForResource(openApiSpec, resource);
-  const schemas = extractSchemasForResource(openApiSpec, resource);
-  const subresources = extractSubresources(openApiSpec, resource);
+  // Build list of methods with just summary info (not full operation)
+  const methods = Object.entries(resource.methods || {}).map(
+    ([methodName, config]) => {
+      const [methodType, endpoint] = resolveEndpoint(config);
+      const operation = openApiSpec.paths?.[endpoint]?.[methodType];
+      return {
+        methodName,
+        methodType,
+        endpoint,
+        summary: operation?.summary || methodName,
+      };
+    },
+  );
+
+  // Build list of schemas with just name/title
+  const schemas = Object.entries(resource.models || {}).map(
+    ([schemaName, ref]) => {
+      const schema = JSONPointer.get(openApiSpec, ref.replace("#", ""));
+      return {
+        schemaName,
+        title: schema?.title || schemaName,
+      };
+    },
+  );
+
+  // Build subresource info
+  const subresources = Object.entries(resource.subresources || {}).map(
+    ([subName, subResource]) => ({
+      name: subName,
+      title: subResource.name || subName,
+      methodCount: Object.keys(subResource.methods || {}).length,
+    }),
+  );
 
   return {
     resourceName,
-    resource,
+    resource: {
+      name: resource.name,
+      description: resource.description,
+    },
     methods,
     schemas,
     subresources,
-    baseUrl: stainlessSpec.environments.production,
   };
-}
-
-/**
- * Extract only the OpenAPI operations needed for a resource's methods.
- */
-function extractMethodsForResource(
-  spec: OpenAPIV3.Document,
-  resource: StainlessResource,
-): MethodData[] {
-  if (!resource.methods) return [];
-
-  return Object.entries(resource.methods).map(([methodName, config]) => {
-    const [methodType, endpoint] = resolveEndpoint(config);
-    const operation = spec.paths?.[endpoint]?.[methodType];
-
-    return {
-      methodName,
-      methodType,
-      endpoint,
-      operation,
-    };
-  });
-}
-
-/**
- * Extract only the schemas referenced by a resource.
- */
-function extractSchemasForResource(
-  spec: OpenAPIV3.Document,
-  resource: StainlessResource,
-): SchemaData[] {
-  if (!resource.models) return [];
-
-  return Object.entries(resource.models).map(([modelName, ref]) => {
-    const schema = JSONPointer.get(spec, ref.replace("#", ""));
-    return { modelName, schema };
-  });
 }
 ```
 
-#### Task 1.2: Create sidebar data loader
+#### Task 1.2: Create path generation utilities
 
 ```typescript
 /**
- * Load just the sidebar structure without full spec data.
- * Used for navigation on all pages.
+ * Generate all static paths for API reference pages.
+ */
+export async function getAllApiReferencePaths(
+  specName: "api" | "mapi",
+): Promise<Array<{ params: { resource: string; slug?: string[] } }>> {
+  const stainlessSpec = await readStainlessSpec(specName);
+  const paths: Array<{ params: { resource: string; slug?: string[] } }> = [];
+
+  function processResource(
+    resource: StainlessResource,
+    resourceName: string,
+    parentSlug: string[] = [],
+  ) {
+    // Resource overview (no slug)
+    if (parentSlug.length === 0) {
+      paths.push({ params: { resource: resourceName } });
+    }
+
+    // Method pages
+    if (resource.methods) {
+      Object.keys(resource.methods).forEach((methodName) => {
+        paths.push({
+          params: {
+            resource: resourceName,
+            slug: [...parentSlug, methodName],
+          },
+        });
+      });
+    }
+
+    // Schema pages
+    if (resource.models) {
+      Object.keys(resource.models).forEach((schemaName) => {
+        paths.push({
+          params: {
+            resource: resourceName,
+            slug: [...parentSlug, "schemas", schemaName],
+          },
+        });
+      });
+    }
+
+    // Subresources (recursive)
+    if (resource.subresources) {
+      Object.entries(resource.subresources).forEach(
+        ([subName, subResource]) => {
+          // Subresource overview
+          paths.push({
+            params: {
+              resource: resourceName,
+              slug: [...parentSlug, subName],
+            },
+          });
+
+          // Subresource methods and schemas
+          processResource(subResource, resourceName, [...parentSlug, subName]);
+        },
+      );
+    }
+  }
+
+  Object.entries(stainlessSpec.resources).forEach(
+    ([resourceName, resource]) => {
+      processResource(resource, resourceName);
+    },
+  );
+
+  return paths;
+}
+```
+
+#### Task 1.3: Create sidebar data loader
+
+```typescript
+/**
+ * Load sidebar structure for navigation.
+ * Includes links to all resources, methods, and schemas.
  */
 export async function getSidebarData(
   specName: "api" | "mapi",
 ): Promise<SidebarData> {
   const stainlessSpec = await readStainlessSpec(specName);
+  const basePath = specName === "api" ? "/api-reference" : "/mapi-reference";
 
-  return {
-    resources: Object.entries(stainlessSpec.resources).map(
-      ([name, resource]) => ({
-        name,
-        title: resource.name || name,
-        methodCount: Object.keys(resource.methods || {}).length,
-        hasSubresources: !!resource.subresources,
-      }),
-    ),
-  };
+  function buildResourceSidebar(
+    resource: StainlessResource,
+    resourceName: string,
+    pathPrefix: string,
+  ): SidebarSection {
+    const pages: SidebarPage[] = [];
+
+    // Methods
+    if (resource.methods) {
+      Object.keys(resource.methods).forEach((methodName) => {
+        pages.push({
+          slug: `${pathPrefix}/${methodName}`,
+          title: methodName,
+        });
+      });
+    }
+
+    // Subresources
+    if (resource.subresources) {
+      Object.entries(resource.subresources).forEach(
+        ([subName, subResource]) => {
+          pages.push({
+            slug: `${pathPrefix}/${subName}`,
+            title: subResource.name || subName,
+            pages: Object.keys(subResource.methods || {}).map((methodName) => ({
+              slug: `${pathPrefix}/${subName}/${methodName}`,
+              title: methodName,
+            })),
+          });
+        },
+      );
+    }
+
+    // Schemas
+    if (resource.models && Object.keys(resource.models).length > 0) {
+      pages.push({
+        slug: `${pathPrefix}/schemas`,
+        title: "Schemas",
+        pages: Object.keys(resource.models).map((schemaName) => ({
+          slug: `${pathPrefix}/schemas/${schemaName}`,
+          title: schemaName,
+        })),
+      });
+    }
+
+    return {
+      title: resource.name || resourceName,
+      slug: pathPrefix,
+      pages,
+    };
+  }
+
+  const resources = Object.entries(stainlessSpec.resources).map(
+    ([resourceName, resource]) =>
+      buildResourceSidebar(
+        resource,
+        resourceName,
+        `${basePath}/${resourceName}`,
+      ),
+  );
+
+  return { resources };
 }
 ```
 
-### Phase 2: Create new pages
+### Phase 2: Create page files
 
 #### Task 2.1: Create overview page
 
@@ -294,8 +427,6 @@ export async function getSidebarData(
 
 import { GetStaticProps } from "next";
 import { getSidebarData } from "@/lib/openApiSpec";
-import { serialize } from "next-mdx-remote/serialize";
-import fs from "fs";
 
 export default function ApiReferenceOverview({ sidebarData, overviewContent }) {
   return (
@@ -312,80 +443,58 @@ export default function ApiReferenceOverview({ sidebarData, overviewContent }) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const sidebarData = await getSidebarData("api");
-
-  const overviewMdx = fs.readFileSync(
-    `${CONTENT_DIR}/__api-reference/content.mdx`,
-    "utf-8",
-  );
-  const overviewContent = await serialize(overviewMdx, {
-    parseFrontmatter: true,
-    mdxOptions: {
-      remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeMdxCodeProps],
-    },
-  });
+  const overviewContent = await loadOverviewMdx();
 
   return {
-    props: {
-      sidebarData,
-      overviewContent,
-    },
-    revalidate: 3600, // ISR: revalidate every hour
+    props: { sidebarData, overviewContent },
+    revalidate: 3600,
   };
 };
 ```
 
-#### Task 2.2: Create dynamic resource page
+#### Task 2.2: Create resource overview page
 
 ```typescript
-// pages/api-reference/[resource].tsx
+// pages/api-reference/[resource]/index.tsx
 
 import { GetStaticPaths, GetStaticProps } from "next";
 import {
-  getResourcePageData,
+  getResourceOverviewData,
   getSidebarData,
   getResourceOrder,
 } from "@/lib/openApiSpec";
 
-export default function ResourcePage({
-  sidebarData,
-  resourceData,
-  schemaReferences,
-}) {
-  const { resourceName, resource, methods, schemas, subresources, baseUrl } =
-    resourceData;
-
+export default function ResourceOverviewPage({ sidebarData, resourceData }) {
   return (
     <ApiReferenceLayout
       sidebarData={sidebarData}
-      currentResource={resourceName}
+      currentPath={`/api-reference/${resourceData.resourceName}`}
     >
-      {/* Resource Overview */}
-      <ResourceOverview resource={resource} methods={methods} />
+      <PageHeader
+        title={resourceData.resource.name}
+        description={resourceData.resource.description}
+      />
 
-      {/* Methods */}
-      {methods.map((method) => (
-        <MethodSection
-          key={method.methodName}
-          method={method}
-          baseUrl={baseUrl}
-          schemaReferences={schemaReferences}
-        />
-      ))}
+      {/* Endpoint list */}
+      <EndpointList
+        methods={resourceData.methods}
+        basePath={`/api-reference/${resourceData.resourceName}`}
+      />
 
       {/* Subresources */}
-      {subresources.map((subresource) => (
-        <SubresourceSection
-          key={subresource.name}
-          subresource={subresource}
-          baseUrl={baseUrl}
-          schemaReferences={schemaReferences}
+      {resourceData.subresources.length > 0 && (
+        <SubresourceList
+          subresources={resourceData.subresources}
+          basePath={`/api-reference/${resourceData.resourceName}`}
         />
-      ))}
+      )}
 
       {/* Schemas */}
-      {schemas.length > 0 && (
-        <SchemasSection schemas={schemas} schemaReferences={schemaReferences} />
+      {resourceData.schemas.length > 0 && (
+        <SchemaList
+          schemas={resourceData.schemas}
+          basePath={`/api-reference/${resourceData.resourceName}`}
+        />
       )}
     </ApiReferenceLayout>
   );
@@ -393,177 +502,242 @@ export default function ResourcePage({
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const resourceOrder = await getResourceOrder("api");
-
   return {
     paths: resourceOrder.map((resource) => ({
       params: { resource },
     })),
-    fallback: false, // 404 for unknown resources
+    fallback: false,
   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const resourceName = params.resource as string;
-
   const [sidebarData, resourceData] = await Promise.all([
     getSidebarData("api"),
-    getResourcePageData("api", resourceName),
+    getResourceOverviewData("api", resourceName),
   ]);
 
   if (!resourceData) {
     return { notFound: true };
   }
 
-  // Build schema references for this resource (for linking)
-  const schemaReferences = buildSchemaReferencesForResource(
-    resourceData,
-    `/api-reference/${resourceName}`,
-  );
-
   return {
-    props: {
-      sidebarData,
-      resourceData,
-      schemaReferences,
-    },
-    revalidate: 3600, // ISR: revalidate every hour
+    props: { sidebarData, resourceData },
+    revalidate: 3600,
   };
 };
 ```
 
-### Phase 3: Create shared layout
-
-#### Task 3.1: Create ApiReferenceLayout component
+#### Task 2.3: Create catch-all page for methods and schemas
 
 ```typescript
-// components/ApiReferenceLayout.tsx
+// pages/api-reference/[resource]/[...slug].tsx
 
-interface Props {
-  children: React.ReactNode;
-  sidebarData: SidebarData;
-  currentResource?: string;
-}
+import { GetStaticPaths, GetStaticProps } from "next";
+import {
+  getAllApiReferencePaths,
+  getMethodPageData,
+  getSchemaPageData,
+  getSidebarData,
+} from "@/lib/openApiSpec";
 
-export function ApiReferenceLayout({
-  children,
+type PageType = "method" | "schema" | "subresource";
+
+export default function ApiReferenceDynamicPage({
+  pageType,
   sidebarData,
-  currentResource,
-}: Props) {
+  data,
+  schemaReferences,
+}) {
+  if (pageType === "schema") {
+    return (
+      <ApiReferenceLayout sidebarData={sidebarData}>
+        <SchemaPage data={data} schemaReferences={schemaReferences} />
+      </ApiReferenceLayout>
+    );
+  }
+
+  // Method page (default)
   return (
-    <Page.Container>
-      <Meta
-        title={
-          currentResource
-            ? `${currentResource} | API reference`
-            : "API reference"
-        }
-        description="Complete reference documentation for the Knock API."
-      />
-      <Page.Masthead
-        mobileSidebar={
-          <Page.MobileSidebar
-            content={buildSidebarContent(sidebarData, currentResource)}
-          />
-        }
-      />
-      <Page.Wrapper>
-        <Page.FullSidebar
-          content={buildSidebarContent(sidebarData, currentResource)}
-        />
-        <Page.Content>
-          <Page.ContentBody>{children}</Page.ContentBody>
-        </Page.Content>
-      </Page.Wrapper>
-    </Page.Container>
+    <ApiReferenceLayout sidebarData={sidebarData}>
+      <MethodPage data={data} schemaReferences={schemaReferences} />
+    </ApiReferenceLayout>
   );
 }
 
-function buildSidebarContent(
-  sidebarData: SidebarData,
-  currentResource?: string,
-): SidebarSection[] {
-  return [
-    // Overview section
-    {
-      title: "API reference",
-      slug: "/api-reference",
-      pages: [
-        { slug: "/", title: "Overview" },
-        { slug: "/authentication", title: "Authentication" },
-        { slug: "/errors", title: "Errors" },
-        // ... other overview pages
-      ],
+export const getStaticPaths: GetStaticPaths = async () => {
+  const paths = await getAllApiReferencePaths("api");
+  // Filter to only paths with slug (not resource overview)
+  const slugPaths = paths.filter((p) => p.params.slug);
+  return { paths: slugPaths, fallback: false };
+};
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const resourceName = params.resource as string;
+  const slug = params.slug as string[];
+
+  const sidebarData = await getSidebarData("api");
+
+  // Determine page type from slug
+  // /users/schemas/user -> schema page
+  // /users/get -> method page
+  // /users/feeds/list_items -> subresource method page
+
+  if (slug.includes("schemas")) {
+    const schemaIndex = slug.indexOf("schemas");
+    const schemaName = slug[schemaIndex + 1];
+
+    const data = await getSchemaPageData("api", resourceName, schemaName);
+    if (!data) return { notFound: true };
+
+    const schemaReferences = await buildSchemaReferences("api");
+
+    return {
+      props: {
+        pageType: "schema",
+        sidebarData,
+        data,
+        schemaReferences,
+      },
+      revalidate: 3600,
+    };
+  }
+
+  // Method page (possibly in subresource)
+  const methodName = slug[slug.length - 1];
+  const subresourcePath = slug.slice(0, -1);
+
+  const data = await getMethodPageData(
+    "api",
+    resourceName,
+    methodName,
+    subresourcePath,
+  );
+
+  if (!data) return { notFound: true };
+
+  const schemaReferences = await buildSchemaReferences("api");
+
+  return {
+    props: {
+      pageType: "method",
+      sidebarData,
+      data,
+      schemaReferences,
     },
-    // Resource sections
-    ...sidebarData.resources.map((resource) => ({
-      title: resource.title,
-      slug: `/api-reference/${resource.name}`,
-      isActive: resource.name === currentResource,
-      pages: [], // Methods shown on the resource page, not in sidebar
-    })),
-  ];
-}
+    revalidate: 3600,
+  };
+};
 ```
 
-### Phase 4: Component refactoring
+### Phase 3: Create page components
 
-#### Task 4.1: Refactor ResourceSection
-
-Update to work with pre-extracted data instead of pulling from context.
+#### Task 3.1: Create MethodPage component
 
 ```typescript
-// components/ResourceOverview.tsx
+// components/api-reference/MethodPage.tsx
 
 interface Props {
-  resource: StainlessResource;
-  methods: MethodData[];
-}
-
-export function ResourceOverview({ resource, methods }: Props) {
-  return (
-    <Section title={resource.name} id={resource.name}>
-      <ContentColumn>
-        {resource.description && <Markdown>{resource.description}</Markdown>}
-      </ContentColumn>
-      <ExampleColumn>
-        <Endpoints>
-          {methods.map((method) => (
-            <Endpoint
-              key={method.methodName}
-              method={method.methodType.toUpperCase()}
-              path={method.endpoint}
-              name={method.methodName}
-              href={`#${method.methodName}`}
-            />
-          ))}
-        </Endpoints>
-      </ExampleColumn>
-    </Section>
-  );
-}
-```
-
-#### Task 4.2: Refactor MethodSection
-
-```typescript
-// components/MethodSection.tsx
-
-interface Props {
-  method: MethodData;
-  baseUrl: string;
+  data: MethodPageData;
   schemaReferences: Record<string, string>;
 }
 
-export function MethodSection({ method, baseUrl, schemaReferences }: Props) {
-  const { methodName, methodType, endpoint, operation } = method;
+export function MethodPage({ data, schemaReferences }: Props) {
+  const { operation, methodType, endpoint, baseUrl } = data;
 
-  if (!operation) return null;
-
-  // Component now receives data directly instead of from context
   return (
-    <Section title={operation.summary} id={methodName}>
-      {/* ... existing method content ... */}
-    </Section>
+    <>
+      <PageHeader
+        title={operation.summary}
+        breadcrumbs={[
+          { label: "API reference", href: "/api-reference" },
+          {
+            label: data.resourceTitle,
+            href: `/api-reference/${data.resourceName}`,
+          },
+        ]}
+      />
+
+      <MethodContent
+        operation={operation}
+        methodType={methodType}
+        endpoint={endpoint}
+        baseUrl={baseUrl}
+        schemaReferences={schemaReferences}
+      />
+    </>
+  );
+}
+```
+
+#### Task 3.2: Create SchemaPage component
+
+```typescript
+// components/api-reference/SchemaPage.tsx
+
+interface Props {
+  data: SchemaPageData;
+  schemaReferences: Record<string, string>;
+}
+
+export function SchemaPage({ data, schemaReferences }: Props) {
+  const { schema, schemaName } = data;
+
+  return (
+    <>
+      <PageHeader
+        title={schema.title || schemaName}
+        breadcrumbs={[
+          { label: "API reference", href: "/api-reference" },
+          {
+            label: data.resourceTitle,
+            href: `/api-reference/${data.resourceName}`,
+          },
+          {
+            label: "Schemas",
+            href: `/api-reference/${data.resourceName}/schemas`,
+          },
+        ]}
+      />
+
+      <SchemaContent schema={schema} schemaReferences={schemaReferences} />
+    </>
+  );
+}
+```
+
+#### Task 3.3: Create EndpointList component
+
+```typescript
+// components/api-reference/EndpointList.tsx
+
+interface Props {
+  methods: Array<{
+    methodName: string;
+    methodType: string;
+    endpoint: string;
+    summary: string;
+  }>;
+  basePath: string;
+}
+
+export function EndpointList({ methods, basePath }: Props) {
+  return (
+    <div className="divide-y divide-gray-200">
+      {methods.map((method) => (
+        <Link
+          key={method.methodName}
+          href={`${basePath}/${method.methodName}`}
+          className="flex items-center gap-4 py-4 hover:bg-gray-50"
+        >
+          <MethodBadge method={method.methodType} />
+          <div>
+            <code className="text-sm font-mono">{method.endpoint}</code>
+            <p className="text-sm text-gray-600">{method.summary}</p>
+          </div>
+        </Link>
+      ))}
+    </div>
   );
 }
 ```
@@ -576,17 +750,15 @@ export function MethodSection({ method, baseUrl, schemaReferences }: Props) {
 
 | Aspect            | Current                       | After migration                   |
 | ----------------- | ----------------------------- | --------------------------------- |
-| Spec loading      | Full spec in `getStaticProps` | Partial extraction per resource   |
+| Spec loading      | Full spec in `getStaticProps` | Load only needed operation/schema |
 | Context           | Full spec in React context    | No context needed (data in props) |
-| Schema references | Built from full spec          | Built per-resource                |
+| Schema references | Built from full spec          | Built once, shared across pages   |
 | Sidebar           | Built from full spec          | Separate lightweight loader       |
 
 ### ISR configuration
 
 ```typescript
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  // ... load data ...
-
   return {
     props: {
       /* ... */
@@ -596,29 +768,23 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 };
 ```
 
-**Why 1 hour?**
-
-- API specs don't change frequently
-- Allows updates without full redeploy
-- Can be adjusted based on update frequency
-
-**Alternative: On-demand revalidation**
+**On-demand revalidation (optional)**
 
 ```typescript
 // pages/api/revalidate.ts
 export default async function handler(req, res) {
-  const { secret, path } = req.query;
+  const { secret, paths } = req.body;
 
   if (secret !== process.env.REVALIDATION_SECRET) {
     return res.status(401).json({ message: "Invalid secret" });
   }
 
-  await res.revalidate(path);
+  // Revalidate specific paths
+  await Promise.all(paths.map((path) => res.revalidate(path)));
+
   return res.json({ revalidated: true });
 }
 ```
-
-Call this endpoint when specs are updated to immediately refresh pages.
 
 ---
 
@@ -626,45 +792,42 @@ Call this endpoint when specs are updated to immediately refresh pages.
 
 ### Sidebar behavior
 
-- **Overview pages** listed at top (Authentication, Errors, etc.)
-- **Resources** listed below, each links to `/api-reference/[resource]`
-- **Active resource** highlighted in sidebar
-- **Methods** accessible via in-page anchor links, not sidebar expansion
+- **Overview section** at top with general topics
+- **Resources** listed as collapsible sections
+- **Methods** listed under each resource
+- **Schemas** grouped under "Schemas" subsection
+- **Current page** highlighted in sidebar
 
-### In-page navigation
+### Breadcrumb navigation
 
-Each resource page has:
+Every page shows breadcrumbs:
 
-1. **Resource overview** with endpoint list
-2. **Method sections** with anchor IDs (`#trigger`, `#cancel`, etc.)
-3. **Schema sections** at the bottom
-4. **On-this-page navigation** (optional) for jumping between methods
+```
+API reference > Users > Get user
+API reference > Users > Schemas > User
+API reference > Workflows > Trigger workflow
+```
+
+### Previous/Next navigation
+
+Add footer navigation to move between methods:
+
+```typescript
+// In MethodPage component
+<PageFooter
+  previous={{ title: "List users", href: "/api-reference/users/list" }}
+  next={{ title: "Update user", href: "/api-reference/users/update" }}
+/>
+```
 
 ### Cross-resource linking
 
-Schema references that link to other resources:
+Schema references link to schema pages:
 
 ```typescript
-// Current: /api-reference/users/schemas/User
-// After: /api-reference/users#user-schema
-
-// Or if schemas are very large, separate pages:
-// /api-reference/users/schemas/user
-```
-
-### URL compatibility
-
-Add redirects for old hash-based URLs:
-
-```javascript
-// next.config.js
-async redirects() {
-  return [
-    // Old: /api-reference#users-get
-    // New: /api-reference/users#get
-    // Handle via client-side detection if hash-based
-  ];
-}
+// In MethodContent, when showing return type
+<Link href={schemaReferences["User"]}>User</Link>
+// Links to /api-reference/users/schemas/user
 ```
 
 ---
@@ -673,62 +836,55 @@ async redirects() {
 
 ### Step 1: Create data loading utilities
 
-1. Add `getResourcePageData()` function
-2. Add `getSidebarData()` function
-3. Add `getResourceOrder()` function
-4. Test extraction with one resource
+1. Add `getMethodPageData()` function
+2. Add `getSchemaPageData()` function
+3. Add `getResourceOverviewData()` function
+4. Add `getAllApiReferencePaths()` function
+5. Add `getSidebarData()` function
+6. Test with one resource
 
-### Step 2: Create new page structure
+### Step 2: Create new page files
 
-1. Create `pages/api-reference/index.tsx` (overview)
-2. Create `pages/api-reference/[resource].tsx` (dynamic resource)
-3. Create `ApiReferenceLayout` component
-4. Test with one resource
+1. Create `pages/api-reference/index.tsx`
+2. Create `pages/api-reference/[resource]/index.tsx`
+3. Create `pages/api-reference/[resource]/[...slug].tsx`
+4. Create page components (MethodPage, SchemaPage, etc.)
+5. Test all paths generate correctly
 
-### Step 3: Refactor components
+### Step 3: Create shared components
 
-1. Update `ResourceOverview` to accept props
-2. Update `MethodSection` to accept props
-3. Update `SchemaSection` to accept props
-4. Remove `ApiReferenceContext` dependency
+1. Create `ApiReferenceLayout` component
+2. Create `EndpointList` component
+3. Create `MethodContent` component (refactor from existing)
+4. Create `SchemaContent` component (refactor from existing)
+5. Create breadcrumb navigation
 
-### Step 4: Remove URL rewrites
-
-Update `next.config.js`:
+### Step 4: Update next.config.js
 
 ```javascript
-// Remove these rewrites:
+// Remove old rewrites
 // {
 //   source: "/api-reference/:path+",
 //   destination: "/api-reference",
 // },
+
+// Add redirects for old URLs if needed
+async redirects() {
+  return [
+    // If you had hash-based URLs that were indexed
+  ];
+}
 ```
 
-### Step 5: Add redirects
+### Step 5: Repeat for MAPI
 
-```javascript
-// Add redirects for backwards compatibility
-{
-  source: "/api-reference/overview",
-  destination: "/api-reference",
-  permanent: true,
-},
-{
-  source: "/api-reference/overview/:path",
-  destination: "/api-reference#:path",
-  permanent: true,
-},
-```
+Apply the same structure to `/mapi-reference`.
 
-### Step 6: Repeat for MAPI
+### Step 6: Remove old implementation
 
-Apply the same changes to `/mapi-reference`.
-
-### Step 7: Remove old implementation
-
-1. Delete old single-page implementation
-2. Remove unused context
-3. Clean up old components
+1. Delete `pages/api-reference/index.tsx` (old single page)
+2. Remove `ApiReferenceContext`
+3. Clean up unused components
 
 ---
 
@@ -736,88 +892,69 @@ Apply the same changes to `/mapi-reference`.
 
 ### Testing checklist
 
-- [ ] All resources render correctly
-- [ ] All methods display with correct data
-- [ ] All schemas display with correct data
-- [ ] Sidebar navigation works
-- [ ] In-page anchor links work
+- [ ] All resource overview pages render
+- [ ] All method pages render with correct data
+- [ ] All schema pages render with correct data
+- [ ] Sidebar navigation highlights current page
+- [ ] Breadcrumbs work correctly
+- [ ] Cross-resource schema links work
 - [ ] Mobile sidebar works
 - [ ] ISR revalidation works
-- [ ] Page sizes are reduced (measure with DevTools)
-- [ ] Hydration is faster (measure with Lighthouse)
+- [ ] 404 pages for invalid paths
+- [ ] Page sizes are small (check with DevTools)
 
 ### Performance validation
 
-Measure before and after:
-
-| Metric                 | Target                   |
-| ---------------------- | ------------------------ |
-| HTML size              | <150KB per resource page |
-| LCP                    | <2.5s                    |
-| TTI                    | <3.8s                    |
-| Lighthouse Performance | >90                      |
+| Metric                    | Target |
+| ------------------------- | ------ |
+| HTML size per method page | <50KB  |
+| HTML size per schema page | <25KB  |
+| LCP                       | <2.5s  |
+| TTI                       | <3.8s  |
+| Lighthouse Performance    | >90    |
 
 ### Rollout strategy
 
-1. **Deploy to preview** - Test on Vercel preview deployment
-2. **Internal testing** - Team reviews all resource pages
-3. **Gradual rollout** - Use feature flag or A/B test if needed
-4. **Full rollout** - Remove old implementation
-5. **Monitor** - Watch for 404s, performance issues
+1. **Deploy to preview** - Test on Vercel preview
+2. **Verify all pages** - Script to check all generated paths
+3. **Compare with current** - Ensure no missing content
+4. **Deploy to production** - Remove old implementation
+5. **Monitor** - Watch for 404s, broken links
 
 ---
 
-## Appendix: File changes summary
+## Appendix: File structure summary
 
 ### New files
 
-| File                                  | Purpose         |
-| ------------------------------------- | --------------- |
-| `pages/api-reference/index.tsx`       | Overview page   |
-| `pages/api-reference/[resource].tsx`  | Resource pages  |
-| `pages/mapi-reference/index.tsx`      | MAPI overview   |
-| `pages/mapi-reference/[resource].tsx` | MAPI resources  |
-| `components/ApiReferenceLayout.tsx`   | Shared layout   |
-| `components/ResourceOverview.tsx`     | Resource header |
-| `components/MethodSection.tsx`        | Method display  |
-| `components/SchemasSection.tsx`       | Schema display  |
+```
+pages/api-reference/
+├── index.tsx                        # Overview page
+├── [resource]/
+│   ├── index.tsx                    # Resource overview
+│   └── [...slug].tsx                # Methods and schemas
 
-### Modified files
+components/api-reference/
+├── ApiReferenceLayout.tsx           # Shared layout
+├── MethodPage.tsx                   # Method page component
+├── SchemaPage.tsx                   # Schema page component
+├── MethodContent.tsx                # Method documentation
+├── SchemaContent.tsx                # Schema documentation
+├── EndpointList.tsx                 # List of endpoints
+├── SchemaList.tsx                   # List of schemas
+├── SubresourceList.tsx              # List of subresources
+└── MethodBadge.tsx                  # GET/POST/etc badge
 
-| File                                  | Changes                        |
-| ------------------------------------- | ------------------------------ |
-| `lib/openApiSpec.ts`                  | Add partial loading functions  |
-| `next.config.js`                      | Remove rewrites, add redirects |
-| `data/sidebars/apiOverviewSidebar.ts` | May need updates               |
+lib/
+├── openApiSpec.ts                   # Add new loader functions
+```
 
-### Deleted files
+### Estimated page counts
 
-| File                                                 | Reason                    |
-| ---------------------------------------------------- | ------------------------- |
-| `components/ui/ApiReference/ApiReferenceContext.tsx` | No longer needed          |
-| Old single-page components                           | Replaced by new structure |
+| Spec      | Resources | Methods | Schemas | Total pages |
+| --------- | --------- | ------- | ------- | ----------- |
+| API       | 12        | ~80     | ~40     | ~133        |
+| MAPI      | ~10       | ~60     | ~30     | ~100        |
+| **Total** |           |         |         | **~233**    |
 
----
-
-## Appendix: Example page data size
-
-Estimated sizes for resource pages (JSON props):
-
-| Resource        | Methods | Schemas | Estimated size |
-| --------------- | ------- | ------- | -------------- |
-| users           | 15      | 5       | ~80KB          |
-| workflows       | 5       | 8       | ~60KB          |
-| messages        | 8       | 6       | ~70KB          |
-| objects         | 12      | 4       | ~65KB          |
-| tenants         | 4       | 2       | ~30KB          |
-| schedules       | 6       | 3       | ~40KB          |
-| channels        | 3       | 2       | ~25KB          |
-| audiences       | 4       | 3       | ~35KB          |
-| bulk_operations | 3       | 2       | ~25KB          |
-| providers       | 2       | 1       | ~20KB          |
-| recipients      | 2       | 4       | ~30KB          |
-| $shared         | 0       | 2       | ~15KB          |
-
-**Total pages:** 12 resource pages + 2 overview pages = 14 pages
-
-**Compare to current:** 1 page with 2-5MB payload
+Build time should remain reasonable since each page loads minimal data.
