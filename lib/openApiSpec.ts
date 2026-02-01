@@ -196,10 +196,7 @@ async function readOpenApiSpec(specName: string): Promise<OpenAPIV3.Document> {
 
   // Start loading and cache the promise
   const loadPromise = (async (): Promise<OpenAPIV3.Document> => {
-    const spec = await readFile(
-      `./data/specs/${specName}/openapi.yml`,
-      "utf8",
-    );
+    const spec = await readFile(`./data/specs/${specName}/openapi.yml`, "utf8");
     const jsonSpec = yamlToJson(spec);
     const { schema } = await dereference(jsonSpec);
 
@@ -232,10 +229,7 @@ async function readStainlessSpec(specName: string): Promise<StainlessConfig> {
       "utf8",
     );
     const stainlessSpec = parse(spec);
-    const result = deepmerge(
-      stainlessSpec,
-      customizations,
-    ) as StainlessConfig;
+    const result = deepmerge(stainlessSpec, customizations) as StainlessConfig;
     stainlessSpecCache[specName] = result;
     return result;
   })();
