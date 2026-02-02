@@ -803,6 +803,49 @@ async function getFullResourcePageData(
 }
 
 // ============================================================================
+// Split Resource Data (optimized per-resource data from pre-built files)
+// ============================================================================
+
+/**
+ * Pre-split resource data loaded from generated JSON files.
+ * Contains only the data needed to render a single resource page,
+ * significantly smaller than FullResourcePageData.
+ */
+type SplitResourceData = {
+  resourceName: string;
+  resource: StainlessResource;
+  paths: Record<string, OpenAPIV3.PathItemObject>;
+  schemas: Record<string, OpenAPIV3.SchemaObject>;
+  schemaReferences: Record<string, string>;
+  baseUrl: string;
+};
+
+/**
+ * Load pre-split resource data from generated JSON file.
+ * These files are created by scripts/splitOpenApiSpec.ts during build.
+ *
+ * Falls back to getFullResourcePageData if the split file doesn't exist
+ * (e.g., during development before running split-specs).
+ */
+async function getSplitResourceData(
+  specName: SpecName,
+  resourceName: string,
+): Promise<SplitResourceData | null> {
+  const filePath = `./data/specs/${specName}/resources/${resourceName}.json`;
+
+  try {
+    const data = await readFile(filePath, "utf8");
+    return JSON.parse(data) as SplitResourceData;
+  } catch {
+    // File doesn't exist, likely running in dev without split-specs
+    console.warn(
+      `Split resource file not found: ${filePath}. Run 'yarn split-specs' to generate.`,
+    );
+    return null;
+  }
+}
+
+// ============================================================================
 // Exports
 // ============================================================================
 
@@ -822,6 +865,7 @@ export type {
   ApiReferencePath,
   SpecName,
   FullResourcePageData,
+  SplitResourceData,
 };
 
 export {
@@ -835,6 +879,7 @@ export {
   getSchemaPageData,
   getResourceOverviewData,
   getFullResourcePageData,
+  getSplitResourceData,
   // Path generation
   getAllApiReferencePaths,
   getResourceOrder,

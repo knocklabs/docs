@@ -1,31 +1,28 @@
-import { ApiReferenceProvider } from "@/components/ui/ApiReference/ApiReferenceContext";
+import { SplitApiReferenceProvider } from "@/components/ui/ApiReference/ApiReferenceContext";
 import { ApiReferenceSection } from "@/components/ui/ApiReference";
-import { FullResourcePageData } from "@/lib/openApiSpec";
+import { SplitResourceData } from "@/lib/openApiSpec";
 import { useInitialScrollState } from "@/components/ui/Page/helpers";
 
 interface ResourceFullPageProps {
-  data: FullResourcePageData;
+  data: SplitResourceData;
   basePath: string;
 }
 
 /**
  * Renders a full resource page with all methods, schemas, and subresources.
- * This component wraps the existing ApiReferenceSection with the proper context.
+ * Uses split resource data for optimal page size.
  */
 export function ResourceFullPage({ data, basePath }: ResourceFullPageProps) {
   // Handle scroll to hash on initial load
   useInitialScrollState();
 
   return (
-    <ApiReferenceProvider
-      openApiSpec={data.openApiSpec}
-      stainlessConfig={data.stainlessConfig}
-    >
+    <SplitApiReferenceProvider data={data}>
       <ApiReferenceSection
         resourceName={data.resourceName}
         resource={data.resource}
         path={`/${data.resourceName}`}
       />
-    </ApiReferenceProvider>
+    </SplitApiReferenceProvider>
   );
 }

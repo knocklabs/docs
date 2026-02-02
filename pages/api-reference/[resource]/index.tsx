@@ -1,8 +1,8 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import {
-  getFullResourcePageData,
+  getSplitResourceData,
   getSidebarData,
-  FullResourcePageData,
+  SplitResourceData,
   SidebarData,
 } from "@/lib/openApiSpec";
 import { ApiReferenceLayout } from "@/components/api-reference";
@@ -11,7 +11,7 @@ import { API_REFERENCE_OVERVIEW_CONTENT } from "@/data/sidebars/apiOverviewSideb
 
 interface ResourcePageProps {
   sidebarData: SidebarData;
-  resourceData: FullResourcePageData;
+  resourceData: SplitResourceData;
 }
 
 export default function ResourcePage({
@@ -20,8 +20,6 @@ export default function ResourcePage({
 }: ResourcePageProps) {
   // Guard against undefined resourceData during client-side transitions
   if (!resourceData) {
-    // [cjb] This is an insane hack but I'm not sure what else to do
-    window.location.reload();
     return null;
   }
 
@@ -70,19 +68,17 @@ export const getStaticProps: GetStaticProps<ResourcePageProps> = async ({
 
   const [sidebarData, resourceData] = await Promise.all([
     getSidebarData("api"),
-    getFullResourcePageData("api", resourceName),
+    getSplitResourceData("api", resourceName),
   ]);
 
   if (!resourceData) {
     return { notFound: true };
   }
 
-  const serializableData = JSON.parse(JSON.stringify(resourceData));
-
   return {
     props: {
       sidebarData,
-      resourceData: serializableData,
+      resourceData,
     },
     revalidate: 3600, // Revalidate every hour
   };
