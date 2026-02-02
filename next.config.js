@@ -703,13 +703,31 @@ const nextConfig = {
       // API reference: deep links within resources serve the resource page
       // e.g. /api-reference/users/get -> serves /api-reference/users
       // The page handles scrolling to the correct section client-side
+      //
+      // Only apply for full document requests (sec-fetch-dest: document) to avoid
+      // interfering with Next.js client-side navigation data fetches.
+      // This prevents resourceData from being empty during client-side transitions.
       {
         source: "/api-reference/:resource/:path+",
         destination: "/api-reference/:resource",
+        has: [
+          {
+            type: "header",
+            key: "sec-fetch-dest",
+            value: "document",
+          },
+        ],
       },
       {
         source: "/mapi-reference/:resource/:path+",
         destination: "/mapi-reference/:resource",
+        has: [
+          {
+            type: "header",
+            key: "sec-fetch-dest",
+            value: "document",
+          },
+        ],
       },
       // CLI reference pages all serve the same static content
       {
