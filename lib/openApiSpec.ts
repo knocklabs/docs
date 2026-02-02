@@ -789,10 +789,7 @@ async function getFullResourcePageData(
     return null;
   }
 
-  const baseUrl =
-    stainlessSpec.environments[
-      specName === "api" ? "production" : "production"
-    ] || "";
+  const baseUrl = stainlessSpec.environments["production"] || "";
 
   return {
     resourceName,

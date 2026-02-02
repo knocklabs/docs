@@ -112,7 +112,6 @@ export const ExampleColumn = ({ children }) => (
       flexWrap="wrap"
       w="full"
       gap="5"
-      position="sticky"
       className="md-no-left-padding"
     >
       {children}
