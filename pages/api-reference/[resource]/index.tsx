@@ -77,10 +77,12 @@ export const getStaticProps: GetStaticProps<ResourcePageProps> = async ({
     return { notFound: true };
   }
 
+  const serializableData = JSON.parse(JSON.stringify(resourceData));
+
   return {
     props: {
       sidebarData,
-      resourceData,
+      resourceData: serializableData,
     },
     revalidate: 3600, // Revalidate every hour
   };
