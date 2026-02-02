@@ -84,7 +84,8 @@ const ItemWithSubpages = ({
   // Get the highlighted path from external store (for same-page routing)
   const highlightedPath = useHighlightedPath();
   // Use highlighted path if available (scroll-based), otherwise fall back to router path
-  const activePath = (samePageRouting && highlightedPath) ? highlightedPath : pathNoHash;
+  const activePath =
+    samePageRouting && highlightedPath ? highlightedPath : pathNoHash;
 
   const [isOpen, setIsOpen] = useState(
     defaultOpen ?? getOpenState(section.pages ?? [], slug, pathNoHash),
@@ -217,7 +218,8 @@ const Item = ({ section, preSlug = "", depth = 0, defaultOpen }: ItemProps) => {
   const { samePageRouting } = useSidebar();
   const highlightedPath = useHighlightedPath();
   const pathNoHash = router.asPath.split("#")[0];
-  const activePath = (samePageRouting && highlightedPath) ? highlightedPath : pathNoHash;
+  const activePath =
+    samePageRouting && highlightedPath ? highlightedPath : pathNoHash;
   const slug = `${preSlug}${section.slug}`;
 
   if ("pages" in section) {
