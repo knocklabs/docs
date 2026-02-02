@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import Meta from "@/components/Meta";
 import { Page as TelegraphPage } from "@/components/ui/Page";
@@ -63,6 +63,15 @@ export function ApiReferenceLayout({
 }: ApiReferenceLayoutProps) {
   const router = useRouter();
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prefetch = router.prefetch;
+    router.prefetch = async () => {};
+
+    return () => {
+      router.prefetch = prefetch;
+    };
+  }, [router]);
 
   const basePath = router.pathname.split("/")[1];
   const canonicalPath = currentPath || `/${basePath}`;
