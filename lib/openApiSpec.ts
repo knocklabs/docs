@@ -785,6 +785,7 @@ async function getFullResourcePageData(
   ]);
 
   const resource = stainlessSpec.resources[resourceName];
+
   if (!resource) {
     return null;
   }

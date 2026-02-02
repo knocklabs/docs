@@ -20,6 +20,8 @@ export default function ResourcePage({
 }: ResourcePageProps) {
   // Guard against undefined resourceData during client-side transitions
   if (!resourceData) {
+    // [cjb] This is an insane hack but I'm not sure what else to do
+    window.location.reload();
     return null;
   }
 
@@ -58,7 +60,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps<ResourcePageProps> = async ({
   params,
 }) => {
-  const resourceName = params?.resource as string;
+  const resourceName = Array.isArray(params?.resource)
+    ? params.resource[0]
+    : params?.resource;
+
+  if (!resourceName) {
+    return { notFound: true };
+  }
 
   const [sidebarData, resourceData] = await Promise.all([
     getSidebarData("api"),

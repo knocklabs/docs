@@ -19,10 +19,11 @@ import "@algolia/autocomplete-theme-classic";
 import "../styles/index.css";
 import "../styles/global.css";
 import "../styles/responsive.css";
+import App, { AppContext, AppInitialProps, AppProps } from "next/app";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
-function App({ Component, pageProps }) {
+function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const eventEmitter = useEventEmitterInstance();
 
@@ -63,4 +64,11 @@ function App({ Component, pageProps }) {
   );
 }
 
-export default App;
+MyApp.getInitialProps = async (
+  context: AppContext,
+): Promise<AppInitialProps> => {
+  const ctx = await App.getInitialProps(context);
+  return { ...ctx };
+};
+
+export default MyApp;
