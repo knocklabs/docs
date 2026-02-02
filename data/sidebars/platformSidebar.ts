@@ -60,8 +60,8 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
         isBeta: true,
       },
       {
-        slug: "/modify-workflow-function",
-        title: "Modify workflow function",
+        slug: "/update-workflow-data-function",
+        title: "Update workflow data function",
         isBeta: true,
       },
       { slug: "/step-conditions", title: "Step conditions" },
