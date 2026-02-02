@@ -123,7 +123,11 @@ export function ApiReferenceLayout({
             title={title}
             description={description}
             bottomContent={
-              <ContentActions showOnMobile style={{ marginLeft: "-6px" }} />
+              <ContentActions
+                showOnMobile
+                style={{ marginLeft: "-6px" }}
+                mdPath={currentPath ? `${currentPath}.md` : undefined}
+              />
             }
           />
           <TelegraphPage.ContentBody>{children}</TelegraphPage.ContentBody>

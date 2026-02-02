@@ -31,6 +31,20 @@ async function parseFrontmatter(markdownContent) {
   return yaml.parse(yamlNode.value);
 }
 
+// Ensure directory exists
+function ensureDir(filePath: string) {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+// Write markdown file with directory creation
+function writeMarkdownFile(filePath: string, content: string) {
+  ensureDir(filePath);
+  fs.writeFileSync(filePath, content, "utf-8");
+}
+
 // Clean JSX content to plain markdown
 function cleanJsxContent(content: string): string {
   return (
@@ -69,8 +83,19 @@ function cleanJsxContent(content: string): string {
       )
       // Remove Table components (they use JSX)
       .replace(/<Table[\s\S]*?\/>/g, "")
-      // Remove Attributes/Attribute components
-      .replace(/<Attributes>[\s\S]*?<\/Attributes>/g, "")
+      // Convert Attributes/Attribute components to markdown list
+      .replace(/<Attributes>([\s\S]*?)<\/Attributes>/g, (_, inner) => {
+        // Extract individual Attribute components and convert to list items
+        // Handles both single-line and multi-line formats
+        const attrRegex =
+          /<Attribute[\s\S]*?name="([^"]+)"[\s\S]*?type="([^"]+)"[\s\S]*?description="([^"]+)"[\s\S]*?\/>/g;
+        let result = "";
+        let match;
+        while ((match = attrRegex.exec(inner)) !== null) {
+          result += `- **${match[1]}** (${match[2]}): ${match[3]}\n`;
+        }
+        return result || "";
+      })
       // Remove Endpoints/Endpoint components
       .replace(/<Endpoints[\s\S]*?<\/Endpoints>/g, "")
       // Remove MultiLangCodeBlock
@@ -106,8 +131,10 @@ function parseSectionContent(
   const sections = new Map<string, string>();
 
   // Match Section components with their slug/path and content
+  // Use a more permissive pattern for attributes since titles may contain < and > characters
+  // We look for the keyAttribute value and then match until </Section>
   const sectionRegex = new RegExp(
-    `<Section[^>]*${keyAttribute}="([^"]+)"[^>]*>([\\s\\S]*?)<\\/Section>`,
+    `<Section[^]*?${keyAttribute}="([^"]+)"[^]*?>([\\s\\S]*?)<\\/Section>`,
     "g",
   );
 
@@ -138,14 +165,20 @@ function loadOverviewContent(apiType: "api" | "mapi"): Map<string, string> {
   return parseSectionContent(mdxContent);
 }
 
-// Main function to generate a single API reference markdown file
+// Main function to generate API reference markdown files
+// Generates: 1) combined file, 2) per-resource files, 3) per-method files
 async function generateApiReferenceMarkdownFiles(
   apiType: "api" | "mapi" = "api",
 ) {
   try {
-    const fileName =
+    const baseDir = apiType === "api" ? "api-reference" : "mapi-reference";
+    const combinedFileName =
       apiType === "api" ? "api-reference.md" : "mapi-reference.md";
-    const filePath = path.join(process.cwd(), "public", fileName);
+    const combinedFilePath = path.join(
+      process.cwd(),
+      "public",
+      combinedFileName,
+    );
 
     // Get API specs
     const openApiSpec = await readOpenApiSpec(apiType);
@@ -163,14 +196,14 @@ async function generateApiReferenceMarkdownFiles(
             resourceOrder: MAPI_RESOURCE_ORDER,
           };
 
-    let content = `# ${
+    let combinedContent = `# ${
       apiType === "api" ? "API" : "Management API"
     } Reference\n\n`;
 
     // Load overview content from section-based MDX file
     const sectionContent = loadOverviewContent(apiType);
 
-    // Add overview content sections
+    // Generate overview section pages
     for (const section of overviewContent) {
       if (section.pages) {
         for (const page of section.pages) {
@@ -178,9 +211,23 @@ async function generateApiReferenceMarkdownFiles(
           const slug = page.slug === "/" ? "overview" : page.slug.slice(1);
           const pageContent = sectionContent.get(slug) || "";
 
-          content += `## ${page.title}\n\n`;
+          // Add to combined file
+          combinedContent += `## ${page.title}\n\n`;
           if (pageContent) {
-            content += pageContent + "\n\n";
+            combinedContent += pageContent + "\n\n";
+          }
+
+          // Generate individual overview page file
+          if (pageContent) {
+            const overviewPagePath = path.join(
+              process.cwd(),
+              "public",
+              baseDir,
+              "overview",
+              `${slug}.md`,
+            );
+            const overviewPageContent = `# ${page.title}\n\n${pageContent}\n`;
+            writeMarkdownFile(overviewPagePath, overviewPageContent);
           }
         }
       }
@@ -189,28 +236,63 @@ async function generateApiReferenceMarkdownFiles(
     // Add resource content
     for (const resourceName of resourceOrder) {
       const resource = stainlessSpec.resources[resourceName];
+      if (!resource) continue;
+
+      // Generate per-resource combined file
+      let resourceContent = "";
 
       // Add resource overview
-      content += getResourceOverviewContent(
+      const resourceOverview = getResourceOverviewContent(
         resource,
         resourceName,
         openApiSpec,
       );
+      combinedContent += resourceOverview;
+      resourceContent += resourceOverview;
 
       // Add method content
       if (resource.methods) {
         for (const [methodName, method] of Object.entries(resource.methods)) {
-          content += getMethodMarkdownContent(methodName, method, openApiSpec);
+          const methodContent = getMethodMarkdownContent(
+            methodName,
+            method,
+            openApiSpec,
+          );
+          combinedContent += methodContent;
+          resourceContent += methodContent;
+
+          // Generate individual method page
+          if (methodContent.trim()) {
+            const methodPagePath = path.join(
+              process.cwd(),
+              "public",
+              baseDir,
+              resourceName,
+              `${methodName}.md`,
+            );
+            writeMarkdownFile(methodPagePath, methodContent);
+          }
         }
       }
 
-      // Add subresource content
+      // Add subresource content (with nested path support)
       if (resource.subresources) {
         for (const [subresourceName, subresource] of Object.entries(
           resource.subresources,
         )) {
-          content += getSubresourceMarkdownContent(
+          const subresourceContent = getSubresourceMarkdownContent(
             subresourceName,
+            subresource,
+            openApiSpec,
+          );
+          combinedContent += subresourceContent;
+          resourceContent += subresourceContent;
+
+          // Generate individual subresource and method pages
+          generateSubresourcePages(
+            baseDir,
+            resourceName,
+            [subresourceName],
             subresource,
             openApiSpec,
           );
@@ -220,26 +302,171 @@ async function generateApiReferenceMarkdownFiles(
       // Add schema content
       if (resource.models) {
         for (const [modelName, modelRef] of Object.entries(resource.models)) {
-          content += getSchemaMarkdownContent(
+          const schemaContent = getSchemaMarkdownContent(
             modelName,
             modelRef as string,
             openApiSpec,
           );
+          combinedContent += schemaContent;
+          resourceContent += schemaContent;
+
+          // Generate individual schema page
+          if (schemaContent.trim()) {
+            const schemaPagePath = path.join(
+              process.cwd(),
+              "public",
+              baseDir,
+              resourceName,
+              "schemas",
+              `${modelName}.md`,
+            );
+            writeMarkdownFile(schemaPagePath, schemaContent);
+          }
         }
       }
+
+      // Write the per-resource combined file
+      const resourceFilePath = path.join(
+        process.cwd(),
+        "public",
+        baseDir,
+        `${resourceName}.md`,
+      );
+      writeMarkdownFile(resourceFilePath, resourceContent);
     }
 
-    fs.writeFileSync(filePath, content, "utf-8");
+    // Write the combined file
+    fs.writeFileSync(combinedFilePath, combinedContent, "utf-8");
 
     console.log(
-      `✅ ${apiType.toUpperCase()} reference markdown file generated successfully`,
+      `✅ ${apiType.toUpperCase()} reference markdown files generated successfully`,
     );
   } catch (error) {
     console.error(
-      `Error generating ${apiType.toUpperCase()} reference markdown file:`,
+      `Error generating ${apiType.toUpperCase()} reference markdown files:`,
       error,
     );
     throw error;
+  }
+}
+
+// Generate pages for subresources recursively
+function generateSubresourcePages(
+  baseDir: string,
+  resourceName: string,
+  subresourcePath: string[],
+  subresource: any,
+  openApiSpec: any,
+) {
+  // Build the directory path for this subresource
+  const subresourceDir = path.join(
+    process.cwd(),
+    "public",
+    baseDir,
+    resourceName,
+    ...subresourcePath,
+  );
+
+  // Generate index.md for the subresource overview
+  let indexContent = `# ${
+    subresource.name || subresourcePath[subresourcePath.length - 1]
+  }\n\n`;
+
+  if (subresource.description) {
+    indexContent += `${subresource.description}\n\n`;
+  }
+
+  // Add list of available methods
+  if (subresource.methods && Object.keys(subresource.methods).length > 0) {
+    indexContent += `## Available endpoints\n\n`;
+    for (const [methodName, method] of Object.entries(subresource.methods)) {
+      const [methodType, endpoint] = resolveEndpointFromMethod(
+        method as string | { endpoint: string },
+      );
+      const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
+      const summary = openApiOperation?.summary || methodName;
+      indexContent += `- **${methodType.toUpperCase()}** \`${endpoint}\` - ${summary}\n`;
+    }
+    indexContent += "\n";
+  }
+
+  // Add list of schemas if any
+  if (subresource.models && Object.keys(subresource.models).length > 0) {
+    indexContent += `## Object definitions\n\n`;
+    for (const [modelName, modelRef] of Object.entries(subresource.models)) {
+      const schema = JSONPointer.get(
+        openApiSpec,
+        (modelRef as string).replace("#", ""),
+      );
+      const title = schema?.title || modelName;
+      indexContent += `- [${title}](./schemas/${modelName}.md)\n`;
+    }
+    indexContent += "\n";
+  }
+
+  const indexPagePath = path.join(subresourceDir, "index.md");
+  writeMarkdownFile(indexPagePath, indexContent);
+
+  // Generate method pages for this subresource
+  if (subresource.methods) {
+    for (const [methodName, method] of Object.entries(subresource.methods)) {
+      const [methodType, endpoint] = resolveEndpointFromMethod(
+        method as string | { endpoint: string },
+      );
+      const openApiOperation = openApiSpec.paths?.[endpoint]?.[methodType];
+
+      if (openApiOperation) {
+        let methodContent = `### ${openApiOperation.summary || methodName}\n\n`;
+
+        if (openApiOperation.description) {
+          methodContent += `${openApiOperation.description}\n\n`;
+        }
+
+        methodContent += `**Endpoint:** \`${methodType.toUpperCase()} ${endpoint}\`\n\n`;
+
+        if (openApiOperation["x-ratelimit-tier"]) {
+          methodContent += `**Rate limit tier:** ${openApiOperation["x-ratelimit-tier"]}\n\n`;
+        }
+
+        const methodPagePath = path.join(subresourceDir, `${methodName}.md`);
+        writeMarkdownFile(methodPagePath, methodContent);
+      }
+    }
+  }
+
+  // Generate schema pages for this subresource
+  if (subresource.models) {
+    for (const [modelName, modelRef] of Object.entries(subresource.models)) {
+      const schemaContent = getSchemaMarkdownContent(
+        modelName,
+        modelRef as string,
+        openApiSpec,
+      );
+
+      if (schemaContent.trim()) {
+        const schemaPagePath = path.join(
+          subresourceDir,
+          "schemas",
+          `${modelName}.md`,
+        );
+        writeMarkdownFile(schemaPagePath, schemaContent);
+      }
+    }
+  }
+
+  // Recursively process nested subresources
+  if (subresource.subresources) {
+    for (const [nestedName, nestedSubresource] of Object.entries(
+      subresource.subresources,
+    )) {
+      generateSubresourcePages(
+        baseDir,
+        resourceName,
+        [...subresourcePath, nestedName],
+        nestedSubresource,
+        openApiSpec,
+      );
+    }
   }
 }
 
@@ -522,57 +749,109 @@ function getSchemaMarkdownContent(
   return content;
 }
 
-// Generate CLI reference markdown file
+// Load CLI content from individual MDX files in content/cli/
+function loadCliSectionContent(resourceName: string): Map<string, string> {
+  const contentPath = path.join(
+    process.cwd(),
+    "content",
+    "cli",
+    `${resourceName}.mdx`,
+  );
+
+  if (!fs.existsSync(contentPath)) {
+    return new Map();
+  }
+
+  const mdxContent = fs.readFileSync(contentPath, "utf-8");
+  return parseSectionContent(mdxContent, "path");
+}
+
+// Generate CLI reference markdown files
+// Generates: 1) combined file, 2) per-resource files, 3) per-method files
 async function generateCliReferenceMarkdownFile() {
   try {
-    const fileName = "cli.md";
-    const filePath = path.join(process.cwd(), "public", fileName);
+    const combinedFilePath = path.join(process.cwd(), "public", "cli.md");
+    const baseDir = "cli";
 
-    // Load CLI content from MDX file
-    const contentPath = path.join(
-      process.cwd(),
-      "content",
-      "__cli",
-      "content.mdx",
-    );
-
-    if (!fs.existsSync(contentPath)) {
-      console.warn("⚠️ CLI content file not found, skipping CLI reference");
-      return;
-    }
-
-    const mdxContent = fs.readFileSync(contentPath, "utf-8");
-    const sectionContent = parseSectionContent(mdxContent, "path");
-
-    let content = `# CLI Reference\n\n`;
+    let combinedContent = `# CLI Reference\n\n`;
 
     // Iterate through CLI sidebar to maintain order
     for (const section of CLI_SIDEBAR) {
+      // Extract resource name from section slug (e.g., "/cli/overview" -> "overview")
+      const resourceMatch = section.slug.match(/^\/cli\/(.+)$/);
+      if (!resourceMatch) continue;
+
+      const resourceName = resourceMatch[1];
+
+      // Load content for this resource from its MDX file
+      const sectionContent = loadCliSectionContent(resourceName);
+
+      let resourceContent = "";
+
       if (section.title) {
-        content += `## ${section.title}\n\n`;
+        combinedContent += `## ${section.title}\n\n`;
+        resourceContent += `# ${section.title}\n\n`;
       }
 
       if (section.pages) {
         for (const page of section.pages) {
           // Build the full path from section slug + page slug
-          const fullPath = `${section.slug.replace("/cli", "")}${page.slug}`;
+          // e.g., "/overview" + "/installation" -> "/overview/installation"
+          // For root pages (slug="/"), the path is just the resource path (e.g., "/overview")
+          const basePath = section.slug.replace("/cli", "");
+          const fullPath =
+            page.slug === "/" ? basePath : `${basePath}${page.slug}`;
           const pageContent = sectionContent.get(fullPath) || "";
 
           if (page.title) {
-            content += `### ${page.title}\n\n`;
+            combinedContent += `### ${page.title}\n\n`;
+            resourceContent += `## ${page.title}\n\n`;
           }
 
           if (pageContent) {
-            content += pageContent + "\n\n";
+            combinedContent += pageContent + "\n\n";
+            resourceContent += pageContent + "\n\n";
+
+            // Generate individual method/page file
+            // Handle root page (slug = "/") specially
+            const pageSlug =
+              page.slug === "/" ? "index" : page.slug.replace(/^\//, "");
+            const pageFilePath = path.join(
+              process.cwd(),
+              "public",
+              baseDir,
+              resourceName,
+              `${pageSlug}.md`,
+            );
+
+            let individualPageContent = "";
+            if (page.title) {
+              individualPageContent += `# ${page.title}\n\n`;
+            }
+            individualPageContent += pageContent + "\n";
+
+            writeMarkdownFile(pageFilePath, individualPageContent);
           }
         }
       }
+
+      // Write the per-resource combined file
+      if (resourceContent.trim()) {
+        const resourceFilePath = path.join(
+          process.cwd(),
+          "public",
+          baseDir,
+          `${resourceName}.md`,
+        );
+        writeMarkdownFile(resourceFilePath, resourceContent);
+      }
     }
 
-    fs.writeFileSync(filePath, content, "utf-8");
-    console.log("✅ CLI reference markdown file generated successfully");
+    // Write the combined file
+    fs.writeFileSync(combinedFilePath, combinedContent, "utf-8");
+    console.log("✅ CLI reference markdown files generated successfully");
   } catch (error) {
-    console.error("Error generating CLI reference markdown file:", error);
+    console.error("Error generating CLI reference markdown files:", error);
     throw error;
   }
 }
