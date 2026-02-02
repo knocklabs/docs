@@ -50,17 +50,12 @@ function MyApp({ Component, pageProps }) {
   }, [router.events]);
 
   return (
-    <AskAiProvider>
-      <InkeepModalProvider>
-        <main className={inter.className}>
-          <EventEmitterContext.Provider value={eventEmitter}>
-            <Component {...pageProps} />
-          </EventEmitterContext.Provider>
-          {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
-        </main>
-        <AskAiSidebar />
-      </InkeepModalProvider>
-    </AskAiProvider>
+    <main className={inter.className}>
+      <EventEmitterContext.Provider value={eventEmitter}>
+        <Component {...pageProps} />
+      </EventEmitterContext.Provider>
+      {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
+    </main>
   );
 }
 
