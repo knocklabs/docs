@@ -23,7 +23,7 @@ const EndpointText = ({
   path: string;
   id?: string;
 }) => (
-  <Stack direction="row" align="center" {...(id ? { id } : {})}>
+  <Stack direction="row" align="center" id={id}>
     <Tag
       color={
         method === "GET"
@@ -40,7 +40,14 @@ const EndpointText = ({
     >
       {method}
     </Tag>
-    <Code as="span" size="1" overflow="hidden" textOverflow="ellipsis">
+    <Code
+      display="block"
+      as="span"
+      size="1"
+      overflow="hidden"
+      textOverflow="ellipsis"
+      mt="1"
+    >
       {path}
     </Code>
   </Stack>

@@ -1,6 +1,35 @@
 import { useRouter } from "next/router";
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useState, useSyncExternalStore } from "react";
 import { debounce } from "@/lib/debounce";
+
+// Store for the current highlighted path
+let currentHighlightedPath: string | null = null;
+const subscribers = new Set<() => void>();
+
+function notifySubscribers() {
+  subscribers.forEach((callback) => callback());
+}
+
+function subscribe(callback: () => void) {
+  subscribers.add(callback);
+  return () => subscribers.delete(callback);
+}
+
+function getSnapshot() {
+  return currentHighlightedPath;
+}
+
+function getServerSnapshot() {
+  return null;
+}
+
+/**
+ * Hook to get the current highlighted path, updated by scroll-based highlighting.
+ * This stays in sync with URL changes from replaceState.
+ */
+export function useHighlightedPath() {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
 
 export const stripPrefix = (path: string) => {
   return path.replace(/^\/[^/]+/, "");
@@ -27,6 +56,10 @@ export const highlightResource = (
   } = {},
 ) => {
   const resourceUrlNoTrailingSlash = stripTrailingSlash(resourceUrl);
+
+  // Update the highlighted path store - this notifies React components
+  currentHighlightedPath = resourceUrlNoTrailingSlash;
+  notifySubscribers();
 
   // Update the nav styles
   updateNavStyles(resourceUrlNoTrailingSlash);
@@ -187,13 +220,23 @@ export const useInitialScrollState = () => {
     if (!isReady) return;
     const path = router.asPath;
     const resourcePath = path.replace(`/${basePath}`, "");
+
+    // Count path segments to determine if this is a deep link
+    // e.g., "/users" = 1 segment (resource root), "/users/list" = 2 segments (deep link)
+    // Only scroll to content for deep links, not resource root pages
+    const segments = resourcePath.split("/").filter(Boolean);
+    const isResourceRoot = segments.length <= 1;
+
+    if (isResourceRoot) {
+      // At resource root, don't scroll - let page load naturally at top
+      return;
+    }
+
     const element = document.querySelector(
       `[data-resource-path="${resourcePath}"]`,
     );
     if (element) {
       scrollToElementWithPadding(document, element, { jiggle: false });
-    } else {
-      window.scrollTo(0, 0);
     }
   }, [router.asPath, basePath, isReady]);
 };
