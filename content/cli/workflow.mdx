@@ -1,0 +1,513 @@
+---
+title: Workflows
+description: Commands for managing workflows in the Knock CLI.
+---
+
+<Section path="/workflow">
+<ContentColumn>
+
+Workflow commands enable you to manage workflows in your Knock account from the CLI.
+
+</ContentColumn>
+</Section>
+
+<Section title="Workflow file structure" path="/workflow/file-structure">
+<ContentColumn>
+
+When workflows are pulled from Knock, they are stored in directories named by their workflow key. In addition to a `workflow.json` file that describes all of a given workflow's steps, each workflow directory also contains individual folders for each of the [channel steps](/designing-workflows/channel-step) in the workflow that hold additional content and formatting data.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local workflow files structure">
+{`workflows/
+└── my-workflow/
+    ├── email_1/
+    │   ├── visual_blocks/
+    │   │   └── 1.content.md
+    │   └── visual_blocks.json
+    ├── in_app_feed_1/
+    │   └── markdown_body.md
+    └── workflow.json`}
+</PreTextDiagram>
+
+If you're migrating your local workflow files into Knock, you can arrange them using the example file structure above and then push them into Knock with a single command using [`knock workflow push --all`](/cli/workflow/push). Each `workflow.json` file should follow the structure defined [here](/mapi-reference/workflows/schemas/workflow).
+
+</ContentColumn>
+</Section>
+
+<Section title="knock workflow list [flags]" path="/workflow/list">
+<ContentColumn>
+
+You can see all your existing workflows in a given environment with the workflow list command.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock workflow list
+```
+
+```bash title="Pagination example"
+knock workflow list --after=xxx
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow get [flags]" path="/workflow/get">
+<ContentColumn>
+
+You can show more details about a given workflow with the `workflow get` command, followed by the target workflow key.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock workflow get my-workflow
+```
+
+```bash title="Get workflow in a different environment"
+knock workflow get my-workflow --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow new [flags]" path="/workflow/new">
+<ContentColumn>
+
+Create a new workflow with a minimal configuration. You can either select steps interactively or use a template to scaffold the workflow.
+
+The command will create a new workflow directory in your local file system. By default, this will be in the workflows resource directory set by your `knock.json` file, or the current working directory if not configured.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--key"
+    type="string"
+    description="The key for the workflow. If not provided, will be prompted or inferred from the workflow directory name."
+  />
+  <Attribute
+    name="--name"
+    type="string"
+    description="The name for the workflow. If not provided, will be generated from the key."
+  />
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--steps"
+    type="string"
+    description="A comma-separated list of step types to include in the workflow (e.g., 'email,sms,in_app_feed'). If not provided, you will be prompted to select steps interactively."
+  />
+  <Attribute
+    name="--template"
+    type="string"
+    description="A template to use for scaffolding the workflow. Can be a GitHub repository path (e.g., 'workflows/digest-email')."
+  />
+  <Attribute
+    name="--push"
+    type="boolean"
+    description="Push the workflow to Knock after creating it locally. Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Overwrites an existing workflow directory without prompting for confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a workflow interactively"
+knock workflow new
+```
+
+```bash title="Create a workflow with a specific key"
+knock workflow new --key=my-workflow
+```
+
+```bash title="Create a workflow with specific steps"
+knock workflow new --key=my-workflow --steps=email,sms,in_app_feed
+```
+
+```bash title="Create a workflow from a template"
+knock workflow new --key=my-workflow --template=workflows/digest-email
+```
+
+```bash title="Create and push a workflow"
+knock workflow new --key=my-workflow --steps=email --push
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow pull [flags]" path="/workflow/pull">
+<ContentColumn>
+
+You can pull and download workflows with its message templates from Knock to a local file system with the `workflow pull` command. Knock CLI will create a new workflow directory or update the existing workflow directory in the local file system.
+
+By default this command will resolve to the workflows resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--workflows-dir` flag.
+
+Note: if pulling the target workflow for the first time (or all workflows), Knock CLI will ask to confirm before writing to the local file system.
+
+See the [Workflow file structure](/cli/workflow/file-structure) section for details on how workflow files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={`Whether to pull all workflows from the specified environment into the target directory path set by \`--workflows-dir\`. Defaults to false.
+
+When used, all contents in the target directory will be erased and replaced with all workflows from the specified environment.`}
+/>
+
+  <Attribute
+    name="--workflows-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all workflows into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock workflow pull my-workflow
+```
+
+```bash title="Pulling a workflow in a different environment"
+knock workflow pull my-workflow --environment=production
+```
+
+```bash title="Pulling all workflows into ./workflows directory"
+knock workflow pull --all --workflows-dir=./workflows
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow push [flags]" path="/workflow/push">
+<ContentColumn>
+
+You can push and upload a workflow directory to Knock with the `workflow push` command. Knock will update an existing workflow by the matching workflow key, or create a new workflow if it does not exist yet.
+
+By default this command will resolve to the workflows resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--workflows-dir` flag.
+
+Note:
+
+- The `workflow push` command only pushes workflows into the `development` environment.
+- You must be directly above the target workflow directory when running the `workflow push` command, so the CLI can locate the `workflow.json` file.
+- You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
+
+See the [Workflow file structure](/cli/workflow/file-structure) section for details on how workflow files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit the workflow(s) at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all workflows from the target directory path set by `--workflows-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--workflows-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all workflows from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock workflow push my-workflow
+```
+
+```bash title="Pushing a workflow and committing with a message"
+knock workflow push my-workflow \
+  --commit \
+  -m "Commit message"
+```
+
+```bash title="Pushing all workflows from ./workflows directory"
+knock workflow push --all --workflows-dir=./workflows
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow run <workflow_key> [flags]" path="/workflow/run">
+<ContentColumn>
+
+You can run a workflow with the `workflow run` command. Knock will execute a run for the latest saved version of the workflow it finds with the given key and parameters you send it.
+
+Note:
+
+- Changes to the local version of the workflow in your file system will not be reflected in a workflow run; it will use the current version that is stored in Knock.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The slug of the environment in which to run this workflow. Defaults to development."
+  />
+
+  <Attribute
+    name="--recipients"
+    type="string[]"
+    description="One or more recipient ids for this workflow run, maximum limit 5."
+  />
+  <Attribute
+    name="--data"
+    type="string"
+    description="A JSON string of the data with which this workflow will run."
+  />
+  <Attribute
+    name="--actor"
+    type="string"
+    description="An optional actor id for this workflow run."
+  />
+  <Attribute
+    name="--tenant"
+    type="string"
+    description="An optional tenant id for this workflow run."
+  />
+</Attributes>
+
+</ContentColumn>
+
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock workflow run my-workflow \
+  --environment=production \
+  --recipients=ellie
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow validate <workflow_key> [flags]" path="/workflow/validate">
+<ContentColumn>
+
+You can validate a new or updated workflow directory with the `workflow validate` command. Knock will validate the given workflow payload in the same way as it would with the `workflow push` command, except without persisting those changes.
+
+Note: Validating a workflow is only done against the `development` environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all workflows from the target directory path set by `--workflows-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--workflows-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all workflows from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock workflow validate my-workflow
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow activate [flags]" path="/workflow/activate">
+<ContentColumn>
+
+You can activate or deactivate a workflow in a given environment with the `workflow activate` command.
+
+Note:
+
+- This immediately enables or disables a workflow in a given environment without needing to go through environment promotion.
+- By default, this command activates a given workflow. Pass in the `--status` flag with `false` in order to deactivate it.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    isRequired
+    description="The environment to activate the workflow in."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+  <Attribute
+    name="--status"
+    type="boolean"
+    description="The status to set. Defaults to `true`."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock workflow activate my-workflow \
+  --environment=development
+```
+
+```bash title="Deactivating a workflow"
+knock workflow activate my-workflow \
+  --environment=development \
+  --status=false
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock workflow generate-types [flags]" path="/workflow/generate-types">
+<ContentColumn>
+
+Generate type definitions for workflow trigger data from your workflow schemas. This command fetches workflows with trigger data schemas and generates type-safe definitions for TypeScript, Python, Ruby, and Go.
+
+The generated types enable compile-time safety when triggering workflows in your application code, helping catch integration errors before runtime. The target language is inferred from the output file extension.
+
+Learn more about [type safety with workflows](/developer-tools/type-safety).
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to fetch workflows from. Defaults to development."
+  />
+  <Attribute
+    name="--output-file"
+    type="string"
+    description="Specifies the file to generate types into. The language is inferred from the file suffix."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Generate TypeScript types"
+knock workflow generate-types \
+  --output-file=./types/knock-workflows.ts
+```
+
+```bash title="Generate Python types"
+knock workflow generate-types \
+  --output-file=./types/knock_workflows.py
+```
+
+```bash title="Generate Ruby types"
+knock workflow generate-types \
+  --output-file=./types/knock_workflows.rb
+```
+
+```bash title="Generate Go types"
+knock workflow generate-types \
+  --output-file=./types/knock_workflows.go
+```
+
+```bash title="Generate from production environment"
+knock workflow generate-types \
+  --environment=production \
+  --output-file=./types/knock-workflows.ts
+```
+
+</ExampleColumn>
+</Section>

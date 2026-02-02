@@ -1,0 +1,179 @@
+---
+title: CLI reference
+description: Learn more about the commands and flags available in the Knock CLI.
+tags: ["cli", "command line", "cmd", "command-line", "terminal"]
+---
+
+<Section path="/overview">
+<ContentColumn>
+
+This reference documents every command and flag available in Knock's command-line interface.
+
+The Knock CLI helps you work with your Knock resources right from the terminal.
+
+With the CLI, you can:
+
+- Work with your Knock workflows and notification templates locally.
+- Integrate Knock into your CI/CD environment to automatically promote changes.
+- Map your translation files into Knock to localize your notifications.
+
+</ContentColumn>
+</Section>
+
+<Section title="Install the CLI" path="/overview/installation">
+<ContentColumn>
+
+**Install with Homebrew**
+
+For macOS, you can install the Knock CLI using [Homebrew](https://brew.sh/). Once the CLI is installed you can call it by using the `knock` command in your terminal.
+
+**Install with npm**
+
+For other operating systems, you can install the Knock CLI using `npm`, a node package manager. Once the CLI is installed, you can call it by using the `knock` command in your terminal.
+
+**Requirements**
+
+The Knock CLI is built with Node.js and installable as a `npm` package. You must have `node` and `npm` installed already, with the following versions:
+
+- Node.js: 16.14.0 or higher
+- NPM: 7.18.1 or higher
+
+You can find the Knock CLI npm package [here](https://www.npmjs.com/package/@knocklabs/cli).
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Install the Knock CLI with homebrew"
+brew install knocklabs/tap/knock
+```
+
+```bash title="Install the Knock CLI with npm"
+npm install -g @knocklabs/cli
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="Authentication" path="/overview/authentication">
+<ContentColumn>
+
+**Using your Knock account**
+
+You can authenticate your Knock account against the CLI by running `knock login`. This will open a browser window where you can sign in to your Knock account and authorize the CLI to access your account.
+
+Once authenticated, you can verify it works by running `knock whoami`. If your account is valid and configured properly, you'll receive a 200 response that shows the account name and your user ID.
+
+<Callout
+  type="warning"
+  title="Note:"
+  text={
+    <>
+      Using your Knock account against the CLI will inherit the permissions of
+      the user that is logged in on the account you authorized.
+    </>
+  }
+/>
+
+If you need to switch between accounts, you can run `knock logout` to log out of your current account and log in to a different one.
+
+**Using a service token**
+
+If you need to authenticate in a remote environment, or want complete control, you can generate a [service token](/developer-tools/service-tokens) in the Knock dashboard. You can specify a service token in all CLI calls, or you can optionally use a configuration file to authenticate all requests.
+
+Once you have generated a service token, you can verify it works by running `knock whoami --service-token=YOUR_SERVICE_TOKEN`. If your token is valid and configured properly, you'll receive a 200 response that shows the account name and the service token name.
+
+**Setting up a configuration file (optional)**
+
+A service token is required by the CLI for most commands. For convenience, Knock CLI supports a user configuration file, where you can store the service token for the CLI to read automatically rather than having to manually pass in with `--service-token` flag for every command.
+
+To set up a user configuration file, create a `config.json` file in the Knock CLI's config directory at `~/.config/knock` (macOS/Unix) or `%LOCALAPPDATA%\knock` (Windows), and add the following json:
+
+```json title="config.json"
+{
+  "serviceToken": "YOUR_SERVICE_TOKEN"
+}
+```
+
+When Knock CLI detects a user configuration file, it will use the service token provided in it automatically.
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Log in to your Knock account"
+knock login
+```
+
+```bash title="Verify your service token"
+knock whoami --service-token=XXX
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock \{cmd\} <arguments> [flags]" path="/overview/global-flags">
+<ContentColumn>
+
+The following flags are supported for every command.
+
+**Flags**
+
+<Attributes>
+  <Attribute
+    name="--service-token"
+    type="string"
+    description="The service token for a Knock account to issue the commands against. Required when not using a personal account, or a configuration file."
+  />
+</Attributes>
+
+</ContentColumn>
+</Section>
+
+<Section
+  title="Configuring your project"
+  path="/overview/configuring-your-project"
+>
+  <ContentColumn>
+    You can configure your Knock project by creating a `knock.json` file or by using the `knock init` command to generate one for you. This
+    file is a project-level configuration file that tells the Knock CLI where to
+    find your Knock resources.
+
+    For example, if you want to store your Knock resources in the `.knock/` directory, you can create a `knock.json` file with the following content:
+
+{/* prettier-ignore */}
+```json title="Example knock.json file"
+{
+  "knockDir": ".knock/"
+}
+```
+
+    Once you have created the `knock.json` file, all subsequent `knock pull` and `knock push` commands will use the `.knock/` directory as the default target directory relative to the location of the `knock.json` file, regardless of the directory you are currently in.
+
+    If you need to specify a different target directory for a single command, you can use the `--knock-dir` flag, or the `--{resource-type}-dir` flag for specific resource types.
+
+  </ContentColumn>
+</Section>
+
+<Section title="Directory structure" path="/overview/directory-structure">
+<ContentColumn>
+
+There is no required directory structure when working with Knock resources locally. However, if you use the `knock pull` or `knock push` commands, they will produce and expect the directory structure outlined below.
+
+For forward compatibility, we recommend using this structure to ensure your local files work seamlessly with future CLI updates.
+
+When you use `knock pull`, resources will be grouped by resource type within subdirectories. The following directory structure will be created:
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Recommended directory structure for Knock resources">
+{`./knock/
+├── guides/
+├── layouts/
+├── message-types/
+├── partials/
+├── translations/
+└── workflows/`}
+</PreTextDiagram>
+
+Each resource type has its own directory structure, which is described in detail in the sections below for each resource type.
+
+</ContentColumn>
+</Section>

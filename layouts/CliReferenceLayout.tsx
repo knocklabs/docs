@@ -8,19 +8,36 @@ import { CLI_SIDEBAR } from "../data/sidebars/cliSidebar";
 import { ContentActions } from "../components/ui/ContentActions";
 import { useScrollToTop } from "../hooks/useScrollToTop";
 
-export const CliReferenceLayout = ({ frontMatter, children }) => {
+interface CliReferenceLayoutProps {
+  frontMatter: {
+    title?: string;
+    metaTitle?: string;
+    description?: string;
+    metaDescription?: string;
+  };
+  sourcePath?: string;
+  children: React.ReactNode;
+}
+
+export const CliReferenceLayout = ({
+  frontMatter,
+  children,
+}: CliReferenceLayoutProps) => {
   const router = useRouter();
   useInitialScrollState();
   let paths = slugToPaths(router.query.slug);
 
   useScrollToTop(paths);
 
+  // Build canonical path from the current route
+  const canonicalPath = router.asPath.split("#")[0].split("?")[0];
+
   return (
     <Page.Container>
       <Meta
         title={`${frontMatter.metaTitle ?? frontMatter.title} | Knock Docs`}
         description={frontMatter.metaDescription ?? frontMatter.description}
-        canonical="/cli"
+        canonical={canonicalPath}
       />
       <Page.Masthead
         mobileSidebar={

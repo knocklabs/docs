@@ -623,11 +623,11 @@ const nextConfig = {
         destination: "/in-app-ui/message-types/overview",
         permanent: true,
       },
-      {
-        source: "/cli",
-        destination: "/cli/overview",
-        permanent: false,
-      },
+      // {
+      //   source: "/cli",
+      //   destination: "/cli/overview",
+      //   permanent: false,
+      // },
       // Redirect /api-reference to /api-reference/overview
       {
         source: "/api-reference",
@@ -695,15 +695,43 @@ const nextConfig = {
         destination: "/version-control/environments",
         permanent: true,
       },
-    ];
-  },
-
-  async rewrites() {
-    return [
-      // CLI reference pages all serve the same static content
+      // CLI old paths redirects
       {
-        source: "/cli/:path+",
-        destination: "/cli",
+        source: "/cli/login",
+        destination: "/cli/authentication/login",
+        permanent: true,
+      },
+      {
+        source: "/cli/logout",
+        destination: "/cli/authentication/logout",
+        permanent: true,
+      },
+      {
+        source: "/cli/init",
+        destination: "/cli/resources/init",
+        permanent: true,
+      },
+      {
+        source: "/cli/pull",
+        destination: "/cli/resources/pull",
+        permanent: true,
+      },
+      {
+        source: "/cli/push",
+        destination: "/cli/resources/push",
+        permanent: true,
+      },
+      // CLI overview section redirects (old paths without /overview prefix)
+      {
+        source: "/cli/overview/introduction",
+        destination: "/cli/overview",
+        permanent: true,
+      },
+      // CLI branch overview redirect
+      {
+        source: "/cli/branch/overview",
+        destination: "/cli/branch",
+        permanent: true,
       },
     ];
   },
