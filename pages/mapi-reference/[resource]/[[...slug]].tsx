@@ -34,7 +34,7 @@ export default function ResourcePage({
       preSidebarContent={MAPI_REFERENCE_OVERVIEW_CONTENT}
       title={`${
         resourceData.resource.name || resourceData.resourceName
-      } Management API reference`}
+      } mAPI reference`}
       description={description}
       currentPath={basePath}
       breadcrumbs={[
