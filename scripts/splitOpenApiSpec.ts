@@ -96,10 +96,7 @@ async function readSpecCustomizations(specName: string) {
 
 async function readStainlessSpec(specName: string): Promise<StainlessConfig> {
   const customizations = await readSpecCustomizations(specName);
-  const spec = await readFile(
-    `./data/specs/${specName}/stainless.yml`,
-    "utf8",
-  );
+  const spec = await readFile(`./data/specs/${specName}/stainless.yml`, "utf8");
   const stainlessSpec = parse(spec);
   return deepmerge(stainlessSpec, customizations) as StainlessConfig;
 }
@@ -379,8 +376,7 @@ async function splitSpec(specName: SpecName): Promise<void> {
     readStainlessSpec(specName),
   ]);
 
-  const basePath =
-    specName === "api" ? "/api-reference" : "/mapi-reference";
+  const basePath = specName === "api" ? "/api-reference" : "/mapi-reference";
   const baseUrl = stainlessSpec.environments.production;
 
   // Build complete schema references for cross-resource linking
