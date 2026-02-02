@@ -50,8 +50,8 @@ function MyApp({ Component, pageProps }) {
   }, [router.events]);
 
   return (
-    <AskAiProvider key={router.asPath}>
-      <InkeepModalProvider key={router.asPath}>
+    <AskAiProvider>
+      <InkeepModalProvider>
         <main className={inter.className}>
           <EventEmitterContext.Provider value={eventEmitter}>
             <Component {...pageProps} />
