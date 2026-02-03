@@ -203,7 +203,11 @@ async function generateApiReferenceMarkdownFiles(
     // Load overview content from section-based MDX file
     const sectionContent = loadOverviewContent(apiType);
 
-    // Generate overview section pages
+    // Generate overview section pages and collect content for combined overview.md
+    let allOverviewContent = `# ${
+      apiType === "api" ? "API" : "Management API"
+    } Overview\n\n`;
+
     for (const section of overviewContent) {
       if (section.pages) {
         for (const page of section.pages) {
@@ -215,6 +219,11 @@ async function generateApiReferenceMarkdownFiles(
           combinedContent += `## ${page.title}\n\n`;
           if (pageContent) {
             combinedContent += pageContent + "\n\n";
+          }
+
+          // Add to all overview content for the combined overview.md file
+          if (pageContent) {
+            allOverviewContent += `## ${page.title}\n\n${pageContent}\n\n`;
           }
 
           // Generate individual overview page file
@@ -232,6 +241,15 @@ async function generateApiReferenceMarkdownFiles(
         }
       }
     }
+
+    // Write the combined overview.md file with ALL overview sections
+    const rootOverviewPath = path.join(
+      process.cwd(),
+      "public",
+      baseDir,
+      "overview.md",
+    );
+    writeMarkdownFile(rootOverviewPath, allOverviewContent);
 
     // Add resource content
     for (const resourceName of resourceOrder) {
