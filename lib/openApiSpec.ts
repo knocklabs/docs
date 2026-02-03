@@ -5,6 +5,8 @@ import { readFile } from "fs/promises";
 import JSONPointer from "jsonpointer";
 import safeStringify from "safe-stringify";
 import { parse } from "yaml";
+import { RESOURCE_ORDER as API_RESOURCE_ORDER } from "@/data/sidebars/apiOverviewSidebar";
+import { RESOURCE_ORDER as MAPI_RESOURCE_ORDER } from "@/data/sidebars/mapiOverviewSidebar";
 
 // ============================================================================
 // Stainless Spec Types
@@ -253,14 +255,19 @@ async function readSpecCustomizations(specName: string) {
 // ============================================================================
 
 /**
+ * Get the resource order for a given spec.
+ * Uses the RESOURCE_ORDER arrays defined in the sidebar config files.
+ */
+function getResourceOrderForSpec(specName: SpecName): string[] {
+  return specName === "api" ? API_RESOURCE_ORDER : MAPI_RESOURCE_ORDER;
+}
+
+/**
  * Get the ordered list of resource names for a spec.
  * This determines the order resources appear in the sidebar.
  */
 async function getResourceOrder(specName: SpecName): Promise<string[]> {
-  const stainlessSpec = await readStainlessSpec(specName);
-  // Return all resource keys from the spec
-  // For consistent ordering, we can sort alphabetically or maintain spec order
-  return Object.keys(stainlessSpec.resources);
+  return getResourceOrderForSpec(specName);
 }
 
 // ============================================================================
@@ -533,6 +540,15 @@ async function getAllApiReferencePaths(
 
     // Schema pages
     if (resource.models) {
+      // Add the schemas index path (for "Object definitions" sidebar entry)
+      paths.push({
+        params: {
+          resource: resourceName,
+          slug: [...parentSlug, "schemas"],
+        },
+      });
+
+      // Add individual schema paths
       Object.keys(resource.models).forEach((schemaName) => {
         paths.push({
           params: {
@@ -638,6 +654,7 @@ function buildResourceSidebarPages(
 /**
  * Load sidebar structure for navigation.
  * Includes links to all resources, methods, and schemas.
+ * Resources are ordered according to RESOURCE_ORDER defined in sidebar config files.
  */
 async function getSidebarData(specName: SpecName): Promise<SidebarData> {
   // Return cached result if available
@@ -651,18 +668,20 @@ async function getSidebarData(specName: SpecName): Promise<SidebarData> {
   ]);
 
   const basePath = specName === "api" ? "/api-reference" : "/mapi-reference";
+  const resourceOrder = getResourceOrderForSpec(specName);
 
-  const resources: SidebarSection[] = Object.entries(
-    stainlessSpec.resources,
-  ).map(([resourceName, resource]) => {
-    const pathPrefix = `${basePath}/${resourceName}`;
+  const resources: SidebarSection[] = resourceOrder
+    .filter((resourceName) => stainlessSpec.resources[resourceName])
+    .map((resourceName) => {
+      const resource = stainlessSpec.resources[resourceName];
+      const pathPrefix = `${basePath}/${resourceName}`;
 
-    return {
-      title: resource.name || resourceName,
-      slug: pathPrefix,
-      pages: buildResourceSidebarPages(resource, openApiSpec, pathPrefix),
-    };
-  });
+      return {
+        title: resource.name || resourceName,
+        slug: pathPrefix,
+        pages: buildResourceSidebarPages(resource, openApiSpec, pathPrefix),
+      };
+    });
 
   const result = { resources };
   sidebarDataCache[specName] = result;

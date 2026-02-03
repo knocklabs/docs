@@ -7,11 +7,12 @@ export const RESOURCE_ORDER = [
   "users",
   "objects",
   "tenants",
-  "recipients",
   "schedules",
   "audiences",
   "bulk_operations",
   "providers",
+  "integrations",
+  "recipients",
   "$shared",
 ];
 
