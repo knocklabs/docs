@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Page } from "@/components/ui/Page";
+import { slugToPaths } from "../lib/content";
 import Meta from "../components/Meta";
 import { useRouter } from "next/router";
 import { useInitialScrollState } from "../components/ui/Page/helpers";
 import { CLI_SIDEBAR } from "../data/sidebars/cliSidebar";
 import { ContentActions } from "../components/ui/ContentActions";
+import { useScrollToTop } from "../hooks/useScrollToTop";
 import { SidebarContent } from "../data/types";
 
 type PageNeighbor = {
@@ -80,18 +82,16 @@ export const CliReferenceLayout = ({
 }: CliReferenceLayoutProps) => {
   const router = useRouter();
   useInitialScrollState();
+  let paths = slugToPaths(router.query.slug);
+
+  useScrollToTop(paths);
+
+  // Build canonical path from the current route
+  const canonicalPath = router.asPath.split("#")[0].split("?")[0];
 
   // Get the resource name from the route (e.g., "overview", "resources", "workflow")
   // This is the first segment after /cli/ and stays constant regardless of scroll position
   const resource = router.query.resource as string;
-
-  // Scroll to top when navigating to a new section (resource changes)
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [resource]);
-
-  // Build canonical path from the current route
-  const canonicalPath = router.asPath.split("#")[0].split("?")[0];
   const mdPath = resource ? `/cli/${resource}.md` : undefined;
 
   // Build the current section path for navigation
