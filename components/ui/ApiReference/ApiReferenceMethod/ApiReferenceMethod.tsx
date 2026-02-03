@@ -4,7 +4,7 @@ import Markdown from "react-markdown";
 
 import { Callout } from "@/components/ui/Callout";
 import RateLimit from "@/components/ui/RateLimit";
-import { Box } from "@telegraph/layout";
+import { Box, Stack } from "@telegraph/layout";
 import { Code, Heading } from "@telegraph/typography";
 import { AnimatePresence, motion } from "framer-motion";
 import { ContentColumn, ExampleColumn, Section } from "../../ApiSections";
@@ -67,186 +67,159 @@ function ApiReferenceMethod({
   return (
     <Section
       title={method.summary}
+      description={
+        <>
+          <Markdown>{method.description ?? ""}</Markdown>
+          {isBeta && (
+            <Callout
+              emoji="🚧"
+              bgColor="blue"
+              text={
+                <>
+                  This endpoint is currently in beta. If you'd like early
+                  access, or this is blocking your adoption of Knock, please{" "}
+                  <a href="mailto:support@knock.app?subject=Beta%20feature%20request">
+                    get in touch
+                  </a>
+                  .
+                </>
+              }
+            />
+          )}
+        </>
+      }
       isIdempotent={isIdempotent}
       isRetentionSubject={isRetentionSubject}
       path={path}
       mdPath={mdPath}
     >
       <ContentColumn>
-        <Markdown>{method.description ?? ""}</Markdown>
-        {isBeta && (
-          <Callout
-            emoji="🚧"
-            bgColor="blue"
-            text={
-              <>
-                This endpoint is currently in beta. If you'd like early access,
-                or this is blocking your adoption of Knock, please{" "}
-                <a href="mailto:support@knock.app?subject=Beta%20feature%20request">
-                  get in touch
-                </a>
-                .
-              </>
-            }
-          />
-        )}
-
-        <Heading
-          as="h3"
-          size="3"
-          weight="medium"
-          borderBottom="px"
-          borderColor="gray-3"
-          pb="2"
-          mt="4"
-        >
-          Endpoint
-        </Heading>
-
-        <Endpoint
-          method={methodType.toUpperCase()}
-          path={endpoint}
-          name={methodName}
-        />
-
-        {rateLimit && (
-          <Box mb="6" mt="1">
-            <Heading as="h3" weight="medium" size="3" mb="1">
-              Rate limit
+        <Stack direction="column" gap="6">
+          <Stack direction="column" gap="2">
+            <Heading as="h3" size="2" weight="medium">
+              Endpoint
             </Heading>
-            <RateLimit tier={rateLimit} />
-          </Box>
-        )}
+            <Stack direction="row" gap="1">
+              <Endpoint
+                method={methodType.toUpperCase()}
+                path={endpoint}
+                name={methodName}
+              />
 
-        {pathParameters.length > 0 && (
-          <>
-            <Heading
-              as="h3"
-              size="3"
-              weight="medium"
-              borderBottom="px"
-              borderColor="gray-3"
-              pb="2"
-              mt="6"
-            >
-              Path parameters
+              {rateLimit && (
+                <Box ml="auto">
+                  <RateLimit tier={rateLimit} />
+                </Box>
+              )}
+            </Stack>
+          </Stack>
+
+          {pathParameters.length > 0 && (
+            <Stack direction="column" gap="1">
+              <Heading as="h3" size="2" weight="medium">
+                Path parameters
+              </Heading>
+              <OperationParameters parameters={pathParameters} />
+            </Stack>
+          )}
+
+          {queryParameters.length > 0 && (
+            <Stack direction="column" gap="1">
+              <Heading as="h3" size="2" weight="medium">
+                Query parameters
+              </Heading>
+              <OperationParameters parameters={queryParameters} />
+            </Stack>
+          )}
+
+          {requestBody && (
+            <Stack direction="column" gap="1">
+              <Heading as="h3" size="2" weight="medium">
+                Request body
+              </Heading>
+              <SchemaProperties schema={requestBody} />
+            </Stack>
+          )}
+
+          <Stack direction="column" gap="1">
+            <Heading as="h3" size="2" weight="medium">
+              Returns
             </Heading>
-            <OperationParameters parameters={pathParameters} />
-          </>
-        )}
 
-        {queryParameters.length > 0 && (
-          <>
-            <Heading
-              as="h3"
-              size="3"
-              weight="medium"
-              borderBottom="px"
-              borderColor="gray-3"
-              pb="2"
-              mt="6"
-            >
-              Query parameters
-            </Heading>
-            <OperationParameters parameters={queryParameters} />
-          </>
-        )}
-
-        {requestBody && (
-          <>
-            <Heading
-              as="h3"
-              size="3"
-              weight="medium"
-              borderBottom="px"
-              borderColor="gray-3"
-              pb="2"
-              mt="6"
-            >
-              Request body
-            </Heading>
-            <SchemaProperties schema={requestBody} />
-          </>
-        )}
-
-        <Heading
-          as="h3"
-          size="3"
-          weight="medium"
-          borderBottom="px"
-          borderColor="gray-3"
-          pb="2"
-          mt="6"
-        >
-          Returns
-        </Heading>
-
-        {responseSchemas.length > 0 &&
-          responseSchemas.map((responseSchema) => (
-            <PropertyRow.Wrapper key={responseSchema.title}>
-              <PropertyRow.Container>
-                <PropertyRow.Header>
-                  <PropertyRow.Type
-                    href={schemaReferences[responseSchema.title ?? ""]}
-                  >
-                    {responseSchema.title}
-                  </PropertyRow.Type>
-                </PropertyRow.Header>
-                <PropertyRow.Description>
-                  {responseSchema.description ?? ""}
-                </PropertyRow.Description>
-
-                {responseSchema.properties && (
-                  <>
-                    <PropertyRow.ExpandableButton
-                      isOpen={isResponseExpanded}
-                      onClick={() => setIsResponseExpanded(!isResponseExpanded)}
-                    >
-                      {isResponseExpanded
-                        ? "Hide properties"
-                        : "Show properties"}
-                    </PropertyRow.ExpandableButton>
-
-                    <AnimatePresence initial={false}>
-                      <motion.div
-                        key="response-properties"
-                        initial={false}
-                        animate={{
-                          height: isResponseExpanded ? "auto" : 0,
-                          opacity: isResponseExpanded ? 1 : 0,
-                          visibility: isResponseExpanded ? "visible" : "hidden",
-                        }}
-                        transition={{ duration: 0.2 }}
+            {responseSchemas.length > 0 &&
+              responseSchemas.map((responseSchema) => (
+                <PropertyRow.Wrapper key={responseSchema.title}>
+                  <PropertyRow.Container>
+                    <PropertyRow.Header>
+                      <PropertyRow.Type
+                        href={schemaReferences[responseSchema.title ?? ""]}
                       >
-                        <PropertyRow.ChildProperties>
-                          <SchemaProperties
-                            schema={responseSchema}
-                            hideRequired
-                          />
-                        </PropertyRow.ChildProperties>
-                      </motion.div>
-                    </AnimatePresence>
-                  </>
-                )}
-              </PropertyRow.Container>
-            </PropertyRow.Wrapper>
-          ))}
+                        {responseSchema.title}
+                      </PropertyRow.Type>
+                    </PropertyRow.Header>
+                    <PropertyRow.Description>
+                      {responseSchema.description ?? ""}
+                    </PropertyRow.Description>
 
-        {responseSchemas.length === 0 && (
-          <Box py="3">
-            {formatResponseStatusCodes(method).map((formattedStatus, index) => (
-              <Code
-                key={`response-status-${index}`}
-                as="span"
-                size="1"
-                pl="0"
-                weight="semi-bold"
-              >
-                {formattedStatus}
-              </Code>
-            ))}
-          </Box>
-        )}
+                    {responseSchema.properties && (
+                      <>
+                        <PropertyRow.ExpandableButton
+                          isOpen={isResponseExpanded}
+                          onClick={() =>
+                            setIsResponseExpanded(!isResponseExpanded)
+                          }
+                        >
+                          {isResponseExpanded
+                            ? "Hide properties"
+                            : "Show properties"}
+                        </PropertyRow.ExpandableButton>
+
+                        <AnimatePresence initial={false}>
+                          <motion.div
+                            key="response-properties"
+                            initial={false}
+                            animate={{
+                              height: isResponseExpanded ? "auto" : 0,
+                              opacity: isResponseExpanded ? 1 : 0,
+                              visibility: isResponseExpanded
+                                ? "visible"
+                                : "hidden",
+                            }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <PropertyRow.ChildProperties>
+                              <SchemaProperties
+                                schema={responseSchema}
+                                hideRequired
+                              />
+                            </PropertyRow.ChildProperties>
+                          </motion.div>
+                        </AnimatePresence>
+                      </>
+                    )}
+                  </PropertyRow.Container>
+                </PropertyRow.Wrapper>
+              ))}
+
+            {responseSchemas.length === 0 && (
+              <Box>
+                {formatResponseStatusCodes(method).map(
+                  (formattedStatus, index) => (
+                    <Code
+                      key={`response-status-${index}`}
+                      as="span"
+                      size="1"
+                      pl="0"
+                      weight="semi-bold"
+                    >
+                      {formattedStatus}
+                    </Code>
+                  ),
+                )}
+              </Box>
+            )}
+          </Stack>
+        </Stack>
       </ContentColumn>
       <ExampleColumn>
         <MultiLangExample

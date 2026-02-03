@@ -645,30 +645,28 @@ const Autocomplete = () => {
             />
           }
           TrailingComponent={
-            <>
-              {autocompleteState?.query ? (
-                <Button
-                  variant="ghost"
-                  size="1"
-                  color="default"
-                  iconOnly={true}
-                  icon={{
-                    icon: X,
-                    alt: "Clear",
-                    color: "black",
-                    "aria-hidden": true,
-                  }}
-                  onClick={() => {
-                    autocomplete.setQuery("");
-                    if (inputRef.current) {
-                      (inputRef.current as HTMLInputElement).focus();
-                    }
-                  }}
-                />
-              ) : (
-                <Kbd className="md-hidden" label="/" />
-              )}
-            </>
+            autocompleteState?.query ? (
+              <Button
+                variant="ghost"
+                size="1"
+                color="default"
+                iconOnly={true}
+                icon={{
+                  icon: X,
+                  alt: "Clear",
+                  color: "black",
+                  "aria-hidden": true,
+                }}
+                onClick={() => {
+                  autocomplete.setQuery("");
+                  if (inputRef.current) {
+                    (inputRef.current as HTMLInputElement).focus();
+                  }
+                }}
+              />
+            ) : (
+              <Kbd className="md-hidden" label="/" />
+            )
           }
         />
       </Box>

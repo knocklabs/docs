@@ -40,7 +40,7 @@ const SectionHeader = ({
 }) => {
   return (
     <Stack justifyContent="space-between" alignItems="center" mb="8">
-      <Heading as="h2" size="4" weight="medium" id={id}>
+      <Heading as="h2" size="4" weight="semi-bold" id={id}>
         {title}
       </Heading>
       {href && (

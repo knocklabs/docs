@@ -106,18 +106,21 @@ export const getStaticPaths = async () => {
   const filePaths = getAllFilesInDir(CONTENT_DIR, [], DOCS_FILE_EXTENSIONS);
 
   // Format the slug to generate the correct path
-  const paths = filePaths.map((path) => {
-    const slug = path
-      .replace(CONTENT_DIR, "")
-      .replace(/\.mdx?$/, "")
-      .split(sep);
+  const paths = filePaths
+    .map((path) => {
+      const slug = path
+        .replace(CONTENT_DIR, "")
+        .replace(/\.mdx?$/, "")
+        .split(sep);
 
-    return {
-      params: {
-        slug,
-      },
-    };
-  });
+      return {
+        params: {
+          slug,
+        },
+      };
+    })
+    // Exclude CLI paths - these are handled by /pages/cli/[resource]/[[...slug]].tsx
+    .filter(({ params: { slug } }) => slug[0] !== "cli");
 
   return {
     paths,

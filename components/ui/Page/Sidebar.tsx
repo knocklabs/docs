@@ -15,6 +15,7 @@ import {
   stripPrefix,
   updateNavStyles,
   useIsPageReady,
+  useHighlightedPath,
 } from "./helpers";
 import { Tag } from "@telegraph/tag";
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
@@ -23,6 +24,9 @@ import { TgphComponentProps } from "@telegraph/helpers";
 
 interface SidebarContextType {
   samePageRouting: boolean;
+  // For per-resource pages, this is the base path of the current resource
+  // e.g., "/api-reference/users" - used to determine if a link is on the same page
+  currentResourcePath?: string;
 }
 
 export const SidebarContext = createContext<SidebarContextType>({
@@ -68,14 +72,20 @@ const ItemWithSubpages = ({
   defaultOpen,
 }: ItemProps) => {
   const router = useRouter();
-  const basePath = router.asPath.split("/")[1];
+  const pathNoHash = router.asPath.split("#")[0];
+  // Extract basePath from path without hash to avoid "api-reference#section" issues
+  const basePath = pathNoHash.split("/")[1];
   const slug = `${preSlug}${section.slug}`;
   const resourceSection = stripPrefix(slug);
-  const pathNoHash = router.asPath.split("#")[0];
   const [initializedOnPath, setInitializedOnPath] = useState(pathNoHash);
   const { samePageRouting } = useSidebar();
   const { isSearchOpen } = usePageContext();
   const isPageReady = useIsPageReady();
+  // Get the highlighted path from external store (for same-page routing)
+  const highlightedPath = useHighlightedPath();
+  // Use highlighted path if available (scroll-based), otherwise fall back to router path
+  const activePath =
+    samePageRouting && highlightedPath ? highlightedPath : pathNoHash;
 
   const [isOpen, setIsOpen] = useState(
     defaultOpen ?? getOpenState(section.pages ?? [], slug, pathNoHash),
@@ -127,8 +137,11 @@ const ItemWithSubpages = ({
           });
         },
         {
-          threshold: 0.5,
-          rootMargin: "100px 0px 100px 0px",
+          // Use a small threshold so we detect as soon as a section enters the zone
+          threshold: 0.25,
+          // Shrink detection to top ~50% of viewport using negative bottom margin
+          // This prevents sections below the current reading position from being detected
+          rootMargin: "0px 0px -50% 0px",
         },
       );
     }
@@ -181,7 +194,7 @@ const ItemWithSubpages = ({
         }
 
         const href = `${slug}${page.slug}`;
-        const isActive = isPathTheSame(href, router.asPath);
+        const isActive = isPathTheSame(href, activePath);
 
         return (
           <Box key={index + page.slug}>
@@ -202,6 +215,11 @@ const ItemWithSubpages = ({
 
 const Item = ({ section, preSlug = "", depth = 0, defaultOpen }: ItemProps) => {
   const router = useRouter();
+  const { samePageRouting } = useSidebar();
+  const highlightedPath = useHighlightedPath();
+  const pathNoHash = router.asPath.split("#")[0];
+  const activePath =
+    samePageRouting && highlightedPath ? highlightedPath : pathNoHash;
   const slug = `${preSlug}${section.slug}`;
 
   if ("pages" in section) {
@@ -218,7 +236,7 @@ const Item = ({ section, preSlug = "", depth = 0, defaultOpen }: ItemProps) => {
   return (
     <NavItem
       href={slug}
-      isActive={isPathTheSame(slug, router.asPath)}
+      isActive={isPathTheSame(slug, activePath)}
       containerProps={{ px: "3" }}
       // @ts-expect-error --color is a valid CSS variable
       style={{ "--color": "var(--tgph-gray-12)" }}

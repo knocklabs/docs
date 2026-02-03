@@ -1,0 +1,337 @@
+---
+title: Partials
+description: Commands for managing partials in the Knock CLI.
+---
+
+<Section path="/partial">
+<ContentColumn>
+
+Partial commands enable you to manage partials in your Knock account from the CLI.
+
+</ContentColumn>
+</Section>
+
+<Section title="Partial file structure" path="/partial/file-structure">
+<ContentColumn>
+
+When partials are pulled from Knock, they are stored in directories named by their partial key. Each partial directory contains a `partial.json` file that describes the partial's properties, and a content file based on the partial's type (HTML, markdown, plaintext, or JSON).
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local partial files structure">
+{`partials/
+└── author-block/
+    ├── content.html
+    └── partial.json`}
+</PreTextDiagram>
+
+The content file name depends on the partial's type:
+
+- HTML partials: `content.html`
+- Markdown partials: `content.md`
+- Plaintext partials: `content.txt`
+- JSON partials: `content.json`
+
+If you're migrating your local partial files into Knock, you can arrange them using the example file structure above and then push them into Knock with a single command using [`knock partial push --all`](/cli/partial/push).
+
+</ContentColumn>
+</Section>
+
+<Section title="knock partial list [flags]" path="/partial/list">
+<ContentColumn>
+
+List all partials in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock partial list
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock partial new [flags]" path="/partial/new">
+<ContentColumn>
+
+Create a new partial with a minimal configuration.
+
+The command will create a new partial directory in your local file system. By default, this will be in the partials resource directory set by your `knock.json` file, or the current working directory if not configured.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--key"
+    type="string"
+    description="The key for the partial. If not provided, will be prompted or inferred from the partial directory name."
+  />
+  <Attribute
+    name="--name"
+    type="string"
+    description="The name for the partial. If not provided, will be generated from the key."
+  />
+  <Attribute
+    name="--type"
+    type="string"
+    description="The type of partial to create. One of: html, markdown, text, json."
+  />
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--push"
+    type="boolean"
+    description="Push the partial to Knock after creating it locally. Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Overwrites an existing partial directory without prompting for confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Create a partial interactively"
+knock partial new
+```
+
+```bash title="Create an HTML partial"
+knock partial new --key=my-partial --type=html
+```
+
+```bash title="Create and push a partial"
+knock partial new --key=my-partial --type=markdown --push
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock partial get <partial_key> [flags]" path="/partial/get">
+<ContentColumn>
+
+You can show more details about a given partial with the `partial get` command, followed by the target partial key.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Get partial"
+knock partial get my-partial
+```
+
+```bash title="Get partial in a different environment"
+knock partial get my-partial --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock partial pull <partial_key> [flags]" path="/partial/pull">
+<ContentColumn>
+
+You can pull and download partial files from Knock to a local file system with the `partial pull` command. Knock CLI will create a new partial directory or update the existing partial directory in the local file system.
+
+By default this command will resolve to the partial resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--partials-dir` flag.
+
+Note: if pulling the target partial for the first time (or all partials), Knock CLI will ask to confirm before writing to the local file system.
+
+See the [Partial file structure](/cli/partial/file-structure) section for details on how partial files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={`Whether to pull all partials from the specified environment into the target directory path set by \`--partials-dir\`. Defaults to false.
+
+Note: all contents in the target directory will be erased and replaced with all partials from the specified environment.`}
+/>
+
+  <Attribute
+    name="--partials-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all partials into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Pull a single partial"
+knock partial pull my-partial
+```
+
+```bash title="Pull all partials"
+knock partial pull --all
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock partial push <partial_key> [flags]" path="/partial/push">
+<ContentColumn>
+
+You can push and upload a partial directory to Knock with the `partial push` command. Knock will update an existing partial by the matching partial key, or create a new partial if it does not exist yet.
+
+By default this command will resolve to the partial resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--partials-dir` flag.
+
+Note:
+
+- The `partial push` command only pushes partials into the `development` environment.
+- You must be directly above the target partial directory when running the `partial push` command, so the CLI can locate the `partial.json` file.
+- You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all partial files to the target environment. Defaults to false."
+  />
+  <Attribute
+    name="--partials-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all partials from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Push a single partial"
+knock partial push my-partial
+```
+
+```bash title="Pushing a partial and committing with a message"
+knock partial push my-partial \
+  --commit \
+  -m "Commit message"
+```
+
+```bash title="Pushing all partials from ./partials directory"
+knock partial push --all --partials-dir=./partials
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock partial validate <partial_key> [flags]" path="/partial/validate">
+<ContentColumn>
+
+Validates one or more partial files. Useful for checking if the file is valid before running the `partial push` method.
+
+Can only be validated against the `development` environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all partial files. Defaults to false."
+  />
+  <Attribute
+    name="--partials-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all partial files from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock partial validate --all
+```
+
+```bash title="Validate a single partial"
+knock partial validate my-partial
+```
+
+</ExampleColumn>
+</Section>
