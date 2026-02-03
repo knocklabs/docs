@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/router";
 import Meta from "@/components/Meta";
 import { Page as TelegraphPage } from "@/components/ui/Page";
@@ -11,6 +11,12 @@ interface Breadcrumb {
   label: string;
   href: string;
 }
+
+type PageNeighbor = {
+  title: string;
+  path: string;
+  slug: string;
+};
 
 interface ApiReferenceLayoutProps {
   children: React.ReactNode;
@@ -52,6 +58,53 @@ function convertToLegacySidebarFormat(
   return [...preSidebarContent, ...resourceSections];
 }
 
+/**
+ * Get the previous and next sections based on the current path.
+ * Sections are the top-level items in the sidebar (overview + resources).
+ */
+function getSectionNavigation(
+  currentPath: string | undefined,
+  sidebarContent: LegacySidebarSection[],
+): { prevSection: PageNeighbor | undefined; nextSection: PageNeighbor | undefined } {
+  if (!currentPath) {
+    return { prevSection: undefined, nextSection: undefined };
+  }
+
+  // Find which section the current path belongs to
+  const currentSectionIndex = sidebarContent.findIndex((section) => {
+    return currentPath.startsWith(section.slug);
+  });
+
+  if (currentSectionIndex === -1) {
+    return { prevSection: undefined, nextSection: undefined };
+  }
+
+  let prevSection: PageNeighbor | undefined = undefined;
+  let nextSection: PageNeighbor | undefined = undefined;
+
+  // Get previous section
+  if (currentSectionIndex > 0) {
+    const prev = sidebarContent[currentSectionIndex - 1];
+    prevSection = {
+      title: prev.title || "",
+      path: prev.slug,
+      slug: prev.slug,
+    };
+  }
+
+  // Get next section
+  if (currentSectionIndex < sidebarContent.length - 1) {
+    const next = sidebarContent[currentSectionIndex + 1];
+    nextSection = {
+      title: next.title || "",
+      path: next.slug,
+      slug: next.slug,
+    };
+  }
+
+  return { prevSection, nextSection };
+}
+
 export function ApiReferenceLayout({
   children,
   sidebarData,
@@ -79,6 +132,12 @@ export function ApiReferenceLayout({
   const sidebarContent = convertToLegacySidebarFormat(
     sidebarData,
     preSidebarContent,
+  );
+
+  // Get section navigation (prev/next sections)
+  const { prevSection, nextSection } = useMemo(
+    () => getSectionNavigation(currentPath, sidebarContent),
+    [currentPath, sidebarContent],
   );
 
   // For per-resource pages, currentPath is the resource base path (e.g., /api-reference/users)
@@ -131,6 +190,10 @@ export function ApiReferenceLayout({
             }
           />
           <TelegraphPage.ContentBody>{children}</TelegraphPage.ContentBody>
+          <TelegraphPage.ContentFooter
+            nextPage={nextSection}
+            previousPage={prevSection}
+          />
         </TelegraphPage.Content>
       </TelegraphPage.Wrapper>
     </TelegraphPage.Container>
