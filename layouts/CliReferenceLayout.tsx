@@ -22,7 +22,10 @@ type PageNeighbor = {
 function getSectionNavigation(
   currentPath: string | undefined,
   sidebarContent: SidebarContent[],
-): { prevSection: PageNeighbor | undefined; nextSection: PageNeighbor | undefined } {
+): {
+  prevSection: PageNeighbor | undefined;
+  nextSection: PageNeighbor | undefined;
+} {
   if (!currentPath) {
     return { prevSection: undefined, nextSection: undefined };
   }
