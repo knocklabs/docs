@@ -129,6 +129,11 @@ export function ApiReferenceLayout({
     };
   }, [router]);
 
+  // Scroll to top when navigating to a new section
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPath]);
+
   const basePath = router.pathname.split("/")[1];
   const canonicalPath = currentPath || `/${basePath}`;
 
