@@ -109,50 +109,56 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
         },
       )}
 
-      {Object.entries(models).map(([modelName, modelReference]) => {
-        const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
-          openApiSpec,
-          modelReference.replace("#", ""),
-        );
+      {Object.entries(models).length > 0 && (
+        <Box data-resource-path={`${basePath}/schemas`}>
+          {Object.entries(models).map(([modelName, modelReference]) => {
+            const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
+              openApiSpec,
+              modelReference.replace("#", ""),
+            );
 
-        if (!schema) {
-          return null;
-        }
+            if (!schema) {
+              return null;
+            }
 
-        const schemaPath = `${basePath}/schemas/${modelName}`;
-        const schemaMdPath = `/${apiSurface}${basePath}/schemas/${modelName}.md`;
+            const schemaPath = `${basePath}/schemas/${modelName}`;
+            const schemaMdPath = `/${apiSurface}${basePath}/schemas/${modelName}.md`;
 
-        return (
-          <Box key={modelName} data-resource-path={schemaPath}>
-            <Section
-              title={schema.title}
-              description={
-                schema.description && <Markdown>{schema.description}</Markdown>
-              }
-              path={schemaPath}
-              mdPath={schemaMdPath}
-            >
-              <ContentColumn>
-                <Stack direction="column" gap="1">
-                  <Heading as="h3" size="2" weight="medium">
-                    Attributes
-                  </Heading>
-                  <SchemaProperties schema={schema} hideRequired />
-                </Stack>
-              </ContentColumn>
-              <ExampleColumn>
-                <CodeBlock
+            return (
+              <Box key={modelName} data-resource-path={schemaPath}>
+                <Section
                   title={schema.title}
-                  language="json"
-                  languages={["json"]}
+                  description={
+                    schema.description && (
+                      <Markdown>{schema.description}</Markdown>
+                    )
+                  }
+                  path={schemaPath}
+                  mdPath={schemaMdPath}
                 >
-                  {JSON.stringify(schema.example, null, 2)}
-                </CodeBlock>
-              </ExampleColumn>
-            </Section>
-          </Box>
-        );
-      })}
+                  <ContentColumn>
+                    <Stack direction="column" gap="1">
+                      <Heading as="h3" size="2" weight="medium">
+                        Attributes
+                      </Heading>
+                      <SchemaProperties schema={schema} hideRequired />
+                    </Stack>
+                  </ContentColumn>
+                  <ExampleColumn>
+                    <CodeBlock
+                      title={schema.title}
+                      language="json"
+                      languages={["json"]}
+                    >
+                      {JSON.stringify(schema.example, null, 2)}
+                    </CodeBlock>
+                  </ExampleColumn>
+                </Section>
+              </Box>
+            );
+          })}
+        </Box>
+      )}
     </>
   );
 }
