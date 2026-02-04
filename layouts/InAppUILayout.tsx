@@ -162,13 +162,25 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
     }
   }, [validSdkFromPath, selectedSdk]);
 
+  // For breadcrumbs, use the SDK from URL path directly (not from state)
+  // This avoids timing issues where state hasn't updated yet
+  const sdkForBreadcrumbs = validSdkFromPath || selectedSdk;
+  const sdkContentForBreadcrumbs = languageMap[sdkForBreadcrumbs];
+
   const selectedSdkContent = languageMap[selectedSdk];
   const allSidebarContent = [...IN_APP_UI_SIDEBAR, ...selectedSdkContent.items];
 
+  // Use SDK from path for breadcrumb computation to avoid timing issues
+  const breadcrumbSidebarContent = [
+    ...IN_APP_UI_SIDEBAR,
+    ...sdkContentForBreadcrumbs.items,
+  ];
+
   // @ts-expect-error we do get these, need to come back to breadcrumbs
   const { breadcrumbs, nextPage, prevPage } = useMemo(
-    () => getInAppSidebar(paths, allSidebarContent, selectedSdkContent),
-    [paths, allSidebarContent, selectedSdkContent],
+    () =>
+      getInAppSidebar(paths, breadcrumbSidebarContent, sdkContentForBreadcrumbs),
+    [paths, breadcrumbSidebarContent, sdkContentForBreadcrumbs],
   );
 
   // Update URL state when the SDK changes
