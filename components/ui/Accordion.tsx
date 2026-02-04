@@ -2,7 +2,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import { Icon } from "@telegraph/icon";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Text, Code } from "@telegraph/typography";
 import { ChevronRight } from "lucide-react";
 
@@ -70,7 +70,7 @@ const Accordion = ({
   defaultOpen = false,
 }: AccordionProps) => {
   const [open, setOpen] = useState<boolean>(defaultOpen);
-  const titleParts = parseTitleWithCode(title);
+  const titleParts = useMemo(() => parseTitleWithCode(title), [title]);
 
   return (
     <Box role="listitem">
