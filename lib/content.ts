@@ -24,11 +24,7 @@ export function getInAppSidebar(
     return getSidebarInfo(paths, allSidebarContent);
   }
 
-  // Get the section that matches the paths (we don't need the page for breadcrumbs)
-  const { section } = depthFirstSidebarInfo(paths, allSidebarContent);
-
-  // Build breadcrumbs array showing the hierarchy up to (but not including) the current page
-  // e.g., for /in-app-ui/android/sdk/overview: "In-App UI > Kotlin (Android) > SDK"
+  // Build breadcrumbs showing: In-App UI > SDK Name
   const breadcrumbs: Array<{
     slug: string;
     title: string;
@@ -45,16 +41,6 @@ export function getInAppSidebar(
       path: `/in-app-ui/${selectedSdkContent.value}`,
     },
   ];
-
-  // Only add section breadcrumb if section exists and is different from the SDK root
-  // (to avoid duplicating the SDK name in breadcrumbs)
-  if (section?.slug && section?.title) {
-    breadcrumbs.push({
-      slug: section.slug,
-      title: section.title,
-      path: section.slug,
-    });
-  }
 
   return {
     breadcrumbs,

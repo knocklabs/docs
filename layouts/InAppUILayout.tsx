@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { Page } from "@/components/ui/Page";
 import { Sidebar, SidebarContext } from "@/components/ui/Page/Sidebar";
@@ -143,48 +143,21 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const paths = slugToPaths(router.query.slug);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
-  // Derive SDK from path - paths[1] should be the SDK name (e.g., "android", "react")
-  const sdkFromPath = paths[1] as Language | undefined;
-  const validSdkFromPath =
-    sdkFromPath && languageMap[sdkFromPath] ? sdkFromPath : null;
-
   const [selectedSdk, setSelectedSdk] = useState<Language>(() => {
-    if (validSdkFromPath) {
-      return validSdkFromPath;
+    const sdk = paths[1];
+    if (sdk && languageMap[sdk as Language]) {
+      return sdk as Language;
     }
     return Object.keys(languageMap)[0] as Language;
   });
 
-  // Sync selectedSdk with URL path when router query changes
-  useEffect(() => {
-    if (validSdkFromPath && validSdkFromPath !== selectedSdk) {
-      setSelectedSdk(validSdkFromPath);
-    }
-  }, [validSdkFromPath, selectedSdk]);
-
-  // For breadcrumbs, use the SDK from URL path directly (not from state)
-  // This avoids timing issues where state hasn't updated yet
-  const sdkForBreadcrumbs = validSdkFromPath || selectedSdk;
-  const sdkContentForBreadcrumbs = languageMap[sdkForBreadcrumbs];
-
   const selectedSdkContent = languageMap[selectedSdk];
   const allSidebarContent = [...IN_APP_UI_SIDEBAR, ...selectedSdkContent.items];
 
-  // Use SDK from path for breadcrumb computation to avoid timing issues
-  const breadcrumbSidebarContent = [
-    ...IN_APP_UI_SIDEBAR,
-    ...sdkContentForBreadcrumbs.items,
-  ];
-
   // @ts-expect-error we do get these, need to come back to breadcrumbs
   const { breadcrumbs, nextPage, prevPage } = useMemo(
-    () =>
-      getInAppSidebar(
-        paths,
-        breadcrumbSidebarContent,
-        sdkContentForBreadcrumbs,
-      ),
-    [paths, breadcrumbSidebarContent, sdkContentForBreadcrumbs],
+    () => getInAppSidebar(paths, allSidebarContent, selectedSdkContent),
+    [paths, allSidebarContent, selectedSdkContent],
   );
 
   // Update URL state when the SDK changes
