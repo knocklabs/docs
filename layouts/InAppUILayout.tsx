@@ -179,7 +179,11 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   // @ts-expect-error we do get these, need to come back to breadcrumbs
   const { breadcrumbs, nextPage, prevPage } = useMemo(
     () =>
-      getInAppSidebar(paths, breadcrumbSidebarContent, sdkContentForBreadcrumbs),
+      getInAppSidebar(
+        paths,
+        breadcrumbSidebarContent,
+        sdkContentForBreadcrumbs,
+      ),
     [paths, breadcrumbSidebarContent, sdkContentForBreadcrumbs],
   );
 
