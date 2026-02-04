@@ -18,6 +18,8 @@ export function getInAppSidebar(
   allSidebarContent: SidebarSection[],
   selectedSdkContent: SdkSpecificContent,
 ) {
+  // Check if the URL path contains the selected SDK
+  // If not, fall back to the generic sidebar info (for non-SDK-specific pages)
   if (!paths.includes(selectedSdkContent.value)) {
     return getSidebarInfo(paths, allSidebarContent);
   }

@@ -143,13 +143,24 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
   const paths = slugToPaths(router.query.slug);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
+  // Derive SDK from path - paths[1] should be the SDK name (e.g., "android", "react")
+  const sdkFromPath = paths[1] as Language | undefined;
+  const validSdkFromPath =
+    sdkFromPath && languageMap[sdkFromPath] ? sdkFromPath : null;
+
   const [selectedSdk, setSelectedSdk] = useState<Language>(() => {
-    const sdk = paths[1];
-    if (sdk && languageMap[sdk as Language]) {
-      return sdk as Language;
+    if (validSdkFromPath) {
+      return validSdkFromPath;
     }
     return Object.keys(languageMap)[0] as Language;
   });
+
+  // Sync selectedSdk with URL path when router query changes
+  useEffect(() => {
+    if (validSdkFromPath && validSdkFromPath !== selectedSdk) {
+      setSelectedSdk(validSdkFromPath);
+    }
+  }, [validSdkFromPath, selectedSdk]);
 
   const selectedSdkContent = languageMap[selectedSdk];
   const allSidebarContent = [...IN_APP_UI_SIDEBAR, ...selectedSdkContent.items];
