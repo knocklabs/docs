@@ -3,7 +3,7 @@ import { MenuItem } from "@telegraph/menu";
 import { Icon } from "@telegraph/icon";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { Text } from "@telegraph/typography";
+import { Text, Code } from "@telegraph/typography";
 import { ChevronRight } from "lucide-react";
 
 const AccordionGroup = ({ children }) => (
@@ -22,6 +22,47 @@ type AccordionProps = {
   defaultOpen?: boolean;
 };
 
+// Helper function to parse title and split into text and code parts
+const parseTitleWithCode = (
+  title: string,
+): Array<{ type: "text" | "code"; content: string }> => {
+  const parts: Array<{ type: "text" | "code"; content: string }> = [];
+  const regex = /`([^`]+)`/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(title)) !== null) {
+    // Add text before the code
+    if (match.index > lastIndex) {
+      parts.push({
+        type: "text",
+        content: title.substring(lastIndex, match.index),
+      });
+    }
+    // Add the code part
+    parts.push({
+      type: "code",
+      content: match[1],
+    });
+    lastIndex = regex.lastIndex;
+  }
+
+  // Add remaining text after the last match
+  if (lastIndex < title.length) {
+    parts.push({
+      type: "text",
+      content: title.substring(lastIndex),
+    });
+  }
+
+  // If no matches found, return the whole title as text
+  if (parts.length === 0) {
+    parts.push({ type: "text", content: title });
+  }
+
+  return parts;
+};
+
 const Accordion = ({
   children,
   title,
@@ -29,6 +70,7 @@ const Accordion = ({
   defaultOpen = false,
 }: AccordionProps) => {
   const [open, setOpen] = useState<boolean>(defaultOpen);
+  const titleParts = parseTitleWithCode(title);
 
   return (
     <Box role="listitem">
@@ -63,7 +105,26 @@ const Accordion = ({
               // @ts-expect-error textWrap is fine?
               style={{ textWrap: "auto", overflow: "visible" }}
             >
-              {title}
+              {titleParts.map((part, index) => {
+                if (part.type === "code") {
+                  return (
+                    <Code
+                      key={index}
+                      as="code"
+                      backgroundColor="gray-2"
+                      data-tgph-code
+                      style={{
+                        fontSize: "inherit",
+                        padding: "2px 3px",
+                        margin: "0 2px",
+                      }}
+                    >
+                      {part.content}
+                    </Code>
+                  );
+                }
+                return <span key={index}>{part.content}</span>;
+              })}
             </Text>
             {description ? (
               <Text
