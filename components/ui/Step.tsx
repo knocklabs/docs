@@ -28,7 +28,7 @@ function TitleTag({ size, title }) {
           id={id}
           color="default"
           weight="semi-bold"
-          size="3"
+          size="4"
           mb="2"
         >
           {title}
@@ -49,8 +49,33 @@ function TitleTag({ size, title }) {
         </Heading>
       );
     }
+    case "h4": {
+      return (
+        <Heading
+          as="h4"
+          id={id}
+          color="default"
+          weight="semi-bold"
+          size="2"
+          mb="2"
+        >
+          {title}
+        </Heading>
+      );
+    }
     default:
-      return null;
+      return (
+        <Heading
+          as="h2"
+          id={id}
+          color="default"
+          weight="semi-bold"
+          size="2"
+          mb="2"
+        >
+          {title}
+        </Heading>
+      );
   }
 }
 
