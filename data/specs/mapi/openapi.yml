@@ -47,6 +47,9 @@ components:
         - $ref: '#/components/schemas/WorkflowBatchStep'
         - $ref: '#/components/schemas/WorkflowFetchStep'
         - $ref: '#/components/schemas/WorkflowUpdateDataStep'
+        - $ref: '#/components/schemas/WorkflowUpdateObjectStep'
+        - $ref: '#/components/schemas/WorkflowUpdateTenantStep'
+        - $ref: '#/components/schemas/WorkflowUpdateUserStep'
         - $ref: '#/components/schemas/WorkflowThrottleStep'
         - $ref: '#/components/schemas/WorkflowBranchStep'
         - $ref: '#/components/schemas/WorkflowTriggerWorkflowStep'
@@ -269,6 +272,95 @@ components:
       title: PreviewWorkflowTemplateResponse
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewWorkflowTemplateResponse
+      x-validate: null
+    WorkflowUpdateTenantStep:
+      description: An update tenant step. Updates properties of a specific tenant referenced in the workflow.
+      example:
+        description: Update tenant step description.
+        name: Update tenant
+        ref: update_tenant_1
+        settings:
+          recipient_gid: gid://Object/$tenants/tenant-123
+          recipient_mode: reference
+          update_properties: '{"name": "Updated Tenant"}'
+        type: update_tenant
+      properties:
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A conditions object that describes one or more conditions to be met in order for the step to be executed.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Update tenant step description.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Update tenant
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: update_tenant_1
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: The settings for the update tenant step.
+          properties:
+            recipient_gid:
+              description: 'The global identifier (GID) of the tenant to update. Required when recipient_mode is ''reference''. Format: gid://Object/$tenants/{id}'
+              example: gid://Object/$tenants/tenant-123
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            recipient_mode:
+              description: The recipient mode determining how the tenant is selected. 'current' uses the workflow's current tenant. 'reference' uses a specific tenant ID.
+              enum:
+                - current
+                - reference
+              example: reference
+              type: string
+              x-struct: null
+              x-validate: null
+            update_properties:
+              description: A JSON string or Liquid template that evaluates to the properties to update on the tenant.
+              example: '{"name": "Updated Tenant", "status": "active"}'
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - recipient_mode
+            - update_properties
+          type: object
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the workflow step.
+          enum:
+            - update_tenant
+          example: update_tenant
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - settings
+      title: WorkflowUpdateTenantStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowUpdateTenantStep
       x-validate: null
     WorkflowDelayStep:
       description: A delay function step. Read more in the [docs](https://docs.knock.app/designing-workflows/delay-function).
@@ -3934,6 +4026,95 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Variable
       x-validate: null
+    WorkflowUpdateUserStep:
+      description: An update user step. Updates properties of a specific user referenced in the workflow.
+      example:
+        description: Update user step description.
+        name: Update user
+        ref: update_user_1
+        settings:
+          recipient_gid: gid://Object/$users/user-123
+          recipient_mode: reference
+          update_properties: '{"name": "Updated User"}'
+        type: update_user
+      properties:
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A conditions object that describes one or more conditions to be met in order for the step to be executed.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Update user step description.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Update user
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: update_user_1
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: The settings for the update user step.
+          properties:
+            recipient_gid:
+              description: 'The global identifier (GID) of the user to update. Required when recipient_mode is ''reference''. Format: gid://Object/$users/{id}'
+              example: gid://Object/$users/user-123
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            recipient_mode:
+              description: The recipient mode determining how the user is selected. 'current' uses the workflow's current user. 'reference' uses a specific user ID.
+              enum:
+                - current
+                - reference
+              example: reference
+              type: string
+              x-struct: null
+              x-validate: null
+            update_properties:
+              description: A JSON string or Liquid template that evaluates to the properties to update on the user.
+              example: '{"name": "Updated User", "email": "user@example.com"}'
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - recipient_mode
+            - update_properties
+          type: object
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the workflow step.
+          enum:
+            - update_user
+          example: update_user
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - settings
+      title: WorkflowUpdateUserStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowUpdateUserStep
+      x-validate: null
     PaginatedTranslationResponse:
       description: A paginated list of Translation. Contains a list of entries and page information.
       example:
@@ -5195,6 +5376,84 @@ components:
       title: Guide
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Guide
+      x-validate: null
+    WorkflowUpdateObjectStep:
+      description: An update object step. Updates properties of a specific object referenced in the workflow.
+      example:
+        description: Update object step description.
+        name: Update object
+        ref: update_object_1
+        settings:
+          recipient_gid: gid://Object/projects/123
+          update_properties: '{"status": "active"}'
+        type: update_object
+      properties:
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A conditions object that describes one or more conditions to be met in order for the step to be executed.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Update object step description.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Update object
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: update_object_1
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: The settings for the update object step.
+          properties:
+            recipient_gid:
+              description: 'The global identifier (GID) of the object to update. Format: gid://Object/{collection}/{id}'
+              example: gid://Object/projects/123
+              type: string
+              x-struct: null
+              x-validate: null
+            update_properties:
+              description: A JSON string or Liquid template that evaluates to the properties to update on the object.
+              example: '{"status": "active", "updated_at": "{{ timestamp }}"}'
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - recipient_gid
+            - update_properties
+          type: object
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the workflow step.
+          enum:
+            - update_object
+          example: update_object
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - settings
+      title: WorkflowUpdateObjectStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowUpdateObjectStep
       x-validate: null
     WrappedMessageTypeRequestRequest:
       description: Wraps the MessageTypeRequest request under the message_type key.
