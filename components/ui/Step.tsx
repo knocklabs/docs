@@ -70,7 +70,7 @@ function TitleTag({ size, title }) {
           id={id}
           color="default"
           weight="semi-bold"
-          size="2"
+          size="4"
           mb="2"
         >
           {title}
