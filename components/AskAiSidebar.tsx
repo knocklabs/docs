@@ -795,6 +795,11 @@ function AskAiSidebar() {
                     message.role === "assistant" &&
                     index === messages.length - 1
                   }
+                  isStreaming={
+                    isStreaming &&
+                    message.role === "assistant" &&
+                    index === messages.length - 1
+                  }
                   isConsecutiveUserMessage={isConsecutiveUserMessage}
                 />
               );
@@ -813,10 +818,12 @@ function AskAiSidebar() {
 function MessageBubble({
   message,
   isLoading,
+  isStreaming,
   isConsecutiveUserMessage,
 }: {
   message: Message;
   isLoading?: boolean;
+  isStreaming?: boolean;
   isConsecutiveUserMessage?: boolean;
 }) {
   const isUser = message.role === "user";
@@ -1029,10 +1036,14 @@ function MessageBubble({
       </Stack>
 
       {/* Sources section - only show after streaming completes */}
-      {!isLoading && <SourcesSection sources={message.sources} />}
+      {!isLoading && !isStreaming && (
+        <SourcesSection sources={message.sources} />
+      )}
 
-      {/* Action bar with copy button - only show after streaming completes */}
-      {!isLoading && <MessageActionBar messageContent={message.content} />}
+      {/* Action bar with copy button - only show after typewriter effect completes */}
+      {!isLoading && !isStreaming && (
+        <MessageActionBar messageContent={message.content} />
+      )}
     </Stack>
   );
 }
