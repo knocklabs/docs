@@ -10,7 +10,7 @@ export type { Message, Source };
 
 // Streaming configuration
 const STREAM_INTERVAL_MS = 20; // Update UI every 20ms
-const CHARS_PER_UPDATE = 3; // Characters to reveal per update
+const CHARS_PER_UPDATE = 6; // Characters to reveal per update
 
 type UseChatStreamReturn = {
   messages: Message[];
