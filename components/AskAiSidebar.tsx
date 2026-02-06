@@ -60,7 +60,9 @@ function StreamingCodeBlock({
   children?: React.ReactNode;
   language?: string;
 }) {
-  const normalizedContent = extractTextContent(children).replace(/\n+$/, "");
+  const normalizedContent = extractTextContent(children)
+    .replace(/^\n+/, "") // Remove leading newlines
+    .replace(/\n+$/, ""); // Remove trailing newlines
 
   const [isCopied, setCopied] = useClipboard(normalizedContent, {
     successDuration: 2000,
