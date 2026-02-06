@@ -1030,6 +1030,9 @@ function MessageBubble({
 
       {/* Sources section - only show after streaming completes */}
       {!isLoading && <SourcesSection sources={message.sources} />}
+
+      {/* Action bar with copy button - only show after streaming completes */}
+      {!isLoading && <MessageActionBar messageContent={message.content} />}
     </Stack>
   );
 }
@@ -1247,7 +1250,7 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
   }
 
   return (
-    <Stack direction="column" gap="2" px="3" pt="0" pb="4">
+    <Stack direction="column" gap="2" px="3" pt="0" pb="3">
       <Text as="span" size="1" weight="medium" color="default">
         Sources
       </Text>
@@ -1262,6 +1265,38 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
           <SourceCard key={index} source={source} />
         ))}
       </Box>
+    </Stack>
+  );
+}
+
+function MessageActionBar({
+  messageContent,
+}: {
+  messageContent?: string;
+}) {
+  // Process content to remove source references (same as displayed)
+  const processedContent = processSourceReferences(messageContent || "");
+
+  // Initialize clipboard hook
+  const [isCopied, copy] = useClipboard(processedContent, {
+    successDuration: 2000,
+  });
+
+  return (
+    <Stack direction="row" gap="1" px="3" pb="4" alignItems="center">
+      <Tooltip label="Copy response">
+        <Button
+          variant="ghost"
+          size="0"
+          onClick={copy}
+          px="1"
+          aria-label="Copy response"
+          icon={{
+            icon: isCopied ? Check : Copy,
+            "aria-hidden": true,
+          }}
+        />
+      </Tooltip>
     </Stack>
   );
 }
