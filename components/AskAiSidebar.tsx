@@ -1282,11 +1282,7 @@ function SourcesSection({ sources }: { sources?: Source[] }) {
   );
 }
 
-function MessageActionBar({
-  messageContent,
-}: {
-  messageContent?: string;
-}) {
+function MessageActionBar({ messageContent }: { messageContent?: string }) {
   // Process content to remove source references (same as displayed)
   const processedContent = processSourceReferences(messageContent || "");
 
