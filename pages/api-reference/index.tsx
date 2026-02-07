@@ -27,6 +27,7 @@ function ApiReferenceOverview({
       preSidebarContent={API_REFERENCE_OVERVIEW_CONTENT}
       title="API reference"
       description="Complete reference documentation for the Knock API."
+      currentPath="/api-reference/overview"
     >
       <Box className="tgraph-content">
         <MDXRemote {...overviewContentMdx} components={MDX_COMPONENTS as any} />

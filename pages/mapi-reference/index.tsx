@@ -27,6 +27,7 @@ function MapiReferenceOverview({
       preSidebarContent={MAPI_REFERENCE_OVERVIEW_CONTENT}
       title="Management API reference"
       description="Complete reference documentation for the Knock Management API."
+      currentPath="/mapi-reference/overview"
     >
       <Box className="tgraph-content">
         <MDXRemote {...overviewContentMdx} components={MDX_COMPONENTS as any} />
