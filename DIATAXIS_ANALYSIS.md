@@ -7,7 +7,7 @@ The [Diátaxis framework](https://diataxis.fr/) classifies documentation into fo
 1. **Tutorials.** Learning-oriented content that takes the reader by the hand through a series of steps to complete a meaningful project. Aimed at beginners; the goal is learning by doing.
 2. **How-to docs.** Task-oriented content that provides steps to solve a specific real-world problem. Assumes some existing knowledge; the goal is accomplishing a practical task.
 3. **Reference.** Information-oriented content that describes the machinery — technical specifications, API surfaces, configuration options. Accurate and complete; structured for lookup, not reading.
-4. **Explanation.** Understanding-oriented content that clarifies concepts, discusses trade-offs, and provides context. Helps users build mental models of *why* things work the way they do.
+4. **Explanation.** Understanding-oriented content that clarifies concepts, discusses trade-offs, and provides context. Helps users build mental models of _why_ things work the way they do.
 
 Each mode has distinct writing requirements. Mixing modes within a single page creates documentation that partially serves several needs but fully serves none.
 
@@ -17,22 +17,22 @@ Each mode has distinct writing requirements. Mixing modes within a single page c
 
 Here is how the existing Knock docs sections map to the Diátaxis quadrants:
 
-| Docs section | Primary Diátaxis mode | Secondary modes mixed in | Assessment |
-|---|---|---|---|
-| `/getting-started/what-is-knock` | Explanation | — | Good fit. Strong conceptual overview. |
-| `/getting-started/quick-start/*` | Tutorial | — | Reasonable fit, but too thin (see below). |
-| `/concepts/*` | Explanation | Reference (glossary-style entries) | Underdeveloped. Most entries are 1-3 sentences. |
-| `/designing-workflows/*` | How-to | Reference (properties, variables) | Mode-blended. Each page mixes instructions with reference tables. |
-| `/send-notifications/*` | How-to | Reference, explanation | Mode-blended. Triggering is how-to; message statuses is reference; debugging is how-to. |
-| `/tutorials/*` | How-to | Explanation | Mislabeled. Most "tutorials" are actually how-to docs for specific use cases. |
-| `/preferences/*` | How-to | Reference, explanation | Mode-blended but well-structured. The overview does a good job walking through setup steps. |
-| `/managing-recipients/*` | How-to | Explanation | Decent fit. Some pages include good "why" sections. |
-| `/integrations/*` | How-to (setup) | Reference (config options) | Consistent pattern but blends setup instructions with reference data. |
-| `/in-app-ui/*` | Reference | How-to (setup/usage) | SDK reference is strong; UI component pages blend modes. |
-| `/developer-tools/*` | Reference | How-to | Mixed. Some pages are pure reference, others are setup instructions. |
-| `/api-reference/*`, `/mapi-reference/*`, `/cli/*` | Reference | — | Strong fit. Pure reference content. |
-| `/version-control/*` | Explanation | How-to | Decent. Explains the mental model but also tells you how to use it. |
-| `/manage-your-account/*` | How-to | Reference | Good fit. Task-oriented admin instructions. |
+| Docs section                                      | Primary Diátaxis mode | Secondary modes mixed in           | Assessment                                                                                  |
+| ------------------------------------------------- | --------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------- |
+| `/getting-started/what-is-knock`                  | Explanation           | —                                  | Good fit. Strong conceptual overview.                                                       |
+| `/getting-started/quick-start/*`                  | Tutorial              | —                                  | Reasonable fit, but too thin (see below).                                                   |
+| `/concepts/*`                                     | Explanation           | Reference (glossary-style entries) | Underdeveloped. Most entries are 1-3 sentences.                                             |
+| `/designing-workflows/*`                          | How-to                | Reference (properties, variables)  | Mode-blended. Each page mixes instructions with reference tables.                           |
+| `/send-notifications/*`                           | How-to                | Reference, explanation             | Mode-blended. Triggering is how-to; message statuses is reference; debugging is how-to.     |
+| `/tutorials/*`                                    | How-to                | Explanation                        | Mislabeled. Most "tutorials" are actually how-to docs for specific use cases.               |
+| `/preferences/*`                                  | How-to                | Reference, explanation             | Mode-blended but well-structured. The overview does a good job walking through setup steps. |
+| `/managing-recipients/*`                          | How-to                | Explanation                        | Decent fit. Some pages include good "why" sections.                                         |
+| `/integrations/*`                                 | How-to (setup)        | Reference (config options)         | Consistent pattern but blends setup instructions with reference data.                       |
+| `/in-app-ui/*`                                    | Reference             | How-to (setup/usage)               | SDK reference is strong; UI component pages blend modes.                                    |
+| `/developer-tools/*`                              | Reference             | How-to                             | Mixed. Some pages are pure reference, others are setup instructions.                        |
+| `/api-reference/*`, `/mapi-reference/*`, `/cli/*` | Reference             | —                                  | Strong fit. Pure reference content.                                                         |
+| `/version-control/*`                              | Explanation           | How-to                             | Decent. Explains the mental model but also tells you how to use it.                         |
+| `/manage-your-account/*`                          | How-to                | Reference                          | Good fit. Task-oriented admin instructions.                                                 |
 
 ---
 
@@ -40,13 +40,13 @@ Here is how the existing Knock docs sections map to the Diátaxis quadrants:
 
 ### 1. The "tutorials" section contains how-to docs, not tutorials
 
-The Diátaxis framework draws a sharp distinction between tutorials and how-to docs. Tutorials are learning-oriented: they take a beginner through a carefully sequenced experience where the goal is to *learn*. How-to docs are goal-oriented: they help someone who already has context *accomplish a specific task*.
+The Diátaxis framework draws a sharp distinction between tutorials and how-to docs. Tutorials are learning-oriented: they take a beginner through a carefully sequenced experience where the goal is to _learn_. How-to docs are goal-oriented: they help someone who already has context _accomplish a specific task_.
 
 The current `/tutorials/` section contains pages like "Alerting," "Customer-facing webhooks," "Recurring digests," and "Implementing Knock." These are all how-to docs — they assume the reader has some knowledge of Knock and help them solve a specific problem. None of them walk a true beginner through a structured learning experience from zero to a working result.
 
 ### 2. The concepts section is too thin for explanation
 
-The `/concepts/overview` page is a glossary: each concept gets a 1-3 sentence definition and a "Learn more" link. Individual concept pages (e.g., `workflows.mdx`) do go deeper, but they tend to focus on *what* the concept is and *how* to use it, rather than *why* it exists, what problems it solves, and how it relates to architectural decisions.
+The `/concepts/overview` page is a glossary: each concept gets a 1-3 sentence definition and a "Learn more" link. Individual concept pages (e.g., `workflows.mdx`) do go deeper, but they tend to focus on _what_ the concept is and _how_ to use it, rather than _why_ it exists, what problems it solves, and how it relates to architectural decisions.
 
 True Diátaxis explanation content would cover topics like: "Why does Knock use a commit model for version control?", "When should you use batching versus throttling?", "How should you think about modeling your data in Knock?", and "What are the trade-offs of different preference architectures?"
 
@@ -95,7 +95,7 @@ One bright spot: the integration pages (`/integrations/email/*`, `/integrations/
 **Priority.** High
 **Impact.** User understanding; reduced support burden
 
-**Current problem.** The `/concepts/overview` page is a glossary with brief definitions. Individual concept pages focus on usage mechanics rather than mental models and architectural reasoning. Users can learn *what* a batch step is, but not *why* they should choose batching over throttling, or how to think about designing their batch keys.
+**Current problem.** The `/concepts/overview` page is a glossary with brief definitions. Individual concept pages focus on usage mechanics rather than mental models and architectural reasoning. Users can learn _what_ a batch step is, but not _why_ they should choose batching over throttling, or how to think about designing their batch keys.
 
 **Recommended changes.**
 
@@ -133,7 +133,7 @@ One bright spot: the integration pages (`/integrations/email/*`, `/integrations/
 
 **Recommended changes.**
 
-- Introduce a "How-to docs" section (or rename the existing tutorials section) that serves as a central index of task-oriented content. This section does not need to *contain* all how-to pages — it can link to them across the docs — but it should provide a task-oriented entry point.
+- Introduce a "How-to docs" section (or rename the existing tutorials section) that serves as a central index of task-oriented content. This section does not need to _contain_ all how-to pages — it can link to them across the docs — but it should provide a task-oriented entry point.
 - Organize how-to content by user goal rather than by Knock feature. For example:
   - "Sending notifications" — triggering workflows, canceling workflows, sending broadcasts
   - "Building notification logic" — using batching, delays, branches, throttles, conditions
@@ -156,7 +156,7 @@ One bright spot: the integration pages (`/integrations/email/*`, `/integrations/
   - Using the workflow debugger to see what happened
   - Adding a delay or batch step to see how function steps work
   - Setting a preference and seeing it respected
-- Each step should explain *why* the reader is doing what they are doing, not just *what* to do. This is the key difference between a tutorial and a how-to doc.
+- Each step should explain _why_ the reader is doing what they are doing, not just _what_ to do. This is the key difference between a tutorial and a how-to doc.
 - Consider creating framework-specific tutorials (Next.js, React, etc.) that go deeper than the current quick starts, building a complete notification experience end-to-end.
 
 ### 6. Add "When to use this" decision content to workflow function pages
@@ -164,7 +164,7 @@ One bright spot: the integration pages (`/integrations/email/*`, `/integrations/
 **Priority.** Medium
 **Impact.** Better design decisions; fewer support questions
 
-**Current problem.** The workflow function pages (batch, delay, branch, throttle, fetch) explain how each function works, but don't help the reader decide *which* function to use for their situation. A user who knows they need to "reduce notification volume" has to read all five pages to figure out whether they need batching, throttling, or delays.
+**Current problem.** The workflow function pages (batch, delay, branch, throttle, fetch) explain how each function works, but don't help the reader decide _which_ function to use for their situation. A user who knows they need to "reduce notification volume" has to read all five pages to figure out whether they need batching, throttling, or delays.
 
 **Recommended changes.**
 
@@ -210,15 +210,15 @@ One bright spot: the integration pages (`/integrations/email/*`, `/integrations/
 
 ## Implementation priority
 
-| Priority | Recommendation | Effort | Impact |
-|---|---|---|---|
-| 1 | Reclassify tutorials as how-to docs; create real tutorials | Medium | High |
-| 2 | Deepen concepts into genuine explanation content | High | High |
-| 3 | Separate reference from how-to on blended pages | Medium | High |
-| 4 | Create a dedicated how-to section with task-oriented nav | Low-medium | Medium-high |
-| 5 | Expand quick start into proper tutorial experience | Medium | Medium-high |
-| 6 | Add "when to use this" decision content to function pages | Low | Medium |
-| 7 | Standardize page structure with Diátaxis-aware templates | Low-medium | Medium |
-| 8 | Add systematic cross-linking between Diátaxis modes | Low | Medium |
+| Priority | Recommendation                                             | Effort     | Impact      |
+| -------- | ---------------------------------------------------------- | ---------- | ----------- |
+| 1        | Reclassify tutorials as how-to docs; create real tutorials | Medium     | High        |
+| 2        | Deepen concepts into genuine explanation content           | High       | High        |
+| 3        | Separate reference from how-to on blended pages            | Medium     | High        |
+| 4        | Create a dedicated how-to section with task-oriented nav   | Low-medium | Medium-high |
+| 5        | Expand quick start into proper tutorial experience         | Medium     | Medium-high |
+| 6        | Add "when to use this" decision content to function pages  | Low        | Medium      |
+| 7        | Standardize page structure with Diátaxis-aware templates   | Low-medium | Medium      |
+| 8        | Add systematic cross-linking between Diátaxis modes        | Low        | Medium      |
 
 Recommendations 1-3 are the highest priority as they address fundamental structural issues. Recommendations 4-5 improve the onboarding experience. Recommendations 6-8 create long-term consistency and maintainability.
