@@ -28,7 +28,6 @@ import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import { Tag } from "@telegraph/tag";
 import { Code, Text } from "@telegraph/typography";
-import { Kbd } from "@telegraph/kbd";
 
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 
@@ -665,7 +664,7 @@ const Autocomplete = () => {
                 }}
               />
             ) : (
-              <Kbd className="md-hidden" label="/" />
+              <StaticKbd className="md-hidden" label="/" />
             )
           }
         />
