@@ -1,0 +1,47 @@
+---
+title: Update user, tenant, and object function
+description: Learn how to update a user, tenant, or object in Knock during a workflow run.
+tags: ["steps", "users", "tenants", "objects", "data", "functions"]
+section: Designing workflows
+---
+
+The **Data functions** tab in the workflow builder includes three steps that update data in Knock during a workflow run: **Update user**, **Update tenant**, and **Update object**. They all work the same except Update object doesnt't support "Current object" mode. Use them when you need to change a [user](/concepts/users), [tenant](/concepts/tenants), or [object](/concepts/objects) based on workflow context so that downstream steps, [audiences](/concepts/audiences), or other workflows see the updated data.
+
+Common use cases include syncing state from your trigger (for example, "last notified at" on a user, approval status on a tenant, or status on an object), making a user eligible for a dynamic audience or [guide](/concepts/guides), updating [preferences](/preferences/overview) or [tenant-level preference defaults](/preferences/tenant-preferences), or storing channel data (for example, a Slack channel id on an object).
+
+## Selecting the target
+
+How you specify which entity to update depends on the step type.
+
+### Update user and Update tenant
+
+Both steps support a **current** mode.
+
+- **Update user.** By default, Knock updates the current workflow [recipient](/concepts/recipients) (the user this run is for). You can leave this default, or select a property that resolves to a user id (or use a literal user id) to update a different user (for example, the actor or a user id from your trigger data).
+- **Update tenant.** By default, Knock updates the tenant associated with the current workflow run (the `tenant` you passed in the [trigger](/send-notifications/triggering-workflows) or that is otherwise in scope). You can leave this default, or select a property that resolves to a tenant id (or use a literal tenant id) to update a different tenant.
+
+### Update object
+
+The update object step does **not** support a "current object" mode. You must specify which object to update.
+
+- **Collection.** Choose from all [object collections](/concepts/objects) in your environment (for example, "Projects" or "Repositories").
+- **Object id.** Select a property that resolves to the object id within that collection, or use a literal object id. This can come from your trigger data (for example, `data.project_id`), from the recipient when the recipient is an object (`recipient.id`), or from another source in the workflow run.
+
+## Setting properties
+
+For all three steps, you set properties the same way. You can set any number of properties on the target entity. Each property has a **key** and a **value**.
+
+- **Key.** The property name. You can set a value for an existing property or define a new property.
+- **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.foo }}`, `{{ recipient.email }}`, or `{{ tenant.id }}`) so the value is resolved from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"bar"` or `true`).
+
+In the step editor you can edit properties as a JSON blob or in key-value form. Updated properties are stored in Knock and are available to subsequent workflow steps and to the Management API.
+
+### Updating user preferences (Update user only)
+
+The update user step can also update the user's notification preferences. Use this when workflow logic should change what channels or workflows a user is opted in or out of, or when you want to set preference defaults from within a workflow.
+
+## Debugging
+
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug these steps. The logs capture the change made by the step so you can verify the pre-state, the properties that were set, and the post-state.
+
+Update user, tenant, and object steps are also available in the [Management API](/mapi-reference) and can be included when you show or upsert a workflow.
