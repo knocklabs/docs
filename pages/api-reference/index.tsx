@@ -50,6 +50,8 @@ export const getStaticProps: GetStaticProps<
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeMdxCodeProps],
     },
+    blockJS: false,
+    blockDangerousJS: true,
   });
 
   return {
