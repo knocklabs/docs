@@ -1,8 +1,16 @@
 import { dereference } from "@scalar/openapi-parser";
+import { OpenAPIV3 } from "@scalar/openapi-types";
 import deepmerge from "deepmerge";
 import { readFile } from "fs/promises";
+import JSONPointer from "jsonpointer";
 import safeStringify from "safe-stringify";
 import { parse } from "yaml";
+import { RESOURCE_ORDER as API_RESOURCE_ORDER } from "@/data/sidebars/apiOverviewSidebar";
+import { RESOURCE_ORDER as MAPI_RESOURCE_ORDER } from "@/data/sidebars/mapiOverviewSidebar";
+
+// ============================================================================
+// Stainless Spec Types
+// ============================================================================
 
 type StainlessResourceMethod =
   | string
@@ -17,15 +25,7 @@ type StainlessResource = {
   description?: string;
   models?: Record<string, string>;
   methods?: Record<string, StainlessResourceMethod>;
-  subresources?: Record<
-    string,
-    {
-      name?: string;
-      description?: string;
-      models?: Record<string, string>;
-      methods?: Record<string, StainlessResourceMethod>;
-    }
-  >;
+  subresources?: Record<string, StainlessResource>;
 };
 
 interface StainlessConfig {
@@ -35,24 +35,209 @@ interface StainlessConfig {
   environments: Record<string, string>;
 }
 
+// ============================================================================
+// Page Data Types (for multi-page API reference)
+// ============================================================================
+
+/**
+ * Data for a single method page (e.g., /api-reference/users/get)
+ */
+type MethodPageData = {
+  resourceName: string;
+  resourceTitle: string;
+  methodName: string;
+  methodType: string;
+  endpoint: string;
+  operation: OpenAPIV3.OperationObject;
+  baseUrl: string;
+  // Subresource path if this method is in a subresource (e.g., ["feeds"])
+  // Use null instead of undefined for JSON serialization compatibility
+  subresourcePath: string[] | null;
+};
+
+/**
+ * Data for a single schema page (e.g., /api-reference/users/schemas/user)
+ */
+type SchemaPageData = {
+  resourceName: string;
+  resourceTitle: string;
+  schemaName: string;
+  schemaRef: string;
+  schema: OpenAPIV3.SchemaObject;
+  // Subresource path if this schema is in a subresource
+  // Use null instead of undefined for JSON serialization compatibility
+  subresourcePath: string[] | null;
+};
+
+/**
+ * Summary info for a method in resource overview
+ */
+type MethodSummary = {
+  methodName: string;
+  methodType: string;
+  endpoint: string;
+  summary: string;
+};
+
+/**
+ * Summary info for a schema in resource overview
+ */
+type SchemaSummary = {
+  schemaName: string;
+  title: string;
+};
+
+/**
+ * Summary info for a subresource in resource overview
+ */
+type SubresourceSummary = {
+  name: string;
+  title: string;
+  methodCount: number;
+};
+
+/**
+ * Data for a resource overview page (e.g., /api-reference/users)
+ */
+type ResourceOverviewData = {
+  resourceName: string;
+  resource: {
+    name: string | null;
+    description: string | null;
+  };
+  methods: MethodSummary[];
+  schemas: SchemaSummary[];
+  subresources: SubresourceSummary[];
+};
+
+/**
+ * Sidebar page entry
+ */
+type SidebarPage = {
+  slug: string;
+  title: string;
+  pages?: SidebarPage[];
+};
+
+/**
+ * Sidebar section for a resource
+ */
+type SidebarSection = {
+  title: string;
+  slug: string;
+  pages: SidebarPage[];
+};
+
+/**
+ * Complete sidebar data for API reference navigation
+ */
+type SidebarData = {
+  resources: SidebarSection[];
+};
+
+// ============================================================================
+// Spec Name Type
+// ============================================================================
+
+type SpecName = "api" | "mapi";
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
 function yamlToJson(yaml: string) {
   const json = parse(yaml);
   return json;
 }
 
-async function readOpenApiSpec(specName: string) {
-  const spec = await readFile(`./data/specs/${specName}/openapi.yml`, "utf8");
-  const jsonSpec = yamlToJson(spec);
-  const { schema } = await dereference(jsonSpec);
+/**
+ * Resolve endpoint configuration to [methodType, endpoint] tuple.
+ * Handles both string format ("get /v1/users") and object format ({ endpoint: "get /v1/users" })
+ */
+function resolveEndpoint(
+  methodConfig: StainlessResourceMethod,
+): [string, string] {
+  const endpointString =
+    typeof methodConfig === "string" ? methodConfig : methodConfig.endpoint;
 
-  return JSON.parse(safeStringify(schema));
+  const [methodType, endpoint] = endpointString.split(" ");
+  return [methodType.toLowerCase(), endpoint];
+}
+
+// ============================================================================
+// Spec Loading Functions (with caching)
+// ============================================================================
+
+// Module-level caches to avoid re-reading and re-parsing specs for each page
+const openApiSpecCache: Record<string, OpenAPIV3.Document> = {};
+const stainlessSpecCache: Record<string, StainlessConfig> = {};
+const schemaReferencesCache: Record<string, Record<string, string>> = {};
+const sidebarDataCache: Record<string, SidebarData> = {};
+
+// Promises to handle concurrent requests for the same spec
+const openApiSpecPromises: Record<
+  string,
+  Promise<OpenAPIV3.Document> | undefined
+> = {};
+const stainlessSpecPromises: Record<
+  string,
+  Promise<StainlessConfig> | undefined
+> = {};
+
+async function readOpenApiSpec(specName: string): Promise<OpenAPIV3.Document> {
+  // Return cached result if available
+  if (openApiSpecCache[specName]) {
+    return openApiSpecCache[specName];
+  }
+
+  // If already loading, wait for that promise
+  const existingPromise = openApiSpecPromises[specName];
+  if (existingPromise) {
+    return existingPromise;
+  }
+
+  // Start loading and cache the promise
+  const loadPromise = (async (): Promise<OpenAPIV3.Document> => {
+    const spec = await readFile(`./data/specs/${specName}/openapi.yml`, "utf8");
+    const jsonSpec = yamlToJson(spec);
+    const { schema } = await dereference(jsonSpec);
+
+    const result = JSON.parse(safeStringify(schema)) as OpenAPIV3.Document;
+    openApiSpecCache[specName] = result;
+    return result;
+  })();
+
+  openApiSpecPromises[specName] = loadPromise;
+  return loadPromise;
 }
 
 async function readStainlessSpec(specName: string): Promise<StainlessConfig> {
-  const customizations = await readSpecCustomizations(specName);
-  const spec = await readFile(`./data/specs/${specName}/stainless.yml`, "utf8");
-  const stainlessSpec = parse(spec);
-  return deepmerge(stainlessSpec, customizations);
+  // Return cached result if available
+  if (stainlessSpecCache[specName]) {
+    return stainlessSpecCache[specName];
+  }
+
+  // If already loading, wait for that promise
+  const existingPromise = stainlessSpecPromises[specName];
+  if (existingPromise) {
+    return existingPromise;
+  }
+
+  // Start loading and cache the promise
+  const loadPromise = (async (): Promise<StainlessConfig> => {
+    const customizations = await readSpecCustomizations(specName);
+    const spec = await readFile(
+      `./data/specs/${specName}/stainless.yml`,
+      "utf8",
+    );
+    const stainlessSpec = parse(spec);
+    const result = deepmerge(stainlessSpec, customizations) as StainlessConfig;
+    stainlessSpecCache[specName] = result;
+    return result;
+  })();
+
+  stainlessSpecPromises[specName] = loadPromise;
+  return loadPromise;
 }
 
 async function readSpecCustomizations(specName: string) {
@@ -65,5 +250,660 @@ async function readSpecCustomizations(specName: string) {
   return customizations;
 }
 
-export type { StainlessResource, StainlessConfig };
-export { readOpenApiSpec, readStainlessSpec };
+// ============================================================================
+// Resource Order
+// ============================================================================
+
+/**
+ * Get the resource order for a given spec.
+ * Uses the RESOURCE_ORDER arrays defined in the sidebar config files.
+ */
+function getResourceOrderForSpec(specName: SpecName): string[] {
+  return specName === "api" ? API_RESOURCE_ORDER : MAPI_RESOURCE_ORDER;
+}
+
+/**
+ * Get the ordered list of resource names for a spec.
+ * This determines the order resources appear in the sidebar.
+ */
+async function getResourceOrder(specName: SpecName): Promise<string[]> {
+  return getResourceOrderForSpec(specName);
+}
+
+// ============================================================================
+// Method Page Data Loader
+// ============================================================================
+
+/**
+ * Navigate to a subresource using a path array.
+ * Returns the subresource at the given path, or undefined if not found.
+ */
+function getSubresource(
+  resource: StainlessResource,
+  subresourcePath: string[],
+): StainlessResource | undefined {
+  let current: StainlessResource | undefined = resource;
+
+  for (const pathSegment of subresourcePath) {
+    if (!current?.subresources?.[pathSegment]) {
+      return undefined;
+    }
+    current = current.subresources[pathSegment];
+  }
+
+  return current;
+}
+
+/**
+ * Load data for a single method page.
+ * Supports methods in both top-level resources and subresources.
+ */
+async function getMethodPageData(
+  specName: SpecName,
+  resourceName: string,
+  methodName: string,
+  subresourcePath: string[] = [],
+): Promise<MethodPageData | null> {
+  const [openApiSpec, stainlessSpec] = await Promise.all([
+    readOpenApiSpec(specName),
+    readStainlessSpec(specName),
+  ]);
+
+  const resource = stainlessSpec.resources[resourceName];
+  if (!resource) {
+    return null;
+  }
+
+  // Navigate to the target resource (may be a subresource)
+  const targetResource =
+    subresourcePath.length > 0
+      ? getSubresource(resource, subresourcePath)
+      : resource;
+
+  if (!targetResource?.methods?.[methodName]) {
+    return null;
+  }
+
+  const methodConfig = targetResource.methods[methodName];
+  const [methodType, endpoint] = resolveEndpoint(methodConfig);
+  const operation = openApiSpec.paths?.[endpoint]?.[
+    methodType as keyof OpenAPIV3.PathItemObject
+  ] as OpenAPIV3.OperationObject | undefined;
+
+  if (!operation) {
+    return null;
+  }
+
+  // Determine the resource title (use parent resource name for subresources)
+  const resourceTitle = resource.name || resourceName;
+
+  return {
+    resourceName,
+    resourceTitle,
+    methodName,
+    methodType,
+    endpoint,
+    operation,
+    baseUrl: stainlessSpec.environments.production,
+    subresourcePath: subresourcePath.length > 0 ? subresourcePath : null,
+  };
+}
+
+// ============================================================================
+// Schema Page Data Loader
+// ============================================================================
+
+/**
+ * Load data for a single schema page.
+ * Supports schemas in both top-level resources and subresources.
+ */
+async function getSchemaPageData(
+  specName: SpecName,
+  resourceName: string,
+  schemaName: string,
+  subresourcePath: string[] = [],
+): Promise<SchemaPageData | null> {
+  const [openApiSpec, stainlessSpec] = await Promise.all([
+    readOpenApiSpec(specName),
+    readStainlessSpec(specName),
+  ]);
+
+  const resource = stainlessSpec.resources[resourceName];
+  if (!resource) {
+    return null;
+  }
+
+  // Navigate to the target resource (may be a subresource)
+  const targetResource =
+    subresourcePath.length > 0
+      ? getSubresource(resource, subresourcePath)
+      : resource;
+
+  if (!targetResource?.models?.[schemaName]) {
+    return null;
+  }
+
+  const schemaRef = targetResource.models[schemaName];
+  const schema = JSONPointer.get(openApiSpec, schemaRef.replace("#", "")) as
+    | OpenAPIV3.SchemaObject
+    | undefined;
+
+  if (!schema) {
+    return null;
+  }
+
+  const resourceTitle = resource.name || resourceName;
+
+  return {
+    resourceName,
+    resourceTitle,
+    schemaName,
+    schemaRef,
+    schema,
+    subresourcePath: subresourcePath.length > 0 ? subresourcePath : null,
+  };
+}
+
+// ============================================================================
+// Resource Overview Data Loader
+// ============================================================================
+
+/**
+ * Load data for a resource overview page.
+ * Includes list of methods, schemas, and subresources with summary info.
+ */
+async function getResourceOverviewData(
+  specName: SpecName,
+  resourceName: string,
+  subresourcePath: string[] = [],
+): Promise<ResourceOverviewData | null> {
+  const [openApiSpec, stainlessSpec] = await Promise.all([
+    readOpenApiSpec(specName),
+    readStainlessSpec(specName),
+  ]);
+
+  const resource = stainlessSpec.resources[resourceName];
+  if (!resource) {
+    return null;
+  }
+
+  // Navigate to the target resource (may be a subresource)
+  const targetResource =
+    subresourcePath.length > 0
+      ? getSubresource(resource, subresourcePath)
+      : resource;
+
+  if (!targetResource) {
+    return null;
+  }
+
+  // Build list of methods with summary info
+  const methods: MethodSummary[] = Object.entries(
+    targetResource.methods || {},
+  ).map(([methodName, config]) => {
+    const [methodType, endpoint] = resolveEndpoint(config);
+    const operation = openApiSpec.paths?.[endpoint]?.[
+      methodType as keyof OpenAPIV3.PathItemObject
+    ] as OpenAPIV3.OperationObject | undefined;
+    return {
+      methodName,
+      methodType,
+      endpoint,
+      summary: operation?.summary || methodName,
+    };
+  });
+
+  // Build list of schemas with name/title
+  const schemas: SchemaSummary[] = Object.entries(
+    targetResource.models || {},
+  ).map(([schemaName, ref]) => {
+    const schema = JSONPointer.get(openApiSpec, ref.replace("#", "")) as
+      | OpenAPIV3.SchemaObject
+      | undefined;
+    return {
+      schemaName,
+      title: schema?.title || schemaName,
+    };
+  });
+
+  // Build subresource info
+  const subresources: SubresourceSummary[] = Object.entries(
+    targetResource.subresources || {},
+  ).map(([subName, subResource]) => ({
+    name: subName,
+    title: subResource.name || subName,
+    methodCount: Object.keys(subResource.methods || {}).length,
+  }));
+
+  return {
+    resourceName,
+    resource: {
+      name: targetResource.name || null,
+      description: targetResource.description || null,
+    },
+    methods,
+    schemas,
+    subresources,
+  };
+}
+
+// ============================================================================
+// Path Generation for Static Paths
+// ============================================================================
+
+type ApiReferencePath = {
+  params: {
+    resource: string;
+    slug?: string[];
+  };
+};
+
+/**
+ * Generate all static paths for API reference pages.
+ * Used by getStaticPaths to generate all method, schema, and subresource pages.
+ */
+async function getAllApiReferencePaths(
+  specName: SpecName,
+): Promise<ApiReferencePath[]> {
+  const stainlessSpec = await readStainlessSpec(specName);
+  const paths: ApiReferencePath[] = [];
+
+  function processResource(
+    resource: StainlessResource,
+    resourceName: string,
+    parentSlug: string[] = [],
+  ) {
+    // Resource overview (no slug for top-level, has slug for subresources)
+    if (parentSlug.length === 0) {
+      paths.push({ params: { resource: resourceName } });
+    } else {
+      // Subresource overview
+      paths.push({
+        params: {
+          resource: resourceName,
+          slug: parentSlug,
+        },
+      });
+    }
+
+    // Method pages
+    if (resource.methods) {
+      Object.keys(resource.methods).forEach((methodName) => {
+        paths.push({
+          params: {
+            resource: resourceName,
+            slug: [...parentSlug, methodName],
+          },
+        });
+      });
+    }
+
+    // Schema pages
+    if (resource.models) {
+      // Add the schemas index path (for "Object definitions" sidebar entry)
+      paths.push({
+        params: {
+          resource: resourceName,
+          slug: [...parentSlug, "schemas"],
+        },
+      });
+
+      // Add individual schema paths
+      Object.keys(resource.models).forEach((schemaName) => {
+        paths.push({
+          params: {
+            resource: resourceName,
+            slug: [...parentSlug, "schemas", schemaName],
+          },
+        });
+      });
+    }
+
+    // Subresources (recursive)
+    if (resource.subresources) {
+      Object.entries(resource.subresources).forEach(
+        ([subName, subResource]) => {
+          // Process subresource methods, schemas, and nested subresources
+          processResource(subResource, resourceName, [...parentSlug, subName]);
+        },
+      );
+    }
+  }
+
+  Object.entries(stainlessSpec.resources).forEach(
+    ([resourceName, resource]) => {
+      processResource(resource, resourceName);
+    },
+  );
+
+  return paths;
+}
+
+// ============================================================================
+// Sidebar Data Loader
+// ============================================================================
+
+/**
+ * Build sidebar pages for a resource (recursively handles subresources)
+ */
+function buildResourceSidebarPages(
+  resource: StainlessResource,
+  openApiSpec: OpenAPIV3.Document,
+  pathPrefix: string,
+): SidebarPage[] {
+  const pages: SidebarPage[] = [];
+
+  // Methods
+  if (resource.methods) {
+    Object.entries(resource.methods).forEach(([methodName, methodConfig]) => {
+      const [methodType, endpoint] = resolveEndpoint(methodConfig);
+      const operation = openApiSpec.paths?.[endpoint]?.[
+        methodType as keyof OpenAPIV3.PathItemObject
+      ] as OpenAPIV3.OperationObject | undefined;
+
+      pages.push({
+        slug: `${pathPrefix}/${methodName}`,
+        title: operation?.summary || methodName,
+      });
+    });
+  }
+
+  // Subresources
+  if (resource.subresources) {
+    Object.entries(resource.subresources).forEach(([subName, subResource]) => {
+      const subPages = buildResourceSidebarPages(
+        subResource,
+        openApiSpec,
+        `${pathPrefix}/${subName}`,
+      );
+
+      pages.push({
+        slug: `${pathPrefix}/${subName}`,
+        title: subResource.name || subName,
+        pages: subPages,
+      });
+    });
+  }
+
+  // Schemas
+  if (resource.models && Object.keys(resource.models).length > 0) {
+    const schemaPages: SidebarPage[] = Object.entries(resource.models).map(
+      ([schemaName, schemaRef]) => {
+        const schema = JSONPointer.get(
+          openApiSpec,
+          schemaRef.replace("#", ""),
+        ) as OpenAPIV3.SchemaObject | undefined;
+
+        return {
+          slug: `${pathPrefix}/schemas/${schemaName}`,
+          title: schema?.title || schemaName,
+        };
+      },
+    );
+
+    pages.push({
+      slug: `${pathPrefix}/schemas`,
+      title: "Object definitions",
+      pages: schemaPages,
+    });
+  }
+
+  return pages;
+}
+
+/**
+ * Load sidebar structure for navigation.
+ * Includes links to all resources, methods, and schemas.
+ * Resources are ordered according to RESOURCE_ORDER defined in sidebar config files.
+ */
+async function getSidebarData(specName: SpecName): Promise<SidebarData> {
+  // Return cached result if available
+  if (sidebarDataCache[specName]) {
+    return sidebarDataCache[specName];
+  }
+
+  const [openApiSpec, stainlessSpec] = await Promise.all([
+    readOpenApiSpec(specName),
+    readStainlessSpec(specName),
+  ]);
+
+  const basePath = specName === "api" ? "/api-reference" : "/mapi-reference";
+  const resourceOrder = getResourceOrderForSpec(specName);
+
+  const resources: SidebarSection[] = resourceOrder
+    .filter((resourceName) => stainlessSpec.resources[resourceName])
+    .map((resourceName) => {
+      const resource = stainlessSpec.resources[resourceName];
+      const pathPrefix = `${basePath}/${resourceName}`;
+
+      return {
+        title: resource.name || resourceName,
+        slug: pathPrefix,
+        pages: buildResourceSidebarPages(resource, openApiSpec, pathPrefix),
+      };
+    });
+
+  const result = { resources };
+  sidebarDataCache[specName] = result;
+  return result;
+}
+
+// ============================================================================
+// Schema References Builder
+// ============================================================================
+
+/**
+ * Build a map of schema names to their URL paths.
+ * Used for cross-linking schemas in method documentation.
+ */
+function buildSchemaReferencesForResource(
+  resource: StainlessResource,
+  openApiSpec: OpenAPIV3.Document,
+  basePath: string,
+): Record<string, string> {
+  const schemaReferences: Record<string, string> = {};
+
+  if (resource.models) {
+    Object.entries(resource.models).forEach(([modelName, modelRef]) => {
+      const schema = JSONPointer.get(openApiSpec, modelRef.replace("#", "")) as
+        | OpenAPIV3.SchemaObject
+        | undefined;
+
+      const title = schema?.title ?? modelName;
+
+      if (schema) {
+        schemaReferences[title] = `${basePath}/schemas/${modelName}`;
+        // Also map array types
+        schemaReferences[`${title}[]`] = `${basePath}/schemas/${modelName}`;
+      }
+    });
+  }
+
+  if (resource.subresources) {
+    Object.entries(resource.subresources).forEach(
+      ([subresourceName, subresource]) => {
+        Object.assign(
+          schemaReferences,
+          buildSchemaReferencesForResource(
+            subresource,
+            openApiSpec,
+            `${basePath}/${subresourceName}`,
+          ),
+        );
+      },
+    );
+  }
+
+  return schemaReferences;
+}
+
+/**
+ * Build complete schema references map for all resources.
+ */
+async function buildSchemaReferences(
+  specName: SpecName,
+): Promise<Record<string, string>> {
+  // Return cached result if available
+  if (schemaReferencesCache[specName]) {
+    return schemaReferencesCache[specName];
+  }
+
+  const [openApiSpec, stainlessSpec] = await Promise.all([
+    readOpenApiSpec(specName),
+    readStainlessSpec(specName),
+  ]);
+
+  const basePath = specName === "api" ? "/api-reference" : "/mapi-reference";
+  const schemaReferences: Record<string, string> = {};
+
+  Object.entries(stainlessSpec.resources).forEach(
+    ([resourceName, resource]) => {
+      Object.assign(
+        schemaReferences,
+        buildSchemaReferencesForResource(
+          resource,
+          openApiSpec,
+          `${basePath}/${resourceName}`,
+        ),
+      );
+    },
+  );
+
+  schemaReferencesCache[specName] = schemaReferences;
+  return schemaReferences;
+}
+
+// ============================================================================
+// Full Resource Page Data (for per-resource pages)
+// ============================================================================
+
+/**
+ * Data for a full resource page that renders all methods, schemas, and subresources
+ */
+type FullResourcePageData = {
+  resourceName: string;
+  resource: StainlessResource;
+  openApiSpec: OpenAPIV3.Document;
+  stainlessConfig: StainlessConfig;
+  baseUrl: string;
+  schemaReferences: Record<string, string>;
+};
+
+/**
+ * Load all data needed to render a full resource page.
+ * This includes the resource definition and the OpenAPI spec for resolving operations/schemas.
+ */
+async function getFullResourcePageData(
+  specName: SpecName,
+  resourceName: string,
+): Promise<FullResourcePageData | null> {
+  const [openApiSpec, stainlessSpec, schemaReferences] = await Promise.all([
+    readOpenApiSpec(specName),
+    readStainlessSpec(specName),
+    buildSchemaReferences(specName),
+  ]);
+
+  const resource = stainlessSpec.resources[resourceName];
+
+  if (!resource) {
+    return null;
+  }
+
+  const baseUrl = stainlessSpec.environments["production"] || "";
+
+  return {
+    resourceName,
+    resource,
+    openApiSpec,
+    stainlessConfig: stainlessSpec,
+    baseUrl,
+    schemaReferences,
+  };
+}
+
+// ============================================================================
+// Split Resource Data (optimized per-resource data from pre-built files)
+// ============================================================================
+
+/**
+ * Pre-split resource data loaded from generated JSON files.
+ * Contains only the data needed to render a single resource page,
+ * significantly smaller than FullResourcePageData.
+ */
+type SplitResourceData = {
+  resourceName: string;
+  resource: StainlessResource;
+  paths: Record<string, OpenAPIV3.PathItemObject>;
+  schemas: Record<string, OpenAPIV3.SchemaObject>;
+  schemaReferences: Record<string, string>;
+  baseUrl: string;
+};
+
+/**
+ * Load pre-split resource data from generated JSON file.
+ * These files are created by scripts/splitOpenApiSpec.ts during build.
+ *
+ * Falls back to getFullResourcePageData if the split file doesn't exist
+ * (e.g., during development before running split-specs).
+ */
+async function getSplitResourceData(
+  specName: SpecName,
+  resourceName: string,
+): Promise<SplitResourceData | null> {
+  const filePath = `./data/specs/${specName}/resources/${resourceName}.json`;
+
+  try {
+    const data = await readFile(filePath, "utf8");
+    return JSON.parse(data) as SplitResourceData;
+  } catch {
+    // File doesn't exist, likely running in dev without split-specs
+    console.warn(
+      `Split resource file not found: ${filePath}. Run 'yarn split-specs' to generate.`,
+    );
+    return null;
+  }
+}
+
+// ============================================================================
+// Exports
+// ============================================================================
+
+export type {
+  StainlessResource,
+  StainlessResourceMethod,
+  StainlessConfig,
+  MethodPageData,
+  SchemaPageData,
+  ResourceOverviewData,
+  MethodSummary,
+  SchemaSummary,
+  SubresourceSummary,
+  SidebarPage,
+  SidebarSection,
+  SidebarData,
+  ApiReferencePath,
+  SpecName,
+  FullResourcePageData,
+  SplitResourceData,
+};
+
+export {
+  // Existing exports
+  readOpenApiSpec,
+  readStainlessSpec,
+  // New helper
+  resolveEndpoint,
+  // New page data loaders
+  getMethodPageData,
+  getSchemaPageData,
+  getResourceOverviewData,
+  getFullResourcePageData,
+  getSplitResourceData,
+  // Path generation
+  getAllApiReferencePaths,
+  getResourceOrder,
+  // Sidebar data
+  getSidebarData,
+  // Schema references
+  buildSchemaReferences,
+};

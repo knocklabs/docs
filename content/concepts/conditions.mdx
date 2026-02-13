@@ -99,6 +99,40 @@ Dynamic arguments are nearly identical to variables. Knock will expect a string 
 
 See the [conditions scope](#conditions-scope) for a list of available prefixes.
 
+#### Timestamp arguments
+
+The timestamp operators (`is_timestamp_before`, `is_timestamp_on_or_after`, and `is_timestamp_between`) accept timestamp arguments in three formats:
+
+- **Relative.** A time relative to when the condition is evaluated. Relative timestamps include a value, a unit (`minutes`, `hours`, `days`, or `weeks`), and a modifier (`from now` or `ago`). For example, "7 days ago" or "3 days from now".
+- **Absolute.** A fixed date and time. In JSON, this is represented in ISO 8601 format (e.g., `"2025-06-15T14:30:00Z"`).
+- **Dynamic.** A Liquid template variable that resolves to a timestamp at runtime (e.g., `{{ recipient.subscription_ends_at }}`). Dynamic timestamp arguments are available in workflows, broadcasts, and guides.
+
+<Callout
+  type="info"
+  text={
+    <>
+      <p>Timestamp condition limitations:</p>
+      <ul>
+        <li>
+          <strong>Minimum duration.</strong> Relative timestamps must be at
+          least 15 minutes.
+        </li>
+        <li>
+          <strong>Precise calculations.</strong> Relative times are calculated
+          precisely from the current time. For example, "1 day from now" means
+          exactly 24 hours from the moment the condition is evaluated, not
+          "tomorrow".
+        </li>
+        <li>
+          <strong>Between operator.</strong> The{" "}
+          <code>is_timestamp_between</code> operator only supports absolute
+          dates or dynamic variables, not relative timestamps.
+        </li>
+      </ul>
+    </>
+  }
+/>
+
 ### Operators
 
 You can use any of the following operators in condition comparisons:
@@ -117,6 +151,9 @@ You can use any of the following operators in condition comparisons:
 | `not_contains_all`         | are all `argument` not in `variable` (works with single arguments, or lists of arguments) |
 | `empty`                    | `variable` in `["", null, []]`                                                            |
 | `not_empty`                | `variable` not in `["", null, []]`                                                        |
+| `is_timestamp_before`      | Checks if the variable is a timestamp before the argument value                           |
+| `is_timestamp_on_or_after` | Checks if the variable is a timestamp on or after the argument value                      |
+| `is_timestamp_between`     | Checks if the variable is a timestamp between the argument's start and end values         |
 
 Note: the `empty` and `not_empty` operators do not require a companion argument value in the condition, since Knock is checking for the absence of data from the variable path.
 

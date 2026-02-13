@@ -28,7 +28,6 @@ import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import { Tag } from "@telegraph/tag";
 import { Code, Text } from "@telegraph/typography";
-import { Kbd } from "@telegraph/kbd";
 
 import { DocsSearchItem, EndpointSearchItem } from "@/types";
 
@@ -645,30 +644,28 @@ const Autocomplete = () => {
             />
           }
           TrailingComponent={
-            <>
-              {autocompleteState?.query ? (
-                <Button
-                  variant="ghost"
-                  size="1"
-                  color="default"
-                  iconOnly={true}
-                  icon={{
-                    icon: X,
-                    alt: "Clear",
-                    color: "black",
-                    "aria-hidden": true,
-                  }}
-                  onClick={() => {
-                    autocomplete.setQuery("");
-                    if (inputRef.current) {
-                      (inputRef.current as HTMLInputElement).focus();
-                    }
-                  }}
-                />
-              ) : (
-                <Kbd className="md-hidden" label="/" />
-              )}
-            </>
+            autocompleteState?.query ? (
+              <Button
+                variant="ghost"
+                size="1"
+                color="default"
+                iconOnly={true}
+                icon={{
+                  icon: X,
+                  alt: "Clear",
+                  color: "black",
+                  "aria-hidden": true,
+                }}
+                onClick={() => {
+                  autocomplete.setQuery("");
+                  if (inputRef.current) {
+                    (inputRef.current as HTMLInputElement).focus();
+                  }
+                }}
+              />
+            ) : (
+              <StaticKbd className="md-hidden" label="/" />
+            )
           }
         />
       </Box>

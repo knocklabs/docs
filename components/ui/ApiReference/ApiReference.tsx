@@ -75,7 +75,13 @@ function ApiReference({
               description={`Complete reference documentation for the Knock ${name}.`}
               bottomContent={
                 // Optically align with content above
-                <ContentActions showOnMobile style={{ marginLeft: "-6px" }} />
+                // Use basePath to ensure the mdPath stays at the root (e.g., /api-reference.md)
+                // regardless of scroll-based URL changes
+                <ContentActions
+                  showOnMobile
+                  style={{ marginLeft: "-6px" }}
+                  mdPath={`/${basePath}.md`}
+                />
               }
             />
             <TelegraphPage.ContentBody>

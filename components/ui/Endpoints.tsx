@@ -1,19 +1,17 @@
 import { Box, Stack } from "@telegraph/layout";
-import { Code, Text } from "@telegraph/typography";
+import { Code, Heading } from "@telegraph/typography";
 import { Tag } from "@telegraph/tag";
 import Link from "next/link";
 
 const Endpoints = ({ children, title = "Endpoints" }) => (
-  <Box border="px" borderColor="gray-3" borderRadius="2" maxW="full">
-    <Box bg="gray-2" p="2">
-      <Text as="span" size="2" weight="medium">
-        {title}
-      </Text>
-    </Box>
-    <Box py="1" px="4" style={{ overflowX: "auto" }}>
+  <Stack direction="column" gap="3" maxW="full">
+    <Heading as="h3" size="2" weight="medium">
+      {title}
+    </Heading>
+    <Stack direction="column" gap="2" style={{ overflowX: "auto" }}>
       {children}
-    </Box>
-  </Box>
+    </Stack>
+  </Stack>
 );
 
 const EndpointText = ({
@@ -25,7 +23,7 @@ const EndpointText = ({
   path: string;
   id?: string;
 }) => (
-  <Stack direction="row" align="center" {...(id ? { id } : {})}>
+  <Stack direction="row" align="center" id={id}>
     <Tag
       color={
         method === "GET"
@@ -42,7 +40,14 @@ const EndpointText = ({
     >
       {method}
     </Tag>
-    <Code as="span" size="1" overflow="hidden" textOverflow="ellipsis">
+    <Code
+      display="block"
+      as="span"
+      size="1"
+      overflow="hidden"
+      textOverflow="ellipsis"
+      mt="1"
+    >
       {path}
     </Code>
   </Stack>
@@ -68,7 +73,7 @@ const Endpoint = ({ method, path, name, withLink = false }) => {
   };
 
   return (
-    <Box my="3">
+    <Box>
       {withLink && id ? (
         <Link href={`#${id}`} passHref onClick={handleClick}>
           <EndpointText method={method} path={path} />

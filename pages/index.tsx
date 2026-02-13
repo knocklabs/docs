@@ -71,7 +71,7 @@ export default function Home() {
             <Text
               as={Link}
               href="/getting-started/what-is-knock"
-              size="3"
+              size="2"
               color="accent"
               weight="medium"
             >

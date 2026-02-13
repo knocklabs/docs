@@ -5,7 +5,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Getting started",
     slug: "/cli/overview",
     pages: [
-      { slug: "", title: "Introduction" },
+      { slug: "/", title: "Overview" },
       { slug: "/installation", title: "Install the Knock CLI" },
       { slug: "/authentication", title: "Authentication" },
       { slug: "/global-flags", title: "Global flags" },
@@ -17,7 +17,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
 
   {
     title: "Authentication",
-    slug: "/cli",
+    slug: "/cli/authentication",
     pages: [
       { slug: "/login", title: "Login" },
       { slug: "/logout", title: "Logout" },
@@ -26,7 +26,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
 
   {
     title: "Managing resources",
-    slug: "/cli",
+    slug: "/cli/resources",
     pages: [
       { slug: "/init", title: "Initialize a new project" },
       { slug: "/pull", title: "Pull all resources" },
@@ -37,13 +37,19 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   {
     title: "Environments",
     slug: "/cli/environment",
-    pages: [{ slug: "/list", title: "List environments" }],
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/list", title: "List environments" },
+    ],
   },
 
   {
     title: "Channels",
     slug: "/cli/channel",
-    pages: [{ slug: "/list", title: "List channels" }],
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/list", title: "List channels" },
+    ],
   },
 
   {
@@ -51,7 +57,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     slug: "/cli/branch",
     isBeta: true,
     pages: [
-      { slug: "/overview", title: "Overview" },
+      { slug: "/", title: "Overview" },
       { slug: "/list", title: "List branches" },
       { slug: "/create", title: "Create branches" },
       { slug: "/delete", title: "Delete branches" },
@@ -65,6 +71,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Workflows",
     slug: "/cli/workflow",
     pages: [
+      { slug: "/", title: "Overview" },
       { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List workflows" },
       { slug: "/get", title: "Get workflows" },
@@ -82,6 +89,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Email layouts",
     slug: "/cli/email-layout",
     pages: [
+      { slug: "/", title: "Overview" },
       { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List email layouts" },
       { slug: "/get", title: "Get email layouts" },
@@ -96,6 +104,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Translations",
     slug: "/cli/translation",
     pages: [
+      { slug: "/", title: "Overview" },
       { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List translations" },
       { slug: "/get", title: "Get translations" },
@@ -109,6 +118,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Partials",
     slug: "/cli/partial",
     pages: [
+      { slug: "/", title: "Overview" },
       { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List partials" },
       { slug: "/new", title: "Create a new partial" },
@@ -123,6 +133,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Commits",
     slug: "/cli/commit",
     pages: [
+      { slug: "/", title: "Overview" },
       { slug: "/list", title: "List commits" },
       { slug: "/get", title: "Get commits" },
       { slug: "/all", title: "Commit changes" },
@@ -134,6 +145,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Guides",
     slug: "/cli/guide",
     pages: [
+      { slug: "/", title: "Overview" },
       { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List guides" },
       { slug: "/new", title: "Create a new guide" },
@@ -148,6 +160,7 @@ export const CLI_SIDEBAR: SidebarContent[] = [
     title: "Message types",
     slug: "/cli/message-type",
     pages: [
+      { slug: "/", title: "Overview" },
       { slug: "/file-structure", title: "File structure" },
       { slug: "/list", title: "List message types" },
       { slug: "/new", title: "Create a new message type" },
