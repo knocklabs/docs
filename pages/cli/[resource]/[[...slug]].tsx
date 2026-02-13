@@ -107,6 +107,8 @@ export const getStaticProps: GetStaticProps<CliPageProps> = async ({
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeMdxCodeProps],
     },
+    blockJS: false,
+    blockDangerousJS: true,
   });
 
   const frontmatter = (mdx.frontmatter || {}) as {

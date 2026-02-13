@@ -44,6 +44,8 @@ export const getStaticProps: GetStaticProps<CliIndexPageProps> = async () => {
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeMdxCodeProps],
     },
+    blockJS: false,
+    blockDangerousJS: true,
   });
 
   const frontmatter = (mdx.frontmatter || {}) as {
