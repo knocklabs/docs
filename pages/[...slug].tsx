@@ -89,6 +89,8 @@ export async function getStaticProps({ params: { slug } }) {
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeSlug, rehypeMdxCodeProps, rehypeAutolinkHeadings],
     },
+    blockJS: false,
+    blockDangerousJS: true,
   });
 
   // Extend frontmatter
