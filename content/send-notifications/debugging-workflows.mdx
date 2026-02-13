@@ -52,3 +52,37 @@ You can access the workflow debugger from our "Logs" page, which you'll find in 
 3. Select a workflow run for any recipient to view the debugger
 
 **Note**: you can also use the debugger to look at test runs as well.
+
+## Understanding workflow execution behavior
+
+When a workflow runs, each step is executed in sequence. It's important to understand the difference between a step that **fails** and a step that is **skipped**, as they have very different effects on the workflow run.
+
+### When a channel step fails
+
+When a channel step encounters an error during execution—such as a template rendering failure or invalid channel configuration—Knock will retry the step up to **3 times**. If all retry attempts fail, the **entire workflow run is halted** and no subsequent steps will execute.
+
+Common causes of channel step failures include:
+
+- **Template rendering errors.** Invalid Liquid syntax or missing required variables that prevent the template from rendering.
+- **Invalid channel configuration.** Misconfigured channel settings or credentials that prevent the notification from being created.
+
+You can identify failed steps in the workflow debugger by looking for error states on individual steps. The debugger will show you the error details to help diagnose and fix the issue.
+
+<Callout
+  type="warning"
+  title="Workflow halts on step failure"
+  text="When a channel step fails after exhausting all retry attempts, the workflow run stops immediately. Any subsequent steps in the workflow will not execute."
+/>
+
+### When a channel step is skipped
+
+In contrast to failures, there are several controlled scenarios where a step is **skipped** and the workflow continues to execute subsequent steps. A skipped step does not generate a message, but it does not halt the workflow.
+
+Steps are skipped when:
+
+- **Step conditions are not met.** If a step has [conditions](/designing-workflows/step-conditions) configured and they evaluate to false, the step is skipped.
+- **Channel configuration is missing.** If the channel associated with the step has not been configured in the current environment, the step is skipped.
+- **Recipient preferences opt out.** If the recipient has set [preferences](/preferences/overview) that opt them out of this notification type or channel, the step is skipped.
+- **Recipient is missing required data.** If the recipient lacks the data required for delivery on this channel (e.g., no email address for an email step, no phone number for an SMS step, no [channel data](/send-notifications/setting-channel-data) for a push step), the step is skipped.
+
+The workflow debugger will indicate when a step has been skipped and provide the reason, helping you understand why a recipient did not receive a notification on a particular channel.
