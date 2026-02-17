@@ -79,10 +79,17 @@ export function InkeepModalProvider({ children }: { children: ReactNode }) {
       <div className="md-visible">
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed right-4 bottom-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white shadow-lg"
+          className="fixed right-4 bottom-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg"
+          style={{
+            borderColor: "var(--tgph-gray-4)",
+            backgroundColor: "var(--tgph-surface-1)",
+          }}
           aria-label="Open chat"
         >
-          <MessageSquare className="h-5 w-5 text-black" />
+          <MessageSquare
+            className="h-5 w-5"
+            style={{ color: "var(--tgph-gray-12)" }}
+          />
         </button>
       </div>
       <ModalChat {...modalChatProps} />

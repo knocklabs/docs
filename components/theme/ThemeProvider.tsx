@@ -6,6 +6,7 @@ import {
   getInitialThemeAppearance,
   isThemeAppearance,
   persistThemeAppearance,
+  THEME_ATTRIBUTE,
   ThemeAppearance,
 } from "@/lib/theme";
 
@@ -21,9 +22,16 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const { appearance: telegraphAppearance, setAppearance: setTelegraphAppearance } =
     useAppearance();
 
-  const appearance = isThemeAppearance(telegraphAppearance)
-    ? telegraphAppearance
-    : getInitialThemeAppearance();
+  const documentAppearance =
+    typeof document !== "undefined"
+      ? document.documentElement.getAttribute(THEME_ATTRIBUTE)
+      : null;
+
+  const appearance = isThemeAppearance(documentAppearance)
+    ? documentAppearance
+    : isThemeAppearance(telegraphAppearance)
+      ? telegraphAppearance
+      : getInitialThemeAppearance();
 
   const setAppearance = useCallback(
     (newAppearance: ThemeAppearance) => {

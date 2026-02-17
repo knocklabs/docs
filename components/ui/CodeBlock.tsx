@@ -15,6 +15,7 @@ import kotlin from "react-syntax-highlighter/dist/cjs/languages/hljs/kotlin";
 import swift from "react-syntax-highlighter/dist/cjs/languages/hljs/swift";
 import bash from "react-syntax-highlighter/dist/cjs/languages/hljs/bash";
 import { useClipboard } from "@/hooks/useClipboard";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 import { lightCodeTheme, darkCodeTheme } from "../../styles/codeThemes";
 import { normalize } from "../../lib/normalizeCode";
@@ -121,6 +122,7 @@ export const CodeBlock: React.FC<Props> = ({
   ...props
 }) => {
   const isMounted = useIsMounted();
+  const { appearance } = useTheme();
 
   const params = useMemo(() => getParams(className) as any, [className]);
 
@@ -239,7 +241,7 @@ export const CodeBlock: React.FC<Props> = ({
           paddingLeft: "0px",
         }}
         language={lang}
-        style={lightCodeTheme}
+        style={appearance === "dark" ? darkCodeTheme : lightCodeTheme}
       >
         {content}
       </SyntaxHighlighter>
