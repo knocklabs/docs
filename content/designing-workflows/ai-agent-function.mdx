@@ -9,7 +9,7 @@ section: Designing workflows
   type="beta"
   text={
     <>
-      AI agent function is currently in beta. If you'd like early access, or
+      AI agent function is currently in beta. If you'd like early access, or if
       this is blocking your adoption of Knock, please{" "}
       <a href="mailto:support@knock.app?subject=AI agent function beta access">
         get in touch
@@ -32,7 +32,7 @@ Common use cases include:
 When a workflow run reaches an AI agent step, Knock:
 
 1. Renders your prompt with the current [workflow run scope](/concepts/conditions#condition-types) (recipient, actor, tenant, data, etc.).
-2. Sends the prompt to the AI model you configured.
+2. Sends the prompt to the AI model you've selected.
 3. Adds the response to the workflow run data.
 
 The response is stored as `data.<step_ref>`. You can reference this data in subsequent steps and templates.
@@ -50,23 +50,27 @@ Generally we recommend using a faster, lightweight model for quick tasks (e.g. H
 The prompt field accepts [Liquid](/template-editor/reference-liquid-helpers) syntax, so you can inject variable data from the workflow run scope. For example:
 
 ```liquid title="Example prompt with context"
-You are a marketing copywriter. Based on the following recipient and company information, write a personalized welcome message for this email.
+## Goal
+Determine a single company’s customer segments and ideal customer profile.
 
-Recipient: {{ recipient.name }}
-Company domain: {{ tenant.domain }}
+Use the company’s official website and the official LinkedIn company page.
+Cross-validate claims and prefer primary sources.
+The actual variables to be used are defined in the Inputs section below.
 
-Recipient properties:
-{{ recipient | json }}
+## Inputs
+Company domain: {{ tenant.companyDomain }}
+Company name: {{ tenant.companyName }}
 
-Write a brief, friendly welcome message (2-3 sentences) that references their specific context.
+## Process
+Use the company domain and name to find the company’s official website and LinkedIn company page.
 ```
 
 You can reference:
 
 - `recipient` — The workflow run recipient.
-- `actor` — The user or system that triggered the workflow.
-- `tenant` — The tenant associated with the workflow run.
+- `tenant` — The tenant (i.e. company, organization, workspace) associated with the workflow run.
 - `data` — The trigger payload passed to the workflow.
+- `actor` — The user or system that triggered the workflow.
 - `vars` — Your [environment variables](/concepts/variables).
 
 See the [Knock template editor reference](/template-editor/overview) for more on working with Liquid in Knock.
