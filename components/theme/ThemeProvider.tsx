@@ -1,5 +1,5 @@
 import { useAppearance } from "@telegraph/appearance";
-import React, { createContext, useCallback, useContext, useMemo } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 import {
   applyThemeAppearance,
@@ -19,22 +19,28 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const { appearance: telegraphAppearance, setAppearance: setTelegraphAppearance } =
-    useAppearance();
+  const { setAppearance: setTelegraphAppearance } = useAppearance();
 
-  const documentAppearance =
-    typeof document !== "undefined"
-      ? document.documentElement.getAttribute(THEME_ATTRIBUTE)
-      : null;
+  // Initialize with "light" to match the SSR-rendered HTML (which always starts
+  // as "light"). The THEME_INITIALIZER_SCRIPT in _document.tsx updates the DOM
+  // attribute before paint; we then sync React state after mount in useEffect.
+  const [appearance, setAppearanceState] = useState<ThemeAppearance>("light");
 
-  const appearance = isThemeAppearance(documentAppearance)
-    ? documentAppearance
-    : isThemeAppearance(telegraphAppearance)
-      ? telegraphAppearance
+  // After mount, read the appearance the inline script already applied to the DOM
+  // and sync React state. This avoids reading the DOM during render (which causes
+  // SSR/client hydration mismatches).
+  React.useEffect(() => {
+    const docAppearance = document.documentElement.getAttribute(THEME_ATTRIBUTE);
+    const syncedAppearance = isThemeAppearance(docAppearance)
+      ? docAppearance
       : getInitialThemeAppearance();
+    setAppearanceState(syncedAppearance);
+    setTelegraphAppearance(syncedAppearance);
+  }, [setTelegraphAppearance]);
 
   const setAppearance = useCallback(
     (newAppearance: ThemeAppearance) => {
+      setAppearanceState(newAppearance);
       setTelegraphAppearance(newAppearance);
       applyThemeAppearance(newAppearance);
       persistThemeAppearance(newAppearance);
@@ -46,10 +52,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const nextAppearance = appearance === "dark" ? "light" : "dark";
     setAppearance(nextAppearance);
   }, [appearance, setAppearance]);
-
-  React.useEffect(() => {
-    applyThemeAppearance(appearance);
-  }, [appearance]);
 
   const value = useMemo(
     () => ({

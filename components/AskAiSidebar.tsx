@@ -572,7 +572,7 @@ function AskAiSidebar() {
                   style={{
                     width: "12px",
                     height: "12px",
-                    backgroundColor: "#fff",
+                    backgroundColor: "var(--tgph-gray-1)",
                     borderRadius: "2px",
                   }}
                 />
@@ -580,7 +580,7 @@ function AskAiSidebar() {
                 <ArrowUp
                   size="14px"
                   strokeWidth={2}
-                  color={isButtonEnabled ? "#fff" : "var(--tgph-gray-10)"}
+                  color={isButtonEnabled ? "var(--tgph-gray-1)" : "var(--tgph-gray-10)"}
                 />
               )}
             </Button>

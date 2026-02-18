@@ -7,7 +7,7 @@ function AskAiButton() {
 
   return (
     <Button
-      variant="solid"
+      variant="ghost"
       size="1"
       onClick={toggleSidebar}
       leadingIcon={{

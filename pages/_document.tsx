@@ -5,7 +5,7 @@ import { THEME_INITIALIZER_SCRIPT } from "../lib/theme";
 export default class DocsDocument extends Document {
   render() {
     return (
-      <Html lang="en" data-tgph-appearance="light">
+      <Html lang="en" data-tgph-appearance="light" suppressHydrationWarning>
         <Head>
           <script
             dangerouslySetInnerHTML={{

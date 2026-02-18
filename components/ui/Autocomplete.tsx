@@ -48,7 +48,7 @@ import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
 // It's not exposed publicly for import, that's why we keep our version here.
 
 const highlightingStyles = {
-  color: "#485CC7",
+  color: "var(--tgph-accent-11)",
   fontWeight: 600,
   background: "transparent",
 };
@@ -653,7 +653,7 @@ const Autocomplete = () => {
                 icon={{
                   icon: X,
                   alt: "Clear",
-                  color: "black",
+                  color: "gray",
                   "aria-hidden": true,
                 }}
                 onClick={() => {
