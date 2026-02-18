@@ -55,7 +55,6 @@ export const CLI_SIDEBAR: SidebarContent[] = [
   {
     title: "Branches",
     slug: "/cli/branch",
-    isBeta: true,
     pages: [
       { slug: "/", title: "Overview" },
       { slug: "/list", title: "List branches" },
