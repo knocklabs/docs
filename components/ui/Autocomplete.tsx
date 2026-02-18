@@ -48,7 +48,7 @@ import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
 // It's not exposed publicly for import, that's why we keep our version here.
 
 const highlightingStyles = {
-  color: "#485CC7",
+  color: "var(--tgph-accent-11)",
   fontWeight: 600,
   background: "transparent",
 };
@@ -177,7 +177,7 @@ const DocsSearchResult = ({
 
   const content = (
     <Box w="full" h="full" px="2" py="2">
-      <Text as="p" size="2" color="black" weight="regular">
+      <Text as="p" size="2" color="default" weight="regular">
         {/* @ts-expect-error not sure about these algolia types */}
         {parseAlgoliaHitHighlight({ hit: item, attribute: "title" }).map(
           (x, index) => {
@@ -244,7 +244,7 @@ const EndpointSearchResult = ({
       <Tag size="0" color={colors[item.method as keyof typeof colors]}>
         {item.method?.toUpperCase()}
       </Tag>
-      <Code as="p" size="1" color="black" weight="regular">
+      <Code as="p" size="1" color="default" weight="regular">
         {/* @ts-expect-error not sure about these algolia types */}
         {parseAlgoliaHitHighlight({ hit: item, attribute: "endpoint" }).map(
           (x, index) => {
@@ -653,7 +653,7 @@ const Autocomplete = () => {
                 icon={{
                   icon: X,
                   alt: "Clear",
-                  color: "black",
+                  color: "gray",
                   "aria-hidden": true,
                 }}
                 onClick={() => {
@@ -674,7 +674,7 @@ const Autocomplete = () => {
         <Box
           data-search-results-container
           position="absolute"
-          bg="white"
+          bg="surface-1"
           w="96"
           border="px"
           borderColor="gray-6"
@@ -756,7 +756,7 @@ const Autocomplete = () => {
                               <Text
                                 as="p"
                                 size="2"
-                                color="black"
+                                color="default"
                                 weight="regular"
                               >
                                 {(items[0] as ResultItem).title}
@@ -773,7 +773,7 @@ const Autocomplete = () => {
                             <Icon
                               icon={Sparkles}
                               alt="Sparkles"
-                              color="black"
+                              color="default"
                               size="4"
                             />
                           </Stack>
@@ -834,10 +834,7 @@ const Autocomplete = () => {
                       </Box>
                     </Box>
                   ) : (
-                    <Box
-                      p="4"
-                      className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium "
-                    >
+                    <Box p="4" className="p-4 text-[14px] font-medium">
                       <Text as="span" size="1" color="gray" weight="regular">
                         No matching results.
                       </Text>{" "}

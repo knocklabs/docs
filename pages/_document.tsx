@@ -1,11 +1,17 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
 import { GA_TRACKING_ID } from "../lib/gtag";
+import { THEME_INITIALIZER_SCRIPT } from "../lib/theme";
 
 export default class DocsDocument extends Document {
   render() {
     return (
-      <Html lang="en">
+      <Html lang="en" data-tgph-appearance="light" suppressHydrationWarning>
         <Head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: THEME_INITIALIZER_SCRIPT,
+            }}
+          />
           <script
             async
             src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}

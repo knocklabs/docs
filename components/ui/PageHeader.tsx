@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Autocomplete from "@/components/ui/Autocomplete";
 import AskAiButton from "@/components/ui/AskAiButton";
+import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 
 type PageHeaderProps = {
   mobileSidebar?: React.ReactNode;
@@ -110,6 +111,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             alignItems="center"
             style={{ flexShrink: 0 }}
           >
+            <ThemeSwitcher />
             <Button
               as={Link}
               href="mailto:support@knock.app?subject=Support%20request"
@@ -137,6 +139,9 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
               Get started
             </Button>
           </Stack>
+          <Box className="md-visible" mr="2">
+            <ThemeSwitcher />
+          </Box>
           {mobileSidebar}
         </Stack>
         <Tabs

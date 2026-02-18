@@ -28,8 +28,9 @@ import { Streamdown } from "streamdown";
 import React from "react";
 import { Icons } from "./ui/Icons";
 import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
-import { lightCodeTheme } from "../styles/codeThemes";
+import { darkCodeTheme, lightCodeTheme } from "../styles/codeThemes";
 import { useClipboard } from "@/hooks/useClipboard";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 // Extract text content from React children (handles strings, elements, and arrays)
 function extractTextContent(children: React.ReactNode): string {
@@ -60,6 +61,7 @@ function StreamingCodeBlock({
   children?: React.ReactNode;
   language?: string;
 }) {
+  const { appearance } = useTheme();
   const normalizedContent = extractTextContent(children)
     .replace(/^\n+/, "") // Remove leading newlines
     .replace(/\n+$/, ""); // Remove trailing newlines
@@ -108,7 +110,7 @@ function StreamingCodeBlock({
           paddingLeft: "0px",
         }}
         language={language || "shell"}
-        style={lightCodeTheme}
+        style={appearance === "dark" ? darkCodeTheme : lightCodeTheme}
       >
         {normalizedContent}
       </SyntaxHighlighter>
@@ -570,7 +572,7 @@ function AskAiSidebar() {
                   style={{
                     width: "12px",
                     height: "12px",
-                    backgroundColor: "#fff",
+                    backgroundColor: "var(--tgph-gray-1)",
                     borderRadius: "2px",
                   }}
                 />
@@ -578,7 +580,11 @@ function AskAiSidebar() {
                 <ArrowUp
                   size="14px"
                   strokeWidth={2}
-                  color={isButtonEnabled ? "#fff" : "var(--tgph-gray-10)"}
+                  color={
+                    isButtonEnabled
+                      ? "var(--tgph-gray-1)"
+                      : "var(--tgph-gray-10)"
+                  }
                 />
               )}
             </Button>

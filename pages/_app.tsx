@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { InkeepModalProvider } from "../components/AiChatButton";
 import { AskAiProvider } from "../components/AskAiContext";
 import AskAiSidebar from "../components/AskAiSidebar";
+import { ThemeProvider } from "../components/theme/ThemeProvider";
 import * as analytics from "../lib/analytics";
 import { initAttribution } from "../lib/attribution";
 import { setClearbitPath } from "../lib/clearbit";
@@ -50,17 +51,19 @@ function MyApp({ Component, pageProps }) {
   }, [router.events]);
 
   return (
-    <AskAiProvider>
-      <InkeepModalProvider>
-        <main className={inter.className}>
-          <EventEmitterContext.Provider value={eventEmitter}>
-            <Component {...pageProps} />
-          </EventEmitterContext.Provider>
-          {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
-        </main>
-        <AskAiSidebar />
-      </InkeepModalProvider>
-    </AskAiProvider>
+    <ThemeProvider>
+      <AskAiProvider>
+        <InkeepModalProvider>
+          <main className={inter.className}>
+            <EventEmitterContext.Provider value={eventEmitter}>
+              <Component {...pageProps} />
+            </EventEmitterContext.Provider>
+            {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
+          </main>
+          <AskAiSidebar />
+        </InkeepModalProvider>
+      </AskAiProvider>
+    </ThemeProvider>
   );
 }
 
