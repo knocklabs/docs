@@ -773,7 +773,7 @@ const Autocomplete = () => {
                             <Icon
                               icon={Sparkles}
                               alt="Sparkles"
-                                color="default"
+                              color="default"
                               size="4"
                             />
                           </Stack>
@@ -834,10 +834,7 @@ const Autocomplete = () => {
                       </Box>
                     </Box>
                   ) : (
-                    <Box
-                      p="4"
-                      className="p-4 text-[14px] font-medium"
-                    >
+                    <Box p="4" className="p-4 text-[14px] font-medium">
                       <Text as="span" size="1" color="gray" weight="regular">
                         No matching results.
                       </Text>{" "}

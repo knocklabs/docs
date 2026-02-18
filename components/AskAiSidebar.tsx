@@ -580,7 +580,11 @@ function AskAiSidebar() {
                 <ArrowUp
                   size="14px"
                   strokeWidth={2}
-                  color={isButtonEnabled ? "var(--tgph-gray-1)" : "var(--tgph-gray-10)"}
+                  color={
+                    isButtonEnabled
+                      ? "var(--tgph-gray-1)"
+                      : "var(--tgph-gray-10)"
+                  }
                 />
               )}
             </Button>

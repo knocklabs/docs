@@ -10,7 +10,10 @@ export const isThemeAppearance = (
 ): value is ThemeAppearance => value === "light" || value === "dark";
 
 export const getSystemThemeAppearance = (): ThemeAppearance => {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !== "function"
+  ) {
     return "light";
   }
 

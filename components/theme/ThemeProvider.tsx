@@ -1,5 +1,11 @@
 import { useAppearance } from "@telegraph/appearance";
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   applyThemeAppearance,
@@ -30,7 +36,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   // and sync React state. This avoids reading the DOM during render (which causes
   // SSR/client hydration mismatches).
   React.useEffect(() => {
-    const docAppearance = document.documentElement.getAttribute(THEME_ATTRIBUTE);
+    const docAppearance =
+      document.documentElement.getAttribute(THEME_ATTRIBUTE);
     const syncedAppearance = isThemeAppearance(docAppearance)
       ? docAppearance
       : getInitialThemeAppearance();
@@ -62,7 +69,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     [appearance, setAppearance, toggleAppearance],
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 };
 
 export const useTheme = () => {

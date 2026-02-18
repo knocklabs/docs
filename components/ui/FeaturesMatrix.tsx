@@ -141,9 +141,7 @@ const FeaturesMatrix = ({
                   {hasRowGroupNames && rowIndex === 0 && (
                     <td
                       className={`px-4 relative ${
-                        rowGroupIndex !== rowGroups.length - 1
-                          ? ""
-                          : "border-b"
+                        rowGroupIndex !== rowGroups.length - 1 ? "" : "border-b"
                       }`}
                       rowSpan={rowGroup.rows.length}
                       style={{
