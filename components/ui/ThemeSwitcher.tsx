@@ -18,8 +18,7 @@ export const ThemeSwitcher = () => {
       onClick={toggleAppearance}
       icon={{
         icon: isDark ? Sun : Moon,
-        alt: label,
-        "aria-hidden": false,
+        "aria-hidden": true,
       }}
       aria-label={label}
       title={label}
