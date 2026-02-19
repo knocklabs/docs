@@ -53,6 +53,11 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/batch-function", title: "Batch function" },
       { slug: "/branch-function", title: "Branch function" },
       { slug: "/fetch-function", title: "Fetch function" },
+      {
+        slug: "/ai-agent-function",
+        title: "AI agent function",
+        isBeta: true,
+      },
       { slug: "/throttle-function", title: "Throttle function" },
       {
         slug: "/trigger-workflow-function",
