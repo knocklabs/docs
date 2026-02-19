@@ -52,6 +52,7 @@ components:
         - $ref: '#/components/schemas/WorkflowUpdateUserStep'
         - $ref: '#/components/schemas/WorkflowThrottleStep'
         - $ref: '#/components/schemas/WorkflowBranchStep'
+        - $ref: '#/components/schemas/WorkflowRandomCohortStep'
         - $ref: '#/components/schemas/WorkflowTriggerWorkflowStep'
       description: A step within a workflow. Each workflow step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
       example:
@@ -1061,6 +1062,45 @@ components:
       title: MessageTypeBooleanField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.BooleanField
+      x-validate: null
+    WorkflowExperimentStepBranch:
+      description: A cohort branch in an experiment step.
+      example:
+        name: Control
+        percentage: "50"
+        steps: []
+        terminates: false
+      properties:
+        name:
+          description: The name of the cohort branch.
+          example: Control
+          type: string
+          x-struct: null
+          x-validate: null
+        percentage:
+          description: The percentage of recipients to assign to this cohort. Must be between 0 and 100 with at most 1 decimal place. All branch percentages must sum to 100. Sent as a number in requests; returned as a decimal string in responses (e.g. "50", "33.3").
+          example: "50"
+          type: string
+          x-struct: null
+          x-validate: null
+        steps:
+          description: A list of steps that will be executed for recipients assigned to this cohort.
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+          type: array
+          x-struct: null
+          x-validate: null
+        terminates:
+          description: If the workflow should halt at the end of the branch. Defaults to false if not provided.
+          example: false
+          type: boolean
+          x-struct: null
+          x-validate: null
+      required:
+        - percentage
+      title: WorkflowExperimentStepBranch
+      type: object
+      x-struct: null
       x-validate: null
     Translation:
       description: A translation object.
@@ -2992,6 +3032,110 @@ components:
       title: PaginatedWorkflowResponse
       type: object
       x-struct: null
+      x-validate: null
+    WorkflowRandomCohortStep:
+      description: An experiment step. Deterministically assigns recipients to percentage-based cohorts for A/B testing and experimentation.
+      example:
+        cohort_branches:
+          - name: Control
+            percentage: "50"
+            steps: []
+            terminates: false
+          - name: Variant
+            percentage: "50"
+            steps: []
+            terminates: false
+        description: Experiment step description.
+        name: Experiment
+        ref: experiment_1
+        type: random_cohort
+      properties:
+        cohort_branches:
+          description: A list of cohort branches. Must have between 2 and 10 branches, and percentages must sum to 100.
+          items:
+            description: A cohort branch in an experiment step.
+            example:
+              name: Control
+              percentage: "50"
+              steps: []
+              terminates: false
+            properties:
+              name:
+                description: The name of the cohort branch.
+                example: Control
+                type: string
+                x-struct: null
+                x-validate: null
+              percentage:
+                description: The percentage of recipients to assign to this cohort. Must be between 0 and 100 with at most 1 decimal place. All branch percentages must sum to 100. Sent as a number in requests; returned as a decimal string in responses (e.g. "50", "33.3").
+                example: "50"
+                type: string
+                x-struct: null
+                x-validate: null
+              steps:
+                description: A list of steps that will be executed for recipients assigned to this cohort.
+                items:
+                  $ref: '#/components/schemas/WorkflowStep'
+                type: array
+                x-struct: null
+                x-validate: null
+              terminates:
+                description: If the workflow should halt at the end of the branch. Defaults to false if not provided.
+                example: false
+                type: boolean
+                x-struct: null
+                x-validate: null
+            required:
+              - percentage
+            title: WorkflowExperimentStepBranch
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        cohort_key:
+          description: The key used to deterministically assign recipients to cohorts. Defaults to the recipient ID if not provided.
+          example: tenant.id
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Experiment step description.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Experiment
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: experiment_1
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of step.
+          enum:
+            - random_cohort
+          example: random_cohort
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - cohort_branches
+      title: WorkflowRandomCohortStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowRandomCohortStep
       x-validate: null
     WorkflowThrottleStep:
       description: A throttle function step. Read more in the [docs](https://docs.knock.app/designing-workflows/throttle-function).
