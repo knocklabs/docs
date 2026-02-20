@@ -45,44 +45,45 @@ You can see a video of our workflow debugger in action here:
   }
 />
 
-You can access the workflow debugger from our "Logs" page, which you'll find in the left hand environment sidebar in the dashboard. From there:
+You can access the workflow debugger from the "Runs" tab on a given workflow or the "Workflow runs" tab on a recipient record.
+
+You can also access it from our "Logs" page, which you'll find in the left hand sidebar in the dashboard. From there:
 
 1. Find an API log that triggered a workflow run (**hint**: you can use the filters to find only workflow API requests)
 2. In the right hand panel, click the "Workflow runs" tab
 3. Select a workflow run for any recipient to view the debugger
 
-**Note**: you can also use the debugger to look at test runs as well.
+<Callout
+  type="info"
+  title="Note:"
+  text="You can use the workflow debugger to inspect any workflow run, regardless of whether it was triggered via the API or the dashboard test runner."
+/>
 
 ## Understanding workflow execution behavior
 
-When a workflow runs, each step is executed in sequence. It's important to understand the difference between a step that **fails** and a step that is **skipped**, as they have very different effects on the workflow run.
+When a workflow runs, each step is executed in sequence. Sometimes an individual step is skipped or encounters an error, and it's important to understand how this affects the workflow run as a whole.
 
-### When a channel step fails
+### When a workflow step is skipped
 
-When a channel step encounters an error during execution—such as a template rendering failure or invalid channel configuration—Knock will retry the step up to **3 times**. If all retry attempts fail, the **entire workflow run is halted** and no subsequent steps will execute.
-
-Common causes of channel step failures include:
-
-- **Template rendering errors.** Invalid Liquid syntax or missing required variables that prevent the template from rendering.
-- **Invalid channel configuration.** Misconfigured channel settings or credentials that prevent the notification from being created.
-
-You can identify failed steps in the workflow debugger by looking for error states on individual steps. The debugger will show you the error details to help diagnose and fix the issue.
-
-<Callout
-  type="warning"
-  title="Workflow halts on step failure"
-  text="When a channel step fails after exhausting all retry attempts, the workflow run stops immediately. Any subsequent steps in the workflow will not execute."
-/>
-
-### When a channel step is skipped
-
-In contrast to failures, there are several controlled scenarios where a step is **skipped** and the workflow continues to execute subsequent steps. A skipped step does not generate a message, but it does not halt the workflow.
+There are several controlled scenarios where a step is skipped and the workflow run continues to execute subsequent steps.
 
 Steps are skipped when:
 
 - **Step conditions are not met.** If a step has [conditions](/designing-workflows/step-conditions) configured and they evaluate to false, the step is skipped.
-- **Channel configuration is missing.** If the channel associated with the step has not been configured in the current environment, the step is skipped.
+- **Channel configuration is missing.** If the channel associated with a step has not been configured in the current environment, the step is skipped.
 - **Recipient preferences opt out.** If the recipient has set [preferences](/preferences/overview) that opt them out of this notification type or channel, the step is skipped.
-- **Recipient is missing required data.** If the recipient lacks the data required for delivery on this channel (e.g., no email address for an email step, no phone number for an SMS step, no [channel data](/send-notifications/setting-channel-data) for a push step), the step is skipped.
+- **Recipient is missing required data.** If the recipient lacks the data required for delivery on this channel (for example, no `email` address for an email step, or no [channel data](/managing-recipients/setting-channel-data) for a push step), the step is skipped.
+- **A dynamic [batch](/designing-workflows/batch-function), [delay](/designing-workflows/delay-function), or [throttle](/designing-workflows/throttle-function) step encounters an invalid timestamp.** If a workflow step receives an invalid dynamic window value (like a timestamp in the past), the step is skipped.
 
 The workflow debugger will indicate when a step has been skipped and provide the reason, helping you understand why a recipient did not receive a notification on a particular channel.
+
+### When a workflow step fails
+
+When a workflow step encounters an error during execution (such as a template rendering error or a server error response from a [fetch](/designing-workflows/fetch-function) step), Knock will retry the step **up to 3 total times**. If all retry attempts fail, the step is marked as failed and **the workflow run is halted.** No subsequent steps will execute.
+
+Common causes of workflow step failures include:
+
+- **Template rendering errors.** Invalid Liquid syntax or missing required variables that prevent the message template from rendering.
+- **Fetch step errors.** Errors from the HTTP request made by the fetch step.
+
+You can identify failed steps in the workflow debugger by looking for error states on individual steps. The debugger will show you the error details to help diagnose and fix the issue.
