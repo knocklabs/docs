@@ -73,17 +73,17 @@ Steps are skipped when:
 - **Channel configuration is missing.** If the channel associated with a step has not been configured in the current environment, the step is skipped.
 - **Recipient preferences opt out.** If the recipient has set [preferences](/preferences/overview) that opt them out of this notification type or channel, the step is skipped.
 - **Recipient is missing required data.** If the recipient lacks the data required for delivery on this channel (for example, no `email` address for an email step, or no [channel data](/managing-recipients/setting-channel-data) for a push step), the step is skipped.
-- **A dynamic [batch](/designing-workflows/batch-function), [delay](/designing-workflows/delay-function), or [throttle](/designing-workflows/throttle-function) step encounters an invalid timestamp.** If a workflow step receives an invalid dynamic window value (like a timestamp in the past), the step is skipped.
+- **A dynamic [batch](/designing-workflows/batch-function), [delay](/designing-workflows/delay-function), or [throttle](/designing-workflows/throttle-function) step encounters an invalid window value.** If a workflow step encounters a missing or invalid dynamic window value (like a timestamp in the past), the step is skipped.
 
-The workflow debugger will indicate when a step has been skipped and provide the reason, helping you understand why a recipient did not receive a notification on a particular channel.
+The workflow debugger will indicate when a step has been skipped and provide the reason, helping you understand why a recipient did not receive a notification on a particular channel or a workflow function was not processed as expected.
 
 ### When a workflow step fails
 
-When a workflow step encounters an error during execution (such as a template rendering error or a server error response from a [fetch](/designing-workflows/fetch-function) step), Knock will retry the step **up to 3 total times**. If all retry attempts fail, the step is marked as failed and **the workflow run is halted.** No subsequent steps will execute.
+When a workflow step encounters an error during execution (such as a template rendering error or an error response from a [fetch](/designing-workflows/fetch-function) step), Knock will retry the step **up to 3 total times**. If all retry attempts fail, the step is marked as failed and **the workflow run is halted.** No subsequent steps will execute.
 
 Common causes of workflow step failures include:
 
 - **Template rendering errors.** Invalid Liquid syntax or missing required variables that prevent the message template from rendering.
-- **Fetch step errors.** Errors from the HTTP request made by the fetch step.
+- **Fetch step errors.** Errors or timeouts from the HTTP request made by the fetch step.
 
 You can identify failed steps in the workflow debugger by looking for error states on individual steps. The debugger will show you the error details to help diagnose and fix the issue.
