@@ -1,0 +1,137 @@
+---
+title: Experiment function
+description: Learn more about the experiment workflow function within Knock's notification engine.
+metaDescription: Learn how you can use the experiment workflow function to create randomized cohorts for A/B testing and general experimentation.
+tags:
+  [
+    "steps",
+    "random cohort",
+    "cohort",
+    "branch",
+    "A/B test",
+    "split test",
+    "experiment",
+    "percentage",
+    "functions",
+  ]
+section: Designing workflows
+---
+
+<Callout
+  type="beta"
+  text={
+    <>
+      Experiment function is currently in beta. If you'd like early access, or
+      this is blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Experiment function">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+The experiment function enables you to split recipients into randomized cohorts within your workflows, routing each recipient down a specific branch based on a percentage-based distribution. This is useful for A/B testing notification content, gradually rolling out new notification strategies, or running experiments across your recipient base.
+
+<Image
+  src="/images/functions/experiment-step-configuration.png"
+  alt="Configuring cohort percentages and cohort key for an experiment step"
+  width={2018}
+  height={1120}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+## How it works
+
+When a workflow run reaches an experiment step, Knock assigns the recipient to a cohort using the following process:
+
+1. **Cohort key.** Knock hashes the cohort key (which defaults to the recipient ID) to produce a deterministic assignment. This means the same recipient will always be routed to the same cohort for a given step, ensuring consistency across workflow runs.
+2. **Percentage distribution.** Each cohort is assigned a percentage weight. Knock uses these weights to determine which cohort the hashed key maps to. The percentages across all cohorts must sum to 100%.
+3. **Branch execution.** Once assigned, the recipient proceeds through the steps defined in their cohort's branch.
+
+## Configuring cohorts
+
+Each experiment step starts with two cohorts by default. You can add additional cohorts or adjust the percentage distribution between them.
+
+- **Percentage weights.** Set the percentage for each cohort to control the distribution of recipients. The total across all cohorts must equal 100%.
+- **Cohort key.** By default, the cohort key is the recipient ID. You can customize this to any value from the workflow run scope, which is useful when you want the same user to be assigned to different cohorts in different contexts.
+
+## Use cases
+
+The experiment function is well-suited for:
+
+### A/B testing
+
+Test different notification templates, copy, or channels to see which performs better. For example, split recipients 50/50 between two email templates to measure engagement.
+
+### Gradual rollouts
+
+Roll out a new notification strategy to a small percentage of recipients before expanding to all users.
+
+### Random cohort experimentation
+
+Run multi-variant experiments by splitting recipients across three or more cohorts with different notification flows.
+
+### Holdout testing
+
+Test whether or not a particular message adds lift to your conversion goals. This type of test is a variation of A/B testing where one cohort receives a message and the other cohort does not. It's helpful in determining if a message is useful.
+
+## Nesting experiment steps
+
+Experiment steps can be nested inside other experiment steps, regular branches, or any other workflow function. This enables you to create more complex experimental setups, such as splitting recipients into cohorts and then further splitting within each cohort.
+
+## Analytics
+
+<Callout
+  type="info"
+  title="Coming soon"
+  text={
+    <>
+      We're making changes to the analytics page to provide better insight into
+      experiment step performance. Stay tuned for updates.
+    </>
+  }
+/>
+
+## Debugging experiment steps
+
+You can debug experiment step execution in the [workflow debugger](/send-notifications/debugging-workflows). During a workflow run, the debugger shows which cohort was chosen for each recipient, including the cohort key value used for assignment and the percentage distribution across cohorts.
+
+<Image
+  src="/images/functions/experiment-step-debugging.png"
+  alt="Debugging a workflow run with an experiment step"
+  width={2554}
+  height={1068}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Is the cohort assignment deterministic?">
+    Yes. The same cohort key value will always be assigned to the same cohort
+    for a given step, so a recipient will consistently land in the same branch
+    across multiple workflow runs.
+  </Accordion>
+  <Accordion title="Can I change the percentage distribution after a workflow is live?">
+    Yes, you can update the percentage distribution at any time. Note that
+    changing the distribution may cause some recipients to shift to a different
+    cohort on subsequent workflow runs.
+  </Accordion>
+  <Accordion title="What happens if I set a cohort's percentage to 0%?">
+    A cohort set to 0% will not receive any recipients. This can be useful when
+    you want to temporarily disable a branch without removing it from the
+    workflow.
+  </Accordion>
+  <Accordion title="Can I use experiment steps with other workflow functions?">
+    Yes. You can nest delays, throttles, batches, branch steps, and other
+    functions inside of experiment steps.
+  </Accordion>
+  <Accordion title="What's the maximum number of cohorts I can have?">
+    The maximum number of cohorts per experiment step is 10.
+  </Accordion>
+  <Accordion title="What's the maximum depth of nested experiment steps I can have?">
+    The maximum depth for experiment steps is set at 5. If you have needs that
+    go beyond this, please reach out to discuss.
+  </Accordion>
+</AccordionGroup>
