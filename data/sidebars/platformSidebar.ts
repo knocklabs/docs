@@ -52,6 +52,11 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/delay-function", title: "Delay function" },
       { slug: "/batch-function", title: "Batch function" },
       { slug: "/branch-function", title: "Branch function" },
+      {
+        slug: "/experiment-function",
+        title: "Experiment function",
+        isBeta: true,
+      },
       { slug: "/fetch-function", title: "Fetch function" },
       {
         slug: "/ai-agent-function",
