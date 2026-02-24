@@ -131,11 +131,11 @@ function extractTextContent(mdxContent: string): string {
   // Remove remaining HTML/JSX tags
   content = content.replace(/<[^>]+>/g, "");
 
+  // Remove markdown images (must come before links since images contain link syntax)
+  content = content.replace(/!\[([^\]]*)\]\([^)]+\)/g, "");
+
   // Remove markdown links but keep the text
   content = content.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
-
-  // Remove markdown images
-  content = content.replace(/!\[([^\]]*)\]\([^)]+\)/g, "");
 
   // Remove markdown emphasis markers
   content = content.replace(/\*\*([^*]+)\*\*/g, "$1"); // Bold
