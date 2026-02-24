@@ -30,6 +30,8 @@ export async function getAllTypedocs() {
             rehypeAutolinkHeadings,
           ],
         },
+        blockJS: false,
+        blockDangerousJS: true,
       });
 
       return {

@@ -1,20 +1,20 @@
+import { createContext, useContext, useRef, useState } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { Button } from "@telegraph/button";
+import { Icon } from "@telegraph/icon";
 import { Box, Stack } from "@telegraph/layout";
 import { Text, Heading } from "@telegraph/typography";
 
-import { PageHeader } from "./PageHeader";
-
-import { OnThisPage } from "./Page/OnThisPage";
-import { Sidebar, SidebarContext } from "./Page/Sidebar";
+import { AskAiContext } from "../AskAiContext";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ContentActions } from "./ContentActions";
-
-import { createContext, useContext, useRef, useState } from "react";
-import { MobileSidebar } from "./Page/MobileSidebar";
-import { Button } from "@telegraph/button";
-import Link from "next/link";
-import { Icon } from "@telegraph/icon";
 import { Feedback } from "./Feedback";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { MobileSidebar } from "./Page/MobileSidebar";
+import { OnThisPage } from "./Page/OnThisPage";
+import { Sidebar, SidebarContext } from "./Page/Sidebar";
+import { PageHeader } from "./PageHeader";
 
 export const MAX_WIDTH = "1400px";
 
@@ -39,8 +39,11 @@ export const TopContainer = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const Container = ({ children }) => {
-  // Wider context for whether search input is open
+function Container({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   return (
     <PageContext.Provider value={{ isSearchOpen, setIsSearchOpen }}>
@@ -65,23 +68,57 @@ const Container = ({ children }) => {
       </Box>
     </PageContext.Provider>
   );
-};
+}
 
-const Wrapper = ({ children, maxWidth = MAX_WIDTH }) => (
-  <Stack
-    data-wrapper
-    className={`layout-grid ${
-      children.length === 3 ? "layout-grid--three-col" : ""
-    }`}
-    style={{
-      display: "grid",
-      maxWidth,
-      margin: "0 auto",
-    }}
-  >
-    {children}
-  </Stack>
-);
+function Wrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
+  const askAiContext = useContext(AskAiContext);
+  const isOpen = askAiContext?.isOpen ?? false;
+  const sidebarWidth = askAiContext?.sidebarWidth ?? 340;
+  const isResizing = askAiContext?.isResizing ?? false;
+
+  // Children expected: [Sidebar, Content] or [Sidebar, Content, OnThisPage]
+  const childArray = Array.isArray(children) ? children : [children];
+  const sidebar = childArray[0];
+  const content = childArray[1];
+  const onThisPage = childArray.length === 3 ? childArray[2] : null;
+  const hasToc = onThisPage !== null;
+
+  const pageWidth = "1024px";
+
+  return (
+    <div
+      data-wrapper
+      className="layout-grid"
+      style={
+        {
+          width: "100%",
+          paddingRight: isOpen ? `${sidebarWidth}px` : "0",
+          transition: isResizing ? "none" : "padding-right 0.2s ease-in-out",
+          "--ask-ai-sidebar-width": isOpen ? `${sidebarWidth}px` : "0px",
+        } as React.CSSProperties
+      }
+    >
+      {sidebar}
+
+      <div
+        data-content-area
+        className="flex w-full"
+        style={{
+          minWidth: 0,
+          maxWidth: pageWidth,
+          marginLeft: `clamp(16px, calc((100vw - var(--ask-ai-sidebar-width, 0px) - 256px - ${pageWidth}) * 0.25), 200px)`,
+        }}
+      >
+        {content}
+        {hasToc && onThisPage}
+      </div>
+    </div>
+  );
+}
 
 const Masthead = ({
   skipHighlight,
@@ -95,25 +132,33 @@ const Masthead = ({
   );
 };
 
-const Content = ({ children, fullWidth = false }) => (
-  <Box
-    py="8"
-    width="full"
-    pl="20"
-    pr="4"
-    minWidth="0"
-    style={{ maxWidth: fullWidth ? "initial" : "800px" }}
-    className="lg-wrapper-padding"
-  >
-    <Box>{children}</Box>
-  </Box>
-);
+function Content({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
+  return (
+    <div
+      className="flex-1 min-w-0 space-y-8 px-6 py-9"
+      style={{ minWidth: "min(600px, 100%)" }}
+      data-content
+    >
+      {children}
+    </div>
+  );
+}
 
-const ContentBody = ({ children }) => (
-  <Box mb="6" className="tgraph-content" data-content-body>
-    {children}
-  </Box>
-);
+function ContentBody({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement {
+  return (
+    <Box mb="6" className="tgraph-content" data-content-body>
+      {children}
+    </Box>
+  );
+}
 
 type PageNeighbor = {
   title: string;
@@ -260,11 +305,11 @@ const ContentHeader = ({
   children,
 }: ContentHeaderProps) => (
   <Box mb="6">
-    <Heading as="h1" size="7" mb="2">
+    <Heading as="h1" size="6" mb="1">
       {title}
     </Heading>
     {description && (
-      <Text as="p" size="3" color="gray" weight="medium">
+      <Text as="p" size="2" color="gray" weight="medium">
         {description}
         {children}
       </Text>

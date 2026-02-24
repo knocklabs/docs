@@ -1,24 +1,30 @@
-import React, { useRouter } from "next/router";
-import { Inter } from "next/font/google";
-import { useEffect } from "react";
-import * as analytics from "../lib/analytics";
 import {
   EventEmitterContext,
   useEventEmitterInstance,
 } from "@byteclaw/use-event-emitter";
-
-import * as gtag from "../lib/gtag";
-import { setClearbitPath } from "../lib/clearbit";
-import { initAttribution } from "../lib/attribution";
+import { Inter } from "next/font/google";
+import { useRouter } from "next/router";
 import { useRemoteRefresh } from "next-remote-refresh/hook";
+import { useEffect } from "react";
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+import { InkeepModalProvider } from "../components/AiChatButton";
+import { AskAiProvider } from "../components/AskAiContext";
+import AskAiSidebar from "../components/AskAiSidebar";
+import { ThemeProvider } from "../components/theme/ThemeProvider";
+import * as analytics from "../lib/analytics";
+import { initAttribution } from "../lib/attribution";
+import { setClearbitPath } from "../lib/clearbit";
+import * as gtag from "../lib/gtag";
 
+import "@algolia/autocomplete-theme-classic";
 import "../styles/index.css";
 import "../styles/global.css";
 import "../styles/responsive.css";
+import App, { AppContext, AppInitialProps, AppProps } from "next/app";
 
-function App({ Component, pageProps }) {
+const inter = Inter({ subsets: ["latin"], display: "swap" });
+
+function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const eventEmitter = useEventEmitterInstance();
 
@@ -45,13 +51,27 @@ function App({ Component, pageProps }) {
   }, [router.events]);
 
   return (
-    <main className={inter.className}>
-      <EventEmitterContext.Provider value={eventEmitter}>
-        <Component {...pageProps} />
-      </EventEmitterContext.Provider>
-      {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
-    </main>
+    <ThemeProvider>
+      <AskAiProvider>
+        <InkeepModalProvider>
+          <main className={inter.className}>
+            <EventEmitterContext.Provider value={eventEmitter}>
+              <Component {...pageProps} />
+            </EventEmitterContext.Provider>
+            {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
+          </main>
+          <AskAiSidebar />
+        </InkeepModalProvider>
+      </AskAiProvider>
+    </ThemeProvider>
   );
 }
 
-export default App;
+MyApp.getInitialProps = async (
+  context: AppContext,
+): Promise<AppInitialProps> => {
+  const ctx = await App.getInitialProps(context);
+  return { ...ctx };
+};
+
+export default MyApp;

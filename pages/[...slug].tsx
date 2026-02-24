@@ -19,7 +19,6 @@ import {
 import eventPayload from "../data/code/sources/eventPayload";
 import datadogDashboardJson from "../content/integrations/extensions/datadog_dashboard.json";
 import newRelicDashboardJson from "../content/integrations/extensions/new_relic_dashboard.json";
-import AiChatButton from "../components/AiChatButton";
 
 import { FrontMatter } from "../types";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
@@ -41,7 +40,6 @@ export default function ContentPage({ source, sourcePath, typedocs }) {
               eventPayload,
             }}
           />
-          <AiChatButton />
         </MDXLayout>
       </div>
     </TypedocsProvider>
@@ -91,6 +89,8 @@ export async function getStaticProps({ params: { slug } }) {
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeSlug, rehypeMdxCodeProps, rehypeAutolinkHeadings],
     },
+    blockJS: false,
+    blockDangerousJS: true,
   });
 
   // Extend frontmatter
@@ -108,18 +108,21 @@ export const getStaticPaths = async () => {
   const filePaths = getAllFilesInDir(CONTENT_DIR, [], DOCS_FILE_EXTENSIONS);
 
   // Format the slug to generate the correct path
-  const paths = filePaths.map((path) => {
-    const slug = path
-      .replace(CONTENT_DIR, "")
-      .replace(/\.mdx?$/, "")
-      .split(sep);
+  const paths = filePaths
+    .map((path) => {
+      const slug = path
+        .replace(CONTENT_DIR, "")
+        .replace(/\.mdx?$/, "")
+        .split(sep);
 
-    return {
-      params: {
-        slug,
-      },
-    };
-  });
+      return {
+        params: {
+          slug,
+        },
+      };
+    })
+    // Exclude CLI paths - these are handled by /pages/cli/[resource]/[[...slug]].tsx
+    .filter(({ params: { slug } }) => slug[0] !== "cli");
 
   return {
     paths,

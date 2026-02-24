@@ -1,48 +1,66 @@
 import fs from "fs";
-import { MDXRemote } from "next-mdx-remote";
+import { GetStaticProps } from "next";
+import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
+import { Box } from "@telegraph/layout";
 
-import { readOpenApiSpec, readStainlessSpec } from "@/lib/openApiSpec";
+import { getSidebarData, SidebarData } from "@/lib/openApiSpec";
 import { CONTENT_DIR } from "@/lib/content.server";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
-import ApiReference from "@/components/ui/ApiReference/ApiReference";
-import {
-  RESOURCE_ORDER,
-  API_REFERENCE_OVERVIEW_CONTENT,
-} from "@/data/sidebars/apiOverviewSidebar";
+import { ApiReferenceLayout } from "@/components/api-reference";
+import { API_REFERENCE_OVERVIEW_CONTENT } from "@/data/sidebars/apiOverviewSidebar";
 
-function ApiReferencePage({ openApiSpec, stainlessSpec, preContentMdx }) {
+interface ApiReferenceOverviewProps {
+  sidebarData: SidebarData;
+  overviewContentMdx: MDXRemoteSerializeResult;
+}
+
+function ApiReferenceOverview({
+  sidebarData,
+  overviewContentMdx,
+}: ApiReferenceOverviewProps) {
   return (
-    <ApiReference
-      name="API reference"
-      openApiSpec={openApiSpec}
-      stainlessSpec={stainlessSpec}
-      preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
-      resourceOrder={RESOURCE_ORDER}
+    <ApiReferenceLayout
+      sidebarData={sidebarData}
       preSidebarContent={API_REFERENCE_OVERVIEW_CONTENT}
-    />
+      title="API reference"
+      description="Complete reference documentation for the Knock API."
+    >
+      <Box className="tgraph-content">
+        <MDXRemote {...overviewContentMdx} components={MDX_COMPONENTS as any} />
+      </Box>
+    </ApiReferenceLayout>
   );
 }
 
-export async function getStaticProps() {
-  const openApiSpec = await readOpenApiSpec("api");
-  const stainlessSpec = await readStainlessSpec("api");
+export const getStaticProps: GetStaticProps<
+  ApiReferenceOverviewProps
+> = async () => {
+  const sidebarData = await getSidebarData("api");
 
-  const preContent = fs.readFileSync(
+  const overviewContent = fs.readFileSync(
     `${CONTENT_DIR}/__api-reference/content.mdx`,
   );
 
-  const preContentMdx = await serialize(preContent.toString(), {
+  const overviewContentMdx = await serialize(overviewContent.toString(), {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeMdxCodeProps],
     },
+    blockJS: false,
+    blockDangerousJS: true,
   });
 
-  return { props: { openApiSpec, stainlessSpec, preContentMdx } };
-}
+  return {
+    props: {
+      sidebarData,
+      overviewContentMdx,
+    },
+    revalidate: 3600, // Revalidate every hour
+  };
+};
 
-export default ApiReferencePage;
+export default ApiReferenceOverview;

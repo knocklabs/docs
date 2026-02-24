@@ -70,24 +70,12 @@ export const Callout = ({
     "default" | "blue" | "yellow" | "accent" | "red" | "green",
     TgphComponentProps<typeof Stack>["backgroundColor"]
   > = {
-    default: "gray-1",
+    default: "gray-2",
     blue: "blue-2",
     yellow: "yellow-2",
     accent: "accent-2",
     red: "red-2",
     green: "green-2",
-  };
-
-  const textColorMap: Record<
-    "default" | "blue" | "yellow" | "accent" | "red" | "green",
-    TgphComponentProps<typeof Text>["color"]
-  > = {
-    default: "black",
-    blue: "black",
-    yellow: "black",
-    accent: "black",
-    red: "black",
-    green: "black",
   };
 
   return (
@@ -100,7 +88,7 @@ export const Callout = ({
       pr="4"
       my="8"
       border="px"
-      borderColor="gray-3"
+      borderColor="gray-4"
       data-callout
       {...centeredProps}
       style={style}
@@ -124,20 +112,19 @@ export const Callout = ({
       </Box>
       <Text
         as="span"
-        color={textColorMap[bgColor]}
         size="2"
         mb="0"
         leading="3"
         pl="2"
         py="1"
-        style={{ marginBottom: "0px" }}
+        style={{ marginBottom: "0px", color: "var(--tgph-gray-12)" }}
       >
         {title && (
           <Text
             as="span"
             size="2"
             weight="semi-bold"
-            style={{ color: "var(--color)" }}
+            style={{ color: "var(--tgph-gray-12)" }}
           >
             {title}{" "}
           </Text>

@@ -4,37 +4,28 @@ import { Tabs } from "@telegraph/tabs";
 import { Text } from "@telegraph/typography";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { MAX_WIDTH } from "./Page";
 import Autocomplete from "@/components/ui/Autocomplete";
+import AskAiButton from "@/components/ui/AskAiButton";
+import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 
 type PageHeaderProps = {
   mobileSidebar?: React.ReactNode;
   skipHighlight?: boolean;
 };
 
-function selectedTab(pathname: string) {
-  if (pathname.startsWith("/in-app-ui")) {
-    return "in-app-ui";
-  }
-  if (pathname.startsWith("/developer-tools")) {
-    return "developer-tools";
-  }
-  if (pathname.startsWith("/api-reference")) {
-    return "api-reference";
-  }
-  if (pathname.startsWith("/mapi-reference")) {
-    return "mapi-reference";
-  }
-  if (pathname.startsWith("/cli")) {
-    return "cli-reference";
-  }
-  if (pathname.startsWith("/tutorials")) {
-    return "tutorials";
-  }
-  if (pathname.startsWith("/integrations")) {
-    return "integrations";
-  }
-  return "platform";
+const TAB_ROUTES: Array<{ prefix: string; tab: string }> = [
+  { prefix: "/in-app-ui", tab: "in-app-ui" },
+  { prefix: "/developer-tools", tab: "developer-tools" },
+  { prefix: "/api-reference", tab: "api-reference" },
+  { prefix: "/mapi-reference", tab: "mapi-reference" },
+  { prefix: "/cli", tab: "cli-reference" },
+  { prefix: "/tutorials", tab: "tutorials" },
+  { prefix: "/integrations", tab: "integrations" },
+];
+
+function selectedTab(pathname: string): string {
+  const match = TAB_ROUTES.find((route) => pathname.startsWith(route.prefix));
+  return match?.tab ?? "platform";
 }
 
 const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
@@ -42,6 +33,7 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
 
   return (
     <Box
+      data-header
       direction="column"
       bg="surface-1"
       borderBottomWidth="px"
@@ -50,16 +42,16 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
       top="0"
       zIndex="sticky"
     >
-      <Box style={{ maxWidth: MAX_WIDTH, margin: "0 auto" }}>
+      <Box>
         <Stack
           w="full"
-          pt="4"
-          pb="2"
-          px="4"
+          p="4"
           alignItems="center"
           justifyContent="space-between"
           gap="1"
+          style={{ position: "relative" }}
         >
+          {/* Left section: Logo + Search (mobile only) */}
           <Stack direction="row" alignItems="flex-end" style={{ minWidth: 0 }}>
             <Stack direction="row" alignItems="flex-end" pb="1">
               <Link href="/" style={{ display: "block" }}>
@@ -85,11 +77,41 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
                 Docs
               </Text>
             </Stack>
-            <Box ml="6">
+            <Box ml="6" className="md-visible">
               <Autocomplete />
             </Box>
           </Stack>
-          <Stack marginLeft="auto" gap="2" className="md-hidden">
+          {/* Center section: Search + Ask AI (desktop only, centered) */}
+          <Stack
+            className="md-hidden"
+            direction="row"
+            alignItems="center"
+            gap="1"
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 100,
+            }}
+            // Style the search + ask ai button to be a box with a border
+            p="1"
+            border="px"
+            borderColor="gray-6"
+            borderRadius="4"
+          >
+            <Autocomplete />
+            <AskAiButton />
+          </Stack>
+          {/* Right section: Nav buttons (desktop only) */}
+          <Stack
+            marginLeft="auto"
+            gap="2"
+            className="md-hidden"
+            direction="row"
+            alignItems="center"
+            style={{ flexShrink: 0 }}
+          >
+            <ThemeSwitcher />
             <Button
               as={Link}
               href="mailto:support@knock.app?subject=Support%20request"
@@ -117,7 +139,10 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
               Get started
             </Button>
           </Stack>
-          {mobileSidebar && mobileSidebar}
+          <Box className="md-visible" mr="2">
+            <ThemeSwitcher />
+          </Box>
+          {mobileSidebar}
         </Stack>
         <Tabs
           value={skipHighlight ? "" : selectedTab(asPath)}
@@ -125,13 +150,21 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
           style={{ overflowX: "auto" }}
         >
           <Tabs.List mb="0" px="4">
-            <Tabs.Tab value="platform" as={Link} href="/">
+            <Tabs.Tab
+              value="platform"
+              as={Link}
+              href="/getting-started/what-is-knock"
+            >
               Platform
             </Tabs.Tab>
-            <Tabs.Tab value="integrations" as={Link} href="/integrations">
+            <Tabs.Tab
+              value="integrations"
+              as={Link}
+              href="/integrations/overview"
+            >
               Integrations
             </Tabs.Tab>
-            <Tabs.Tab value="in-app-ui" as={Link} href="/in-app-ui">
+            <Tabs.Tab value="in-app-ui" as={Link} href="/in-app-ui/overview">
               In-app UI
             </Tabs.Tab>
             <Tabs.Tab
@@ -151,10 +184,14 @@ const PageHeader = ({ skipHighlight, mobileSidebar }: PageHeaderProps) => {
             >
               Management API
             </Tabs.Tab>
-            <Tabs.Tab value="developer-tools" as={Link} href="/developer-tools">
+            <Tabs.Tab
+              value="developer-tools"
+              as={Link}
+              href="/developer-tools/overview"
+            >
               Developer tools
             </Tabs.Tab>
-            <Tabs.Tab value="tutorials" as={Link} href="/tutorials">
+            <Tabs.Tab value="tutorials" as={Link} href="/tutorials/overview">
               Tutorials
             </Tabs.Tab>
           </Tabs.List>

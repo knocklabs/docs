@@ -10,7 +10,7 @@ const nextConfig = {
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   poweredByHeader: false,
 
-  transpilePackages: ["next-mdx-remote"],
+  transpilePackages: ["next-mdx-remote", "streamdown"],
 
   serverExternalPackages: [
     "remark-gfm",
@@ -205,8 +205,7 @@ const nextConfig = {
       },
       {
         source: "/send-notifications/reference-liquid-helpers",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
@@ -261,19 +260,57 @@ const nextConfig = {
       },
       {
         source: "/designing-workflows/references",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
         source: "/designing-workflows/references/reference-liquid-helpers",
-        destination:
-          "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/template-editor/reference-liquid-helpers",
         permanent: true,
       },
       {
         source: "/designing-workflows/template-editor",
-        destination: "/designing-workflows/template-editor/overview",
+        destination: "/template-editor/overview",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/template-editor/overview",
+        destination: "/template-editor/overview",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/template-editor/variables",
+        destination: "/template-editor/variables",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/template-editor/referencing-data",
+        destination: "/template-editor/referencing-data",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/template-editor/reference-liquid-helpers",
+        destination: "/template-editor/reference-liquid-helpers",
+        permanent: true,
+      },
+      {
+        source: "/designing-workflows/partials",
+        destination: "/template-editor/partials",
+        permanent: true,
+      },
+      {
+        source: "/template-editor",
+        destination: "/template-editor/overview",
+        permanent: true,
+      },
+      {
+        source: "/template-editor/partials",
+        destination: "/template-editor/partials/overview",
+        permanent: true,
+      },
+      {
+        source: "/concepts/translations",
+        destination: "/template-editor/translations",
         permanent: true,
       },
       {
@@ -586,11 +623,12 @@ const nextConfig = {
         destination: "/in-app-ui/message-types/overview",
         permanent: true,
       },
-      {
-        source: "/cli",
-        destination: "/cli/overview",
-        permanent: false,
-      },
+      // {
+      //   source: "/cli",
+      //   destination: "/cli/overview",
+      //   permanent: false,
+      // },
+      // Redirect /api-reference to /api-reference/overview
       {
         source: "/api-reference",
         destination: "/api-reference/overview",
@@ -657,25 +695,43 @@ const nextConfig = {
         destination: "/version-control/environments",
         permanent: true,
       },
-    ];
-  },
-
-  async rewrites() {
-    return [
-      // API reference pages all serve the same static content
-      // The URL paths are used for client-side navigation to sections
+      // CLI old paths redirects
       {
-        source: "/api-reference/:path+",
-        destination: "/api-reference",
+        source: "/cli/login",
+        destination: "/cli/authentication/login",
+        permanent: true,
       },
       {
-        source: "/mapi-reference/:path+",
-        destination: "/mapi-reference",
+        source: "/cli/logout",
+        destination: "/cli/authentication/logout",
+        permanent: true,
       },
-      // CLI reference pages all serve the same static content
       {
-        source: "/cli/:path+",
-        destination: "/cli",
+        source: "/cli/init",
+        destination: "/cli/resources/init",
+        permanent: true,
+      },
+      {
+        source: "/cli/pull",
+        destination: "/cli/resources/pull",
+        permanent: true,
+      },
+      {
+        source: "/cli/push",
+        destination: "/cli/resources/push",
+        permanent: true,
+      },
+      // CLI overview section redirects (old paths without /overview prefix)
+      {
+        source: "/cli/overview/introduction",
+        destination: "/cli/overview",
+        permanent: true,
+      },
+      // CLI branch overview redirect
+      {
+        source: "/cli/branch/overview",
+        destination: "/cli/branch",
+        permanent: true,
       },
     ];
   },

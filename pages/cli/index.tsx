@@ -1,48 +1,68 @@
 import fs from "fs";
-import { MDXRemote } from "next-mdx-remote";
+import { GetStaticProps } from "next";
+import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import remarkGfm from "remark-gfm";
 
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
-import AiChatButton from "../../components/AiChatButton";
-import datadogDashboardJson from "../../content/integrations/extensions/datadog_dashboard.json";
-import newRelicDashboardJson from "../../content/integrations/extensions/new_relic_dashboard.json";
-import eventPayload from "../../data/code/sources/eventPayload";
-import MDXLayout from "../../layouts/MDXLayout";
-import { CONTENT_DIR } from "../../lib/content.server";
+import { CONTENT_DIR } from "@/lib/content.server";
+import { CliReferenceLayout } from "@/layouts/CliReferenceLayout";
+import AiChatButton from "@/components/AiChatButton";
 
-function CliPage({ source, sourcePath }) {
+interface CliIndexPageProps {
+  source: MDXRemoteSerializeResult;
+  frontmatter: {
+    title: string;
+    description: string;
+  };
+  sourcePath: string;
+}
+
+export default function CliIndexPage({
+  source,
+  frontmatter,
+  sourcePath,
+}: CliIndexPageProps) {
   return (
-    <MDXLayout frontMatter={source.frontmatter} sourcePath={sourcePath}>
-      <MDXRemote
-        {...source}
-        components={MDX_COMPONENTS}
-        scope={{
-          datadogDashboardJson,
-          newRelicDashboardJson,
-          eventPayload,
-        }}
-      />
+    <CliReferenceLayout frontMatter={frontmatter} sourcePath={sourcePath}>
+      <MDXRemote {...source} components={MDX_COMPONENTS as any} />
       <AiChatButton />
-    </MDXLayout>
+    </CliReferenceLayout>
   );
 }
 
-export async function getStaticProps() {
-  const sourcePath = `${CONTENT_DIR}/__cli/content.mdx`;
+export const getStaticProps: GetStaticProps<CliIndexPageProps> = async () => {
+  // Render the overview content at the /cli index
+  const contentPath = `${CONTENT_DIR}/cli/overview.mdx`;
 
-  const preContent = fs.readFileSync(sourcePath);
+  const fileContent = fs.readFileSync(contentPath, "utf-8");
 
-  const mdx = await serialize(preContent.toString(), {
+  const mdx = await serialize(fileContent, {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeMdxCodeProps],
     },
+    blockJS: false,
+    blockDangerousJS: true,
   });
 
-  return { props: { source: mdx, sourcePath } };
-}
+  const frontmatter = (mdx.frontmatter || {}) as {
+    title: string;
+    description: string;
+  };
 
-export default CliPage;
+  return {
+    props: {
+      source: mdx,
+      frontmatter: {
+        title: frontmatter.title || "CLI reference",
+        description:
+          frontmatter.description ||
+          "Learn more about the commands and flags available in the Knock CLI.",
+      },
+      sourcePath: contentPath,
+    },
+  };
+};

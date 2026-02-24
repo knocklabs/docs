@@ -34,6 +34,12 @@ const FeaturesMatrix = ({
   rowHeaderWidth = "35%",
   columnMinWidth = "120px",
 }: FeaturesMatrixProps) => {
+  const matrixBorderColor = "var(--tgph-gray-4)";
+  const matrixDividerColor = "var(--tgph-gray-8)";
+  const groupBackgroundColor = "var(--tgph-gray-2)";
+  const headingTextColor = "var(--tgph-gray-12)";
+  const rowTextColor = "var(--tgph-gray-11)";
+
   const normalizedColumns = columns.map((column) =>
     typeof column === "string" ? { name: column } : column,
   );
@@ -93,16 +99,17 @@ const FeaturesMatrix = ({
               return (
                 <th
                   key={column.name}
-                  className="px-2 py-3 text-center font-semibold text-xs border-t border-gray-200"
+                  className="px-2 py-3 text-center font-semibold text-xs border-t"
                   style={{
                     width: baseWidth,
                     minWidth: columnMinWidth,
+                    borderTopColor: matrixBorderColor,
                     borderLeft: isFirst
-                      ? "1px solid rgb(229, 231, 235)"
-                      : "0.5px solid rgb(229, 231, 235)",
+                      ? `1px solid ${matrixBorderColor}`
+                      : `0.5px solid ${matrixBorderColor}`,
                     borderRight: isLast
-                      ? "1px solid rgb(229, 231, 235)"
-                      : "0.5px solid rgb(229, 231, 235)",
+                      ? `1px solid ${matrixBorderColor}`
+                      : `0.5px solid ${matrixBorderColor}`,
                   }}
                 >
                   <div className="leading-tight">
@@ -115,7 +122,9 @@ const FeaturesMatrix = ({
                         {column.name}
                       </Link>
                     ) : (
-                      <span className="text-gray-900">{column.name}</span>
+                      <span style={{ color: headingTextColor }}>
+                        {column.name}
+                      </span>
                     )}
                   </div>
                 </th>
@@ -131,20 +140,27 @@ const FeaturesMatrix = ({
                 <tr key={row.name}>
                   {hasRowGroupNames && rowIndex === 0 && (
                     <td
-                      className={`px-4 bg-gray-100 border-r border-gray-200 relative ${
-                        rowGroupIndex !== rowGroups.length - 1
-                          ? ""
-                          : "border-b border-gray-200"
+                      className={`px-4 relative ${
+                        rowGroupIndex !== rowGroups.length - 1 ? "" : "border-b"
                       }`}
                       rowSpan={rowGroup.rows.length}
                       style={{
                         width: groupNameWidth,
                         minWidth: groupNameWidth,
+                        backgroundColor: groupBackgroundColor,
+                        borderRight: `1px solid ${matrixBorderColor}`,
+                        borderBottomColor: matrixBorderColor,
                       }}
                     >
-                      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-50"></div>
+                      <div
+                        className="absolute top-0 left-0 right-0 h-0.5 z-50"
+                        style={{ backgroundColor: matrixDividerColor }}
+                      ></div>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="transform -rotate-90 whitespace-nowrap text-sm font-medium text-gray-400">
+                        <div
+                          className="transform -rotate-90 whitespace-nowrap text-sm font-medium"
+                          style={{ color: rowTextColor }}
+                        >
                           {rowGroup.name}
                         </div>
                       </div>
@@ -156,14 +172,21 @@ const FeaturesMatrix = ({
                       rowIndex === rowGroup.rows.length - 1 &&
                       rowGroupIndex !== rowGroups.length - 1
                         ? ""
-                        : "border-b border-gray-200"
+                        : "border-b"
                     }`}
+                    style={{ borderBottomColor: matrixBorderColor }}
                   >
                     {rowIndex === 0 && hasRowGroupNames && (
-                      <div className="absolute top-0 -left-px -right-px h-0.5 bg-gray-400 z-1"></div>
+                      <div
+                        className="absolute top-0 -left-px -right-px h-0.5 z-1"
+                        style={{ backgroundColor: matrixDividerColor }}
+                      ></div>
                     )}
                     {rowIndex === 0 && !hasRowGroupNames && (
-                      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-400 z-1"></div>
+                      <div
+                        className="absolute top-0 left-0 right-0 h-0.5 z-1"
+                        style={{ backgroundColor: matrixDividerColor }}
+                      ></div>
                     )}
                     <div className="text-xs overflow-hidden leading-tight">
                       {row.href ? (
@@ -175,7 +198,7 @@ const FeaturesMatrix = ({
                           {row.name}
                         </Link>
                       ) : (
-                        <span className="text-gray-700">{row.name}</span>
+                        <span style={{ color: rowTextColor }}>{row.name}</span>
                       )}
                     </div>
                   </td>
@@ -187,23 +210,27 @@ const FeaturesMatrix = ({
                     return (
                       <td
                         key={`${row.name}-${column.name}`}
-                        className={`px-2 py-2 text-center border-gray-200 relative ${
+                        className={`px-2 py-2 text-center relative ${
                           rowIndex === rowGroup.rows.length - 1 &&
                           rowGroupIndex !== rowGroups.length - 1
                             ? ""
                             : "border-b"
                         }`}
                         style={{
+                          borderBottomColor: matrixBorderColor,
                           borderLeft: isFirst
-                            ? "1px solid rgb(229, 231, 235)"
-                            : "0.5px solid rgb(229, 231, 235)",
+                            ? `1px solid ${matrixBorderColor}`
+                            : `0.5px solid ${matrixBorderColor}`,
                           borderRight: isLast
-                            ? "1px solid rgb(229, 231, 235)"
-                            : "0.5px solid rgb(229, 231, 235)",
+                            ? `1px solid ${matrixBorderColor}`
+                            : `0.5px solid ${matrixBorderColor}`,
                         }}
                       >
                         {rowIndex === 0 && (
-                          <div className="absolute top-0 -left-px right-0 h-0.5 bg-gray-400 z-1"></div>
+                          <div
+                            className="absolute top-0 -left-px right-0 h-0.5 z-1"
+                            style={{ backgroundColor: matrixDividerColor }}
+                          ></div>
                         )}
                         {(() => {
                           const status = getFeatureStatus(row, column.name);

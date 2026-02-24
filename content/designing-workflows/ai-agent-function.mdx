@@ -1,0 +1,192 @@
+---
+title: AI agent function
+description: Learn how to use the AI agent workflow function to enrich data and personalize messaging in Knock workflows.
+tags: ["steps", "AI", "agent", "LLM", "functions", "personalization"]
+section: Designing workflows
+---
+
+<Callout
+  type="beta"
+  text={
+    <>
+      AI agent function is currently in beta. If you'd like early access, or if
+      this is blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=AI agent function beta access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
+The AI agent function runs a prompt on an AI model of your choice and makes the response available in your workflow state. You can use it to enrich recipient data, personalize messaging, and bring AI-powered context into your messaging flows.
+
+Common use cases include:
+
+- **Enriching recipient data.** Use user and tenant properties (such as domain) to understand a recipient's market, use cases, and target persona.
+- **Personalizing messaging.** Bring that context into your [channel step templates](/template-editor/overview) to drive higher conversion rates.
+- **Summarizing batch content.** Distill heterogeneous actions into a concise summary that reduces noise in digest notifications.
+
+## How it works
+
+When a workflow run reaches an AI agent step, Knock:
+
+1. Renders your prompt with the current [workflow run scope](/concepts/conditions#condition-types) (recipient, actor, tenant, data, etc.).
+2. Sends the prompt to the AI model you've selected.
+3. Adds the response to the workflow run data.
+
+The response is stored as `data.<step_ref>`. You can reference this data in subsequent steps and templates.
+
+## Configuring an AI agent step
+
+### Selecting a model
+
+Choose the AI model from the dropdown in the step configuration. The model you select affects both the quality of responses and the [credit cost](#credits-and-billing) per step execution.
+
+Generally we recommend using a faster, lightweight model for quick tasks (e.g. Haiku 4.5) and a more powerful model (e.g. Sonnet 4.5) for complex tasks.
+
+### Writing the prompt
+
+The prompt field accepts [Liquid](/template-editor/reference-liquid-helpers) syntax, so you can inject variable data from the workflow run scope. For example:
+
+```liquid title="Example prompt with context"
+## Goal
+Determine a single company’s customer segments and ideal customer profile.
+
+Use the company’s official website and the official LinkedIn company page.
+Cross-validate claims and prefer primary sources.
+The actual variables to be used are defined in the Inputs section below.
+
+## Inputs
+Company domain: {{ tenant.companyDomain }}
+Company name: {{ tenant.companyName }}
+
+## Process
+Use the company domain and name to find the company’s official website and LinkedIn company page.
+```
+
+You can reference:
+
+- `recipient` — The workflow run recipient.
+- `tenant` — The tenant (i.e. company, organization, workspace) associated with the workflow run.
+- `data` — The trigger payload passed to the workflow.
+- `actor` — The user or system that triggered the workflow.
+- `vars` — Your [environment variables](/concepts/variables).
+
+See the [Knock template editor reference](/template-editor/overview) for more on working with Liquid in Knock.
+
+### Response format
+
+By default, the AI agent returns a single string response available as `data.<step_ref>.text`.
+
+You can set the response format to **JSON** when you need structured output for use in templates or [branch steps](/designing-workflows/branch-function). When using JSON format, you must supply a JSON schema for the shape of the data that you'd like the AI agent to fill in.
+
+```json title="Example JSON schema"
+{
+  "type": "object",
+  "properties": {
+    "customer_segments": {
+      "type": "array",
+      "description": "The customer segments the company belongs to. Specify up to 3 segments."
+    },
+    "industry": {
+      "type": "string",
+      "description": "The industry the company operates in"
+    }
+  },
+  "required": ["customer_segments", "ideal_customer_profile"]
+}
+```
+
+### Web search
+
+<Callout
+  type="info"
+  text={<>Web search is currently only supported for Anthropic models.</>}
+/>
+
+When **web search** is enabled, the agent can use a browser to crawl pages and gather information. This is useful for enriching data based on a recipient's domain or website amongst other research tasks.
+
+Web search increases the credit cost of each step execution.
+
+## Testing AI agent steps
+
+You can run test executions of your AI agent step from the workflow editor. Test runs **do not consume credits**.
+
+1. Open the AI agent step in the workflow editor.
+2. Click the test button next to the prompt field.
+3. Specify the trigger parameters (actor, recipient, trigger data, tenant) for the test run.
+4. Click **Run test**.
+
+The test runner executes only the AI agent step in isolation. If your step expects data from a preceding step (such as a batch or fetch), include that data in the **Data** field when running the test.
+
+## Credits and billing
+
+AI agent function executions consume **AI agent credits**. Credits are used when the step successfully runs in a workflow. Test runs do not consume credits.
+
+The credit cost per execution depends on:
+
+- **Model.** Each model has a different credit cost per run.
+- **Web search.** Enabled by default; adds credits per execution.
+- **Thinking.** When enabled, adds credits for extended reasoning.
+
+### Managing credits
+
+- **Included credits.** Your plan includes a set amount of credits per billing period. Credits do not roll over.
+- **Purchasing credits.** When you need more, go to the **Billing** page in your account settings to purchase additional credits.
+- **Auto-purchase.** You can configure a threshold and amount for automatic credit top-ups when your balance falls below a certain level.
+- **Running out of credits.** When you run out of credits, AI agent steps halt. You can configure behavior when this happens (e.g. continue the workflow or stop the workflow).
+
+### Credit reference
+
+<Table
+  headers={["Model", "Tier", "Credit cost"]}
+  rows={[
+    ["Claude Haiku 4.5", "Budget", "1 credit"],
+    ["OpenAI GPT-5.2 Instant", "Budget", "1 credit"],
+    ["Claude Sonnet 4.6", "Balanced", "8 credits"],
+    ["OpenAI GPT-5.2", "Balanced", "8 credits"],
+    ["Claude Opus 4.6", "Power", "12 credits"],
+    ["OpenAI GPT-5.2 Pro", "Power", "12 credits"],
+  ]}
+/>
+
+When web search is enabled, the credit cost is increased by 10 credits per execution.
+
+## Error handling
+
+When an AI agent step fails (e.g. model error, timeout, or invalid response), Knock marks the step as failed. You can configure whether the workflow should halt or continue to the next step when an AI agent step fails using the "Halt on error" setting.
+
+The AI agent step will retry up to 3 times for certain types of errors:
+
+- **Model errors.** The model returns an error response.
+- **Timeout errors.** The request takes longer than the model's timeout.
+- **Unexpected errors.** The model returns an unexpected response.
+
+Note: we will **not** retry when the model returns an error response or indicates that they could not fulfill the request.
+
+## Debugging AI agent steps
+
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug AI agent steps. For each AI agent step, the logs include:
+
+- The rendered prompt sent to the model.
+- The model response.
+- The duration of the request.
+- Any errors encountered.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I use the AI agent output in step conditions?">
+    Yes. The output from an AI agent step is available in the workflow run scope, so you can use it in [step conditions](/designing-workflows/step-conditions) on subsequent steps.
+
+    For example, you could branch based on whether the AI agent returned a specific persona type or a non-empty enrichment result.
+
+  </Accordion>
+  <Accordion title="Does the AI agent work with batch functions?">
+    Yes. You can place an AI agent step after a [batch function](/designing-workflows/batch-function) to summarize or enrich the batched activities. The AI agent has access to the batch data in the workflow run scope.
+  </Accordion>
+  <Accordion title="What happens if my prompt renders to invalid Liquid?">
+    If the prompt fails to render due to a Liquid error, the step will fail and the workflow will halt (or continue, depending on your error handling configuration). Use the [workflow debugger](/send-notifications/debugging-workflows) to inspect the error.
+  </Accordion>
+</AccordionGroup>

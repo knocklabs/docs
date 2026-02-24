@@ -99,26 +99,74 @@ Dynamic arguments are nearly identical to variables. Knock will expect a string 
 
 See the [conditions scope](#conditions-scope) for a list of available prefixes.
 
+#### Timestamp arguments
+
+The timestamp operators (`is_timestamp_before`, `is_timestamp_on_or_after`, and `is_timestamp_between`) accept timestamp arguments in three formats:
+
+- **Relative.** A time relative to when the condition is evaluated. Relative timestamps include a value, a unit (`minutes`, `hours`, `days`, or `weeks`), and a modifier (`from now` or `ago`). For example, "7 days ago" or "3 days from now".
+- **Absolute.** A fixed date and time. In JSON, this is represented in ISO 8601 format (e.g., `"2025-06-15T14:30:00Z"`).
+- **Dynamic.** A Liquid template variable that resolves to a timestamp at runtime (e.g., `{{ recipient.subscription_ends_at }}`). Dynamic timestamp arguments are available in workflows, broadcasts, and guides.
+
+<Callout
+  type="info"
+  text={
+    <>
+      <p>Timestamp condition limitations:</p>
+      <ul>
+        <li>
+          <strong>Minimum duration.</strong> Relative timestamps must be at
+          least 15 minutes.
+        </li>
+        <li>
+          <strong>Precise calculations.</strong> Relative times are calculated
+          precisely from the current time. For example, "1 day from now" means
+          exactly 24 hours from the moment the condition is evaluated, not
+          "tomorrow".
+        </li>
+        <li>
+          <strong>Between operator.</strong> The{" "}
+          <code>is_timestamp_between</code> operator only supports absolute
+          dates or dynamic variables, not relative timestamps.
+        </li>
+      </ul>
+    </>
+  }
+/>
+
 ### Operators
 
 You can use any of the following operators in condition comparisons:
 
-| Operator                   | Description                                                                               |
-| -------------------------- | ----------------------------------------------------------------------------------------- |
-| `equal_to`                 | `==`                                                                                      |
-| `not_equal_to`             | `!=`                                                                                      |
-| `greater_than`             | `>`                                                                                       |
-| `greater_than_or_equal_to` | `>=`                                                                                      |
-| `less_than`                | `<`                                                                                       |
-| `less_than_or_equal_to`    | `<=`                                                                                      |
-| `contains`                 | `argument` in `variable` (works with strings and lists)                                   |
-| `contains_all`             | are all `argument` in `variable` (works with single arguments, or lists of arguments)     |
-| `not_contains`             | `argument` not in `variable` (works with strings and lists)                               |
-| `not_contains_all`         | are all `argument` not in `variable` (works with single arguments, or lists of arguments) |
-| `empty`                    | `variable` in `["", null, []]`                                                            |
-| `not_empty`                | `variable` not in `["", null, []]`                                                        |
+| Operator                   | Description                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------------- |
+| `equal_to`                 | `==`                                                                                     |
+| `not_equal_to`             | `!=`                                                                                     |
+| `greater_than`             | `>`                                                                                      |
+| `greater_than_or_equal_to` | `>=`                                                                                     |
+| `less_than`                | `<`                                                                                      |
+| `less_than_or_equal_to`    | `<=`                                                                                     |
+| `contains`                 | Checks whether `argument` is in `variable` (works with strings and lists)                |
+| `contains_all`             | Checks whether all `argument` values are present in `variable` (for comparing lists)     |
+| `not_contains`             | Checks whether `argument` is not in `variable` (works with strings and lists)            |
+| `not_contains_all`         | Checks whether all `argument` values are not present in `variable` (for comparing lists) |
+| `empty`                    | Checks whether `variable` is in `["", null, []]`                                         |
+| `not_empty`                | Checks whether `variable` is not in `["", null, []]`                                     |
+| `exists`                   | Checks whether `variable` is provided and has a value that is not `null`                 |
+| `not_exists`               | Checks whether `variable` is not provided or has a `null` value                          |
+| `is_timestamp_before`      | Checks whether `variable` is a timestamp before the `argument` value                     |
+| `is_timestamp_on_or_after` | Checks whether `variable` is a timestamp on or after the `argument` value                |
+| `is_timestamp_between`     | Checks whether `variable` is a timestamp between the `argument`'s start and end values   |
 
-Note: the `empty` and `not_empty` operators do not require a companion argument value in the condition, since Knock is checking for the absence of data from the variable path.
+<Callout
+  type="info"
+  text={
+    <>
+      The <code>empty</code>, <code>not_empty</code>, <code>exists</code>, and{" "}
+      <code>not_exists</code> operators do not require an argument value. Knock
+      checks for the absence of data at the variable path.
+    </>
+  }
+/>
 
 ### Conditions scope
 
@@ -127,12 +175,12 @@ Knock makes the following available to be used in a condition variable or dynami
 | Property                              | Description                                                                                                                                                                                                                                                                                   |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `data.<path>`                         | A data condition, where `<path>` is used to select a property from the workflow trigger data payload.                                                                                                                                                                                         |
-| `recipient.<prop>`                    | A recipient condition, where `<prop>` is used to select a property on the current recipient. [See full list of properties available](/designing-workflows/template-editor/variables#recipient-user-or-object).                                                                                |
-| `actor.<prop>`                        | An actor condition, where `<prop>` is used to select a property on the current actor. [See full list of properties available](/designing-workflows/template-editor/variables#recipient-user-or-object).                                                                                       |
+| `recipient.<prop>`                    | A recipient condition, where `<prop>` is used to select a property on the current recipient. [See full list of properties available](/template-editor/variables#recipient-user-or-object).                                                                                                    |
+| `actor.<prop>`                        | An actor condition, where `<prop>` is used to select a property on the current actor. [See full list of properties available](/template-editor/variables#recipient-user-or-object).                                                                                                           |
 | `vars.<var>`                          | An environment variable condition, where `<var>` is the name of one of your environment variables.                                                                                                                                                                                            |
 | `workflow.{id,name,categories}`       | A workflow condition.                                                                                                                                                                                                                                                                         |
 | `run.{total_activities,total_actors}` | A workflow run condition.                                                                                                                                                                                                                                                                     |
-| `tenant.<prop>`                       | A tenant condition, where `<prop>` is used to select a property on the current tenant. [See full list of properties available](/designing-workflows/template-editor/variables#tenant).                                                                                                        |
+| `tenant.<prop>`                       | A tenant condition, where `<prop>` is used to select a property on the current tenant. [See full list of properties available](/template-editor/variables#tenant).                                                                                                                            |
 | `refs.<ref>.delivery_status`          | A [message status condition](/designing-workflows/step-conditions#message-status-conditions) that evaluates against a message's [delivery status](/send-notifications/message-statuses#delivery-status), where `<ref>` identifies the preceding workflow step that generated the message.     |
 | `refs.<ref>.engagement_status`        | A [message status condition](/designing-workflows/step-conditions#message-status-conditions) that evaluates against a message's [engagement status](/send-notifications/message-statuses#engagement-status), where `<ref>` identifies the preceding workflow step that generated the message. |
 

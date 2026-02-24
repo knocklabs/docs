@@ -15,6 +15,7 @@ import kotlin from "react-syntax-highlighter/dist/cjs/languages/hljs/kotlin";
 import swift from "react-syntax-highlighter/dist/cjs/languages/hljs/swift";
 import bash from "react-syntax-highlighter/dist/cjs/languages/hljs/bash";
 import { useClipboard } from "@/hooks/useClipboard";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 import { lightCodeTheme, darkCodeTheme } from "../../styles/codeThemes";
 import { normalize } from "../../lib/normalizeCode";
@@ -121,6 +122,7 @@ export const CodeBlock: React.FC<Props> = ({
   ...props
 }) => {
   const isMounted = useIsMounted();
+  const { appearance } = useTheme();
 
   const params = useMemo(() => getParams(className) as any, [className]);
 
@@ -141,21 +143,27 @@ export const CodeBlock: React.FC<Props> = ({
     }
   }, [language, languages, params.language]);
 
-  const [content] = useMemo(
-    () =>
-      normalize(
-        children != null &&
-          typeof children !== "string" &&
-          children.props &&
-          children.props.children
-          ? children.props.children
-          : children ?? "",
-        className,
-      ),
-    [children, className],
-  );
+  const [content] = useMemo(() => {
+    // Extract code content from children, ensuring we always get a string
+    if (typeof children === "string") {
+      return normalize(children, className);
+    }
+    if (children?.props?.children != null) {
+      const innerContent = children.props.children;
+      if (typeof innerContent === "string") {
+        return normalize(innerContent, className);
+      }
+      if (Array.isArray(innerContent)) {
+        const text = innerContent
+          .filter((c): c is string => typeof c === "string")
+          .join("");
+        return normalize(text, className);
+      }
+    }
+    return normalize("", className);
+  }, [children, className]);
 
-  const title = props.title || children.props.metastring;
+  const title = props.title || children?.props?.metastring;
 
   const [isCopied, setCopied] = useClipboard(content, {
     successDuration: 2000,
@@ -233,7 +241,7 @@ export const CodeBlock: React.FC<Props> = ({
           paddingLeft: "0px",
         }}
         language={lang}
-        style={lightCodeTheme}
+        style={appearance === "dark" ? darkCodeTheme : lightCodeTheme}
       >
         {content}
       </SyntaxHighlighter>

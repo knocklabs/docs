@@ -1,0 +1,298 @@
+---
+title: Translations
+description: Commands for managing translations in the Knock CLI.
+---
+
+<Section path="/translation">
+<ContentColumn>
+
+Translation commands enable you to manage translations in your Knock account from the CLI.
+
+</ContentColumn>
+</Section>
+
+<Section title="Translation file structure" path="/translation/file-structure">
+<ContentColumn>
+
+When translations are pulled from Knock, they are stored in directories named by their locale codes. Their filename will be their locale code. Any namespaced translations will prepend the namespace to the filename, with `.` used as a separator.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local translation files structure">
+{`translations/
+├── en/
+│  ├── en.json
+│  └── admin.en.json
+└── en-GB/
+   ├── en-GB.json
+   └── tasks.en-GB.json`}
+</PreTextDiagram>
+
+If you're migrating your local translation files into Knock, you can arrange them using the file structure above and then push them into Knock with a single command using [`knock translation push --all`](/cli/translation/push). Each `<locale>.json` or `<namespace>.<locale>.json` file should follow the structure defined [here](/mapi-reference/translations/schemas/translation).
+
+</ContentColumn>
+</Section>
+
+<Section title="knock translation list [flags]" path="/translation/list">
+<ContentColumn>
+
+List all translations in the environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock translation list
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation get <translation_ref> [flags]" path="/translation/get">
+<ContentColumn>
+
+You can show the content of a given translation with the `translation get` command, followed by the target translation ref.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--format"
+    type="string"
+    description="Specify the output format of the returned translations. Supports 'json' and 'po'. Defaults to 'json'."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Get translation without a namespace"
+knock translation get en
+```
+
+```bash title="Get translation with a namespace"
+knock translation get admin.en
+```
+
+```bash title="Get translation in a different environment"
+knock translation get en --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation pull <translation_ref> [flags]" path="/translation/pull">
+<ContentColumn>
+
+You can pull and download translation files from Knock to a local file system with the `translation pull` command. Knock CLI will create a new translation file or update the existing file in the local file system.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pulled.
+
+By default this command will resolve to the translations resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--translations-dir` flag.
+
+See the [Translation file structure](/cli/translation/file-structure) section for details on how translation files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--format"
+    type="string"
+    description="Specify the output format of the returned translations. Supports 'json' and 'po'. Defaults to 'json'."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={`Whether to pull all translations from the specified environment into the target directory path set by \`--translations-dir\`. Defaults to false.
+
+When used with a locale code, will pull all translations for that locale only.
+
+Note: all contents in the target directory will be erased and replaced with all translations from the specified environment.`}
+/>
+
+  <Attribute
+    name="--translations-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all translations into. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Pull a single translation without a namespace"
+knock translation pull en
+```
+
+```bash title="Pull a single translation with a namespace"
+knock translation pull admin.en
+```
+
+```bash title="Pull all translations for a locale"
+knock translation pull en --all
+```
+
+```bash title="Pull all translations"
+knock translation pull --all
+```
+
+```bash title="Pull all translations as PO files"
+knock translation pull --all --format=po
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation push <translation_ref> [flags]" path="/translation/push">
+<ContentColumn>
+
+Pushes local translation files back to Knock and upserts them.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+When `<translation_ref>` is a locale code and specified with the `--all` flag, all translations for that locale are pushed.
+
+By default this command will resolve to the translations resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--translations-dir` flag.
+
+See the [Translation file structure](/cli/translation/file-structure) section for details on how translation files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all translation files to the target environment. Defaults to false."
+  />
+  <Attribute
+    name="--translations-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all translations from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Push a single translation without a namespace"
+knock translation push en
+```
+
+```bash title="Push a single translation with a namespace"
+knock translation push tasks.en
+```
+
+```bash title="Push all translation files for the en locale"
+knock translation push en --all
+```
+
+```bash title="Push all translation files"
+knock translation push --all
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock translation validate <translation_ref> [flags]" path="/translation/validate">
+<ContentColumn>
+
+Validates one or more translation files. Useful for checking if the file is valid before running the `translation push` method.
+
+The `<translation_ref>` is a identifier string that refers to a unique translation file. If a translation has no namespace, it is the same as the locale, i.e. `en`. If namespaced, it is formatted as `namespace.locale`, i.e. `admin.en`.
+
+Can only be validated against the `development` environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all translation files. Defaults to false."
+  />
+  <Attribute
+    name="--translations-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all translation files from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock translation validate --all
+```
+
+```bash title="Validate a single file"
+knock translation validate admin.en
+```
+
+```bash title="Validate all translations for the en locale"
+knock translation validate en --all
+```
+
+</ExampleColumn>
+</Section>

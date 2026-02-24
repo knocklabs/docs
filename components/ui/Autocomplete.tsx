@@ -8,8 +8,7 @@ import {
   parseAlgoliaHitHighlight,
 } from "@algolia/autocomplete-preset-algolia";
 import algoliasearch from "algoliasearch/lite";
-import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
-
+import { Search, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, {
@@ -20,41 +19,27 @@ import React, {
   useRef,
   useState,
 } from "react";
-
 import { useHotkeys } from "react-hotkeys-hook";
 
-import "@algolia/autocomplete-theme-classic";
-
-import {
-  AIChatFunctions,
-  type InkeepModalSearchAndChat,
-} from "@inkeep/cxkit-react";
+import { Button } from "@telegraph/button";
+import { Icon } from "@telegraph/icon";
 import { Input } from "@telegraph/input";
 import { Box, Stack } from "@telegraph/layout";
+import { MenuItem } from "@telegraph/menu";
 import { Tag } from "@telegraph/tag";
-import { Search, Sparkles, X } from "lucide-react";
-
-const InKeepTrigger = dynamic(
-  () =>
-    import("@inkeep/cxkit-react").then((mod) => mod.InkeepModalSearchAndChat),
-  {
-    ssr: false,
-  },
-) as typeof InkeepModalSearchAndChat;
+import { Code, Text } from "@telegraph/typography";
 
 import {
   DocsSearchItem,
   EndpointSearchItem,
   EnhancedDocsSearchItem,
 } from "@/types";
-import { Button } from "@telegraph/button";
-import { Icon } from "@telegraph/icon";
-import { MenuItem } from "@telegraph/menu";
-import { Code, Text } from "@telegraph/typography";
-import dynamic from "next/dynamic";
-import useInkeepSettings from "../../hooks/useInKeepSettings";
+
+import { useInkeepModal } from "../AiChatButton";
+import { useAskAi } from "../AskAiContext";
 import { usePageContext } from "./Page";
 import { highlightResource } from "./Page/helpers";
+import { ScrollerBottomGradient } from "./Page/ScrollerBottomGradient";
 
 // This Autocomplete component was created following:
 // https://www.algolia.com/doc/ui-libraries/autocomplete/api-reference/autocomplete-core/createAutocomplete/
@@ -67,7 +52,7 @@ import { highlightResource } from "./Page/helpers";
 // It's not exposed publicly for import, that's why we keep our version here.
 
 const highlightingStyles = {
-  color: "#485CC7",
+  color: "var(--tgph-accent-11)",
   fontWeight: 600,
   background: "transparent",
 };
@@ -75,6 +60,11 @@ const highlightingStyles = {
 // These are the number of hits we want to show for each section
 const NUM_DOCS_HITS = 12;
 const NUM_ENDPOINT_HITS = 5;
+const MOBILE_BREAKPOINT = 768;
+
+function createAskAiPrompt(query: string): string {
+  return `Can you tell me about ${query}`;
+}
 
 type ResultItem =
   | (EnhancedDocsSearchItem & BaseItem)
@@ -87,46 +77,65 @@ const algoliaIndex = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME || "";
 const algoliaEndpointIndex =
   process.env.NEXT_PUBLIC_ALGOLIA_ENDPOINT_INDEX_NAME || "";
 
+// SSR-safe keyboard shortcut indicator that matches Telegraph Kbd styling
+// Used in StaticSearch to avoid hydration errors (Kbd uses navigator which isn't available during SSR)
+const StaticKbd = ({
+  label,
+  className,
+}: {
+  label: string;
+  className?: string;
+}) => {
+  return (
+    <Stack
+      as="span"
+      className={className}
+      bg="surface-1"
+      border="px"
+      borderColor="gray-3"
+      borderRadius="1"
+      alignItems="center"
+      justifyContent="center"
+      style={{
+        minWidth: "var(--tgph-spacing-5)",
+        height: "var(--tgph-spacing-5)",
+        padding: "var(--tgph-spacing-1)",
+      }}
+    >
+      <Text as="span" size="0" style={{ color: "var(--tgph-gray-12)" }}>
+        {label}
+      </Text>
+    </Stack>
+  );
+};
+
 // We do some delayed rendering below to avoid hydration errors
 // Instead of returning null when the component isn't ready, we return a static version
 // This makes sure the server renders the same element and client will do a hot-swap with the real thing
 // Prevents loading jank
 const StaticSearch = () => {
   return (
-    <Box as="form">
-      <Input
-        placeholder="Search the docs..."
-        size="2"
-        className="aa-Input"
-        LeadingComponent={
-          <Icon icon={Search} alt="Search" color="gray" size="1" mr="2" />
-        }
-        TrailingComponent={
-          <Stack
-            bg="gray-1"
-            borderRadius="1"
-            border="px"
-            borderColor="gray-3"
-            justifyContent="center"
-            alignItems="center"
-            width="5"
-            height="5"
-          >
-            <Text
-              as="span"
-              size="1"
-              color="black"
-              weight="medium"
-              style={{ lineHeight: "1", transform: "translateY(-1px)" }}
-            >
-              /
-            </Text>
-          </Stack>
-        }
-      />
+    <Box w="full">
+      <Box as="form" className="aa-Form">
+        <Input
+          placeholder="Search"
+          variant="ghost"
+          size="1"
+          className="aa-Input"
+          w="full"
+          LeadingComponent={
+            <Icon icon={Search} alt="Search" color="gray" size="1" mr="1" />
+          }
+          TrailingComponent={<StaticKbd className="md-hidden" label="/" />}
+        />
+      </Box>
     </Box>
   );
 };
+
+// Check if a path is an API reference path
+const isApiReferencePath = (path: string) =>
+  path.startsWith("api-reference") || path.startsWith("mapi-reference");
 
 const handleSearchNavigation = (
   e: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent<HTMLFormElement>,
@@ -134,7 +143,6 @@ const handleSearchNavigation = (
   itemUrl,
   onSearch: () => void,
 ) => {
-  e.preventDefault();
   const pathname = router.asPath;
   const isMapiReference =
     itemUrl.startsWith("mapi-reference") &&
@@ -146,12 +154,20 @@ const handleSearchNavigation = (
 
   // If the item is in the same reference, highlight the item, don't navigate
   if (isSamePageReferenceResult) {
+    e.preventDefault();
     highlightResource(`/${itemUrl}`, { moveToItem: true });
+    onSearch();
+  } else if (isApiReferencePath(itemUrl)) {
+    // For API reference items when not on the same reference page,
+    // allow default anchor behavior (full page reload) to ensure
+    // the ApiReferenceProvider context is properly initialized
+    onSearch();
   } else {
-    // Handle regular navigation
+    // Handle regular navigation with client-side routing
+    e.preventDefault();
     router.push(`/${itemUrl}`);
+    onSearch();
   }
-  onSearch();
 };
 
 const DocsSearchResult = ({
@@ -162,31 +178,55 @@ const DocsSearchResult = ({
   onClick: () => void;
 }) => {
   const router = useRouter();
+  const href = `/${item.path}`;
+  const isApiRef = isApiReferencePath(item.path);
+
+  const enhancedItem = item as EnhancedDocsSearchItem;
+  const showPageTitle = !enhancedItem.isPageLevel && enhancedItem.pageTitle;
+
+  const content = (
+    <Box w="full" h="full" px="2" py="2">
+      <Text as="p" size="2" color="default" weight="regular">
+        {/* @ts-expect-error not sure about these algolia types */}
+        {parseAlgoliaHitHighlight({ hit: item, attribute: "title" }).map(
+          (x, index) => {
+            if (x.isHighlighted) {
+              return (
+                <mark key={index} style={highlightingStyles}>
+                  {x.value}
+                </mark>
+              );
+            }
+            return x.value;
+          },
+        )}
+      </Text>
+      <Text as="span" size="1" color="gray" weight="regular">
+        {showPageTitle ? `${enhancedItem.pageTitle} · ` : ""}
+        {item.section}
+      </Text>
+    </Box>
+  );
+
+  // Use regular anchor for API reference to ensure full page reload
+  // and proper context initialization
+  if (isApiRef) {
+    return (
+      <a
+        href={href}
+        onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
     <Link
-      href={`/${item.path}`}
+      href={href}
       onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
     >
-      <Box w="full" h="full" px="2" py="2">
-        <Text as="p" size="2" color="black" weight="regular">
-          {/* @ts-expect-error not sure about these algolia types */}
-          {parseAlgoliaHitHighlight({ hit: item, attribute: "title" }).map(
-            (x, index) => {
-              if (x.isHighlighted) {
-                return (
-                  <mark key={index} style={highlightingStyles}>
-                    {x.value}
-                  </mark>
-                );
-              }
-              return x.value;
-            },
-          )}
-        </Text>
-        <Text as="span" size="1" color="gray" weight="regular">
-          {item.pageTitle ? `${item.pageTitle as string} •` : ""} {item.section}
-        </Text>
-      </Box>
+      {content}
     </Link>
   );
 };
@@ -199,6 +239,8 @@ const EndpointSearchResult = ({
   onClick: () => void;
 }) => {
   const router = useRouter();
+  const href = `/${item.path}`;
+  const isApiRef = isApiReferencePath(item.path);
   const colors = {
     get: "blue",
     post: "green",
@@ -206,95 +248,113 @@ const EndpointSearchResult = ({
     delete: "red",
     patch: "purple",
   } as const;
+
+  const content = (
+    <Stack w="full" h="full" px="1" py="2" gap="2" alignItems="center">
+      <Tag size="0" color={colors[item.method as keyof typeof colors]}>
+        {item.method?.toUpperCase()}
+      </Tag>
+      <Code as="p" size="1" color="default" weight="regular">
+        {/* @ts-expect-error not sure about these algolia types */}
+        {parseAlgoliaHitHighlight({ hit: item, attribute: "endpoint" }).map(
+          (x, index) => {
+            if (x.isHighlighted) {
+              return (
+                <mark key={index} style={highlightingStyles}>
+                  {x.value}
+                </mark>
+              );
+            }
+            return x.value;
+          },
+        )}
+      </Code>
+      <Text
+        as="span"
+        size="1"
+        color="gray"
+        weight="regular"
+        style={{
+          textOverflow: "ellipsis",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          maxWidth: "100%",
+        }}
+      >
+        {item.title}
+      </Text>
+    </Stack>
+  );
+
+  // Use regular anchor for API reference to ensure full page reload
+  // and proper context initialization
+  if (isApiRef) {
+    return (
+      <a
+        href={href}
+        onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
     <Link
-      href={`/${item.path}`}
+      href={href}
       onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
     >
-      <Stack w="full" h="full" px="1" py="2" gap="2" alignItems="center">
-        <Tag size="0" color={colors[item.method as keyof typeof colors]}>
-          {item.method?.toUpperCase()}
-        </Tag>
-        <Code as="p" size="1" color="black" weight="regular">
-          {/* @ts-expect-error not sure about these algolia types */}
-          {parseAlgoliaHitHighlight({ hit: item, attribute: "endpoint" }).map(
-            (x, index) => {
-              if (x.isHighlighted) {
-                return (
-                  <mark key={index} style={highlightingStyles}>
-                    {x.value}
-                  </mark>
-                );
-              }
-              return x.value;
-            },
-          )}
-        </Code>
-        <Text
-          as="span"
-          size="1"
-          color="gray"
-          weight="regular"
-          style={{
-            textOverflow: "ellipsis",
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            maxWidth: "100%",
-          }}
-        >
-          {item.title}
-        </Text>
-      </Stack>
+      {content}
     </Link>
   );
 };
 
 const Autocomplete = () => {
   const { setIsSearchOpen } = usePageContext();
+  const { openSidebarWithPrompt } = useAskAi();
+  const { openWithPrompt: openInkeepModal } = useInkeepModal();
   const [autocompleteState, setAutocompleteState] =
     useState<AutocompleteState<BaseItem> | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
-
-  // Add state for the AI chat
-  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
-  const [aiSearchTerm, setAiSearchTerm] = useState("");
-  const chatFunctionsRef = useRef<AIChatFunctions | null>(null);
-
-  const { baseSettings, aiChatSettings, searchSettings, modalSettings } =
-    useInkeepSettings();
+  const closeAutocompleteRef = useRef<(() => void) | null>(null);
+  const clearQueryRef = useRef<(() => void) | null>(null);
 
   const inputRef = useRef(null);
   const router = useRouter();
+
+  // Detect mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Helper function to handle Ask AI clicks based on device type
+  const handleAskAi = useCallback(
+    (
+      query: string,
+      autocompleteInstance?: ReturnType<typeof createAutocomplete>,
+    ) => {
+      const prompt = createAskAiPrompt(query);
+      if (isMobile) {
+        openInkeepModal(prompt);
+      } else {
+        openSidebarWithPrompt(prompt);
+      }
+      if (autocompleteInstance) {
+        autocompleteInstance.setIsOpen(false);
+      }
+    },
+    [isMobile, openInkeepModal, openSidebarWithPrompt],
+  );
   const searchClient = useMemo(
     () => algoliasearch(algoliaAppId, algoliaSearchApiKey),
     [],
   );
-
-  // Function to handle opening the AI chat
-  const handleOpenAiChat = useCallback((searchTerm: string) => {
-    setAiSearchTerm(searchTerm);
-    setIsAiChatOpen(true);
-  }, []);
-
-  // Function to handle closing the AI chat
-  const handleCloseAiChat = useCallback(() => {
-    setIsAiChatOpen(false);
-  }, []);
-
-  // Add this effect to update the chat input when aiSearchTerm changes
-  useEffect(() => {
-    if (isAiChatOpen && chatFunctionsRef.current && aiSearchTerm) {
-      // Update the input message with the search term
-      chatFunctionsRef.current.updateInputMessage(aiSearchTerm);
-
-      // Use a small timeout to ensure the chat is fully loaded before submitting
-      setTimeout(() => {
-        if (chatFunctionsRef.current) {
-          chatFunctionsRef.current.submitMessage();
-        }
-      }, 500);
-    }
-  }, [isAiChatOpen, aiSearchTerm]);
 
   const autocomplete = useMemo(
     () =>
@@ -321,11 +381,10 @@ const Autocomplete = () => {
                   return [];
                 }
 
-                // Create our custom "Ask AI" item
                 const askAiItem = {
                   objectID: "ask-ai",
                   path: "#",
-                  title: `Can you tell me about ${query}`,
+                  title: createAskAiPrompt(query),
                   section: "Use AI to answer your question",
                   __isAskAiItem: true,
                 };
@@ -419,24 +478,52 @@ const Autocomplete = () => {
         },
         navigator: {
           navigate({ itemUrl, item, state }) {
-            // Check if this is our Ask AI item
+            // Handle Ask AI navigation (check window.innerWidth inline since useMemo can't access isMobile state)
             if ((item as any).__isAskAiItem) {
-              handleOpenAiChat(state.query);
+              closeAutocompleteRef.current?.();
+              // Defer opening sidebar/modal to next tick to avoid UI conflicts during close
+              setTimeout(() => {
+                const prompt = createAskAiPrompt(state.query);
+                if (window.innerWidth <= MOBILE_BREAKPOINT) {
+                  openInkeepModal(prompt);
+                } else {
+                  openSidebarWithPrompt(prompt);
+                }
+              }, 0);
               return;
             }
 
-            // Handle regular navigation
-            router.push(`/${itemUrl}`);
-
-            // Clear the query when navigating
+            // For API reference items, use window.location for full page reload
+            // to ensure the ApiReferenceProvider context is properly initialized
+            if (isApiReferencePath(itemUrl)) {
+              window.location.href = `/${itemUrl}`;
+            } else {
+              router.push(`/${itemUrl}`);
+            }
             if (state.query) {
-              autocomplete.setQuery("");
+              clearQueryRef.current?.();
             }
           },
         },
       }),
-    [router, searchClient, handleOpenAiChat, setIsSearchOpen],
+    [
+      router,
+      searchClient,
+      openSidebarWithPrompt,
+      openInkeepModal,
+      setIsSearchOpen,
+    ],
   );
+
+  // Store the close and clear query functions in refs so they can be accessed from navigator
+  useEffect(() => {
+    closeAutocompleteRef.current = () => {
+      autocomplete.setIsOpen(false);
+    };
+    clearQueryRef.current = () => {
+      autocomplete.setQuery("");
+    };
+  }, [autocomplete]);
 
   useHotkeys("/, cmd+k", (e) => {
     // adding small timeout so event doesn't get to the focused input resulting
@@ -498,19 +585,32 @@ const Autocomplete = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === "Enter") {
+      // If an item is actively selected (user navigated with arrow keys),
+      // let the autocomplete navigator handle it instead
+      if (autocompleteState?.activeItemId !== null) {
+        return;
+      }
+
       e.preventDefault();
       e.stopPropagation();
-      // Open the AI chat
+
+      // Open the AI sidebar or modal when no results
       if (autocompleteState?.query && !hasResults) {
-        handleOpenAiChat(autocompleteState.query);
+        handleAskAi(autocompleteState.query, autocomplete);
         return;
-      } else {
-        // Navigate to the first item that is not the "Ask AI" item
-        const firstItem = autocompleteState?.collections[0]?.items[1];
-        if (firstItem) {
-          handleSearchNavigation(e, router, firstItem?.path, () => {});
+      }
+
+      // Navigate to the first item that is not the "Ask AI" item
+      const firstItem = autocompleteState?.collections[0]?.items[1] as
+        | ResultItem
+        | undefined;
+      if (firstItem?.path) {
+        // For API reference items, use window.location for full page reload
+        if (isApiReferencePath(firstItem.path)) {
+          window.location.href = `/${firstItem.path}`;
+        } else {
+          router.push(`/${firstItem.path}`);
         }
-        return;
       }
     }
   };
@@ -521,7 +621,7 @@ const Autocomplete = () => {
 
   const inputProps: unknown = autocomplete.getInputProps({
     inputElement: inputRef.current,
-    placeholder: "Search the docs...",
+    placeholder: "Search",
   });
 
   return (
@@ -534,81 +634,48 @@ const Autocomplete = () => {
       >
         <Input
           tgphRef={inputRef}
-          placeholder="Search the docs.."
           className="aa-Input"
           {...(inputProps as React.DetailedHTMLProps<
             React.InputHTMLAttributes<HTMLInputElement>,
             HTMLInputElement
           >)}
-          size="2"
+          variant="ghost"
+          size="1"
+          placeholder="Search"
           w="full"
           LeadingComponent={
-            <Icon icon={Search} alt="Search" color="gray" size="1" mr="2" />
+            <Icon
+              icon={Search}
+              alt="Search"
+              color="gray"
+              size="1"
+              mr="1"
+              aria-hidden="true"
+            />
           }
           TrailingComponent={
-            <>
-              {autocompleteState?.query ? (
-                <Button
-                  variant="outline"
-                  size="1"
-                  weight="regular"
-                  bg="gray-1"
-                  color="gray"
-                  icon={{
-                    icon: X,
-                    "aria-hidden": true,
-                    color: "black",
-                  }}
-                  onClick={() => {
-                    autocomplete.setQuery("");
-                    if (inputRef.current) {
-                      (inputRef.current as HTMLInputElement).focus();
-                    }
-                  }}
-                  py="2"
-                  px="1"
-                  ml="2"
-                  style={{
-                    height: "20px",
-                  }}
-                >
-                  Clear
-                </Button>
-              ) : (
-                <>
-                  <Stack
-                    bg="gray-1"
-                    borderRadius="1"
-                    border="px"
-                    borderColor="gray-3"
-                    justifyContent="center"
-                    alignItems="center"
-                    width="5"
-                    height="5"
-                    className="md-hidden"
-                  >
-                    <Text
-                      as="span"
-                      size="1"
-                      color="black"
-                      weight="medium"
-                      style={{
-                        lineHeight: "1",
-                        transform: "translateY(-1px)",
-                      }}
-                    >
-                      /
-                    </Text>
-                  </Stack>
-                  <Box
-                    borderRadius="1"
-                    width="5"
-                    height="5"
-                    className="md-visible"
-                  ></Box>
-                </>
-              )}
-            </>
+            autocompleteState?.query ? (
+              <Button
+                variant="ghost"
+                size="1"
+                color="default"
+                iconOnly={true}
+                icon={{
+                  icon: X,
+                  alt: "Clear",
+                  color: "gray",
+                  "aria-hidden": true,
+                }}
+                onClick={() => {
+                  autocomplete.setQuery("");
+                  if (inputRef.current) {
+                    (inputRef.current as HTMLInputElement).focus();
+                  }
+                }}
+              />
+            ) : (
+              <StaticKbd className="md-hidden" label="/" />
+            )
           }
         />
       </Box>
@@ -617,7 +684,7 @@ const Autocomplete = () => {
         <Box
           data-search-results-container
           position="absolute"
-          bg="white"
+          bg="surface-1"
           w="96"
           border="px"
           borderColor="gray-6"
@@ -681,9 +748,12 @@ const Autocomplete = () => {
                             source,
                           }) as unknown as React.LiHTMLAttributes<HTMLLIElement>)}
                           color="default"
-                          onClick={() =>
-                            handleOpenAiChat((inputProps as any).value)
-                          }
+                          onClick={() => {
+                            const query = (inputProps as any).value;
+                            if (query) {
+                              handleAskAi(query, autocomplete);
+                            }
+                          }}
                         >
                           <Stack
                             py="3"
@@ -696,7 +766,7 @@ const Autocomplete = () => {
                               <Text
                                 as="p"
                                 size="2"
-                                color="black"
+                                color="default"
                                 weight="regular"
                               >
                                 {(items[0] as ResultItem).title}
@@ -713,7 +783,7 @@ const Autocomplete = () => {
                             <Icon
                               icon={Sparkles}
                               alt="Sparkles"
-                              color="black"
+                              color="default"
                               size="4"
                             />
                           </Stack>
@@ -774,19 +844,19 @@ const Autocomplete = () => {
                       </Box>
                     </Box>
                   ) : (
-                    <Box
-                      p="4"
-                      className="p-4 text-[14px] text-gray-400 dark:text-gray-200 font-medium "
-                    >
+                    <Box p="4" className="p-4 text-[14px] font-medium">
                       <Text as="span" size="1" color="gray" weight="regular">
                         No matching results.
                       </Text>{" "}
                       <Link
                         href="javascript:void(0)"
                         className="text-brand"
-                        onClick={() =>
-                          handleOpenAiChat((inputProps as any).value)
-                        }
+                        onClick={() => {
+                          const query = (inputProps as any).value;
+                          if (query) {
+                            handleAskAi(query, autocomplete);
+                          }
+                        }}
                       >
                         Ask AI ✨
                       </Link>
@@ -798,49 +868,6 @@ const Autocomplete = () => {
           </Box>
         </Box>
       )}
-
-      {/* Add the InKeep trigger component directly in the Autocomplete component */}
-      <InKeepTrigger
-        defaultView="chat"
-        baseSettings={{
-          ...baseSettings,
-          theme: {
-            styles: [
-              {
-                key: "knock-autocomplete-style",
-                type: "style",
-                // InkeepModalSearchAndChat does not accept a canToggleView prop,
-                // so we apply a custom style to hide the header. Without this style,
-                // the AI chat displays a header that allows the user to toggle between
-                // a normal search and an AI chat.
-                value: `
-                .ikp-ai-chat-header {
-                  display: none;
-                }
-                `,
-              },
-            ],
-          },
-        }}
-        aiChatSettings={{
-          ...aiChatSettings,
-          chatFunctionsRef,
-          placeholder: "Ask a question...",
-        }}
-        modalSettings={{
-          ...modalSettings,
-          isOpen: isAiChatOpen,
-          onOpenChange: (open) => {
-            if (!open) {
-              handleCloseAiChat();
-            }
-          },
-        }}
-        searchSettings={{
-          ...searchSettings,
-          defaultQuery: aiSearchTerm,
-        }}
-      />
     </Box>
   );
 };

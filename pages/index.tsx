@@ -1,6 +1,5 @@
 import React from "react";
 import { PLATFORM_SIDEBAR } from "../data/sidebars/platformSidebar";
-import AiChatButton from "../components/AiChatButton";
 import { Page } from "@/components/ui/Page";
 import Meta from "@/components/Meta";
 import Link from "next/link";
@@ -72,7 +71,7 @@ export default function Home() {
             <Text
               as={Link}
               href="/getting-started/what-is-knock"
-              size="3"
+              size="2"
               color="accent"
               weight="medium"
             >
@@ -260,7 +259,6 @@ export default function Home() {
           <Box mb="32" />
         </Page.Content>
       </Page.Wrapper>
-      <AiChatButton />
     </Page.Container>
   );
 }

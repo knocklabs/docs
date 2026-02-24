@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/router";
 import {
   INTEGRATIONS_SIDEBAR,
@@ -7,20 +7,13 @@ import {
 import Meta from "../components/Meta";
 import { getSidebarInfo, slugToPaths } from "../lib/content";
 import { Page } from "@/components/ui/Page";
+import { useScrollToTop } from "../hooks/useScrollToTop";
 
 const IntegrationsLayout = ({ frontMatter, sourcePath, children }) => {
   const router = useRouter();
   let paths = slugToPaths(router.query.slug);
 
-  useEffect(() => {
-    const content = document.querySelector(".main-content");
-
-    // Right now we need this hack to ensure that we scroll the main content to
-    // the top of the view when navigating.
-    if (content) {
-      content.scrollTop = 0;
-    }
-  }, [paths]);
+  useScrollToTop(paths);
 
   const { breadcrumbs, nextPage, prevPage } = useMemo(() => {
     // Merge the first two path segments for all pages but the integrations overview

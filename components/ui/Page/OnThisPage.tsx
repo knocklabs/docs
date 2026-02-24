@@ -1,10 +1,13 @@
-import React, { useEffect, useState, useRef, RefObject } from "react";
+import React, { useEffect, useState, useRef, type RefObject } from "react";
 import Link from "next/link";
-import { Box, Stack } from "@telegraph/layout";
 import { Text as TextIcon } from "lucide-react";
-import { Text } from "@telegraph/typography";
+
 import { Icon } from "@telegraph/icon";
+import { Box, Stack } from "@telegraph/layout";
+import { Text } from "@telegraph/typography";
+
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
+
 export interface Props {
   title: string;
   sourcePath: string;
@@ -72,8 +75,12 @@ const HeaderList: React.FC<{ headers: Header[]; nesting: number }> = ({
         <Box
           as="li"
           key={h.id}
-          ml={nesting === 1 ? "3" : "0"}
-          style={{ listStyle: "none", wordBreak: "break-word" }}
+          style={{
+            listStyle: "none",
+            wordBreak: "break-word",
+            marginLeft: nesting === 1 ? "0.75rem" : "0",
+            lineHeight: "1.5",
+          }}
         >
           <Text
             as={Link}
@@ -94,8 +101,9 @@ const HeaderList: React.FC<{ headers: Header[]; nesting: number }> = ({
                 history.replaceState(null, "", `#${h.id}`);
               }
             }}
-            size="2"
+            size="1"
             color="gray"
+            data-toc-link
             style={{
               textDecoration: "none",
               textOverflow: "ellipsis",
@@ -126,53 +134,65 @@ const OnThisPage: React.FC<Props> = ({ title, sourcePath }) => {
     setHeaders(buildHeaderTree(documentHeaders));
   }, [title, sourcePath]);
 
-  if (headers.length === 0) {
-    return null;
-  }
-
+  // Always render container to reserve space; CSS hides on mobile via .toc-aside
   return (
-    <Box as="aside" className="lg-hidden" pr="4">
+    <Box
+      as="aside"
+      px="4"
+      className="toc-aside"
+      style={{ minWidth: "200px", width: "200px", flexShrink: 0 }}
+    >
       <Box
         position="sticky"
         top="32"
-        right="4"
-        style={{ height: "calc(100vh - 15rem)" }}
+        style={{ height: "calc(100vh - 15rem)", right: "1rem" }}
       >
-        <Stack direction="row" align="center" gap="1" mb="2">
-          <Icon icon={TextIcon} size="2" color="default" aria-hidden />
-          <Text as="span" size="2" weight="medium" color="default">
-            On this page
-          </Text>
-        </Stack>
-        <Box position="relative" h="full">
-          <Stack
-            as="ul"
-            direction="column"
-            gap="1"
-            style={{ overflowY: "auto" }}
-            h="full"
-            tgphRef={scrollerRef}
-            pb="10"
-          >
-            <HeaderList headers={headers} nesting={0} />
-          </Stack>
-          <ScrollerBottomGradient
-            scrollerRef={scrollerRef as RefObject<HTMLDivElement>}
-          />
-          <Box borderTop="px" borderColor="gray-3" mb="4" />
-          <Text
-            as="a"
-            href={`https://github.com/knocklabs/docs/edit/main/${sourcePath}`}
-            color="gray"
-            size="1"
-            mt="2"
-            style={{ textDecoration: "none", display: "block" }}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Edit this page on GitHub &rarr;
-          </Text>
-        </Box>
+        {headers.length > 0 && (
+          <>
+            <Stack direction="row" align="center" gap="1" height="7">
+              <Icon icon={TextIcon} size="1" color="default" aria-hidden />
+              <Text as="span" size="1" weight="medium" color="default">
+                On this page
+              </Text>
+            </Stack>
+            <Box position="relative" h="full">
+              <Stack
+                as="ul"
+                direction="column"
+                gap="2"
+                mt="1"
+                style={{ overflowY: "auto", paddingBottom: "2.5rem" }}
+                h="full"
+                tgphRef={scrollerRef}
+              >
+                <HeaderList headers={headers} nesting={0} />
+              </Stack>
+              <ScrollerBottomGradient
+                scrollerRef={scrollerRef as RefObject<HTMLDivElement>}
+              />
+              <Box
+                borderTop="px"
+                borderColor="gray-4"
+                style={{ marginBottom: "1rem" }}
+              />
+              <Text
+                as="a"
+                href={`https://github.com/knocklabs/docs/edit/main/${sourcePath}`}
+                color="gray"
+                size="1"
+                style={{
+                  textDecoration: "none",
+                  display: "block",
+                  marginTop: "0.5rem",
+                }}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Edit this page on GitHub &rarr;
+              </Text>
+            </Box>
+          </>
+        )}
       </Box>
     </Box>
   );

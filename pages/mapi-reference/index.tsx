@@ -1,52 +1,66 @@
 import fs from "fs";
-import { MDXRemote } from "next-mdx-remote";
+import { GetStaticProps } from "next";
+import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
+import { Box } from "@telegraph/layout";
 
-import { readOpenApiSpec, readStainlessSpec } from "../../lib/openApiSpec";
-import ApiReference from "../../components/ui/ApiReference/ApiReference";
-import { CONTENT_DIR } from "../../lib/content.server";
+import { getSidebarData, SidebarData } from "@/lib/openApiSpec";
+import { CONTENT_DIR } from "@/lib/content.server";
 import { MDX_COMPONENTS } from "@/lib/mdxComponents";
-import {
-  MAPI_REFERENCE_OVERVIEW_CONTENT,
-  RESOURCE_ORDER,
-} from "../../data/sidebars/mapiOverviewSidebar";
+import { ApiReferenceLayout } from "@/components/api-reference";
+import { MAPI_REFERENCE_OVERVIEW_CONTENT } from "@/data/sidebars/mapiOverviewSidebar";
 
-function ManagementApiReferenceNew({
-  openApiSpec,
-  stainlessSpec,
-  preContentMdx,
-}) {
+interface MapiReferenceOverviewProps {
+  sidebarData: SidebarData;
+  overviewContentMdx: MDXRemoteSerializeResult;
+}
+
+function MapiReferenceOverview({
+  sidebarData,
+  overviewContentMdx,
+}: MapiReferenceOverviewProps) {
   return (
-    <ApiReference
-      name="Management API"
-      openApiSpec={openApiSpec}
-      stainlessSpec={stainlessSpec}
-      preContent={<MDXRemote {...preContentMdx} components={MDX_COMPONENTS} />}
-      resourceOrder={RESOURCE_ORDER}
+    <ApiReferenceLayout
+      sidebarData={sidebarData}
       preSidebarContent={MAPI_REFERENCE_OVERVIEW_CONTENT}
-    />
+      title="Management API reference"
+      description="Complete reference documentation for the Knock Management API."
+    >
+      <Box className="tgraph-content">
+        <MDXRemote {...overviewContentMdx} components={MDX_COMPONENTS as any} />
+      </Box>
+    </ApiReferenceLayout>
   );
 }
 
-export async function getStaticProps() {
-  const openApiSpec = await readOpenApiSpec("mapi");
-  const stainlessSpec = await readStainlessSpec("mapi");
+export const getStaticProps: GetStaticProps<
+  MapiReferenceOverviewProps
+> = async () => {
+  const sidebarData = await getSidebarData("mapi");
 
-  const preContent = fs.readFileSync(
+  const overviewContent = fs.readFileSync(
     `${CONTENT_DIR}/__mapi-reference/content.mdx`,
   );
 
-  const preContentMdx = await serialize(preContent.toString(), {
+  const overviewContentMdx = await serialize(overviewContent.toString(), {
     parseFrontmatter: true,
     mdxOptions: {
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeMdxCodeProps],
     },
+    blockJS: false,
+    blockDangerousJS: true,
   });
 
-  return { props: { openApiSpec, stainlessSpec, preContentMdx } };
-}
+  return {
+    props: {
+      sidebarData,
+      overviewContentMdx,
+    },
+    revalidate: 3600, // Revalidate every hour
+  };
+};
 
-export default ManagementApiReferenceNew;
+export default MapiReferenceOverview;

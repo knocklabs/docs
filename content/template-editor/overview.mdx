@@ -1,0 +1,184 @@
+---
+title: Working with templates
+description: Learn how to use the Knock template editor to design personalized cross-channel messages for your product.
+tags:
+  [
+    "template",
+    "liquid",
+    "steps",
+    "variants",
+    "localization",
+    "internationalization",
+    "languages",
+  ]
+section: Working with templates
+---
+
+Knock has a full suite of tools for building and managing your cross-channel message templates including:
+
+- Rich personalization and control flow with [Liquid](/template-editor/reference-liquid-helpers).
+- Reusable content blocks with [partials](/template-editor/partials/overview).
+- A [rich, visual editor](/template-editor/email-templates) for building emails with pre-built and custom components.
+- The ability to drill down into code for complex templating use cases.
+- A live-preview pane for seeing how your template will look when sent to a recipient.
+- A test runner for sending test messages.
+- Localization and translation support with [translations](/template-editor/translations).
+- Local or remote programmatic management through our [CLI](/developer-tools/knock-cli) or [Management API](/mapi-reference).
+
+## Overview
+
+Each [channel step](/designing-workflows/channel-step) you add to a workflow or broadcast has its own message template. This template renders the message sent to your users on a given channel.
+
+You can manage templates for each channel step via the Knock dashboard, or programmatically via the [Management API](/mapi-reference).
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      There is no concept of a standalone template in Knock. All templates must
+      belong to a single channel step within a workflow or broadcast.
+    </>
+  }
+/>
+
+## Working with the template editor
+
+You can access a channel step's template by clicking the "Edit content" button.
+
+Within the template editor you will always see:
+
+- A state pane for setting the properties used to preview your template.
+- The template editor itself, which will vary depending on the channel type.
+- A preview pane for seeing how your template will look when sent to a recipient.
+
+## Version control
+
+All changes to templates are versioned through Knock's [commit](/version-control/commits) and [environment](/version-control/environments) model. Saved changes are not made "live" until they are committed and/or promoted to a higher environment.
+
+You can view a text diff of any changes to template through the "View changes" button in the **Changes** tab as well as seeing who made the change and on what date.
+
+## Personalize messages with template variables
+
+To inject a variable into your template, enclose it with double curly braces: `{{ a_variable }}`.
+
+You can use curly braces to reference a number of different variable types in your templates. We've included a few common types below.
+
+You can find the [full list of supported variables here](/template-editor/variables).
+
+### Data payload variables
+
+All variables sent in the `data` payload of your workflow trigger call. If you send through `{ "a_variable": "something" }` in your data payload you can reference this as `{{ data.a_variable }}` in your template.
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      if you want to reference all of the data passed to the workflow, you can
+      use the <code>data</code> variable.
+    </>
+  }
+/>
+
+### User properties
+
+To reference a user property (such as `name`), use the `recipient` namespace. This looks up the recipient of a given notification, and then finds the specified property for that user. Here's a code example where a recipient's name and plan are injected into a notification template:
+
+```
+Hey there {{ recipient.name }},
+
+You just upgraded to the {{ recipient.plan }} plan.
+
+Thanks,
+The team @ Knock
+```
+
+<Callout
+  type="info"
+  title="Note:"
+  text={
+    <>
+      You can also use the <code>actor</code> namespace to reference properties
+      of the actor who triggered the notification.
+    </>
+  }
+/>
+
+[Full list of Knock variables available →](/template-editor/variables)
+
+## Adding control flow and iteration to your template
+
+The Knock template editor uses Liquid tags to create the logic and control flow for notification templates. To learn more about Liquid, you can check out <a href="https://shopify.github.io/liquid/basics/introduction/" target="_blank">their documentation.</a>
+
+Here are a few Liquid tag types that are commonly used in Knock notification templates.
+
+**If and else-if statements.** For when you want to show different copy depending on a user property or a data variable from your trigger call. In the example below, we show different copy depending on whether a batch of comments includes one or many comments.
+
+```liquid
+{% if total_activities > 1 %}
+  {{ actor.name }} left {{ total_activities }} comments on {{ page_name }}
+{% else %}
+  {{ actor.name}} left a comment on {{ page_name }}.
+  > {{ comment_body }}
+{% endif %}
+```
+
+**For loops.** You can use Liquid's `for...in...` tag to iterate over a list of items. We can add this to our example from above to iterate over the comments in a batch and add each one to our notification.
+
+```liquid
+{% if total_activities > 1 %}
+  {{ actor.name}} left {{ total_activities }} comments on {{ data.page_name }}
+
+  {% for activity in activities %}
+  > {{ activity.data.comment_body }}
+  {% endfor %}
+
+{% else %}
+  {{ actor.name}} left a comment on {{ data.page_name }}.
+  > {{ data.comment_body }}
+{% endif %}
+```
+
+There are also a number of [Liquid filters](/template-editor/reference-liquid-helpers) you can use to mutate the variables you pass into a notification template. Here's an example that uses the `split` and `first` filters to pull the first name for a given user.
+
+```liquid
+You've been invited by {{ actor.name | split: " " | first }} to
+join {{ data.account_name }} on Knock.
+```
+
+To learn more about the variables, Liquid keywords, and other helper functions available to you in the Knock template editor, check out our [Liquid helper reference](/template-editor/reference-liquid-helpers).
+
+## Sharing templates across channels
+
+You can use [partials](/template-editor/partials/overview) to share content across your templates, whether they belong to workflows, broadcasts, or guides.
+
+Partials are reusable pieces of content that can include Liquid for rich templating. HTML partials can also be used as blocks within the visual email editor.
+
+[Learn more about working with partials](/template-editor/partials/overview).
+
+## Localization and translations
+
+Knock supports localization and translation of your message templates. You can use the `t` tag to wrap content you want to translate in your default language, and Knock will automatically generate translation files for you behind the scenes.
+
+[Learn more about working with translations](/template-editor/translations).
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Why store all of my notification templates in Knock?">
+    This is a common question that we hear from our customers, particularly those who currently maintain templates for their notifications in other third-party tools (often more than one!).
+
+    While [planning a migration](/tutorials/implementation-guide) will require some upfront effort, we recommend using Knock as the source of truth for your notification templates for a number of reasons:
+
+    - **A consistent editing experience.** When you manage all of your templates in Knock, your content authors have access to a unified template editor for a consistent experience across all delivery channels. Teams who collaborate on messaging can work with a single templating language (Liquid) for dynamic content.
+    - **Cross-channel engagement analytics.** With Knock [link and open tracking](/send-notifications/tracking) in your message templates, you have access to cross-channel engagement analytics for each of your notification use cases in a centralized tool.
+    - **Unlock greater efficiency.** In the same way that Knock combines the logic and delivery of all of your notifications into a single API, using Knock as the source of truth for your templates means streamlining your process for cross-functional work on notifications. All changes to your message content, regardless of delivery channel, will follow the same steps for previewing, testing, and committing updates to production.
+    - **Work with your templates programmatically.** With our [Management API](/mapi-reference) or [CLI](/cli/overview), you can work with all of your cross-channel templates as code via a single API. This enables you to integrate your templates with other tools, automate updates, and more.
+    - **Reusable content blocks.** Our [Partials](/template-editor/partials) feature allows you to create content blocks of various types that can be reused across all of your notification templates. This enables updates across all delivery channels with a single change when necessary.
+    - **Reference data from other resources stored in Knock.** In addition to the context that you pass to Knock on your workflow trigger calls and [reference as dynamic content](/template-editor/variables) in your notifications (like `recipient` and `tenant` properties, or custom `data` payload variables), the Knock template editor also allows you to [reference data](/template-editor/referencing-data) from any Users, Objects, and Tenants that exist within your Knock environment.
+
+        Referencing data is a powerful way to share context across entities in your templates without needing to manually pass the data in the `data` argument of your workflow trigger, and isn't possible with other templating solutions.
+
+  </Accordion>
+</AccordionGroup>

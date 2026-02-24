@@ -10,7 +10,7 @@ import { StainlessResource } from "../../../../lib/openApiSpec";
 import { useApiReference } from "../ApiReferenceContext";
 import { resolveEndpointFromMethod } from "../helpers";
 import { SchemaProperties } from "../SchemaProperties";
-import { Box } from "@telegraph/layout";
+import { Box, Stack } from "@telegraph/layout";
 import { Heading } from "@telegraph/typography";
 import { useRouter } from "next/router";
 
@@ -38,13 +38,15 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
   return (
     <>
       <Box data-resource-path={basePath}>
-        <Section title={resource.name} path={basePath} mdPath={resourceMdPath}>
+        <Section
+          title={resource.name}
+          description={
+            resource.description && <Markdown>{resource.description}</Markdown>
+          }
+          path={basePath}
+          mdPath={resourceMdPath}
+        >
           <ContentColumn>
-            {resource.description && (
-              <Markdown>{resource.description}</Markdown>
-            )}
-          </ContentColumn>
-          <ExampleColumn>
             {Object.entries(methods).length > 0 && (
               <Endpoints>
                 {Object.entries(methods).map(
@@ -66,7 +68,7 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
                 )}
               </Endpoints>
             )}
-          </ExampleColumn>
+          </ContentColumn>
         </Section>
       </Box>
 
@@ -107,56 +109,56 @@ function ApiReferenceSection({ resourceName, resource, path }: Props) {
         },
       )}
 
-      {Object.entries(models).map(([modelName, modelReference]) => {
-        const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
-          openApiSpec,
-          modelReference.replace("#", ""),
-        );
+      {Object.entries(models).length > 0 && (
+        <Box data-resource-path={`${basePath}/schemas`}>
+          {Object.entries(models).map(([modelName, modelReference]) => {
+            const schema: OpenAPIV3.SchemaObject | undefined = JSONPointer.get(
+              openApiSpec,
+              modelReference.replace("#", ""),
+            );
 
-        if (!schema) {
-          return null;
-        }
+            if (!schema) {
+              return null;
+            }
 
-        const schemaPath = `${basePath}/schemas/${modelName}`;
-        const schemaMdPath = `/${apiSurface}${basePath}/schemas/${modelName}.md`;
+            const schemaPath = `${basePath}/schemas/${modelName}`;
+            const schemaMdPath = `/${apiSurface}${basePath}/schemas/${modelName}.md`;
 
-        return (
-          <Box key={modelName} data-resource-path={schemaPath}>
-            <Section
-              title={schema.title}
-              path={schemaPath}
-              mdPath={schemaMdPath}
-            >
-              <ContentColumn>
-                {schema.description && (
-                  <Markdown>{schema.description}</Markdown>
-                )}
-
-                <Heading
-                  as="h3"
-                  size="3"
-                  weight="medium"
-                  borderBottom="px"
-                  borderColor="gray-3"
-                  pb="2"
-                >
-                  Attributes
-                </Heading>
-                <SchemaProperties schema={schema} hideRequired />
-              </ContentColumn>
-              <ExampleColumn>
-                <CodeBlock
+            return (
+              <Box key={modelName} data-resource-path={schemaPath}>
+                <Section
                   title={schema.title}
-                  language="json"
-                  languages={["json"]}
+                  description={
+                    schema.description && (
+                      <Markdown>{schema.description}</Markdown>
+                    )
+                  }
+                  path={schemaPath}
+                  mdPath={schemaMdPath}
                 >
-                  {JSON.stringify(schema.example, null, 2)}
-                </CodeBlock>
-              </ExampleColumn>
-            </Section>
-          </Box>
-        );
-      })}
+                  <ContentColumn>
+                    <Stack direction="column" gap="1">
+                      <Heading as="h3" size="2" weight="medium">
+                        Attributes
+                      </Heading>
+                      <SchemaProperties schema={schema} hideRequired />
+                    </Stack>
+                  </ContentColumn>
+                  <ExampleColumn>
+                    <CodeBlock
+                      title={schema.title}
+                      language="json"
+                      languages={["json"]}
+                    >
+                      {JSON.stringify(schema.example, null, 2)}
+                    </CodeBlock>
+                  </ExampleColumn>
+                </Section>
+              </Box>
+            );
+          })}
+        </Box>
+      )}
     </>
   );
 }

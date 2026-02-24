@@ -30,12 +30,23 @@ const NavItem = ({
   className,
   ...textProps
 }: NavItemProps) => {
-  const { samePageRouting } = useSidebar();
+  const { samePageRouting, currentResourcePath } = useSidebar();
   const { isOpen: isMobileSidebarOpen, closeSidebar: closeMobileSidebar } =
     useMobileSidebar();
 
+  // Determine if this link should use same-page routing (scroll to element)
+  // If currentResourcePath is set, only use same-page routing for links that:
+  // 1. Exactly match currentResourcePath (e.g., /api-reference/users)
+  // 2. OR are sub-paths of currentResourcePath (e.g., /api-reference/users/get)
+  // This prevents /api-reference matching /api-reference/overview/... or /api-reference/users
+  const isWithinCurrentResource = currentResourcePath
+    ? href === currentResourcePath || href.startsWith(currentResourcePath + "/")
+    : false;
+
+  const shouldUseSamePageRouting = samePageRouting && isWithinCurrentResource;
+
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (samePageRouting) {
+    if (shouldUseSamePageRouting) {
       e.preventDefault();
       highlightResource(href, { moveToItem: true });
     } else {
@@ -46,16 +57,13 @@ const NavItem = ({
     }
   };
 
-  // Next.js is really annoying if you have prefetch={true} so let's just NOT
-  const prefetchProps = samePageRouting ? { prefetch: false } : {};
-
   const textPropsWithoutStyle = { ...textProps };
   delete textPropsWithoutStyle.style;
 
   return (
     <Stack
       as={Link}
-      {...prefetchProps}
+      prefetch={false}
       href={stripTrailingSlash(href)}
       onClick={onClick}
       display="inline-flex"
