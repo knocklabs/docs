@@ -244,7 +244,7 @@ function filePathToUrlPath(filePath: string): string {
   return filePath
     .replace(CONTENT_DIR, "")
     .replace(/\.mdx?$/, "")
-    .replace("/index", "")
+    .replace(/\/index$/, "") // Only remove /index at end of path
     .replace(/^\//, ""); // Remove leading slash for objectID
 }
 
