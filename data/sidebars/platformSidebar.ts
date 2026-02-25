@@ -69,6 +69,10 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
         title: "Trigger workflow function",
         isBeta: true,
       },
+      {
+        slug: "/update-recipient",
+        title: "Update user, tenant, and object functions",
+      },
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
       { slug: "/send-windows", title: "Send windows" },
