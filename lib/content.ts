@@ -164,6 +164,14 @@ export const getSidebarInfo = (
       breadcrumbPath += section.pages[0].slug;
     }
 
+    if (section) {
+      breadcrumbs.push({
+        slug,
+        title: section?.title ?? "",
+        path: breadcrumbPath,
+      });
+    }
+
     // Update temporary variables for the next segment search
     sidebarContent =
       section && "pages" in section ? section.pages ?? [] : sidebarContent;
