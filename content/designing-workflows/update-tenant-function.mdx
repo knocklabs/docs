@@ -13,6 +13,12 @@ Common use cases include syncing tenant state from your trigger (for example, ap
 
 By default, Knock updates the tenant associated with the current workflow run (the `tenant` you passed in the [trigger](/send-notifications/triggering-workflows) or that is otherwise in scope). You can leave this default, or select a property that resolves to a tenant id (or use a literal tenant id) to update a different tenant.
 
+These steps support upserting. If you specify a tenant id that does not yet exist in Knock, the tenant will be created with the properties you set.
+
+## Updating preferences
+
+You can update a tenant's default [PreferenceSet](/preferences/overview) from within a workflow. Use the **preference_set** key (not `preferences`) when setting tenant preference defaults. The value should follow the structure of a PreferenceSet (for example, `categories`, `channels`, `channel_types`, and `workflows`). For how tenant preference defaults work and how to structure them, see [tenant preferences](/preferences/tenant-preferences).
+
 ## Setting properties
 
 You can set any number of properties on the tenant. Each property has a **key** and a **value**.
@@ -22,8 +28,14 @@ You can set any number of properties on the tenant. Each property has a **key** 
 
 In the step editor you can edit properties as a JSON blob or in key-value form. Updated properties are stored in Knock and are available to subsequent workflow steps and to the Management API.
 
+## Limitations
+
+Update tenant steps do not support updating `channel_data`. You cannot set or change channel data on a tenant via this step.
+
+In addition, `channel_data` is not rendered in the workflow event success or error logging for these recipients, even when channel data is present on the tenant.
+
 ## Debugging
 
-You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update tenant steps. The logs capture the change made by the step so you can verify the pre-state, the properties that were set, and the post-state.
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update tenant steps. The logs render the full before/after diff view of the recipient, minus `channel_data`, so you can verify the pre-state, the properties that were set, and the post-state.
 
 Update tenant steps are also available in the [Management API](/mapi-reference) and can be included when you show or upsert a workflow.

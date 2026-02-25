@@ -7,7 +7,7 @@ section: Designing workflows
 
 An update object function updates an [object](/concepts/objects) in a collection stored in Knock as a step in your workflow. Use it when you need to change an object's properties based on workflow context so that downstream steps or other workflows see the updated data.
 
-Common use cases include syncing object state from your trigger (for example, status or last activity), updating channel data on an object (for example, a Slack channel id), or storing data on the object that you reference later when the object is used as a recipient in another workflow. The update object step works the same way as [Update user](/send-notifications/designing-workflows/update-user-function) and [Update tenant](/send-notifications/designing-workflows/update-tenant-function) except that you must always specify which object to update (there is no "current object" mode).
+Common use cases include syncing object state from your trigger (for example, status or last activity), or storing data on the object that you reference later when the object is used as a recipient in another workflow. The update object step works the same way as [Update user](/send-notifications/designing-workflows/update-user-function) and [Update tenant](/send-notifications/designing-workflows/update-tenant-function) except that you must always specify which object to update (there is no "current object" mode).
 
 ## Selecting the collection and object
 
@@ -15,6 +15,12 @@ The update object step does **not** support a "current object" mode. You must sp
 
 - **Collection.** Choose from all [object collections](/concepts/objects) in your environment (for example, "Projects" or "Repositories").
 - **Object id.** Select a property that resolves to the object id within that collection, or use a literal object id. This can come from your trigger data (for example, `data.project_id`), from the recipient when the recipient is an object (`recipient.id`), or from another source in the workflow run.
+
+These steps support upserting. If you specify an object id that does not yet exist in that collection in Knock, the object will be created with the properties you set.
+
+## Updating preferences
+
+You can update an object's [PreferenceSet](/preferences/overview) from within a workflow. Set preferences using the **preferences** key on the object. The value should follow the structure of a PreferenceSet (for example, `categories`, `channels`, `channel_types`, and `workflows`). For how preferences work on objects, see [object preferences](/preferences/object-preferences).
 
 ## Setting properties
 
@@ -25,8 +31,14 @@ You can set any number of properties on the object. Each property has a **key** 
 
 In the step editor you can edit properties as a JSON blob or in key-value form. Updated properties are stored in Knock and are available to subsequent workflow steps and to the Management API.
 
+## Limitations
+
+Update object steps do not support updating `channel_data`. You cannot set or change channel data on an object via this step.
+
+In addition, `channel_data` is not rendered in the workflow event success or error logging for these recipients, even when channel data is present on the object.
+
 ## Debugging
 
-You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update object steps. The logs capture the change made by the step so you can verify the pre-state, the properties that were set, and the post-state.
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update object steps. The logs render the full before/after diff view of the recipient, minus `channel_data`, so you can verify the pre-state, the properties that were set, and the post-state.
 
 Update object steps are also available in the [Management API](/mapi-reference) and can be included when you show or upsert a workflow.

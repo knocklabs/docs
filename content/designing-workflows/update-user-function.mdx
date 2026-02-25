@@ -13,9 +13,13 @@ Common use cases include syncing state from your trigger (for example, "last not
 
 By default, Knock updates the current workflow [recipient](/concepts/recipients) (the user this run is for). You can leave this default, or select a property that resolves to a user id (or use a literal user id) to update a different user (for example, the actor or a user id from your trigger data).
 
-### Updating user preferences
+These steps support upserting. If you specify a user id that does not yet exist in Knock, the user will be created with the properties you set.
 
-The update user step can also update the user's notification preferences. Use this when workflow logic should change what channels or workflows a user is opted in or out of, or when you want to set preference defaults from within a workflow.
+## Updating preferences
+
+The update user step can update the user's notification preferences. Use this when workflow logic should change what channels or workflows a user is opted in or out of, or when you want to set preference defaults from within a workflow.
+
+Set preferences using the **preferences** key on the user. The value should follow the structure of a [PreferenceSet](/preferences/overview) (for example, `categories`, `channels`, `channel_types`, and `workflows`). For more on how user preferences work and how to structure preference data, see the [preferences overview](/preferences/overview).
 
 ## Setting properties
 
@@ -26,8 +30,14 @@ You can set any number of properties on the user. Each property has a **key** an
 
 In the step editor you can edit properties as a JSON blob or in key-value form. Updated properties are stored in Knock and are available to subsequent workflow steps and to the Management API.
 
+## Limitations
+
+Update user steps do not support updating `channel_data`. You cannot set or change channel data (for example, email or push tokens) via this step.
+
+In addition, `channel_data` is not rendered in the workflow event success or error logging for these recipients, even when channel data is present on the user.
+
 ## Debugging
 
-You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update user steps. The logs capture the change made by the step so you can verify the pre-state, the properties that were set, and the post-state.
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update user steps. The logs render the full before/after diff view of the recipient, minus `channel_data`, so you can verify the pre-state, the properties that were set, and the post-state.
 
 Update user steps are also available in the [Management API](/mapi-reference) and can be included when you show or upsert a workflow.
