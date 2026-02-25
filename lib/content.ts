@@ -148,6 +148,18 @@ export const getSidebarInfo = (
     }
 
     if (section) {
+      // Insert "Data" between Platform and Workflows for platform docs
+      if (
+        parentSection?.slug === "/platform" &&
+        breadcrumbPath.startsWith("/designing-workflows") &&
+        breadcrumbs.length === 1
+      ) {
+        breadcrumbs.push({
+          slug: "data",
+          title: "Data",
+          path: "/designing-workflows/overview",
+        });
+      }
       breadcrumbs.push({
         slug,
         title: section?.title ?? "",
