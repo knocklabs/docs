@@ -1,0 +1,156 @@
+---
+title: Update data function
+description: Learn more about the update data function within Knock's notification engine.
+tags: ["steps", "data", "workflow state", "functions", "liquid"]
+section: Designing workflows
+---
+
+An update data function updates properties on the workflow `data` state as a step in a workflow. Any data set by an update data function is merged into the original trigger `data` provided on workflow trigger and made immediately available to all subsequent steps in the workflow.
+
+## Configuring data properties
+
+To configure an update data function, you can add key-value pairs in the step editor or use the code editor to input a JSON object directly. Each key represents a property name that will be set on the workflow data, and each value can be either a static value or a Liquid expression.
+
+Each value field is a Liquid-compatible input. This means you can use Liquid variables and control flow to inject variable data, access Knock-controlled workflow state attributes (e.g., `recipient`), and dynamically compute values per workflow run.
+
+<figure>
+  <Image
+    src="/images/functions/data/workflow-data/overview.png"
+    width={1015}
+    height={600}
+    alt="Update data function step in the workflow builder."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Update data function step in the workflow builder.
+  </figcaption>
+</figure>
+
+Here are some example configurations:
+
+| Key              | Value                                        | Description                                         |
+| ---------------- | -------------------------------------------- | --------------------------------------------------- |
+| `full_name`      | `{{ data.first_name }} {{ data.last_name }}` | Combines first and last name into a single property |
+| `greeting`       | `Hello`                                      | Sets a static greeting value                        |
+| `item_count`     | `{{ data.items \| size }}`                   | Computes the count of items in an array             |
+| `is_premium`     | `{{ recipient.plan \| equals: "premium" }}`  | Sets a boolean flag based on recipient data         |
+| `formatted_date` | `{{ "now" \| date: "%B %d, %Y" }}`           | Adds the current date in a specific format          |
+
+<figure>
+  <Image
+    src="/images/functions/data/blob-mode.png"
+    width={1015}
+    height={600}
+    alt="Key-value and code editor modes for configuring an update data function."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Key-value and code editor modes for configuring an update data function.
+  </figcaption>
+</figure>
+
+<figure>
+  <Image
+    src="/images/functions/data/templated-data.png"
+    width={1015}
+    height={600}
+    alt="Using Liquid expressions for templated values in an update data function."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Using Liquid expressions for templated values in an update data function.
+  </figcaption>
+</figure>
+
+See the [Knock template editor reference](/template-editor/overview) for detailed information on working with Liquid templates in Knock.
+
+## Merging data
+
+When an update data function executes, Knock will merge the configured properties into the `data` you originally passed to [the workflow trigger call](/send-notifications/triggering-workflows). Knock uses a shallow-merge strategy where:
+
+- Data from the update data step overwrites the original workflow run data.
+- Top-level attributes are merged, and nested attributes are completely overwritten.
+
+<figure>
+  <Image
+    src="/images/functions/data/nested-keys.png"
+    width={1015}
+    height={600}
+    alt="How top-level and nested keys are merged in update data function steps."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    How top-level and nested keys are merged in update data function steps.
+  </figcaption>
+</figure>
+
+_The merged data result from an update data function step then becomes the global trigger data for all subsequent steps in the workflow run._
+
+The example below illustrates how this could look in practice.
+
+```json title="Example data merge for update data function steps"
+// Original trigger data
+{
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "metadata": {
+    "source": "web"
+  }
+}
+
+// Update data function configuration
+// full_name: {{ data.first_name }} {{ data.last_name }}
+// metadata: { "computed": true }
+
+// Merge result
+{
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "full_name": "Jane Doe",
+  "metadata": {
+    "computed": true
+  }
+}
+```
+
+## Debugging update data functions
+
+You can use the [workflow debugger](/send-notifications/debugging-workflows) to debug your update data function steps. When viewing a workflow run for a specific recipient, you can select the workflow data function step to see the computed data that was merged into your workflow run state.
+
+<figure>
+  <Image
+    src="/images/functions/data/workflow-data/logging-update-workflow-data.png"
+    width={1015}
+    height={600}
+    alt="Viewing update data function step in the workflow run logs."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Viewing update data function step in the workflow run logs.
+  </figcaption>
+</figure>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="When should I use an update data function vs. a fetch function?">
+    Use an **update data function** when you need to transform, compute, or restructure data that is already available in your workflow run. This is ideal for operations like combining fields, setting defaults, or pre-computing Liquid expressions.
+
+    Use a **[fetch function](/send-notifications/designing-workflows/fetch-function)** when you need to retrieve additional data from an external service that isn't available in your trigger data. The fetch function makes an HTTP request to your service and merges the response into your workflow data.
+
+    In some cases, you might use both: a fetch function to retrieve additional data, followed by an update data function to transform or restructure the combined data for your templates.
+
+  </Accordion>
+  <Accordion title="Can I set nested properties?">
+    You can set a top-level property to an object value, but you cannot directly
+    set deeply nested properties (e.g., `metadata.nested.value`). If you need to
+    update a nested property, you'll need to set the entire parent object, which
+    will replace any existing nested data due to the shallow-merge behavior.
+  </Accordion>
+  <Accordion title="What happens if a Liquid expression fails?">
+    If a Liquid expression in your update data function encounters an error (such as referencing a property that doesn't exist), the step will fail and halt your workflow run. You can use Liquid's default filter (e.g., `{{ data.optional_field | default: "fallback" }}`) to provide fallback values and avoid errors when data may be missing.
+  </Accordion>
+  <Accordion title="Can I reference data from a previous update data step?">
+    Yes. Since each update data function merges its computed data into the workflow's global data state, subsequent steps (including other update data functions) can reference that data using the `data` namespace. For example, if a previous step set `data.full_name`, a later step can reference it as `{{ data.full_name }}`.
+  </Accordion>
+</AccordionGroup>

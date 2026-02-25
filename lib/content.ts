@@ -104,6 +104,22 @@ export function depthFirstSidebarInfo(
   };
 }
 
+// Finds a page in sidebar content, searching through empty-slug groups
+// that serve as visual-only sidebar groupings without affecting URL paths.
+const findInSidebarContent = (
+  content: (SidebarSection | SidebarPage | SidebarContent)[],
+  predicate: (s: SidebarSection | SidebarPage | SidebarContent) => boolean,
+): SidebarSection | SidebarPage | SidebarContent | undefined => {
+  for (const item of content) {
+    if (predicate(item)) return item;
+    if (item.slug === "" && "pages" in item && item.pages) {
+      const found = item.pages.find(predicate);
+      if (found) return found;
+    }
+  }
+  return undefined;
+};
+
 // Returns the breadcrumbs and adjacent pages in the sidebar given a path
 export const getSidebarInfo = (
   paths: string[],
@@ -138,7 +154,8 @@ export const getSidebarInfo = (
     let breadcrumbPath = path + `/${slug}`;
 
     // Match the full path to handle sidebar content that's not nested
-    const section = sidebarContent.find(
+    const section = findInSidebarContent(
+      sidebarContent,
       (s) => s.slug === breadcrumbPath || s.slug === `/${slug}`,
     );
 
