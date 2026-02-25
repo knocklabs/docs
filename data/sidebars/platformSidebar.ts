@@ -51,13 +51,13 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/overview", title: "Overview" },
       {
         slug: "",
-        title: "Functions",
+        title: "Function steps",
         pages: [
-          { slug: "/delay-function", title: "Delay function" },
+          { slug: "/delay-function", title: "Delay step" },
           { slug: "/batch-function", title: "Batch function" },
-          { slug: "/branch-function", title: "Branch function" },
-          { slug: "/fetch-function", title: "Fetch function" },
-          { slug: "/throttle-function", title: "Throttle function" },
+          { slug: "/branch-function", title: "Branch step" },
+          { slug: "/fetch-function", title: "Fetch step" },
+          { slug: "/throttle-function", title: "Throttle step" },
           {
             slug: "/trigger-workflow-function",
             title: "Trigger workflow function",
@@ -67,14 +67,14 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       },
       {
         slug: "",
-        title: "Data",
+        title: "Data steps",
         pages: [
-          { slug: "/update-user-function", title: "Update user function" },
-          { slug: "/update-tenant-function", title: "Update tenant function" },
-          { slug: "/update-object-function", title: "Update object function" },
+          { slug: "/update-user-function", title: "Update user step" },
+          { slug: "/update-tenant-function", title: "Update tenant step" },
+          { slug: "/update-object-function", title: "Update object step" },
           {
             slug: "/update-data-function",
-            title: "Update data function",
+            title: "Update data step",
           },
         ],
       },
