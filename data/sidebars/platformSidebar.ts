@@ -78,11 +78,6 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
           },
         ],
       },
-      {
-        slug: "/update-data-function",
-        title: "Update data function",
-        isBeta: true,
-      },
       { slug: "/step-conditions", title: "Step conditions" },
       { slug: "/channel-step", title: "Channel steps" },
       { slug: "/send-windows", title: "Send windows" },

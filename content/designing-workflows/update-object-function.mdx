@@ -1,0 +1,32 @@
+---
+title: Update object function
+description: Learn how to update an object's properties in Knock during a workflow run.
+tags: ["steps", "objects", "data", "functions"]
+section: Designing workflows
+---
+
+An update object function updates an [object](/concepts/objects) in a collection stored in Knock as a step in your workflow. Use it when you need to change an object's properties based on workflow context so that downstream steps or other workflows see the updated data.
+
+Common use cases include syncing object state from your trigger (for example, status or last activity), updating channel data on an object (for example, a Slack channel id), or storing data on the object that you reference later when the object is used as a recipient in another workflow. The update object step works the same way as [Update user](/send-notifications/designing-workflows/update-user-function) and [Update tenant](/send-notifications/designing-workflows/update-tenant-function) except that you must always specify which object to update (there is no "current object" mode).
+
+## Selecting the collection and object
+
+The update object step does **not** support a "current object" mode. You must specify which object to update.
+
+- **Collection.** Choose from all [object collections](/concepts/objects) in your environment (for example, "Projects" or "Repositories").
+- **Object id.** Select a property that resolves to the object id within that collection, or use a literal object id. This can come from your trigger data (for example, `data.project_id`), from the recipient when the recipient is an object (`recipient.id`), or from another source in the workflow run.
+
+## Setting properties
+
+You can set any number of properties on the object. Each property has a **key** and a **value**.
+
+- **Key.** The property name. You can set a value for an existing object property or define a new property.
+- **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.status }}` or `{{ recipient.name }}`) so the value is resolved from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"active"` or `true`).
+
+In the step editor you can edit properties as a JSON blob or in key-value form. Updated properties are stored in Knock and are available to subsequent workflow steps and to the Management API.
+
+## Debugging
+
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update object steps. The logs capture the change made by the step so you can verify the pre-state, the properties that were set, and the post-state.
+
+Update object steps are also available in the [Management API](/mapi-reference) and can be included when you show or upsert a workflow.
