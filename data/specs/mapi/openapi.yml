@@ -1,6 +1,35 @@
 components:
   responses: {}
   schemas:
+    RequestTemplateQueryParamsArray:
+      description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
+      example:
+        - key: key
+          value: value
+      items:
+        properties:
+          key:
+            description: The key of the query param.
+            example: key
+            type: string
+            x-struct: null
+            x-validate: null
+          value:
+            description: The value of the query param.
+            example: value
+            type: string
+            x-struct: null
+            x-validate: null
+        required:
+          - key
+          - value
+        type: object
+        x-struct: null
+        x-validate: null
+      title: RequestTemplateQueryParamsArray
+      type: array
+      x-struct: null
+      x-validate: null
     SmsChannelSettings:
       description: SMS channel settings. Only used as configuration as part of a workflow channel step.
       example:
@@ -75,6 +104,13 @@ components:
       title: WorkflowStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowStep
+      x-validate: null
+    RequestTemplateQueryParamsString:
+      description: A template string that should resolve to a JSON object representing the query params.
+      example: '{{ data.request_query_params }}'
+      title: RequestTemplateQueryParamsString
+      type: string
+      x-struct: null
       x-validate: null
     EmailImageBlock:
       description: An image block in an email template.
@@ -347,6 +383,13 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewWorkflowTemplateResponse
       x-validate: null
+    RequestTemplateHeadersString:
+      description: A template string that should resolve to a JSON object representing the headers.
+      example: '{{ data.request_headers }}'
+      title: RequestTemplateHeadersString
+      type: string
+      x-struct: null
+      x-validate: null
     WorkflowUpdateTenantStep:
       description: An update tenant step. Updates properties of a specific tenant referenced in the workflow.
       example:
@@ -539,13 +582,20 @@ components:
           x-validate: null
         headers:
           description: The headers of the request. Can be a template string or a list of key-value pairs.
+          example:
+            - key: X-API-Key
+              value: "1234567890"
           oneOf:
             - description: A template string that should resolve to a JSON object representing the headers.
               example: '{{ data.request_headers }}'
+              title: RequestTemplateHeadersString
               type: string
               x-struct: null
               x-validate: null
             - description: A list of key-value pairs for the request headers. Each object should contain key and value fields with string values.
+              example:
+                - key: X-API-Key
+                  value: "1234567890"
               items:
                 properties:
                   key:
@@ -566,9 +616,11 @@ components:
                 type: object
                 x-struct: null
                 x-validate: null
+              title: RequestTemplateHeadersArray
               type: array
               x-struct: null
               x-validate: null
+          title: RequestTemplateHeaders
           type: object
           x-struct: null
           x-validate: null
@@ -586,13 +638,20 @@ components:
           x-validate: null
         query_params:
           description: The query params of the request. Can be a template string or a list of key-value pairs.
+          example:
+            - key: key
+              value: value
           oneOf:
             - description: A template string that should resolve to a JSON object representing the query params.
               example: '{{ data.request_query_params }}'
+              title: RequestTemplateQueryParamsString
               type: string
               x-struct: null
               x-validate: null
             - description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
+              example:
+                - key: key
+                  value: value
               items:
                 properties:
                   key:
@@ -613,9 +672,11 @@ components:
                 type: object
                 x-struct: null
                 x-validate: null
+              title: RequestTemplateQueryParamsArray
               type: array
               x-struct: null
               x-validate: null
+          title: RequestTemplateQueryParams
           type: object
           x-struct: null
           x-validate: null
@@ -1149,45 +1210,6 @@ components:
       title: MessageTypeBooleanField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.BooleanField
-      x-validate: null
-    WorkflowExperimentStepBranch:
-      description: A cohort branch in an experiment step.
-      example:
-        name: Control
-        percentage: "50"
-        steps: []
-        terminates: false
-      properties:
-        name:
-          description: The name of the cohort branch.
-          example: Control
-          type: string
-          x-struct: null
-          x-validate: null
-        percentage:
-          description: The percentage of recipients to assign to this cohort. Must be between 0 and 100 with at most 1 decimal place. All branch percentages must sum to 100. Sent as a number in requests; returned as a decimal string in responses (e.g. "50", "33.3").
-          example: "50"
-          type: string
-          x-struct: null
-          x-validate: null
-        steps:
-          description: A list of steps that will be executed for recipients assigned to this cohort.
-          items:
-            $ref: '#/components/schemas/WorkflowStep'
-          type: array
-          x-struct: null
-          x-validate: null
-        terminates:
-          description: If the workflow should halt at the end of the branch. Defaults to false if not provided.
-          example: false
-          type: boolean
-          x-struct: null
-          x-validate: null
-      required:
-        - percentage
-      title: WorkflowExperimentStepBranch
-      type: object
-      x-struct: null
       x-validate: null
     Translation:
       description: A translation object.
@@ -2264,6 +2286,7 @@ components:
               - $ref: '#/components/schemas/WorkflowEmailStep'
               - $ref: '#/components/schemas/WorkflowBranchStep'
               - $ref: '#/components/schemas/WorkflowDelayStep'
+              - $ref: '#/components/schemas/WorkflowRandomCohortStep'
             description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
             type: object
             x-struct: null
@@ -3292,44 +3315,7 @@ components:
         cohort_branches:
           description: A list of cohort branches. Must have between 2 and 10 branches, and percentages must sum to 100.
           items:
-            description: A cohort branch in an experiment step.
-            example:
-              name: Control
-              percentage: "50"
-              steps: []
-              terminates: false
-            properties:
-              name:
-                description: The name of the cohort branch.
-                example: Control
-                type: string
-                x-struct: null
-                x-validate: null
-              percentage:
-                description: The percentage of recipients to assign to this cohort. Must be between 0 and 100 with at most 1 decimal place. All branch percentages must sum to 100. Sent as a number in requests; returned as a decimal string in responses (e.g. "50", "33.3").
-                example: "50"
-                type: string
-                x-struct: null
-                x-validate: null
-              steps:
-                description: A list of steps that will be executed for recipients assigned to this cohort.
-                items:
-                  $ref: '#/components/schemas/WorkflowStep'
-                type: array
-                x-struct: null
-                x-validate: null
-              terminates:
-                description: If the workflow should halt at the end of the branch. Defaults to false if not provided.
-                example: false
-                type: boolean
-                x-struct: null
-                x-validate: null
-            required:
-              - percentage
-            title: WorkflowExperimentStepBranch
-            type: object
-            x-struct: null
-            x-validate: null
+            $ref: '#/components/schemas/WorkflowRandomCohortStepBranch'
           type: array
           x-struct: null
           x-validate: null
@@ -4042,6 +4028,35 @@ components:
         - email_layout
       title: WrappedEmailLayoutResponse
       type: object
+      x-struct: null
+      x-validate: null
+    RequestTemplateHeadersArray:
+      description: A list of key-value pairs for the request headers. Each object should contain key and value fields with string values.
+      example:
+        - key: X-API-Key
+          value: "1234567890"
+      items:
+        properties:
+          key:
+            description: The key of the header.
+            example: X-API-Key
+            type: string
+            x-struct: null
+            x-validate: null
+          value:
+            description: The value of the header.
+            example: "1234567890"
+            type: string
+            x-struct: null
+            x-validate: null
+        required:
+          - key
+          - value
+        type: object
+        x-struct: null
+        x-validate: null
+      title: RequestTemplateHeadersArray
+      type: array
       x-struct: null
       x-validate: null
     GuideActivationUrlPattern:
@@ -5235,6 +5250,7 @@ components:
               - $ref: '#/components/schemas/WorkflowEmailStep'
               - $ref: '#/components/schemas/WorkflowBranchStep'
               - $ref: '#/components/schemas/WorkflowDelayStep'
+              - $ref: '#/components/schemas/WorkflowRandomCohortStep'
             description: A step within a broadcast. Each step, regardless of its type, share a common set of core attributes (`type`, `ref`, `name`, `description`, `conditions`).
             type: object
             x-struct: null
@@ -7587,6 +7603,45 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    WorkflowRandomCohortStepBranch:
+      description: A cohort branch in an experiment step.
+      example:
+        name: Control
+        percentage: "50"
+        steps: []
+        terminates: false
+      properties:
+        name:
+          description: The name of the cohort branch.
+          example: Control
+          type: string
+          x-struct: null
+          x-validate: null
+        percentage:
+          description: The percentage of recipients to assign to this cohort. Must be between 0 and 100 with at most 1 decimal place. All branch percentages must sum to 100. Sent as a number in requests; returned as a decimal string in responses (e.g. "50", "33.3").
+          example: "50"
+          type: string
+          x-struct: null
+          x-validate: null
+        steps:
+          description: A list of steps that will be executed for recipients assigned to this cohort.
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+          type: array
+          x-struct: null
+          x-validate: null
+        terminates:
+          description: If the workflow should halt at the end of the branch. Defaults to false if not provided.
+          example: false
+          type: boolean
+          x-struct: null
+          x-validate: null
+      required:
+        - percentage
+      title: WorkflowRandomCohortStepBranch
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowRandomCohortStep.CohortBranch
+      x-validate: null
     RunWorkflowResponse:
       description: A response to a run workflow request.
       example:
@@ -7603,6 +7658,50 @@ components:
       title: RunWorkflowResponse
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.RunWorkflowResponse
+      x-validate: null
+    RequestTemplateQueryParams:
+      description: The query params of the request. Can be a template string or a list of key-value pairs.
+      example:
+        - key: key
+          value: value
+      oneOf:
+        - description: A template string that should resolve to a JSON object representing the query params.
+          example: '{{ data.request_query_params }}'
+          title: RequestTemplateQueryParamsString
+          type: string
+          x-struct: null
+          x-validate: null
+        - description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
+          example:
+            - key: key
+              value: value
+          items:
+            properties:
+              key:
+                description: The key of the query param.
+                example: key
+                type: string
+                x-struct: null
+                x-validate: null
+              value:
+                description: The value of the query param.
+                example: value
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - key
+              - value
+            type: object
+            x-struct: null
+            x-validate: null
+          title: RequestTemplateQueryParamsArray
+          type: array
+          x-struct: null
+          x-validate: null
+      title: RequestTemplateQueryParams
+      type: object
+      x-struct: null
       x-validate: null
     Branch:
       description: A branch object.
@@ -7651,6 +7750,50 @@ components:
       title: Branch
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Branch
+      x-validate: null
+    RequestTemplateHeaders:
+      description: The headers of the request. Can be a template string or a list of key-value pairs.
+      example:
+        - key: X-API-Key
+          value: "1234567890"
+      oneOf:
+        - description: A template string that should resolve to a JSON object representing the headers.
+          example: '{{ data.request_headers }}'
+          title: RequestTemplateHeadersString
+          type: string
+          x-struct: null
+          x-validate: null
+        - description: A list of key-value pairs for the request headers. Each object should contain key and value fields with string values.
+          example:
+            - key: X-API-Key
+              value: "1234567890"
+          items:
+            properties:
+              key:
+                description: The key of the header.
+                example: X-API-Key
+                type: string
+                x-struct: null
+                x-validate: null
+              value:
+                description: The value of the header.
+                example: "1234567890"
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - key
+              - value
+            type: object
+            x-struct: null
+            x-validate: null
+          title: RequestTemplateHeadersArray
+          type: array
+          x-struct: null
+          x-validate: null
+      title: RequestTemplateHeaders
+      type: object
+      x-struct: null
       x-validate: null
     Partial:
       description: A partial is a reusable piece of content that can be used in a template.
@@ -11174,6 +11317,44 @@ paths:
       summary: Remove a member
       tags:
         - Members
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.members.delete('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.members.delete(
+              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.Members.Delete(context.TODO(), "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     get:
       callbacks: {}
       description: Returns a single member by their ID.
@@ -11198,6 +11379,49 @@ paths:
       summary: Get a member
       tags:
         - Members
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const member = await client.members.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+          console.log(member.id);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          member = client.members.retrieve(
+              "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e",
+          )
+          print(member.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	member, err := client.Members.Get(context.TODO(), "182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", member.ID)
+          }
   /v1/email_layouts/{email_layout_key}:
     get:
       callbacks: {}
@@ -13858,6 +14082,44 @@ paths:
       summary: Delete a channel group
       tags:
         - Channel Groups
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          await client.channelGroups.delete('channel_group_key');
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          client.channel_groups.delete(
+              "channel_group_key",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	err := client.ChannelGroups.Delete(context.TODO(), "channel_group_key")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
     get:
       callbacks: {}
       description: Get a channel group by its key.
@@ -13881,6 +14143,49 @@ paths:
       summary: Get a channel group
       tags:
         - Channel Groups
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const channelGroup = await client.channelGroups.retrieve('channel_group_key');
+
+          console.log(channelGroup.channel_rules);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          channel_group = client.channel_groups.retrieve(
+              "channel_group_key",
+          )
+          print(channel_group.channel_rules)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	channelGroup, err := client.ChannelGroups.Get(context.TODO(), "channel_group_key")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", channelGroup.ChannelRules)
+          }
     put:
       callbacks: {}
       description: Creates or updates a channel group by key.
@@ -13962,6 +14267,64 @@ paths:
       summary: Upsert a channel group
       tags:
         - Channel Groups
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.channelGroups.upsert('channel_group_key', {
+            channel_group: { channel_type: 'push', name: 'Push Notification Group' },
+          });
+
+          console.log(response.channel_group);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.channel_groups.upsert(
+              channel_group_key="channel_group_key",
+              channel_group={
+                  "channel_type": "push",
+                  "name": "Push Notification Group",
+              },
+          )
+          print(response.channel_group)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.ChannelGroups.Upsert(
+          		context.TODO(),
+          		"channel_group_key",
+          		knockmapi.ChannelGroupUpsertParams{
+          			ChannelGroup: knockmapi.ChannelGroupUpsertParamsChannelGroup{
+          				ChannelType: "push",
+          				Name:        "Push Notification Group",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ChannelGroup)
+          }
   /v1/message_types/{message_type_key}:
     get:
       callbacks: {}
@@ -15430,6 +15793,49 @@ paths:
       summary: List members
       tags:
         - Members
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const member of client.members.list()) {
+            console.log(member.id);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.members.list()
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.Members.List(context.TODO(), knockmapi.MemberListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
   /v1/api_keys/exchange:
     post:
       callbacks: {}
