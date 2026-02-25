@@ -164,26 +164,6 @@ export const getSidebarInfo = (
       breadcrumbPath += section.pages[0].slug;
     }
 
-    if (section) {
-      // Insert "Data" between Platform and Workflows for platform docs
-      if (
-        parentSection?.slug === "/platform" &&
-        breadcrumbPath.startsWith("/designing-workflows") &&
-        breadcrumbs.length === 1
-      ) {
-        breadcrumbs.push({
-          slug: "data",
-          title: "Data",
-          path: "/designing-workflows/overview",
-        });
-      }
-      breadcrumbs.push({
-        slug,
-        title: section?.title ?? "",
-        path: breadcrumbPath,
-      });
-    }
-
     // Update temporary variables for the next segment search
     sidebarContent =
       section && "pages" in section ? section.pages ?? [] : sidebarContent;
