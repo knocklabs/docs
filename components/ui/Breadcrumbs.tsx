@@ -11,6 +11,14 @@ type BreadcrumbsProps = {
 
 const Breadcrumbs = ({ pages }: BreadcrumbsProps) => {
   if (!pages) return null;
+
+  // Filter out any pages that don't have valid titles or slugs
+  const validPages = pages.filter(
+    (page) => page && (page.title || (page.slug && page.slug !== "undefined")),
+  );
+
+  if (validPages.length === 0) return null;
+
   return (
     <Stack
       direction="row"
@@ -19,7 +27,7 @@ const Breadcrumbs = ({ pages }: BreadcrumbsProps) => {
       w="full"
       style={{ overflowX: "auto" }}
     >
-      {pages.map((path, index) => (
+      {validPages.map((path, index) => (
         <Stack direction="row" alignItems="center" key={index}>
           {path.slug && !path.title ? (
             <Text as="span" size="2" color="gray">
@@ -39,7 +47,7 @@ const Breadcrumbs = ({ pages }: BreadcrumbsProps) => {
             </Text>
             // </Link>
           )}
-          {index !== pages.length - 1 && (
+          {index !== validPages.length - 1 && (
             <Icon
               icon={ChevronRight}
               aria-hidden

@@ -18,36 +18,32 @@ export function getInAppSidebar(
   allSidebarContent: SidebarSection[],
   selectedSdkContent: SdkSpecificContent,
 ) {
+  // Check if the URL path contains the selected SDK
+  // If not, fall back to the generic sidebar info (for non-SDK-specific pages)
   if (!paths.includes(selectedSdkContent.value)) {
     return getSidebarInfo(paths, allSidebarContent);
   }
 
-  // Get the deepest page that matches the paths
-  const { section, page } = depthFirstSidebarInfo(paths, allSidebarContent);
+  // Build breadcrumbs showing: In-App UI > SDK Name
+  const breadcrumbs: Array<{
+    slug: string;
+    title: string;
+    path: string;
+  }> = [
+    {
+      slug: "in-app-ui",
+      title: "In-App UI",
+      path: "/in-app-ui",
+    },
+    {
+      slug: `/in-app-ui/${selectedSdkContent.value}`,
+      title: selectedSdkContent.title,
+      path: `/in-app-ui/${selectedSdkContent.value}`,
+    },
+  ];
 
   return {
-    breadcrumbs: [
-      {
-        slug: "in-app-ui",
-        title: "In-App UI",
-        path: "/in-app-ui",
-      },
-      {
-        slug: `/in-app-ui/${selectedSdkContent.value}`,
-        title: selectedSdkContent.title,
-        path: `/in-app-ui/${selectedSdkContent.value}`,
-      },
-      {
-        slug: `${section?.slug}`,
-        title: section?.title,
-        path: `${section?.slug}`,
-      },
-      {
-        slug: `${section?.slug}${page?.slug}`,
-        title: page?.title,
-        path: `${section?.slug}${page?.slug}`,
-      },
-    ],
+    breadcrumbs,
   };
 }
 

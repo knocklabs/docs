@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { Page } from "@/components/ui/Page";
 import { Sidebar, SidebarContext } from "@/components/ui/Page/Sidebar";
