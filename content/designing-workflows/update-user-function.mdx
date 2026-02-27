@@ -1,0 +1,82 @@
+---
+title: Update user function
+description: Learn how to update a user in Knock during a workflow run.
+tags: ["steps", "users", "data", "functions"]
+section: Designing workflows
+---
+
+An update user function updates a [user](/concepts/users) stored in Knock as a step in your workflow. Use it when you need to change a user's properties or [preferences](/preferences/overview) based on workflow context so that downstream steps, [audiences](/concepts/audiences), or other workflows see the updated data.
+
+Common use cases include syncing state from your trigger (for example, "last notified at"), making a user eligible for a dynamic audience or [guide](/concepts/guides), or updating notification preferences from within a workflow. The update user step works the same way as [Update tenant](/send-notifications/designing-workflows/update-tenant-function) and [Update object](/send-notifications/designing-workflows/update-object-function) except for how you specify which entity to update.
+
+## Selecting the user
+
+By default, Knock updates the current workflow [recipient](/concepts/recipients) (the user this run is for). You can leave this default, or select a property that resolves to a user id (or use a literal user id) to update a different user (for example, the actor or a user id from your trigger data).
+
+The update user step supports upserting. If you specify a user id that does not yet exist in Knock, the user will be created with the properties you set.
+
+<figure>
+  <Image
+    src="/images/functions/data/user/overview.png"
+    width={1015}
+    height={600}
+    alt="Update user function step in the workflow builder."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Update user function step in the workflow builder.
+  </figcaption>
+</figure>
+
+<figure>
+  <Image
+    src="/images/functions/data/user/templated-id.png"
+    width={1015}
+    height={600}
+    alt="Configuring a templated or literal user id for the update user step."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Configuring a templated or literal user id for the update user step.
+  </figcaption>
+</figure>
+
+## Updating preferences
+
+The update user step can update the user's notification preferences. Use this when workflow logic should change what channels or workflows a user is opted in or out of, or when you want to set preference defaults from within a workflow.
+
+Set preferences using the **preferences** key on the user. The value should follow the structure of a [PreferenceSet](/preferences/overview) (for example, `categories`, `channels`, `channel_types`, and `workflows`). For more on how user preferences work and how to structure preference data, see the [preferences overview](/preferences/overview).
+
+## Setting properties
+
+You can set any number of properties on the user. Each property has a **key** and a **value**.
+
+- **Key.** The property name. You can set a value for an existing user property or define a new property.
+- **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.foo }}` or `{{ recipient.email }}`) so the value is resolved from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"bar"` or `true`).
+
+In the step editor you can edit properties as a JSON blob or in key-value form. Updated properties are stored in Knock and are available to subsequent workflow steps and to the Management API. The updated user is immediately available to the next step and all later steps in the same workflow run.
+
+## Limitations
+
+Update user steps do not support updating `channel_data`. You cannot set or change channel data (for example, email or push tokens) via this step.
+
+In addition, `channel_data` is not rendered in the workflow event success or error logging for these recipients, even when channel data is present on the user.
+
+## Debugging
+
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update user steps. The logs render the full before/after diff view of the recipient, minus `channel_data`, so you can verify the pre-state, the properties that were set, and the post-state.
+
+<figure>
+  <Image
+    src="/images/functions/data/user/logging-update-user.png"
+    width={1015}
+    height={600}
+    alt="Before/after diff for an update user step in the workflow run logs."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Before/after diff for an update user step in the workflow run logs.
+  </figcaption>
+</figure>
+
+Update user steps are also available in the [Management API](/mapi-reference) and can be included when you show or upsert a workflow.

@@ -1,0 +1,80 @@
+---
+title: Update tenant function
+description: Learn how to update a tenant's properties in Knock during a workflow run.
+tags: ["steps", "tenants", "data", "functions"]
+section: Designing workflows
+---
+
+An update tenant function updates a [tenant](/concepts/tenants) stored in Knock as a step in your workflow. Use it when you need to change a tenant's properties based on workflow context so that downstream steps or other workflows see the updated data.
+
+Common use cases include syncing tenant state from your trigger (for example, approval status or feature flags), updating [tenant-level preference defaults](/preferences/tenant-preferences), or storing data on the tenant that you reference later in the same workflow or in another workflow. The update tenant step works the same way as [Update user](/send-notifications/designing-workflows/update-user-function) and [Update object](/send-notifications/designing-workflows/update-object-function) except for how you specify which entity to update.
+
+## Selecting the tenant
+
+By default, Knock updates the tenant associated with the current workflow run (the `tenant` you passed in the [trigger](/send-notifications/triggering-workflows) or that is otherwise in scope). You can leave this default, or select a property that resolves to a tenant id (or use a literal tenant id) to update a different tenant.
+
+The update tenant step supports upserting. If you specify a tenant id that does not yet exist in Knock, the tenant will be created with the properties you set.
+
+<figure>
+  <Image
+    src="/images/functions/data/tenant/overview.png"
+    width={1015}
+    height={600}
+    alt="Update tenant function step in the workflow builder."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Update tenant function step in the workflow builder.
+  </figcaption>
+</figure>
+
+<figure>
+  <Image
+    src="/images/functions/data/tenant/templated-id.png"
+    width={1015}
+    height={600}
+    alt="Configuring a templated or literal tenant id for the update tenant step."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Configuring a templated or literal tenant id for the update tenant step.
+  </figcaption>
+</figure>
+
+## Updating preferences
+
+You can update a tenant's default [PreferenceSet](/preferences/overview) from within a workflow. Use the **preference_set** key (not `preferences`) when setting tenant preference defaults. The value should follow the structure of a PreferenceSet (for example, `categories`, `channels`, `channel_types`, and `workflows`). For how tenant preference defaults work and how to structure them, see [tenant preferences](/preferences/tenant-preferences).
+
+## Setting properties
+
+You can set any number of properties on the tenant. Each property has a **key** and a **value**.
+
+- **Key.** The property name. You can set a value for an existing tenant property or define a new property.
+- **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.tenant_name }}` or `{{ tenant.id }}`) so the value is resolved from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"Acme Corp"` or `true`).
+
+In the step editor you can edit properties as a JSON blob or in key-value form. Updated properties are stored in Knock and are available to subsequent workflow steps and to the Management API. The updated tenant is immediately available to the next step and all later steps in the same workflow run.
+
+## Limitations
+
+Update tenant steps do not support updating `channel_data`. You cannot set or change channel data on a tenant via this step.
+
+In addition, `channel_data` is not rendered in the workflow event success or error logging for these recipients, even when channel data is present on the tenant.
+
+## Debugging
+
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update tenant steps. The logs render the full before/after diff view of the recipient, minus `channel_data`, so you can verify the pre-state, the properties that were set, and the post-state.
+
+<figure>
+  <Image
+    src="/images/functions/data/tenant/logging-update-tenant.png"
+    width={1015}
+    height={600}
+    alt="Before/after diff for an update tenant step in the workflow run logs."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Before/after diff for an update tenant step in the workflow run logs.
+  </figcaption>
+</figure>
+
+Update tenant steps are also available in the [Management API](/mapi-reference) and can be included when you show or upsert a workflow.
