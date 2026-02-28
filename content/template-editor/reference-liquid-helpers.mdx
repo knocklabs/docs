@@ -1,7 +1,19 @@
 ---
 title: "Liquid helpers"
 description: A reference to help you work with the Liquid templating language in Knock.
-tags: ["liquid", "template", "variables", "currency", "timezone", "pluralize"]
+tags:
+  [
+    "liquid",
+    "template",
+    "variables",
+    "currency",
+    "timezone",
+    "pluralize",
+    "user",
+    "object",
+    "tenant",
+    "subscriptions",
+  ]
 section: Working with templates
 ---
 
@@ -197,6 +209,37 @@ The Knock template editor uses Liquid syntax for control flow and variable decla
       </div>,
       '{{ "1.0.0" | compare_versions: "2.0.0" }}',
       "-1",
+    ],
+  ]}
+/>
+
+## Dynamic data filters
+
+Knock provides a set of Liquid filters that dynamically load data from your Knock environment at template render time. These filters enable you to reference entities like users, objects, tenants, and subscriptions in your templates without passing all of the data in your workflow trigger call. For more details and examples, see [referencing data in templates](/template-editor/referencing-data).
+
+<Table
+  headers={["Filter", "Description", "Example"]}
+  codeColumns={[0, 2]}
+  rows={[
+    [
+      "user",
+      "Loads a user by their identifier. Returns a serialized User with all custom properties, as well as id, name, email, phone_number, created_at, and updated_at.",
+      '{% assign user = "chris" | user %}',
+    ],
+    [
+      "object",
+      "Loads an object by its identifier and collection. Returns a serialized Object with all custom properties, as well as id, collection, created_at, and updated_at. Requires a collection parameter.",
+      '{% assign project = "proj_1" | object: "projects" %}',
+    ],
+    [
+      "tenant",
+      "Loads a tenant by its identifier. Returns a serialized Tenant with all custom properties, as well as id, created_at, and updated_at.",
+      '{% assign tenant = "acme" | tenant %}',
+    ],
+    [
+      "subscriptions",
+      "Loads up to 25 active subscriptions for a user by their identifier. Returns a list of subscription objects, each containing the subscribed object and any custom properties set on the subscription.",
+      "{% assign subs = recipient.id | subscriptions %}",
     ],
   ]}
 />
