@@ -38,7 +38,7 @@ After creating a partial, you can edit its content in the code editor.
 You can include Liquid variables in your content which will be scoped to your partial. When using the partial in a template, you can pass in values for these variables. To include a variable in your partial, use the following syntax: `{{ variable_name }}`.
 
 <Callout
-  type="alert"
+  type="warning"
   title="Note:"
   text={
     <>
@@ -52,14 +52,6 @@ You can include Liquid variables in your content which will be scoped to your pa
     </>
   }
 />
-
-#### Editing HTML partial content
-
-HTML partials display a preview alongside the editor. Open the preview by clicking the "Preview" button or using the `Cmd + ]` keyboard shortcut on Mac, or `Ctrl + ]` on Windows.
-
-- Select an [email layout](/integrations/email/layouts) to preview the partial within.
-- Use the `<style>` tag to add CSS to your partial, which will be inlined when rendering your email messages.
-- Edit the placeholder variable values in the preview sidebar. These values are just for the preview and will not be used in your final messages. The preview text will also appear alongside the variable name in the code editor typeahead information.
 
 ### Updating existing partial content
 
@@ -88,24 +80,23 @@ Partials can be archived from the "Partials" page or from a specific partial's d
 
 ## Using partials in templates
 
-Partials can be used in templates with the code editor or visual editor.
-
-You can also include partials in other partials. Knock will render partials recursively up to a maximum depth of 5.
+Partials can be used in templates with the code editor or visual editor. You can also include partials in other partials. Knock will render partials recursively up to a maximum depth of 5.
 
 <Callout
   type="alert"
-  title="Partial variable inputs currently only support plaintext values."
+  title="Partial variable inputs are treated as plaintext values by default."
   text={
     <>
       This means that booleans, lists, and other JSON values will be treated as
-      strings when passed into a partial. See the{" "}
-      <a href="#frequently-asked-questions">frequently asked questions</a> below
-      for common implementation patterns.
+      strings when passed directly as a partial input value.
       <br />
       <br />
-      If this limitation is a blocker for you, please <a href="https://knock.com/contact">
-        reach out to our team
-      </a>, as we'd love to hear about what we can do to support your use case.
+      If you use an HTML partial that is enabled as a block, you can create an optional{" "}
+      <a href="/template-editor/partials/schema-reference">schema</a> for your partial
+      to set input types other than plaintext, like JSON. See the <a href="#frequently-asked-questions">
+        frequently asked questions
+      </a> below for common implementation patterns for working with structured data
+      in a partial.
     </>
   }
 />
@@ -135,7 +126,7 @@ To replicate the `with` modifier, use the `{% assign %}` tag to re-assign a vari
 
 ### In the visual editor
 
-HTML partials can be used in the visual editor if they are enabled as blocks. Add a partial to your template by dragging it from the "Custom blocks" section of the sidebar into the template.
+[HTML partials](/template-editor/partials/html-partials) can be used in the visual editor if they are enabled as blocks. Add a partial to your template by dragging it from the "Custom blocks" section of the sidebar into the template.
 
 Click a custom block to open the inspect panel to edit variable values. You can enter a plaintext value or a Liquid expression like `{{ data.variable_name }}`.
 
@@ -152,42 +143,95 @@ Click a custom block to open the inspect panel to edit variable values. You can 
     If you're using a partial that is not yet committed while editing a template, you will not see your latest changes.
 
   </Accordion>
-  <Accordion title="My trigger data includes an array of items. How can I iterate over the items in a partial?">
-    Because partial variable inputs currently only support plaintext values, you can't pass a JSON array of items to a partial variable and then iterate over them within the partial's content.
+  <Accordion title="I want to use structured JSON from my trigger data in my partial. How can I reference an object or array in a partial?">
+    Because partial variable inputs are treated as plaintext values by default, you need to take an extra configuration step to directly pass a JSON object or array of items to a partial variable and then iterate over them within the partial's content.
 
-    Instead, you can use a placeholder variable in your partial that will contain the final, rendered list of items. You'll then provide the Liquid iteration logic in the template that renders the partial when you configure the input value for the partial variable.
+    You have two options, depending on your use case:
 
-    For example, if you have a partial that renders a list of items, you can use a placeholder variable in your partial:
+    **1. Create a schema for your HTML partial and set the variable's input type to JSON.**
 
-    ```liquid title="Partial with a placeholder variable"
+    When you create a [schema](/template-editor/partials/schema-reference) for your HTML partial, you can set the input type for a given variable to `json`. This will preserve the structure of the object or array of items that is passed in.
+
+    For example, if you want a partial to render a list of items, you can create a schema for your partial and pass your list to the partial input like this:
+
+    ```json title="A schema for an HTML partial's 'items' variable"
+    [{
+      "type": "json",
+      "key": "items",
+      "label": "Items list",
+      "settings": {
+        "required": true,
+        "description": "A list of items to render",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "value": { "type": "string" }
+            },
+            "required": ["name", "value"]
+          }
+        }
+      }
+    }]
+    ```
+
+    ```liquid title="Passing a list of items to the partial's 'items' input"
+    {{ data.items_list }}
+    ```
+    Then, in the partial you can reference the list of items directly:
+    ```liquid title="Partial content with structured data"
     <ul>
-      {{ items_list }}
+      {% for item in items %}
+        <li>{{ item.name }}: {{ item.value }}</li>
+      {% endfor %}
+    </ul>
+    ```
+    <br />
+    You can follow a similar pattern for working with your full `data` payload, `recipient`, or other object [variables](/template-editor/variables) that are available in the workflow run scope; simply pass a Liquid reference to the variable into the partial input (i.e. `{{data}}`), then reference the object's properties within the partial content.
+    <br/>
+    **2. Use Knock's Liquid helpers to transform your input data into a JSON string.**
+
+    For use cases where you don't want to create a schema or you want to pass JSON into a different input type, you can use Knock's `json` [Liquid helper](/template-editor/reference-liquid-helpers) to transform your input data into a JSON string. Then, you can use the `from_json` helper within your partial to transform the JSON string back into a Liquid object that you can reference.
+
+    For example, if you want a partial to render a list of items, you can pass your list to the partial input like this:
+
+    ```liquid title="Transforming your input data into a JSON string"
+    {{ data.items_list | json }}
+    ```
+
+    You can provide the logic to convert the JSON string back into a Liquid object and iterate over the items within your partial:
+
+    ```liquid title="Partial content with deserialized structured data"
+    {% assign items = input | from_json %}
+    <ul>
+      {% for item in items %}
+        <li>{{ item.name }}: {{ item.value }}</li>
+      {% endfor %}
     </ul>
     ```
 
-    Then, in the message template that renders the partial, you can provide the Liquid logic to iterate over the items as the input value for `{{ items_list }}`:
-
-    ```liquid title="Partial variable input in the template editor"
-    {% for item in data.items %}
-      <li>{{ item.name }}: {{ item.value }}</li>
-    {% endfor %}
-    ```
-
   </Accordion>
-  <Accordion title="Can I use boolean values from my trigger data in a partial?">
-    Yes, but not directly as `true` or `false` values. Because variable inputs for partials currently only support plaintext values, boolean inputs will be treated as strings when passed into a partial. This means that a boolean value of `false` will be treated as the string `"false"` in your partial's content, which evaluates as truthy in Liquid.
+  <Accordion title="Can I use dynamic boolean values from my trigger data in a partial?">
+    Yes! However, you'll need to be careful with how you configure them in your partial to ensure that they evaluate the way you expect. 
     
-    Rather than referencing a boolean value in your partial's content like this:
+    Because variable inputs for partials are plaintext values by default, booleans will be interpreted as strings when passed directly into a partial. This means that an input value of the boolean `false` will be treated as the string `"false"` in your partial's content, which evaluates as truthy in Liquid.
+    
+    If you're working with an HTML partial and you create a [schema](/template-editor/partials/schema-reference), you can set your variable's input type to `json`. This will preserve the `true` or `false` boolean value that is passed in.
+    
+    For any other input type, you can use the `from_json` [Liquid helper](/template-editor/reference-liquid-helpers) to transform the input string back into a boolean value:
 
-    ```liquid title="Incorrect boolean reference in a partial"
+    ```liquid title="Use a boolean value in a partial"
+    {% assign boolean_value = input | from_json %}
     {% if boolean_value %}
       <p>The value is true.</p>
     {% endif %}
     ```
 
-    You can use a Liquid expression to check the string value of the boolean input:
+    Alternatively, you can use a Liquid expression to check the string value of the boolean input:
 
-    ```liquid title="Correct boolean reference in a partial"
+    ```liquid title="Check a dynamic string value in a partial"
     {% if boolean_value == "true" %}
       <p>The value is true.</p>
     {% endif %}
@@ -210,6 +254,8 @@ Click a custom block to open the inspect panel to edit variable values. You can 
     ```liquid title="Use a recipient property in a partial"
       {% render 'partial_key', recipient_name: recipient.name %}
     ```
+    <br />
+    See the FAQ above on how to reference structured data (like a full `recipient` object) in a partial.
 
   </Accordion>
 </AccordionGroup>

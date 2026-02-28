@@ -6,6 +6,8 @@ tags:
 section: Working with templates
 ---
 
+When using [HTML partials](/template-editor/partials/html-partials), you can create an optional schema for your partial to set field types, default values, and require inputs for variables that are passed into the partial.
+
 Partial schemas support the following field types:
 
 <Table
@@ -29,6 +31,7 @@ Partial schemas support the following field types:
     ],
     ["URL", "URL input field with validation."],
     ["Image", "Image upload or URL field for displaying images."],
+    ["JSON", "JSON input field with schema validation."],
   ]}
 />
 
@@ -498,6 +501,56 @@ Every image field contains three subfields:
 }
 ```
 
+### JSON
+
+A JSON input field with schema validation.
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+  <Attribute
+    name="default"
+    type="json"
+    description="The default value of the JSON field"
+  />
+  <Attribute
+    name="schema"
+    type="object"
+    description="A [JSON Schema](https://json-schema.org/) object that validates the expected structure of the input. Supports `properties` to define the expected keys and their types, and `required` to specify which keys must be present."
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "json",
+  "key": "data",
+  "label": "Data",
+  "settings": {
+    "description": "A description of the JSON field",
+    "required": true,
+    "default": { "key": "value" },
+    "schema": {
+      "properties": {
+        "key": { "type": "string" }
+      },
+      "required": ["key"]
+    }
+  }
+}
+```
+
 ## Example usage
 
 Here's an example of a partial schema, and using it in a template.
@@ -548,7 +601,7 @@ Here's an example of a partial schema, and using it in a template.
 ]
 ```
 
-```html title="Using a partial schema in a template"
+```liquid title="Using a partial schema in a template"
 <div class="partial-container">
   <img src="{{ image.url }}" alt="{{ image.alt }}" />
   <h1>{{ title }}</h1>
@@ -557,3 +610,37 @@ Here's an example of a partial schema, and using it in a template.
   {% endif %}
 </div>
 ```
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="What should I know about using default schema values in Liquid conditions?">
+    It's important to note that when you define a schema for your partial, each
+    field will have a default value.
+   
+    If you don't set an explicit default value, the default will be set according
+    to the field type. When working with string-based fields like `Text`, `Textarea`, and `Markdown`,
+    the default will be an empty string (`""`).
+    
+    In Liquid, an empty string is considered truthy, so if you want to render content in your partial based on whether an input is provided for that field, you should use a Liquid condition to check if the field is not empty.
+    ```liquid title="Patterns for conditionally rendering content based on whether a text field has a provided input"
+    // render a heading if the user provides a title field input
+    {% if title != "" %}
+      <h1>{{ title }}</h1>
+    {% endif %}
+    
+    // alternatively, you can use the `blank` object:
+    {% if title != blank %}
+      <h1>{{ title }}</h1>
+    {% endif %}
+    ```
+    <br />
+    For `Boolean` fields, you can simply check the truthiness of the input with an `if` statement:
+    ```liquid title="Pattern for conditionally rendering content based on a boolean input"
+    {% if show_button %}
+      <a href="{{ primary_button.action }}">{{ primary_button.text }}</a>
+    {% endif %}
+    ```
+
+  </Accordion>
+</AccordionGroup>
