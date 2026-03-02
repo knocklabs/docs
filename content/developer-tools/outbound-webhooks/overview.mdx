@@ -23,19 +23,22 @@ You can learn more about the types of events that [Knock sends webhooks for here
 
 A webhook payload will always take the following base shape, where the `type` and its associated `data` schema will be determined by the supported [webhook event types](/developer-tools/outbound-webhooks/event-types). The `data` field will include the entity that the event references.
 
+Some event types also include an `event_data` field with additional context specific to that event — for example, failure details on a `message.undelivered` event or the clicked URL on a `message.link_clicked` event. For event types that do not include additional context, `event_data` will be `null`. See the [webhook event types](/developer-tools/outbound-webhooks/event-types) page for a full breakdown of which events include `event_data` and what fields each contains.
+
 ```json title="A sample event payload"
 {
   "__typename": "Event",
   // The type of event that triggered the webhook
-  "type": "message.sent",
-  "created_at": "2022-05-31T17:12:59.958652Z",
+  "type": "message.undelivered",
+  "created_at": "2026-01-31T17:12:59.958652Z",
   "data": {
     // Information about the entity, as determined by the webhook event type.
   },
-  // (Optional) additional metadata related to the event
+  // Only present for event types that include additional metadata. Null otherwise.
   "event_data": {
     "__typename": "EventData",
-    "foo": "bar"
+    "failure_reason": "invalid_address",
+    "failure_details": "The recipient address does not exist."
   }
 }
 ```
