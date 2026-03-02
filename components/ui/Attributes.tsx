@@ -59,7 +59,9 @@ const Attribute = ({
               }}
               transition={{ duration: 0.2 }}
             >
-              <PropertyRow.ChildProperties>{children}</PropertyRow.ChildProperties>
+              <PropertyRow.ChildProperties>
+                {children}
+              </PropertyRow.ChildProperties>
             </motion.div>
           </AnimatePresence>
         </>
