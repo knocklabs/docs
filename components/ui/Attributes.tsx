@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { PropertyRow } from "./ApiReference/SchemaProperties/PropertyRow";
 
 const Attributes = ({ children }) => {
@@ -49,21 +49,19 @@ const Attribute = ({
           >
             {isOpen ? `Hide ${expandLabel}` : `Show ${expandLabel}`}
           </PropertyRow.ExpandableButton>
-          <AnimatePresence initial={false}>
-            <motion.div
-              initial={false}
-              animate={{
-                height: isOpen ? "auto" : 0,
-                opacity: isOpen ? 1 : 0,
-                visibility: isOpen ? "visible" : "hidden",
-              }}
-              transition={{ duration: 0.2 }}
-            >
-              <PropertyRow.ChildProperties>
-                {children}
-              </PropertyRow.ChildProperties>
-            </motion.div>
-          </AnimatePresence>
+          <motion.div
+            initial={false}
+            animate={{
+              height: isOpen ? "auto" : 0,
+              opacity: isOpen ? 1 : 0,
+              visibility: isOpen ? "visible" : "hidden",
+            }}
+            transition={{ duration: 0.2 }}
+          >
+            <PropertyRow.ChildProperties>
+              {children}
+            </PropertyRow.ChildProperties>
+          </motion.div>
         </>
       )}
     </PropertyRow.Container>
