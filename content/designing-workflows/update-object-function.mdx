@@ -34,37 +34,37 @@ The update object step supports upserting. If you specify an object id that does
     src="/images/functions/data/object/templated-id.png"
     width={1015}
     height={600}
-    alt="Configuring collection and templated or literal object id for the update object step."
+    alt="Configuring collection and object ID for the update object step."
     className="rounded-md mx-auto border border-gray-200"
   />
   <figcaption>
-    Configuring collection and templated or literal object id for the update
+    Configuring collection and object ID for the update
     object step.
   </figcaption>
 </figure>
 
 ## Updating preferences
 
-You can update an object's [PreferenceSet](/preferences/overview) from within a workflow. Set preferences using the **preferences** key on the object. The value should follow the structure of a PreferenceSet (for example, `categories`, `channels`, `channel_types`, and `workflows`). For how preferences work on objects, see [object preferences](/preferences/object-preferences).
+You can update an object's [preferences](/preferences/overview) from within a workflow. Set them using the `preferences` key. The value should follow the structure of a [`PreferenceSet`](/api-reference/recipients/preferences/schemas/preference_set).
 
 ## Configuring properties
 
 You can set any number of properties on the object. Each property has a **key** and a **value**.
 
-- **Key.** The property name. You can set a value for an existing object property or define a new property.
-- **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.status }}` or `{{ recipient.name }}`) so the value is resolved from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"active"` or `true`).
+- **Key.** The property name. You can use an existing object property or define a new property.
+- **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.status }}` or `{{ recipient.name }}`) to resolve a dynamic value from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"active"` or `true`).
 
 In the step editor you can edit properties as a JSON blob or in key-value form. Updated properties are stored in Knock and are available to subsequent workflow steps and to the Management API. The updated object is immediately available to the next step and all later steps in the same workflow run.
 
 ## Limitations
 
-Update object steps do not support updating `channel_data`. You cannot set or change channel data on an object via this step.
+Update object steps do not support updating [channel data](/managing-recipients/setting-channel-data). You cannot set or change channel data on an object via this step.
 
 In addition, `channel_data` is not rendered in the workflow event success or error logging for these recipients, even when channel data is present on the object.
 
 ## Debugging
 
-You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update object steps. The logs render the full before/after diff view of the recipient, minus `channel_data`, so you can verify the pre-state, the properties that were set, and the post-state.
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update object steps. The logs render the full before/after diff view of the object so that you can verify the pre-state, the properties that were set, and the post-state.
 
 <figure>
   <Image
@@ -76,8 +76,8 @@ You can use the [workflow run logs](/send-notifications/debugging-workflows) to 
   />
   <figcaption>
     Before/after diff for an update object step in the workflow run logs. This
-    object was inserted (upserted), so the diff is entirely new.
+    workflow run upserted a new object, so the diff shows only the new version.
   </figcaption>
 </figure>
 
-Update object steps are also available in the [Management API](/mapi-reference) and can be included when you show or upsert a workflow.
+Update object steps are also available in the [management API](/mapi-reference/overview).

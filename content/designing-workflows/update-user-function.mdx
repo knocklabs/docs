@@ -7,13 +7,13 @@ section: Designing workflows
 
 An update user function updates a [user](/concepts/users) stored in Knock as a step in your workflow. Use it when you need to change a user's properties or [preferences](/preferences/overview) based on workflow context so that downstream steps, [audiences](/concepts/audiences), or other workflows see the updated data.
 
-Common use cases include syncing state from your trigger (for example, "last notified at"), making a user eligible for a dynamic audience or [guide](/concepts/guides), or updating notification preferences from within a workflow. The update user step works the same way as [Update tenant](/send-notifications/designing-workflows/update-tenant-function) and [Update object](/send-notifications/designing-workflows/update-object-function) except for how you specify which entity to update.
+Common use cases include syncing state from your trigger (for example, "last notified at"), making a user eligible for a [dynamic audience](/concepts/audiences) so they'll receive a [guide](/concepts/guides), or updating notification preferences from within a workflow.
 
 ## Selecting the user
 
-By default, Knock updates the current workflow [recipient](/concepts/recipients) (the user this run is for). You can leave this default, or select a property that resolves to a user id (or use a literal user id) to update a different user (for example, the actor or a user id from your trigger data).
+By default, Knock updates the current workflow [recipient](/concepts/recipients) (the user this run is for). Alternatively, you can select a property that resolves to a user ID (or use a literal user ID) to update a different user (for example, the `actor` or a user ID from your trigger `data`).
 
-The update user step supports upserting. If you specify a user id that does not yet exist in Knock, the user will be created with the properties you set.
+The update user step supports upserting. If you specify a user ID that does not yet exist in Knock, a new user will be created with the properties you set.
 
 <figure>
   <Image
@@ -33,25 +33,25 @@ The update user step supports upserting. If you specify a user id that does not 
     src="/images/functions/data/user/templated-id.png"
     width={1015}
     height={600}
-    alt="Configuring a templated or literal user id for the update user step."
+    alt="Configuring a user ID for the update user step."
     className="rounded-md mx-auto border border-gray-200"
   />
   <figcaption>
-    Configuring a templated or literal user id for the update user step.
+    Configuring a user ID for the update user step.
   </figcaption>
 </figure>
 
 ## Updating preferences
 
-The update user step can update the user's notification preferences. Use this when workflow logic should change what channels or workflows a user is opted in or out of, or when you want to set preference defaults from within a workflow.
+The update user step can update the user's notification [preferences](/preferences/overview). This enables you to create workflow logic that updates which channels or workflows a user is opted into.
 
-Set preferences using the **preferences** key on the user. The value should follow the structure of a [PreferenceSet](/preferences/overview) (for example, `categories`, `channels`, `channel_types`, and `workflows`). For more on how user preferences work and how to structure preference data, see the [preferences overview](/preferences/overview).
+Set preferences using the `preferences` key on the user. The value should follow the structure of a [`PreferenceSet`](/api-reference/recipients/preferences/schemas/preference_set).
 
-## Setting properties
+## Configuring properties
 
-You can set any number of properties on the user. Each property has a **key** and a **value**.
+You can set any number of properties on the user. Each property has a **key** and a **value**. Properties can be configured as a JSON blob or as key-value pairs.
 
-- **Key.** The property name. You can set a value for an existing user property or define a new property.
+- **Key.** The property name. You can use an existing user property or define a new property.
 - **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.foo }}` or `{{ recipient.email }}`) to resolve a dynamic value from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"bar"` or `true`).
 
 
