@@ -72,6 +72,7 @@ components:
         - $ref: '#/components/schemas/WorkflowSmsStep'
         - $ref: '#/components/schemas/WorkflowPushStep'
         - $ref: '#/components/schemas/WorkflowEmailStep'
+        - $ref: '#/components/schemas/WorkflowAIAgentStep'
         - $ref: '#/components/schemas/WorkflowDelayStep'
         - $ref: '#/components/schemas/WorkflowBatchStep'
         - $ref: '#/components/schemas/WorkflowFetchStep'
@@ -7750,6 +7751,115 @@ components:
       title: Branch
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Branch
+      x-validate: null
+    WorkflowAIAgentStep:
+      description: An AI agent function step. Fetches data from an AI model and merges it into the workflow's `data` scope for use in later steps. Supports Liquid templating in the prompt. Read more in the [docs](https://docs.knock.app/designing-workflows/ai-agent-function).
+      example:
+        name: AI agent step
+        ref: ai_agent_step
+        settings:
+          model: anthropic:claude-haiku-4-5
+          request_prompt: You are a helpful assistant.
+          response_type: text
+        type: ai_agent
+      properties:
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A conditions object that describes one or more conditions to be met in order for the step to be executed.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: AI agent step description
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: AI agent step
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: ai_1
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: The settings for the AI agent step.
+          properties:
+            halt_on_error:
+              description: Whether to halt the workflow if the AI fetch fails.
+              example: true
+              nullable: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+            model:
+              description: The AI model to use in `provider:model` format (e.g. `anthropic:claude-haiku-4-5`, `openai:gpt-5.2-chat-latest`). See the documentation for a list of supported models.
+              example: anthropic:claude-haiku-4-5
+              type: string
+              x-struct: null
+              x-validate: null
+            request_prompt:
+              description: The prompt template for the AI request. Supports Liquid templating.
+              example: You are a helpful assistant.
+              type: string
+              x-struct: null
+              x-validate: null
+            response_schema:
+              description: A JSON schema string for structured output. Required when `response_type` is `json`. Must not be set when `response_type` is `text`.
+              example: '{"type": "object", "properties": {"summary": {"type": "string"}}}'
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            response_type:
+              description: The type of response to expect from the AI model.
+              enum:
+                - text
+                - json
+              example: text
+              type: string
+              x-struct: null
+              x-validate: null
+            web_search_enabled:
+              description: Whether to enable web search for the AI request.
+              example: false
+              nullable: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+          required:
+            - model
+            - response_type
+            - request_prompt
+          type: object
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the workflow step.
+          enum:
+            - ai_agent
+          example: ai_agent
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - settings
+      title: WorkflowAIAgentStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowAIAgentStep
       x-validate: null
     RequestTemplateHeaders:
       description: The headers of the request. Can be a template string or a list of key-value pairs.
