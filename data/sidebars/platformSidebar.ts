@@ -86,6 +86,10 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
             slug: "/update-data-function",
             title: "Update data function",
           },
+          {
+            slug: "/update-audience-function",
+            title: "Update audience function",
+          },
         ],
       },
       { slug: "/step-conditions", title: "Step conditions" },
