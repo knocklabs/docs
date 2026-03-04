@@ -1,0 +1,91 @@
+---
+title: Update audience function
+description: Learn how to add or remove users from a static audience during a workflow run.
+tags: ["steps", "audiences", "data", "functions"]
+section: Designing workflows
+---
+
+An update audience function modifies [static audience](/concepts/audiences) membership as a step in your workflow. Use it to add or remove the current recipient from a static audience based on workflow context, so that downstream steps, other workflows, [broadcasts](/concepts/broadcasts), and [guides](/concepts/guides) that reference the audience see the updated membership.
+
+Common use cases include making a user eligible for a guide after they complete an onboarding step, removing a user from a promotional audience after they convert, or syncing audience membership based on data available in your workflow trigger.
+
+## Choosing the action
+
+The update audience step supports two actions:
+
+- **Add to.** Adds the current recipient to the selected static audience. If the recipient is already a member, the step succeeds with no change.
+- **Remove from.** Removes the current recipient from the selected static audience. If the recipient is not a member, the step succeeds with no change.
+
+<figure>
+  <Image
+    src="/images/functions/data/audience/overview.png"
+    width={1015}
+    height={600}
+    alt="Update audience function step in the workflow builder."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Update audience function step in the workflow builder.
+  </figcaption>
+</figure>
+
+## Selecting the audience
+
+Choose a static audience from the audiences available in your environment. The dropdown lists all static audiences that have been created and committed in the current environment.
+
+Once you select an audience, the step editor displays an **Audience is used in** panel that shows everywhere the selected audience is referenced, including workflows, broadcasts, and guides. This helps you understand the downstream impact of modifying membership.
+
+<figure>
+  <Image
+    src="/images/functions/data/audience/audience-used-in.png"
+    width={1015}
+    height={600}
+    alt="The audience is used in panel showing workflows, broadcasts, and guides that reference the selected audience."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    The "Audience is used in" panel shows workflows, broadcasts, and guides that reference the selected audience.
+  </figcaption>
+</figure>
+
+## Limitations
+
+The update audience step only works with [static audiences](/concepts/audiences). You cannot use it to modify membership of a dynamic audience, because dynamic audience membership is computed automatically from user properties.
+
+The step always operates on the current workflow recipient. You cannot target a different user (for example, the actor or a user ID from your trigger data).
+
+## Debugging
+
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update audience steps. When viewing a workflow run for a specific recipient, select the update audience step to see whether the recipient was added to or removed from the audience, and the audience that was targeted.
+
+<figure>
+  <Image
+    src="/images/functions/data/audience/logging-update-audience.png"
+    width={1015}
+    height={600}
+    alt="Viewing an update audience step in the workflow run logs."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Viewing an update audience step in the workflow run logs.
+  </figcaption>
+</figure>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="When should I use an update audience step vs. the audiences API?">
+    Use an **update audience step** when audience membership should change as part of a workflow run, for example adding a user to a "completed onboarding" audience after they finish a setup flow. The step runs inline with your workflow so subsequent steps immediately see the updated membership.
+
+    Use the [audiences API](/api-reference/audiences) when you need to sync audience membership in bulk from an external source (such as a data warehouse or reverse ETL tool), or when the membership change is not tied to a specific workflow run.
+  </Accordion>
+  <Accordion title="Can I use this step with dynamic audiences?">
+    No. Dynamic audience membership is computed automatically from user properties. To make a user eligible for a dynamic audience during a workflow, use an [update user step](/send-notifications/designing-workflows/update-user-function) to set a property that matches the audience's query rules.
+  </Accordion>
+  <Accordion title="What happens if the audience doesn't exist?">
+    The step will fail if you reference an audience that has not been created and committed in the current environment. Make sure the audience exists and has been promoted to the environment where your workflow runs.
+  </Accordion>
+  <Accordion title="Can I target a user other than the current recipient?">
+    No. The update audience step always operates on the current workflow recipient. If you need to modify audience membership for a different user, use the [audiences API](/api-reference/audiences) instead.
+  </Accordion>
+</AccordionGroup>
