@@ -23,9 +23,7 @@ The update tenant step supports upserting. If you specify a tenant ID that does 
     alt="Update tenant function step in the workflow builder."
     className="rounded-md mx-auto border border-gray-200"
   />
-  <figcaption>
-    Update tenant function step in the workflow builder.
-  </figcaption>
+  <figcaption>Update tenant function step in the workflow builder.</figcaption>
 </figure>
 
 <figure>
@@ -36,14 +34,40 @@ The update tenant step supports upserting. If you specify a tenant ID that does 
     alt="Configuring a tenant ID for the update tenant step."
     className="rounded-md mx-auto border border-gray-200"
   />
-  <figcaption>
-    Configuring a tenant ID for the update tenant step.
-  </figcaption>
+  <figcaption>Configuring a tenant ID for the update tenant step.</figcaption>
 </figure>
 
 ## Updating preferences
 
-You can update a tenant's default [preferences](/preferences/overview) from within a workflow. Use the `preference_set` key (not `preferences`) when setting tenant preference defaults. The value should follow the structure of a [`PreferenceSet`](/api-reference/recipients/preferences/schemas/preference_set). For more information on how tenant preference defaults work and how to structure them, see [tenant preferences](/preferences/tenant-preferences).
+You can update a tenant's default [preferences](/preferences/overview) from within a workflow. Use the `preference_set` key nested under `settings` (not `preferences`) when setting tenant preferences. The value should follow the structure of a [`PreferenceSet`](/api-reference/recipients/preferences/schemas/preference_set). For more information on how tenant preferences work and how to structure them, see [tenant preferences](/preferences/tenant-preferences).
+
+```json title="Setting tenant preferences via the update tenant step"
+{
+  "settings": { "preference_set": { "categories": { "admin": false } } }
+}
+```
+
+Tenant preference defaults are deep-merged into the tenant's existing preference set. This means you can set individual preference keys across multiple update tenant steps without overwriting previously set values. For example, two sequential update tenant steps can each target a different part of the preference set and the results will be combined:
+
+```json title="Preference deep merge across two update tenant steps"
+// Update tenant step 1
+{
+  "settings": { "preference_set": { "categories": { "admin": false } } }
+}
+
+// Update tenant step 2
+{
+  "settings": { "preference_set": { "channel_types": { "email": false } } }
+}
+
+// Resulting tenant preference defaults
+{
+  "categories": { "admin": false },
+  "channel_types": { "email": false }
+}
+```
+
+For more details on how preference merging works and how to modify the merge behavior, see the [preferences FAQ](/preferences/overview#frequently-asked-questions) and the [tenant preferences FAQ](/preferences/tenant-preferences#frequently-asked-questions).
 
 ## Configuring properties
 
@@ -52,6 +76,32 @@ You can set any number of properties on the tenant. Each property has a **key** 
 - **Key.** The property name. You can use an existing tenant property or define a new property.
 - **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.tenant_name }}` or `{{ tenant.id }}`) to resolve a dynamic value from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"Acme Corp"` or `true`).
 
+## Merging properties
+
+When an update tenant step executes, Knock deep-merges the configured properties into the existing tenant. This means:
+
+- Top-level keys are merged into the existing tenant, adding new keys and replacing existing ones.
+- Nested objects are recursively merged rather than replaced. If the existing tenant has a nested object and the update step sets a key inside it, only that key is updated — the rest of the nested object is preserved.
+
+```json title="Property deep merge across two update tenant steps"
+// Update tenant step 1
+{
+  "meta": { "first": "hello", "last": "world" }
+}
+
+// Update tenant step 2
+{
+  "meta": { "last": "knock" }
+}
+
+// Resulting properties on the tenant
+{
+  "meta": {
+    "first": "hello",
+    "last": "knock"
+  }
+}
+```
 
 ## Limitations
 
