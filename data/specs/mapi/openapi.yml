@@ -4421,6 +4421,75 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    StaticAudience:
+      description: A static audience where members are explicitly added or removed via the API.
+      example:
+        created_at: "2024-01-15T10:30:00Z"
+        description: Users participating in the beta program.
+        environment: development
+        key: beta-testers
+        name: Beta testers
+        sha: a1b2c3d4e5f6
+        type: static
+        updated_at: "2024-06-20T14:45:00Z"
+      properties:
+        created_at:
+          description: The timestamp of when the audience was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: A description of the audience.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        environment:
+          description: The slug of the environment in which the audience exists.
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The unique key of the audience.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the audience.
+          type: string
+          x-struct: null
+          x-validate: null
+        sha:
+          description: The SHA hash of the audience data.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of audience. Always `static` for static audiences.
+          enum:
+            - static
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the audience was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - type
+        - name
+        - environment
+        - created_at
+        - updated_at
+      title: StaticAudience
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.StaticAudience
+      x-validate: null
     PromoteAllResponse:
       description: The response from promoting all changes.
       example:
@@ -6066,6 +6135,45 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    PaginatedAudienceResponse:
+      description: A paginated list of Audience. Contains a list of entries and page information.
+      example:
+        entries:
+          - created_at: "2024-01-15T10:30:00Z"
+            description: Customers who signed up in the last 30 days.
+            environment: development
+            key: new-customers
+            name: New customers
+            segments:
+              - conditions:
+                  - argument: 30_days_ago
+                    operator: greater_than
+                    variable: recipient.created_at
+            sha: a1b2c3d4e5f6
+            type: dynamic
+            updated_at: "2024-06-20T14:45:00Z"
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/Audience'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedAudienceResponse
+      type: object
+      x-struct: null
+      x-validate: null
     ShowWorkflowResponse:
       description: A workflow object.
       example:
@@ -6935,6 +7043,100 @@ components:
       title: MessageTypeTextareaField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.TextareaField
+      x-validate: null
+    DynamicAudience:
+      description: A dynamic audience where membership is determined by segment conditions evaluated at runtime.
+      example:
+        created_at: "2024-01-15T10:30:00Z"
+        description: Customers who signed up in the last 30 days.
+        environment: development
+        key: new-customers
+        name: New customers
+        segments:
+          - conditions:
+              - argument: 30_days_ago
+                operator: greater_than
+                variable: recipient.created_at
+        sha: a1b2c3d4e5f6
+        type: dynamic
+        updated_at: "2024-06-20T14:45:00Z"
+      properties:
+        created_at:
+          description: The timestamp of when the audience was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: A description of the audience.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        environment:
+          description: The slug of the environment in which the audience exists.
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The unique key of the audience.
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the audience.
+          type: string
+          x-struct: null
+          x-validate: null
+        segments:
+          description: A list of segments that define the dynamic audience membership criteria. Each segment contains one or more conditions joined by AND. Multiple segments are joined by OR.
+          items:
+            properties:
+              conditions:
+                description: A list of conditions within this segment, joined by AND.
+                items:
+                  $ref: '#/components/schemas/Condition'
+                type: array
+                x-struct: null
+                x-validate: null
+            required:
+              - conditions
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        sha:
+          description: The SHA hash of the audience data.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of audience. Always `dynamic` for dynamic audiences.
+          enum:
+            - dynamic
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when the audience was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - type
+        - name
+        - environment
+        - created_at
+        - updated_at
+        - segments
+      title: DynamicAudience
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.DynamicAudience
       x-validate: null
     GuideRequest:
       description: A request to create or update a guide.
@@ -8589,6 +8791,34 @@ components:
       title: WorkflowTriggerWorkflowStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowTriggerWorkflowStep
+      x-validate: null
+    Audience:
+      description: An audience defines a set of users that can be targeted for notifications. Can be either a `StaticAudience` (members explicitly added/removed) or a `DynamicAudience` (members determined by segment conditions).
+      discriminator:
+        mapping:
+          dynamic: '#/components/schemas/DynamicAudience'
+          static: '#/components/schemas/StaticAudience'
+        propertyName: type
+      example:
+        created_at: "2024-01-15T10:30:00Z"
+        description: Customers who signed up in the last 30 days.
+        environment: development
+        key: new-customers
+        name: New customers
+        segments:
+          - conditions:
+              - argument: 30_days_ago
+                operator: greater_than
+                variable: recipient.created_at
+        sha: a1b2c3d4e5f6
+        type: dynamic
+        updated_at: "2024-06-20T14:45:00Z"
+      oneOf:
+        - $ref: '#/components/schemas/StaticAudience'
+        - $ref: '#/components/schemas/DynamicAudience'
+      title: Audience
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Audience
       x-validate: null
     Condition:
       description: A condition to be evaluated.
@@ -12521,6 +12751,64 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.UserID)
           }
+  /v1/audiences/{audience_key}:
+    get:
+      callbacks: {}
+      description: Retrieve an audience by its key in a given environment.
+      operationId: getAudience
+      parameters:
+        - description: The key of the audience to retrieve.
+          in: path
+          name: audience_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
+          in: query
+          name: hide_uncommitted_changes
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audience'
+          description: OK
+      summary: Get an audience
+      tags:
+        - Audiences
   /v1/commits/{id}:
     get:
       callbacks: {}
@@ -15812,6 +16100,117 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Result)
           }
+  /v1/audiences:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of audiences for the given environment.
+      operationId: listAudiences
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: Whether to hide uncommitted changes. When true, only committed changes will be returned. When false, both committed and uncommitted changes will be returned.
+          in: query
+          name: hide_uncommitted_changes
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of Audience. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - created_at: "2024-01-15T10:30:00Z"
+                      description: Customers who signed up in the last 30 days.
+                      environment: development
+                      key: new-customers
+                      name: New customers
+                      segments:
+                        - conditions:
+                            - argument: 30_days_ago
+                              operator: greater_than
+                              variable: recipient.created_at
+                      sha: a1b2c3d4e5f6
+                      type: dynamic
+                      updated_at: "2024-06-20T14:45:00Z"
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/Audience'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedAudienceResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List audiences
+      tags:
+        - Audiences
   /v1/members:
     get:
       callbacks: {}
@@ -16672,3 +17071,5 @@ tags:
     name: Message types
   - description: Guides let you define in-app guides that can be displayed to users based on priority and other conditions.
     name: Guides
+  - description: Audiences define sets of users that can be targeted for notifications.
+    name: Audiences
