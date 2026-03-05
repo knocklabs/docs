@@ -58,7 +58,7 @@ export default function Home() {
       />
       <Page.Masthead
         title="Documentation"
-        description="Knock is infrastructure for sending product and customer messaging. Learn more."
+        description="Knock is customer engagement infrastructure for modern product teams. Learn more."
         mobileSidebar={<Page.MobileSidebar content={PLATFORM_SIDEBAR} />}
       />
       <Page.Wrapper>
@@ -66,7 +66,7 @@ export default function Home() {
         <Page.Content>
           <Page.ContentHeader
             title="Documentation"
-            description="Knock is infrastructure for sending product and customer messaging."
+            description="Knock is customer engagement infrastructure for modern product teams."
           >
             <Text
               as={Link}
