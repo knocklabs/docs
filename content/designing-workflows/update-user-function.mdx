@@ -1,0 +1,129 @@
+---
+title: Update user function
+description: Learn how to update a user in Knock during a workflow run.
+tags: ["steps", "users", "data", "functions"]
+section: Designing workflows
+---
+
+An update user function updates a [user](/concepts/users) stored in Knock as a step in your workflow. Use it when you need to change a user's properties or [preferences](/preferences/overview) based on workflow context so that downstream steps, [audiences](/concepts/audiences), or other workflows see the updated data.
+
+Common use cases include syncing state from your trigger (for example, "last notified at"), making a user eligible for a [dynamic audience](/concepts/audiences) so they'll receive a [guide](/concepts/guides), or updating notification preferences from within a workflow.
+
+## Selecting the user
+
+By default, Knock updates the current workflow [recipient](/concepts/recipients) (the user this run is for). Alternatively, you can select a property that resolves to a user ID (or use a literal user ID) to update a different user (for example, the `actor` or a user ID from your trigger `data`).
+
+The update user step supports upserting. If you specify a user ID that does not yet exist in Knock, a new user will be created with the properties you set.
+
+<figure>
+  <Image
+    src="/images/functions/data/user/overview.png"
+    width={1015}
+    height={600}
+    alt="Update user function step in the workflow builder."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>Update user function step in the workflow builder.</figcaption>
+</figure>
+
+<figure>
+  <Image
+    src="/images/functions/data/user/templated-id.png"
+    width={1015}
+    height={600}
+    alt="Configuring a user ID for the update user step."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>Configuring a user ID for the update user step.</figcaption>
+</figure>
+
+## Updating preferences
+
+The update user step can update the user's notification [preferences](/preferences/overview). This enables you to create workflow logic that updates which channels or workflows a user is opted into.
+
+Set preferences using the `preferences` key on the user. The value should follow the structure of a [`PreferenceSet`](/api-reference/recipients/preferences/schemas/preference_set).
+
+Preferences are deep-merged into the user's existing preference set. This means you can set individual preference keys across multiple update user steps without overwriting previously set values. For example, two sequential update user steps can each target a different part of the preference set and the results will be combined:
+
+```json title="Preference deep merge across two update user steps"
+// Update user step 1
+{
+  "preferences": { "default": { "categories": { "admin": false } } }
+}
+
+// Update user step 2
+{
+  "preferences": { "default": { "channel_types": { "email": false } } }
+}
+
+// Resulting preferences on the user
+{
+  "default": {
+    "categories": { "admin": false },
+    "channel_types": { "email": false }
+  }
+}
+```
+
+For more details on how preference merging works and how to modify the merge behavior, see the [preferences FAQ](/preferences/overview#frequently-asked-questions).
+
+## Configuring properties
+
+You can set any number of properties on the user. Each property has a **key** and a **value**. Properties can be configured as a JSON blob or as key-value pairs.
+
+- **Key.** The property name. You can use an existing user property or define a new property.
+- **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.foo }}` or `{{ recipient.email }}`) to resolve a dynamic value from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"bar"` or `true`).
+
+## Merging properties
+
+When an update user step executes, Knock deep-merges the configured properties into the existing user. This means:
+
+- Top-level keys are merged into the existing user, adding new keys and replacing existing ones.
+- Nested objects are recursively merged rather than replaced. If the existing user has a nested object and the update step sets a key inside it, only that key is updated — the rest of the nested object is preserved.
+
+This is the same deep-merge behavior used by the [identify API](/api-reference/users/identify).
+
+```json title="Property deep merge across two update user steps"
+// Update user step 1
+{
+  "meta": { "first": "hello", "last": "world" }
+}
+
+// Update user step 2
+{
+  "meta": { "last": "knock" }
+}
+
+// Resulting properties on the user
+{
+  "meta": {
+    "first": "hello",
+    "last": "knock"
+  }
+}
+```
+
+## Limitations
+
+Update user steps do not support updating [channel data](/managing-recipients/setting-channel-data). You cannot set or change channel data (for example, push tokens) via this step.
+
+In addition, `channel_data` is not rendered in the workflow event success or error logging for these recipients, even when channel data is present on the user.
+
+## Debugging
+
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug update user steps. The logs render the full before/after diff view of the user so that you can verify the pre-state, the properties that were set, and the post-state.
+
+<figure>
+  <Image
+    src="/images/functions/data/user/logging-update-user.png"
+    width={1015}
+    height={600}
+    alt="Before/after diff for an update user step in the workflow run logs."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>
+    Before/after diff for an update user step in the workflow run logs.
+  </figcaption>
+</figure>
+
+Update user steps are also available in the [management API](/mapi-reference/overview) and can be included when you show or upsert a workflow.

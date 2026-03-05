@@ -1,26 +1,25 @@
 import { SidebarContent, SidebarSection } from "@/data/types";
-import { Box } from "@telegraph/layout";
-import { Stack } from "@telegraph/layout";
-import { NavItem } from "../NavItem";
 import { debounce } from "@/lib/debounce";
+import { TgphComponentProps } from "@telegraph/helpers";
+import { Box, Stack } from "@telegraph/layout";
+import { Tag } from "@telegraph/tag";
 import { useRouter } from "next/router";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   CollapsibleNavItem,
   type CollapsibleNavItemProps,
 } from "../CollapsibleNavItem";
-import { useState, useEffect, createContext, useContext } from "react";
+import { NavItem } from "../NavItem";
+import { usePageContext } from "../Page";
 import {
-  isPathTheSame,
   highlightResource,
+  isPathTheSame,
   stripPrefix,
   updateNavStyles,
-  useIsPageReady,
   useHighlightedPath,
+  useIsPageReady,
 } from "./helpers";
-import { Tag } from "@telegraph/tag";
 import { ScrollerBottomGradient } from "./ScrollerBottomGradient";
-import { usePageContext } from "../Page";
-import { TgphComponentProps } from "@telegraph/helpers";
 
 interface SidebarContextType {
   samePageRouting: boolean;
