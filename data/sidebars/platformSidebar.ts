@@ -79,12 +79,25 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
         slug: "",
         title: "Data steps",
         pages: [
-          { slug: "/update-user-function", title: "Update user function" },
-          { slug: "/update-tenant-function", title: "Update tenant function" },
-          { slug: "/update-object-function", title: "Update object function" },
+          {
+            slug: "/update-user-function",
+            title: "Update user function",
+            isBeta: true,
+          },
+          {
+            slug: "/update-tenant-function",
+            title: "Update tenant function",
+            isBeta: true,
+          },
+          {
+            slug: "/update-object-function",
+            title: "Update object function",
+            isBeta: true,
+          },
           {
             slug: "/update-data-function",
             title: "Update data function",
+            isBeta: true,
           },
         ],
       },
