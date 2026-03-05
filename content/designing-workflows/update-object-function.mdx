@@ -7,7 +7,7 @@ section: Designing workflows
 
 An update object function updates an [object](/concepts/objects) in a collection stored in Knock as a step in your workflow. Use it when you need to change an object's properties based on workflow context so that downstream steps or other workflows see the updated data.
 
-Common use cases include syncing object state from your trigger (for example, status or last activity), or storing data on the object that you reference later when the object is used as a recipient in another workflow. The update object step works the same way as [Update user](/send-notifications/designing-workflows/update-user-function) and [Update tenant](/send-notifications/designing-workflows/update-tenant-function) except that you must always specify which object to update (there is no "current object" mode).
+Common use cases include syncing object state from your trigger (for example, status or last activity), or storing data on the object that you reference later when the object is used as a recipient in another workflow.
 
 ## Selecting the collection and object
 
@@ -17,6 +17,12 @@ The update object step does **not** support a "current object" mode. You must sp
 - **Object ID.** Select a property that resolves to the object ID within that collection, or use a literal object ID. This can come from your trigger data (for example, `data.project_id`), from the recipient when the recipient is an object (`recipient.id`), or from another source in the workflow run.
 
 The update object step supports upserting. If you specify an object ID that does not yet exist in that collection in Knock, the object will be created with the properties you set.
+
+<Callout
+  type="info"
+  title="Collection upsert across environments"
+  text="If the collection you configured in a lower environment does not yet exist in a higher environment (for example, production), the update object step will create the object in that collection when the workflow runs. The collection does not need to exist ahead of time in the target environment."
+/>
 
 <figure>
   <Image
@@ -38,8 +44,7 @@ The update object step supports upserting. If you specify an object ID that does
     className="rounded-md mx-auto border border-gray-200"
   />
   <figcaption>
-    Configuring collection and object ID for the update
-    object step.
+    Configuring collection and object ID for the update object step.
   </figcaption>
 </figure>
 
@@ -54,7 +59,7 @@ You can set any number of properties on the object. Each property has a **key** 
 - **Key.** The property name. You can use an existing object property or define a new property.
 - **Value.** The value to set. You can use [Liquid](/template-editor/overview) (for example, `{{ data.status }}` or `{{ recipient.name }}`) to resolve a dynamic value from workflow data, the recipient, the actor, or [variables](/concepts/variables). You can also use a static value (for example, `"active"` or `true`).
 
-Properties can be configured as a JSON blob or as key-value pairs. 
+Properties can be configured as a JSON blob or as key-value pairs.
 
 ## Limitations
 

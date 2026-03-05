@@ -21,20 +21,8 @@ Each value field is a Liquid-compatible input. This means you can use Liquid var
     alt="Update data function step in the workflow builder."
     className="rounded-md mx-auto border border-gray-200"
   />
-  <figcaption>
-    Update data function step in the workflow builder.
-  </figcaption>
+  <figcaption>Update data function step in the workflow builder.</figcaption>
 </figure>
-
-Here are some example configurations:
-
-| Key              | Value                                        | Description                                         |
-| ---------------- | -------------------------------------------- | --------------------------------------------------- |
-| `full_name`      | `{{ data.first_name }} {{ data.last_name }}` | Combines first and last name into a single property |
-| `greeting`       | `Hello`                                      | Sets a static greeting value                        |
-| `item_count`     | `{{ data.items \| size }}`                   | Computes the count of items in an array             |
-| `is_premium`     | `{{ recipient.plan \| equals: "premium" }}`  | Sets a boolean flag based on recipient data         |
-| `formatted_date` | `{{ "now" \| date: "%B %d, %Y" }}`           | Adds the current date in a specific format          |
 
 <figure>
   <Image
@@ -49,40 +37,24 @@ Here are some example configurations:
   </figcaption>
 </figure>
 
-<figure>
-  <Image
-    src="/images/functions/data/templated-data.png"
-    width={1015}
-    height={600}
-    alt="Using Liquid expressions for templated values in an update data function."
-    className="rounded-md mx-auto border border-gray-200"
-  />
-  <figcaption>
-    Using Liquid expressions for templated values in an update data function.
-  </figcaption>
-</figure>
+Here are some example configurations:
 
-See the [Knock template editor reference](/template-editor/overview) for detailed information on working with Liquid templates in Knock.
+| Key              | Value                                        | Description                                         |
+| ---------------- | -------------------------------------------- | --------------------------------------------------- |
+| `full_name`      | `{{ data.first_name }} {{ data.last_name }}` | Combines first and last name into a single property |
+| `greeting`       | `Hello`                                      | Sets a static greeting value                        |
+| `item_count`     | `{{ data.items \| size }}`                   | Computes the count of items in an array             |
+| `is_premium`     | `{{ recipient.plan \| equals: "premium" }}`  | Sets a boolean flag based on recipient data         |
+| `formatted_date` | `{{ "now" \| date: "%B %d, %Y" }}`           | Adds the current date in a specific format          |
+
+See the [Knock template editor reference](/template-editor/overview) for detailed information on working with Liquid in your Knock message templates.
 
 ## Merging data
 
 When an update data function executes, Knock will merge the configured properties into the `data` you originally passed to [the workflow trigger call](/send-notifications/triggering-workflows). Knock uses a shallow-merge strategy where:
 
-- Data from the update data step overwrites the original workflow run data.
-- Top-level attributes are merged, and nested attributes are completely overwritten.
-
-<figure>
-  <Image
-    src="/images/functions/data/nested-keys.png"
-    width={1015}
-    height={600}
-    alt="How top-level and nested keys are merged in update data function steps."
-    className="rounded-md mx-auto border border-gray-200"
-  />
-  <figcaption>
-    How top-level and nested keys are merged in update data function steps.
-  </figcaption>
-</figure>
+- Top-level keys from the update data step are merged into the existing workflow run data, adding new keys and replacing existing ones.
+- Nested objects are replaced entirely rather than deep-merged. If the original data has a nested object and the update data step sets the same key, the entire nested object is overwritten.
 
 _The merged data result from an update data function step then becomes the global trigger data for all subsequent steps in the workflow run._
 
@@ -144,13 +116,13 @@ You can use the [workflow debugger](/send-notifications/debugging-workflows) to 
   <Accordion title="Can I set nested properties?">
     You can set a top-level property to an object value, but you cannot directly
     set deeply nested properties (e.g., `metadata.nested.value`). If you need to
-    update a nested property, you'll need to set the entire parent object, which
-    will replace any existing nested data due to the shallow-merge behavior.
+    update a nested property, you'll need to set a new value for the entire parent object (`metadata`), which
+    will replace any existing nested data due to the shallow-merge behavior. See the section on [merging data](#merging-data) above for an example.
   </Accordion>
   <Accordion title="What happens if a Liquid expression fails?">
     If a Liquid expression in your update data function encounters an error (such as referencing a property that doesn't exist), the step will fail and halt your workflow run. You can use Liquid's default filter (e.g., `{{ data.optional_field | default: "fallback" }}`) to provide fallback values and avoid errors when data may be missing.
   </Accordion>
-  <Accordion title="Can I reference data from a previous update data step?">
+  <Accordion title="Can I reference my updated `data` in subsequent workflow steps?">
     Yes. Since each update data function merges its computed data into the workflow's global data state, subsequent steps (including other update data functions) can reference that data using the `data` namespace. For example, if a previous step set `data.full_name`, a later step can reference it as `{{ data.full_name }}`.
   </Accordion>
 </AccordionGroup>
