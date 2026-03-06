@@ -23,82 +23,33 @@ Before getting started, you'll need access to the following:
 
 - A [Knock account](https://dashboard.knock.app/).
 - A configured [email provider](/integrations/email/overview) in your Knock account. Navigate to **Integrations** > **Channels** in your dashboard to set this up if you haven't already done so.
-- A [service token](https://docs.knock.app/developer-tools/service-tokens) for your Knock account.
-- An MCP-compatible client (such as Cursor or Claude Desktop). We recommend Cursor for working with a large collection of HTML files.
-- For the purposes of this tutorial, we will assume that you're familiar with prompting an agentic LLM and understand how to provide access to files as context for your prompts. If you're not sure what this means, we recommend checking out this <a href="https://docs.cursor.com/en/guides/working-with-context" target="_blank">guide on working with context</a> from Cursor.
+- An MCP-compatible client (such as Cursor, Claude Code, or Claude Desktop). We recommend Cursor for working with a large collection of HTML files.
 - Your existing email template files. Your templates will be upserted to Knock as HTML, so if you're using a format like MJML or React Email, you'll want to convert them to HTML before you begin.
 
-For more information on setting up the Knock MCP server, see the [Get started](/developer-tools/mcp-server#get-started) section of the MCP documentation.
+For the purposes of this tutorial, we will assume that you're familiar with prompting an agentic LLM and understand how to provide access to files as context for your prompts. If you're not sure what this means, we recommend checking out this <a href="https://cursor.com/learn/context" target="_blank">guide on working with context</a> from Cursor. For more information on setting up the Knock MCP server, see the [Get started](/developer-tools/mcp-server#get-started) section of the MCP documentation.
 
-### Required MCP tools
+### Required MCP permissions
 
-When working with MCP servers, it's recommended that you expose only the tools you need for your use case to your LLM. The steps in this tutorial will require access to the following tools:
+To complete the steps in this tutorial, we recommend the following permissions:
 
-- `documentation.*`
-- `channels.*`
-- `commits.*`
-- `emailLayouts.*`
-- `partials.*`
-- `workflows.*`
-- `users.*`
+- Manage resources
+- Commits
+- Manage data (only required for creating test users)
+- Documentation
 
-Learn more about configuring these tools in your MCP-compatible client [here](/developer-tools/mcp-server#configuring-the-available-tools). If you're using Cursor or Claude Desktop, you can simply copy and paste the relevant configuration below into your MCP settings, under the `mcpServers` key. Be sure to update the configuration with your own service token.
+For thorough testing, you'll likely want to grant debug permissions as well.
 
-<AccordionGroup>
-  <Accordion title="MCP configuration for Cursor">
-  ```json title="Cursor MCP server configuration for email migration"
-  {
-    "knock": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@knocklabs/agent-toolkit",
-        "-p",
-        "local-mcp",
-        "--tools",
-        "documentation.*",
-        "channels.*",
-        "commits.*",
-        "emailLayouts.*",
-        "partials.*",
-        "workflows.*",
-        "users.*"
-      ],
-      "name": "Knock MCP Server",
-      "env": {
-        "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
-      }
-    }
-  }
-  ```
-  </Accordion>
-  <Accordion title="MCP configuration for Claude Desktop">
-  ```json title="Claude Desktop MCP server configuration for email migration"
-  {
-    "knock": {
-      "command": "npx",
-      "args": [
-        "-y", 
-        "@knocklabs/agent-toolkit",
-        "-p",
-        "local-mcp",
-        "--tools",
-        "documentation.*",
-        "channels.*",
-        "commits.*",
-        "emailLayouts.*",
-        "partials.*",
-        "workflows.*",
-        "users.*"
-      ],
-      "env": {
-        "KNOCK_SERVICE_TOKEN": "YOUR-SERVICE-TOKEN"
-      }
-    }
-  }
-  ```
-  </Accordion>
-</AccordionGroup>
+<br />
+<figure>
+  <Image
+    src="/images/tutorials/email-migration/mcp-permissions.png"
+    alt="A screenshot of the MCP permissions page in the Knock dashboard"
+    width={400}
+    height={600}
+    className="rounded-md mx-auto border border-gray-200"
+  />
+  <figcaption>Recommended MCP permissions in the Knock dashboard</figcaption>
+</figure>
 
 ## Background
 
@@ -120,7 +71,7 @@ While not required reading, you may want to familiarize yourself with the follow
       <br />
       <ul>
         <li>
-          We recommend leveraging an LLM with the largest context window
+          We recommend leveraging a model with the largest context window
           available. In Cursor, you'll likely have the best results if you
           enable "MAX mode" on your agent. Note that this may have billing
           implications depending on your Cursor plan.
