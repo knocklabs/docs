@@ -1,13 +1,30 @@
 ---
 title: "Referencing data in templates"
 description: Documentation outlining how to work with data in your templates.
-tags: ["liquid", "template", "objects", "users", "tenants"]
+tags: ["liquid", "template", "objects", "users", "tenants", "subscriptions"]
 section: Working with templates
 ---
 
-In addition to the [variables](/template-editor/variables) available as part of the workflow run scope, you can also reference data from the users, objects, and tenants that exist within your Knock environment.
+In addition to the [variables](/template-editor/variables) available as part of the workflow run scope, you can also reference data from the users, objects, tenants, and subscriptions that exist within your Knock environment.
 
 Referencing data is a powerful way to share context across entities in your templates without needing to manually pass the data in the `data` argument of your workflow trigger.
+
+<Callout
+  emoji="💡"
+  title="Dynamic data filters"
+  text={
+    <>
+      The <code>user</code>, <code>object</code>, <code>tenant</code>, and{" "}
+      <code>subscriptions</code> filters all dynamically load data from your
+      Knock environment at render time. You can find a full reference of these
+      filters in the{" "}
+      <a href="/template-editor/reference-liquid-helpers#dynamic-data-filters">
+        liquid helpers reference
+      </a>
+      .
+    </>
+  }
+/>
 
 ## Referencing users via the `user` filter
 
@@ -69,6 +86,34 @@ Tenants returned will have all custom properties available, as well as the `id`,
 ```liquid title="Referencing a tenant via a dynamic identifier"
 {% assign tenant = data.other_tenant_id | tenant %}
 ```
+
+## Referencing subscriptions via the `subscriptions` filter
+
+To reference the subscriptions for a user, you can use the `subscriptions` filter. This filter loads up to 25 active subscriptions for the given user and returns a list of serialized subscription objects.
+
+Each subscription returned includes the `object` the user is subscribed to, along with any custom `properties` set on the subscription. You can iterate over the results to render subscription-specific content in your templates.
+
+```liquid title="Loading subscriptions for the current recipient"
+{% assign subs = recipient.id | subscriptions %}
+{% for sub in subs %}
+  {{ sub.object.id }} - {{ sub.properties.role }}
+{% endfor %}
+```
+
+<br />
+
+```liquid title="Loading subscriptions for a user via a dynamic identifier"
+{% assign subs = data.user_id | subscriptions %}
+{% for sub in subs %}
+  {{ sub.object.id }}
+{% endfor %}
+```
+
+<Callout
+  emoji="💡"
+  title="Note"
+  text="The subscriptions filter returns a maximum of 25 subscriptions per user. If a user has more than 25 subscriptions, only the first 25 are returned."
+/>
 
 ## Frequently asked questions
 
