@@ -23,7 +23,7 @@ section: Preferences
   }
 />
 
-You can use tenant preferences to enable your customers' admins to create a tenant-specific default `PreferencesSet` for users in their tenant.
+You can use tenant preferences to enable your customers' admins to create a tenant-specific default `PreferenceSet` for users in their tenant.
 
 If you're a B2B application or a multi-tenant SaaS product, you can use tenant preferences to allow your customers to set default preferences for their users. For example, in Slack, your notification preferences are set _per Slack workspace_ (that is, per-tenant), not as global preferences that apply across all of your Slack workspaces.
 
@@ -82,7 +82,7 @@ await knock.tenants.set("tenant-id", {
 
 You can update the per-tenant default `PreferenceSet` by calling the `tenants.set` method with the same `tenant_id` and the updated preferences that you'd like to set.
 
-The default behavior for this action is to merge the new preferences with any existing preferences. This means that any existing preferences will only have their values updated but not removed. See the [frequently asked questions](#frequently-asked-questions) section below for more information on how you can use a "replace" strategy to overwrite existing preferences instead.
+The default behavior for this action is to merge the new preferences with any existing preferences. This means that any existing preferences will only have their values updated but not removed. See the [frequently asked questions](#frequently-asked-questions) section below for more information on how you can use a "replace" persistence strategy to overwrite existing preferences instead.
 
 ## Set a per-tenant user `PreferenceSet`
 
@@ -167,9 +167,9 @@ The Knock workflow engine uses that `tenant` parameter to evaluate the user's `P
 
 Here are a few things to keep in mind when using tenant preferences. You can learn more about how preferences are merged and evaluated [here](/preferences/overview#merging-preferences).
 
-- When executing a workflow trigger, passing in a `tenant` will automatically load that tenant's default `PreferencesSet` (if one exists) for all recipients of the workflow. These tenant-level defaults will override a recipient's own `default` preferences.
+- When executing a workflow trigger, passing in a `tenant` will automatically load that tenant's default `PreferenceSet` (if one exists) for all recipients of the workflow. These tenant-level defaults will override a recipient's own `default` preferences.
 - If the recipient has any per-tenant preferences set for that `tenant.id`, they will take precedence over the tenant-level default preferences. For more information on how to override a recipient's per-tenant preferences to respect the tenant-level default preferences, see the [frequently asked questions](#frequently-asked-questions) below.
-- If there is no default `PreferenceSet` on the tenant AND the recipient has no per-tenant preferences set, the recipient’s `default` id `PreferenceSet` will be used. As always, the recipient's `default` preferences are [merged](/preferences/overview#merging-preferences) with the environment-level preference defaults.
+- If there is no default `PreferenceSet` on the tenant AND the recipient has no per-tenant preferences set, the recipient’s `default` preferences will be used. As always, the recipient's `default` preferences are [merged](/preferences/overview#merging-preferences) with the environment-level preference defaults.
 
 ## Frequently asked questions
 
@@ -250,6 +250,7 @@ Here are a few things to keep in mind when using tenant preferences. You can lea
     <br />
     The merge during preference evaluation will look like this:
 
+    {/* Note: The original image can be found in Figma here: https://www.figma.com/board/LlFCmkX4jgGDRcfJuTqkhl/Preferences-diagrams */}
     <Image
       src="/images/concepts/preferences/replace-prefs-merge.png"
       alt="A visual of the tenant's default preferences merging into the recipient's tenant-specific preferences with the replace strategy applied"
@@ -295,6 +296,14 @@ Here are a few things to keep in mind when using tenant preferences. You can lea
     Here are some important things to keep in mind when using the `replace` strategy:
     - This strategy will only apply to the specific preference(s) where it's included; there's no way to override the entire `PreferenceSet`.
     - When the preference with the `replace` strategy is removed, any existing recipient preferences that were overridden by the `replace` strategy will be immediately restored to their original values. For the example above, the user will once again be opted in to `collaboration` notifications.
+
+    #### Removing the `replace` strategy
+
+    Setting preferences on a tenant has [the default behavior](#updating-the-per-tenant-default-preferenceset) of merging the new preferences with any existing preferences. This means that once a preference has been set with the `replace` strategy, simply omitting the `__strategy__` from your next request will not remove it.
+
+    There are two ways to remove it from the preference set:
+    - Explicitly set the `__strategy__` key to `"merge"` for the preference(s) that should no longer override the user's preferences. This is the default behavior (a user's tenant-specific preferences will take precedence over the tenant's own default).
+    - Use the `__persistence_strategy__` key on your request to replace the entire preference set rather than merging your new preferences with the existing ones. See the FAQ above for more information.
 
   </Accordion>
 </AccordionGroup>
