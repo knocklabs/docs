@@ -2347,6 +2347,64 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    StaticAudienceRequest:
+      description: Request body for creating/updating a static audience.
+      example:
+        description: Manually managed list of beta testers
+        name: Beta users
+        type: static
+      properties:
+        description:
+          description: A description of the audience.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the audience.
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of audience. Set to `static` for static audiences.
+          enum:
+            - static
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - name
+      title: StaticAudienceRequest
+      type: object
+      x-struct: null
+      x-validate: null
+    WrappedAudienceResponse:
+      description: Wraps the Audience response under the `audience` key.
+      example:
+        audience:
+          created_at: "2024-01-15T10:30:00Z"
+          description: Customers who signed up in the last 30 days.
+          environment: development
+          key: new-customers
+          name: New customers
+          segments:
+            - conditions:
+                - argument: 30_days_ago
+                  operator: greater_than
+                  property: recipient.created_at
+          sha: a1b2c3d4e5f6
+          type: dynamic
+          updated_at: "2024-06-20T14:45:00Z"
+      properties:
+        audience:
+          $ref: '#/components/schemas/Audience'
+      required:
+        - audience
+      title: WrappedAudienceResponse
+      type: object
+      x-struct: null
+      x-validate: null
     ArchiveGuideResponse:
       description: The response from archiving a guide.
       example:
@@ -3296,6 +3354,60 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    AudienceCondition:
+      description: A condition to evaluate for audience membership.
+      example:
+        argument: premium
+        operator: equal_to
+        property: recipient.plan
+      properties:
+        argument:
+          description: The argument to compare against. Can be a static value (string, number, boolean) or a dynamic path expression.
+          example: premium
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        operator:
+          description: The operator to use when evaluating the condition.
+          enum:
+            - equal_to
+            - not_equal_to
+            - greater_than
+            - less_than
+            - greater_than_or_equal_to
+            - less_than_or_equal_to
+            - contains
+            - not_contains
+            - contains_all
+            - not_contains_all
+            - is_timestamp_before
+            - is_timestamp_on_or_after
+            - is_timestamp_between
+            - empty
+            - not_empty
+            - exists
+            - not_exists
+            - is_timestamp
+            - is_audience_member
+            - is_not_audience_member
+          example: equal_to
+          type: string
+          x-struct: null
+          x-validate: null
+        property:
+          description: The property to be evaluated. Properties are dynamic values using path expressions like `recipient.plan` or `recipient.created_at`.
+          example: recipient.plan
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - property
+        - operator
+      title: AudienceCondition
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.AudienceCondition
+      x-validate: null
     WorkflowRandomCohortStep:
       description: An experiment step. Deterministically assigns recipients to percentage-based cohorts for A/B testing and experimentation.
       example:
@@ -3984,6 +4096,27 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PushChannelSettings
       x-validate: null
+    WrappedAudienceRequestRequest:
+      description: Wraps the AudienceRequest request under the audience key.
+      example:
+        audience:
+          description: Users on the premium plan
+          name: Premium users
+          segments:
+            - conditions:
+                - argument: premium
+                  operator: equal_to
+                  property: recipient.plan
+          type: dynamic
+      properties:
+        audience:
+          $ref: '#/components/schemas/AudienceRequest'
+      required:
+        - audience
+      title: WrappedAudienceRequestRequest
+      type: object
+      x-struct: null
+      x-validate: null
     WrappedCommitResponse:
       description: Wraps the Commit response under the `commit` key.
       example:
@@ -4191,6 +4324,14 @@ components:
           description: Optional description of the channel's purpose or usage.
           nullable: true
           type: string
+          x-struct: null
+          x-validate: null
+        environment_settings:
+          additionalProperties:
+            $ref: '#/components/schemas/ChannelEnvironmentSettings'
+          description: Per-environment settings for this channel, keyed by environment slug (e.g., 'development', 'production'). Only included when requested via the `include` parameter or when retrieving a single channel.
+          nullable: true
+          type: object
           x-struct: null
           x-validate: null
         id:
@@ -6029,6 +6170,23 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Guide
       x-validate: null
+    ArchiveAudienceResponse:
+      description: The response from archiving an audience.
+      example:
+        result: success
+      properties:
+        result:
+          description: The result of the archive operation.
+          example: success
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+      title: ArchiveAudienceResponse
+      type: object
+      x-struct: null
+      x-validate: null
     WorkflowUpdateObjectStep:
       description: An update object step. Updates properties of a specific object referenced in the workflow.
       example:
@@ -6148,7 +6306,7 @@ components:
               - conditions:
                   - argument: 30_days_ago
                     operator: greater_than
-                    variable: recipient.created_at
+                    property: recipient.created_at
             sha: a1b2c3d4e5f6
             type: dynamic
             updated_at: "2024-06-20T14:45:00Z"
@@ -6579,6 +6737,62 @@ components:
       title: WorkflowBranchStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowBranchStep
+      x-validate: null
+    DynamicAudienceRequest:
+      description: Request body for creating/updating a dynamic audience.
+      example:
+        description: Users on the premium plan
+        name: Premium users
+        segments:
+          - conditions:
+              - argument: premium
+                operator: equal_to
+                property: recipient.plan
+        type: dynamic
+      properties:
+        description:
+          description: A description of the audience.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: The name of the audience.
+          type: string
+          x-struct: null
+          x-validate: null
+        segments:
+          description: A list of segments that define the dynamic audience membership criteria. Each segment contains one or more conditions joined by AND. Multiple segments are joined by OR.
+          items:
+            properties:
+              conditions:
+                description: A list of conditions within this segment, joined by AND.
+                items:
+                  $ref: '#/components/schemas/AudienceCondition'
+                type: array
+                x-struct: null
+                x-validate: null
+            required:
+              - conditions
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of audience. Set to `dynamic` for dynamic audiences.
+          enum:
+            - dynamic
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - name
+      title: DynamicAudienceRequest
+      type: object
+      x-struct: null
       x-validate: null
     WebhookTemplate:
       description: A webhook template. By default, a webhook step will use the request settings you configured in your webhook channel. You can override this as you see fit on a per-step basis.
@@ -7056,7 +7270,7 @@ components:
           - conditions:
               - argument: 30_days_ago
                 operator: greater_than
-                variable: recipient.created_at
+                property: recipient.created_at
         sha: a1b2c3d4e5f6
         type: dynamic
         updated_at: "2024-06-20T14:45:00Z"
@@ -7095,7 +7309,7 @@ components:
               conditions:
                 description: A list of conditions within this segment, joined by AND.
                 items:
-                  $ref: '#/components/schemas/Condition'
+                  $ref: '#/components/schemas/AudienceCondition'
                 type: array
                 x-struct: null
                 x-validate: null
@@ -7806,6 +8020,59 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    ChannelEnvironmentSettings:
+      description: Environment-specific settings for a channel.
+      example:
+        channel_settings:
+          from_address: hello@example.com
+          from_name: Example Inc
+        id: 550e8400-e29b-41d4-a716-446655440001
+        is_sandbox: false
+        is_valid: true
+        provider_settings:
+          api_key: '{{ vars.sendgrid_api_key }}'
+          check_delivery_status: true
+          link_tracking: true
+          open_tracking: true
+      properties:
+        channel_settings:
+          additionalProperties: true
+          description: Channel-type-specific settings (e.g., from_address for email). Structure varies by channel type.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique identifier for these environment settings.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        is_sandbox:
+          description: Whether the channel is in sandbox mode for this environment. Sandbox mode may prevent actual message delivery.
+          type: boolean
+          x-struct: null
+          x-validate: null
+        is_valid:
+          description: Whether the channel configuration is valid and ready to send messages in this environment.
+          type: boolean
+          x-struct: null
+          x-validate: null
+        provider_settings:
+          additionalProperties: true
+          description: Provider-specific settings (e.g., API keys, credentials). Structure varies by provider. Secret values are obfuscated unless they are Liquid templates.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - is_valid
+        - is_sandbox
+      title: ChannelEnvironmentSettings
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.ChannelEnvironmentSettings
+      x-validate: null
     WorkflowRandomCohortStepBranch:
       description: A cohort branch in an experiment step.
       example:
@@ -7861,6 +8128,113 @@ components:
       title: RunWorkflowResponse
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.RunWorkflowResponse
+      x-validate: null
+    AudienceRequest:
+      description: 'An audience object with attributes to create or update an audience. Use `type: static` for audiences with explicitly managed members, or `type: dynamic` for audiences with segment-based membership.'
+      discriminator:
+        mapping:
+          dynamic: DynamicAudienceRequest
+          static: StaticAudienceRequest
+        propertyName: type
+      example:
+        description: Users on the premium plan
+        name: Premium users
+        segments:
+          - conditions:
+              - argument: premium
+                operator: equal_to
+                property: recipient.plan
+        type: dynamic
+      oneOf:
+        - description: Request body for creating/updating a static audience.
+          example:
+            description: Manually managed list of beta testers
+            name: Beta users
+            type: static
+          properties:
+            description:
+              description: A description of the audience.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            name:
+              description: The name of the audience.
+              type: string
+              x-struct: null
+              x-validate: null
+            type:
+              description: The type of audience. Set to `static` for static audiences.
+              enum:
+                - static
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - type
+            - name
+          title: StaticAudienceRequest
+          type: object
+          x-struct: null
+          x-validate: null
+        - description: Request body for creating/updating a dynamic audience.
+          example:
+            description: Users on the premium plan
+            name: Premium users
+            segments:
+              - conditions:
+                  - argument: premium
+                    operator: equal_to
+                    property: recipient.plan
+            type: dynamic
+          properties:
+            description:
+              description: A description of the audience.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            name:
+              description: The name of the audience.
+              type: string
+              x-struct: null
+              x-validate: null
+            segments:
+              description: A list of segments that define the dynamic audience membership criteria. Each segment contains one or more conditions joined by AND. Multiple segments are joined by OR.
+              items:
+                properties:
+                  conditions:
+                    description: A list of conditions within this segment, joined by AND.
+                    items:
+                      $ref: '#/components/schemas/AudienceCondition'
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - conditions
+                type: object
+                x-struct: null
+                x-validate: null
+              type: array
+              x-struct: null
+              x-validate: null
+            type:
+              description: The type of audience. Set to `dynamic` for dynamic audiences.
+              enum:
+                - dynamic
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - type
+            - name
+          title: DynamicAudienceRequest
+          type: object
+          x-struct: null
+          x-validate: null
+      title: AudienceRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.AudienceRequest
       x-validate: null
     RequestTemplateQueryParams:
       description: The query params of the request. Can be a template string or a list of key-value pairs.
@@ -8809,7 +9183,7 @@ components:
           - conditions:
               - argument: 30_days_ago
                 operator: greater_than
-                variable: recipient.created_at
+                property: recipient.created_at
         sha: a1b2c3d4e5f6
         type: dynamic
         updated_at: "2024-06-20T14:45:00Z"
@@ -11526,6 +11900,20 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: Associated resources to include in the response. Accepts `environment_settings` to include per-environment channel configuration.
+          in: query
+          name: include
+          required: false
+          schema:
+            items:
+              enum:
+                - environment_settings
+              type: string
+              x-struct: null
+              x-validate: null
+            type: array
+            x-struct: null
+            x-validate: null
         - description: The cursor to fetch entries after.
           in: query
           name: after
@@ -12752,6 +13140,53 @@ paths:
           	fmt.Printf("%+v\n", response.UserID)
           }
   /v1/audiences/{audience_key}:
+    delete:
+      callbacks: {}
+      description: Archives a given audience across all environments.
+      operationId: archiveAudience
+      parameters:
+        - description: The key of the audience to archive.
+          in: path
+          name: audience_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The response from archiving an audience.
+                example:
+                  result: success
+                properties:
+                  result:
+                    description: The result of the archive operation.
+                    example: success
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - result
+                title: ArchiveAudienceResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Archive an audience
+      tags:
+        - Audiences
     get:
       callbacks: {}
       description: Retrieve an audience by its key in a given environment.
@@ -12807,6 +13242,121 @@ paths:
                 $ref: '#/components/schemas/Audience'
           description: OK
       summary: Get an audience
+      tags:
+        - Audiences
+    put:
+      callbacks: {}
+      description: Updates an audience of a given key, or creates a new one if it does not yet exist.
+      operationId: upsertAudience
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the audience to upsert.
+          in: path
+          name: audience_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: Whether to commit the resource at the same time as modifying it.
+          in: query
+          name: commit
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
+        - description: The message to commit the resource with, only used if `commit` is `true`.
+          in: query
+          name: commit_message
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the AudienceRequest request under the audience key.
+              example:
+                audience:
+                  description: Users on the premium plan
+                  name: Premium users
+                  segments:
+                    - conditions:
+                        - argument: premium
+                          operator: equal_to
+                          property: recipient.plan
+                  type: dynamic
+              properties:
+                audience:
+                  $ref: '#/components/schemas/AudienceRequest'
+              required:
+                - audience
+              title: WrappedAudienceRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Audience response under the `audience` key.
+                example:
+                  audience:
+                    created_at: "2024-01-15T10:30:00Z"
+                    description: Customers who signed up in the last 30 days.
+                    environment: development
+                    key: new-customers
+                    name: New customers
+                    segments:
+                      - conditions:
+                          - argument: 30_days_ago
+                            operator: greater_than
+                            property: recipient.created_at
+                    sha: a1b2c3d4e5f6
+                    type: dynamic
+                    updated_at: "2024-06-20T14:45:00Z"
+                properties:
+                  audience:
+                    $ref: '#/components/schemas/Audience'
+                required:
+                  - audience
+                title: WrappedAudienceResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert an audience
       tags:
         - Audiences
   /v1/commits/{id}:
@@ -12877,6 +13427,98 @@ paths:
           	}
           	fmt.Printf("%+v\n", commit.ID)
           }
+  /v1/audiences/{audience_key}/validate:
+    put:
+      callbacks: {}
+      description: Validates an audience payload without persisting it.
+      operationId: validateAudience
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The key of the audience to validate.
+          in: path
+          name: audience_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Wraps the AudienceRequest request under the audience key.
+              example:
+                audience:
+                  description: Users on the premium plan
+                  name: Premium users
+                  segments:
+                    - conditions:
+                        - argument: premium
+                          operator: equal_to
+                          property: recipient.plan
+                  type: dynamic
+              properties:
+                audience:
+                  $ref: '#/components/schemas/AudienceRequest'
+              required:
+                - audience
+              title: WrappedAudienceRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Wraps the Audience response under the `audience` key.
+                example:
+                  audience:
+                    created_at: "2024-01-15T10:30:00Z"
+                    description: Customers who signed up in the last 30 days.
+                    environment: development
+                    key: new-customers
+                    name: New customers
+                    segments:
+                      - conditions:
+                          - argument: 30_days_ago
+                            operator: greater_than
+                            property: recipient.created_at
+                    sha: a1b2c3d4e5f6
+                    type: dynamic
+                    updated_at: "2024-06-20T14:45:00Z"
+                properties:
+                  audience:
+                    $ref: '#/components/schemas/Audience'
+                required:
+                  - audience
+                title: WrappedAudienceResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Validate an audience
+      tags:
+        - Audiences
   /v1/variables:
     get:
       callbacks: {}
@@ -16181,7 +16823,7 @@ paths:
                         - conditions:
                             - argument: 30_days_ago
                               operator: greater_than
-                              variable: recipient.created_at
+                              property: recipient.created_at
                       sha: a1b2c3d4e5f6
                       type: dynamic
                       updated_at: "2024-06-20T14:45:00Z"
@@ -16914,6 +17556,30 @@ paths:
           	}
           	fmt.Printf("%+v\n", page)
           }
+  /v1/channels/{channel_key}:
+    get:
+      callbacks: {}
+      description: Returns a channel with all environment-specific settings. Secret values in provider settings are obfuscated unless they are Liquid templates (e.g., `{{ vars.api_key }}`).
+      operationId: getChannel
+      parameters:
+        - description: The key of the channel to retrieve.
+          in: path
+          name: channel_key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+          description: OK
+      summary: Get a channel
+      tags:
+        - Channels
   /v1/broadcasts/{broadcast_key}/cancel:
     put:
       callbacks: {}
