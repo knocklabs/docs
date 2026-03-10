@@ -151,7 +151,23 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
     return Object.keys(languageMap)[0] as Language;
   });
 
-  const selectedSdkContent = languageMap[selectedSdk];
+  // Sync selectedSdk when paths change (e.g., after hydration when router.query becomes available)
+  useEffect(() => {
+    const sdkFromPath = paths[1] as Language;
+    if (
+      sdkFromPath &&
+      languageMap[sdkFromPath] &&
+      sdkFromPath !== selectedSdk
+    ) {
+      setSelectedSdk(sdkFromPath);
+    }
+  }, [paths, selectedSdk]);
+
+  // Derive SDK from path for breadcrumb computation to avoid timing issues with state
+  const sdkFromPath = paths[1] as Language;
+  const effectiveSdk =
+    sdkFromPath && languageMap[sdkFromPath] ? sdkFromPath : selectedSdk;
+  const selectedSdkContent = languageMap[effectiveSdk];
   const allSidebarContent = [...IN_APP_UI_SIDEBAR, ...selectedSdkContent.items];
 
   // @ts-expect-error we do get these, need to come back to breadcrumbs
@@ -179,7 +195,7 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
         mobileSidebar={
           <MobileSidebar>
             <InAppSidebar
-              selectedSdk={selectedSdk}
+              selectedSdk={effectiveSdk}
               selectedSdkContent={selectedSdkContent}
               handleSdkChange={handleSdkChange}
             />
@@ -192,7 +208,7 @@ const InAppUILayout = ({ frontMatter, sourcePath, children }) => {
             <Sidebar.ScrollContainer scrollerRef={scrollerRef}>
               <Stack direction="column" gap="2">
                 <InAppSidebar
-                  selectedSdk={selectedSdk}
+                  selectedSdk={effectiveSdk}
                   selectedSdkContent={selectedSdkContent}
                   handleSdkChange={handleSdkChange}
                 />
