@@ -31,6 +31,28 @@ You can read about how to set up a certificate connection to APNs <a href="https
 
 Both of these values should be converted according to the instructions <a href="https://hexdocs.pm/pigeon/2.0.0-rc.1/Pigeon.APNS.html#module-generating-your-certificate-and-key-pem" target="_blank">here</a> prior to providing them to your Knock channel configuration.
 
+## Channel configuration
+
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Channels and sources** in your dashboard account settings, select your APNs [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+
+<AccordionGroup>
+  <Accordion title="Overrides">
+    When configured, the optional payload overrides set here will apply to all push notifications sent from this channel in the configured environment. Learn more about push channel overrides [here](/integrations/push/overview#push-overrides).
+    
+    <Attributes>
+      <Attribute
+        name="Payload overrides"
+        nameSlug="/integrations/push/overview#push-overrides"
+        type="JSON (string) | liquid"
+        description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
+      />
+    </Attributes>
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
 ## Using APNs with Knock
 
 In order to use APNs with Knock you'll need to synchronize your users device tokens retrieved from the APNs SDK to Knock by [setting channel data](/managing-recipients/setting-channel-data) for your recipient.
@@ -67,7 +89,14 @@ When silent push is enabled, we'll no longer pass through the content payload an
 
 ## Using overrides to customize notifications
 
-We have full support for overriding the payload sent to APNs for adding things like badge counts, extra data properties, and sound files. To set push overrides, click the gear icon (⚙️) at the top of the template editor to open the template settings modal. Push overrides support Liquid for injecting `data` properties and referencing attributes on your recipients.
+We have full support for overriding the payload sent to APNs for adding things like badge counts, extra data properties, and sound files.
+
+You can configure payload overrides at two levels:
+
+- **Channel configuration.** Overrides set on the channel apply to all workflow steps that use the channel in the configured environment.
+- **Template settings.** Overrides set on the template by clicking the gear icon (⚙️) at the top of the template editor to open the template settings modal. Template-level overrides take precedence over channel-level overrides.
+
+Push overrides support Liquid for injecting `data` properties and referencing attributes on your recipients.
 
 Overrides are merged into the notification payload sent to APNs. See the <a href="https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification" target="_blank">APNs documentation for more details</a>.
 

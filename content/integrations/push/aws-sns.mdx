@@ -136,6 +136,18 @@ The following channel settings should be configured per [environment](/concepts/
     </Attributes>
 
   </Accordion>
+  <Accordion title="Overrides">
+    When configured, the optional payload overrides set here will apply to all push notifications sent from this channel in the configured environment. Learn more about push channel overrides [here](/integrations/push/overview#push-overrides).
+    
+    <Attributes>
+      <Attribute
+        name="Payload overrides"
+        nameSlug="/integrations/push/overview#push-overrides"
+        type="JSON (string) | liquid"
+        description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
+      />
+    </Attributes>
+  </Accordion>
   <Accordion title="Conditions">
     Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
   </Accordion>
@@ -206,7 +218,14 @@ When silent push is enabled, we'll no longer pass through the message payload, b
 
 ## Using overrides to customize notifications
 
-We have full support for overriding the payload sent to Amazon SNS for adding things like badge counts, extra data properties, and sound files. To set push overrides, click the gear icon (⚙️) at the top of the template editor to open the template settings modal. Push overrides support Liquid for injecting `data` properties and referencing attributes on your recipients.
+We have full support for overriding the payload sent to Amazon SNS for adding things like badge counts, extra data properties, and sound files.
+
+You can configure payload overrides at two levels:
+
+- **Channel configuration.** Overrides set on the channel apply to all workflow steps that use the channel in the configured environment.
+- **Template settings.** Overrides set on the template by clicking the gear icon (⚙️) at the top of the template editor to open the template settings modal. Template-level overrides take precedence over channel-level overrides.
+
+Push overrides support Liquid for injecting `data` properties and referencing attributes on your recipients.
 
 ```json title="Setting overrides for FCM when sending via Amazon SNS"
 {
