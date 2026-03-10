@@ -2380,7 +2380,7 @@ components:
         - name
       title: StaticAudienceRequest
       type: object
-      x-struct: null
+      x-struct: Elixir.ControlWeb.V1.Specs.StaticAudienceRequest
       x-validate: null
     WrappedAudienceResponse:
       description: Wraps the Audience response under the `audience` key.
@@ -6808,7 +6808,7 @@ components:
         - name
       title: DynamicAudienceRequest
       type: object
-      x-struct: null
+      x-struct: Elixir.ControlWeb.V1.Specs.DynamicAudienceRequest
       x-validate: null
     WebhookTemplate:
       description: A webhook template. By default, a webhook step will use the request settings you configured in your webhook channel. You can override this as you see fit on a per-step basis.
@@ -8149,8 +8149,8 @@ components:
       description: 'An audience object with attributes to create or update an audience. Use `type: static` for audiences with explicitly managed members, or `type: dynamic` for audiences with segment-based membership.'
       discriminator:
         mapping:
-          dynamic: DynamicAudienceRequest
-          static: StaticAudienceRequest
+          dynamic: '#/components/schemas/DynamicAudienceRequest'
+          static: '#/components/schemas/StaticAudienceRequest'
         propertyName: type
       example:
         description: Users on the premium plan
@@ -8162,92 +8162,8 @@ components:
                 property: recipient.plan
         type: dynamic
       oneOf:
-        - description: Request body for creating/updating a static audience.
-          example:
-            description: Manually managed list of beta testers
-            name: Beta users
-            type: static
-          properties:
-            description:
-              description: A description of the audience.
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
-            name:
-              description: The name of the audience.
-              type: string
-              x-struct: null
-              x-validate: null
-            type:
-              description: The type of audience. Set to `static` for static audiences.
-              enum:
-                - static
-              type: string
-              x-struct: null
-              x-validate: null
-          required:
-            - type
-            - name
-          title: StaticAudienceRequest
-          type: object
-          x-struct: null
-          x-validate: null
-        - description: Request body for creating/updating a dynamic audience.
-          example:
-            description: Users on the premium plan
-            name: Premium users
-            segments:
-              - conditions:
-                  - argument: premium
-                    operator: equal_to
-                    property: recipient.plan
-            type: dynamic
-          properties:
-            description:
-              description: A description of the audience.
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
-            name:
-              description: The name of the audience.
-              type: string
-              x-struct: null
-              x-validate: null
-            segments:
-              description: A list of segments that define the dynamic audience membership criteria. Each segment contains one or more conditions joined by AND. Multiple segments are joined by OR.
-              items:
-                properties:
-                  conditions:
-                    description: A list of conditions within this segment, joined by AND.
-                    items:
-                      $ref: '#/components/schemas/AudienceCondition'
-                    type: array
-                    x-struct: null
-                    x-validate: null
-                required:
-                  - conditions
-                type: object
-                x-struct: null
-                x-validate: null
-              type: array
-              x-struct: null
-              x-validate: null
-            type:
-              description: The type of audience. Set to `dynamic` for dynamic audiences.
-              enum:
-                - dynamic
-              type: string
-              x-struct: null
-              x-validate: null
-          required:
-            - type
-            - name
-          title: DynamicAudienceRequest
-          type: object
-          x-struct: null
-          x-validate: null
+        - $ref: '#/components/schemas/StaticAudienceRequest'
+        - $ref: '#/components/schemas/DynamicAudienceRequest'
       title: AudienceRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.AudienceRequest
@@ -11011,6 +10927,49 @@ paths:
       summary: Get a variable
       tags:
         - Variables
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const variable = await client.variables.retrieve('key');
+
+          console.log(variable.inserted_at);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          variable = client.variables.retrieve(
+              "key",
+          )
+          print(variable.inserted_at)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	variable, err := client.Variables.Get(context.TODO(), "key")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", variable.InsertedAt)
+          }
   /v1/translations:
     get:
       callbacks: {}
@@ -13550,7 +13509,7 @@ paths:
           		knockmapi.AudienceUpsertParams{
           			Environment: "development",
           			Audience: knockmapi.AudienceUpsertParamsAudienceUnion{
-          				OfDynamicAudienceRequest: &knockmapi.AudienceUpsertParamsAudienceDynamicAudienceRequest{
+          				OfDynamic: &knockmapi.AudienceUpsertParamsAudienceDynamic{
           					Name: "Premium users",
           				},
           			},
@@ -13772,7 +13731,7 @@ paths:
           		knockmapi.AudienceValidateParams{
           			Environment: "development",
           			Audience: knockmapi.AudienceValidateParamsAudienceUnion{
-          				OfDynamicAudienceRequest: &knockmapi.AudienceValidateParamsAudienceDynamicAudienceRequest{
+          				OfDynamic: &knockmapi.AudienceValidateParamsAudienceDynamic{
           					Name: "Premium users",
           				},
           			},
