@@ -232,6 +232,9 @@ components:
       example:
         entries:
           - description: This is a description of my variable.
+            environment_values:
+              development: dev_value
+              production: prod_value
             inserted_at: "2021-01-01T00:00:00Z"
             key: my_variable
             type: public
@@ -4736,6 +4739,9 @@ components:
       description: An environment variable object.
       example:
         description: This is a description of my variable.
+        environment_values:
+          development: dev_value
+          production: prod_value
         inserted_at: "2021-01-01T00:00:00Z"
         key: my_variable
         type: public
@@ -4746,6 +4752,16 @@ components:
           description: The description of the variable.
           nullable: true
           type: string
+          x-struct: null
+          x-validate: null
+        environment_values:
+          additionalProperties:
+            nullable: true
+            type: string
+            x-struct: null
+            x-validate: null
+          description: A map of environment slugs to their override values. Only present for project-scoped responses.
+          type: object
           x-struct: null
           x-validate: null
         inserted_at:
@@ -4775,13 +4791,13 @@ components:
           x-struct: null
           x-validate: null
         value:
-          description: The value of the variable.
+          description: The default value of the variable. For secret variables, this is obfuscated.
+          nullable: true
           type: string
           x-struct: null
           x-validate: null
       required:
         - key
-        - value
         - type
         - inserted_at
         - updated_at
@@ -10971,6 +10987,30 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Broadcast)
           }
+  /v1/variables/{key}:
+    get:
+      callbacks: {}
+      description: Returns a single variable by key with per-environment value overrides.
+      operationId: getVariable
+      parameters:
+        - description: The key of the variable to retrieve.
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variable'
+          description: OK
+      summary: Get a variable
+      tags:
+        - Variables
   /v1/translations:
     get:
       callbacks: {}
@@ -13746,7 +13786,7 @@ paths:
   /v1/variables:
     get:
       callbacks: {}
-      description: Returns a paginated list of variables for a given environment.
+      description: Returns a list of variables. When an environment is specified, returns per-environment variables. Otherwise, returns project-scoped variables with per-environment overrides.
       operationId: listVariables
       parameters:
         - description: The environment slug.
@@ -13764,6 +13804,17 @@ paths:
           required: false
           schema:
             example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Filter variables by type. Supports 'public' or 'secret'.
+          in: query
+          name: type
+          required: false
+          schema:
+            enum:
+              - public
+              - secret
             type: string
             x-struct: null
             x-validate: null
@@ -13800,6 +13851,9 @@ paths:
                 example:
                   entries:
                     - description: This is a description of my variable.
+                      environment_values:
+                        development: dev_value
+                        production: prod_value
                       inserted_at: "2021-01-01T00:00:00Z"
                       key: my_variable
                       type: public
