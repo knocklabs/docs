@@ -1,6 +1,88 @@
 components:
   responses: {}
   schemas:
+    PreviewTemplateResponse:
+      description: A response to a template preview request.
+      example:
+        content_type: email
+        result: success
+        template:
+          html_body: <p>Welcome to Acme!</p>
+          subject: Hello John
+          text_body: Welcome to Acme!
+      properties:
+        content_type:
+          description: The content type of the preview.
+          enum:
+            - email
+            - in_app_feed
+            - push
+            - chat
+            - sms
+          type: string
+          x-struct: null
+          x-validate: null
+        errors:
+          description: A list of errors encountered during rendering. Present when result is "error".
+          items:
+            description: A rendering error with optional location information.
+            example:
+              field: html_content
+              line: 1
+              message: 'Reason: expected end of string, line: 1'
+            properties:
+              field:
+                description: The template field that caused the error, if available.
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              line:
+                description: The line number where the error occurred, if available.
+                nullable: true
+                type: integer
+                x-struct: null
+                x-validate: null
+              message:
+                description: A human-readable description of the error.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - message
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        result:
+          description: The result of the preview.
+          enum:
+            - success
+            - error
+          type: string
+          x-struct: null
+          x-validate: null
+        template:
+          anyOf:
+            - $ref: '#/components/schemas/EmailTemplate'
+            - $ref: '#/components/schemas/InAppFeedTemplate'
+            - $ref: '#/components/schemas/PushTemplate'
+            - $ref: '#/components/schemas/ChatTemplate'
+            - $ref: '#/components/schemas/SmsTemplate'
+          description: The rendered template, ready to be previewed.
+          type: object
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+        - content_type
+      title: PreviewTemplateResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.PreviewTemplateResponse
+      x-validate: null
     RequestTemplateQueryParamsArray:
       description: A list of key-value pairs for the request query params. Each object should contain key and value fields with string values.
       example:
@@ -7732,6 +7814,97 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.EmailChannelSettings
       x-validate: null
+    PreviewTemplateRequest:
+      description: A request to preview a template, without requiring a template to be persisted within Knock.
+      example:
+        channel_type: email
+        data:
+          order_id: 123
+        recipient: user_123
+        template:
+          html_body: <p>Welcome!</p>
+          settings:
+            layout_key: default
+          subject: Hello {{ recipient.name }}
+      properties:
+        actor:
+          anyOf:
+            - $ref: '#/components/schemas/RecipientReference'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: The actor to reference in the preview.
+          x-struct: null
+          x-validate: null
+        channel_type:
+          description: The channel type of the template to preview.
+          enum:
+            - email
+            - sms
+            - push
+            - chat
+            - in_app_feed
+          type: string
+          x-struct: null
+          x-validate: null
+        data:
+          additionalProperties: true
+          description: The data to pass to the template for rendering.
+          type: object
+          x-struct: null
+          x-validate: null
+        layout:
+          description: Email layout configuration. Only applicable for email channel type. Falls back to environment default if not provided.
+          nullable: true
+          properties:
+            html_content:
+              description: Inline HTML content for the layout. Must include `{{ content }}` placeholder.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            key:
+              description: The key of an existing email layout to use.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            text_content:
+              description: Inline text content for the layout.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        recipient:
+          $ref: '#/components/schemas/RecipientReference'
+        template:
+          anyOf:
+            - $ref: '#/components/schemas/EmailTemplate'
+            - $ref: '#/components/schemas/SmsTemplate'
+            - $ref: '#/components/schemas/PushTemplate'
+            - $ref: '#/components/schemas/ChatTemplate'
+            - $ref: '#/components/schemas/InAppFeedTemplate'
+          description: The template content to preview. Structure depends on channel_type.
+          type: object
+          x-struct: null
+          x-validate: null
+        tenant:
+          description: The tenant to associate with the preview. Must not contain whitespace.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - channel_type
+        - template
+        - recipient
+      title: PreviewTemplateRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.PreviewTemplateRequest
+      x-validate: null
     SendWindow:
       description: A send window time for a notification. Describes a single day.
       example:
@@ -11287,6 +11460,51 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.ContentType)
           }
+  /v1/templates/preview:
+    post:
+      callbacks: {}
+      description: |
+        Renders a template preview, without requiring a template to be persisted within Knock.
+        This is useful for previewing templates in isolation, without the need to use a workflow.
+
+        For email templates, you can optionally specify a layout by key or provide inline layout content.
+      operationId: previewTemplate
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewTemplateRequest'
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewTemplateResponse'
+          description: OK
+      summary: Preview a template
+      tags:
+        - Templates
   /v1/guides/{guide_key}/activate:
     put:
       callbacks: {}
