@@ -212,6 +212,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/data-retention", title: "Data retention" },
       { slug: "/custom-domains", title: "Custom domains" },
       { slug: "/managing-assets", title: "Managing assets" },
+      { slug: "/account-deletion", title: "Account deletion" },
     ],
   },
 ];
