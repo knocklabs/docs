@@ -14,6 +14,7 @@ import yaml from "react-syntax-highlighter/dist/cjs/languages/hljs/yaml";
 import kotlin from "react-syntax-highlighter/dist/cjs/languages/hljs/kotlin";
 import swift from "react-syntax-highlighter/dist/cjs/languages/hljs/swift";
 import bash from "react-syntax-highlighter/dist/cjs/languages/hljs/bash";
+import xml from "react-syntax-highlighter/dist/cjs/languages/hljs/xml";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useTheme } from "@/components/theme/ThemeProvider";
 
@@ -44,6 +45,8 @@ SyntaxHighlighter.registerLanguage("yaml", yaml);
 SyntaxHighlighter.registerLanguage("curl", bash);
 SyntaxHighlighter.registerLanguage("swift", swift);
 SyntaxHighlighter.registerLanguage("kotlin", kotlin);
+SyntaxHighlighter.registerLanguage("xml", xml);
+SyntaxHighlighter.registerLanguage("mjml", xml);
 
 export type SupportedLanguage =
   | "javascript"

@@ -1,0 +1,78 @@
+---
+title: MJML support
+description: Learn how to use MJML to build responsive email layouts and templates in Knock.
+section: Integrations
+layout: integrations
+tags:
+  [
+    "mjml",
+    "responsive",
+    "email",
+    "layouts",
+    "templates",
+    "mobile",
+  ]
+---
+
+Knock supports [MJML](https://mjml.io/), a responsive email framework that compiles to HTML optimized for email clients. MJML abstracts away the complexity of table-based layouts and media queries, so you can build responsive emails that look great across devices with less code.
+
+## MJML layouts
+
+You can set an email layout to use MJML. When a layout is configured for MJML, it must contain a root `<mjml>` tag. The layout structure works the same as HTML layouts: the `{{content}}` variable receives the template content, and `{{footer_links}}` receives footer links when configured.
+
+To include plain HTML within an MJML layout, wrap it in `<mjml-raw>` tags. MJML will pass through the contents of `<mjml-raw>` without compiling them, so you can use standard HTML where needed.
+
+```mjml title="MJML layout with mjml-raw for HTML"
+<mjml>
+  <mj-head>
+    <mj-title>Welcome</mj-title>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        {{ content }}
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column>
+        <mjml-raw>
+          {{ footer_links }}
+        </mjml-raw>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
+```
+
+[Learn more about email layouts](/integrations/email/layouts).
+
+## MJML templates
+
+Email templates can use MJML in two ways:
+
+1. **Full template.** Write your entire template in MJML in the code editor. MJML templates can be used with "No layout" (standalone) or within an MJML layout.
+2. **Visual block editor.** Use the visual editor to compose your template. When the template or its layout is MJML, the blocks render as MJML components.
+
+When you use an MJML template with a layout, the layout must also be MJML. When you use "No layout," the template stands alone as a complete MJML document.
+
+## Mixing HTML and MJML
+
+Knock automatically wraps plain HTML inside MJML templates and layouts in `<mjml-raw>` tags. This means you can include HTML snippets in your MJML and they will render correctly.
+
+<Callout
+  emoji="🌠"
+  title="Note:"
+  text={
+    <>
+      HTML partials cannot include MJML. Partials must be HTML. When an HTML
+      partial is used inside an MJML template, Knock wraps the partial's content
+      in <code>&lt;mjml-raw&gt;</code> tags so it renders correctly within the
+      MJML document.
+    </>
+  }
+/>
+
+## Limitations
+
+- **MJML layouts require the `<mjml>` root tag.** Layouts set to MJML mode must be valid MJML documents.
+- **HTML partials cannot include MJML.** [HTML partials](/template-editor/partials/html-partials) must contain HTML only. When used in an MJML template, their content is wrapped in `<mjml-raw>` automatically.
