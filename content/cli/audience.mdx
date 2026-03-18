@@ -1,0 +1,342 @@
+---
+title: Audiences
+description: Commands for managing audiences in the Knock CLI.
+---
+
+<Section path="/audience">
+<ContentColumn>
+
+Audience commands enable you to manage audiences in your Knock account from the CLI.
+
+</ContentColumn>
+</Section>
+
+<Section title="Audience file structure" path="/audience/file-structure">
+<ContentColumn>
+
+When audiences are pulled from Knock, they are stored in directories named by their audience key. Each audience directory contains an `audience.json` file that describes the audience's configuration (name, type, and for dynamic audiences, segments).
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local audience files structure">
+{`audiences/
+└── new-signups/
+    └── audience.json`}
+</PreTextDiagram>
+
+If you're migrating your local audience files into Knock, you can arrange them using the example file structure above and then push them into Knock with a single command using [`knock audience push --all`](/cli/audience/push).
+
+</ContentColumn>
+</Section>
+
+<Section title="knock audience list [flags]" path="/audience/list">
+<ContentColumn>
+
+Display all audiences for an environment. Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--limit"
+    type="number"
+    description="The total number to fetch per page."
+  />
+  <Attribute
+    name="--after"
+    type="string"
+    description="Fetches all entries after this cursor."
+  />
+  <Attribute
+    name="--before"
+    type="string"
+    description="Fetches all entries before this cursor."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock audience list
+```
+
+```bash title="Pagination example"
+knock audience list --after=xxx
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock audience get <audience_key> [flags]" path="/audience/get">
+<ContentColumn>
+
+Display a single audience from an environment.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute name="--json" type="string" description="Format output as json." />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock audience get new-signups
+```
+
+```bash title="Get audience in a different environment"
+knock audience get new-signups --environment=production
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock audience pull <audience_key> [flags]" path="/audience/pull">
+<ContentColumn>
+
+Pull one or more audiences from an environment into a local file system. Knock CLI will create a new audience directory or update the existing audience directory in the local file system.
+
+By default this command will resolve to the audiences resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--audiences-dir` flag.
+
+Note: if pulling the target audience for the first time (or all audiences), Knock CLI will ask to confirm before writing to the local file system.
+
+See the [Audience file structure](/cli/audience/file-structure) section for details on how audience files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description={`Whether to pull all audiences from the specified environment into the target directory path set by \`--audiences-dir\`. Defaults to false.
+
+When used, all contents in the target directory will be erased and replaced with all audiences from the specified environment.`}
+/>
+
+  <Attribute
+    name="--audiences-dir"
+    type="directory"
+    description="Specifies which target directory path to pull all audiences into. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--hide-uncommitted-changes"
+    type="boolean"
+    description="Should any uncommitted changes be hidden? Defaults to false."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock audience pull new-signups
+```
+
+```bash title="Pulling an audience in a different environment"
+knock audience pull new-signups --environment=production
+```
+
+```bash title="Pulling all audiences into ./audiences directory"
+knock audience pull --all --audiences-dir=./audiences
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock audience push <audience_key> [flags]" path="/audience/push">
+<ContentColumn>
+
+Push one or more audiences from a local file system to Knock. Knock will update an existing audience by the matching audience key, or create a new audience if it does not exist yet.
+
+By default this command will resolve to the audiences resource directory via your `knock.json` file. When not set, will use the current working directory as the default. In the case of the `--all` flag, the target directory path will be resolved via your `knock.json` file or the `--audiences-dir` flag.
+
+Note:
+
+- You must be directly above the target audience directory when running the `audience push` command, so the CLI can locate the `audience.json` file.
+- You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
+- Use `--force` to bypass environment restrictions and overwrite content in any environment. If you're using this on a non-development environment, you should also ensure you commit the changes.
+
+See the [Audience file structure](/cli/audience/file-structure) section for details on how audience files are organized.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to push the audience to. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--commit"
+    type="boolean"
+    description="Push and commit the audience(s) at the same time. Defaults to false."
+  />
+  <Attribute
+    name="-m, --commit-message"
+    type="string"
+    description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to push all audiences from the target directory path set by `--audiences-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--audiences-dir"
+    type="directory"
+    description="Specifies the target directory path to find and push all audiences from. Only available to be used with --all, and defaults to the current working directory."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Force pushes the resource or resources to Knock, overwriting whatever is currently stored. If you're using this on a non-development environment, you should also ensure you commit the changes. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock audience push new-signups
+```
+
+```bash title="Pushing an audience and committing with a message"
+knock audience push new-signups \
+  --commit \
+  -m "Commit message"
+```
+
+```bash title="Pushing all audiences from ./audiences directory"
+knock audience push --all --audiences-dir=./audiences
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock audience validate <audience_key> [flags]" path="/audience/validate">
+<ContentColumn>
+
+Validate one or more audiences from a local file system. Knock will validate the given audience payload in the same way as it would with the `audience push` command, except without persisting those changes.
+
+Note: Validating an audience is only done against the `development` environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Whether to validate all audiences from the target directory path set by `--audiences-dir`. Defaults to false."
+  />
+  <Attribute
+    name="--audiences-dir"
+    type="directory"
+    description="Specifies the target directory path to find and validate all audiences from. Only available to be used with --all, and defaults to the current working directory."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock audience validate new-signups
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock audience archive <audience_key> [flags]" path="/audience/archive">
+<ContentColumn>
+
+Archive an audience across all environments. Archiving removes the audience from use but preserves its configuration.
+
+<Callout
+  type="alert"
+  title="Warning"
+  text="Archiving an audience affects ALL environments and cannot be undone. Use this command with caution."
+/>
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    isRequired
+    description="The environment in which the audience exists."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Removes the confirmation prompt. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Basic usage"
+knock audience archive old-audience --environment=development
+```
+
+</ExampleColumn>
+</Section>

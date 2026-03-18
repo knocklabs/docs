@@ -169,4 +169,18 @@ export const CLI_SIDEBAR: SidebarContent[] = [
       { slug: "/validate", title: "Validate message types" },
     ],
   },
+  {
+    title: "Audiences",
+    slug: "/cli/audience",
+    pages: [
+      { slug: "/", title: "Overview" },
+      { slug: "/file-structure", title: "File structure" },
+      { slug: "/list", title: "List audiences" },
+      { slug: "/get", title: "Get audiences" },
+      { slug: "/pull", title: "Pull audiences" },
+      { slug: "/push", title: "Push audiences" },
+      { slug: "/validate", title: "Validate audiences" },
+      { slug: "/archive", title: "Archive audiences" },
+    ],
+  },
 ];
