@@ -31,6 +31,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     pages: [
       { slug: "/overview", title: "Overview" },
       { slug: "/layouts", title: "Layouts" },
+      { slug: "/mjml", title: "MJML" },
       { slug: "/settings", title: "Settings and overrides" },
       { slug: "/attachments", title: "Sending attachments" },
       { slug: "/client-previews", title: "Client previews" },
