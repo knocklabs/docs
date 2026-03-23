@@ -9,7 +9,7 @@ layout: integrations
 
 1. Set an attachment key in your email template to tell Knock how to resolve attachments you send in the data payload of your trigger call. To set an attachment key, click the gear icon (⚙️) at the top of the email template editor, then set your desired key under the "Attachment key" field. This key will default to `attachments` if not specified.
 2. Include one or more attachment objects in the `data` payload of your trigger call, under the configured attachment key. Each attachment object should have the content of the file to be attached as a base64 encoded value.
-3. Knock automatically adds any attachments included in the attachment key of your trigger call to the emails sent by your email provider 🎉.
+3. Knock automatically adds any attachments included in the attachment key of your trigger call to the emails sent by your email provider.
 
 ## The attachment object
 
@@ -19,7 +19,7 @@ Every attachment you send to Knock in your `data` payload should include the fol
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `name`\*         | The name of the file                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `content_type`\* | A mime type for the file                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `content`\*      | The base64 encoded file content (up to 10mb)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `content`\*      | The base64-encoded file content. Attachments count toward the <a href="/send-notifications/triggering-workflows/api#trigger-payload" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>10MB trigger payload limit</a>, which applies to the full request. Note that some email providers may enforce stricter limits.                                                                                                                                                                                                                                                                                                                  |
 | `content_id`     | An optional unique `Content-ID` for the attachment. Currently only supported for <a href="/integrations/email/sendgrid" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>SendGrid</a>, <a href="/integrations/email/postmark" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>Postmark</a>, and <a href="/integrations/email/resend" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>Resend</a>. See <a href="#referencing-attachment-files-inline" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>Referencing attachment files inline</a> for more details. |
 | `disposition`    | An optional disposition for the attachment (`inline` or `attachment`). Currently only supported for <a href="/integrations/email/sendgrid" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>SendGrid</a> and <a href="/integrations/email/postmark" style={{ color: "var(--tgph-accent-11)", textDecoration: "underline" }}>Postmark</a>.                                                                                                                                                                                                                                                                                             |
 
@@ -32,18 +32,14 @@ Every attachment you send to Knock in your `data` payload should include the fol
 }
 ```
 
-**Note**: each attachment object must be less than 10mb, but you should confirm whether your email provider has a lower limit.
-
 ## Sending attachments in your trigger call
 
-Once you've specified your attachment key in your email template, the last step is to send the data along to Knock. Remember that you need to base64 encode the contents of the file.
+Once you've specified your attachment key in your email template, include the base64-encoded attachment data in the `data` payload of your trigger call. To send multiple attachments, pass an array of attachment objects under the attachment key.
 
 <MultiLangCodeBlock
   title="Sending attachment data"
   snippet="workflows.trigger-with-attachment"
 />
-
-**Note**: you can send multiple attachments for an email by including an array of attachment objects under the attachment key in your data payload.
 
 ## Sending a different attachment per recipient
 
@@ -81,11 +77,11 @@ If you're using [SendGrid](/integrations/email/sendgrid) or [Postmark](/integrat
 ### Inline image attachments
 
 <Callout
-  type="info"
-  title="Note:"
+  emoji="💡"
+  title="Resend inline images."
   text={
     <>
-      When using Resend, images can be referenced inline without setting a{" "}
+      When using Resend, you can reference images inline without setting a{" "}
       <code>disposition</code> property on the attachment object.
     </>
   }
