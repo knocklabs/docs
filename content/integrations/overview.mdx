@@ -80,7 +80,7 @@ If you want to use the exact same configuration for a given channel across all e
 
 Sometimes you don't want a message to be sent in a local or testing environment, but you _do_ want the ability to debug your messages and see what might have gone out.
 
-Sandbox mode enables you to generate and preview messages for a given channel, without sending them to your downstream provider for delivery. Sandbox mode is great for when you want to test a channel's output, but want your messages to end up at `/dev/null` instead of sending live notifications.
+Sandbox mode enables you to generate and preview messages for a given channel without delivering them. When sandbox is enabled, Knock will never send the request to your downstream provider, blocking all delivery. To gate delivery selectively rather than suppress it entirely, use channel conditions instead.
 
 Sandbox mode is supported across all channel types (except for in-app) and can be enabled from the environment configuration view of a channel.
 
@@ -103,6 +103,12 @@ To add a condition to a channel's environment configuration, navigate to **Chann
 
 Knock will execute your channel conditions for every step using the given channel across all your workflow runs. Knock will join these channel conditions with any [step conditions](/designing-workflows/step-conditions) via an `AND`, meaning both channel and step conditions will need to pass evaluation for the step to execute. You can then use Knock's [conditions debugger](/concepts/conditions#debugging-conditions) to examine the evaluations of your channel conditions.
 
+<Callout
+  emoji="💡"
+  title="Channel conditions don't override sandbox mode."
+  text="If sandbox mode is enabled for a channel, Knock skips execution entirely and channel conditions are not evaluated. Disable sandbox mode for conditions to take effect."
+/>
+
 ### Channel groups
 
 You may encounter a use case where you consistently want to send the same template to two providers across all of your workflows. Push is a good example. If you're sending notifications directly to iOS and Android devices (through APNs and Firebase, respectively), you don't want to have to replicate templates across channel steps for each of those providers in all of your workflows.
@@ -111,11 +117,11 @@ Channel groups solve this problem. With a channel group, you can combine multipl
 
 <Callout
   emoji="🚧"
+  title="Request channel groups."
   text={
     <>
-      <strong>Request channel groups.</strong> Channel groups are currently
-      enabled on an on-demand basis. To request channel groups for your account,
-      reach out to us at{" "}
+      Channel groups are currently enabled on an on-demand basis. To request
+      channel groups for your account, reach out to us at{" "}
       <a href="mailto:support@knock.app">support@knock.app</a>.
     </>
   }
