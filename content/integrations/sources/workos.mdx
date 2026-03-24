@@ -1,0 +1,59 @@
+---
+title: WorkOS source
+description: Receive WorkOS webhook events in Knock to trigger workflows and automate actions based on directory sync and SSO events.
+section: Integrations > Sources
+layout: integrations
+---
+
+The WorkOS source enables you to receive [WorkOS webhook events](https://workos.com/docs/events) directly in Knock. WorkOS sends webhook callbacks when events occur in your enterprise integrations, such as a user being provisioned via directory sync or an SSO connection being activated. Knock verifies each payload using your WorkOS webhook signing secret, identifies the event type, and executes the actions you configure.
+
+This integration is useful for automating provisioning and access workflows: identifying users in Knock when they are provisioned through a directory, notifying admins about SSO configuration changes, or triggering onboarding workflows when new directory users appear.
+
+## Prerequisites
+
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- A WorkOS account with access to the [Webhooks settings](https://dashboard.workos.com/webhooks) in the WorkOS dashboard.
+
+## Getting started
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Integrations** > **Sources** in the Knock dashboard. Click "Create source" and select **WorkOS** as the source type. Give it a name and description.
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, copy the webhook URL for the environment you want to configure.
+  </Step>
+  <Step title="Add the webhook endpoint in WorkOS">
+    In the [WorkOS dashboard](https://dashboard.workos.com/webhooks), click "Add endpoint." Paste the Knock webhook URL and select the events you want WorkOS to send.
+  </Step>
+  <Step title="Copy the signing secret into Knock">
+    After creating the endpoint in WorkOS, WorkOS provides a signing secret. Copy this value and paste it into the **Signing secret** field in your Knock source environment configuration.
+  </Step>
+</Steps>
+
+Once configured, WorkOS sends webhook events to Knock in real time. You can verify that events are arriving by checking the event logs on the source environment page.
+
+## Pre-configured events
+
+WorkOS sends events for directory sync and SSO lifecycle changes. Below are common events you might map to actions in Knock. You can enable or disable individual event types from the source environment configuration.
+
+| Event type | Description |
+| --- | --- |
+| `dsync.user.created` | A user was provisioned via directory sync |
+| `dsync.user.updated` | A directory sync user was updated |
+| `dsync.user.deleted` | A directory sync user was deprovisioned |
+| `dsync.group.created` | A group was created via directory sync |
+| `dsync.group.updated` | A directory sync group was updated |
+| `dsync.group.deleted` | A directory sync group was deleted |
+| `dsync.group.user_added` | A user was added to a directory group |
+| `dsync.group.user_removed` | A user was removed from a directory group |
+| `connection.activated` | An SSO connection was activated |
+| `connection.deactivated` | An SSO connection was deactivated |
+
+See the [WorkOS events documentation](https://workos.com/docs/events) for the full list of available events.
+
+## Customization
+
+You can modify the default action mappings or add new ones for any event type Knock receives from WorkOS. For details on how field mapping works with dot-notation paths, see the [HTTP source](/integrations/sources/http) page.
+
+If you need to map WorkOS events to actions beyond triggering workflows, see the full list of [available actions](/integrations/sources/overview#available-actions) in the sources overview.
