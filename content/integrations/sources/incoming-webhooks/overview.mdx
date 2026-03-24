@@ -1,0 +1,135 @@
+---
+title: Incoming webhooks
+description: Learn how to connect third-party services to Knock using incoming webhooks to trigger workflows, manage users, and automate actions.
+section: Integrations > Sources
+layout: integrations
+---
+
+Incoming webhooks enable you to connect any third-party or in-house service to Knock by receiving their webhook events and mapping them to actions. You send webhooks to Knock from a service like Stripe, Clerk, WorkOS, or your own system, and Knock handles workflow triggers, user identification, object updates, tenant management, and subscriptions based on the incoming data.
+
+Knock offers two ways to use incoming webhooks:
+
+- **Pre-built integrations.** For popular services like [Stripe](/integrations/sources/incoming-webhooks/stripe), [Clerk](/integrations/sources/incoming-webhooks/clerk), [WorkOS](/integrations/sources/incoming-webhooks/workos), [Supabase](/integrations/sources/incoming-webhooks/supabase), and [PostHog](/integrations/sources/incoming-webhooks/posthog), Knock provides ready-to-use templates with webhook verification and event-to-action mappings pre-configured.
+- **Custom webhooks.** For services without a pre-built integration, you can [configure your own](/integrations/sources/incoming-webhooks/custom-webhooks) incoming webhook source with custom verification, event types, and action mappings.
+
+## How it works
+
+When you create an incoming webhook source in Knock, you get a unique webhook URL for each [environment](/concepts/environments).
+
+1. **Configure your webhook provider.** Add the Knock webhook URL to your third-party service as a webhook destination.
+2. **Configure webhook verification.** For pre-built integrations, paste the signing secret or token from your provider into Knock. For custom webhooks, configure your verification scheme in the Knock dashboard.
+3. **Receive webhook events.** When events occur in the third-party service, they send webhook payloads to your Knock URL. Knock verifies each request to confirm it came from your service.
+4. **Map events to actions.** For pre-built integrations, Knock provides default event-to-action mappings you can toggle on or off. For custom webhooks, you configure which events trigger which actions.
+5. **Automatic execution.** Knock processes incoming webhooks and executes the configured actions.
+
+## How pre-built integrations work
+
+Pre-built integrations streamline the setup process. Knock provides templates that include:
+
+- **Webhook verification.** The verification scheme is already configured for your provider. You just need to paste the signing secret or token from the provider's dashboard.
+- **Event-to-action mappings.** Common event types come pre-mapped to Knock actions. You can enable or disable each mapping as needed.
+- **Field mapping.** Payload fields are pre-mapped to the parameters each action requires.
+
+### Getting started with a pre-built integration
+
+<Steps>
+  <Step title="Create the source">
+    Navigate to **Integrations** > **Sources** in your Knock dashboard and click "Create source." Select the provider you want to connect (e.g. Stripe, Clerk).
+  </Step>
+  <Step title="Copy the webhook URL">
+    You'll see a unique webhook URL for each of your Knock environments. Copy the URL for the environment you want to configure.
+  </Step>
+  <Step title="Add the webhook URL to your provider">
+    In your provider's dashboard, add the Knock URL as a webhook destination.
+  </Step>
+  <Step title="Paste your signing secret">
+    Copy the webhook signing secret or token from your provider's dashboard and paste it into the Knock source configuration. This enables Knock to verify incoming requests.
+  </Step>
+  <Step title="Review event mappings">
+    Review the pre-configured event-to-action mappings. Enable the ones relevant to your use case and disable those you don't need.
+  </Step>
+</Steps>
+
+## Available actions
+
+When configuring event-to-action mappings, you can map incoming webhook events to the following actions in Knock.
+
+### Workflow actions
+
+Control the execution of your notification [workflows](/concepts/workflows).
+
+- **Trigger workflow.** Starts a workflow run for one or more recipients.
+- **Cancel workflow.** Cancels an in-progress workflow run.
+
+### User actions
+
+Manage [users](/concepts/users) in Knock.
+
+- **Identify user.** Creates or updates a user with properties from the webhook payload.
+- **Subscribe user.** Subscribes a user to an [object](/concepts/objects) or [tenant](/concepts/tenants).
+- **Unsubscribe user.** Unsubscribes a user from an object or tenant.
+
+### Object actions
+
+Manage [objects](/concepts/objects) in Knock. Objects represent entities like accounts, teams, or projects that can be notification recipients or data sources.
+
+- **Set object.** Creates or updates an object with properties from the webhook payload.
+- **Delete object.** Removes an object from Knock.
+
+### Tenant actions
+
+Manage [tenants](/concepts/tenants) in your Knock account. Tenants represent customer organizations in multi-tenant applications.
+
+- **Set tenant.** Creates or updates a tenant with properties from the webhook payload.
+- **Delete tenant.** Removes a tenant from Knock.
+
+### Audience actions
+
+Manage memberships in your Knock [audiences](/concepts/audiences). Audiences are groups of users for targeting notifications.
+
+- **Add audience member.** Adds a user to a static audience based on webhook data.
+- **Remove audience member.** Removes a user from a static audience.
+
+## Pre-built integrations
+
+| Source | Description |
+| --- | --- |
+| [Stripe](/integrations/sources/incoming-webhooks/stripe) | Payment events, subscription changes, and customer updates |
+| [Clerk](/integrations/sources/incoming-webhooks/clerk) | Authentication events like sign-ups, user updates, and session activity |
+| [WorkOS](/integrations/sources/incoming-webhooks/workos) | Directory sync and SSO events for user provisioning and authentication |
+| [Supabase](/integrations/sources/incoming-webhooks/supabase) | Database webhooks for notifications based on data changes |
+| [PostHog](/integrations/sources/incoming-webhooks/posthog) | Product analytics action webhooks and feature flag changes |
+
+For services not listed here, use [custom webhooks](/integrations/sources/incoming-webhooks/custom-webhooks) to connect any service that supports webhook delivery.
+
+## Viewing logs and debugging
+
+### Event logs
+
+Every webhook received by Knock is logged, regardless of whether it triggered an action.
+
+1. Navigate to **Integrations** > **Sources** in your Knock dashboard.
+2. Select your source.
+3. Click the "Logs" tab.
+
+Event logs show the raw webhook payload, the timestamp it was received, and any actions that were triggered.
+
+### Debugging failed mappings
+
+If a webhook doesn't trigger the expected action, check the event log for error messages. Common issues include:
+
+- **Missing required fields.** The webhook payload doesn't include a field mapped as a required parameter.
+- **Invalid field paths.** The dot notation path specified doesn't match the webhook payload structure.
+- **Type mismatches.** The webhook field value doesn't match the expected type for the action parameter.
+
+<Callout
+  emoji="⚠️"
+  title="Data subject to retention policy enforcement."
+  text={
+    <>
+      See the{" "}
+      <a href="/manage-your-account/data-retention">data retention docs</a> for
+      more details on how Knock enforces this policy.
+    </>
+  }
+/>

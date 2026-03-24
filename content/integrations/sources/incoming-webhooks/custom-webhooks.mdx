@@ -1,0 +1,135 @@
+---
+title: Custom webhooks
+description: Learn how to connect any service to Knock using custom incoming webhooks with your own verification, event types, and action mappings.
+section: Integrations > Sources
+layout: integrations
+---
+
+Custom webhooks enable you to connect any service that supports webhook delivery to Knock, including internal tools, custom applications, and third-party services without a [pre-built integration](/integrations/sources/incoming-webhooks/overview#pre-built-integrations).
+
+With custom webhooks, you configure the webhook verification scheme, define your event types, and build your own event-to-action mappings with field mapping.
+
+## When to use custom webhooks
+
+- **Connecting services without pre-built integrations.** If Knock doesn't offer a pre-configured integration for your service, you can create your own with custom event-action mappings.
+- **Handling custom events.** Your application might produce events specific to your business logic that need to trigger notifications.
+- **Building internal integrations.** Connect your own services to Knock for centralized notification management.
+
+## Getting started
+
+### Creating a custom webhook source
+
+<Steps>
+  <Step title="Create the source">
+    Navigate to **Integrations** > **Sources** in your Knock dashboard and click "Create source." Select "Custom webhook" from the list.
+  </Step>
+  <Step title="Copy the webhook URL">
+    You'll see a unique webhook URL for each of your Knock [environments](/concepts/environments). Copy the webhook URL for the environment you want to configure and add it as a webhook destination in your service.
+  </Step>
+  <Step title="Configure webhook verification">
+    Configure your webhook verification scheme within Knock. Knock verifies all incoming webhooks using this scheme to confirm they're sent from your service and not a bad actor.
+  </Step>
+</Steps>
+
+### Configuring event types
+
+For custom webhooks, you need to tell Knock how to identify the event type from each incoming payload. You do this by specifying a **key path** that points to the field in the webhook payload that contains the event type name.
+
+For example, if your webhook payloads look like this:
+
+```json
+{
+  "event_name": "task.completed",
+  "timestamp": "2024-01-15T14:30:00Z",
+  "data": { ... }
+}
+```
+
+You would set the key path to `event_name` so Knock can distinguish between different event types like `task.completed`, `task.created`, and so on.
+
+You can also optionally configure a timestamp path to tell Knock which field contains the event timestamp.
+
+### Setting up event-action mappings
+
+After your service starts sending webhooks to Knock, incoming events appear in the source's logs tab.
+
+<Steps>
+  <Step title="Navigate to your source">
+    Go to **Integrations** > **Sources** in your Knock dashboard and select your custom webhook source.
+  </Step>
+  <Step title="Select an event">
+    From the list of received events, click on the event type you want to configure.
+  </Step>
+  <Step title="Create an action mapping">
+    Click "Create action mapping" and select the action you want this event to trigger. A single event can trigger one or many actions in Knock. See [available actions](/integrations/sources/incoming-webhooks/overview#available-actions) for the full list.
+  </Step>
+  <Step title="Map fields">
+    Use the mapping interface to connect fields from your webhook payload to the parameters required by the selected action.
+  </Step>
+  <Step title="Test and activate">
+    Send a test webhook to verify your mapping works correctly, then activate the mapping.
+  </Step>
+</Steps>
+
+## Field mapping
+
+When you configure an action mapping for a webhook event, you specify how fields from the incoming webhook payload map to the parameters your selected action requires.
+
+### How field mapping works
+
+The mapping interface displays your webhook payload structure on one side and the required action parameters on the other.
+
+- **Use dot notation.** Reference nested fields using dot notation like `user.email` or `data.attributes.name`.
+- **Map to multiple parameters.** The same webhook field can populate multiple action parameters.
+
+The interface validates your mappings and shows any required fields that haven't been configured.
+
+### Example: custom application webhook
+
+Here's a webhook payload from a custom task management application:
+
+```json
+{
+  "event_name": "task.completed",
+  "timestamp": "2024-01-15T14:30:00Z",
+  "user": {
+    "id": "user_123",
+    "email": "user@example.com",
+    "name": "Jane Smith"
+  },
+  "task": {
+    "id": "task_456",
+    "title": "Review pull request",
+    "project_id": "proj_789"
+  }
+}
+```
+
+The key path configuration for this custom webhook source establishes `event_name` as the key to use to determine which unique event type an event belongs to.
+
+To trigger a workflow when this event occurs:
+
+1. Map the event type `task.completed` to the "Trigger workflow" action.
+2. Select your notification workflow.
+3. Map `user.id` to the workflow's recipients parameter.
+4. Map additional fields like `task.title` to workflow data parameters.
+
+## Viewing logs and debugging
+
+### Event logs
+
+Every webhook received by Knock is logged, regardless of whether it triggered an action.
+
+1. Navigate to **Integrations** > **Sources** in your Knock dashboard.
+2. Select your source.
+3. Click the "Logs" tab.
+
+Event logs show the raw webhook payload, the timestamp it was received, and any actions that were triggered.
+
+### Debugging failed mappings
+
+If a webhook doesn't trigger the expected action, check the event log for error messages. Common issues include:
+
+- **Missing required fields.** The webhook payload doesn't include a field you mapped as a required parameter.
+- **Invalid field paths.** The dot notation path you specified doesn't match the webhook payload structure.
+- **Type mismatches.** The webhook field value doesn't match the expected type for the action parameter.
