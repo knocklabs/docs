@@ -52,7 +52,7 @@ const App = ({ user }) => (
 );
 ```
 
-## Setup the Knock client
+## Initialize the Knock client
 
 Next, we'll need to access the instance of the Knock client created by the `KnockProvider` using the `useKnockClient` hook.
 
@@ -66,7 +66,7 @@ const NotificationFeed = ({ user }) => {
 };
 ```
 
-## Setup the Knock feed instance
+## Initialize the feed instance
 
 Next, we'll want to set up an instance of a Knock Feed, which will handle the state management and provide a way for us to interact with the messages on the feed.
 
@@ -94,6 +94,23 @@ const NotificationFeed = ({ user }) => {
   return null;
 };
 ```
+
+By default, the feed is initialized in `compact` mode. If your application needs the full payload, pass `{ mode: "rich" }` as the third argument to `useNotifications`:
+
+| Mode      | Behavior                                                                                                                                                   |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `compact` | Default. Returns a leaner payload — omits `activities`, `total_activities`, and all but one actor. Nested arrays and objects are also omitted from `data`. |
+| `rich`    | Includes `activities`, `total_activities`, all actors.                                                                                                     |
+
+```jsx
+const feedClient = useNotifications(
+  knockClient,
+  process.env.KNOCK_FEED_CHANNEL_ID,
+  { mode: "rich" },
+);
+```
+
+See [FeedItem](/in-app-ui/api-overview#feeditem) for details on what each mode returns.
 
 ## Creating a custom notifications UI
 
