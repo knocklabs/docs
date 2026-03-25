@@ -5,46 +5,53 @@ section: Integrations > Sources
 layout: integrations
 ---
 
-Sources connect external services to Knock so that events from those services can drive actions such as triggering workflows, identifying users, and managing objects and tenants. Knock supports two approaches for ingesting events from external services:
+Sources connect external services to Knock so that events from those services can drive actions such as triggering workflows, identifying users, and managing objects and tenants. Knock supports a few approaches for ingesting events from external services:
 
 - **Incoming webhooks.** Receive webhook events from services like Stripe, Clerk, or your own applications and map them to actions in Knock. Knock provides pre-built integrations for popular services and a custom webhook option for any service that can send HTTP callbacks.
-- **CDP and reverse ETL integrations.** Pipe `track` and `identify` events from platforms like Segment, RudderStack, Hightouch, and Census into Knock to trigger workflows and keep user data in sync.
+- **CDP integrations.** Send `track` and `identify` events from platforms like Segment and RudderStack into Knock to trigger workflows and keep user data in sync.
+- **Reverse ETL integrations.** Sync warehouse data from platforms like Hightouch and Census into Knock using direct API calls or embedded destinations.
 
-## Concepts
+## Incoming webhook sources
 
-### What is a source?
+Incoming webhook sources receive webhook events from external services and map them to actions inside Knock. When Knock receives a webhook event, it verifies the payload signature, identifies the event type, and executes the actions you have configured for that event.
 
-A source is any platform that can pass event or user data into Knock. Sources fall into two categories:
+| Source                                     | Description                                 |
+| ------------------------------------------ | ------------------------------------------- |
+| [Clerk](/integrations/sources/clerk)       | Auth and user management events             |
+| [PostHog](/integrations/sources/posthog)   | Product analytics action and event webhooks |
+| [Stripe](/integrations/sources/stripe)     | Payment and subscription lifecycle events   |
+| [Supabase](/integrations/sources/supabase) | Database webhook events                     |
+| [WorkOS](/integrations/sources/workos)     | Directory sync and SSO events               |
+| [HTTP](/integrations/sources/http)         | Custom webhooks from any service            |
 
-- **Incoming webhook sources.** Services that send webhook callbacks to Knock when events occur (for example, Stripe sending an `invoice.paid` event). Knock verifies the payload, parses the event type, and executes the actions you configure.
-- **CDP and reverse ETL sources.** Platforms such as [Segment](https://segment.com), [RudderStack](https://rudderstack.com), [Hightouch](https://hightouch.com/), and [Census](https://www.getcensus.com/) that forward `track` and `identify` events to Knock.
+### Pre-built integrations vs. custom webhooks
 
-### Supported sources
+Knock offers pre-built integrations for popular services such as [Clerk](/integrations/sources/clerk), [Stripe](/integrations/sources/stripe), [PostHog](/integrations/sources/posthog), [Supabase](/integrations/sources/supabase), and [WorkOS](/integrations/sources/workos). These integrations provide automatic signature verification and pre-configured event types. For any service that can send HTTP callbacks, you can use the [HTTP source](/integrations/sources/http) to create a custom webhook integration with full control over event type identification and field mappings.
 
-#### Incoming webhook sources
+## CDP sources
 
-| Source | Description |
-| --- | --- |
-| [Clerk](/integrations/sources/clerk) | Auth and user management events |
-| [PostHog](/integrations/sources/posthog) | Product analytics action and event webhooks |
-| [Stripe](/integrations/sources/stripe) | Payment and subscription lifecycle events |
-| [Supabase](/integrations/sources/supabase) | Database webhook events |
-| [WorkOS](/integrations/sources/workos) | Directory sync and SSO events |
-| [HTTP](/integrations/sources/http) | Custom webhooks from any service |
+CDP sources send `track` and `identify` events from customer data platforms into Knock. Use a CDP source when you already have event instrumentation in a platform like [Segment](/integrations/sources/segment) or [RudderStack](/integrations/sources/rudderstack) and want to use those events to trigger workflows and keep user data in sync without additional API calls from your application.
 
-#### CDP and reverse ETL sources
+| Source                                           | Description               |
+| ------------------------------------------------ | ------------------------- |
+| [Segment](/integrations/sources/segment)         | Customer data platform    |
+| [RudderStack](/integrations/sources/rudderstack) | Customer data platform    |
+| [Jitsu](/integrations/sources/jitsu)             | Open-source data pipeline |
+| [Freshpaint](/integrations/sources/freshpaint)   | Healthcare-focused CDP    |
 
-| Source | Description |
-| --- | --- |
-| [Segment](/integrations/sources/segment) | Customer data platform |
-| [RudderStack](/integrations/sources/rudderstack) | Customer data platform |
+## Reverse ETL sources
+
+Reverse ETL sources sync warehouse data into Knock using direct API calls or embedded destinations. Platforms like [Hightouch](/integrations/sources/hightouch), [Census](/integrations/sources/census), and [Polytomic](/integrations/sources/polytomic) can push user, object, and tenant data from your data warehouse into Knock on a scheduled basis.
+
+| Source                                       | Description |
+| -------------------------------------------- | ----------- |
 | [Hightouch](/integrations/sources/hightouch) | Reverse ETL |
-| [Census](/integrations/sources/census) | Reverse ETL |
+| [Census](/integrations/sources/census)       | Reverse ETL |
 | [Polytomic](/integrations/sources/polytomic) | Reverse ETL |
-| [Jitsu](/integrations/sources/jitsu) | Open-source data pipeline |
-| [Freshpaint](/integrations/sources/freshpaint) | Healthcare-focused CDP |
 
 _Need us to support another platform? [Let us know.](mailto:support@knock.app?subject=Integration%20Source%20Request)_
+
+## Configuring sources
 
 You can configure sources from the **Integrations** > **Sources** page in your account settings. Initial creation of a source is managed at the account level of your Knock account, though you configure specific events and their actions within your Knock environments.
 
@@ -68,68 +75,23 @@ Each source has a unique configuration for every Knock environment in your accou
   className="rounded-md mx-auto border border-gray-200"
 />
 
-### Logging
+## Triggering actions from source events
 
-<Callout
-  emoji="⚠️"
-  title="Data subject to retention policy enforcement."
-  text={
-    <>
-      See the{" "}
-      <a href="/manage-your-account/data-retention">data retention docs</a> for
-      more details on how Knock enforces this policy.
-    </>
-  }
-/>
+When a source event is received, you can configure Knock to execute any of the following actions:
 
-#### Event logs
-
-Event logs show the contents of each event sent into Knock.
-
-#### Action logs
-
-Action logs describe what (if any) action Knock took after receiving an event. Action logs are a helpful starting point when troubleshooting workflows or auditing actions Knock has taken for any given event.
-
-## Incoming webhook sources
-
-Incoming webhook sources let you receive webhook events from external services and map them to actions inside Knock. When Knock receives a webhook event it verifies the payload signature, identifies the event type, and executes the actions you have configured for that event.
-
-### How incoming webhooks work
-
-1. **Create the source.** Add an incoming webhook source on the **Integrations** > **Sources** page in the Knock dashboard. Knock provides a unique webhook URL for each environment.
-2. **Configure the provider.** Copy the webhook URL into the external service's webhook settings. For pre-built integrations, paste the signing secret from the provider into Knock so payloads can be verified.
-3. **Receive events.** When the external service sends a webhook, Knock verifies the signature (if applicable), parses the event type, and logs the event.
-4. **Map events to actions.** For each event type, configure one or more actions that Knock should execute.
-
-### Pre-built integrations vs. custom webhooks
-
-Knock offers pre-built integrations for popular services. These integrations come with signature verification and pre-configured event types ready to use. The following pre-built incoming webhook sources are available:
-
-- [Clerk](/integrations/sources/clerk)
-- [PostHog](/integrations/sources/posthog)
-- [Stripe](/integrations/sources/stripe)
-- [Supabase](/integrations/sources/supabase)
-- [WorkOS](/integrations/sources/workos)
-
-For any service that can send HTTP callbacks, you can use the [HTTP source](/integrations/sources/http) to create a custom webhook integration. Custom webhooks require you to define event type identification and field mappings yourself.
-
-### Available actions
-
-When an incoming webhook event is received, you can configure Knock to execute any of the following actions:
-
-| Action | Description |
-| --- | --- |
-| Trigger workflow | Start a [workflow](/concepts/workflows) run for one or more recipients |
-| Cancel workflow | Cancel an in-progress workflow run |
-| Identify user | Create or update a [user](/concepts/users) in Knock |
-| Subscribe user | Add a user to an [object's subscribers list](/concepts/subscriptions) |
-| Unsubscribe user | Remove a user from an object's subscribers list |
-| Set object | Create or update an [object](/concepts/objects) |
-| Delete object | Remove an object |
-| Set tenant | Create or update a [tenant](/concepts/tenants) |
-| Delete tenant | Remove a tenant |
-| Add audience member | Add a member to an [audience](/concepts/audiences) |
-| Remove audience member | Remove a member from an audience |
+| Action                 | Description                                                            |
+| ---------------------- | ---------------------------------------------------------------------- |
+| Trigger workflow       | Start a [workflow](/concepts/workflows) run for one or more recipients |
+| Cancel workflow        | Cancel an in-progress workflow run                                     |
+| Identify user          | Create or update a [user](/concepts/users) in Knock                    |
+| Subscribe user         | Add a user to an [object's subscribers list](/concepts/subscriptions)  |
+| Unsubscribe user       | Remove a user from an object's subscribers list                        |
+| Set object             | Create or update an [object](/concepts/objects)                        |
+| Delete object          | Remove an object                                                       |
+| Set tenant             | Create or update a [tenant](/concepts/tenants)                         |
+| Delete tenant          | Remove a tenant                                                        |
+| Add audience member    | Add a member to an [audience](/concepts/audiences)                     |
+| Remove audience member | Remove a member from an audience                                       |
 
 ### Event-to-action mapping
 
@@ -153,130 +115,31 @@ You could map `data.object.customer` to the `recipients` field when triggering a
 
 For full details on configuring custom event types and field mappings, see the [HTTP source page](/integrations/sources/http).
 
-## CDP and reverse ETL sources
+## Debugging source events
 
-CDP and reverse ETL sources forward `track` and `identify` events from platforms like Segment, RudderStack, Hightouch, and Census into Knock.
-
-### Events
-
-Knock tracks every event sent from a source. Although each source has its own event format, Knock translates incoming events into a common format that includes the following fields:
-
-- `user_id`. The ID of the user performing a given action (may not be set if a user has not been identified yet).
-- `data`. The primary contents of the event. For example, for a Segment `track` call with associated `properties`, Knock uses those `properties` to set the `data` field.
-- `event`. The original event, as originally received by Knock.
-
-### Workflow triggers
-
-When Knock receives an event from a CDP or reverse ETL source, it checks for any workflows configured to be triggered by that event in that environment.
-
-You can have any number of workflows triggered by each event. If no workflow is configured for an event, the event is logged but no action is taken.
-
-After configuring a source in Knock and in the source itself (for example, adding Knock as a destination in your CDP), events start flowing into your Knock environment. You can then select an event and connect it to a workflow as its trigger.
+In some cases, you may need to debug source event connections to ensure your integration is sending the correct payloads to Knock.
 
 <Callout
-  type="alert"
-  title="For workflow triggers, no more than 1000 recipients can be included in
-        each event."
+  emoji="⚠️"
+  title="Data subject to retention policy enforcement."
   text={
     <>
-      If you exceed this limit, Knock will not process your workflow trigger and
-      instead generate an error log. <br />
-      <br />
-      If you need to manage a large list of recipients you might want to
-      consider using our{" "}
-      <a href="/concepts/subscriptions">subscriptions feature</a> to have Knock
-      manage the set of recipients who need to be notified instead.
+      See the{" "}
+      <a href="/manage-your-account/data-retention">data retention docs</a> for
+      more details on how Knock enforces this policy.
     </>
   }
 />
 
-### Identifying users
+#### Event logs
 
-For sources that support identifying users (such as Segment or RudderStack with their `identify` calls), each environment configuration includes a setting to enable or disable user identification. After creating an integration source, enable identifying users for that environment.
+Event logs show the contents of each event sent into Knock.
 
-Knock correctly maps `name`, `email`, `avatar`, and `phone` properties from Segment and RudderStack `identify` calls into the Knock user data model. All other tracked properties are stored as custom properties on the Knock user object and can be used in templates and other parts of Knock that rely on user properties.
+#### Action logs
 
-<Callout
-  type="alert"
-  title="Remember:"
-  text={
-    <>
-      if you send Knock a source event that includes a recipient that has not
-      yet been identified in Knock, our system will not generate a workflow run
-      for that user. <br />
-      <br />
-      For use cases such as new signup events, where events will often reach
-      Knock before identify calls, consider{" "}
-      <a href="#inline-identify-users-in-a-source-event">
-        inline identification
-      </a>{" "}
-      of users in your source events.
-    </>
-  }
-/>
+Action logs describe what (if any) action Knock took after receiving an event. Action logs are a helpful starting point when troubleshooting workflows or auditing actions Knock has taken for any given event.
 
-### Inline identify users in a source event
-
-<Callout
-  emoji="☝️"
-  title="Note:"
-  text={
-    <>
-      Inline identification is not supported by our{" "}
-      <a href="/send-notifications/testing-workflows#the-workflow-test-runner">
-        workflow test runner
-      </a>
-      , which can only trigger test runs for existing users. To test inline identification
-      with a source event, you should send a test event from your configured source.
-    </>
-  }
-/>
-
-In cases where you send a source event to Knock with recipients that may not yet have been identified into our system, it's good practice to [inline identify](/managing-recipients/identifying-recipients#inline-identification) your users. By inline identifying your users within your source events, you ensure that those users are identified in Knock when your event triggers a workflow.
-
-As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified.
-
-```json title="A source event without inline identify"
-{
-  "event": "user-signed-up",
-  "email": "sam@example.com",
-  "userId": "sam10",
-  "type": "track",
-  "messageId": "source-event-test-123",
-  "properties": {
-    "recipients": ["sam10"],
-    "account_id": "123"
-  },
-  "timestamp": "2023-05-23T21:49:54Z"
-}
-```
-
-To ensure that the user is notified, we'd change the id reference in `recipients` to a complete user object, as in the example below. This way Knock has all the information it needs to identify the user during workflow runtime.
-
-```json title="A source event with inline identify"
-{
-  "event": "user-signed-up",
-  "email": "sam@example.com",
-  "userId": "sam10",
-  "type": "track",
-  "messageId": "source-event-test-123",
-  "properties": {
-    "recipients": [
-      {
-        "id": "sam10",
-        "name": "Sam Seely",
-        "email": "sam@example.com"
-      }
-    ],
-    "account_id": "123"
-  },
-  "timestamp": "2023-05-23T21:49:54Z"
-}
-```
-
-You can learn more about inline identification in [our documentation on identifying recipients](/managing-recipients/identifying-recipients).
-
-### Event idempotency
+## Source event idempotency
 
 By default, Knock processes every valid event received from your source. You can enable idempotency checks to deduplicate events that have already been received and processed. This is useful if you know your source may send duplicate events.
 
@@ -293,41 +156,13 @@ By default, Knock processes every valid event received from your source. You can
   }
 />
 
-#### Configuring idempotency checks
+Idempotency configuration varies by source type. For pre-built webhook integrations, Knock auto-configures the idempotency key. For CDP sources and custom webhooks, you may need to enable idempotency and verify the key field. See your individual source page for setup details.
 
-You can enable source event idempotency checks at any time from the "Settings" tab for your source environment configuration.
-
-<Image
-  src="/images/integrations/sources/source-event-idempotency.png"
-  alt="A screenshot of where to configure idempotency for your Source."
-  width={800}
-  height={400}
-  className="rounded-md mx-auto border border-gray-200"
-/>
-
-Once enabled, Knock will start parsing idempotency keys from your source events for use in deduplication checks. Knock uses an optional, unique attribute made available by your source provider. These attributes are:
-
-- **Segment.** `messageId`
-- **RudderStack.** `messageId`
-- **HTTP.** `messageId`
-
-Events without an idempotency key attribute are processed normally.
-
-```json title="An example source event from Segment with a valid idempotency key."
-{
-  "type": "track",
-  "event": "user.created",
-  "messageId": "some-id-from-source",
-  "properties": {
-    "id": "user-1",
-    "email": "user-1@example.com"
-  }
-}
-```
+### Key validation
 
 Your idempotency keys must be valid strings no more than 255 characters in length. If an invalid key is found, Knock still ingests your source event but will not attempt to execute your event idempotently. In addition, Knock drops the invalid idempotency key and you will not see it appear in your event logs.
 
-#### How Knock handles idempotent events
+### How Knock handles idempotent events
 
 When Knock executes a source event with an idempotency key, it first checks whether a preceding execution should be replayed. Knock finds a preceding execution if it is recorded within the idempotency window with the same:
 
