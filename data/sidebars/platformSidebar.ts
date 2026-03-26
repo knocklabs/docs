@@ -197,7 +197,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     ],
   },
   {
-    title: "AI",
+    title: "Knock AI",
     slug: "/ai",
     desc: "Use the Knock Agent in the dashboard, the MCP server in your editor, and skills for coding agents.",
     pages: [
