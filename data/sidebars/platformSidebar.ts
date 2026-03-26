@@ -197,6 +197,16 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     ],
   },
   {
+    title: "Knock AI",
+    slug: "/ai",
+    desc: "Use the Knock Agent in the dashboard, the MCP server in your editor, and skills for coding agents.",
+    pages: [
+      { slug: "/agent", title: "Knock Agent", isBeta: true },
+      { slug: "/mcp-server", title: "MCP server" },
+      { slug: "/skills", title: "Skills" },
+    ],
+  },
+  {
     title: "Manage your account",
     slug: "/manage-your-account",
     desc: "Learn more about the tools available in managing your Knock account.",

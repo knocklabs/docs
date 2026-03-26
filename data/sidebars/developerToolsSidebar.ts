@@ -70,8 +70,6 @@ export const DEVELOPER_TOOLS_SIDEBAR_CONTENT: SidebarContent[] = [
       },
     ],
   },
-  { slug: `${baseSlug}/mcp-server`, title: "MCP server" },
-  { slug: `${baseSlug}/skills`, title: "Skills" },
   {
     slug: `${baseSlug}/building-with-llms`,
     title: "Building with LLMs",
