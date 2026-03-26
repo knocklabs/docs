@@ -17,7 +17,7 @@ To use this example, you'll need [an account on Knock](https://dashboard.knock.a
 - The channel ID for the in-app feed (set as `KNOCK_FEED_CHANNEL_ID`)
 
 <Callout
-  emoji="🌠"
+  type="info"
   title="Find your channel ID."
   text={
     <>
@@ -95,22 +95,24 @@ const NotificationFeed = ({ user }) => {
 };
 ```
 
-By default, the feed is initialized in `compact` mode. If your application needs the full payload, pass `{ mode: "rich" }` as the third argument to `useNotifications`:
+### Feed mode
 
-| Mode      | Behavior                                                                                                                                                   |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `compact` | Default. Returns a leaner payload — omits `activities`, `total_activities`, and all but one actor. Nested arrays and objects are also omitted from `data`. |
-| `rich`    | Includes `activities`, `total_activities`, all actors.                                                                                                     |
+By default, the feed is initialized in `compact` mode, which returns a leaner payload with some lesser-used fields omitted. See [FeedItem](/in-app-ui/api-overview#feeditem) for more details on the payload schema.
 
-```jsx
+| Mode      | Behavior                                                                                                             |
+| --------- | -------------------------------------------------------------------------------------------------------------------- |
+| `compact` | Default. Omits `activities`, `total_activities`, and all but one actor. Omits nested arrays and objects from `data`. |
+| `rich`    | Returns the full payload of each `FeedItem`.                                                                         |
+
+If your application needs the full payload, pass `{ mode: "rich" }` as the third argument to `useNotifications`:
+
+```jsx title="Initialize the feed in rich mode"
 const feedClient = useNotifications(
   knockClient,
   process.env.KNOCK_FEED_CHANNEL_ID,
   { mode: "rich" },
 );
 ```
-
-See [FeedItem](/in-app-ui/api-overview#feeditem) for details on what each mode returns.
 
 ## Creating a custom notifications UI
 
