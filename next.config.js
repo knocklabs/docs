@@ -72,6 +72,16 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/developer-tools/mcp-server",
+        destination: "/ai/mcp-server",
+        permanent: true,
+      },
+      {
+        source: "/developer-tools/skills",
+        destination: "/ai/skills",
+        permanent: true,
+      },
+      {
         source: "/integrations",
         destination: "/integrations/overview",
         permanent: true,
