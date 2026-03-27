@@ -43,10 +43,11 @@ import { PreTextDiagram } from "@/components/ui/PreTextDiagram";
 
 const Image = ({
   className,
+  border = true,
   ...props
-}: React.ComponentProps<typeof NextImage>) => (
+}: React.ComponentProps<typeof NextImage> & { border?: boolean }) => (
   <div
-    className={`overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 ${className ?? ""}`}
+    className={`overflow-hidden rounded-md inline-block ${border ? "border border-gray-200 dark:border-gray-700" : ""} ${className ?? ""}`}
   >
     <NextImage {...props} />
   </div>
