@@ -1,14 +1,4 @@
 import NextImage from "next/image";
-
-const Image = ({ className, ...props }: React.ComponentProps<typeof NextImage>) => {
-  const classes = (className || "")
-    .replace("border-gray-200", "border-gray-200 dark:border-gray-700");
-  return (
-    <div className={`overflow-hidden ${classes}`}>
-      <NextImage {...props} />
-    </div>
-  );
-};
 import { CodeBlock } from "../components/ui/CodeBlock";
 import { Callout } from "../components/ui/Callout";
 import MultiLangCodeBlock from "../components/ui/MultiLangCodeBlock";
@@ -50,6 +40,15 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { ContentActions } from "@/components/ui/ContentActions";
 import FeaturesMatrix from "@/components/ui/FeaturesMatrix";
 import { PreTextDiagram } from "@/components/ui/PreTextDiagram";
+
+const Image = ({
+  className,
+  ...props
+}: React.ComponentProps<typeof NextImage>) => (
+  <div className={`overflow-hidden dark:border-gray-700 ${className ?? ""}`}>
+    <NextImage {...props} />
+  </div>
+);
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
