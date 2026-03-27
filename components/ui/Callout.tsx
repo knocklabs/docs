@@ -28,6 +28,25 @@ const TYPE_CONFIG: Record<
   community: { emoji: "🤝", bgColor: "default" },
 };
 
+const COMMUNITY_CONTENT = {
+  title: "Community-sourced.",
+  text: (
+    <>
+      This tutorial is based on a real Knock implementation and may reflect
+      preferences of the original developer. If you spot something that could
+      be improved, we welcome{" "}
+      <a href="https://github.com/knocklabs/docs/" target="_blank">
+        contributions
+      </a>
+      . Join our{" "}
+      <a href="https://knock.app/join-slack" target="_blank">
+        community Slack
+      </a>{" "}
+      to discuss this implementation or share your own.
+    </>
+  ),
+};
+
 export const Callout = ({
   type,
   emoji: customEmoji,
@@ -61,6 +80,9 @@ export const Callout = ({
   const bgColor = effectiveType
     ? TYPE_CONFIG[effectiveType]?.bgColor ?? customBgColor ?? "default"
     : customBgColor || "default";
+
+  const effectiveTitle = title ?? (effectiveType === "community" ? COMMUNITY_CONTENT.title : undefined);
+  const effectiveText = text ?? (effectiveType === "community" ? COMMUNITY_CONTENT.text : undefined);
 
   // Ensure emoji is always a string
   const emojiString = typeof emoji === "string" ? emoji : String(emoji || "💡");
@@ -121,17 +143,17 @@ export const Callout = ({
         py="1"
         style={{ marginBottom: "0px", color: "var(--tgph-gray-12)" }}
       >
-        {title && (
+        {effectiveTitle && (
           <Text
             as="span"
             size="2"
             weight="semi-bold"
             style={{ color: "var(--tgph-gray-12)" }}
           >
-            {title}{" "}
+            {effectiveTitle}{" "}
           </Text>
         )}
-        {text && text}
+        {effectiveText && effectiveText}
       </Text>
     </Stack>
   );
