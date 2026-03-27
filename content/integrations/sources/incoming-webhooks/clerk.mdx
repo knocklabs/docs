@@ -1,0 +1,57 @@
+---
+title: How to connect Clerk to Knock
+description: Learn how to use Clerk webhooks to trigger notifications and manage users in Knock.
+section: Integrations > Sources
+layout: integrations
+---
+
+The Clerk source enables you to receive [Clerk webhook events](https://clerk.com/docs/webhooks/overview) in Knock and map them to actions like triggering [workflows](/concepts/workflows), identifying [users](/concepts/users), and managing [tenants](/concepts/tenants). Knock provides a pre-built integration with webhook verification and event-to-action mappings ready to use.
+
+## Prerequisites
+
+- A [Clerk account](https://dashboard.clerk.com) with access to the Webhooks settings
+- A Knock account with at least one workflow configured
+
+## Getting started
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Integrations** > **Sources** in your Knock dashboard and click "Create source." Select **Clerk** from the list of pre-built integrations.
+  </Step>
+  <Step title="Copy the webhook URL">
+    Copy the webhook URL for the Knock environment you want to configure.
+  </Step>
+  <Step title="Add the webhook endpoint in Clerk">
+    In your [Clerk Dashboard](https://dashboard.clerk.com), go to **Webhooks** and click "Add Endpoint." Paste the Knock webhook URL and select the event types you want to subscribe to.
+  </Step>
+  <Step title="Copy the signing secret">
+    After creating the endpoint in Clerk, copy the **Signing Secret** from the endpoint details page.
+  </Step>
+  <Step title="Paste the signing secret in Knock">
+    Back in the Knock dashboard, paste the Clerk signing secret into the source configuration. Knock uses this to verify that incoming webhooks are from Clerk.
+  </Step>
+  <Step title="Review event mappings">
+    Review the pre-configured event-to-action mappings and enable the ones relevant to your use case.
+  </Step>
+</Steps>
+
+## Pre-configured events
+
+The Clerk source comes with mappings for common Clerk webhook event types. You can enable or disable each mapping independently.
+
+| Clerk event | Suggested action | Description |
+| --- | --- | --- |
+| `user.created` | Identify user | Creates a user in Knock when a new user signs up via Clerk |
+| `user.updated` | Identify user | Updates user properties in Knock when profile details change |
+| `user.deleted` | Trigger workflow | Notifies relevant parties when a user account is deleted |
+| `session.created` | Trigger workflow | Triggers a workflow when a user starts a new session |
+| `organization.created` | Set tenant | Creates a tenant in Knock when a new Clerk organization is created |
+| `organization.updated` | Set tenant | Updates tenant properties in Knock when organization details change |
+| `organizationMembership.created` | Subscribe user | Subscribes a user to a tenant when they join an organization |
+| `organizationMembership.deleted` | Unsubscribe user | Unsubscribes a user from a tenant when they leave an organization |
+
+## Customization
+
+You can modify any of the pre-configured mappings or create new ones for additional Clerk event types. When customizing field mappings, use dot notation to reference nested fields in the Clerk webhook payload (e.g. `data.email_addresses[0].email_address`).
+
+For details on building custom event-action mappings and field mapping, see the [custom webhooks documentation](/integrations/sources/incoming-webhooks/custom-webhooks).

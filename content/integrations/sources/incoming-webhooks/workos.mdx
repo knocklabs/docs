@@ -1,0 +1,66 @@
+---
+title: How to connect WorkOS to Knock
+description: Learn how to use WorkOS webhooks to trigger notifications and manage users in Knock.
+section: Integrations > Sources
+layout: integrations
+---
+
+The WorkOS source enables you to receive [WorkOS webhook events](https://workos.com/docs/webhooks) in Knock and map them to actions like triggering [workflows](/concepts/workflows), identifying [users](/concepts/users), and managing [tenants](/concepts/tenants). Knock provides a pre-built integration with webhook verification and event-to-action mappings ready to use.
+
+## Prerequisites
+
+- A [WorkOS account](https://dashboard.workos.com) with access to the Webhooks settings
+- A Knock account with at least one workflow configured
+
+## Getting started
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Integrations** > **Sources** in your Knock dashboard and click "Create source." Select **WorkOS** from the list of pre-built integrations.
+  </Step>
+  <Step title="Copy the webhook URL">
+    Copy the webhook URL for the Knock environment you want to configure.
+  </Step>
+  <Step title="Add the webhook endpoint in WorkOS">
+    In your [WorkOS Dashboard](https://dashboard.workos.com), go to **Webhooks** and click "Create Webhook Endpoint." Paste the Knock webhook URL.
+  </Step>
+  <Step title="Copy the signing secret">
+    After creating the endpoint in WorkOS, copy the **Secret** from the endpoint configuration.
+  </Step>
+  <Step title="Paste the signing secret in Knock">
+    Back in the Knock dashboard, paste the WorkOS signing secret into the source configuration. Knock uses this to verify that incoming webhooks are from WorkOS.
+  </Step>
+  <Step title="Review event mappings">
+    Review the pre-configured event-to-action mappings and enable the ones relevant to your use case.
+  </Step>
+</Steps>
+
+## Pre-configured events
+
+The WorkOS source comes with mappings for common WorkOS webhook event types. You can enable or disable each mapping independently.
+
+### Directory sync events
+
+| WorkOS event | Suggested action | Description |
+| --- | --- | --- |
+| `dsync.user.created` | Identify user | Creates a user in Knock when a new user is provisioned via directory sync |
+| `dsync.user.updated` | Identify user | Updates user properties in Knock when directory user details change |
+| `dsync.user.deleted` | Trigger workflow | Notifies relevant parties when a directory user is deprovisioned |
+| `dsync.group.created` | Set object | Creates an object in Knock when a new directory group is created |
+| `dsync.group.updated` | Set object | Updates object properties when group details change |
+| `dsync.group.deleted` | Delete object | Removes an object from Knock when a directory group is deleted |
+| `dsync.group.user_added` | Subscribe user | Subscribes a user to an object when they are added to a directory group |
+| `dsync.group.user_removed` | Unsubscribe user | Unsubscribes a user from an object when they are removed from a directory group |
+
+### SSO events
+
+| WorkOS event | Suggested action | Description |
+| --- | --- | --- |
+| `connection.activated` | Trigger workflow | Notifies admins when an SSO connection is activated |
+| `connection.deactivated` | Trigger workflow | Alerts admins when an SSO connection is deactivated |
+
+## Customization
+
+You can modify any of the pre-configured mappings or create new ones for additional WorkOS event types. When customizing field mappings, use dot notation to reference nested fields in the WorkOS webhook payload (e.g. `data.emails[0].value`).
+
+For details on building custom event-action mappings and field mapping, see the [custom webhooks documentation](/integrations/sources/incoming-webhooks/custom-webhooks).
