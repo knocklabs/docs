@@ -45,7 +45,9 @@ const Image = ({
   className,
   ...props
 }: React.ComponentProps<typeof NextImage>) => (
-  <div className={`overflow-hidden dark:border-gray-700 ${className ?? ""}`}>
+  <div
+    className={`overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 ${className ?? ""}`}
+  >
     <NextImage {...props} />
   </div>
 );
