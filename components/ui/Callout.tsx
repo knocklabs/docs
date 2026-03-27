@@ -9,7 +9,8 @@ type CalloutType =
   | "alert"
   | "enterprise"
   | "beta"
-  | "roadmap";
+  | "roadmap"
+  | "community";
 
 const TYPE_CONFIG: Record<
   CalloutType,
@@ -24,6 +25,7 @@ const TYPE_CONFIG: Record<
   enterprise: { emoji: "🏢", bgColor: "blue" },
   beta: { emoji: "🚧", bgColor: "yellow" },
   roadmap: { emoji: "🛣", bgColor: "default" },
+  community: { emoji: "🤝", bgColor: "default" },
 };
 
 export const Callout = ({
