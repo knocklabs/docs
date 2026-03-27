@@ -1,4 +1,14 @@
-import Image from "next/image";
+import NextImage from "next/image";
+
+const Image = ({ className, ...props }: React.ComponentProps<typeof NextImage>) => {
+  const classes = (className || "")
+    .replace("border-gray-200", "border-gray-200 dark:border-gray-700");
+  return (
+    <div className={`overflow-hidden ${classes}`}>
+      <NextImage {...props} />
+    </div>
+  );
+};
 import { CodeBlock } from "../components/ui/CodeBlock";
 import { Callout } from "../components/ui/Callout";
 import MultiLangCodeBlock from "../components/ui/MultiLangCodeBlock";
