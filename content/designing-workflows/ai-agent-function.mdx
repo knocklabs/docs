@@ -1,25 +1,19 @@
 ---
-title: AI agent function
-description: Learn how to use the AI agent workflow function to enrich data and personalize messaging in Knock workflows.
+title: Agent function
+description: Learn how to use the agent workflow function to enrich data and personalize messaging in Knock workflows.
 tags: ["steps", "AI", "agent", "LLM", "functions", "personalization"]
 section: Designing workflows
 ---
 
-<Callout
-  type="beta"
-  text={
-    <>
-      AI agent function is currently in beta. If you'd like early access, or if
-      this is blocking your adoption of Knock, please{" "}
-      <a href="mailto:support@knock.app?subject=AI agent function beta access">
-        get in touch
-      </a>
-      .
-    </>
-  }
+<Image
+  src="/images/designing-workflows/agent-function.png"
+  alt="A workflow with an agent step that qualifies sign-ups, showing the agent configuration and response"
+  width={1498}
+  height={812}
+  className="rounded-md mx-auto border border-gray-200"
 />
 
-The AI agent function runs a prompt on an AI model of your choice and makes the response available in your workflow state. You can use it to enrich recipient data, personalize messaging, and bring AI-powered context into your messaging flows.
+The agent function runs a prompt on an AI model of your choice and makes the response available in your workflow state. You can use it to enrich recipient data, personalize messaging, and bring AI-powered context into your messaging flows.
 
 Common use cases include:
 
@@ -27,9 +21,23 @@ Common use cases include:
 - **Personalizing messaging.** Bring that context into your [channel step templates](/template-editor/overview) to drive higher conversion rates.
 - **Summarizing batch content.** Distill heterogeneous actions into a concise summary that reduces noise in digest notifications.
 
+<Callout
+  type="beta"
+  text={
+    <>
+      Agent function is currently in beta. If you'd like early access, or if
+      this is blocking your adoption of Knock, please{" "}
+      <a href="mailto:support@knock.app?subject=Agent function beta access">
+        get in touch
+      </a>
+      .
+    </>
+  }
+/>
+
 ## How it works
 
-When a workflow run reaches an AI agent step, Knock:
+When a workflow run reaches an agent step, Knock:
 
 1. Renders your prompt with the current [workflow run scope](/concepts/conditions#condition-types) (recipient, actor, tenant, data, etc.).
 2. Sends the prompt to the AI model you've selected.
@@ -37,7 +45,7 @@ When a workflow run reaches an AI agent step, Knock:
 
 The response is stored as `data.<step_ref>`. You can reference this data in subsequent steps and templates.
 
-## Configuring an AI agent step
+## Configuring an agent step
 
 ### Selecting a model
 
@@ -77,9 +85,9 @@ See the [Knock template editor reference](/template-editor/overview) for more on
 
 ### Response format
 
-By default, the AI agent returns a single string response available as `data.<step_ref>.text`.
+By default, the agent returns a single string response available as `data.<step_ref>.text`.
 
-You can set the response format to **JSON** when you need structured output for use in templates or [branch steps](/designing-workflows/branch-function). When using JSON format, you must supply a JSON schema for the shape of the data that you'd like the AI agent to fill in.
+You can set the response format to **JSON** when you need structured output for use in templates or [branch steps](/designing-workflows/branch-function). When using JSON format, you must supply a JSON schema for the shape of the data that you'd like the agent to fill in.
 
 ```json title="Example JSON schema"
 {
@@ -109,20 +117,20 @@ When **web search** is enabled, the agent can use a browser to crawl pages and g
 
 Web search increases the credit cost of each step execution.
 
-## Testing AI agent steps
+## Testing agent steps
 
-You can run test executions of your AI agent step from the workflow editor. Test runs **do not consume credits**.
+You can run test executions of your agent step from the workflow editor. Test runs **do not consume credits**.
 
-1. Open the AI agent step in the workflow editor.
+1. Open the agent step in the workflow editor.
 2. Click the test button next to the prompt field.
 3. Specify the trigger parameters (actor, recipient, trigger data, tenant) for the test run.
 4. Click **Run test**.
 
-The test runner executes only the AI agent step in isolation. If your step expects data from a preceding step (such as a batch or fetch), include that data in the **Data** field when running the test.
+The test runner executes only the agent step in isolation. If your step expects data from a preceding step (such as a batch or fetch), include that data in the **Data** field when running the test.
 
 ## Credits and billing
 
-AI agent function executions consume **AI agent credits**. Credits are used when the step successfully runs in a workflow. Test runs do not consume credits.
+Agent function executions consume **agent credits**. Credits are used when the step successfully runs in a workflow. Test runs do not consume credits.
 
 The credit cost per execution depends on:
 
@@ -137,7 +145,7 @@ The credit cost you're charged will either be the minimum cost of the model (and
 - **Included credits.** Your plan includes a set amount of credits per billing period. Credits do not roll over.
 - **Purchasing credits.** When you need more, go to the **Billing** page in your account settings to purchase additional credits.
 - **Auto-purchase.** You can configure a threshold and amount for automatic credit top-ups when your balance falls below a certain level.
-- **Running out of credits.** When you run out of credits, AI agent steps halt. You can configure behavior when this happens (e.g. continue the workflow or stop the workflow).
+- **Running out of credits.** When you run out of credits, agent steps halt. You can configure behavior when this happens (e.g. continue the workflow or stop the workflow).
 
 ### Credit reference
 
@@ -157,17 +165,17 @@ When web search is enabled, the minimum credit cost is increased by 3 credits pe
 
 ### Understanding credit use
 
-You can see the minimum credit costs for a selected model in the AI agent function in the workflow editor.
+You can see the minimum credit costs for a selected model in the agent function in the workflow editor.
 
-When you run a test execution of the AI agent step, you can see the **actual credit cost** for the execution that your account would have been charged.
+When you run a test execution of the agent step, you can see the **actual credit cost** for the execution that your account would have been charged.
 
 In the workflow debugger, you can see the actual credit cost for each step execution under the **credits** column.
 
 ## Error handling
 
-When an AI agent step fails (e.g. model error, timeout, or invalid response), Knock marks the step as failed. You can configure whether the workflow should halt or continue to the next step when an AI agent step fails using the "Halt on error" setting.
+When an agent step fails (e.g. model error, timeout, or invalid response), Knock marks the step as failed. You can configure whether the workflow should halt or continue to the next step when an agent step fails using the "Halt on error" setting.
 
-The AI agent step will retry up to 3 times for certain types of errors:
+The agent step will retry up to 3 times for certain types of errors:
 
 - **Model errors.** The model returns an error response.
 - **Timeout errors.** The request takes longer than the model's timeout.
@@ -175,9 +183,9 @@ The AI agent step will retry up to 3 times for certain types of errors:
 
 Note: we will **not** retry when the model returns an error response or indicates that they could not fulfill the request.
 
-## Debugging AI agent steps
+## Debugging agent steps
 
-You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug AI agent steps. For each AI agent step, the logs include:
+You can use the [workflow run logs](/send-notifications/debugging-workflows) to debug agent steps. For each agent step, the logs include:
 
 - The rendered prompt sent to the model.
 - The model response.
@@ -187,14 +195,14 @@ You can use the [workflow run logs](/send-notifications/debugging-workflows) to 
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="Can I use the AI agent output in step conditions?">
-    Yes. The output from an AI agent step is available in the workflow run scope, so you can use it in [step conditions](/designing-workflows/step-conditions) on subsequent steps.
+  <Accordion title="Can I use the agent output in step conditions?">
+    Yes. The output from an agent step is available in the workflow run scope, so you can use it in [step conditions](/designing-workflows/step-conditions) on subsequent steps.
 
-    For example, you could branch based on whether the AI agent returned a specific persona type or a non-empty enrichment result.
+    For example, you could branch based on whether the agent returned a specific persona type or a non-empty enrichment result.
 
   </Accordion>
-  <Accordion title="Does the AI agent work with batch functions?">
-    Yes. You can place an AI agent step after a [batch function](/designing-workflows/batch-function) to summarize or enrich the batched activities. The AI agent has access to the batch data in the workflow run scope.
+  <Accordion title="Does the agent work with batch functions?">
+    Yes. You can place an agent step after a [batch function](/designing-workflows/batch-function) to summarize or enrich the batched activities. The agent has access to the batch data in the workflow run scope.
   </Accordion>
   <Accordion title="What happens if my prompt renders to invalid Liquid?">
     If the prompt fails to render due to a Liquid error, the step will fail and the workflow will halt (or continue, depending on your error handling configuration). Use the [workflow debugger](/send-notifications/debugging-workflows) to inspect the error.

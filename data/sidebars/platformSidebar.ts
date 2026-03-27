@@ -64,7 +64,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
           { slug: "/fetch-function", title: "Fetch function" },
           {
             slug: "/ai-agent-function",
-            title: "AI agent function",
+            title: "Agent function",
             isBeta: true,
           },
           { slug: "/throttle-function", title: "Throttle function" },
@@ -201,7 +201,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     slug: "/ai",
     desc: "Use the Knock Agent in the dashboard, the MCP server in your editor, and skills for coding agents.",
     pages: [
-      { slug: "/agent", title: "Knock Agent", isBeta: true },
+      { slug: "/agent", title: "Knock agent", isBeta: true },
       { slug: "/mcp-server", title: "MCP server" },
       { slug: "/skills", title: "Skills" },
     ],
