@@ -25,30 +25,39 @@ export function getInAppSidebar(
   // Get the deepest page that matches the paths
   const { section, page } = depthFirstSidebarInfo(paths, allSidebarContent);
 
-  return {
-    breadcrumbs: [
-      {
-        slug: "in-app-ui",
-        title: "In-App UI",
-        path: "/in-app-ui",
-      },
-      {
-        slug: `/in-app-ui/${selectedSdkContent.value}`,
-        title: selectedSdkContent.title,
-        path: `/in-app-ui/${selectedSdkContent.value}`,
-      },
-      {
-        slug: `${section?.slug}`,
-        title: section?.title,
-        path: `${section?.slug}`,
-      },
-      {
-        slug: `${section?.slug}${page?.slug}`,
-        title: page?.title,
-        path: `${section?.slug}${page?.slug}`,
-      },
-    ],
-  };
+  // Build breadcrumbs array conditionally to avoid "undefined" strings
+  const breadcrumbs: Array<{ slug: string; title: string; path: string }> = [
+    {
+      slug: "in-app-ui",
+      title: "In-App UI",
+      path: "/in-app-ui",
+    },
+    {
+      slug: `/in-app-ui/${selectedSdkContent.value}`,
+      title: selectedSdkContent.title,
+      path: `/in-app-ui/${selectedSdkContent.value}`,
+    },
+  ];
+
+  // Only add section breadcrumb if section was found
+  if (section?.slug && section?.title) {
+    breadcrumbs.push({
+      slug: section.slug,
+      title: section.title,
+      path: section.slug,
+    });
+  }
+
+  // Only add page breadcrumb if both section and page were found
+  if (section?.slug && page?.slug && page?.title) {
+    breadcrumbs.push({
+      slug: `${section.slug}${page.slug}`,
+      title: page.title,
+      path: `${section.slug}${page.slug}`,
+    });
+  }
+
+  return { breadcrumbs };
 }
 
 export function depthFirstSidebarInfo(
