@@ -271,7 +271,11 @@ Since "Guides" is a Knock feature name, we should avoid using the word "guides" 
 
 ## Images
 
-Images should always use Image component, rounded-md, mx-auto, border, border-gray-200.
+Images should always use the `Image` component from `lib/mdxComponents.tsx`. The component automatically applies `rounded-md`, `border`, and `border-gray-200` styling — do not add these classes manually in `className`.
+
+- Use `className="mx-auto"` to center images.
+- Use `border={false}` to disable the default border (e.g. for logos or badges).
+- When wrapping an image in a `<figure>` tag, add `className="text-center"` to the `<figure>` for `mx-auto` centering to work (the Image wrapper uses `inline-block`).
 
 ## List formatting with bold introductory text
 
