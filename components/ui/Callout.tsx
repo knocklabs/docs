@@ -10,7 +10,7 @@ type CalloutType =
   | "enterprise"
   | "beta"
   | "roadmap"
-  | "community";
+  | "community_sourced";
 
 const TYPE_CONFIG: Record<
   CalloutType,
@@ -25,16 +25,16 @@ const TYPE_CONFIG: Record<
   enterprise: { emoji: "🏢", bgColor: "blue" },
   beta: { emoji: "🚧", bgColor: "yellow" },
   roadmap: { emoji: "🛣", bgColor: "default" },
-  community: { emoji: "🤝", bgColor: "default" },
+  community_sourced: { emoji: "🤝", bgColor: "default" },
 };
 
-const COMMUNITY_CONTENT = {
+const COMMUNITY_SOURCED = {
   title: "Community-sourced.",
   text: (
     <>
       This tutorial is based on a real Knock implementation and may reflect
-      preferences of the original developer. If you spot something that could
-      be improved, we welcome{" "}
+      preferences of the original developer. If you spot something that could be
+      improved, we welcome{" "}
       <a href="https://github.com/knocklabs/docs/" target="_blank">
         contributions
       </a>
@@ -81,8 +81,16 @@ export const Callout = ({
     ? TYPE_CONFIG[effectiveType]?.bgColor ?? customBgColor ?? "default"
     : customBgColor || "default";
 
-  const effectiveTitle = title ?? (effectiveType === "community" ? COMMUNITY_CONTENT.title : undefined);
-  const effectiveText = text ?? (effectiveType === "community" ? COMMUNITY_CONTENT.text : undefined);
+  const effectiveTitle =
+    title ??
+    (effectiveType === "community_sourced"
+      ? COMMUNITY_SOURCED.title
+      : undefined);
+  const effectiveText =
+    text ??
+    (effectiveType === "community_sourced"
+      ? COMMUNITY_SOURCED.text
+      : undefined);
 
   // Ensure emoji is always a string
   const emojiString = typeof emoji === "string" ? emoji : String(emoji || "💡");

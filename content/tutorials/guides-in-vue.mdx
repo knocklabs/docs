@@ -1,25 +1,26 @@
 ---
 title: Implementing Knock guides in Vue.js
-description: Learn how to implement Knock guides in a Vue.js application using the Knock JavaScript SDK with Vue composables and components.
+description: Learn how to implement Knock guides in a Vue.js application using the Knock JavaScript SDK.
 tags: ["guides", "vue", "typescript", "in-app"]
 section: Tutorials
 ---
 
-<Callout type="community" />
+<Callout type="community_sourced" />
 
-In this tutorial we'll walk through how to implement [Knock guides](/in-app-ui/guides/overview) in a Vue.js application. Knock's JavaScript SDK is framework-agnostic, but its React components aren't available in Vue.js, so you'll need to replicate the provider and hook patterns using Vue composables.
+In this tutorial we'll walk through how to implement [Knock guides](/in-app-ui/guides/overview) in a Vue.js application. Knock's [guide provider and hooks](/in-app-ui/guides/render-guides#client-side-sdks) are built for React, so we'll use the underlying [Knock JavaScript SDK](/in-app-ui/javascript/sdk/reference) directly to recreate the same behavior using Vue composables.
 
 ## Prerequisites
 
 You'll need:
 
-- A Knock account with [guides](/in-app-ui/guides/overview) configured
 - A Vue.js 3 project
-- Your Knock public API key and a guide channel ID
+- A Knock account with at least one [guide created](/in-app-ui/guides/create-guides)
+- Your [Knock public API key](/developer-tools/api-keys)
+- Your [guide channel ID](/in-app-ui/guides/render-guides#guide-identifiers)
 
 ## Architecture overview
 
-The Knock React SDK uses a provider/hook pattern (`KnockProvider`, `KnockGuideProvider`, `useGuide`). In Vue.js, you replicate this with `provide`/`inject` and composables.
+The [Knock React SDK](/in-app-ui/react/sdk/overview) uses a provider/hook pattern (`KnockProvider`, `KnockGuideProvider`, `useGuide`). In Vue.js, you replicate this with `provide`/`inject` and composables.
 
 | React                | Vue.js                              |
 | -------------------- | ----------------------------------- |
@@ -27,50 +28,31 @@ The Knock React SDK uses a provider/hook pattern (`KnockProvider`, `KnockGuidePr
 | `KnockGuideProvider` | Included in `KnockProvider.vue`     |
 | `useGuide()` hook    | `useGuide()` composable             |
 
-The Knock client must initialize in a specific sequence before guides are available: the Knock client initializes first, the user authenticates, then the guide client initializes and fetches guides. Always check that the Knock client exists before calling guide client methods.
+The Knock client must initialize in a specific sequence before guides are available: the Knock client initializes first, the user authenticates, then the guide client initializes and fetches guides.
 
 ## Implementation
 
 <Steps>
-<Step title="Install required packages">
+<Step title="Install required packages and dependencies">
 
-Install the Knock JavaScript SDK and its dependencies:
-
-```bash title="Install required packages"
+```bash title="Install the JavaScript SDK, state management library, and URL pattern polyfill"
 npm install @knocklabs/client @tanstack/store urlpattern-polyfill
-```
-
-- **`@knocklabs/client`** — the core Knock JavaScript SDK with guide client support.
-- **`@tanstack/store`** — state management library used internally by the Knock SDK.
-- **`urlpattern-polyfill`** — polyfill for URL pattern matching used in guide activation rules.
-
-Import the polyfill at the top of your app entry point before initializing Knock:
-
-```typescript title="Import the URL pattern polyfill"
-import "urlpattern-polyfill";
 ```
 
 </Step>
 <Step title="Create the Knock client composable">
 
-This composable manages the Knock client lifecycle — initialization and authentication. It returns a reactive `knockClient` ref that other composables depend on.
+This composable initializes the Knock client and authenticates the user. It exposes a reactive `knockClient` ref used by the other composables.
 
 ```typescript title="Knock client composable"
 import { reactive, computed } from "vue";
-import Knock, { KnockGuideClient } from "@knocklabs/client";
+import Knock from "@knocklabs/client";
 
 interface KnockState {
   knockClient: Knock | null;
   isAuthenticated: boolean;
   isInitializing: boolean;
   lastError: Error | null;
-}
-
-interface KnockGuidesState {
-  guideClient: KnockGuideClient | null;
-  guides: unknown[];
-  loading: boolean;
-  error: Error | null;
 }
 
 export function useKnock() {
@@ -128,7 +110,7 @@ export function useKnock() {
 </Step>
 <Step title="Create the guide client composable">
 
-This composable manages the guide client, subscribes to guide updates, and exposes methods for fetching and selecting guides. The store subscription keeps Vue's reactive state in sync with the guide client's internal store.
+This composable initializes the guide client, subscribes to guide updates, and exposes methods for fetching and selecting guides. The store subscription keeps Vue's reactive state in sync with the guide client's internal store.
 
 ```typescript title="Guide client composable"
 import { reactive, computed, type Ref } from "vue";
@@ -205,7 +187,7 @@ export function useKnockGuides(
 </Step>
 <Step title="Create the provider component">
 
-The provider component initializes Knock, authenticates the user, and makes the guide client available to all child components via `provide`. It also watches for async authentication completion to ensure guides initialize even if the client becomes ready after mount.
+The provider component initializes Knock, authenticates the user, and makes the guide client available to all child components via `provide`. It also watches `knock.isReady` to handle cases where authentication completes after mount.
 
 ```vue title="Provider component"
 <template>
@@ -277,7 +259,7 @@ Use the provider at the root of any view that needs guide functionality:
 </Step>
 <Step title="Create the useGuide composable">
 
-The `useGuide` composable selects a specific guide from the guide client by type or key, matching the behavior of the React `useGuide` hook. It uses `inject` to access the guide client provided by `KnockProvider`.
+The `useGuide` composable mirrors the React [`useGuide`](/in-app-ui/react/sdk/hooks/use-guide) hook — it fetches a single guide by `type` or `key`. It takes the `knockGuides` instance as a parameter, which the calling component retrieves via `inject` from `KnockProvider`.
 
 ```typescript title="useGuide composable"
 import { computed } from "vue";
@@ -456,21 +438,13 @@ onMounted(() => {
 
 ## Troubleshooting
 
-**Guides not appearing after authentication**
+See [debugging guides](/in-app-ui/guides/debugging-guides) for general troubleshooting guidance related to guide activation and targeting. You may also encounter these Vue-specific issues:
 
-If guides aren't loading after the user authenticates, check that `knock.knockClient.value` exists before calling `initializeGuideClient`. The `watch` on `knock.isReady` in `KnockProvider.vue` handles cases where the client becomes ready asynchronously.
-
-**Store subscription not updating components**
-
-The `subscribe` call in `useKnockGuides` keeps Vue's reactive state in sync with the guide client's internal store. If guide state isn't updating, confirm that `state.guideClient.store.subscribe` is being called after `initializeGuideClient`.
-
-**`urlpattern-polyfill` not applying**
-
-Import the polyfill at the top of your app entry point before initializing Knock:
-
-```typescript title="Import the URL pattern polyfill"
-import "urlpattern-polyfill";
-```
+| Issue                                                                                | Solution                                                                                                                                                                                               |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Guides are not appearing after authentication.                                       | Check that `knock.knockClient.value` exists before calling `initializeGuideClient`. The `watch` on `knock.isReady` in `KnockProvider.vue` handles cases where the client becomes ready asynchronously. |
+| The store subscription is not updating components.                                   | Confirm that `state.guideClient.store.subscribe` is being called after `initializeGuideClient`.                                                                                                        |
+| [Guide activation rules](/in-app-ui/guides/create-guides#activation) aren't working. | Ensure `urlpattern-polyfill` is imported at the top of your app entry point before initializing Knock: `import "urlpattern-polyfill"`                                                                  |
 
 ## Related docs
 
