@@ -1,7 +1,7 @@
 ---
 title: Implementing Knock guides in Vue.js
 description: Learn how to implement Knock guides in a Vue.js application using the Knock JavaScript SDK.
-tags: ["guides", "vue", "typescript", "in-app"]
+tags: ["guides", "vue", "in-app"]
 section: Tutorials
 ---
 
@@ -44,7 +44,7 @@ npm install @knocklabs/client @tanstack/store urlpattern-polyfill
 
 This composable initializes the Knock client and authenticates the user. It exposes a reactive `knockClient` ref used by the other composables.
 
-```typescript title="Knock client composable"
+```typescript title="composables/useKnock.ts"
 import { reactive, computed } from "vue";
 import Knock from "@knocklabs/client";
 
@@ -112,7 +112,7 @@ export function useKnock() {
 
 This composable initializes the guide client, subscribes to guide updates, and exposes methods for fetching and selecting guides. The store subscription keeps Vue's reactive state in sync with the guide client's internal store.
 
-```typescript title="Guide client composable"
+```typescript title="composables/useKnockGuides.ts"
 import { reactive, computed, type Ref } from "vue";
 import { KnockGuideClient } from "@knocklabs/client";
 import type Knock from "@knocklabs/client";
@@ -189,7 +189,7 @@ export function useKnockGuides(
 
 The provider component initializes Knock, authenticates the user, and makes the guide client available to all child components via `provide`. It also watches `knock.isReady` to handle cases where authentication completes after mount.
 
-```vue title="Provider component"
+```vue title="components/KnockProvider.vue"
 <template>
   <div>
     <slot />
@@ -261,7 +261,7 @@ Use the provider at the root of any view that needs guide functionality:
 
 The `useGuide` composable mirrors the React [`useGuide`](/in-app-ui/react/sdk/hooks/use-guide) hook — it fetches a single guide by `type` or `key`. It takes the `knockGuides` instance as a parameter, which the calling component retrieves via `inject` from `KnockProvider`.
 
-```typescript title="useGuide composable"
+```typescript title="composables/useGuide.ts"
 import { computed } from "vue";
 
 interface GuideFilters {
@@ -328,7 +328,7 @@ Each guide step exposes a `content` object whose shape is determined by your [me
 | `secondary_button` | `{ text: string; action: string }` | Secondary action button.            |
 | `dismissible`      | `boolean`                          | Whether the guide can be dismissed. |
 
-Each step also provides these methods for tracking engagement:
+Each step also provides these methods for [tracking engagement](/in-app-ui/guides/handling-engagement):
 
 | Method                       | Description                                        |
 | ---------------------------- | -------------------------------------------------- |
@@ -341,7 +341,7 @@ Each step also provides these methods for tracking engagement:
 
 With the composables in place, you can build components to render guides. This example shows a banner component that renders a guide, tracks engagement, and handles dismissal.
 
-```vue title="Banner component"
+```vue title="components/GuideBanner.vue"
 <template>
   <div v-if="shouldShowBanner" class="knock-guide-banner">
     <div class="knock-guide-banner__message">
