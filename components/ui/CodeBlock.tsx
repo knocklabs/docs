@@ -47,6 +47,7 @@ SyntaxHighlighter.registerLanguage("swift", swift);
 SyntaxHighlighter.registerLanguage("kotlin", kotlin);
 SyntaxHighlighter.registerLanguage("xml", xml);
 SyntaxHighlighter.registerLanguage("mjml", xml);
+SyntaxHighlighter.registerLanguage("vue", xml);
 
 export type SupportedLanguage =
   | "javascript"
