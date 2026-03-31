@@ -68,11 +68,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
             isBeta: true,
           },
           { slug: "/throttle-function", title: "Throttle function" },
-          {
-            slug: "/trigger-workflow-function",
-            title: "Trigger workflow function",
-            isBeta: true,
-          },
+          { slug: "/trigger-workflow-function", title: "Trigger workflow function" },
         ],
       },
       {
