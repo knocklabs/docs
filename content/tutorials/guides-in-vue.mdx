@@ -106,10 +106,7 @@ import { reactive, computed, type Ref } from "vue";
 import { KnockGuideClient } from "@knocklabs/client";
 import type Knock from "@knocklabs/client";
 
-export function useKnockGuides(
-  knockClient: Ref<Knock | null>,
-  channelId: string | null = null,
-) {
+export function useKnockGuides(knockClient: Ref<Knock | null>) {
   const state = reactive<{
     guideClient: KnockGuideClient | null;
     guides: unknown[];
@@ -126,12 +123,12 @@ export function useKnockGuides(
     () => state.guideClient && knockClient.value && !state.loading,
   );
 
-  const initializeGuideClient = async (newChannelId: string): Promise<void> => {
+  const initializeGuideClient = async (channelId: string): Promise<void> => {
     if (!knockClient.value) {
       throw new Error("Knock client is required");
     }
 
-    state.guideClient = new KnockGuideClient(knockClient.value, newChannelId);
+    state.guideClient = new KnockGuideClient(knockClient.value, channelId);
 
     // Subscribe to store changes to keep guide state reactive
     state.guideClient.store.subscribe(() => {
@@ -197,7 +194,7 @@ const props = defineProps<{
 }>();
 
 const knock = useKnock();
-const knockGuides = useKnockGuides(knock.knockClient, props.channelId);
+const knockGuides = useKnockGuides(knock.knockClient);
 
 // Make the guide client available to all descendant components
 provide("knockGuides", knockGuides);
