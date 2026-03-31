@@ -87,24 +87,30 @@ HTML partials display a preview alongside the editor. Open the preview by clicki
 
 ## Isolating CSS within partials
 
-HTML partials support the ability to include isolated CSS styles within the partial template that are included within your emails **only** when the partial is used within a template.
+HTML partials support the ability to include isolated CSS styles within the partial template that are included within your emails **only** when the partial is used within a template and the template is configured to use a layout.
 
 <Callout
   type="info"
   title="Note:"
   text={
     <>
-      Partial styles can still be affected by global styles in your email
-      layout, especially if you're inlining CSS within your emails.
+      Partial <code>&lt;style&gt;</code> blocks should be limited to narrow,
+      specific selectors so that you avoid unintended styling elsewhere in the
+      email.
       <br />
       <br />
-      In the case that there is a conflict between the global style in an email layout
-      and the styles provided on a partial, the partial styles will take precedence.
+      When email templates are compiled, <code>&lt;style&gt;</code> blocks from HTML
+      partials are inserted at the top of your email layout's <code>
+        &lt;head&gt;
+      </code>. Rules from your layout that appear later in the <code>
+        &lt;head&gt;
+      </code> can override partial styles when specificity is equal, so keep cascade
+      order in mind alongside selector specificity.
     </>
   }
 />
 
-This is a powerful feature that allows you to create reusable components with consistent styles, without having to worry about stuffing your email layout with CSS that is only used in a single partial.
+This is a powerful feature that allows you to create reusable components with consistent styles, without having to worry about stuffing your email layout with CSS that is only necessary when a certain partial is used in your email template.
 
 Here's an example of how it works. Note that you may include multiple `<style>` tags in a partial, as long as they are contained within the same parent element.
 
@@ -130,4 +136,4 @@ Here's an example of how it works. Note that you may include multiple `<style>` 
 </div>
 ```
 
-When you include this partial in an email template, either via a render tag or as a block in the visual editor, the CSS from this partial will be extracted and included within the `<head>` of the compiled email template. Styles are deduplicated and are only included at-most once in the final email template.
+When you include this partial in an email template, either via a render tag or as a block in the visual editor, the CSS from this partial will be extracted and included at the top of the `<head>` of the compiled email template. Styles are deduplicated and are only included at-most once in the final email template.
