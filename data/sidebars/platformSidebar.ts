@@ -71,7 +71,6 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
           {
             slug: "/trigger-workflow-function",
             title: "Trigger workflow function",
-            isBeta: true,
           },
         ],
       },
