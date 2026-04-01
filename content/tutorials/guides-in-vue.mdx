@@ -82,6 +82,7 @@ export function useKnock() {
       throw new Error("Knock client must be initialized before authentication");
     }
 
+    // authenticate() registers the user synchronously — no await needed
     knockClient.value.authenticate(user);
     isAuthenticated.value = true;
   };
@@ -102,25 +103,27 @@ export function useKnock() {
 This composable initializes the guide client, subscribes to guide updates, and exposes methods for fetching and selecting guides. The store subscription keeps Vue's reactive state in sync with the guide client's internal store.
 
 ```typescript title="composables/useKnockGuides.ts"
-import { reactive, computed, type Ref } from "vue";
+import { shallowRef, reactive, computed, type Ref } from "vue";
 import { KnockGuideClient } from "@knocklabs/client";
 import type Knock from "@knocklabs/client";
 
 export function useKnockGuides(knockClient: Ref<Knock | null>) {
+  // shallowRef avoids Vue unwrapping KnockGuideClient class internals —
+  // the same reason useKnock uses shallowRef for the Knock client
+  const guideClient = shallowRef<KnockGuideClient | null>(null);
+
   const state = reactive<{
-    guideClient: KnockGuideClient | null;
     guides: unknown[];
     loading: boolean;
     error: Error | null;
   }>({
-    guideClient: null,
     guides: [],
     loading: false,
     error: null,
   });
 
   const isReady = computed(
-    () => state.guideClient && knockClient.value && !state.loading,
+    () => guideClient.value && knockClient.value && !state.loading,
   );
 
   const initializeGuideClient = async (channelId: string): Promise<void> => {
@@ -128,33 +131,38 @@ export function useKnockGuides(knockClient: Ref<Knock | null>) {
       throw new Error("Knock client is required");
     }
 
-    state.guideClient = new KnockGuideClient(knockClient.value, channelId);
+    guideClient.value = new KnockGuideClient(knockClient.value, channelId);
 
     // Subscribe to store changes to keep guide state reactive
-    state.guideClient.store.subscribe(() => {
-      if (state.guideClient) {
-        const storeState = state.guideClient.store.state;
-        state.guides = state.guideClient.selectGuides(storeState) || [];
+    guideClient.value.store.subscribe(() => {
+      if (guideClient.value) {
+        const storeState = guideClient.value.store.state;
+        state.guides = guideClient.value.selectGuides(storeState) || [];
       }
     });
 
     // Join the socket channel for live guide updates (synchronous, returns void)
-    state.guideClient.subscribe();
+    guideClient.value.subscribe();
   };
 
   const fetchGuides = async (
     filters: Record<string, unknown> = {},
   ): Promise<void> => {
-    if (state.guideClient) {
-      await state.guideClient.fetch({ filters });
+    if (!guideClient.value) return;
+
+    state.loading = true;
+    try {
+      await guideClient.value.fetch({ filters });
+    } finally {
+      state.loading = false;
     }
   };
 
   const getGuide = (filters: Record<string, unknown> = {}): unknown | null => {
-    if (!state.guideClient) return null;
+    if (!guideClient.value) return null;
 
-    const storeState = state.guideClient.store.state;
-    const selectedGuides = state.guideClient.selectGuides(storeState, filters);
+    const storeState = guideClient.value.store.state;
+    const selectedGuides = guideClient.value.selectGuides(storeState, filters);
     return selectedGuides?.[0] || null;
   };
 
@@ -173,17 +181,15 @@ export function useKnockGuides(knockClient: Ref<Knock | null>) {
 </Step>
 <Step title="Create the provider component.">
 
-The provider component initializes Knock, authenticates the user, and makes the guide client available to all child components via `provide`. It also watches `knock.isReady` to handle cases where authentication completes after mount.
+The provider component initializes Knock, authenticates the user, and makes the guide client available to all child components via `provide`. An `isInitializingGuides` flag prevents the `knock.isReady` watcher from triggering a duplicate initialization while `onMounted` is already awaiting the first one.
 
 ```vue title="components/KnockProvider.vue"
 <template>
-  <div>
-    <slot />
-  </div>
+  <slot />
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, provide, watch } from "vue";
+import { onMounted, onUnmounted, provide, ref, watch } from "vue";
 import { useKnock } from "../composables/useKnock";
 import { useKnockGuides } from "../composables/useKnockGuides";
 
@@ -200,14 +206,32 @@ const knockGuides = useKnockGuides(knock.knockClient);
 provide("knockGuides", knockGuides);
 provide("knockChannelId", props.channelId);
 
+// Tracks whether guide initialization is in progress. This prevents the
+// knock.isReady watcher from triggering a second initializeGuideClient call
+// while onMounted is still awaiting the first one: authenticate() sets
+// isAuthenticated synchronously, which makes knock.isReady true and queues
+// the watcher before onMounted resumes after its await.
+const isInitializingGuides = ref(false);
+
+const initializeGuides = async (): Promise<void> => {
+  if (isInitializingGuides.value || knockGuides.isReady.value) return;
+
+  isInitializingGuides.value = true;
+  try {
+    await knockGuides.initializeGuideClient(props.channelId);
+    await knockGuides.fetchGuides();
+  } finally {
+    isInitializingGuides.value = false;
+  }
+};
+
 onMounted(async () => {
   try {
     await knock.initializeKnock(props.apiKey);
     await knock.authenticate(props.user);
 
     if (knock.knockClient.value) {
-      await knockGuides.initializeGuideClient(props.channelId);
-      await knockGuides.fetchGuides();
+      await initializeGuides();
     }
   } catch (error) {
     console.error("Failed to initialize Knock guides:", error);
@@ -215,14 +239,10 @@ onMounted(async () => {
 });
 
 // Re-initialize guides if the Knock client becomes ready after mount
+// (e.g. when authentication is handled asynchronously outside this component)
 watch(knock.isReady, async (isReady) => {
-  if (isReady && !knockGuides.isReady.value) {
-    try {
-      await knockGuides.initializeGuideClient(props.channelId);
-      await knockGuides.fetchGuides();
-    } catch (error) {
-      console.error("Failed to initialize guides after authentication:", error);
-    }
+  if (isReady) {
+    await initializeGuides();
   }
 });
 
@@ -334,11 +354,15 @@ With the composables in place, you can build components to render guides. This e
 
 ```vue title="components/GuideBanner.vue"
 <template>
-  <div v-if="shouldShowBanner" class="knock-guide-banner">
+  <div v-if="typedStep" class="knock-guide-banner">
     <div class="knock-guide-banner__message">
       <div class="knock-guide-banner__title">
         {{ typedStep?.content?.title }}
       </div>
+      <!-- v-html renders raw HTML from your Knock guide content. Guide content
+           is authored in your Knock dashboard, not by end users, so the XSS
+           risk is low — but sanitize with DOMPurify if that assumption doesn't
+           hold in your app. -->
       <div class="knock-guide-banner__body" v-html="typedStep?.content?.body" />
     </div>
 
@@ -379,7 +403,7 @@ With the composables in place, you can build components to render guides. This e
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, inject } from "vue";
+import { computed, watch, inject } from "vue";
 import { useGuide } from "../composables/useGuide";
 
 interface ButtonContent {
@@ -402,10 +426,6 @@ const knockGuides = inject("knockGuides") as ReturnType<
 const { step } = useGuide(knockGuides, { type: "banner" });
 const typedStep = computed(() => step.value as GuideStep | null);
 
-const isMounted = ref(false);
-
-const shouldShowBanner = computed(() => typedStep.value && isMounted.value);
-
 const handleButtonClick = async (
   buttonType: string,
   button: ButtonContent,
@@ -426,10 +446,6 @@ const handleDismiss = async (): Promise<void> => {
     await typedStep.value.markAsArchived();
   }
 };
-
-onMounted(() => {
-  isMounted.value = true;
-});
 
 // Mark each guide as seen when it first appears; comparing old and new step avoids
 // calling markAsSeen again on unrelated reactive updates to the same step
@@ -456,7 +472,7 @@ See [debugging guides](/in-app-ui/guides/debugging-guides) for general troublesh
 | Issue                                                                                | Solution                                                                                                                                                                                               |
 | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Guides are not appearing after authentication.                                       | Check that `knock.knockClient.value` exists before calling `initializeGuideClient`. The `watch` on `knock.isReady` in `KnockProvider.vue` handles cases where the client becomes ready asynchronously. |
-| The store subscription is not updating components.                                   | Confirm that `state.guideClient.store.subscribe` is being called after `initializeGuideClient`.                                                                                                        |
+| The store subscription is not updating components.                                   | Confirm that `guideClient.value.store.subscribe` is being called after `initializeGuideClient`.                                                                                                        |
 | [Guide activation rules](/in-app-ui/guides/create-guides#activation) aren't working. | Ensure `urlpattern-polyfill` is imported at the top of your app entry point before initializing Knock: `import "urlpattern-polyfill"`                                                                  |
 
 ## Related docs
