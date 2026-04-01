@@ -15,6 +15,8 @@ tags:
     "groups",
     "segments",
     "cohorts",
+    "dynamic",
+    "audience",
   ]
 section: Concepts
 ---
@@ -30,11 +32,11 @@ An Audience is a user segment that you can use to target users for [workflows](/
 
 <Callout
   type="beta"
-  title="Note:"
+  title="Dynamic audiences are currently in beta."
   text={
     <>
-      Dynamic audiences are currently in beta. If you'd like early access, or
-      this is blocking your adoption of Knock, please{" "}
+      If you'd like early access, or this is blocking your adoption of Knock,
+      please{" "}
       <a href="mailto:support@knock.app?subject=Dynamic audiences beta access">
         get in touch
       </a>
@@ -54,7 +56,7 @@ Navigate to the **Audiences** page under the **Recipients** section on the Knock
 
 When creating an audience, you must choose between a static or dynamic audience. You cannot change the type of audience after it has been created.
 
-### Using audiences in environments
+**Using audiences in environments**
 
 You can create an audience in any environment. For production-critical use cases, you can create an audience in your development environment, then promote it to production when you're ready to go live.
 
@@ -62,7 +64,7 @@ Changes to audiences are version controlled and can be rolled back to prior vers
 
 Learn more about [environments](/version-control/environments) and [versioning](/version-control/commits) in Knock.
 
-## Using audiences with workflows
+## Audiences and workflows
 
 ### Triggering workflows
 
@@ -107,7 +109,7 @@ Audience membership can be checked in [branch](/designing-workflows/branch-funct
   className="rounded-md mx-auto border border-gray-200"
 />
 
-## Building a dynamic audience
+## Dynamic audiences
 
 <Callout
   type="beta"
@@ -124,7 +126,20 @@ Audience membership can be checked in [branch](/designing-workflows/branch-funct
   }
 />
 
-Dynamic audiences are built by creating a set of query rules on top of the [user data in Knock](/concepts/recipients), expressed as [conditions](/concepts/conditions). You can build dynamic audiences using any of the properties available on your user objects.
+Dynamic audiences are built by creating a set of query rules on top of the [user data in Knock](/concepts/recipients), expressed as [conditions](/concepts/conditions). You can build dynamic audiences using any of the properties available on your user objects, including string, number, list, and date properties. For a full reference of supported condition types and operators, see the [conditions docs](/concepts/conditions).
+
+<Callout
+  type="info"
+  title="Reserved properties are not available for dynamic audience conditions."
+  text={
+    <>
+      The reserved <code>created_at</code> and <code>updated_at</code>{" "}
+      properties on user objects cannot be used in dynamic audience conditions.
+      If you need to filter users by these values, store them as custom
+      properties on your user objects in Knock.
+    </>
+  }
+/>
 
 Knock will automatically update the dynamic audience in real-time as the [user data](/managing-recipients/identifying-recipients) in Knock changes, moving users in and out of the audience as their properties change. These changes are known as "membership events" and are used to trigger workflows.
 
@@ -132,11 +147,27 @@ When building a dynamic audience, you will see a real-time preview of the audien
 
 All changes to the dynamic audience are [versioned](/version-control/commits) and [promoted](/version-control/commits#promoting-commits) to environments. As soon as your changes are commited or promoted, the dynamic audience will be updated in the environment and user membership will be evaluated in real-time.
 
-## Populating a static audience
+<Callout
+  type="info"
+  title="Additional filtering capabilities are coming soon."
+  text={
+    <>
+      Support for filtering by source event data and tenant or object data is on
+      the roadmap. If you're currently hitting a limitation with dynamic
+      audiences,{" "}
+      <a href="mailto:support@knock.app?subject=Dynamic audiences feedback">
+        send us your feedback
+      </a>
+      .
+    </>
+  }
+/>
+
+## Static audiences
 
 Before populating your static audience ensure that your user data has been [identified in Knock](/managing-recipients/identifying-recipients) and that you’ve configured and promoted any workflows you want to trigger with the Audience.
 
-### Supported reverse ETL vendors
+### Reverse ETL support
 
 Audiences can easily be synced from [Hightouch](/integrations/sources/hightouch#syncing-audiences-into-knock-from-hightouch) Models and [Census](/integrations/sources/census) Segments by configuring Knock as a sync destination. Click through to the integration-specific documentation for more information.
 
@@ -156,7 +187,7 @@ Note: The maximum size of a CSV upload is capped at 10MB.
 
 You can manually add existing users to an audience in the dashboard.
 
-## Using audiences with tenants
+## Audiences and tenants
 
 <Callout
   type="info"
