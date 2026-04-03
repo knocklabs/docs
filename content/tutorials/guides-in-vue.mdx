@@ -33,31 +33,31 @@ The Knock client must initialize in a specific sequence before guides are availa
 ## Implementation
 
 <Steps>
-<Step title="Install required packages and dependencies.">
+<Step title="Install required packages and add an import for the URL pattern polyfill.">
 
-```bash title="Install the JavaScript SDK, state management library, and URL pattern polyfill"
-npm install @knocklabs/client @tanstack/store urlpattern-polyfill
+```bash title="Install the JavaScript SDK and URL pattern polyfill"
+npm install @knocklabs/client urlpattern-polyfill
+```
+
+Then import the polyfill at the top of your app entry point (e.g. `main.ts`):
+
+```typescript title="main.ts"
+import "urlpattern-polyfill";
+// ... rest of your app setup
 ```
 
 </Step>
 <Step title="Create the Knock client composable.">
 
-This composable initializes the Knock client and authenticates the user. It uses `shallowRef` for the client instance — rather than `reactive()` — to avoid TypeScript errors from Vue's deep unwrapping of class internals.
+This composable initializes the Knock client and authenticates the user. It uses `shallowRef` for the client instance — rather than `reactive()` — to avoid TypeScript errors from Vue's deep unwrapping of class internals. The client instance is shared via the returned `knockClient` ref, which `useKnockGuides` takes as a parameter.
 
 ```typescript title="composables/useKnock.ts"
-import { shallowRef, ref, computed } from "vue";
+import { shallowRef } from "vue";
 import Knock from "@knocklabs/client";
 
 export function useKnock() {
   // shallowRef avoids Vue unwrapping class internals, which causes TS errors with reactive()
   const knockClient = shallowRef<Knock | null>(null);
-  const isAuthenticated = ref(false);
-  const isInitializing = ref(false);
-
-  // True only when the client exists, the user is authenticated, and no initialization is in progress
-  const isReady = computed(
-    () => knockClient.value && isAuthenticated.value && !isInitializing.value,
-  );
 
   const initializeKnock = async (apiKey: string): Promise<Knock> => {
     if (!apiKey) {
@@ -68,29 +68,20 @@ export function useKnock() {
       return knockClient.value;
     }
 
-    isInitializing.value = true;
-    try {
-      knockClient.value = new Knock(apiKey);
-      return knockClient.value;
-    } finally {
-      isInitializing.value = false;
-    }
+    knockClient.value = new Knock(apiKey);
+    return knockClient.value;
   };
 
-  const authenticate = async (user: { id: string }): Promise<void> => {
+  const authenticate = (user: { id: string }): void => {
     if (!knockClient.value) {
       throw new Error("Knock client must be initialized before authentication");
     }
 
-    // authenticate() registers the user synchronously — no await needed
     knockClient.value.authenticate(user);
-    isAuthenticated.value = true;
   };
 
   return {
     knockClient,
-    isAuthenticated,
-    isReady,
     initializeKnock,
     authenticate,
   };
@@ -104,7 +95,7 @@ This composable initializes the guide client, subscribes to guide updates, and e
 
 ```typescript title="composables/useKnockGuides.ts"
 import { shallowRef, reactive, computed, type Ref } from "vue";
-import { KnockGuideClient } from "@knocklabs/client";
+import { KnockGuideClient, type KnockGuide } from "@knocklabs/client";
 import type Knock from "@knocklabs/client";
 
 export function useKnockGuides(knockClient: Ref<Knock | null>) {
@@ -113,7 +104,7 @@ export function useKnockGuides(knockClient: Ref<Knock | null>) {
   const guideClient = shallowRef<KnockGuideClient | null>(null);
 
   const state = reactive<{
-    guides: unknown[];
+    guides: KnockGuide[];
     loading: boolean;
     error: Error | null;
   }>({
@@ -126,7 +117,7 @@ export function useKnockGuides(knockClient: Ref<Knock | null>) {
     () => guideClient.value && knockClient.value && !state.loading,
   );
 
-  const initializeGuideClient = async (channelId: string): Promise<void> => {
+  const initializeGuideClient = (channelId: string): void => {
     if (!knockClient.value) {
       throw new Error("Knock client is required");
     }
@@ -137,7 +128,7 @@ export function useKnockGuides(knockClient: Ref<Knock | null>) {
     guideClient.value.store.subscribe(() => {
       if (guideClient.value) {
         const storeState = guideClient.value.store.state;
-        state.guides = guideClient.value.selectGuides(storeState) || [];
+        state.guides = guideClient.value.selectGuides(storeState);
       }
     });
 
@@ -145,35 +136,27 @@ export function useKnockGuides(knockClient: Ref<Knock | null>) {
     guideClient.value.subscribe();
   };
 
-  const fetchGuides = async (
-    filters: Record<string, unknown> = {},
-  ): Promise<void> => {
+  const fetchGuides = async (): Promise<void> => {
     if (!guideClient.value) return;
 
     state.loading = true;
     try {
-      await guideClient.value.fetch({ filters });
+      await guideClient.value.fetch();
+    } catch (err) {
+      state.error = err instanceof Error ? err : new Error(String(err));
     } finally {
       state.loading = false;
     }
   };
 
-  const getGuide = (filters: Record<string, unknown> = {}): unknown | null => {
-    if (!guideClient.value) return null;
-
-    const storeState = guideClient.value.store.state;
-    const selectedGuides = guideClient.value.selectGuides(storeState, filters);
-    return selectedGuides?.[0] || null;
-  };
-
   return {
+    guideClient,
     guides: computed(() => state.guides),
     loading: computed(() => state.loading),
     error: computed(() => state.error),
     isReady,
     initializeGuideClient,
     fetchGuides,
-    getGuide,
   };
 }
 ```
@@ -181,7 +164,7 @@ export function useKnockGuides(knockClient: Ref<Knock | null>) {
 </Step>
 <Step title="Create the provider component.">
 
-The provider component initializes Knock, authenticates the user, and makes the guide client available to all child components via `provide`. An `isInitializingGuides` flag prevents the `knock.isReady` watcher from triggering a duplicate initialization while `onMounted` is already awaiting the first one.
+The provider component initializes Knock, authenticates the user, and makes the guide client available to all child components via `provide`.
 
 ```vue title="components/KnockProvider.vue"
 <template>
@@ -189,7 +172,7 @@ The provider component initializes Knock, authenticates the user, and makes the 
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, provide, ref, watch } from "vue";
+import { onMounted, onUnmounted, provide } from "vue";
 import { useKnock } from "../composables/useKnock";
 import { useKnockGuides } from "../composables/useKnockGuides";
 
@@ -204,49 +187,21 @@ const knockGuides = useKnockGuides(knock.knockClient);
 
 // Make the guide client available to all descendant components
 provide("knockGuides", knockGuides);
-provide("knockChannelId", props.channelId);
-
-// Tracks whether guide initialization is in progress. This prevents the
-// knock.isReady watcher from triggering a second initializeGuideClient call
-// while onMounted is still awaiting the first one: authenticate() sets
-// isAuthenticated synchronously, which makes knock.isReady true and queues
-// the watcher before onMounted resumes after its await.
-const isInitializingGuides = ref(false);
-
-const initializeGuides = async (): Promise<void> => {
-  if (isInitializingGuides.value || knockGuides.isReady.value) return;
-
-  isInitializingGuides.value = true;
-  try {
-    await knockGuides.initializeGuideClient(props.channelId);
-    await knockGuides.fetchGuides();
-  } finally {
-    isInitializingGuides.value = false;
-  }
-};
 
 onMounted(async () => {
   try {
     await knock.initializeKnock(props.apiKey);
-    await knock.authenticate(props.user);
+    knock.authenticate(props.user);
 
-    if (knock.knockClient.value) {
-      await initializeGuides();
-    }
+    knockGuides.initializeGuideClient(props.channelId);
+    await knockGuides.fetchGuides();
   } catch (error) {
     console.error("Failed to initialize Knock guides:", error);
   }
 });
 
-// Re-initialize guides if the Knock client becomes ready after mount
-// (e.g. when authentication is handled asynchronously outside this component)
-watch(knock.isReady, async (isReady) => {
-  if (isReady) {
-    await initializeGuides();
-  }
-});
-
 onUnmounted(() => {
+  knockGuides.guideClient.value?.cleanup();
   knock.knockClient.value?.teardown();
 });
 </script>
@@ -275,7 +230,7 @@ The `useGuide` composable mirrors the React [`useGuide`](/in-app-ui/react/sdk/ho
 ```typescript title="composables/useGuide.ts"
 import { computed } from "vue";
 
-interface GuideFilters extends Record<string, unknown> {
+interface GuideFilters {
   type?: string;
   key?: string;
 }
@@ -295,28 +250,22 @@ export function useGuide(
       guides: computed(() => []),
       loading: computed(() => false),
       error: computed(() => null),
+      isReady: computed(() => false),
     };
   }
 
-  const filters: GuideFilters = {};
-  if (type) filters.type = type;
-  if (key) filters.key = key;
-
+  // Filter from the reactive guides ref so step recomputes whenever the
+  // store subscription updates state.guides in useKnockGuides
   const step = computed(() => {
-    try {
-      const matchingGuide = knockGuides.getGuide(filters) as {
-        steps?: unknown[];
-      } | null;
+    const match = knockGuides.guides.value.find((g) => {
+      if (type && g.type !== type) return false;
+      if (key && g.key !== key) return false;
+      return true;
+    });
 
-      if (!matchingGuide?.steps?.length) {
-        return null;
-      }
-
-      return matchingGuide.steps[0] || null;
-    } catch (error) {
-      console.error("Error getting guide step:", error);
-      return null;
-    }
+    // getStep() applies the SDK's display-ordering logic rather than
+    // indexing steps directly
+    return match?.getStep() ?? null;
   });
 
   return {
@@ -343,7 +292,7 @@ Each step also provides these methods for [tracking engagement](/in-app-ui/guide
 
 | Method               | Description                                                                                               |
 | -------------------- | --------------------------------------------------------------------------------------------------------- |
-| `markAsSeen()`       | Marks the guide as read.                                                                                  |
+| `markAsSeen()`       | Marks the guide as seen.                                                                                  |
 | `markAsInteracted()` | Marks the guide as interacted, recording a click event or other user interaction, with optional metadata. |
 | `markAsArchived()`   | Marks the guide as archived, removing the guide from eligibility for the user.                            |
 
@@ -413,10 +362,8 @@ interface ButtonContent {
 
 interface GuideStep {
   content?: Record<string, any>;
-  markAsSeen?: () => void;
-  markAsInteracted?: (opts: {
-    metadata: Record<string, unknown>;
-  }) => Promise<void>;
+  markAsSeen?: () => Promise<void>;
+  markAsInteracted?: (metadata?: Record<string, unknown>) => Promise<void>;
   markAsArchived?: () => Promise<void>;
 }
 
@@ -432,7 +379,8 @@ const handleButtonClick = async (
 ): Promise<void> => {
   if (typedStep.value?.markAsInteracted) {
     await typedStep.value.markAsInteracted({
-      metadata: { type: "button_click", button_type: buttonType },
+      type: "button_click",
+      button_type: buttonType,
     });
   }
 
@@ -447,13 +395,16 @@ const handleDismiss = async (): Promise<void> => {
   }
 };
 
-// Mark each guide as seen when it first appears; comparing old and new step avoids
-// calling markAsSeen again on unrelated reactive updates to the same step
-watch(typedStep, (newStep, oldStep) => {
-  if (newStep && newStep !== oldStep) {
-    newStep.markAsSeen?.();
-  }
-});
+// Mark the guide as seen each time it renders
+watch(
+  typedStep,
+  (newStep) => {
+    if (newStep) {
+      newStep.markAsSeen?.();
+    }
+  },
+  { immediate: true },
+);
 </script>
 ```
 
@@ -471,8 +422,8 @@ See [debugging guides](/in-app-ui/guides/debugging-guides) for general troublesh
 
 | Issue                                                                                | Solution                                                                                                                                                                                               |
 | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Guides are not appearing after authentication.                                       | Check that `knock.knockClient.value` exists before calling `initializeGuideClient`. The `watch` on `knock.isReady` in `KnockProvider.vue` handles cases where the client becomes ready asynchronously. |
-| The store subscription is not updating components.                                   | Confirm that `guideClient.value.store.subscribe` is being called after `initializeGuideClient`.                                                                                                        |
+| Guides are not appearing after authentication.                                       | Check that `knock.knockClient.value` exists before calling `initializeGuideClient`. Ensure `authenticate` is called before `initializeGuideClient` in `onMounted`.                                     |
+| The store subscription is not updating components.                                   | Confirm that `guideClient.value.store.subscribe` is being called inside `initializeGuideClient`, before `guideClient.value.subscribe()`.                                                               |
 | [Guide activation rules](/in-app-ui/guides/create-guides#activation) aren't working. | Ensure `urlpattern-polyfill` is imported at the top of your app entry point before initializing Knock: `import "urlpattern-polyfill"`                                                                  |
 
 ## Related docs
