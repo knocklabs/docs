@@ -29,7 +29,11 @@ import { MenuItem } from "@telegraph/menu";
 import { Tag } from "@telegraph/tag";
 import { Code, Text } from "@telegraph/typography";
 
-import { DocsSearchItem, EndpointSearchItem } from "@/types";
+import {
+  DocsSearchItem,
+  EndpointSearchItem,
+  EnhancedDocsSearchItem,
+} from "@/types";
 
 import { useInkeepModal } from "../AiChatButton";
 import { useAskAi } from "../AskAiContext";
@@ -62,7 +66,9 @@ function createAskAiPrompt(query: string): string {
   return `Can you tell me about ${query}`;
 }
 
-type ResultItem = (DocsSearchItem & BaseItem) | (EndpointSearchItem & BaseItem);
+type ResultItem =
+  | (EnhancedDocsSearchItem & BaseItem)
+  | (EndpointSearchItem & BaseItem);
 
 const algoliaAppId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID || "";
 const algoliaSearchApiKey =
@@ -175,6 +181,9 @@ const DocsSearchResult = ({
   const href = `/${item.path}`;
   const isApiRef = isApiReferencePath(item.path);
 
+  const enhancedItem = item as EnhancedDocsSearchItem;
+  const showPageTitle = !enhancedItem.isPageLevel && enhancedItem.pageTitle;
+
   const content = (
     <Box w="full" h="full" px="2" py="2">
       <Text as="p" size="2" color="default" weight="regular">
@@ -193,6 +202,7 @@ const DocsSearchResult = ({
         )}
       </Text>
       <Text as="span" size="1" color="gray" weight="regular">
+        {showPageTitle ? `${enhancedItem.pageTitle} · ` : ""}
         {item.section}
       </Text>
     </Box>
@@ -823,7 +833,7 @@ const Autocomplete = () => {
                                   />
                                 ) : (
                                   <DocsSearchResult
-                                    item={item as DocsSearchItem}
+                                    item={item as EnhancedDocsSearchItem}
                                     onClick={() => autocomplete.setQuery("")}
                                   />
                                 )}
