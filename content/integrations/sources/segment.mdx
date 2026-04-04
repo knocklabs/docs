@@ -73,9 +73,19 @@ Once your Segment destination is set up, all events you trigger from the Segment
 
 From the source environment configuration page, click the "View in environment" button on one of the source environments. You'll be taken to the Segment source in the environment you selected, and you should see events sent. If you don't, try clicking the refresh button at the top of the list to refetch any incoming events.
 
+### How Knock translates Segment events
+
+Although Segment has its own event format, Knock translates incoming events into a common format that includes the following fields:
+
+- `user_id`. The ID of the user performing a given action (may not be set if a user has not been identified yet).
+- `data`. The primary contents of the event. For a Segment `track` call with associated `properties`, Knock uses those `properties` to set the `data` field.
+- `event`. The original event, as originally received by Knock.
+
 ## Triggering workflows from received events
 
 You can add a **track event** as a trigger to your workflow directly from the workflow builder. Click on the workflow's trigger step and change the type from "API" to "Source Event." Then you'll be able to select the event and map its properties into the data the workflow needs.
+
+You can have any number of workflows triggered by each event. If no workflow is configured for an event, the event is logged but no action is taken.
 
 <Callout
   emoji="✨"
@@ -105,7 +115,22 @@ You can add a **track event** as a trigger to your workflow directly from the wo
 }
 />
 
-[Read more on configuring workflow triggers](/integrations/sources/overview#workflow-triggers)
+<Callout
+  type="alert"
+  title="For workflow triggers, no more than 1000 recipients can be included in
+        each event."
+  text={
+    <>
+      If you exceed this limit, Knock will not process your workflow trigger and
+      instead generate an error log. <br />
+      <br />
+      If you need to manage a large list of recipients you might want to
+      consider using our{" "}
+      <a href="/concepts/subscriptions">subscriptions feature</a> to have Knock
+      manage the set of recipients who need to be notified instead.
+    </>
+  }
+/>
 
 ## Disabling a trigger
 
@@ -113,7 +138,7 @@ Triggers are automatically enabled when you create them. If you want to stop an 
 
 ## Enabling Identify events
 
-When Segment sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `userId` as the user's `id`, as well as `name`, `email`, `phone` (mapped as `phone_number` in Knock), `avatar`, `locale`, `timezone`, and any additional custom properties provided in the `traits` object.
+When Segment sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `userId` as the user's `id`, as well as `name`, `email`, `phone` (mapped as `phone_number` in Knock), `avatar`, `locale`, `timezone`, and any additional custom properties provided in the `traits` object. All custom properties are stored on the Knock user object and can be used in templates and other parts of Knock that rely on user properties.
 
 To enable the handling of identify events, open the settings for the source in the relevant Knock environment. You can then enable or disable handling identify events accordingly.
 
@@ -203,6 +228,36 @@ To ensure the user is notified, we'd change the id reference in `recipients` to 
 ```
 
 You can learn more about inline identification in [our documentation on identifying recipients](/managing-recipients/identifying-recipients).
+
+## Event idempotency
+
+You can enable idempotency checks to deduplicate Segment events that have already been received and processed. This is useful if you know Segment may send duplicate events to Knock.
+
+Knock automatically uses the `messageId` field from the Segment track spec as the idempotency key. No additional field configuration is needed — Segment includes a `messageId` in every track and identify event by default.
+
+To enable idempotency, open the **Settings** tab for your source environment configuration and toggle idempotency checks on.
+
+<Image
+  src="/images/integrations/sources/source-event-idempotency.png"
+  alt="A screenshot of where to configure idempotency for your Source."
+  width={800}
+  height={400}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+```json title="An example Segment event with a valid idempotency key."
+{
+  "type": "track",
+  "event": "user.created",
+  "messageId": "some-id-from-segment",
+  "properties": {
+    "id": "user-1",
+    "email": "user-1@example.com"
+  }
+}
+```
+
+Events without a `messageId` are processed normally. For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.
 
 ## Video walkthrough
 

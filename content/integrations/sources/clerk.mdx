@@ -1,0 +1,66 @@
+---
+title: Clerk source
+description: Receive Clerk webhook events in Knock to trigger workflows and automate actions based on authentication and user management events.
+section: Integrations > Sources
+layout: integrations
+---
+
+The Clerk source enables you to receive [Clerk webhook events](https://clerk.com/docs/webhooks/overview) directly in Knock. Clerk sends webhook callbacks when events occur in your application, such as a new user signing up, a session being created, or an organization being updated. Knock verifies each payload using your Clerk webhook signing secret, identifies the event type, and executes the actions you configure.
+
+This integration is useful for building notifications around user lifecycle events: triggering welcome workflows when users sign up, notifying admins about organization changes, or syncing user data into Knock when profile details are updated.
+
+## Prerequisites
+
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- A Clerk application with access to the [Webhooks settings](https://dashboard.clerk.com) in the Clerk dashboard.
+
+## Getting started
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Integrations** > **Sources** in the Knock dashboard. Click "Create source" and select **Clerk** as the source type. Give it a name and description.
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, copy the webhook URL for the environment you want to configure.
+  </Step>
+  <Step title="Add the webhook endpoint in Clerk">
+    In the [Clerk dashboard](https://dashboard.clerk.com), navigate to **Webhooks** and click "Add endpoint." Paste the Knock webhook URL and select the events you want Clerk to send.
+  </Step>
+  <Step title="Copy the signing secret into Knock">
+    After creating the endpoint in Clerk, Clerk provides a signing secret. Copy this value and paste it into the **Signing secret** field in your Knock source environment configuration.
+  </Step>
+</Steps>
+
+Once configured, Clerk sends webhook events to Knock in real time. You can verify that events are arriving by checking the event logs on the source environment page.
+
+## Pre-configured events
+
+Clerk sends events for user, session, and organization lifecycle changes. Below are common events you might map to actions in Knock. You can enable or disable individual event types from the source environment configuration.
+
+| Event type | Description |
+| --- | --- |
+| `user.created` | A new user signed up |
+| `user.updated` | User profile details were updated |
+| `user.deleted` | A user was deleted |
+| `session.created` | A new session was created (user signed in) |
+| `session.ended` | A session ended (user signed out) |
+| `organization.created` | A new organization was created |
+| `organization.updated` | Organization details were updated |
+| `organizationMembership.created` | A user was added to an organization |
+| `organizationMembership.deleted` | A user was removed from an organization |
+
+See the [Clerk webhook events documentation](https://clerk.com/docs/webhooks/sync-data) for the full list of available events.
+
+## Customization
+
+You can modify the default action mappings or add new ones for any event type Knock receives from Clerk. For details on how field mapping works with dot-notation paths, see the [HTTP source](/integrations/sources/http) page.
+
+If you need to map Clerk events to actions beyond triggering workflows, see the full list of [available actions](/integrations/sources/overview#available-actions) in the sources overview.
+
+## Event idempotency
+
+Knock automatically configures idempotency for the Clerk source so duplicate events are not processed twice. By default, Knock uses `[IDEMPOTENCY_KEY_PATH]` from the Clerk webhook payload as the idempotency key.
+
+You can change the idempotency key field or disable idempotency checks from the **Settings** tab in your source environment configuration. Events without an idempotency key attribute are processed normally.
+
+For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.
