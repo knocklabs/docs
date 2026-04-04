@@ -15,6 +15,20 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/sources",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/catalog", title: "Source catalog" },
+      {
+        title: "Incoming webhooks",
+        slug: "/incoming-webhooks",
+        pages: [
+          { slug: "/overview", title: "Overview" },
+          { slug: "/custom-webhooks", title: "Custom webhooks" },
+          { slug: "/clerk", title: "Clerk" },
+          { slug: "/posthog", title: "PostHog" },
+          { slug: "/stripe", title: "Stripe" },
+          { slug: "/supabase", title: "Supabase" },
+          { slug: "/workos", title: "WorkOS" },
+        ],
+      },
       { slug: "/segment", title: "Segment" },
       { slug: "/rudderstack", title: "RudderStack" },
       { slug: "/hightouch", title: "Hightouch" },

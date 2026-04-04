@@ -1,0 +1,35 @@
+---
+title: Source catalog
+description: A quick comparison of all available Knock sources, their integration methods, and capabilities.
+section: Integrations > Sources
+layout: integrations
+---
+
+This page provides a quick reference for comparing the available Knock sources. Each source connects to Knock differently depending on the platform type and integration method, and supports a different set of capabilities.
+
+## Source comparison
+
+| Source | Platform type | Integration method | Identify users | Trigger workflows | Sync audiences | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| [Segment](/integrations/sources/segment) | CDP | Webhook destination in Segment pointing to Knock source URL | Yes | Yes | No | GA |
+| [RudderStack](/integrations/sources/rudderstack) | CDP | Webhook destination in RudderStack pointing to Knock source URL | Yes | Yes | No | GA |
+| [Hightouch](/integrations/sources/hightouch) | Reverse ETL | HTTP request destination (Knock API calls) + Embedded destination (audiences) | Yes | Yes | Yes | GA |
+| [Census](/integrations/sources/census) | Reverse ETL | Custom destination API + HTTP request destination (Knock API calls) | Yes | Yes | Yes | GA |
+| [Polytomic](/integrations/sources/polytomic) | Reverse ETL | Downstream destination | Yes | Yes | No | Beta |
+| [Jitsu](/integrations/sources/jitsu) | CDP | Downstream destination | Yes | Yes | No | Beta |
+| [Freshpaint](/integrations/sources/freshpaint) | CDP | Downstream destination | Yes | Yes | No | Beta |
+| [HTTP](/integrations/sources/http) | Generic | Direct POST to Knock-provided ingestion endpoint | No | Yes | No | GA |
+
+## Integration methods explained
+
+There are a few different patterns for how sources connect to Knock. Understanding these can help you evaluate which source best fits your stack.
+
+- **Webhook destination.** Segment and RudderStack do not have first-party Knock integrations. Instead, you configure a webhook destination within those platforms that points to a Knock-provided source URL. Events (track and identify) flow through the webhook into Knock, where they appear as source events that can trigger workflows.
+
+- **HTTP request destination (Knock API calls).** Hightouch and Census can make direct HTTP requests to the Knock API as part of their sync process. This is how both platforms handle identifying users in Knock. For example, Hightouch uses its HTTP request destination to call `PUT /v1/users/{id}`, while Census uses its HTTP request destination to call `/users/bulk/identify`. This approach gives you fine-grained control over which Knock API endpoints the platform calls.
+
+- **Custom or embedded destination (audience syncs).** Hightouch and Census also offer a purpose-built integration path for syncing audiences into Knock. Hightouch uses an "Embedded Destination" and Census uses a "Custom Destination API," both of which connect to Knock-specific endpoints (e.g. `https://api.knock.app/v1/integrations/hightouch/embedded-destination`). These are simpler to configure than generic HTTP requests and support automatic add/remove of audience members.
+
+- **Direct HTTP endpoint.** The HTTP source provides a generic ingestion endpoint that you can POST structured JSON events to from any service. It only supports track events (no identify), making it the most flexible but also the most manual option.
+
+- **Downstream destination (beta).** Jitsu, Freshpaint, and Polytomic are described as downstream destinations but are currently in beta with limited documentation. Contact [support@knock.app](mailto:support@knock.app) if you need early access.
