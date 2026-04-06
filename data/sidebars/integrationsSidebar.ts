@@ -27,7 +27,8 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/polytomic", title: "Polytomic" },
       { slug: "/jitsu", title: "Jitsu" },
       { slug: "/freshpaint", title: "Freshpaint" },
-      { slug: "/http", title: "HTTP" },
+      { slug: "/custom", title: "Custom source" },
+      { slug: "/http", title: "HTTP", isLegacy: true },
     ],
   },
   {

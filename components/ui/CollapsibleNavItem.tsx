@@ -15,6 +15,7 @@ export type CollapsibleNavItemProps = TgphComponentProps<typeof MenuItem> & {
   className?: string;
   color?: "default" | "gray";
   isBeta?: boolean;
+  isLegacy?: boolean;
 };
 
 export const CollapsibleNavItem = ({
@@ -25,6 +26,7 @@ export const CollapsibleNavItem = ({
   color = "default",
   className = "",
   isBeta = false,
+  isLegacy = false,
   ...props
 }: CollapsibleNavItemProps) => {
   return (
@@ -50,6 +52,11 @@ export const CollapsibleNavItem = ({
           {isBeta && (
             <Tag size="0" color="blue" ml="2">
               Beta
+            </Tag>
+          )}
+          {isLegacy && (
+            <Tag size="0" color="yellow" ml="2">
+              Legacy
             </Tag>
           )}
           <Icon
