@@ -1,4 +1,4 @@
-import Image from "next/image";
+import NextImage from "next/image";
 import { CodeBlock } from "../components/ui/CodeBlock";
 import { Callout } from "../components/ui/Callout";
 import MultiLangCodeBlock from "../components/ui/MultiLangCodeBlock";
@@ -40,6 +40,20 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { ContentActions } from "@/components/ui/ContentActions";
 import FeaturesMatrix from "@/components/ui/FeaturesMatrix";
 import { PreTextDiagram } from "@/components/ui/PreTextDiagram";
+
+const Image = ({
+  className,
+  border = true,
+  ...props
+}: React.ComponentProps<typeof NextImage> & { border?: boolean }) => (
+  <div
+    className={`overflow-hidden rounded-md inline-block ${
+      border ? "border border-gray-200 dark:border-gray-700" : ""
+    } ${className ?? ""}`}
+  >
+    <NextImage {...props} />
+  </div>
+);
 
 export const MDX_COMPONENTS = {
   pre: (props) => <CodeBlock mb="2" {...props} />,
