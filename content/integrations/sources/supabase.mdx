@@ -7,9 +7,23 @@ section: Integrations > Sources
 layout: integrations
 ---
 
-The Supabase source enables you to receive [Supabase database webhook events](https://supabase.com/docs/guides/database/webhooks) directly in Knock. Supabase sends webhook callbacks when row-level changes occur in your database tables, such as inserts, updates, or deletes. Knock verifies each payload, identifies the event type, and executes the actions you configure.
+The Supabase source enables you to receive [Supabase database webhook events](https://supabase.com/docs/guides/database/webhooks) directly in Knock. Supabase sends webhook callbacks when row-level changes occur in your database tables, such as inserts, updates, or deletes. Knock identifies the event type and executes the actions you configure.
 
 This integration is useful for building notifications that react to database changes: alerting users when a record relevant to them is created, triggering workflows when data is updated, or automating cleanup actions when rows are deleted.
+
+<Callout
+  type="warning"
+  emoji="⚠️"
+  title="No built-in webhook verification for Supabase."
+  text={
+    <>
+      Supabase database webhooks do not include a signing secret or built-in
+      payload verification mechanism. Any request that reaches your Knock
+      webhook URL will be accepted. Consider restricting access at the network
+      level or validating payloads in your workflow logic if this is a concern.
+    </>
+  }
+/>
 
 ## Prerequisites
 
@@ -20,23 +34,78 @@ This integration is useful for building notifications that react to database cha
 
 <Steps>
   <Step title="Create the source in Knock">
-    Navigate to **Integrations** > **Sources** in the Knock dashboard. Click
-    "Create source" and select **Supabase** as the source type. Give it a name
-    and description.
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the
+    **Supabase** template as the source type.
+
+    <Image
+      src="/images/integrations/sources/sources-location.png"
+      alt="The Sources page in the Knock dashboard"
+      width={2912}
+      height={1448}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
+  </Step>
+  <Step title="Select default action mappings">
+    Once you've selected **Supabase** as a source, you can select your desired action mappings. The default mappings use Supabase table events like `auth.users:INSERT` to identify users in Knock. You can always add additional action mappings later. Click the **Connect Supabase** button to continue.
+
+    <Image
+      src="/images/integrations/sources/supabase/configure-default-mappings.png"
+      alt="The Supabase source creation modal showing default action mappings for incoming events"
+      width={2980}
+      height={1700}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
   </Step>
   <Step title="Copy the webhook URL">
-    After creating the source, copy the webhook URL for the environment you want
-    to configure.
+    After creating the source, copy the event ingestion URL from the setup wizard. You will paste this into the Supabase dashboard in the next steps.
+
+    <Image
+      src="/images/integrations/sources/supabase/copy-webhook-url.png"
+      alt="The Supabase source setup wizard showing the event ingestion URL to copy"
+      width={2982}
+      height={1614}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
   </Step>
-  <Step title="Create a database webhook in Supabase">
-    In the [Supabase dashboard](https://supabase.com/dashboard), navigate to
-    **Database** > **Webhooks** and click "Create a new hook." Select the table
-    and the events (INSERT, UPDATE, DELETE) you want to send to Knock. Set the
-    type to **HTTP Request** and paste the Knock webhook URL.
+  <Step title="Navigate to database webhooks in Supabase">
+    In the [Supabase dashboard](https://supabase.com/dashboard), select your project and navigate to **Integrations** > **Database Webhooks**. Click the **Webhooks** tab, then click **Create a new hook**.
+
+    <Image
+      src="/images/integrations/sources/supabase/supabase-database-webhooks.png"
+      alt="The Supabase dashboard Database Webhooks page with the Create a new hook button"
+      width={2978}
+      height={1638}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
   </Step>
-  <Step title="Configure headers (optional)">
-    If you want to add an authorization header or other custom headers to the
-    webhook request, you can configure them in the Supabase webhook settings.
+  <Step title="Configure the webhook table and events">
+    In the webhook creation form, give the webhook a name and select the table you want to monitor (for example, `auth.users`). Under **Events**, check the operations you want to trigger notifications for: **Insert**, **Update**, and **Delete**. Under **Type of webhook**, select **HTTP Request**.
+
+    <Image
+      src="/images/integrations/sources/supabase/supabase-create-webhook-events.png"
+      alt="The Supabase create webhook dialog showing table selection and event checkboxes"
+      width={2974}
+      height={1714}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
+  </Step>
+  <Step title="Paste the Knock webhook URL">
+    In the **HTTP Request** section, set the method to **POST** and paste the Knock event ingestion URL you copied earlier into the **URL** field. You can optionally add custom HTTP headers. Click **Create webhook** to finish.
+
+    <Image
+      src="/images/integrations/sources/supabase/supabase-create-webhook-url.png"
+      alt="The Supabase create webhook dialog showing the HTTP Request URL field with the Knock webhook URL"
+      width={2982}
+      height={1840}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
   </Step>
 </Steps>
 
@@ -62,8 +131,6 @@ If you need to map Supabase events to actions beyond triggering workflows, see t
 
 ## Event idempotency
 
-Knock automatically configures idempotency for the Supabase source so duplicate events are not processed twice. By default, Knock uses `[IDEMPOTENCY_KEY_PATH]` from the Supabase webhook payload as the idempotency key.
-
-You can change the idempotency key field or disable idempotency checks from the **Settings** tab in your source environment configuration. Events without an idempotency key attribute are processed normally.
+Supabase database webhooks do not include a built-in idempotency key. You can enable idempotency checks and configure a key field from the **Settings** tab in your source environment configuration if your payload contains a unique identifier you want to use for deduplication. Events without an idempotency key attribute are processed normally.
 
 For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.

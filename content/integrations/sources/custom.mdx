@@ -1,13 +1,13 @@
 ---
 title: Custom source
-description: Send custom webhook events from any service into Knock and map them to actions like triggering workflows and identifying users.
+description: Send custom webhook events from any service into Knock and map them to actions like triggering workflows and identifying users, with optional scripting for verification and preprocessing.
 metaTitle: Custom source integration
-metaDescription: Send webhook events from any service into Knock using a custom source with configurable event types, field mapping, and signature verification.
+metaDescription: Send webhook events from any service into Knock using a custom source with configurable event types, field mapping, and scripting for verification and preprocessing.
 section: Integrations > Sources
 layout: integrations
 ---
 
-The custom source enables you to receive webhook events from any service that can make HTTP callbacks and map those events to actions inside Knock. Use it when you need to connect a service that Knock does not yet offer a [pre-built integration](/integrations/sources/overview) for, or when you want to send events from your own internal tools and applications. The custom source supports optional [signature verification](#signature-verification) so you can ensure that incoming payloads are authentic.
+The custom source enables you to receive webhook events from any service that can make HTTP callbacks and map those events to actions inside Knock. Use it when you need to connect a service that Knock does not yet offer a [pre-built integration](/integrations/sources/overview) for, or when you want to send events from your own internal tools and applications. The custom source supports optional [scripting](#scripting) so you can verify incoming payloads and preprocess them before field mapping.
 
 ## When to use custom webhooks
 
@@ -32,85 +32,66 @@ For services with pre-built integrations (Stripe, Clerk, WorkOS, Supabase, PostH
     environment. Click the "Copy webhook destination URL" button for the
     environment you want to configure.
   </Step>
-  <Step title="Copy the signing key (optional)">
-    Each environment configuration includes a unique signing key. You can find
-    it under the **Signing key** field on the source environment page. If you
-    plan to verify that payloads sent to Knock are authentic, copy this key and
-    store it securely in the service that sends webhooks. See the [signature
-    verification](#signature-verification) section for implementation details.
+  <Step title="Store a signing secret (optional)">
+    If the service sending webhooks signs its payloads and you want to verify
+    them in a script, store the signing secret as an account-level
+    [variable](/concepts/variables). Your script can then access it through the
+    `vars` object in the context Knock passes to `main`.
   </Step>
   <Step title="Configure your service">
     Paste the webhook URL into your service's webhook or callback settings.
-    Knock accepts `POST` requests with a JSON body. If you are using signature
-    verification, include the computed signature in the request headers as
-    described in the [signature verification](#signature-verification) section.
+    Knock accepts `POST` requests with a JSON body. If your source includes a
+    [script](#scripting), Knock runs it on every incoming request to handle
+    verification and any preprocessing you need.
   </Step>
 </Steps>
 
-## Signature verification
+## Scripting
 
-Signature verification enables you to confirm that webhook payloads received by Knock were sent by your service and have not been tampered with in transit. While optional, enabling signature verification is recommended for any production integration.
+Each custom source can have a script that runs every time Knock receives a webhook request. Scripts enable you to verify that incoming payloads are authentic and preprocess payloads before field mapping.
 
-When signature verification is enabled, Knock expects every incoming request to include an HMAC-SHA256 signature computed from the raw request body and the signing key associated with your source environment. If the signature is missing or does not match, Knock rejects the request with a `401` response.
+A script must export a `main` function. Knock calls `main` with a context object that contains the following properties:
 
-### How it works
+| Property  | Description                                    |
+| --------- | ---------------------------------------------- |
+| `vars`    | Account-level [variables](/concepts/variables) |
+| `body`    | The parsed request body object                 |
+| `rawBody` | The raw request body string                    |
+| `headers` | HTTP headers from the incoming request         |
 
-1. Your service computes an HMAC-SHA256 hash of the raw JSON request body using the signing key from your Knock source environment configuration.
-2. Your service includes the resulting hex-encoded signature in the `X-Knock-Signature` header of the `POST` request.
-3. Knock recomputes the signature server-side using the same signing key and compares it with the value in the header.
-4. If the signatures match, Knock accepts and processes the event. If they do not match, Knock rejects the request.
+### Verification
 
-### Enabling signature verification
+The `main` function must return an object with a `verified` boolean. If `verified` is `false` or missing, Knock rejects the request with a `401` response.
 
-You can enable signature verification from the **Settings** tab on your source environment configuration page. Once enabled, Knock enforces signature checks on every incoming request for that environment. Make sure your sending service is computing and including the signature before you enable this setting, otherwise Knock rejects all incoming events.
+If the sending service signs its payloads, store the signing secret as an account-level [variable](/concepts/variables) so your script can access it through `vars`.
 
-<Callout
-  emoji="⚠️"
-  title="Note:"
-  text={
-    <>
-      Enable signature verification on your development environment first and
-      confirm that events are accepted before enabling it in production.
-    </>
-  }
-/>
+```javascript
+async function main(ctx) {
+  const { headers, rawBody, vars } = ctx;
+  const signingSecret = vars.my_signing_secret;
+  const isValid = await verifySignature(headers, rawBody, signingSecret);
+  return { verified: isValid };
+}
+```
 
-### Computing the signature
+The verification logic is up to you. Use whatever algorithm and header convention the sending service expects. Full per-source verification examples are available on the dedicated source integration pages (for example, [Stripe](/integrations/sources/stripe)).
 
-To compute the signature, use the HMAC-SHA256 algorithm with your signing key and the raw request body as inputs. The result must be hex-encoded and sent in the `X-Knock-Signature` header.
+### Preprocessing
 
-Below are reference implementations in common languages.
+Any additional keys you return from `main` alongside `verified` become available in field mappings under the `preprocess` namespace. This is useful when you need to normalize or reshape the incoming payload before mapping it to action parameters.
 
-    ```javascript
-    const crypto = require("crypto");
+```javascript
+function main(ctx) {
+  const { body } = ctx;
+  return {
+    verified: true,
+    normalized_event: `${body.schema}.${body.table}:${body.type}`,
+    item_idempotency_key: `${body.record.id}_${body.record.updated_at}`,
+  };
+}
+```
 
-    function signPayload(signingKey, rawBody) {
-      return crypto
-        .createHmac("sha256", signingKey)
-        .update(rawBody, "utf8")
-        .digest("hex");
-    }
-
-    // When sending the webhook request
-    const body = JSON.stringify(payload);
-    const signature = signPayload(process.env.KNOCK_SIGNING_KEY, body);
-
-    fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Knock-Signature": signature,
-      },
-      body,
-    });
-    ```
-
-### Important considerations
-
-- **Use the raw body.** Compute the signature from the exact bytes you send as the request body. If you serialize the JSON, sign it, and then re-serialize, the signatures will not match.
-- **Store the signing key securely.** Treat the signing key like any other secret. Use environment variables or a secrets manager rather than hardcoding it.
-- **Rotate keys carefully.** If you need to rotate a signing key, update the key in your sending service first. Then generate a new key in Knock. There will be a brief window where requests signed with the old key are rejected, so coordinate the change during a low-traffic period or pause event sending while you rotate.
-- **Signature failures.** If Knock rejects a request due to a signature mismatch, the event appears in your source logs with a verification failure status. Check that the signing key matches and that no middleware is modifying the request body before it reaches Knock.
+In this example, `normalized_event` becomes `preprocess.normalized_event` and `item_idempotency_key` becomes `preprocess.item_idempotency_key` in field mapping paths.
 
 ## Configuring event types
 
@@ -175,6 +156,7 @@ You could create the following mappings when triggering a workflow:
 A few things to keep in mind:
 
 - Paths are case-sensitive and follow the structure of your JSON payload.
+- If your source has a [preprocessing script](#preprocessing), the values it returns are available under the `preprocess.*` namespace alongside the raw payload paths. For example, a script that returns `normalized_event` can be mapped using the path `preprocess.normalized_event`.
 - You can map a single event to multiple action parameters.
 - Knock validates that required fields are populated before executing the action. If a required field is missing, the action is skipped and an error appears in the action log.
 

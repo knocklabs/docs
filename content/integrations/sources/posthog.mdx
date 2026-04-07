@@ -20,27 +20,70 @@ This integration is useful for building notifications triggered by product behav
 
 <Steps>
   <Step title="Create the source in Knock">
-    Navigate to **Integrations** > **Sources** in the Knock dashboard. Click
-    "Create source" and select **PostHog** as the source type. Give it a name
-    and description.
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the
+    **PostHog** template as the source type.
+
+    <Image
+      src="/images/integrations/sources/sources-location.png"
+      alt="The Sources page in the Knock dashboard"
+      width={2912}
+      height={1448}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
+  </Step>
+  <Step title="Select default action mappings">
+    Once you've selected **PostHog** as a source, you can select your desired action mappings. The defaults map PostHog events like `$identify` and `$set` to identify users in Knock. You can always add additional action mappings later. Click the **Connect PostHog** button to continue.
+
+    <Image
+      src="/images/integrations/sources/posthog/configure-default-mappings.png"
+      alt="The PostHog source creation modal showing default action mappings for incoming events"
+      width={2978}
+      height={1654}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
   </Step>
   <Step title="Copy the webhook URL">
-    After creating the source, copy the webhook URL for the environment you want
-    to configure.
+    After creating the source, copy the event ingestion URL from the setup wizard. You will paste this into PostHog in the next steps.
+
+    <Image
+      src="/images/integrations/sources/posthog/copy-webhook-url.png"
+      alt="The PostHog source setup wizard showing the event ingestion URL to copy"
+      width={2980}
+      height={1638}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
   </Step>
-  <Step title="Configure a webhook destination in PostHog">
-    In PostHog, navigate to the **Data pipelines** section and add a new [Knock
-    destination](https://posthog.com/docs/cdp/destinations/knock). Paste the
-    Knock webhook URL. You can configure which actions or events trigger the
-    webhook.
+  <Step title="Create a Knock destination in PostHog">
+    In PostHog, navigate to **Data pipelines** and click **New destination**. Search for "Knock" and click **Create** on the [Knock destination](https://posthog.com/docs/cdp/destinations/knock).
+
+    <Image
+      src="/images/integrations/sources/posthog/posthog-new-destination.png"
+      alt="The PostHog Data pipelines page showing the Knock destination in the new destination search results"
+      width={2978}
+      height={1564}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
   </Step>
-  <Step title="Test the connection">
-    Trigger a test action in PostHog and verify that the event appears in the
-    Knock source event logs.
+  <Step title="Configure the Knock destination">
+    On the Knock destination configuration page, paste the Knock event ingestion URL into the **Knock.app webhook destination URL** field. Set the **User ID** field to the property that maps to your Knock user IDs (for example, `{person.id}`). You can optionally configure filters to limit which events are sent, add event matchers to target specific actions, and set up attribute mappings. When ready, click **Create & enable**.
+
+    <Image
+      src="/images/integrations/sources/posthog/posthog-configure-destination.png"
+      alt="The PostHog Knock destination configuration page showing webhook URL, User ID, filters, and event matchers"
+      width={2976}
+      height={1826}
+      className="rounded-md mx-auto border border-gray-200"
+    />
+
   </Step>
 </Steps>
 
-Once configured, PostHog sends webhook events to Knock when the specified actions or events fire. You can verify that events are arriving by checking the event logs on the source environment page.
+Once configured, PostHog sends events to Knock based on your destination filters and event matchers. You can verify that events are arriving by checking the event logs on the source environment page.
 
 ## Pre-configured events
 
@@ -62,7 +105,7 @@ If you need to map PostHog events to actions beyond triggering workflows, see th
 
 ## Event idempotency
 
-Knock automatically configures idempotency for the PostHog source so duplicate events are not processed twice. By default, Knock uses `[IDEMPOTENCY_KEY_PATH]` from the PostHog webhook payload as the idempotency key.
+Knock automatically configures idempotency for the PostHog source so duplicate events are not processed twice. By default, Knock uses `body.messageId` from the PostHog webhook payload as the idempotency key.
 
 You can change the idempotency key field or disable idempotency checks from the **Settings** tab in your source environment configuration. Events without an idempotency key attribute are processed normally.
 
