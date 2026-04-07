@@ -81,21 +81,33 @@ When a source event is received, you can configure Knock to execute any of the f
 
 After events start flowing into Knock you can configure mappings that tell Knock which action to run and how to populate its parameters. Mappings use dot-notation paths to extract values from the incoming payload and map them to the fields required by each action.
 
-For example, given a payload like:
+<Image
+  src="/images/integrations/sources/event-action-mapping.png"
+  alt="The event-to-action mapping configuration in the Knock dashboard, showing how incoming event fields map to action parameters"
+  width={2912}
+  height={1448}
+  className="rounded-md mx-auto border border-gray-200"
+/>
+
+For example, a Stripe `invoice.paid` event includes nested data about the invoice and customer:
 
 ```json
 {
   "type": "invoice.paid",
   "data": {
     "object": {
+      "id": "in_1abc123",
       "customer": "cus_abc123",
-      "amount_due": 4999
+      "customer_email": "jane@example.com",
+      "amount_due": 4999,
+      "currency": "usd",
+      "subscription": "sub_xyz789"
     }
   }
 }
 ```
 
-You could map `data.object.customer` to the `recipients` field when triggering a workflow.
+You could map `data.object.customer` to the `recipients` field and `data.object` to the `data` field when triggering a workflow, giving your templates access to the invoice amount, currency, and subscription details.
 
 For full details on configuring custom event types and field mappings, see the [custom source page](/integrations/sources/custom).
 
