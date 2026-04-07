@@ -28,7 +28,15 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/jitsu", title: "Jitsu" },
       { slug: "/freshpaint", title: "Freshpaint" },
       { slug: "/custom", title: "Custom source" },
-      { slug: "/http", title: "HTTP", isLegacy: true },
+      {
+        title: "Legacy",
+        slug: "/legacy",
+        pages: [
+          { slug: "/segment", title: "Segment", isLegacy: true },
+          { slug: "/rudderstack", title: "RudderStack", isLegacy: true },
+          { slug: "/http", title: "HTTP", isLegacy: true },
+        ],
+      },
     ],
   },
   {
