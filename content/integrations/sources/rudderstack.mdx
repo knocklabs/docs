@@ -22,9 +22,25 @@ layout: integrations
   }
 />
 
-The RudderStack source enables you to receive [RudderStack webhook events](https://www.rudderstack.com/docs/destinations/webhooks/webhook/) directly in Knock. RudderStack sends webhook callbacks when track and identify events flow through your workspace. Knock verifies each payload using your RudderStack webhook signing secret, identifies the event type, and executes the actions you configure.
+The RudderStack source enables you to receive [RudderStack webhook events](https://www.rudderstack.com/docs/destinations/webhooks/webhook/) directly in Knock. RudderStack sends webhook callbacks when track and identify events flow through your workspace. Knock identifies the event type and executes the actions you configure.
 
 This integration is useful for triggering notification workflows from track events, such as alerting users when key actions happen in your product, or syncing user data into Knock from identify events so recipient profiles stay up to date.
+
+<Callout
+  type="warning"
+  emoji="⚠️"
+  title="No built-in webhook verification for RudderStack."
+  text={
+    <>
+      RudderStack webhook destinations do not generate a signing secret or
+      include a built-in payload verification mechanism. If you need to verify
+      incoming payloads, you can include a shared secret as a custom header in
+      your RudderStack destination configuration and use a{" "}
+      <a href="/integrations/sources/custom#scripting">source script</a> in
+      Knock to validate it.
+    </>
+  }
+/>
 
 ## Prerequisites
 
@@ -49,62 +65,68 @@ This integration is useful for triggering notification workflows from track even
 
   </Step>
   <Step title="Select default action mappings">
-    Once you've selected **RudderStack** as a source, you can select your desired action mappings. You can always add additional action mappings later. Click the **Connect RudderStack** button to continue.
+    Once you've selected **RudderStack** as a source, you can select your desired action mappings. The defaults map common RudderStack events like `identify` to identify users and `track/order_completed` to trigger workflows. You can always add additional action mappings later. Click the **Connect RudderStack** button to continue.
 
     <Image
       src="/images/integrations/sources/rudderstack/configure-default-mappings.png"
       alt="The RudderStack source creation modal showing default action mappings for incoming events"
-      width={2978}
-      height={1810}
-
+      width={3104}
+      height={1684}
     />
 
   </Step>
   <Step title="Copy the webhook URL">
-    After creating the source, copy the webhook URL from the setup wizard for the environment you want to configure.
+    After creating the source, Knock displays a setup wizard. Copy the event ingestion URL from step 1 of the wizard. You will paste this into your RudderStack destination configuration in a later step.
 
     <Image
       src="/images/integrations/sources/rudderstack/copy-webhook-url.png"
-      alt="The RudderStack source setup wizard showing the webhook URL to copy"
-      width={2978}
-      height={1820}
-
+      alt="The RudderStack source setup wizard showing the event ingestion URL to copy"
+      width={3098}
+      height={1688}
     />
 
   </Step>
-  <Step title="Add a webhook destination in RudderStack">
-    In your RudderStack workspace, navigate to **Destinations** and click "New destination." Search for and select **Webhook** as the destination type. Paste the Knock webhook URL you copied in the previous step and make sure the URL method is set to POST.
+  <Step title="Search for the webhook destination in RudderStack">
+    In your RudderStack workspace, navigate to **Directory** > **Destinations** and search for "Webhook." Select the **Webhook** destination type from the results.
 
     <Image
-      src="/images/integrations/sources/rudderstack/rudderstack-add-webhook-destination.png"
-      alt="The RudderStack dashboard Destinations page with the Knock webhook URL configured"
-      width={2982}
-      height={1660}
-
+      src="/images/integrations/sources/rudderstack/search-webhook-destination.png"
+      alt="The RudderStack Directory showing search results for Webhook destinations"
+      width={3094}
+      height={1748}
     />
 
   </Step>
-  <Step title="Configure event mappings in RudderStack">
-    Set up the mapping to forward the desired track and identify events to Knock. You can choose which sources route into this destination and apply transformations if needed.
+  <Step title="Name the destination">
+    Give the destination a name to identify it in RudderStack, such as "Knock," and click **Continue**.
 
     <Image
-      src="/images/integrations/sources/rudderstack/rudderstack-configure-events.png"
-      alt="The RudderStack destination configuration page showing event mapping options"
-      width={2978}
-      height={1810}
-
+      src="/images/integrations/sources/rudderstack/name-destination.png"
+      alt="The RudderStack Create Webhook destination wizard with the Name field set to Knock"
+      width={3096}
+      height={1764}
     />
 
   </Step>
-  <Step title="Copy the signing secret into Knock">
-    If RudderStack provides a signing secret for the webhook destination, copy this value and paste it into the **Signing secret** field in your Knock source environment configuration.
+  <Step title="Connect to a source">
+    Select the RudderStack source you want to route events from. This determines which track and identify events are forwarded to Knock. Click **Continue** to proceed.
 
     <Image
-      src="/images/integrations/sources/rudderstack/rudderstack-signing-secret.png"
-      alt="The RudderStack webhook destination detail page showing the signing secret"
-      width={2980}
-      height={1642}
+      src="/images/integrations/sources/rudderstack/connect-to-source.png"
+      alt="The RudderStack Connect step showing a source selected to send events to the Webhook destination"
+      width={3090}
+      height={1780}
+    />
 
+  </Step>
+  <Step title="Configure the webhook URL">
+    In the **Connection Settings** step, paste the Knock event ingestion URL you copied earlier into the **Webhook URL** field and set the **URL Method** to `POST`. You can also add a `content-type: application/json` header. Click **Continue** to finish creating the destination.
+
+    <Image
+      src="/images/integrations/sources/rudderstack/configure-webhook-url.png"
+      alt="The RudderStack Configure step showing the Knock webhook URL and POST method"
+      width={3090}
+      height={1776}
     />
 
   </Step>

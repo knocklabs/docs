@@ -53,59 +53,52 @@ Knock supports ingesting any of Segment's <a href="https://segment.com/docs/conn
     <Image
       src="/images/integrations/sources/segment/configure-default-mappings.png"
       alt="The Segment source creation modal showing default action mappings for incoming events"
-      width={2978}
-      height={1810}
-
+      width={3098}
+      height={1696}
     />
 
   </Step>
   <Step title="Copy the webhook URL">
-    After creating the source, copy the webhook URL from the setup wizard for the environment you want to configure.
+    After creating the source, Knock displays a setup wizard. Copy the event ingestion URL from step 1 of the wizard. You will paste this into your Segment destination configuration in a later step.
 
     <Image
       src="/images/integrations/sources/segment/copy-webhook-url.png"
-      alt="The Segment source setup wizard showing the webhook URL to copy"
-      width={2978}
-      height={1820}
-
+      alt="The Segment source setup wizard showing the event ingestion URL to copy"
+      width={3096}
+      height={1716}
     />
 
   </Step>
   <Step title="Add a webhook destination in Segment">
-    In your Segment workspace, navigate to **Destinations** and click "Add Destination." Search for **Webhooks (Actions)** and select it. This is the destination type you will use to send events to Knock. Paste the Knock webhook URL you copied in the previous step.
+    In your Segment workspace, navigate to **Destinations** and click "Add Destination." Search for **Webhooks (Actions)** and select it. Choose the data source you want to receive events from, give the destination a name, and click "Create Destination."
+  </Step>
+  <Step title="Select events to send to Knock">
+    In the Segment destination, navigate to the **Mappings** tab and click "New Mapping." Under Actions, click "Send." Configure the event conditions to determine which events are forwarded to Knock. For example, you can add conditions for **Event type is Track** and **Event type is Identify**, and set the top operator to **any** to send both event types.
+  </Step>
+  <Step title="Map the webhook URL in Segment">
+    After selecting your events, proceed to the **Map fields** step. Paste the Knock event ingestion URL you copied earlier into the **URL** field and set the **Method** to `POST`.
 
     <Image
-      src="/images/integrations/sources/configure-webhooks.png"
-      alt="The Segment Destinations page showing the Webhooks (Actions) destination"
-      width={2188}
-      height={1236}
-
+      src="/images/integrations/sources/segment/segment-map-fields.png"
+      alt="The Segment Map fields step showing the Knock webhook URL in the URL field"
+      width={1996}
+      height={1238}
     />
 
   </Step>
-  <Step title="Configure event mappings in Segment">
-    Set up the mapping to forward the desired track and identify events to Knock. You can add conditions to filter which event types are sent, such as **Event type is Track** or **Event type is Identify**.
+  <Step title="Configure the signing secret">
+    Unlike other webhook providers, Segment does not auto-generate a signing secret. You need to generate your own secret and enter it in both Segment and Knock.
+
+    In your Segment destination, navigate to the **Settings** tab. Enter your generated secret in the **Shared Secret** field and click "Save Changes."
 
     <Image
-      src="/images/integrations/sources/webhooks-select-events.png"
-      alt="The Segment webhook mapping configuration showing event type conditions"
-      width={1698}
-      height={874}
-
+      src="/images/integrations/sources/segment/segment-shared-secret.png"
+      alt="The Segment Webhooks (Actions) destination Settings page showing the Shared Secret field"
+      width={2672}
+      height={1492}
     />
 
-  </Step>
-  <Step title="Copy the signing secret into Knock">
-    If Segment provides a signing secret for the webhook destination, copy this value and paste it into the **Signing secret** field in your Knock source environment configuration.
-
-    <Image
-      src="/images/integrations/sources/segment/segment-signing-secret.png"
-      alt="The Segment webhook destination detail page showing the signing secret"
-      width={2970}
-      height={1840}
-
-    />
-
+    Then, back in Knock, paste the same secret into the **Signing secret** field in step 2 of the setup wizard, or in the source environment configuration under the **Settings** tab.
   </Step>
 </Steps>
 
