@@ -5,55 +5,9 @@ tags: ["guides", "testing", "debugging", "development", "troubleshooting"]
 section: Building in-app UI > Guides
 ---
 
-Testing guides is essential to ensure they work correctly for your users before going live. This page covers how to test guides during development and troubleshoot issues that may arise during testing. Beyond local testing in your development environment, Knock provides Dashboard resources for testing guide edits in realtime, making guides more accessible to non-technical users.
+Testing guides is essential to ensure they work correctly for your users before going live. This page covers how to test guides during development and troubleshoot issues that may arise during testing.
 
-## Testing guides
-
-### Live preview
-
-<Callout
-  type="alert"
-  title="Note:"
-  text="You must be on @knocklabs/react version 0.8.0 or higher in order to use live preview. Older SDK versions do not have this capability."
-/>
-
-Live preview enables you to preview guides directly within your own application from the Knock dashboard, enabling realtime previews for non-technical users and expediting the guide creation process.
-
-With live preview, you can:
-
-- Preview how your guides will look and behave within your actual application.
-- Edit guide content while seeing exactly how they'll appear to users.
-- Get real-time validation and immediate feedback when a guide cannot render on the current page.
-- Validate that prebuilt components work correctly with your message type schema.
-- Iterate on guide designs without activating test guides in your dashboard.
-
-Note that in live preview mode, the guide component is force rendered to show how it looks within your application, so targeting rules and other eligibility conditions that would normally prevent the guide from rendering are ignored.
-
-<Image
-  src="/images/in-app-ui/GuidesLivePreview.png"
-  alt="Live preview modal in the guide editor showing URL input field"
-  width={1200}
-  height={600}
-  className="rounded-md mx-auto border border-gray-200"
-/>
-
-#### Getting started with live preview
-
-1. Before creating your guide, [implement guides in your application](/in-app-ui/guides/render-guides) and ensure the relevant guide component is available on the target page in your application.
-2. Navigate to your guide in the Knock dashboard and open the guide editor.
-3. Click "Live preview" at the top of the guide editor.
-4. Enter the URL of the page in your application where you will preview the guide.
-5. Click "Open preview" to see your guide rendered in your application.
-
-Live preview integrates seamlessly with your existing [`KnockGuideProvider`](/in-app-ui/guides/render-guides) setup and doesn't require additional code changes to your application.
-
-<Callout
-  type="info"
-  title="Authentication required?"
-  text="If your target preview page requires authentication, make sure you're logged in to your application before attempting to use live preview."
-/>
-
-### Dashboard preview
+## Dashboard preview
 
 You can preview guides directly in the Knock dashboard using the preview pane, which is powered by your message type's [template preview](/in-app-ui/react/sdk/components/knock-guide-provider):
 
@@ -65,10 +19,89 @@ You can preview guides directly in the Knock dashboard using the preview pane, w
 <Callout
   type="warning"
   title="Keep template code aligned."
-  text="To ensure consistency between the dashboard's template preview and the guide component in your application, keep your message type's template preview code aligned with your component code. We recommend using live preview to ensure your actual code renders your guide schema as expected."
+  text="To ensure consistency between the dashboard's template preview and the guide component in your application, keep your message type's template preview code aligned with your component code. We recommend using the guides toolbar to ensure your actual code renders your guide schema as expected."
 />
 
-### Testing best practices
+## Guides toolbar
+
+The guides toolbar is a floating panel that enables you to inspect and debug guides on any page of your application. Use it to understand why a guide is or isn't showing in a given context, force guides to display for testing, and inspect the targeting parameters being evaluated for the current user.
+
+<Callout
+  type="info"
+  title="SDK requirement."
+  text={
+    <>
+      The guides toolbar requires <code>@knocklabs/react</code> v0.11.8 or
+      above.
+    </>
+  }
+/>
+
+### Activating the toolbar
+
+1. In the Knock dashboard, click the **Preview** option above your list of guides, or at the top of the guide editor's preview pane.
+2. Provide or confirm the URL for your environment and click **Open preview**. The URL should point to a page where the guide's target element exists and the [guide provider is initialized](/in-app-ui/guides/render-guides).
+3. After clicking **Open preview**, the toolbar appears as a floating panel that you can expand or collapse.
+
+You can also reopen the toolbar at any time by appending `?knock_guides_toolbar=true` to any URL in your application.
+
+### Toolbar views
+
+The toolbar provides three views, toggled from options at the top of the panel:
+
+- **All guides.** Every guide in your environment.
+- **Eligible.** Guides that pass all eligibility checks for the current user.
+- **On this page.** Guides whose target element exists on the current page.
+
+### Status badges
+
+Each guide row shows a status badge indicating its current state:
+
+| Status            | Description                                                     |
+| ----------------- | --------------------------------------------------------------- |
+| **Inactive**      | The guide has not been published or is currently inactive.      |
+| **Archived**      | The current user has already dismissed this guide.              |
+| **Not targeted**  | The current user doesn't meet the guide's targeting conditions. |
+| **Not found**     | No component that can render this guide was found on the page.  |
+| **Not activated** | The guide cannot be activated in the current location.          |
+| **Queued**        | The guide is queried but is not yet ready to display.           |
+| **Throttled**     | The guide is ready to display but is currently throttled.       |
+| **Display**       | The guide is available and ready to display.                    |
+
+### Eligibility indicators
+
+Each guide row displays three eligibility ("Elig.") indicators. A filled dot means the condition passes; an X means it fails. All three must pass for a guide to display.
+
+1. **Active.** The guide is published and active.
+2. **Not archived.** The guide has not been dismissed for the current user.
+3. **Targeted.** The current user matches the guide's [targeting conditions](/in-app-ui/guides/create-guides#targeting).
+
+### Visibility indicators
+
+Two visibility ("Vis.") indicators show the guide's display state:
+
+1. **Activated.** The guide's trigger condition has been met in the current location.
+2. **Selectable.** The availability and readiness of the target component on the current page. Possible values:
+   - **Ready.** A component found the guide and is actively returning it for display.
+   - **Throttled.** A component found the guide, but throttling rules are holding it back.
+   - **Queued.** The guide is available but not yet ready to display because another guide is ahead of it in the display sequence.
+   - **Not found.** No component on the page can render this guide.
+
+### Focus button
+
+Click **Focus** on a guide row to force that guide to display, bypassing eligibility checks, throttling, and query order. Click it again to unfocus. The focus button is disabled if no component on the page can render the guide.
+
+### Toolbar controls
+
+- **Drag handle.** Drag to reposition the toolbar anywhere within the viewport. The toolbar stays within viewport bounds and re-clamps automatically on window resize.
+- **Sandbox.** Prevents engagement API calls (seen, interacted, dismissed) from being sent to Knock. Local state still updates so the UI reflects changes, but nothing is recorded in Knock. Use this to test continuously without needing to reset engagement.
+- **Ignore throttle.** Bypasses the display interval throttle window so guides can display immediately, regardless of when the last guide was dismissed.
+- **Inspect target params.** Opens a panel showing the tenant and data params being used to evaluate guide [targeting](/in-app-ui/guides/create-guides#targeting) for the current user.
+- **Exit.** Closes the toolbar and clears its session state. To reopen it, click **Preview** in the dashboard or append `?knock_guides_toolbar=true` to the URL.
+- **Minimize.** Collapses the toolbar to a small icon. Click the icon to expand it again.
+- **Expand details.** Click any guide row to expand its details.
+
+## Testing best practices
 
 Before launching your guides to users, test them thoroughly to ensure they work as expected. Focus on these key areas:
 
@@ -124,3 +157,21 @@ The expected results of engagment status updates may vary based on your own impl
 - Engagement status requests fail because the `guide_id` is used in the endpoint instead of `message_id`.
 
 [API reference ->](/api-reference/users/guides/mark_message_as_seen)
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="How can I test guides with an older SDK version?">
+    If you're on `@knocklabs/react` v0.8.0 or above, but haven't upgraded to v0.11.8 yet, you can still preview guides in your application using live preview:
+
+    1. Navigate to your guide in the Knock dashboard and open the guide editor.
+    2. Click **Live preview** at the top of the guide editor.
+    3. Enter the URL of the page in your application where you want to preview the guide.
+    4. Click **Open preview** to see your guide rendered in your application.
+
+    Live preview does not provide the same level of debugging and testing as the guides toolbar. It force-renders the guide component so you can preview it in your application, ignoring targeting rules and other eligibility conditions that would normally prevent the guide from rendering.
+
+    If your target preview page requires authentication, make sure you're logged in to your application before attempting to use live preview.
+
+  </Accordion>
+</AccordionGroup>
