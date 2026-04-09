@@ -22,21 +22,41 @@ For services with pre-built integrations (Stripe, Clerk, WorkOS, Supabase, PostH
 ## Getting started
 
 <Steps>
-  <Step title="Create the source">
-    Navigate to **Integrations** > **Sources** in the Knock dashboard and click
-    "Create source." Select **HTTP** as the source type and give it a name and
-    description.
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the **Custom HTTP** template as
+    the source type. You can select default action mappings to get started, then
+    click the **Connect Custom HTTP** button to continue.
+
+    <Image
+      src="/images/integrations/sources/custom/configure-default-mappings.png"
+      alt="The Custom HTTP source creation modal showing default action mappings"
+      width={2924}
+      height={1748}
+    />
+
   </Step>
   <Step title="Copy the webhook URL">
-    Once the source is created, you have a unique webhook URL for each
-    environment. Click the "Copy webhook destination URL" button for the
-    environment you want to configure.
+    After creating the source, Knock displays a setup wizard. Copy the event
+    ingestion URL from step 1 of the wizard. You will paste this into your
+    service's webhook or callback settings.
+
+    <Image
+      src="/images/integrations/sources/custom/copy-webhook-url.png"
+      alt="The Custom HTTP source setup wizard showing the event ingestion URL and additional setup steps"
+      width={2916}
+      height={1758}
+    />
+
   </Step>
-  <Step title="Store a signing secret (optional)">
-    If the service sending webhooks signs its payloads and you want to verify
-    them in a script, store the signing secret as an account-level
-    [variable](/concepts/variables). Your script can then access it through the
-    `vars` object in the context Knock passes to `main`.
+  <Step title="Configure the event type path">
+    In step 2 of the setup wizard, configure the event type path so Knock knows
+    how to identify the event type from incoming payloads. The default path is
+    `body.type`, but you should update this to match the structure of your
+    payload. For example, if your service sends payloads with an `event_type`
+    field at the top level, set the path to `body.event_type`. You can also
+    update this later from the **Settings** tab on the source environment page
+    under **Key path configuration**.
   </Step>
   <Step title="Configure your service">
     Paste the webhook URL into your service's webhook or callback settings.
@@ -48,7 +68,7 @@ For services with pre-built integrations (Stripe, Clerk, WorkOS, Supabase, PostH
 
 ## Scripting
 
-Each custom source can have a script that runs every time Knock receives a webhook request. Scripts enable you to verify that incoming payloads are authentic and preprocess payloads before field mapping.
+Each custom source can have a script that runs every time Knock receives a webhook request. Scripts enable you to verify that incoming payloads are authentic and preprocess payloads before field mapping. You can configure your script from the **Settings** tab on the source environment page.
 
 A script must export a `main` function. Knock calls `main` with a context object that contains the following properties:
 
@@ -59,11 +79,18 @@ A script must export a `main` function. Knock calls `main` with a context object
 | `rawBody` | The raw request body string                    |
 | `headers` | HTTP headers from the incoming request         |
 
+<Image
+  src="/images/integrations/sources/custom/preprocess-script.png"
+  alt="The Custom HTTP source settings showing the enforce verification toggle and preprocess script editor"
+  width={1630}
+  height={1538}
+/>
+
 ### Verification
 
-The `main` function must return an object with a `verified` boolean. If `verified` is `false` or missing, Knock rejects the request with a `401` response.
+The `main` function must return an object with a `verified` boolean. When the **Enforce verification** toggle is enabled, Knock rejects any request where `verified` is `false` or missing with a `401` response.
 
-If the sending service signs its payloads, store the signing secret as an account-level [variable](/concepts/variables) so your script can access it through `vars`.
+If the sending service signs its payloads, store the signing secret as an account-level [variable](/concepts/variables) so your script can access it through `vars`. The default script included with new custom sources compares an `x-webhook-secret` header against a variable you configure, but you can customize the verification logic to match whatever algorithm and header convention the sending service expects.
 
 ```javascript
 async function main(ctx) {
@@ -74,7 +101,7 @@ async function main(ctx) {
 }
 ```
 
-The verification logic is up to you. Use whatever algorithm and header convention the sending service expects. Full per-source verification examples are available on the dedicated source integration pages (for example, [Stripe](/integrations/sources/stripe)).
+Full per-source verification examples are available on the dedicated source integration pages (for example, [Stripe](/integrations/sources/stripe)).
 
 ### Preprocessing
 
@@ -95,7 +122,7 @@ In this example, `normalized_event` becomes `preprocess.normalized_event` and `i
 
 ## Configuring event types
 
-When Knock receives an event from a custom webhook, it needs to know how to identify the event type from the payload. You configure this by specifying a **key path** that tells Knock where to find the event type value in the JSON body.
+As described in [step 3 of getting started](#getting-started), Knock needs to know how to identify the event type from incoming payloads. The default event type path is `body.type`, but you should update this to match the structure of your payload.
 
 For example, if your service sends payloads like:
 
@@ -110,9 +137,7 @@ For example, if your service sends payloads like:
 }
 ```
 
-You would set the key path to `event_type` so Knock can identify this as a `task.completed` event.
-
-You can also specify an optional timestamp path if your payloads include a timestamp field that you want Knock to use as the event time instead of the ingestion time.
+You would set the event type path to `body.event_type` so Knock can identify this as a `task.completed` event. Note that all body paths are prefixed with `body.` since Knock exposes the parsed request body under that namespace.
 
 ## Event-action mappings
 
@@ -178,7 +203,7 @@ Suppose you have a task management app that sends a webhook when a task is assig
 
 To trigger a notification workflow when a task is assigned:
 
-1. Set the key path to `event_type`.
+1. Set the event type path to `body.event_type`.
 2. Wait for a `task.assigned` event to arrive (or send a test event).
 3. Create an action mapping that triggers your `task-assigned` workflow.
 4. Map `data.assigned_to` to **Recipients** and `data.assigned_by` to **Actor**.
@@ -186,7 +211,7 @@ To trigger a notification workflow when a task is assigned:
 
 ## Debugging
 
-You can see a log of all events received per source under **Integrations** > **Sources** in the Knock dashboard on the "Logs" page for your configured source. Common issues to look for:
+You can see a log of all events received per source under **Platform** > **Sources** in the Knock dashboard on the "Logs" tab for your configured source. Common issues to look for:
 
 - **Missing fields.** A required field path does not exist in the incoming payload. Check that the dot-notation path matches your payload structure.
 - **Invalid paths.** The key path for event type identification does not resolve to a value. Verify the path against a sample payload.
@@ -196,14 +221,13 @@ You can see a log of all events received per source under **Integrations** > **S
 
 You can enable idempotency checks to deduplicate custom webhook events that have already been received and processed. This is useful if the service sending webhooks may deliver the same event more than once.
 
-Because custom webhook payloads vary by service, you need to specify which field in the incoming payload contains the idempotency key. Configure the idempotency key path in the **Settings** tab for your source environment configuration, along with toggling idempotency checks on.
+Because custom webhook payloads vary by service, you need to specify which field in the incoming payload contains the idempotency key. Enable the **Enforce idempotency** toggle in the **Settings** tab for your source environment configuration and set the **Idempotency key path** to the field in your payload that contains a unique event identifier.
 
 <Image
-  src="/images/integrations/sources/source-event-idempotency.png"
-  alt="A screenshot of where to configure idempotency for your Source."
-  width={800}
-  height={400}
-
+  src="/images/integrations/sources/custom/enforce-idempotency.png"
+  alt="The Custom HTTP source settings showing the enforce idempotency toggle and idempotency key path configuration"
+  width={1524}
+  height={482}
 />
 
 For example, if your service sends payloads with a unique event identifier:
