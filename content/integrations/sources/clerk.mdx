@@ -1,0 +1,120 @@
+---
+title: Clerk source
+description: Receive Clerk webhook events in Knock to trigger workflows and automate actions based on authentication and user management events.
+metaTitle: Clerk source integration
+metaDescription: Connect Clerk webhooks to Knock to trigger notification workflows from user sign-ups, session events, and organization changes.
+section: Integrations > Sources
+layout: integrations
+---
+
+The Clerk source enables you to receive <a href="https://clerk.com/docs/webhooks/overview" target="_blank">Clerk webhook events</a> directly in Knock. Clerk sends webhook callbacks when events occur in your application, such as a new user signing up, a session being created, or an organization being updated. Knock verifies each payload using your Clerk webhook signing secret, identifies the event type, and executes the actions you configure.
+
+This integration is useful for building notifications around user lifecycle events: triggering welcome workflows when users sign up, notifying admins about organization changes, or syncing user data into Knock when profile details are updated.
+
+Knock supports ingesting any of Clerk's <a href="https://clerk.com/docs/guides/development/webhooks/overview#supported-webhook-events" target="_blank">supported events</a>, so you can map them to actions as your needs evolve.
+
+## Prerequisites
+
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- A Clerk application with access to the <a href="https://dashboard.clerk.com" target="_blank">Webhooks settings</a> in the Clerk dashboard.
+
+## Getting started
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the
+    **Clerk** template as the source type.
+
+    <Image
+      src="/images/integrations/sources/sources-location.png"
+      alt="The Sources page in the Knock dashboard"
+      width={2912}
+      height={1448}
+
+    />
+
+  </Step>
+  <Step title="Select default action mappings">
+    Once you've selected **Clerk** as a source, you can select your desired action mappings. These are helpful defaults to get you started, but Knock can ingest any event Clerk sends and you can adjust your mappings at any time. Click the **Connect Clerk** button to continue.
+
+    <Image
+      src="/images/integrations/sources/clerk/configure-default-mappings.png"
+      alt="The Clerk source creation modal showing default action mappings for incoming events"
+      width={2978}
+      height={1810}
+
+    />
+
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, copy the webhook URL from the setup wizard for the environment you want to configure.
+
+    <Image
+      src="/images/integrations/sources/clerk/copy-webhook-url.png"
+      alt="The Clerk source setup wizard showing the webhook URL to copy"
+      width={2978}
+      height={1820}
+
+    />
+
+  </Step>
+  <Step title="Add the webhook endpoint in Clerk">
+    In the <a href="https://dashboard.clerk.com" target="_blank">Clerk dashboard</a>, navigate to
+    **Configure > Webhooks** and click "Add endpoint." Paste the Knock webhook URL and
+    select the events you want Clerk to send.
+
+    <Image
+      src="/images/integrations/sources/clerk/clerk-add-webhook-endpoint.png"
+      alt="The Clerk dashboard Webhooks page with the Knock endpoint URL and event subscriptions"
+      width={2974}
+      height={1836}
+
+    />
+
+  </Step>
+  <Step title="Copy the signing secret into Knock">
+    After creating the endpoint in Clerk, Clerk provides a signing secret. Copy
+    this value and paste it into the **Signing secret** field in your Knock
+    source environment configuration.
+
+    <Image
+      src="/images/integrations/sources/clerk/clerk-signing-secret.png"
+      alt="The Clerk dashboard webhook endpoint detail page showing the signing secret"
+      width={2970}
+      height={1840}
+
+    />
+
+  </Step>
+</Steps>
+
+Once configured, Clerk sends webhook events to Knock in real time. You can verify that events are arriving by checking the event logs on the source environment page.
+
+## Pre-configured events
+
+Clerk sends events for user, session, and organization lifecycle changes. Below are common events you might map to actions in Knock. You can enable or disable individual event types from the source environment configuration.
+
+| Event type             | Description                       |
+| ---------------------- | --------------------------------- |
+| `user.created`         | A new user signed up              |
+| `user.updated`         | User profile details were updated |
+| `user.deleted`         | A user was deleted                |
+| `organization.created` | A new organization was created    |
+| `organization.updated` | Organization details were updated |
+
+See the <a href="https://clerk.com/docs/guides/development/webhooks/overview#supported-webhook-events" target="_blank">Clerk webhook events documentation</a> for the full list of available events.
+
+## Customization
+
+You can modify the default action mappings or add new ones for any event type Knock receives from Clerk. For details on how field mapping works with dot-notation paths, see the [custom source](/integrations/sources/custom) page.
+
+If you need to map Clerk events to actions beyond triggering workflows, see the full list of [available actions](/integrations/sources/overview#available-actions) in the sources overview.
+
+## Event idempotency
+
+Knock automatically configures idempotency for the Clerk source so duplicate events are not processed twice. By default, Knock uses `headers.svix-id` from the Clerk webhook payload as the idempotency key.
+
+You can change the idempotency key field or disable idempotency checks from the **Settings** tab in your source environment configuration. Events without an idempotency key attribute are processed normally.
+
+For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.

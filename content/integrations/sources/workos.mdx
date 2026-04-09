@@ -1,0 +1,125 @@
+---
+title: WorkOS source
+description: Receive WorkOS webhook events in Knock to trigger workflows and automate actions based on directory sync and SSO events.
+metaTitle: WorkOS source integration
+metaDescription: Connect WorkOS webhooks to Knock to trigger notification workflows from directory sync and SSO lifecycle events.
+section: Integrations > Sources
+layout: integrations
+---
+
+The WorkOS source enables you to receive <a href="https://workos.com/docs/events" target="_blank">WorkOS webhook events</a> directly in Knock. WorkOS sends webhook callbacks when events occur in your enterprise integrations, such as a user being provisioned via directory sync or an SSO connection being activated. Knock verifies each payload using your WorkOS webhook signing secret, identifies the event type, and executes the actions you configure.
+
+This integration is useful for automating provisioning and access workflows: identifying users in Knock when they are provisioned through a directory, notifying admins about SSO configuration changes, or triggering onboarding workflows when new directory users appear.
+
+Knock supports ingesting any of WorkOS's <a href="https://workos.com/docs/events" target="_blank">supported events</a>, so you can map them to actions as your needs evolve.
+
+## Prerequisites
+
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- A WorkOS account with access to the <a href="https://dashboard.workos.com/webhooks" target="_blank">Webhooks settings</a> in the WorkOS dashboard.
+
+## Getting started
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the
+    **WorkOS** template as the source type.
+
+    <Image
+      src="/images/integrations/sources/sources-location.png"
+      alt="The Sources page in the Knock dashboard"
+      width={2912}
+      height={1448}
+
+    />
+
+  </Step>
+  <Step title="Select default action mappings">
+    Once you've selected **WorkOS** as a source, you can select your desired action mappings. These are helpful defaults to get you started, but Knock can ingest any event WorkOS sends and you can adjust your mappings at any time. Click the **Connect WorkOS** button to continue.
+
+    <Image
+      src="/images/integrations/sources/workos/configure-default-mappings.png"
+      alt="The WorkOS source creation modal showing default action mappings for incoming events"
+      width={2972}
+      height={1766}
+
+    />
+
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, copy the webhook URL from the setup wizard for the environment you want to configure.
+
+    <Image
+      src="/images/integrations/sources/workos/copy-webhook-url.png"
+      alt="The WorkOS source setup wizard showing the webhook URL to copy"
+      width={2976}
+      height={1650}
+
+    />
+
+  </Step>
+  <Step title="Add the webhook endpoint in WorkOS">
+    In the <a href="https://dashboard.workos.com/webhooks" target="_blank">WorkOS dashboard</a>, navigate to
+    **Webhooks** and click "Create webhook." Paste the Knock webhook URL and
+    select the events you want WorkOS to send.
+
+    <Image
+      src="/images/integrations/sources/workos/workos-add-webhook-endpoint.png"
+      alt="The WorkOS dashboard Webhooks page with the Knock endpoint URL and event subscriptions"
+      width={2982}
+      height={1660}
+
+    />
+
+  </Step>
+  <Step title="Copy the signing secret into Knock">
+    After creating the endpoint in WorkOS, WorkOS provides a signing secret. Copy
+    this value and paste it into the **Signing secret** field in your Knock
+    source environment configuration.
+
+    <Image
+      src="/images/integrations/sources/workos/workos-signing-secret.png"
+      alt="The WorkOS dashboard webhook endpoint detail page showing the signing secret"
+      width={2980}
+      height={1642}
+
+    />
+
+  </Step>
+</Steps>
+
+Once configured, WorkOS sends webhook events to Knock in real time. You can verify that events are arriving by checking the event logs on the source environment page.
+
+## Pre-configured events
+
+WorkOS sends events for directory sync and SSO lifecycle changes. Below are common events you might map to actions in Knock. You can enable or disable individual event types from the source environment configuration.
+
+| Event type                 | Description                               |
+| -------------------------- | ----------------------------------------- |
+| `dsync.user.created`       | A user was provisioned via directory sync |
+| `dsync.user.updated`       | A directory sync user was updated         |
+| `dsync.user.deleted`       | A directory sync user was deprovisioned   |
+| `dsync.group.created`      | A group was created via directory sync    |
+| `dsync.group.updated`      | A directory sync group was updated        |
+| `dsync.group.deleted`      | A directory sync group was deleted        |
+| `dsync.group.user_added`   | A user was added to a directory group     |
+| `dsync.group.user_removed` | A user was removed from a directory group |
+| `connection.activated`     | An SSO connection was activated           |
+| `connection.deactivated`   | An SSO connection was deactivated         |
+
+See the <a href="https://workos.com/docs/events" target="_blank">WorkOS events documentation</a> for the full list of available events.
+
+## Customization
+
+You can modify the default action mappings or add new ones for any event type Knock receives from WorkOS. For details on how field mapping works with dot-notation paths, see the [custom source](/integrations/sources/custom) page.
+
+If you need to map WorkOS events to actions beyond triggering workflows, see the full list of [available actions](/integrations/sources/overview#available-actions) in the sources overview.
+
+## Event idempotency
+
+Knock automatically configures idempotency for the WorkOS source so duplicate events are not processed twice. By default, Knock uses `body.id` from the WorkOS webhook payload as the idempotency key.
+
+You can change the idempotency key field or disable idempotency checks from the **Settings** tab in your source environment configuration. Events without an idempotency key attribute are processed normally.
+
+For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.

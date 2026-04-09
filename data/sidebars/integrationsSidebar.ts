@@ -15,6 +15,11 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/sources",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/clerk", title: "Clerk" },
+      { slug: "/posthog", title: "PostHog" },
+      { slug: "/stripe", title: "Stripe" },
+      { slug: "/supabase", title: "Supabase" },
+      { slug: "/workos", title: "WorkOS" },
       { slug: "/segment", title: "Segment" },
       { slug: "/rudderstack", title: "RudderStack" },
       { slug: "/hightouch", title: "Hightouch" },
@@ -22,7 +27,16 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/polytomic", title: "Polytomic" },
       { slug: "/jitsu", title: "Jitsu" },
       { slug: "/freshpaint", title: "Freshpaint" },
-      { slug: "/http", title: "HTTP" },
+      { slug: "/custom", title: "Custom source" },
+      {
+        title: "Legacy",
+        slug: "/legacy",
+        pages: [
+          { slug: "/segment", title: "Segment", isLegacy: true },
+          { slug: "/rudderstack", title: "RudderStack", isLegacy: true },
+          { slug: "/http", title: "HTTP", isLegacy: true },
+        ],
+      },
     ],
   },
   {

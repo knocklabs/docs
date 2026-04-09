@@ -1,0 +1,262 @@
+---
+title: Custom source
+description: Send custom webhook events from any service into Knock and map them to actions like triggering workflows and identifying users, with optional scripting for verification and preprocessing.
+metaTitle: Custom source integration
+metaDescription: Send webhook events from any service into Knock using a custom source with configurable event types, field mapping, and scripting for verification and preprocessing.
+section: Integrations > Sources
+layout: integrations
+---
+
+The custom source enables you to receive webhook events from any service that can make HTTP callbacks and map those events to actions inside Knock. Use it when you need to connect a service that Knock does not yet offer a [pre-built integration](/integrations/sources/overview) for, or when you want to send events from your own internal tools and applications. The custom source supports optional [scripting](#scripting) so you can verify incoming payloads and pre-process them before field mapping.
+
+## When to use custom webhooks
+
+Custom webhooks are the right choice when:
+
+- The service you want to connect does not have a pre-built Knock source integration.
+- You are sending events from an internal tool, custom application, or microservice.
+- You need full control over event type identification and field mapping.
+
+For services with pre-built integrations (Stripe, Clerk, WorkOS, Supabase, PostHog), use those dedicated source pages instead. They provide automatic signature verification and pre-configured event types.
+
+## Getting started
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the **Custom HTTP** template as
+    the source type. You can select default action mappings to get started, then
+    click the **Connect Custom HTTP** button to continue.
+
+    <Image
+      src="/images/integrations/sources/custom/configure-default-mappings.png"
+      alt="The Custom HTTP source creation modal showing default action mappings"
+      width={2924}
+      height={1748}
+    />
+
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, Knock displays a setup wizard. Copy the event
+    ingestion URL from step 1 of the wizard. You will paste this into your
+    service's webhook or callback settings.
+
+    <Image
+      src="/images/integrations/sources/custom/copy-webhook-url.png"
+      alt="The Custom HTTP source setup wizard showing the event ingestion URL and additional setup steps"
+      width={2916}
+      height={1758}
+    />
+
+  </Step>
+  <Step title="Configure the event type path">
+    In step 2 of the setup wizard, configure the event type path so Knock knows
+    how to identify the event type from incoming payloads. The default path is
+    `body.type`, but you should update this to match the structure of your
+    payload. For example, if your service sends payloads with an `event_type`
+    field at the top level, set the path to `body.event_type`. You can also
+    update this later from the **Settings** tab on the source environment page
+    under **Key path configuration**.
+  </Step>
+  <Step title="Configure your service">
+    Paste the webhook URL into your service's webhook or callback settings.
+    Knock accepts `POST` requests with a JSON body. If your source includes a
+    [script](#scripting), Knock runs it on every incoming request to handle
+    verification and any preprocessing you need.
+  </Step>
+</Steps>
+
+## Scripting
+
+Each custom source can have a script that runs every time Knock receives a webhook request. Scripts enable you to verify that incoming payloads are authentic and preprocess payloads before field mapping. You can configure your script from the **Settings** tab on the source environment page.
+
+A script must export a `main` function. Knock calls `main` with a context object that contains the following properties:
+
+| Property  | Description                                    |
+| --------- | ---------------------------------------------- |
+| `vars`    | Account-level [variables](/concepts/variables) |
+| `body`    | The parsed request body object                 |
+| `rawBody` | The raw request body string                    |
+| `headers` | HTTP headers from the incoming request         |
+
+### Verification
+
+The `main` function must return an object with a `verified` boolean. When the **Enforce verification** toggle is enabled, Knock rejects any request where `verified` is `false` or missing with a `401` response.
+
+<Image
+  src="/images/integrations/sources/custom/enforce-verification.png"
+  alt="The enforce verification toggle in the Custom HTTP source settings"
+  width={1394}
+  height={330}
+/>
+
+If the sending service signs its payloads, store the signing secret as an account-level [variable](/concepts/variables) so your script can access it through `vars`. The default script included with new custom sources compares an `x-webhook-secret` header against a variable you configure, but you can customize the verification logic to match whatever algorithm and header convention the sending service expects.
+
+```javascript
+async function main(ctx) {
+  const { headers, rawBody, vars } = ctx;
+  const signingSecret = vars.my_signing_secret;
+  const isValid = await verifySignature(headers, rawBody, signingSecret);
+  return { verified: isValid };
+}
+```
+
+Full per-source verification examples are available on the dedicated source integration pages (for example, [Stripe](/integrations/sources/stripe)).
+
+### Preprocessing
+
+Any additional keys you return from `main` alongside `verified` become available in field mappings under the `preprocess` namespace. This is useful when you need to normalize or reshape the incoming payload before mapping it to action parameters.
+
+<Image
+  src="/images/integrations/sources/custom/preprocess-script.png"
+  alt="The preprocess event script editor in the Custom HTTP source settings"
+  width={1532}
+  height={1224}
+/>
+
+```javascript
+function main(ctx) {
+  const { body } = ctx;
+  return {
+    verified: true,
+    normalized_event: `${body.schema}.${body.table}:${body.type}`,
+    item_idempotency_key: `${body.record.id}_${body.record.updated_at}`,
+  };
+}
+```
+
+In this example, `normalized_event` becomes `preprocess.normalized_event` and `item_idempotency_key` becomes `preprocess.item_idempotency_key` in field mapping paths.
+
+## Configuring event types
+
+As described in [step 3 of getting started](#getting-started), Knock needs to know how to identify the event type from incoming payloads. The default event type path is `body.type`, but you should update this to match the structure of your payload.
+
+For example, if your service sends payloads like:
+
+```json
+{
+  "event_type": "task.completed",
+  "timestamp": "2024-09-15T14:30:00Z",
+  "data": {
+    "task_id": "task_123",
+    "assigned_to": "user_456"
+  }
+}
+```
+
+You would set the event type path to `body.event_type` so Knock can identify this as a `task.completed` event. Note that all body paths are prefixed with `body.` since Knock exposes the parsed request body under that namespace.
+
+## Event-action mappings
+
+After events start flowing into Knock, you can configure what action Knock should take when it receives each event type. From the source environment configuration page:
+
+1. Select an event type from the list of received events.
+2. Click "Create action mapping" to add a new mapping.
+3. Choose the action to execute (trigger workflow, identify user, set object, and so on). See the [available actions](/integrations/sources/overview#triggering-actions-from-source-events) in the overview for the full list.
+4. Map fields from the incoming payload to the parameters the action requires.
+
+You can create multiple action mappings for a single event type. For example, a `customer.created` event could both identify a user and trigger a welcome workflow.
+
+<Image
+  src="/images/integrations/sources/custom/event-action-mapping.png"
+  alt="The Custom HTTP source Mappings page showing an action mapping with field mappings and a sample payload"
+  width={2922}
+  height={1764}
+/>
+
+## Field mapping
+
+Field mappings use dot-notation paths to extract values from the incoming JSON payload and map them to the parameters each action expects.
+
+Given a payload like:
+
+```json
+{
+  "event_type": "task.completed",
+  "data": {
+    "task_id": "task_123",
+    "assigned_to": "user_456",
+    "project": {
+      "id": "proj_789",
+      "name": "Website redesign"
+    }
+  }
+}
+```
+
+You could create the following mappings when triggering a workflow:
+
+| Payload path        | Maps to             |
+| ------------------- | ------------------- |
+| `data.assigned_to`  | Recipients          |
+| `data.task_id`      | `data.task_id`      |
+| `data.project.name` | `data.project_name` |
+
+A few things to keep in mind:
+
+- Paths are case-sensitive and follow the structure of your JSON payload.
+- If your source has a [preprocessing script](#preprocessing), the values it returns are available under the `preprocess.*` namespace alongside the raw payload paths. For example, a script that returns `normalized_event` can be mapped using the path `preprocess.normalized_event`.
+- You can map a single event to multiple action parameters.
+- Knock validates that required fields are populated before executing the action. If a required field is missing, the action is skipped and an error appears in the action log.
+
+## Example: task management app
+
+Suppose you have a task management app that sends a webhook when a task is assigned. The payload looks like this:
+
+```json
+{
+  "event_type": "task.assigned",
+  "data": {
+    "task_id": "task_123",
+    "title": "Review pull request",
+    "assigned_to": "user_456",
+    "assigned_by": "user_789"
+  }
+}
+```
+
+To trigger a notification workflow when a task is assigned:
+
+1. Set the event type path to `body.event_type`.
+2. Wait for a `task.assigned` event to arrive (or send a test event).
+3. Create an action mapping that triggers your `task-assigned` workflow.
+4. Map `data.assigned_to` to **Recipients** and `data.assigned_by` to **Actor**.
+5. Map `data.task_id` and `data.title` to workflow data fields so you can reference them in your notification templates.
+
+## Debugging
+
+You can see a log of all events received per source under **Platform** > **Sources** in the Knock dashboard on the "Logs" tab for your configured source. Common issues to look for:
+
+- **Missing fields.** A required field path does not exist in the incoming payload. Check that the dot-notation path matches your payload structure.
+- **Invalid paths.** The key path for event type identification does not resolve to a value. Verify the path against a sample payload.
+- **Type mismatches.** A field value does not match the expected type (for example, passing a string where a user ID array is expected).
+
+## Event idempotency
+
+You can enable idempotency checks to deduplicate custom webhook events that have already been received and processed. This is useful if the service sending webhooks may deliver the same event more than once.
+
+Because custom webhook payloads vary by service, you need to specify which field in the incoming payload contains the idempotency key. Enable the **Enforce idempotency** toggle in the **Settings** tab for your source environment configuration and set the **Idempotency key path** to the field in your payload that contains a unique event identifier.
+
+<Image
+  src="/images/integrations/sources/custom/enforce-idempotency.png"
+  alt="The Custom HTTP source settings showing the enforce idempotency toggle and idempotency key path configuration"
+  width={1524}
+  height={482}
+/>
+
+For example, if your service sends payloads with a unique event identifier:
+
+```json title="A custom webhook event with an idempotency key."
+{
+  "event_type": "task.completed",
+  "event_id": "evt_abc123",
+  "data": {
+    "task_id": "task_456",
+    "assigned_to": "user_789"
+  }
+}
+```
+
+You would set the idempotency key path to `event_id` so Knock can use it for deduplication.
+
+Events without a value at the configured key path are processed normally. For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.

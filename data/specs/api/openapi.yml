@@ -3657,6 +3657,7 @@ components:
             active: true
             bypass_global_group_limit: false
             channel_id: 51b92f90-1504-4fda-95c1-495a3883bc4d
+            dashboard_url: https://dashboard.knock.app/~/guides/nps-survey
             id: 53595157-2fac-4a17-8dd7-e6603e32cb3a
             inserted_at: "2025-09-30T14:54:44.217756Z"
             key: nps-survey
@@ -3692,6 +3693,7 @@ components:
             active: true
             bypass_global_group_limit: false
             channel_id: 51b92f90-1504-4fda-95c1-495a3883bc4d
+            dashboard_url: https://dashboard.knock.app/~/guides/changelog-card
             id: 4fc4503e-ef8b-473a-ae07-14800639d30c
             inserted_at: "2025-10-07T19:41:06.215233Z"
             key: changelog-card
@@ -3814,6 +3816,11 @@ components:
                 x-validate: null
               channel_id:
                 format: uuid
+                type: string
+                x-struct: null
+                x-validate: null
+              dashboard_url:
+                description: URL to this guide in the Knock dashboard
                 type: string
                 x-struct: null
                 x-validate: null
@@ -17824,6 +17831,59 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          await client.objects.unsetPreferences('collection', 'object_id', 'default');
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          client.objects.unset_preferences(
+              collection="collection",
+              object_id="object_id",
+              id="default",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-go"
+          	"github.com/knocklabs/knock-go/option"
+          )
+
+          func main() {
+          	client := knock.NewClient(
+          		option.WithAPIKey("My API Key"),
+          	)
+          	err := client.Objects.UnsetPreferences(
+          		context.TODO(),
+          		"collection",
+          		"object_id",
+          		"default",
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(api_key: "My API Key")
+
+          result = knock.objects.unset_preferences("collection", "object_id", "default")
+
+          puts(result)
     get:
       callbacks: {}
       description: Returns the preference set for the specified object and preference set `id`.
@@ -18371,6 +18431,57 @@ paths:
         - Users
         - Preferences
       x-ratelimit-tier: 3
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          await client.users.unsetPreferences('user_id', 'default');
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          client.users.unset_preferences(
+              user_id="user_id",
+              id="default",
+          )
+        go: |
+          package main
+
+          import (
+          	"context"
+
+          	"github.com/knocklabs/knock-go"
+          	"github.com/knocklabs/knock-go/option"
+          )
+
+          func main() {
+          	client := knock.NewClient(
+          		option.WithAPIKey("My API Key"),
+          	)
+          	err := client.Users.UnsetPreferences(
+          		context.TODO(),
+          		"user_id",
+          		"default",
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(api_key: "My API Key")
+
+          result = knock.users.unset_preferences("user_id", "default")
+
+          puts(result)
     get:
       callbacks: {}
       description: Retrieves a specific preference set for a user identified by the preference set ID.
