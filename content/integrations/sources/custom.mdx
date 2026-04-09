@@ -79,16 +79,16 @@ A script must export a `main` function. Knock calls `main` with a context object
 | `rawBody` | The raw request body string                    |
 | `headers` | HTTP headers from the incoming request         |
 
-<Image
-  src="/images/integrations/sources/custom/preprocess-script.png"
-  alt="The Custom HTTP source settings showing the enforce verification toggle and preprocess script editor"
-  width={1630}
-  height={1538}
-/>
-
 ### Verification
 
 The `main` function must return an object with a `verified` boolean. When the **Enforce verification** toggle is enabled, Knock rejects any request where `verified` is `false` or missing with a `401` response.
+
+<Image
+  src="/images/integrations/sources/custom/enforce-verification.png"
+  alt="The enforce verification toggle in the Custom HTTP source settings"
+  width={1394}
+  height={330}
+/>
 
 If the sending service signs its payloads, store the signing secret as an account-level [variable](/concepts/variables) so your script can access it through `vars`. The default script included with new custom sources compares an `x-webhook-secret` header against a variable you configure, but you can customize the verification logic to match whatever algorithm and header convention the sending service expects.
 
@@ -106,6 +106,13 @@ Full per-source verification examples are available on the dedicated source inte
 ### Preprocessing
 
 Any additional keys you return from `main` alongside `verified` become available in field mappings under the `preprocess` namespace. This is useful when you need to normalize or reshape the incoming payload before mapping it to action parameters.
+
+<Image
+  src="/images/integrations/sources/custom/preprocess-script.png"
+  alt="The preprocess event script editor in the Custom HTTP source settings"
+  width={1532}
+  height={1224}
+/>
 
 ```javascript
 function main(ctx) {
@@ -149,6 +156,13 @@ After events start flowing into Knock, you can configure what action Knock shoul
 4. Map fields from the incoming payload to the parameters the action requires.
 
 You can create multiple action mappings for a single event type. For example, a `customer.created` event could both identify a user and trigger a welcome workflow.
+
+<Image
+  src="/images/integrations/sources/custom/event-action-mapping.png"
+  alt="The Custom HTTP source Mappings page showing an action mapping with field mappings and a sample payload"
+  width={2922}
+  height={1764}
+/>
 
 ## Field mapping
 
