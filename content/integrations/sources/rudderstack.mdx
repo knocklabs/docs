@@ -1,216 +1,160 @@
 ---
-title: How to integrate RudderStack to Knock
-description: Learn how to connect your RudderStack events to Knock to power your product notifications.
+title: RudderStack source
+description: Receive RudderStack webhook events in Knock to trigger workflows and keep user data in sync with track and identify events.
+metaTitle: RudderStack source integration
+metaDescription: Connect RudderStack webhooks to Knock to trigger notification workflows from track and identify events.
 section: Integrations > Sources
 layout: integrations
 ---
 
-## Video walkthrough
+<Callout
+  emoji="📌"
+  title="Note:"
+  text={
+    <>
+      This is the updated RudderStack source integration. If you are looking for
+      the previous version that uses manual webhook destinations, see the{" "}
+      <a href="/integrations/sources/legacy/rudderstack">
+        legacy RudderStack source
+      </a>
+      .
+    </>
+  }
+/>
 
-<div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
-  <iframe
-    src="https://www.loom.com/embed/ef62371265bb4725a88b0607cba6da8b"
-    frameBorder="0"
-    allowFullScreen
-    style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-    }}
-  ></iframe>
-</div>
+The RudderStack source enables you to receive [RudderStack webhook events](https://www.rudderstack.com/docs/destinations/webhooks/webhook/) directly in Knock. RudderStack sends webhook callbacks when track and identify events flow through your workspace. Knock identifies the event type and executes the actions you configure.
 
-## Getting started
-
-Knock is a **RudderStack Destination**, which means you can use events coming through RudderStack to power actions in Knock, such as triggering a workflow.
-
-You can start routing your RudderStack events to Knock by creating a source of type "RudderStack" in the dashboard. From here, you'll be taken to the environment configuration page for the source which will give you unique URLs for each environment you have configured in Knock.
-
-You'll copy this URL and use it to let RudderStack know where to send events.
-
-## Configuring RudderStack
+This integration is useful for triggering notification workflows from track events, such as alerting users when key actions happen in your product, or syncing user data into Knock from identify events so recipient profiles stay up to date.
 
 <Callout
   type="warning"
-  title="Use webhooks to connect to Knock."
-  text={
-    <>
-      Knock does not have a first-party integration with RudderStack, so you
-      will not find us in the list of destinations. Instead, you'll configure
-      the connection to Knock via a webhook destination as described below.
-    </>
-  }
-/>
-
-You will need to create a RudderStack destination for each Knock environment that you want to receive events from RudderStack.
-
-1. In your RudderStack workspace, navigate to the "Destinations" page and click "New destination." Search for and select "Webhook"
-2. Give the destination a name (e.g. "Knock &lt;environment name&gt;") and click "Continue"
-3. Optionally, choose the sources you want to route into this destination. Then, click "Continue"
-4. Paste the URL from the Knock dashboard for the Knock environment you want to receive events from RudderStack. Make sure the "URL Method" selected is POST. No other headers or settings are required. Click "Continue"
-5. Transformations may be configured as needed, but are typically not required. Click "Continue" to finalize the RudderStack destination
-
-## Viewing RudderStack track events in Knock
-
-Once your RudderStack destination is set up all events you trigger from the RudderStack source will be forwarded to Knock. Unique events will appear in your list of events under the Source so that you can set up triggers for your workflows.
-
-From the source environment configuration page click the "View in environment" button on one of the source environments. You'll be taken to the RudderStack source in the environment you selected and you should see events sent. If you don't, try clicking the refresh button on the top of the list to refetch any incoming events.
-
-## Triggering workflows from received events
-
-You can add a **track event** as a trigger to your workflow directly from the workflow builder. Click on the workflow's trigger step and change the type from "API" to "Source Event." Then you'll be able to select the event and map its properties into the data the workflow needs.
-
-<Callout
-  emoji="✨"
-  title="Using properties."
-  text={
-    <>
-      To use any of the properties fields, you can access them with dot-syntax
-      by prefixing them with <code>data.</code>. For example, if your payload
-      looks like this:
-      <div className="mt-2 mb-2">
-        <pre>
-          <code>{eventPayload}</code>
-        </pre>
-      </div>
-      and you wanted the commenter from the event to appear as the{" "}
-      <span className="font-bold">Actor</span> in the workflow, then in the{" "}
-      <span className="font-bold">Actor</span> field you would write{" "}
-      <code>data.commenter.id</code> to supply their ID as the actor.
-    </>
-  }
-/>
-
-[Read more on configuring workflow triggers](/integrations/sources/overview#workflow-triggers)
-
-## Disabling a trigger
-
-Triggers are automatically enabled when you create them. If you want to stop an event from triggering a workflow, you can go to the trigger page and toggle its status to "Inactive." Keep in mind that this will disable that trigger for the current environment only. When you're ready to trigger the workflow again, you can set it back to "Active."
-
-## Enabling Identify Events
-
-When RudderStack sends identify events, Knock will create and update user information accordingly. Knock will correctly map the `userId` as the user's `id`, as well as `name`, `email`, `phone` (mapped as `phone_number` in Knock), `avatar`, `locale`, `timezone`, and any additional custom properties provided in the `traits` object.
-
-<Callout
   emoji="⚠️"
-  title="Note:"
+  title="No built-in webhook verification for RudderStack."
   text={
     <>
-      RudderStack's default <code>Identify</code>{" "}
-      <a
-        href="https://www.rudderstack.com/docs/event-spec/standard-events/identify/"
-        target="_blank"
-      >
-        event schema
-      </a>{" "}
-      has the <code>traits</code> object nested under a top-level{" "}
-      <code>context</code> key.{" "}
-      <a
-        href="https://www.rudderstack.com/docs/event-spec/standard-events/identify/#identify-traits"
-        target="_blank"
-      >
-        Some RudderStack SDKs
-      </a>{" "}
-      will also include a top-level <code>traits</code> object.
-      <br />
-      <br />
-      Knock expects user properties to be contained in a top-level <code>
-        traits
-      </code> object when processing an <code>Identify</code> event, so you may need
-      to apply a data transformation prior to sending these events to Knock depending
-      on which SDK you're using.
+      RudderStack webhook destinations do not generate a signing secret or
+      include a built-in payload verification mechanism. If you need to verify
+      incoming payloads, you can include a shared secret as a custom header in
+      your RudderStack destination configuration and use a{" "}
+      <a href="/integrations/sources/custom#scripting">source script</a> in
+      Knock to validate it.
     </>
   }
 />
 
-To enable handling of identify events, open the settings for the source in the relevant Knock environment. You can then enable or disable handling identify events accordingly.
+## Prerequisites
 
-<Image
-  src="/images/integrations/sources/rudderstack-identify.png"
-  width={1946}
-  height={432}
-  className="rounded-md mx-auto border border-gray-200"
-  alt="A screenshot of how to toggle Knock handling RudderStack identify calls"
-/>
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- A RudderStack workspace with access to destination settings.
 
-## Inline identify users in a RudderStack event
+## Getting started
 
-<Callout
-  emoji="☝️"
-  title="Note:"
-  text={
-    <>
-      Inline identification is not supported by our{" "}
-      <a href="/send-notifications/testing-workflows#the-workflow-test-runner">
-        workflow test runner
-      </a>
-      , which can only trigger test runs for existing users. To test inline identification
-      with a source event, you should send a test event from RudderStack.
-    </>
-  }
-/>
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the
+    **RudderStack** template as the source type.
 
-In cases where you send a RudderStack event to Knock with recipients that may not yet have been identified into our system, it's good practice to [inline identify](/managing-recipients/identifying-recipients#inline-identification) your users. By inline identifying your users within your RudderStack events, you ensure that those users are identified in Knock when your event triggers a workflow.
+    <Image
+      src="/images/integrations/sources/sources-location.png"
+      alt="The Sources page in the Knock dashboard"
+      width={2912}
+      height={1448}
 
-As an example, take the user-signed-up event below. We're currently mapping the `properties.recipients` field to the `recipients` field of our workflow in Knock. If we send this event to Knock before the user with id `sam10` has been identified, the user will not be notified.
+    />
 
-```json title="A RudderStack event without inline identify"
-{
-  "event": "user-signed-up",
-  "email": "sam@example.com",
-  "userId": "sam10",
-  "type": "track",
-  "messageId": "rudderstack-test-message-123",
-  "properties": {
-    "recipients": ["sam10"],
-    "account_id": "123"
-  },
-  "timestamp": "2023-05-23T21:49:54Z"
-}
-```
+  </Step>
+  <Step title="Select default action mappings">
+    Once you've selected **RudderStack** as a source, you can select your desired action mappings. The defaults map common RudderStack events like `identify` to identify users and `track/order_completed` to trigger workflows. You can always add additional action mappings later. Click the **Connect RudderStack** button to continue.
 
-To ensure that the user is notified, we'd change the id reference in `recipients` to a complete user object, as in the example below. This way Knock has all the information it needs to identify the user during workflow runtime.
+    <Image
+      src="/images/integrations/sources/rudderstack/configure-default-mappings.png"
+      alt="The RudderStack source creation modal showing default action mappings for incoming events"
+      width={3104}
+      height={1684}
+    />
 
-```json title="A RudderStack event with inline identify"
-{
-  "event": "user-signed-up",
-  "email": "sam@example.com",
-  "userId": "sam10",
-  "type": "track",
-  "messageId": "rudderstack-test-message-123",
-  "properties": {
-    "recipients": [
-      {
-        "id": "sam10",
-        "name": "Sam Seely",
-        "email": "sam@example.com"
-      }
-    ],
-    "account_id": "123"
-  },
-  "timestamp": "2023-05-23T21:49:54Z"
-}
-```
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, Knock displays a setup wizard. Copy the event ingestion URL from step 1 of the wizard. You will paste this into your RudderStack destination configuration in a later step.
 
-You can learn more about inline identification in [our documentation on identifying recipients](/managing-recipients/identifying-recipients).
+    <Image
+      src="/images/integrations/sources/rudderstack/copy-webhook-url.png"
+      alt="The RudderStack source setup wizard showing the event ingestion URL to copy"
+      width={3098}
+      height={1688}
+    />
 
-## Video walkthrough
+  </Step>
+  <Step title="Search for the webhook destination in RudderStack">
+    In your RudderStack workspace, navigate to **Directory** > **Destinations** and search for "Webhook." Select the **Webhook** destination type from the results.
 
-This video is Segment-specific, but you can apply any of the portions within the Knock dashboard to RudderStack as well.
+    <Image
+      src="/images/integrations/sources/rudderstack/search-webhook-destination.png"
+      alt="The RudderStack Directory showing search results for Webhook destinations"
+      width={3094}
+      height={1748}
+    />
 
-<div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
-  <iframe
-    src="https://www.youtube.com/embed/Fj8wl6TNbrI?si=D5Wt6etwiahGvKs3"
-    frameBorder="0"
-    allowFullScreen
-    style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-    }}
-  ></iframe>
-</div>
+  </Step>
+  <Step title="Name the destination">
+    Give the destination a name to identify it in RudderStack, such as "Knock," and click **Continue**.
+
+    <Image
+      src="/images/integrations/sources/rudderstack/name-destination.png"
+      alt="The RudderStack Create Webhook destination wizard with the Name field set to Knock"
+      width={3096}
+      height={1764}
+    />
+
+  </Step>
+  <Step title="Connect to a source">
+    Select the RudderStack source you want to route events from. This determines which track and identify events are forwarded to Knock. Click **Continue** to proceed.
+
+    <Image
+      src="/images/integrations/sources/rudderstack/connect-to-source.png"
+      alt="The RudderStack Connect step showing a source selected to send events to the Webhook destination"
+      width={3090}
+      height={1780}
+    />
+
+  </Step>
+  <Step title="Configure the webhook URL">
+    In the **Connection Settings** step, paste the Knock event ingestion URL you copied earlier into the **Webhook URL** field and set the **URL Method** to `POST`. You can also add a `content-type: application/json` header. Click **Continue** to finish creating the destination.
+
+    <Image
+      src="/images/integrations/sources/rudderstack/configure-webhook-url.png"
+      alt="The RudderStack Configure step showing the Knock webhook URL and POST method"
+      width={3090}
+      height={1776}
+    />
+
+  </Step>
+</Steps>
+
+Once configured, RudderStack sends webhook events to Knock in real time. You can verify that events are arriving by checking the event logs on the source environment page.
+
+## Pre-configured events
+
+RudderStack sends events based on the [RudderStack event spec](https://www.rudderstack.com/docs/event-spec/standard-events/). Below are common event types you might map to actions in Knock.
+
+| Event type | Description                         |
+| ---------- | ----------------------------------- |
+| `track`    | A user performed an action          |
+| `identify` | User traits were created or updated |
+
+See the [RudderStack event spec documentation](https://www.rudderstack.com/docs/event-spec/standard-events/) for the full list of available event types and their schemas.
+
+## Customization
+
+You can modify the default action mappings or add new ones for any event type Knock receives from RudderStack. For details on how field mapping works with dot-notation paths, see the [custom source](/integrations/sources/custom) page.
+
+If you need to map RudderStack events to actions beyond triggering workflows, see the full list of [available actions](/integrations/sources/overview#available-actions) in the sources overview.
+
+## Event idempotency
+
+Knock uses the `messageId` field from the RudderStack event spec as the idempotency key. RudderStack includes a `messageId` in every track and identify event by default, so no additional field configuration is needed.
+
+You can change the idempotency key field or disable idempotency checks from the **Settings** tab in your source environment configuration. Events without an idempotency key attribute are processed normally.
+
+For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.

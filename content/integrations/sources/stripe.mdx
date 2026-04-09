@@ -1,0 +1,181 @@
+---
+title: Stripe source
+description: Receive Stripe webhook events in Knock to trigger workflows and automate actions based on payment and subscription lifecycle events.
+metaTitle: Stripe source integration
+metaDescription: Connect Stripe webhooks to Knock to trigger notification workflows from payment, subscription, and customer lifecycle events.
+section: Integrations > Sources
+layout: integrations
+---
+
+The Stripe source enables you to receive <a href="https://docs.stripe.com/webhooks" target="_blank">Stripe webhook events</a> directly in Knock. Stripe sends webhook callbacks when events occur in your account, such as a successful payment, a subscription change, or a customer update. Knock verifies each payload using your Stripe webhook signing secret, identifies the event type, and executes the actions you configure.
+
+This integration is useful for building notifications around payment lifecycle events: alerting customers about successful charges, notifying your team about failed payments, or triggering onboarding workflows when new customers are created.
+
+Knock supports ingesting any of Stripe's <a href="https://docs.stripe.com/api/events/types" target="_blank">supported events</a>, so you can map them to actions as your needs evolve.
+
+## Prerequisites
+
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- A Stripe account with access to the <a href="https://dashboard.stripe.com/webhooks" target="_blank">Webhooks settings</a> in the Stripe dashboard.
+
+## Getting started
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the
+    **Stripe** template as the source type.
+
+    <Image
+      src="/images/integrations/sources/sources-location.png"
+      alt="The Sources page in the Knock dashboard"
+      width={2912}
+      height={1448}
+
+    />
+
+  </Step>
+  <Step title="Select default action mappings">
+    Once you've selected **Stripe** as a source, you can select your desired action mappings. The defaults map common Stripe events like `customer.created` to identify users and `invoice.created` and `invoice.paid` to trigger workflows. These are helpful defaults to get you started, but Knock can ingest any event Stripe sends and you can adjust your mappings at any time. Click the **Connect Stripe** button to continue.
+
+    <Image
+      src="/images/integrations/sources/stripe/configure-default-mappings.png"
+      alt="The Stripe source creation modal showing default action mappings for incoming events"
+      width={2976}
+      height={1648}
+
+    />
+
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, copy the event ingestion URL from the setup wizard. You will paste this into the Stripe dashboard in the next steps.
+
+    <Image
+      src="/images/integrations/sources/stripe/copy-webhook-url.png"
+      alt="The Stripe source setup wizard showing the event ingestion URL to copy"
+      width={2974}
+      height={1660}
+
+    />
+
+  </Step>
+  <Step title="Open the Developers Workbench in Stripe">
+    In the <a href="https://dashboard.stripe.com" target="_blank">Stripe dashboard</a>, click the **Developers** button in the bottom left corner of the sidebar to open the Workbench.
+
+    <Image
+      src="/images/integrations/sources/stripe/stripe-open-developers.png"
+      alt="The Stripe dashboard with the Developers Workbench expanded in the bottom left sidebar"
+      width={2976}
+      height={1842}
+
+    />
+
+  </Step>
+  <Step title="Navigate to webhooks">
+    In the Workbench, click the **Webhooks** tab. Click **Add destination** to start creating a new webhook endpoint.
+
+    <Image
+      src="/images/integrations/sources/stripe/stripe-webhooks-page.png"
+      alt="The Stripe Workbench Webhooks page with the Add destination button"
+      width={2970}
+      height={1836}
+
+    />
+
+  </Step>
+  <Step title="Select events to send to Knock">
+    In the "Create an event destination" wizard, select **Your account** as the event source. Search for and select the events you want to send to Knock (for example, `customer.created`). Click **Continue** to proceed.
+
+    <Image
+      src="/images/integrations/sources/stripe/stripe-select-events.png"
+      alt="The Stripe event destination wizard showing event selection with customer.created checked"
+      width={2964}
+      height={1842}
+
+    />
+
+  </Step>
+  <Step title="Choose webhook endpoint as the destination type">
+    Select **Webhook endpoint** as the destination type and click **Continue**.
+
+    <Image
+      src="/images/integrations/sources/stripe/stripe-choose-destination.png"
+      alt="The Stripe event destination wizard showing Webhook endpoint selected as the destination type"
+      width={2962}
+      height={1838}
+
+    />
+
+  </Step>
+  <Step title="Configure the destination with the Knock URL">
+    Give the destination a name (for example, "Knock"), paste the Knock event ingestion URL you copied earlier into the **Endpoint URL** field, and click **Create destination**.
+
+    <Image
+      src="/images/integrations/sources/stripe/stripe-configure-destination.png"
+      alt="The Stripe event destination wizard showing the destination name and Knock endpoint URL"
+      width={2966}
+      height={1836}
+
+    />
+
+  </Step>
+  <Step title="Copy the signing secret into Knock">
+    After creating the destination, Stripe displays the destination detail page with a **Signing secret** (starts with `whsec_`). Copy this value and paste it into the **Signing secret** field in your Knock source environment configuration.
+
+    <Image
+      src="/images/integrations/sources/stripe/stripe-signing-secret.png"
+      alt="The Stripe Workbench webhook destination detail page showing the signing secret"
+      width={2964}
+      height={1840}
+
+    />
+
+  </Step>
+</Steps>
+
+Once configured, Stripe sends webhook events to Knock in real time. You can verify that events are arriving by checking the event logs on the source environment page.
+
+## Testing with the Stripe CLI
+
+The Stripe Workbench includes a built-in Shell that you can use to send test events to your webhook endpoint. Use the `stripe trigger` command followed by the event name to generate a test event:
+
+```bash
+stripe trigger customer.created
+stripe trigger customer.subscription.trial_will_end
+```
+
+This creates the necessary fixture data in your Stripe sandbox and sends the corresponding webhook event to all configured destinations, including Knock.
+
+<Image
+  src="/images/integrations/sources/stripe/stripe-trigger-test-events.png"
+  alt="The Stripe Workbench built-in Shell showing stripe trigger commands sending test events"
+  width={2972}
+  height={1840}
+
+/>
+
+## Pre-configured events
+
+Stripe sends a wide range of event types. Below are common events you might map to actions in Knock. You can enable or disable individual event types from the source environment configuration.
+
+| Event type         | Description                  |
+| ------------------ | ---------------------------- |
+| `invoice.paid`     | An invoice payment succeeded |
+| `invoice.created`  | An invoice was created       |
+| `customer.created` | A new customer was created   |
+
+See the <a href="https://docs.stripe.com/api/events/types" target="_blank">Stripe event types documentation</a> for the full list of available events.
+
+## Customization
+
+You can modify the default action mappings or add new ones for any event type Knock receives from Stripe. For details on how field mapping works with dot-notation paths, see the [custom source](/integrations/sources/custom) page.
+
+If you need to map Stripe events to actions beyond triggering workflows, see the full list of [available actions](/integrations/sources/overview#available-actions) in the sources overview.
+
+## Event idempotency
+
+Knock automatically configures idempotency for the Stripe source so duplicate events are not processed twice. By default, Knock uses `body.id` from the Stripe webhook payload as the idempotency key.
+
+You can change the idempotency key field or disable idempotency checks from the **Settings** tab in your source environment configuration. Events without an idempotency key attribute are processed normally.
+
+For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.

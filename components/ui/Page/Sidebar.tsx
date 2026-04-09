@@ -177,6 +177,7 @@ const ItemWithSubpages = ({
       {...depthAdjustedCollapsibleNavItemProps}
       label={section.title ?? section.slug}
       isBeta={section?.isBeta}
+      isLegacy={section?.isLegacy}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
     >
@@ -202,6 +203,11 @@ const ItemWithSubpages = ({
               {page.isBeta && (
                 <Tag color="blue" ml="2" size="0">
                   Beta
+                </Tag>
+              )}
+              {page.isLegacy && (
+                <Tag color="yellow" ml="2" size="0">
+                  Legacy
                 </Tag>
               )}
             </NavItem>
@@ -245,6 +251,11 @@ const Item = ({ section, preSlug = "", depth = 0, defaultOpen }: ItemProps) => {
       {section.isBeta && (
         <Tag color="blue" ml="2" size="0">
           Beta
+        </Tag>
+      )}
+      {section.isLegacy && (
+        <Tag color="yellow" ml="2" size="0">
+          Legacy
         </Tag>
       )}
     </NavItem>

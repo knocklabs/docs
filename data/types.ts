@@ -4,6 +4,7 @@ export type SidebarPage = {
   title: string;
   path?: string;
   isBeta?: boolean;
+  isLegacy?: boolean;
 };
 
 export type SidebarSubsection = {
@@ -17,6 +18,7 @@ export type SidebarSection = {
   slug: string;
   desc?: string;
   isBeta?: boolean;
+  isLegacy?: boolean;
   pages:
     | SidebarPage[]
     | SidebarSubsection[]
@@ -28,6 +30,7 @@ export type SidebarContent = {
   title: string;
   slug: string;
   isBeta?: boolean;
+  isLegacy?: boolean;
   pages?: SidebarContent[];
   sidebarMenuDefaultOpen?: boolean;
   parentSection?: SidebarContent;
