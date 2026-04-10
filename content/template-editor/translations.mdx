@@ -286,15 +286,22 @@ Read more about [environments](/version-control/environments) and [versioning](/
   }
 />
 
+## Per-tenant translations
+
+If you use Knock's [multi-tenancy](/multi-tenancy/overview) support, you can create tenant-scoped translation files that override specific keys for individual tenants. Knock deep-merges the tenant's translations on top of your base translation files at render time, so you can power per-tenant copy. For implementation details, see [per-tenant translations](/multi-tenancy/per-tenant-translations).
+
 ## Locale prioritization
 
-When Knock renders a template for a given user and encounters our `t` helper, it runs through the following locale prioritization:
+When Knock renders a template for a given user and encounters our `t` helper, translations are resolved in the following priority order:
 
-1. Language + region (e.g. `fr-BE`)
-2. Language (e.g. `fr`)
-3. Default locale (e.g. `en`)
+1. Tenant-scoped, language + region (e.g. `fr-BE`, tenant: `acme-corp`)
+2. Tenant-scoped, language (e.g. `fr`, tenant: `acme-corp`)
+3. Tenant-scoped, default locale (e.g. `en`, tenant: `acme-corp`)
+4. Language + region (e.g. `fr-BE`)
+5. Language (e.g. `fr`)
+6. Default locale (e.g. `en`)
 
-Regional locales take precedence over language locales. If a translation is not found in the user's locale, Knock will fall back to the default locale.
+Tenant-scoped translations take precedence over base translations and regional locales take precedence over language locales. If a translation is not found in the user's locale, Knock will fall back to the default locale.
 
 ## Automate localization with our CLI
 

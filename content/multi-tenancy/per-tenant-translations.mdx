@@ -1,0 +1,147 @@
+---
+title: Per-tenant translations
+description: Learn how to create tenant-scoped translation files that override your base translations for specific tenants.
+tags:
+  [
+    "tenant",
+    "translations",
+    "i18n",
+    "localization",
+    "l10n",
+    "multi-tenancy",
+    "per-tenant",
+  ]
+section: Multi-tenancy
+---
+
+<Callout
+  type="enterprise"
+  title="Enterprise plan feature."
+  text={
+    <>
+      Per-tenant translations are only available on our{" "}
+      <a href="https://knock.app/pricing" target="_blank" rel="noopener">
+        Enterprise plan
+      </a>
+      .
+    </>
+  }
+/>
+
+Per-tenant translations enable you to override specific translation keys for individual tenants. When Knock renders a notification for a workflow run associated with a tenant, it deep-merges the tenant's translation content on top of your base translation files — so the tenant's keys take precedence while everything else falls back to your base translations.
+
+<Callout
+  type="beta"
+  title="In development."
+  text="Per-tenant translations are currently in private beta. Contact your Knock account team to have this feature enabled for your account."
+/>
+
+## How it works
+
+When Knock renders a notification for a workflow run that includes a `tenant`:
+
+1. Knock loads the base translation file for the recipient's locale (following the standard [locale fallback chain](/template-editor/translations#locale-prioritization)).
+2. If a tenant-scoped translation file exists for that tenant and locale, Knock deep-merges it on top of the base content. Tenant keys win on any conflict.
+3. The merged content is used for all `t` filter lookups in that notification.
+
+The same locale fallback chain applies to tenant-scoped translations: Knock looks for a match at the language + region level (e.g. `en-GB`), then language level (e.g. `en`), then your account's default locale. If no tenant-scoped translation exists at any level, Knock uses the base translation as-is.
+
+### Example
+
+Given a base `en` translation:
+
+```json title="Base en translation"
+{
+  "greeting": "Hello from Knock",
+  "order_ready": "Your order is ready."
+}
+```
+
+And a tenant-scoped translation for `acme-corp`:
+
+```json title="Tenant-scoped en translation for acme-corp"
+{
+  "greeting": "Hello from Acme Corp"
+}
+```
+
+When a notification is sent for a workflow run associated with the `acme-corp` tenant, the resolved translations are:
+
+```json title="Resolved translations for acme-corp"
+{
+  "greeting": "Hello from Acme Corp",
+  "order_ready": "Your order is ready."
+}
+```
+
+The `greeting` key is overridden by the tenant-scoped file; `order_ready` falls back to the base translation.
+
+## Creating tenant-scoped translations
+
+Tenant-scoped translations are managed via the [Management API](/developer-tools/management-api) using the existing translations endpoints. Add the `tenant` query parameter to scope a translation to a specific tenant.
+
+### Create or update a tenant-scoped translation
+
+```bash title="Create a tenant-scoped translation"
+PUT /v1/translations/:locale?tenant=<tenant_id>
+```
+
+The request body is the same as a standard translation upsert:
+
+```json title="Request body"
+{
+  "content": {
+    "greeting": "Hello from Acme Corp"
+  }
+}
+```
+
+You can also scope a namespaced translation to a tenant:
+
+```bash title="Create a namespaced tenant-scoped translation"
+PUT /v1/translations/:locale?namespace=<namespace>&tenant=<tenant_id>
+```
+
+### List tenant-scoped translations
+
+Use the `tenant` query parameter to filter the translations list to a specific tenant:
+
+```bash title="List translations for a tenant"
+GET /v1/translations?tenant=<tenant_id>
+```
+
+### Get a specific tenant-scoped translation
+
+```bash title="Get a tenant-scoped translation"
+GET /v1/translations/:locale?tenant=<tenant_id>
+```
+
+### Delete a tenant-scoped translation
+
+```bash title="Delete a tenant-scoped translation"
+DELETE /v1/translations/:locale?tenant=<tenant_id>
+```
+
+## Version control
+
+Tenant-scoped translations are version-controlled the same way as base translations. All changes are stored in commits. With [production write access](/version-control/environments) enabled, you can create and edit tenant-scoped translations directly in production. Otherwise, create them in development and promote them to production through the standard commit flow. Read more about [environments](/version-control/environments) and [versioning](/version-control/commits) in Knock.
+
+## Dashboard
+
+You can manage tenant-scoped translations from the **Translations** page in the Knock dashboard:
+
+- Filter the translations list by tenant using the tenant filter.
+- Click into a translation to view its tenant scope.
+- Edit and save changes directly from the detail view.
+
+## Using translations in templates
+
+Tenant-scoped translations work with the same `t` filter you already use in your templates. No template changes are needed — Knock automatically applies the merged translation content when the workflow run has a tenant associated.
+
+```liquid title="Template using t filter"
+{{ "greeting" | t }}
+```
+
+When this template is rendered for a workflow run associated with the `acme-corp` tenant, Knock uses the tenant-scoped value if one exists for the recipient's locale.
+
+For more on how to use translations in templates, see the [translations docs](/template-editor/translations).

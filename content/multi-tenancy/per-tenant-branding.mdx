@@ -1,0 +1,60 @@
+---
+title: Per-tenant branding
+description: Learn how to use tenants to apply custom branding to email notifications on a per-tenant basis.
+tags: ["tenant", "tenancy", "branding", "email", "multi-tenancy", "white-label", "custom brand"]
+section: Multi-tenancy
+---
+
+Per-tenant branding enables you to override your account-level email branding settings for individual tenants. When you trigger a workflow with a `tenant`, Knock uses any branding settings defined on that tenant in place of your account defaults.
+
+<Callout
+  type="enterprise"
+  title="Enterprise plan feature."
+  text={
+    <>
+      Per-tenant branding is only available on our{" "}
+      <a href="https://knock.app/pricing" target="_blank" rel="noopener">
+        Enterprise plan
+      </a>
+      .
+    </>
+  }
+/>
+
+## Branding settings
+
+Branding settings are stored on the tenant's `settings` object. You can set them via the [tenant API](/api-reference/tenants) or directly in the dashboard.
+
+| Property                          | Description                                                              |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| `branding.primary_color`          | A hex value for the primary color                                        |
+| `branding.primary_color_contrast` | A hex value for the contrasting color to use with the primary color      |
+| `branding.logo_url`               | A fully qualified URL for an image to use as the logo of this tenant     |
+| `branding.icon_url`               | A fully qualified URL for an image to use as the icon of this tenant     |
+
+## Setting branding via the API
+
+Pass branding settings in the `settings` object when creating or updating a tenant:
+
+<MultiLangCodeBlock snippet="tenants.set" title="Set branding on a tenant" />
+
+## Setting branding in the dashboard
+
+Navigate to the **Tenants** page under **Recipients** in the dashboard sidebar. Click into a tenant, then select the **Branding** tab to upload a logo, icon, and set primary colors directly from the interface.
+
+## Using per-tenant branding
+
+Once branding settings are configured on a tenant, pass the tenant `id` when triggering a workflow with an email step. Knock will automatically apply the tenant's branding to the email layout for that workflow run.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-branding-tenant"
+  title="Send notification with custom branding"
+/>
+
+If no branding settings are defined on the tenant, Knock falls back to your account-level branding defaults.
+
+## Example
+
+Let's say you're a hospitality company with two boutique hotels — "The Black Lodge" and "The Great Northern" — each with its own brand identity for reservation update emails.
+
+Create each hotel as a tenant and configure their branding in the dashboard or via the API. When triggering a reservation reminder, pass the relevant tenant `id` (e.g. `black-lodge`) and Knock will style the email with that tenant's logo and colors instead of your account defaults.
