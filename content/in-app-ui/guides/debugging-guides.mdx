@@ -16,23 +16,27 @@ You can preview guides directly in the Knock dashboard using the preview pane, w
 3. Edit your guide content and see the preview update in real-time.
 4. Test different variants and content to refine your guide.
 
-<Callout
-  type="warning"
-  title="Keep template code aligned."
-  text="To ensure consistency between the dashboard's template preview and the guide component in your application, keep your message type's template preview code aligned with your component code. We recommend using the guides toolbar to ensure your actual code renders your guide schema as expected."
-/>
+To ensure consistency between the dashboard's template preview and the guide component in your application, keep your message type's template preview code aligned with your component code. We recommend using the guides toolbar to ensure your actual code renders your guide schema as expected.
 
 ## Guides toolbar
+
+<Image
+  src="/images/in-app-ui/Guides_ToolbarEx.png"
+  alt="Example of the guides toolbar"
+  width={600}
+  height={100}
+  className="mx-auto border border-gray-200"
+  style={{ borderRadius: "var(--tgph-rounded-5)" }}
+/>
 
 The guides toolbar is a floating panel that enables you to inspect and debug guides on any page of your application. Use it to understand why a guide is or isn't showing in a given context, force guides to display for testing, and inspect the targeting parameters being evaluated for the current user.
 
 <Callout
-  type="info"
-  title="SDK requirement."
+  type="warning"
+  title="SDK version requirement."
   text={
     <>
-      The guides toolbar requires <code>@knocklabs/react</code> v0.11.13 or
-      above.
+      Guides toolbar requires <code>@knocklabs/react</code> v0.11.13 or higher.
     </>
   }
 />
@@ -49,9 +53,9 @@ You can also reopen the toolbar at any time by appending `?knock_guides_toolbar=
 
 The toolbar provides three views, toggled from options at the top of the panel:
 
-- **All guides.** Every guide in your environment.
-- **Eligible.** Guides that pass all eligibility checks for the current user.
-- **On this page.** Guides whose target element exists on the current page.
+- **All.** Every guide in your environment.
+- **Active.** All activated guides in the environment.
+- **Eligible.** All guides that are eligible for the current user.
 
 ### Status badges
 
@@ -62,7 +66,7 @@ Each guide row shows a status badge indicating its current state:
 | **Inactive**      | The guide has not been published or is currently inactive.      |
 | **Archived**      | The current user has already dismissed this guide.              |
 | **Not targeted**  | The current user doesn't meet the guide's targeting conditions. |
-| **Not queried**     | No component that can render this guide was found on the page.  |
+| **Not queried**   | No component that can render this guide was found on the page.  |
 | **Not activated** | The guide cannot be activated in the current location.          |
 | **Queued**        | The guide is queried but is not yet ready to display.           |
 | **Throttled**     | The guide is ready to display but is currently throttled.       |
@@ -73,14 +77,14 @@ Each guide row shows a status badge indicating its current state:
 Each guide row displays three eligibility ("Elig.") indicators. A filled dot means the condition passes; an X means it fails. All three must pass for a guide to display.
 
 1. **Active.** The guide is published and active.
-2. **Archived.** The guide has not been dismissed for the current user.
+2. **Archived.** The guide has been dismissed for the current user.
 3. **Targeted.** The current user matches the guide's [targeting conditions](/in-app-ui/guides/create-guides#targeting).
 
 ### Visibility indicators
 
 Two visibility ("Vis.") indicators show the guide's display state:
 
-1. **Activation** The guide's trigger condition has been met in the current location.
+1. **Activation.** The guide's trigger condition has been met in the current location.
 2. **Display.** The availability and readiness of the target component on the current page. Possible values:
    - **Ready.** A component found the guide and is actively returning it for display.
    - **Throttled.** A component found the guide, but throttling rules are holding it back.
@@ -89,28 +93,37 @@ Two visibility ("Vis.") indicators show the guide's display state:
 
 ### Focus button
 
-Click **Focus** on a guide row to force that guide to display, bypassing eligibility checks, throttling, and query order. Click it again to unfocus. The focus button is disabled if no component on the page can render the guide.
+Click **Focus** on a guide row to force that guide to display, bypassing eligibility checks, throttling, and queue order. Click it again to unfocus. The focus button is disabled if no component on the page can render the guide.
 
 ### Toolbar controls
 
-- **Drag handle.** Drag to reposition the toolbar anywhere within the viewport. The toolbar stays within viewport bounds and re-clamps automatically on window resize.
-- **Sandbox engagement.** Prevents engagement API calls (seen, interacted, dismissed) from being sent to Knock. Local state still updates so the UI reflects changes, but nothing is recorded in Knock. Use this to test continuously without needing to reset engagement.
-- **Ignore throttle.** Bypasses the display interval throttle window so guides can display immediately, regardless of when the last guide was dismissed.
-- **Settings & target params.** Opens a panel showing the tenant and data params being used to evaluate guide [targeting](/in-app-ui/guides/create-guides#targeting) for the current user.
-- **Exit.** Closes the toolbar and clears its session state. To reopen it, click **Preview** in the dashboard or append `?knock_guides_toolbar=true` to the URL.
-- **Minimize.** Collapses the toolbar to a small icon. Click the icon to expand it again.
-- **Expand details.** Click any guide row to expand its details.
+<Image
+  src="/images/in-app-ui/Guides_ToolbarSettings.png"
+  alt="Toolbar controls"
+  width={600}
+  height={100}
+  className="mx-auto border border-gray-200"
+  style={{ borderRadius: "var(--tgph-rounded-5)" }}
+/>
+
+Select the settings icon to expand the toolbar settings panel. From there, you can control the behavior of engagement tracking while testing, toggle throttle settings, and view the data currently passed to the guide provider. The following controls are available:
+
+| Control                | Description                                                                                                                                                                                                                                        |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Sandbox engagement** | When enabled, engagement API calls (seen, interacted, dismissed) are not sent to Knock. Local state still updates so the UI reflects changes, but nothing is recorded in Knock. Use this to test continuously without needing to reset engagement. |
+| **Ignore throttle**    | When enabled, the display interval throttle window is bypassed so guides can display immediately, regardless of when the last guide was dismissed.                                                                                                 |
+| **Target params**      | This section displays the active tenant ID and any additional data provided to the guide provider. Depending on guide configuration, this data may be used for eligibility evaluation.                                                             |
 
 ## Testing best practices
 
 Before launching your guides to users, test them thoroughly to ensure they work as expected. Focus on these key areas:
 
-- **Page targeting**. Verify that guides appear on the correct pages by testing different URLs and path patterns in your activation rules.
-- **User targeting**. Confirm that targeting conditions work correctly by testing with users who should and shouldn't see the guide based on your eligibility criteria.
-- **Engagement tracking events**. Interact with your guides and verify that engagement status updates appear as expected in the dashboard (seen, interacted, archived).
-- **User interactions**. Click all links, buttons, and interactive elements to ensure they work as expected and navigate to the correct destinations.
+- **Page targeting.** Verify that guides appear on the correct pages by testing different URLs and path patterns in your activation rules.
+- **User targeting.** Confirm that targeting conditions work correctly by testing with users who should and shouldn't see the guide based on your eligibility criteria.
+- **Engagement tracking events.** Interact with your guides and verify that engagement status updates appear as expected in the dashboard (seen, interacted, archived).
+- **User interactions.** Click all links, buttons, and interactive elements to ensure they work as expected and navigate to the correct destinations.
 
-While testing, take advantage of the "unarchive" option in the dashboard to reset guide messages, allowing you to test the same user/guide combination multiple times.
+While testing, take advantage of the "unarchive" option in the dashboard to reset guide messages, enabling you to test the same user/guide combination multiple times.
 
 ## Debugging guides
 
@@ -122,13 +135,13 @@ The easiest way to confirm if a user is eligible for a guide is to call the [Gui
 
 If your guide is missing from the response:
 
-- **Confirm the guide is activated**. Verify the guide is committed and active in the environment you're testing.
-- **Check if the guide is archived**. Verify the guide hasn't been archived for that user by checking the message status in the dashboard.
-- **Review targeting conditions**. Check that user properties match your [targeting rules](/in-app-ui/guides/create-guides#targeting).
-- **Verify audience membership**. Ensure the user belongs to any required [audiences](/concepts/audiences).
-- **Check activation rules**. Confirm the current page matches your path-based [activation rules](/in-app-ui/guides/create-guides#activation).
-- **Validate data types**. Ensure string vs. number comparisons in conditions are correct.
-- **Test runtime data**. Verify any data passed to the guides API matches your targeting conditions.
+- **Confirm the guide is activated.** Verify the guide is committed and active in the environment you're testing.
+- **Check if the guide is archived.** Verify the guide hasn't been archived for that user by checking the message status in the dashboard.
+- **Review targeting conditions.** Check that user properties match your [targeting rules](/in-app-ui/guides/create-guides#targeting).
+- **Verify audience membership.** Ensure the user belongs to any required [audiences](/concepts/audiences).
+- **Check activation rules.** Confirm the current page matches your path-based [activation rules](/in-app-ui/guides/create-guides#activation).
+- **Validate data types.** Ensure string vs. number comparisons in conditions are correct.
+- **Test runtime data.** Verify any data passed to the guides API matches your targeting conditions.
 
 ### Guide provider
 
@@ -140,38 +153,8 @@ If you've confirmed user eligibility for the guide, you may need to debug an iss
 - The `key` or `type` filter is set incorrectly.
 - The fetched guide is not being rendered correctly by your component.
 - The [message type](/in-app-ui/message-types) schema for the guide is formatted differently than expected.
-- Guide websocket is not established and realtime updates are unavailable.
+- The guide's WebSocket is not established and real-time updates are unavailable.
 
 ### Engagement tracking
 
-The expected results of engagment status updates may vary based on your own implementation decisions. While Knock's pre-built guide components provide out-of-the-box engagement tracking, your team will own the UI of other guide components completely. This includes making decisions about and implementing [engagement tracking](/in-app-ui/guides/handling-engagement#tracking-guide-engagement).
-
-**Common engagement tracking issues:**
-
-- Engagement status updates have not been implemented for the component.
-- Engagement status requests fail because required parameters are missing or incorrect:
-  - `channel_id` (string, required): The unique identifier for the channel.
-  - `guide_id` (string, required): The unique identifier for the guide.
-  - `guide_key` (string, required): The key of the guide.
-  - `guide_step_ref` (string, required): The step reference of the guide.
-- Engagement status requests fail because the `guide_id` is used in the endpoint instead of `message_id`.
-
-[API reference ->](/api-reference/users/guides/mark_message_as_seen)
-
-## Frequently asked questions
-
-<AccordionGroup>
-  <Accordion title="How can I test guides with an older SDK version?">
-    If you're on `@knocklabs/react` v0.8.0 or above, but haven't upgraded to v0.11.8 yet, you can still preview guides in your application using live preview:
-
-    1. Navigate to your guide in the Knock dashboard and open the guide editor.
-    2. Click **Live preview** at the top of the guide editor.
-    3. Enter the URL of the page in your application where you want to preview the guide.
-    4. Click **Open preview** to see your guide rendered in your application.
-
-    Live preview does not provide the same level of debugging and testing as the guides toolbar. It force-renders the guide component so you can preview it in your application, ignoring targeting rules and other eligibility conditions that would normally prevent the guide from rendering.
-
-    If your target preview page requires authentication, make sure you're logged in to your application before attempting to use live preview.
-
-  </Accordion>
-</AccordionGroup>
+The expected results of engagement status updates may vary based on your own implementation decisions. While Knock's pre-built guide components provide out-of-the-box engagement tracking, your team will own the UI of other guide components completely. This includes designing and implementing [engagement tracking](/in-app-ui/guides/handling-engagement#tracking-guide-engagement).
