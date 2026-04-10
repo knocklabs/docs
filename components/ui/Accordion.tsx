@@ -2,7 +2,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import { Icon } from "@telegraph/icon";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useLayoutEffect } from "react";
 import { Text, Code } from "@telegraph/typography";
 import { ChevronRight } from "lucide-react";
 
@@ -15,11 +15,24 @@ const AccordionGroup = ({ children }) => (
   </div>
 );
 
+function getHashFragment(): string {
+  if (typeof window === "undefined") return "";
+  const { hash } = window.location;
+  if (!hash || hash === "#") return "";
+  try {
+    return decodeURIComponent(hash.slice(1));
+  } catch {
+    return hash.slice(1);
+  }
+}
+
 type AccordionProps = {
   children: React.ReactNode;
   title: string;
   description?: string;
   defaultOpen?: boolean;
+  /** When set, this value is used as the element `id` and the accordion opens if the URL hash matches (for deep links). */
+  anchorId?: string;
 };
 
 // Helper function to parse title and split into text and code parts
@@ -68,12 +81,25 @@ const Accordion = ({
   title,
   description,
   defaultOpen = false,
+  anchorId,
 }: AccordionProps) => {
   const [open, setOpen] = useState<boolean>(defaultOpen);
   const titleParts = useMemo(() => parseTitleWithCode(title), [title]);
 
+  useLayoutEffect(() => {
+    if (!anchorId) return;
+    const syncFromHash = () => {
+      if (getHashFragment() === anchorId) {
+        setOpen(true);
+      }
+    };
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, [anchorId]);
+
   return (
-    <Box role="listitem">
+    <Box role="listitem" id={anchorId}>
       <MenuItem
         as="button"
         onClick={() => setOpen(!open)}
