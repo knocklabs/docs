@@ -33,7 +33,6 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/recipients", title: "Recipients" },
       { slug: "/users", title: "Users" },
       { slug: "/preferences", title: "Preferences" },
-      { slug: "/tenants", title: "Tenants" },
       { slug: "/objects", title: "Objects" },
       { slug: "/subscriptions", title: "Subscriptions" },
       { slug: "/audiences", title: "Audiences" },
@@ -170,6 +169,17 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     ],
   },
 
+  {
+    title: "Multi-tenancy",
+    slug: "/multi-tenancy",
+    desc: "Learn how to use Knock's multi-tenancy features to power per-tenant notification experiences.",
+    pages: [
+      { slug: "/overview", title: "Overview" },
+      { slug: "/tenant-scoping", title: "Tenant scoping" },
+      { slug: "/per-tenant-branding", title: "Per-tenant branding" },
+      { slug: "/per-tenant-translations", title: "Per-tenant translations" },
+    ],
+  },
   {
     title: "Preferences",
     slug: "/preferences",

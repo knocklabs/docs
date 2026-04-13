@@ -198,6 +198,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/concepts/tenants",
+        destination: "/multi-tenancy/overview",
+        permanent: true,
+      },
+      {
         source: "/send-notifications/workflow-functions",
         destination: "/designing-workflows/overview",
         permanent: true,

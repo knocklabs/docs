@@ -1,0 +1,148 @@
+---
+title: Per-tenant translations
+description: Learn how to create tenant-scoped translation files that override your base translations for specific tenants.
+tags:
+  [
+    "tenant",
+    "translations",
+    "i18n",
+    "localization",
+    "l10n",
+    "multi-tenancy",
+    "per-tenant",
+  ]
+section: Multi-tenancy
+---
+
+<Callout
+  type="enterprise"
+  title="Enterprise plan feature."
+  text={
+    <>
+      Per-tenant translations are only available on our{" "}
+      <a href="https://knock.app/pricing" target="_blank" rel="noopener">
+        Enterprise plan
+      </a>
+      .
+    </>
+  }
+/>
+
+Per-tenant translations enable you to override specific translation keys for individual tenants. When Knock renders a notification for a workflow run associated with a tenant, the tenant's translation content are deep-merged on top of your base translation files. The tenant-specific translations take precedence while everything else falls back to your base translations.
+
+## How it works
+
+When a notification is rendered, Knock will [translate](/template-editor/translations) the content if a `t` tag or `t` filter is found, following the [locale prioritization chain](/template-editor/translations#locale-prioritization) to identify the appropriate translation file to use. When a notification is scoped to a tenant, that flow prioritizes tenant-specific translations over base translations. Keys not present in the tenant-scoped file fall back to the base translation.
+
+Given a tenant-scoped translation for `acme-corp`:
+
+```json title="Tenant-scoped en translation for acme-corp"
+{
+  "greeting": "Greetings from Acme Corp!"
+}
+```
+
+And a base `en` translation:
+
+```json title="Base en translation"
+{
+  "greeting": "Hello from Knock",
+  "order_ready": "Your order is ready."
+}
+```
+
+When a notification is sent for a workflow run associated with the `acme-corp` tenant, the resolved translations are:
+
+```json title="Resolved translations for acme-corp"
+{
+  "greeting": "Greetings from Acme Corp!",
+  "order_ready": "Your order is ready."
+}
+```
+
+The `greeting` key is overridden by the tenant-scoped file; `order_ready` falls back to the base translation.
+
+## Tenant-scoped translations
+
+Tenant-scoped translations are managed via the [Management API](/developer-tools/management-api) using the existing translations endpoints. Add the `tenant` query parameter to scope a translation to a specific tenant.
+
+### Create translations
+
+```http title="Create a tenant-scoped translation"
+PUT /v1/translations/:locale_code?tenant=<tenant_id>
+```
+
+The request body is the same as a standard [translation upsert](/mapi-reference/translations/upsert):
+
+```json title="Request body"
+{
+  "translation": {
+    "content": "{\"greeting\": \"Greetings from Acme Corp!\"}",
+    "format": "json"
+  }
+}
+```
+
+### Get translations
+
+#### List all translations for a tenant
+
+Use the `tenant` query parameter to filter the translations list to a specific tenant:
+
+```http title="List translations for a tenant"
+GET /v1/translations?tenant=<tenant_id>
+```
+
+#### Get a specific translation for a tenant
+
+Use the `tenant` query parameter and the `locale_code` path parameter to get a specific translation set:
+
+```http title="Get a tenant-scoped translation"
+GET /v1/translations/:locale_code?tenant=<tenant_id>
+```
+
+## Translations in templates
+
+In your templates, use the `t` filters or `t` tags to indicate content blocks that should be translated to tenant-specific copy. Knock will resolve the appropriate translation based on the tenant provided in the workflow trigger and, if applicable, the recipient's locale.
+
+```liquid title="Using the t filter"
+{{ "greeting" | t | default: "Hello" }}
+```
+
+```liquid title="Using the t tag"
+{% t %}Hello from Knock{% endt %}
+```
+
+When these templates are rendered for a workflow run associated with the `acme-corp` tenant, Knock uses the tenant-scoped value if one exists for the recipient's locale.
+
+```markdown title="Resulting copy for acme-corp"
+Greetings from Acme Corp!
+```
+
+See [translations](/template-editor/translations) for more information on using translations in templates.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Can I upsert tenant-scoped translations directly to production?">
+    Yes. By default, the Management API enforces environment restrictions on
+    translation upserts. To write directly to production, pass `force=true` as a
+    query parameter. This bypasses the development-only environment check and
+    origin environment checks, allowing you to upsert tenant-scoped translations
+    directly to any environment.
+  </Accordion>
+  <Accordion title="Can I manage tenant-scoped translations in the dashboard?">
+    Yes. You can manage tenant-scoped translations from the **Translations**
+    page in the Knock dashboard. Filter the translations list by tenant using
+    the tenant filter, click into a translation to view its tenant scope, and
+    edit and save changes directly from the detail view.
+  </Accordion>
+  <Accordion title="Can I use per-tenant translations to create per-tenant templates?">
+    Yes, per-tenant translations can be used to customize templates on a
+    per-tenant basis, even if you're not working with multiple locales. Set all
+    of your customizable content as translation keys in your templates, then
+    upsert tenant-scoped translation files that override those keys for each
+    tenant. This gives you per-tenant control over notification content without
+    requiring separate templates or workflows per tenant.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,164 @@
+---
+title: Tenants
+description: Learn how to map your multi-tenant application into Knock using tenants.
+tags:
+  ["tenant", "tenancy", "saas", "how knock works", "custom brand", "branding"]
+section: Multi-tenancy
+---
+
+Tenants represent segments your users belong to. You might call these "accounts," "organizations," "workspaces," or similar. This is a common pattern in many SaaS applications: users have a single login joined to multiple tenants to represent their membership within each.
+
+You use tenants in Knock to:
+
+- [Scope in-app feeds](/multi-tenancy/tenant-scoped-messaging) so users only see notifications relevant to their active workspace.
+- Apply [per-tenant branding](/multi-tenancy/per-tenant-branding) in emails.
+- Define [per-tenant preference defaults](/preferences/tenant-preferences#create-a-per-tenant-default-preferenceset) that apply to all users within that tenant and [per-user, per-tenant preferences](/preferences/tenant-preferences#set-a-per-tenant-user-preferenceset).
+- Apply [per-tenant translations](/multi-tenancy/per-tenant-translations).
+
+## How tenants work
+
+Each tenant is uniquely identified by an `id` [per-environment](/concepts/variables) — in most cases the same ID you use in your own system. Tenants can store any number of custom properties alongside branding overrides and preference defaults, and are fully manageable via the API.
+
+Behind the scenes, a tenant is a system-level [Object](/concepts/objects) in a special collection called `$tenants`, which means anything you can do with an object you can do with a tenant.
+
+By default, Knock creates a stub tenant object for any tenant ID you pass when triggering a workflow. You can also use the [tenant APIs](/api-reference/tenants) to create and manage tenants explicitly.
+
+## Creating tenants
+
+Use the [tenant API methods](/api-reference/tenants) to create or update a tenant, including any custom properties and settings.
+
+<MultiLangCodeBlock snippet="tenants.set" title="Create or update a tenant" />
+
+### Required attributes
+
+| Property | Description                              |
+| -------- | ---------------------------------------- |
+| `id`     | A string to uniquely identify the tenant |
+
+### Optional attributes
+
+| Property   | Description                                           |
+| ---------- | ----------------------------------------------------- |
+| `name`     | An optional name to associate with the tenant         |
+| `*`        | Any custom properties you wish to store on the tenant |
+| `settings` | A `TenantSettings` object to apply (see below)        |
+
+### `TenantSettings`
+
+| Property                          | Description                                                                                                |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `branding.primary_color`          | A hex value for the primary color                                                                          |
+| `branding.primary_color_contrast` | A hex value for the contrasting color to use with the primary color                                        |
+| `branding.logo_url`               | A fully qualified URL for an image to use as the logo of this tenant                                       |
+| `branding.icon_url`               | A fully qualified URL for an image to use as the icon of this tenant                                       |
+| `preference_set`                  | A complete `PreferenceSet` to use as a default for all recipients with workflows triggered for this tenant |
+
+<Callout
+  type="alert"
+  title="Breaking change."
+  text={
+    <>
+      In Knock's Python SDK v1.0+, the optional <code>name</code> property and
+      any custom properties provided must be passed in via the{" "}
+      <code>extra_body</code> parameter. See the{" "}
+      <a
+        href="https://github.com/knocklabs/knock-python"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Python SDK documentation
+      </a>{" "}
+      for details.
+    </>
+  }
+/>
+
+## Tenant-scoped workflows
+
+Tenants **do not** have a relationship to the [users](/concepts/users) and [objects](/concepts/objects) you've identified in Knock — Knock does not know which tenant to associate with a given set of users. Instead, you must explicitly pass a tenant when triggering a workflow.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-tenant"
+  title="Trigger a workflow with a tenant"
+/>
+
+Tenants have a loose coupling to your users so Knock does not need to know anything about the roles and permissions model associated with your product. This means you have less data to synchronize to Knock and reduces the risk of drift between what's current in your system and what's reflected in Knock. If you need to model groups or lists of users, you can use our [subscriptions model](/concepts/subscriptions) to do that.
+
+Once a workflow run has been triggered with a `tenant`, the Knock workflow engine will:
+
+- Find the tenant or create an empty `tenant` object if one does not exist.
+- Expose the tenant object to the workflow run scope as a `tenant` variable.
+- Tag all messages produced in the workflow run with the tenant `id`.
+- Apply any branding overrides to templates rendered.
+- Apply any preference defaults to the recipient's preference set.
+- Fetch any recipient-specific tenant preference sets.
+
+Tagging messages by tenant makes it possible to query for tenant-specific messages in both the API and the dashboard, and to scope in-app feeds to a specific tenant.
+
+## Tenant data in templates
+
+The full tenant object, including any custom properties, is available in your templates under the `tenant` [namespace](/template-editor/variables#tenant).
+
+```markdown title="Using tenant data in a notification template"
+# Hello from {{ tenant.name }}
+
+This is a message directly from {{ tenant.name }} going to {{ recipient.email }}.
+```
+
+You can also use the tenant in step conditions to only trigger steps for particular tenants.
+
+## Per-tenant preferences
+
+<Callout
+  type="enterprise"
+  title="Enterprise plan feature."
+  text={
+    <>
+      Per-tenant user preferences and tenant preference defaults are only
+      available on our{" "}
+      <a href="https://knock.app/pricing" target="_blank" rel="noopener">
+        Enterprise plan
+      </a>
+      .
+    </>
+  }
+/>
+
+You can manage different sets of preferences for each user-tenant pair. A user may have different preferences configured for "Acme Fish Co." than they do for "Bell's Bagels," two workspaces within the same product. You can also set per-tenant defaults, where an admin in a tenant can set the default preferences for all users within that tenant. You can learn more in [our tenant preferences documentation](/preferences/tenant-preferences).
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Where do I find tenants in the dashboard?">
+    You can find tenant information on the **Tenants** page under the **Recipients** section in the main sidebar. From there you can view custom properties, message logs, workflow run history, branding settings, and default preferences for any tenant.
+  </Accordion>
+  <Accordion title="What's the limit on the number of tenants I can sync into Knock?">
+    There are no limits associated with tenants.
+  </Accordion>
+  <Accordion title="Can I use tenants on a non-enterprise plan?">
+    Yes, you can still use our APIs to work with tenant data, and trigger workflow runs for specific tenants. However, per-tenant preferences and custom branding are features gated for enterprise plans only.
+  </Accordion>
+  <Accordion title="How does Knock map my user access permissions onto a tenant?">
+    Knock does not know anything about the mapping between your users and your tenant entities, meaning you do not need to map user permissions.
+  </Accordion>
+  <Accordion title="Can I use a tenant as a recipient in a workflow trigger?">
+    Absolutely, you can use a tenant as a `recipient` or `actor` in a workflow trigger by referencing it as an object with the structure `{ collection: "$tenants", id: "tenant-id" }`.
+  </Accordion>
+  <Accordion title="Can I subscribe recipients to a tenant?">
+    Yes, you can subscribe recipients to a tenant by setting the collection of the object to subscribe to as `$tenants` and using the `id` of the tenant as the object id.
+  </Accordion>
+  <Accordion title="Can I create per-tenant templates?">
+    Per-tenant template overrides at the workflow step level are not yet supported. As an alternative, [per-tenant translations](/multi-tenancy/per-tenant-translations) enables you to customize template content on a per-tenant basis, even if you're not working with multiple locales. 
+    
+    If this is blocking your adoption of Knock, [please get in touch](mailto:support@knock.app?subject=Per-tenant%20templates).
+  </Accordion>
+  <Accordion title="Can I create per-tenant workflows?">
+    While it's technically possible to create per-tenant workflows in Knock, we recommend not doing this where possible and opting to use our step conditions, preferences, and per-tenant templates to provide the customizations you need. The reason is creating and managing per-tenant workflows increases the surface area of the number of notifications you need to support, and more commonly what we've found from working with customers is there are more similarities between per-customer workflows than differences, which can usually be encapsulated in our workflow model.
+
+    If you find that you have different needs here, we'd love to speak with you. Please [get in touch](mailto:support@knock.app) and we can arrange a consultation with a notification support specialist on the Knock team to walk through your use case.
+
+  </Accordion>
+  <Accordion title="Can I nest tenants?">
+    No, today it's only possible to have a single-level of hierarchy for your tenants. If you need to apply deeper hierarchy to your tenant objects, please [get in touch](mailto:support@knock.app) and we can discuss your use case further.
+  </Accordion>
+</AccordionGroup>

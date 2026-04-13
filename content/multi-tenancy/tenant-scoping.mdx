@@ -1,0 +1,50 @@
+---
+title: Tenant scoping for in-app messaging
+description: Learn how to use tenants to scope in-app feeds so users only see notifications relevant to their active workspace.
+tags:
+  ["tenant", "tenancy", "in-app feed", "multi-tenancy", "scoping", "workspace"]
+section: Multi-tenancy
+---
+
+When your users belong to multiple workspaces or organizations, you'll want their [in-app feed](/in-app-ui/feeds/overview) to only show notifications relevant to their currently active workspace. You can do this by associating workflow runs with a tenant and passing that tenant when initializing the feed.
+
+## How it works
+
+Pass a `tenant` identifier in your workflow trigger call. The tenant does not need to be configured beforehand — any unique string you use to identify the workspace will work.
+
+<MultiLangCodeBlock
+  snippet="workflows.trigger-with-tenant"
+  title="Trigger a workflow with a tenant"
+/>
+
+When retrieving the feed, pass the same tenant identifier so Knock scopes the feed to only show messages associated with that tenant:
+
+```jsx title="Scope the feed client to a tenant"
+// If you're using our `client-js` SDK:
+import Knock from "@knocklabs/client";
+const knockClient = new Knock(process.env.KNOCK_PUBLIC_API_KEY);
+
+const feedClient = knockClient.feeds.initialize(
+  process.env.KNOCK_FEED_CHANNEL_ID,
+  {
+    // Scope all requests to the current workspace
+    tenant: currentWorkspace.id,
+  },
+);
+
+// Or if you're using the React SDK:
+<KnockFeedProvider
+  feedId={process.env.KNOCK_FEED_CHANNEL_ID}
+  defaultFeedOptions={{ tenant: currentWorkspace.id }}
+>
+  ...
+</KnockFeedProvider>;
+```
+
+Knock will ensure that badge counts are scoped to the active workspace, and that real-time notifications are not received for messages belonging to other tenants.
+
+## Example
+
+Imagine a SaaS application, Collaborato, where users belong to one or more workspaces. When a user is active in the "Acme Fish Co." workspace, they should only see notifications relevant to that workspace.
+
+By passing `tenant: "acme-fish-co"` in both the workflow trigger and the feed initialization, Knock will filter all feed requests and real-time events to that tenant — even if the same user has notifications from other workspaces.
