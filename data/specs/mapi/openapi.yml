@@ -1337,6 +1337,11 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        tenant:
+          description: An optional tenant identifier to scope the translation to a specific tenant.
+          type: string
+          x-struct: null
+          x-validate: null
         updated_at:
           description: The timestamp of when the translation was last updated.
           format: date-time
@@ -11195,6 +11200,14 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: A specific tenant to filter translations for.
+          in: query
+          name: tenant
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
         - description: Optionally specify the returned content format. Supports 'json' and 'po'. Defaults to 'json'.
           in: query
           name: format
@@ -11513,6 +11526,75 @@ paths:
       summary: Preview a template
       tags:
         - Templates
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.templates.preview({
+            environment: 'development',
+            channel_type: 'email',
+            recipient: 'user_123',
+            template: {
+              settings: {},
+              subject: 'Hello {{ recipient.name }}',
+            },
+          });
+
+          console.log(response.content_type);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.templates.preview(
+              environment="development",
+              channel_type="email",
+              recipient="user_123",
+              template={
+                  "settings": {},
+                  "subject": "Hello {{ recipient.name }}",
+              },
+          )
+          print(response.content_type)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.Templates.Preview(context.TODO(), knockmapi.TemplatePreviewParams{
+          		Environment: "development",
+          		ChannelType: knockmapi.TemplatePreviewParamsChannelTypeEmail,
+          		Recipient: knockmapi.TemplatePreviewParamsRecipientUnion{
+          			OfString: knockmapi.String("user_123"),
+          		},
+          		Template: knockmapi.TemplatePreviewParamsTemplateUnion{
+          			OfEmailTemplate: &knockmapi.EmailTemplateParam{
+          				Settings: knockmapi.EmailTemplateSettingsParam{},
+          				Subject:  "Hello {{ recipient.name }}",
+          			},
+          		},
+          	})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.ContentType)
+          }
   /v1/guides/{guide_key}/activate:
     put:
       callbacks: {}
@@ -14754,6 +14836,14 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: A specific tenant to scope the translation to.
+          in: query
+          name: tenant
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
         - description: Whether to annotate the resource. Only used in the Knock CLI.
           in: query
           name: annotate
@@ -14887,6 +14977,14 @@ paths:
           in: query
           name: namespace
           required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: An optional tenant to scope the translation to.
+          in: query
+          name: tenant
+          required: false
           schema:
             type: string
             x-struct: null
