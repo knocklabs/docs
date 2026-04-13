@@ -175,9 +175,9 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     desc: "Learn how to use Knock's multi-tenancy features to power per-tenant notification experiences.",
     pages: [
       { slug: "/overview", title: "Overview" },
+      { slug: "/tenant-scoping", title: "Tenant scoping" },
       { slug: "/per-tenant-branding", title: "Per-tenant branding" },
       { slug: "/per-tenant-translations", title: "Per-tenant translations" },
-      { slug: "/scoping-in-app-feeds", title: "Scoping in-app feeds" },
     ],
   },
   {
