@@ -45,17 +45,34 @@ When you use an MJML template with a layout, the layout must also be MJML. When 
 
 ## Mixing HTML and MJML
 
-Knock automatically wraps plain HTML inside MJML templates and layouts in `<mjml-raw>` tags. This means you can include HTML snippets in your MJML and they will render correctly.
+Knock automatically wraps plain HTML inside MJML templates and layouts in `<mjml-raw>` tags when the HTML appears at the `<mj-body>`, `<mj-section>`, or `<mj-column>` level. This means you can include HTML snippets in your MJML templates and they will render correctly.
+
+### Ending tags
+
+Knock skips auto-wrapping of HTML when the parent element is an MJML <a href="https://documentation.mjml.io/#ending-tags" target="_blank" rel="noopener">ending tag</a>. Ending tags are MJML components that expect plain HTML or text content as their direct children by spec.
+
+The following MJML tags do not have their HTML children wrapped:
+
+- `<mj-accordion-text>`
+- `<mj-accordion-title>`
+- `<mj-button>`
+- `<mj-navbar-link>`
+- `<mj-preview>`
+- `<mj-social-element>`
+- `<mj-style>`
+- `<mj-table>`
+- `<mj-text>`
+- `<mj-title>`
 
 <Callout
   emoji="🌠"
   title="Note:"
   text={
     <>
-      HTML partials cannot include MJML. Partials must be HTML. When an HTML
-      partial is used inside an MJML template, Knock wraps the partial's content
-      in <code>&lt;mjml-raw&gt;</code> tags so it renders correctly within the
-      MJML document.
+      HTML partials cannot include MJML. When an HTML partial is used in an MJML
+      template and is not rendered as a direct child of an MJML ending tag,
+      Knock wraps the partial's content in <code>&lt;mjml-raw&gt;</code> tags so
+      that it renders correctly within the MJML document.
     </>
   }
 />
@@ -63,4 +80,4 @@ Knock automatically wraps plain HTML inside MJML templates and layouts in `<mjml
 ## Limitations
 
 - **MJML layouts require the `<mjml>` root tag.** Layouts set to MJML mode must be valid MJML documents.
-- **HTML partials cannot include MJML.** [HTML partials](/template-editor/partials/html-partials) must contain HTML only. When used in an MJML template, their content is wrapped in `<mjml-raw>` automatically.
+- **Partials cannot include MJML.** [HTML partials](/template-editor/partials/html-partials) must contain HTML only. When used in an MJML template, their content is automatically wrapped in `<mjml-raw>` tags where appropriate.
