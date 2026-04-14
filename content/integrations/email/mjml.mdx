@@ -45,7 +45,26 @@ When you use an MJML template with a layout, the layout must also be MJML. When 
 
 ## Mixing HTML and MJML
 
-Knock automatically wraps plain HTML inside MJML templates and layouts in `<mjml-raw>` tags. This means you can include HTML snippets in your MJML and they will render correctly.
+Knock automatically wraps plain HTML inside MJML templates and layouts in `<mjml-raw>` tags when the HTML appears at the `<mj-body>`, section, or column level. This means you can include HTML snippets in your MJML and they will render correctly.
+
+### Ending tags
+
+Knock skips this auto-wrapping when the parent element is an MJML <a href="https://documentation.mjml.io/#ending-tags" target="_blank" rel="noopener">ending tag</a>. Ending tags are MJML components that expect plain HTML as their direct children by spec, so wrapping their contents in `<mjml-raw>` would break template rendering.
+
+The following MJML ending tags do not have their HTML children wrapped:
+
+- `<mj-accordion-text>`
+- `<mj-accordion-title>`
+- `<mj-button>`
+- `<mj-navbar-link>`
+- `<mj-preview>`
+- `<mj-social-element>`
+- `<mj-style>`
+- `<mj-table>`
+- `<mj-text>`
+- `<mj-title>`
+
+This behavior applies whether the HTML is provided directly in the template content or as an [HTML partial](/template-editor/partials/html-partials).
 
 <Callout
   emoji="🌠"
@@ -53,7 +72,7 @@ Knock automatically wraps plain HTML inside MJML templates and layouts in `<mjml
   text={
     <>
       HTML partials cannot include MJML. Partials must be HTML. When an HTML
-      partial is used inside an MJML template, Knock wraps the partial's content
+      partial is used inside an MJML template outside of an ending tag, Knock wraps the partial's content
       in <code>&lt;mjml-raw&gt;</code> tags so it renders correctly within the
       MJML document.
     </>
