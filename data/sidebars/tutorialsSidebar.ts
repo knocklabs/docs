@@ -52,4 +52,8 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     slug: `${baseSlug}/migrate-email-with-mcp-server`,
     title: "Email template migration",
   },
+  {
+    slug: `${baseSlug}/guides-in-vue`,
+    title: "Guides in Vue.js",
+  },
 ];
