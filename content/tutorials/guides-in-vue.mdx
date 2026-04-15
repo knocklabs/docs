@@ -20,13 +20,13 @@ You'll need:
 
 ## Architecture overview
 
-The [Knock React SDK](/in-app-ui/react/sdk/overview) uses a provider/hook pattern (`KnockProvider`, `KnockGuideProvider`, `useGuide`). In Vue.js, you replicate this with `provide`/`inject` and composables.
+The [Knock React SDK](/in-app-ui/react/sdk/overview) uses a provider/hook pattern (`KnockProvider`, `KnockGuideProvider`, `useGuide`). In Vue.js, you replicate this with `provide`/`inject` and composables. Here's a comparison of Knock's React components and their Vue equivalents.
 
-| React                | Vue                                                                 |
-| -------------------- | ------------------------------------------------------------------- |
-| `KnockProvider`      | A `KnockProvider.vue` component that uses Vue's `provide`/`inject`. |
-| `KnockGuideProvider` | Included in `KnockProvider.vue`.                                    |
-| `useGuide()` hook    | A `useGuide()` composable.                                          |
+| React                | Vue                                                                  |
+| -------------------- | -------------------------------------------------------------------- |
+| `KnockProvider`      | A `KnockProvider.vue` component that uses Vue's `provide`/`inject`.  |
+| `KnockGuideProvider` | `useKnockGuideClient()` composable, used inside `KnockProvider.vue`. |
+| `useGuide()` hook    | A `useGuide()` composable.                                           |
 
 The Knock client must initialize in a specific sequence before guides are available: the Knock client initializes first, the user authenticates, then the guide client initializes and fetches guides.
 
@@ -39,7 +39,9 @@ The Knock client must initialize in a specific sequence before guides are availa
 npm install @knocklabs/client urlpattern-polyfill
 ```
 
-Then import the polyfill at the top of your app entry point (e.g. `main.ts`):
+The Knock guides client uses the [`URLPattern` API](https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API) to evaluate guide activation rules based on the current URL. `URLPattern` is not yet available in all browsers, so the polyfill ensures consistent behavior across environments.
+
+Import the polyfill at the top of your app entry point (e.g. `main.ts`):
 
 ```typescript title="main.ts"
 import "urlpattern-polyfill";
@@ -49,7 +51,7 @@ import "urlpattern-polyfill";
 </Step>
 <Step title="Create the Knock client composable.">
 
-This composable initializes the Knock client and authenticates the user. It uses `shallowRef` for the client instance — rather than `reactive()` — to avoid TypeScript errors from Vue's deep unwrapping of class internals. The client instance is shared via the returned `knockClient` ref, which `useKnockGuides` takes as a parameter.
+This composable initializes the Knock client and authenticates the user. It uses `shallowRef` for the client instance — rather than `reactive()` — to avoid TypeScript errors from Vue's deep unwrapping of class internals. The client instance is shared via the returned `knockClient` ref, which `useKnockGuideClient` takes as a parameter.
 
 ```typescript title="composables/useKnock.ts"
 import { shallowRef } from "vue";
@@ -93,12 +95,12 @@ export function useKnock() {
 
 This composable initializes the guide client, subscribes to guide updates, and exposes methods for fetching and selecting guides. The store subscription keeps Vue's reactive state in sync with the guide client's internal store.
 
-```typescript title="composables/useKnockGuides.ts"
+```typescript title="composables/useKnockGuideClient.ts"
 import { shallowRef, reactive, computed, type Ref } from "vue";
 import { KnockGuideClient, type KnockGuide } from "@knocklabs/client";
 import type Knock from "@knocklabs/client";
 
-export function useKnockGuides(knockClient: Ref<Knock | null>) {
+export function useKnockGuideClient(knockClient: Ref<Knock | null>) {
   // shallowRef avoids Vue unwrapping KnockGuideClient class internals —
   // the same reason useKnock uses shallowRef for the Knock client
   const guideClient = shallowRef<KnockGuideClient | null>(null);
@@ -174,7 +176,7 @@ The provider component initializes Knock, authenticates the user, and makes the 
 <script setup lang="ts">
 import { onMounted, onUnmounted, provide } from "vue";
 import { useKnock } from "../composables/useKnock";
-import { useKnockGuides } from "../composables/useKnockGuides";
+import { useKnockGuideClient } from "../composables/useKnockGuideClient";
 
 const props = defineProps<{
   apiKey: string;
@@ -183,7 +185,7 @@ const props = defineProps<{
 }>();
 
 const knock = useKnock();
-const knockGuides = useKnockGuides(knock.knockClient);
+const knockGuides = useKnockGuideClient(knock.knockClient);
 
 // Make the guide client available to all descendant components
 provide("knockGuides", knockGuides);
@@ -237,7 +239,7 @@ interface GuideFilters {
 
 export function useGuide(
   knockGuides: ReturnType<
-    typeof import("./useKnockGuides").useKnockGuides
+    typeof import("./useKnockGuideClient").useKnockGuideClient
   > | null,
   options: GuideFilters = {},
 ) {
@@ -255,7 +257,7 @@ export function useGuide(
   }
 
   // Filter from the reactive guides ref so step recomputes whenever the
-  // store subscription updates state.guides in useKnockGuides
+  // store subscription updates state.guides in useKnockGuideClient
   const step = computed(() => {
     const match = knockGuides.guides.value.find((g) => {
       if (type && g.type !== type) return false;
@@ -368,7 +370,7 @@ interface GuideStep {
 }
 
 const knockGuides = inject("knockGuides") as ReturnType<
-  typeof import("../composables/useKnockGuides").useKnockGuides
+  typeof import("../composables/useKnockGuideClient").useKnockGuideClient
 > | null;
 const { step } = useGuide(knockGuides, { type: "banner" });
 const typedStep = computed(() => step.value as GuideStep | null);
