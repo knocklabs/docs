@@ -109,6 +109,24 @@ For example, a Stripe `invoice.paid` event includes nested data about the invoic
 
 You could map `data.object.customer` to the `recipients` field and `data.object` to the `data` field when triggering a workflow, giving your templates access to the invoice amount, currency, and subscription details.
 
+### Execution order for multiple mappings
+
+If a single event type has multiple action mappings, Knock executes them in a fixed priority order based on action type, not the order in which you create mappings in the dashboard.
+
+1. `users_identify`
+2. `users_delete`
+3. `objects_set`
+4. `objects_delete`
+5. `tenants_set`
+6. `tenants_delete`
+7. `objects_subscribe`
+8. `objects_unsubscribe`
+9. `audiences_add_member`
+10. `audiences_remove_member`
+11. `workflows_trigger`
+
+This ordering is consistent across incoming webhook sources, including custom sources.
+
 For full details on configuring custom event types and field mappings, see the [custom source page](/integrations/sources/custom).
 
 ## Debugging source events
