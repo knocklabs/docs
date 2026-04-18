@@ -61,7 +61,15 @@ export const MDX_COMPONENTS = {
   h3: (props) => <SectionHeading tag="h3" mb="2" mt="8" {...props} />,
   h4: (props) => <SectionHeading tag="h4" mb="1" mt="8" {...props} />,
   code: (props) => (
-    <Code as="code" backgroundColor="gray-2" data-tgph-code {...props}>
+    <Code
+      as="code"
+      color="blue"
+      backgroundColor="transparent"
+      px="0_5"
+      size="0"
+      data-tgph-code
+      {...props}
+    >
       {props.children}
     </Code>
   ),
