@@ -1,0 +1,149 @@
+---
+title: How to send email with Cloudflare Email
+description: How to send transactional email notifications with Cloudflare Email Service and Knock.
+tags: ["cloudflare", "email", "email service", "transactional"]
+section: Integrations > Email
+layout: integrations
+---
+
+Knock supports using <a href="https://developers.cloudflare.com/email-service/get-started/send-emails/" target="_blank" rel="noopener noreferrer">Cloudflare Email Service</a> to send email notifications to your users.
+
+<Callout
+  type="info"
+  title="Cloudflare DNS required"
+  text={
+    <>
+      Cloudflare Email Service requires your domain's DNS to be configured
+      correctly on Cloudflare. See{" "}
+      <a
+        href="https://developers.cloudflare.com/email-service/configuration/domains/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Email Service domain configuration
+      </a>{" "}
+      for DNS record details.
+    </>
+  }
+/>
+
+<Callout
+  type="warning"
+  title="Delivery status tracking not yet supported"
+  text={
+    <>
+      Cloudflare Email Service does not currently support delivery status
+      tracking. Knock will not receive bounce or delivery confirmation events
+      from Cloudflare for messages sent through this channel.
+    </>
+  }
+/>
+
+## Features
+
+- Knock link and open tracking
+- Per environment configuration
+- Sandbox mode
+
+## Getting started
+
+1. In the Cloudflare dashboard, create an **API token** (or use a compatible **API key**) with permission to send email for your account, and copy your Cloudflare **account ID**. See Cloudflare's <a href="https://developers.cloudflare.com/fundamentals/api/get-started/create-token/" target="_blank" rel="noopener noreferrer">API token documentation</a> and <a href="https://developers.cloudflare.com/fundamentals/account/find-account-and-zone-ids/" target="_blank" rel="noopener noreferrer">how to find your account ID</a>.
+2. In Knock, open **Channels and sources** in your account settings and create a **Cloudflare Email** channel.
+3. For each [environment](/concepts/environments), open **Manage configuration** on the channel and enter your **Account ID** and **API key** (your Cloudflare API token or key), plus your default **From** address and optional **From** name. Use addresses on domains you have verified for sending in Cloudflare.
+
+## Channel configuration
+
+The following channel settings should be configured per [environment](/concepts/environments). Navigate to **Channels and sources** in your dashboard account settings, select your Cloudflare Email [channel](/concepts/channels), then click "Manage configuration" under the environment that you'd like to configure.
+
+<AccordionGroup>
+  <Accordion title="Settings">
+    Fields marked with an `*` are required.
+
+    **Knock settings**
+    <Attributes>
+      <Attribute
+        name="Sandbox mode"
+        type="boolean"
+        nameSlug="/integrations/overview#sandbox-mode"
+        description="Whether to enable sandbox mode for your Cloudflare Email channel."
+      />
+      <Attribute
+        name="Knock open tracking"
+        nameSlug="/send-notifications/tracking#email-open-tracking"
+        type="boolean"
+        description="Whether to enable Knock email-open tracking."
+      />
+      <Attribute
+        name="Knock link tracking"
+        nameSlug="/send-notifications/tracking#link-click-tracking"
+        type="boolean"
+        description="Whether to enable Knock link-click tracking."
+      />
+    </Attributes>
+
+    **Provider settings for Cloudflare Email**
+    <Attributes>
+      <Attribute
+        name="Account ID"
+        type="string*"
+        description="Your Cloudflare account ID. Used with Cloudflare's email sending API."
+      />
+      <Attribute
+        name="API key"
+        type="string*"
+        description="Your Cloudflare API token or API key with permission to send email for this account."
+      />
+      <Attribute
+        name="From email address"
+        type="string | liquid*"
+        description="The default sender email address (can use Liquid tags). Must use a domain you have configured for sending in Cloudflare."
+      />
+      <Attribute
+        name="From name"
+        type="string | liquid"
+        description="The default sender name (can use Liquid tags)."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Overrides">
+    When configured, these optional overrides will apply to all emails sent from this channel in the configured environment. See [Settings and overrides](/integrations/email/settings) for more on email channel overrides.
+
+    <Attributes>
+      <Attribute
+        name="To"
+        type="string | liquid"
+        description="The To email address that email notifications will be sent to (can use Liquid tags). This value will override the designated recipient's email address."
+      />
+      <Attribute
+        name="Cc"
+        type="string | liquid"
+        description="The CC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Bcc"
+        type="string | liquid"
+        description="The BCC email address that email notifications will be sent to (can use Liquid tags)."
+      />
+      <Attribute
+        name="Reply-to"
+        type="string | liquid"
+        description="The reply-to email address that will be included on email notifications (can use Liquid tags)."
+      />
+      <Attribute
+        name="Payload overrides"
+        nameSlug="/integrations/email/settings#provider-json-overrides"
+        type="JSON (string) | liquid"
+        description="Provide a JSON object to merge into the API payload that is sent to the downstream provider."
+      />
+    </Attributes>
+
+  </Accordion>
+  <Accordion title="Conditions">
+    Set optional per-environment [conditions](/integrations/overview#channel-conditions) for this channel. These conditions are evaluated each time a workflow run encounters a step that uses this channel in the configured environment. If the conditions are not met, the step will be skipped.
+  </Accordion>
+</AccordionGroup>
+
+## Recipient data requirements
+
+To send an email notification you'll need a valid `email` property set on your recipient.

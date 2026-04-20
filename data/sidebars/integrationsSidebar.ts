@@ -51,6 +51,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/client-previews", title: "Client previews" },
       { slug: "/knock-test", title: "Knock test emails" },
       { slug: "/aws-ses", title: "Amazon SES" },
+      { slug: "/cloudflare-email", title: "Cloudflare Email" },
       { slug: "/mailersend", title: "MailerSend" },
       { slug: "/mailgun", title: "Mailgun" },
       { slug: "/mailjet", title: "Mailjet" },
