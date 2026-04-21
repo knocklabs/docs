@@ -131,6 +131,12 @@ components:
       description: Wraps the EmailLayoutRequest request under the email_layout key.
       example:
         email_layout:
+          branding_overrides:
+            dark_logo_url: https://cdn.example.com/logo-dark.png
+            dark_primary_color: '#1A1A2E'
+            dark_primary_color_contrast: '#FFFFFF'
+            primary_color: '#4F46E5'
+            primary_color_contrast: '#FFFFFF'
           footer_links:
             - text: Example
               url: http://example.com
@@ -2024,6 +2030,12 @@ components:
     EmailLayoutRequest:
       description: A request to update or create an email layout.
       example:
+        branding_overrides:
+          dark_logo_url: https://cdn.example.com/logo-dark.png
+          dark_primary_color: '#1A1A2E'
+          dark_primary_color_contrast: '#FFFFFF'
+          primary_color: '#4F46E5'
+          primary_color_contrast: '#FFFFFF'
         footer_links:
           - text: Example
             url: http://example.com
@@ -2031,6 +2043,8 @@ components:
         name: Transactional
         text_layout: Hello, world!
       properties:
+        branding_overrides:
+          $ref: '#/components/schemas/BrandingOverrides'
         footer_links:
           description: A list of one or more items to show in the footer of the email layout.
           items:
@@ -4248,6 +4262,12 @@ components:
       description: Wraps the EmailLayout response under the `email_layout` key.
       example:
         email_layout:
+          branding_overrides:
+            dark_logo_url: https://cdn.example.com/logo-dark.png
+            dark_primary_color: '#1A1A2E'
+            dark_primary_color_contrast: '#FFFFFF'
+            primary_color: '#4F46E5'
+            primary_color_contrast: '#FFFFFF'
           created_at: "2021-01-01T00:00:00Z"
           environment: development
           footer_links:
@@ -5878,6 +5898,12 @@ components:
     EmailLayout:
       description: A versioned email layout used within an environment.
       example:
+        branding_overrides:
+          dark_logo_url: https://cdn.example.com/logo-dark.png
+          dark_primary_color: '#1A1A2E'
+          dark_primary_color_contrast: '#FFFFFF'
+          primary_color: '#4F46E5'
+          primary_color_contrast: '#FFFFFF'
         created_at: "2021-01-01T00:00:00Z"
         environment: development
         footer_links:
@@ -5890,6 +5916,8 @@ components:
         text_layout: Hello, world!
         updated_at: "2021-01-01T00:00:00Z"
       properties:
+        branding_overrides:
+          $ref: '#/components/schemas/BrandingOverrides'
         created_at:
           description: The timestamp of when the email layout was created.
           format: date-time
@@ -7381,6 +7409,92 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.TextareaField
       x-validate: null
+    BrandingOverrides:
+      additionalProperties: false
+      description: Overrides to apply against account branding variables in an email layout, including dark mode-specific values.
+      example:
+        dark_icon_url: https://cdn.example.com/icon-dark.png
+        dark_logo_url: https://cdn.example.com/logo-dark.png
+        dark_primary_color: '#1A1A2E'
+        dark_primary_color_contrast: '#FFFFFF'
+        icon_url: https://cdn.example.com/icon-light.png
+        logo_url: https://cdn.example.com/logo-light.png
+        primary_color: '#4F46E5'
+        primary_color_contrast: '#FFFFFF'
+        primary_text_color: '#111827'
+        secondary_text_color: '#6B7280'
+      nullable: true
+      properties:
+        dark_icon_url:
+          description: A URL for a dark mode icon override.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        dark_logo_url:
+          description: A URL for a dark mode logo override.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        dark_primary_color:
+          description: The dark mode primary brand color in hex format.
+          nullable: true
+          pattern: ^#(?:[A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$
+          type: string
+          x-struct: null
+          x-validate: null
+        dark_primary_color_contrast:
+          description: The dark mode contrast color for the primary brand color in hex format.
+          nullable: true
+          pattern: ^#(?:[A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$
+          type: string
+          x-struct: null
+          x-validate: null
+        icon_url:
+          description: A URL for a light mode icon override.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        logo_url:
+          description: A URL for a light mode logo override.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        primary_color:
+          description: The light mode primary brand color in hex format.
+          nullable: true
+          pattern: ^#(?:[A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$
+          type: string
+          x-struct: null
+          x-validate: null
+        primary_color_contrast:
+          description: The light mode contrast color for the primary brand color in hex format.
+          nullable: true
+          pattern: ^#(?:[A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$
+          type: string
+          x-struct: null
+          x-validate: null
+        primary_text_color:
+          description: The light mode primary text color in hex format.
+          nullable: true
+          pattern: ^#(?:[A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$
+          type: string
+          x-struct: null
+          x-validate: null
+        secondary_text_color:
+          description: The light mode secondary text color in hex format.
+          nullable: true
+          pattern: ^#(?:[A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$
+          type: string
+          x-struct: null
+          x-validate: null
+      title: BrandingOverrides
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.BrandingOverrides
+      x-validate: null
     DynamicAudience:
       description: A dynamic audience where membership is determined by segment conditions evaluated at runtime.
       example:
@@ -8225,7 +8339,13 @@ components:
       description: A paginated list of EmailLayout. Contains a list of entries and page information.
       example:
         entries:
-          - created_at: "2021-01-01T00:00:00Z"
+          - branding_overrides:
+              dark_logo_url: https://cdn.example.com/logo-dark.png
+              dark_primary_color: '#1A1A2E'
+              dark_primary_color_contrast: '#FFFFFF'
+              primary_color: '#4F46E5'
+              primary_color_contrast: '#FFFFFF'
+            created_at: "2021-01-01T00:00:00Z"
             environment: development
             footer_links:
               - text: Example
@@ -10110,7 +10230,13 @@ paths:
                 description: A paginated list of EmailLayout. Contains a list of entries and page information.
                 example:
                   entries:
-                    - created_at: "2021-01-01T00:00:00Z"
+                    - branding_overrides:
+                        dark_logo_url: https://cdn.example.com/logo-dark.png
+                        dark_primary_color: '#1A1A2E'
+                        dark_primary_color_contrast: '#FFFFFF'
+                        primary_color: '#4F46E5'
+                        primary_color_contrast: '#FFFFFF'
+                      created_at: "2021-01-01T00:00:00Z"
                       environment: development
                       footer_links:
                         - text: Example
@@ -10157,7 +10283,7 @@ paths:
 
           // Automatically fetches more pages as needed.
           for await (const emailLayout of client.emailLayouts.list({ environment: 'development' })) {
-            console.log(emailLayout.created_at);
+            console.log(emailLayout.branding_overrides);
           }
         python: |-
           import os
@@ -10170,7 +10296,7 @@ paths:
               environment="development",
           )
           page = page.entries[0]
-          print(page.created_at)
+          print(page.branding_overrides)
         go: |
           package main
 
@@ -12580,7 +12706,7 @@ paths:
             environment: 'development',
           });
 
-          console.log(emailLayout.created_at);
+          console.log(emailLayout.branding_overrides);
         python: |-
           import os
           from knock_mapi import KnockMgmt
@@ -12592,7 +12718,7 @@ paths:
               email_layout_key="email_layout_key",
               environment="development",
           )
-          print(email_layout.created_at)
+          print(email_layout.branding_overrides)
         go: |
           package main
 
@@ -12618,7 +12744,7 @@ paths:
           	if err != nil {
           		panic(err.Error())
           	}
-          	fmt.Printf("%+v\n", emailLayout.CreatedAt)
+          	fmt.Printf("%+v\n", emailLayout.BrandingOverrides)
           }
     put:
       callbacks: {}
@@ -12693,6 +12819,12 @@ paths:
               description: Wraps the EmailLayoutRequest request under the email_layout key.
               example:
                 email_layout:
+                  branding_overrides:
+                    dark_logo_url: https://cdn.example.com/logo-dark.png
+                    dark_primary_color: '#1A1A2E'
+                    dark_primary_color_contrast: '#FFFFFF'
+                    primary_color: '#4F46E5'
+                    primary_color_contrast: '#FFFFFF'
                   footer_links:
                     - text: Example
                       url: http://example.com
@@ -12718,6 +12850,12 @@ paths:
                 description: Wraps the EmailLayout response under the `email_layout` key.
                 example:
                   email_layout:
+                    branding_overrides:
+                      dark_logo_url: https://cdn.example.com/logo-dark.png
+                      dark_primary_color: '#1A1A2E'
+                      dark_primary_color_contrast: '#FFFFFF'
+                      primary_color: '#4F46E5'
+                      primary_color_contrast: '#FFFFFF'
                     created_at: "2021-01-01T00:00:00Z"
                     environment: development
                     footer_links:
@@ -15326,6 +15464,12 @@ paths:
               description: Wraps the EmailLayoutRequest request under the email_layout key.
               example:
                 email_layout:
+                  branding_overrides:
+                    dark_logo_url: https://cdn.example.com/logo-dark.png
+                    dark_primary_color: '#1A1A2E'
+                    dark_primary_color_contrast: '#FFFFFF'
+                    primary_color: '#4F46E5'
+                    primary_color_contrast: '#FFFFFF'
                   footer_links:
                     - text: Example
                       url: http://example.com
@@ -15351,6 +15495,12 @@ paths:
                 description: Wraps the EmailLayout response under the `email_layout` key.
                 example:
                   email_layout:
+                    branding_overrides:
+                      dark_logo_url: https://cdn.example.com/logo-dark.png
+                      dark_primary_color: '#1A1A2E'
+                      dark_primary_color_contrast: '#FFFFFF'
+                      primary_color: '#4F46E5'
+                      primary_color_contrast: '#FFFFFF'
                     created_at: "2021-01-01T00:00:00Z"
                     environment: development
                     footer_links:
