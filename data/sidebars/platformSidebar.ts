@@ -178,6 +178,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/tenant-scoping", title: "Tenant scoping" },
       { slug: "/per-tenant-branding", title: "Per-tenant branding" },
       { slug: "/per-tenant-translations", title: "Per-tenant translations" },
+      { slug: "/per-tenant-preferences", title: "Per-tenant preferences" },
     ],
   },
   {
@@ -186,7 +187,6 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     desc: "Learn how to power notification preferences with Knock.",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/tenant-preferences", title: "Tenant preferences" },
       { slug: "/object-preferences", title: "Object preferences" },
       { slug: "/preference-conditions", title: "Preferences conditions" },
       {

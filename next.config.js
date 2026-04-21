@@ -203,6 +203,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/preferences/tenant-preferences",
+        destination: "/multi-tenancy/per-tenant-preferences",
+        permanent: true,
+      },
+      {
         source: "/send-notifications/workflow-functions",
         destination: "/designing-workflows/overview",
         permanent: true,
