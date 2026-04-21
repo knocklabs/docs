@@ -24,7 +24,6 @@ then
 fi
 
 asdf plugin add nodejs || true
-asdf plugin add yarn || true
 
 echo "Installing dependencies"
 

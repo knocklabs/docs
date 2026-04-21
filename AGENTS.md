@@ -6,10 +6,8 @@ Documentation, tutorials, and the API reference for Knock. Built with Next.js an
 
 ### System requirements
 
-- Node.js 20.19.3
-- Yarn 1.22.10
-
-See `.tool-versions` for the exact versions.
+- Node.js (see `.tool-versions` for the exact version)
+- Yarn 4.9.1 (bundled at `.yarn/releases/yarn-4.9.1.cjs`, activated automatically via `.yarnrc.yml`)
 
 ### Getting started
 
