@@ -174,6 +174,145 @@ knockClient.authenticate({ id: currentUser.id }, currentUser.knockToken);
 >
 ```
 
+## Limiting access to specific resources
+
+You can limit access to the endpoints that can be called with a public API key by setting access `grants` on the user token.
+
+You can ensure that **no other actions** can be taken on any other resources by setting the `explicit_grants` option to `true` when generating the user token. Without this option, the token will be granted access to all resources by default.
+
+<Table
+  headers={["Type", "Grants", "Description"]}
+  rows={[
+    ["Read profile", "user/read", "Allow the token to read the user's profile."],
+    ["Write profile", "user/write", "Allow the token to write to the user's profile."],
+    ["Delete user", "user/delete", "Allow the token to delete the user."],
+    ["Merge user", "user/merge", "Allow the token to merge the user with another user."],
+    ["Read feed", "user_feed/read", "Allow the token to read the user's feed."],
+    [
+      "Write feed",
+      "user_feed/write",
+      "Allow the token to perform write action on the user's feed. This includes marking messages as read, seen, or archived.",
+    ],
+    [
+      "Read preferences",
+      "preferences/read",
+      "Allow the token to read the user's preferences.",
+    ],
+    [
+      "Write preferences",
+      "preferences/write",
+      "Allow the token to write to the user's preferences.",
+    ],
+    [
+      "Read channel data",
+      "channel_data/read",
+      "Allow the token to read the channel data for the user.",
+    ],
+    [
+      "Write channel data",
+      "channel_data/write",
+      "Allow the token to write the channel data for the user.",
+    ],
+
+]}
+/>
+
+Grants are structured according to the <a href="https://github.com/ucan-wg/spec" target="_blank" rel="noopener noreferrer">UCAN spec</a>. They consist of an array of maps, with each map representing a resource.
+
+A grant for a user should always be structured with the user's ID as the key (`https://api.knock.app/v1/users/<user_id>`). This should always match the `sub` claim in the user token.
+
+```json title="Example of a grant for a user"
+{
+  "https://api.knock.app/v1/users/<user_id>": {
+    "user/read": [{}]
+  }
+}
+```
+
+```json title="Example of a user token with grants to make it read-only"
+{
+  "sub": "<user_id>",
+  "explicit_grants": true,
+  "grants": {
+    "https://api.knock.app/v1/users/<user_id>": {
+      "user/read": [{}],
+      "feed/read": [{}],
+      "preferences/read": [{}],
+      "channel_data/read": [{}]
+    }
+  }
+}
+```
+
+### Scoping a token to a tenant
+
+Some per-tenant resources can further be scoped to a specific tenant by including a set of grants for one or more tenants in the user token. Doing so will restrict the updates that can be made to the resource to only the tenants that are included in the user token.
+
+<Callout
+  type="alert"
+  title="Note:"
+  text={
+    <>
+      Without a tenant-scope, any user actions will apply to all tenants. When
+      at-least one tenant-scope is included, any user actions will apply to the
+      tenants included in the user token.
+    </>
+  }
+/>
+
+Per-tenant resources can be applied to:
+
+<Table
+  headers={["Type", "Grants", "Description"]}
+  rows={[
+    [
+      "Tenant-scoped feeds",
+      "user_feed/read, user_feed/write",
+      "Allow the user to read and write feeds for the tenants included in the user token.",
+    ],
+    [
+      "Tenant-scoped preferences",
+      "preferences/read, preferences/write",
+      "Allow the user to read and write preferences for the tenants included in the user token.",
+    ],
+  ]}
+/>
+
+Grants for a tenant should always be structured with the tenant's ID as the key (`https://api.knock.app/v1/tenants/<tenant_id>`). One or more tenant grants can be included in the user token.
+
+**Example policies**
+
+This policy will **only** allow the user to read in-app feeds for the tenant `acme_corp`. Feed reads to any other tenant will be denied, as will feed reads to a nil tenant scope.
+
+```json title="Example of a user token with grants for a specific tenant"
+{
+  "sub": "<user_id>",
+  "explicit_grants": true,
+  "grants": {
+    "https://api.knock.app/v1/tenants/acme_corp": {
+      "user_feed/read": [{}]
+    }
+  }
+}
+```
+
+To allow the user to read a feed for the unscoped usecase (e.g. tenant = null), and also allow them to read feeds for the tenant `acme_corp`, you can include a grant the user's resource and a grant for the tenant.
+
+```json title="Example of a user token with grants for a specific tenant"
+{
+  "sub": "<user_id>",
+  "explicit_grants": true,
+  "grants": {
+    "https://api.knock.app/v1/users/<user_id>": {
+      "user_feed/read": [{}]
+    },
+    "https://api.knock.app/v1/tenants/acme_corp": {
+      "user_feed/read": [{}]
+    }
+  }
+}
+```
+
 ## Handling token expiration
 
 Generally, it's advisable to set the token expiration to be equal to your session token expiration. That way you can regenerate both of the tokens together from within your application. There may, however, be cases where this is not possible, in which case it's best practice to opt for a relatively short-lived expiration time for your user tokens and refresh them from your backend before the expiration window.
