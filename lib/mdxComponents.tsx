@@ -47,9 +47,10 @@ const Image = ({
   ...props
 }: React.ComponentProps<typeof NextImage> & { border?: boolean }) => (
   <div
-    className={`overflow-hidden rounded-md inline-block ${
+    className={`overflow-hidden rounded-md ${
       border ? "border border-gray-200 dark:border-gray-700" : ""
     } ${className ?? ""}`}
+    style={{ display: "block", width: "fit-content" }}
   >
     <NextImage {...props} />
   </div>
