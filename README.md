@@ -8,7 +8,8 @@ Documentation, guides, and the API reference for Knock. Built with Next.JS and T
 
 To run docs you will need:
 
-- `node` & `yarn` (see `.tool-versions`)
+- `node` (see `.tool-versions`)
+- `yarn` is bundled at `.yarn/releases/yarn-4.9.1.cjs` and activated automatically via `.yarnrc.yml` — no additional setup required.
 
 ### Running docs
 
