@@ -66,7 +66,6 @@ export const MDX_COMPONENTS = {
       color="blue"
       backgroundColor="transparent"
       px="0_5"
-      size="0"
       data-tgph-code
       {...props}
     >
