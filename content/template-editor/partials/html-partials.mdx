@@ -137,3 +137,32 @@ Here's an example of how it works. Note that you may include multiple `<style>` 
 ```
 
 When you include this partial in an email template, either via a render tag or as a block in the visual editor, the CSS from this partial will be extracted and included at the top of the `<head>` of the compiled email template. Styles are deduplicated and are only included at-most once in the final email template.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Why aren't my assigned Liquid variables available inside `<style>` blocks?">
+    Because Knock hoists `<style>` blocks from HTML partials into the document `<head>` during compilation, Liquid `assign` statements defined in the partial template body will be out of scope at that point.
+
+    To fix this, move your `assign` statements inside the `<style>` block itself so they are available at compile time.
+
+    Instead of this:
+
+    ```html title="Incorrect usage of Liquid variables inside <style> blocks"
+    {% assign brand_color = "#FF0000" %}
+    <style>
+      .header { color: {{ brand_color }}; }
+    </style>
+    ```
+
+    Do this:
+
+    ```html title="Correct usage of Liquid variables inside <style> blocks"
+    <style>
+      {% assign brand_color = "#FF0000" %}
+      .header { color: {{ brand_color }}; }
+    </style>
+    ```
+
+  </Accordion>
+</AccordionGroup>
