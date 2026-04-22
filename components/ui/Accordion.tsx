@@ -2,7 +2,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import { Icon } from "@telegraph/icon";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useLayoutEffect } from "react";
 import { Text, Code } from "@telegraph/typography";
 import { ChevronRight } from "lucide-react";
 
@@ -15,11 +15,24 @@ const AccordionGroup = ({ children }) => (
   </div>
 );
 
+function getHashFragment(): string {
+  if (typeof window === "undefined") return "";
+  const { hash } = window.location;
+  if (!hash || hash === "#") return "";
+  try {
+    return decodeURIComponent(hash.slice(1));
+  } catch {
+    return hash.slice(1);
+  }
+}
+
 type AccordionProps = {
   children: React.ReactNode;
   title: string;
   description?: string;
   defaultOpen?: boolean;
+  /** When set, this slug is used as the element `id` and the accordion opens if the URL hash matches (for deep links). Use a URL-safe hyphenated fragment, e.g. `my-section`. */
+  anchorSlug?: string;
 };
 
 // Helper function to parse title and split into text and code parts
@@ -68,12 +81,25 @@ const Accordion = ({
   title,
   description,
   defaultOpen = false,
+  anchorSlug,
 }: AccordionProps) => {
   const [open, setOpen] = useState<boolean>(defaultOpen);
   const titleParts = useMemo(() => parseTitleWithCode(title), [title]);
 
+  useLayoutEffect(() => {
+    if (!anchorSlug) return;
+    const syncFromHash = () => {
+      if (getHashFragment() === anchorSlug) {
+        setOpen(true);
+      }
+    };
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, [anchorSlug]);
+
   return (
-    <Box role="listitem">
+    <Box role="listitem" id={anchorSlug}>
       <MenuItem
         as="button"
         onClick={() => setOpen(!open)}
