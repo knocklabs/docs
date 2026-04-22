@@ -2,6 +2,7 @@ import { SidebarSection } from "../types";
 
 export const RESOURCE_ORDER = [
   "workflows",
+  "workflow_recipient_runs",
   "messages",
   "channels",
   "users",
