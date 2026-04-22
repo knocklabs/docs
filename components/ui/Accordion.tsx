@@ -31,8 +31,8 @@ type AccordionProps = {
   title: string;
   description?: string;
   defaultOpen?: boolean;
-  /** When set, this value is used as the element `id` and the accordion opens if the URL hash matches (for deep links). */
-  anchorId?: string;
+  /** When set, this slug is used as the element `id` and the accordion opens if the URL hash matches (for deep links). Use a URL-safe hyphenated fragment, e.g. `my-section`. */
+  anchorSlug?: string;
 };
 
 // Helper function to parse title and split into text and code parts
@@ -81,25 +81,25 @@ const Accordion = ({
   title,
   description,
   defaultOpen = false,
-  anchorId,
+  anchorSlug,
 }: AccordionProps) => {
   const [open, setOpen] = useState<boolean>(defaultOpen);
   const titleParts = useMemo(() => parseTitleWithCode(title), [title]);
 
   useLayoutEffect(() => {
-    if (!anchorId) return;
+    if (!anchorSlug) return;
     const syncFromHash = () => {
-      if (getHashFragment() === anchorId) {
+      if (getHashFragment() === anchorSlug) {
         setOpen(true);
       }
     };
     syncFromHash();
     window.addEventListener("hashchange", syncFromHash);
     return () => window.removeEventListener("hashchange", syncFromHash);
-  }, [anchorId]);
+  }, [anchorSlug]);
 
   return (
-    <Box role="listitem" id={anchorId}>
+    <Box role="listitem" id={anchorSlug}>
       <MenuItem
         as="button"
         onClick={() => setOpen(!open)}
