@@ -32,20 +32,124 @@ tags:
   }
 />
 
-Access to Knock's API is protected using a secret API key for your backend application, and a public API key for your client application.
-By default, the public API key can read in-app feeds and manage user preferences for any of your users. While this is convenient for testing and development, this is not suitable for production environments.
+Access to Knock's [API](/api-reference) is protected using a secret API key for your backend application, and a public API key for your client application.
+
+## Public API key endpoints
+
+By default a public API key within Knock can call the following endpoints on the API (see table below).
 
 Production environments should enable **enhanced security mode**, which requires clients to send both the public API key and a signed user token that identifies the user that is performing the request. Enhanced security mode trades convenience for security, and we recommend that you enable it [when going to production](/tutorials/implementation-guide#going-to-production).
 
-## API endpoints that can be called with a public API key
+Further, it's possible to [limit the endpoints](#limiting-access-to-specific-resources) that can be called with a public API key by setting access `grants` on the user token. This can also be used in [multi-tenant environments](/multi-tenancy/overview) to restrict access to specific tenants that the user has access to.
 
-Public API keys can make the following calls from your client application:
-
-- Fetching a user's notification feed
-- Marking a feed message as read, seen, or archived
-- Getting or setting a user's preferences
-
-When enhanced security mode is enabled, calls from your client application will need to include both the public API key as well as a **signed user token**.
+<Table
+  headers={["Description", "Method", "Endpoint"]}
+  codeColumns={[1, 2]}
+  rows={[
+    [
+      <a href="/api-reference/users/get">Retrieve a user by their ID</a>,
+      "GET",
+      "/v1/users/:id",
+    ],
+    [
+      <a href="/api-reference/users/update">Update a user by their ID</a>,
+      "PUT",
+      "/v1/users/:id",
+    ],
+    [
+      <a href="/api-reference/users/list_preferences">
+        Retrieve the user's preferences by their ID
+      </a>,
+      "GET",
+      "/v1/users/:id/preferences",
+    ],
+    [
+      <a href="/api-reference/users/get_preferences">
+        Retrieve a specific preference by the user's ID and preference set ID
+      </a>,
+      "GET",
+      "/v1/users/:id/preferences/:id",
+    ],
+    [
+      <a href="/api-reference/users/set_preferences">
+        Update a specific preference by the user's ID and preference set ID
+      </a>,
+      "PUT",
+      "/v1/users/:id/preferences/:id",
+    ],
+    [
+      <a href="/api-reference/users/get_channel_data">
+        Retrieve the channel data for a specific user on a specific channel
+      </a>,
+      "GET",
+      "/v1/users/:id/channel_data/:channel_id",
+    ],
+    [
+      <a href="/api-reference/users/set_channel_data">
+        Update the channel data for a specific user on a specific channel
+      </a>,
+      "PUT",
+      "/v1/users/:id/channel_data/:channel_id",
+    ],
+    [
+      <a href="/api-reference/users/unset_channel_data">
+        Delete the channel data for a specific user on a specific channel
+      </a>,
+      "DELETE",
+      "/v1/users/:id/channel_data/:channel_id",
+    ],
+    [
+      <a href="/api-reference/users/feeds/list_items">
+        Retrieve in-app feed messages for a specific user on a specific channel
+      </a>,
+      "GET",
+      "/v1/users/:id/feeds/:channel_id",
+    ],
+    [
+      <a href="/api-reference/messages">
+        Mark an in-app feed message as read, seen, or archived
+      </a>,
+      "PUT",
+      "/v1/messages/:message_id/:status",
+    ],
+    [
+      <a href="/api-reference/messages">
+        Unmark an in-app feed message as read, seen, or archived
+      </a>,
+      "DELETE",
+      "/v1/messages/:message_id/:status",
+    ],
+    [
+      <a href="/api-reference/messages/batch">
+        Mark multiple in-app feed messages as read, seen, or archived
+      </a>,
+      "POST",
+      "/v1/messages/batch/:status",
+    ],
+    [
+      <a href="/api-reference/channels/bulk/update_message_status">
+        Perform a bulk action on multiple in-app feed messages for a specific
+        channel
+      </a>,
+      "POST",
+      "/v1/channels/:channel_id/messages/bulk/:action",
+    ],
+    [
+      <a href="/api-reference/users/guides/get_channel">
+        Retrieve guides for a specific user on a specific channel
+      </a>,
+      "GET",
+      "/v1/users/:id/guides/:channel_id",
+    ],
+    [
+      <a href="/api-reference/users/guides">
+        Mark a guide message as seen, interacted, or archived
+      </a>,
+      "PUT",
+      "/v1/users/:id/guides/:channel_id/messages/:message_id/:status",
+    ],
+  ]}
+/>
 
 ## Authentication (without enhanced security)
 
@@ -183,15 +287,31 @@ You can ensure that **no other actions** can be taken on any other resources by 
 <Table
   headers={["Type", "Grants", "Description"]}
   rows={[
-    ["Read profile", "user/read", "Allow the token to read the user's profile."],
-    ["Write profile", "user/write", "Allow the token to write to the user's profile."],
-    ["Delete user", "user/delete", "Allow the token to delete the user."],
-    ["Merge user", "user/merge", "Allow the token to merge the user with another user."],
+    [
+      "Read profile",
+      "user/read",
+      "Allow the token to read the user's profile.",
+    ],
+    [
+      "Write profile",
+      "user/write",
+      "Allow the token to write to the user's profile.",
+    ],
     ["Read feed", "user/feed_read", "Allow the token to read the user's feed."],
     [
       "Write feed",
       "user/feed_write",
-      "Allow the token to perform write action on the user's feed. This includes marking messages as read, seen, or archived.",
+      "Allow the token to perform message actions on the user's feed (e.g. mark as read, seen, or archived).",
+    ],
+    [
+      "Read guides",
+      "user/guide_read",
+      "Allow the token to read the user's guides.",
+    ],
+    [
+      "Write guides",
+      "user/guide_write",
+      "Allow the token to perform message actions on the user's guides (e.g. mark as seen, interacted, or archived).",
     ],
     [
       "Read preferences",
@@ -213,8 +333,7 @@ You can ensure that **no other actions** can be taken on any other resources by 
       "channel_data/write",
       "Allow the token to write the channel data for the user.",
     ],
-
-]}
+  ]}
 />
 
 Grants are structured according to the <a href="https://github.com/ucan-wg/spec" target="_blank" rel="noopener noreferrer">UCAN spec</a>. They consist of an array of maps, with each map representing a resource.
