@@ -43,6 +43,17 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     ],
   },
   {
+    title: "Knock AI",
+    slug: "/ai",
+    desc: "Use the Knock Agent in the dashboard, the MCP server in your editor, and skills for coding agents.",
+    pages: [
+      { slug: "/agent", title: "Knock agent" },
+      { slug: "/agent-function", title: "Agent function" },
+      { slug: "/mcp-server", title: "MCP server" },
+      { slug: "/skills", title: "Skills" },
+    ],
+  },
+  {
     title: "Workflows",
     slug: "/designing-workflows",
     desc: "Learn how to design notifications using Knock's workflow builder, then explore advanced features such as batching, delays, and more.",
@@ -55,17 +66,9 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
           { slug: "/delay-function", title: "Delay function" },
           { slug: "/batch-function", title: "Batch function" },
           { slug: "/branch-function", title: "Branch function" },
-          {
-            slug: "/experiment-function",
-            title: "Experiment function",
-            isBeta: true,
-          },
+          { slug: "/experiment-function", title: "Experiment function" },
           { slug: "/fetch-function", title: "Fetch function" },
-          {
-            slug: "/ai-agent-function",
-            title: "Agent function",
-            isBeta: true,
-          },
+          { slug: "/ai-agent-function", title: "Agent function" },
           { slug: "/throttle-function", title: "Throttle function" },
           {
             slug: "/trigger-workflow-function",
@@ -203,16 +206,6 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/environments", title: "Environments" },
       { slug: "/branches", title: "Branches" },
       { slug: "/commits", title: "Commits" },
-    ],
-  },
-  {
-    title: "Knock AI",
-    slug: "/ai",
-    desc: "Use the Knock Agent in the dashboard, the MCP server in your editor, and skills for coding agents.",
-    pages: [
-      { slug: "/agent", title: "Knock agent", isBeta: true },
-      { slug: "/mcp-server", title: "MCP server" },
-      { slug: "/skills", title: "Skills" },
     ],
   },
   {
