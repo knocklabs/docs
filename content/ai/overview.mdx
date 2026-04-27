@@ -1,0 +1,125 @@
+---
+title: Knock AI overview
+description: Use AI across Knock — in the dashboard, inside workflows, in your IDE, and in external clients.
+section: AI
+---
+
+Knock exposes AI in four places, organized by where the AI runs: in the Knock dashboard, inside a workflow run, in your IDE alongside a coding agent, and in external clients or your own apps. Use this page to understand each primitive and which one to reach for.
+
+<ResponsiveTwoColumn pr="6" pb="6">
+  <ContentCard
+    title="Knock agent"
+    description="A conversational assistant in the Knock dashboard for building and inspecting your messaging."
+    href="/ai/agent"
+    icon={"Sparkles"}
+  />
+  <ContentCard
+    title="Agent function"
+    description="A workflow step that runs a prompt on an AI model to enrich, classify, or summarize data."
+    href="/ai/agent-function"
+    icon={"Workflow"}
+  />
+  <ContentCard
+    title="Skills"
+    description="Packaged knowledge that AI coding agents auto-activate when working with Knock in your codebase."
+    href="/ai/skills"
+    icon={"Terminal"}
+  />
+  <ContentCard
+    title="MCP server"
+    description="A remote MCP server that exposes Knock as tools to external clients and your own apps."
+    href="/ai/mcp-server"
+    icon={"Plug"}
+  />
+</ResponsiveTwoColumn>
+
+## Use AI in the dashboard: Knock agent
+
+The [Knock agent](/ai/agent) is a conversational assistant built into the Knock dashboard. It can do anything you'd normally do in the dashboard, with full context for the resource you're viewing and your active environment.
+
+<Image
+  src="/images/ai/knock-agent.png"
+  alt="The Knock agent in the dashboard"
+  width={1366}
+  height={888}
+  className="mx-auto"
+/>
+
+Use the Knock agent to:
+
+- Build workflows, broadcasts, partials, email layouts, audiences, message types, and guides through conversation.
+- Inspect existing resources and ask questions about how your messaging is configured.
+- Pull in account-level company context and custom instructions so responses stay on-brand.
+
+The Knock agent does not consume AI credits and is configured under **Settings** > **AI settings**.
+
+## Use AI in workflows: agent function
+
+The [agent function](/ai/agent-function) is a workflow step that runs a prompt on an AI model of your choice and makes the response available in the rest of your workflow run. Use it to bring AI-powered context into the notifications you send.
+
+<Image
+  src="/images/designing-workflows/agent-function.png"
+  alt="A workflow with an agent step"
+  width={1498}
+  height={812}
+  className="mx-auto"
+/>
+
+Common use cases include:
+
+- **Enrich recipient data.** Use user and tenant properties to infer market, persona, or use case.
+- **Summarize batched activity.** Distill a batch of heterogeneous events into a concise digest summary.
+- **Classify or route triggers.** Tag a sign-up, support ticket, or comment so downstream steps can branch on it.
+
+The agent function consumes AI credits and is configured per workflow step. See the [full reference](/designing-workflows/ai-agent-function) for prompt and response format details.
+
+## Use AI when building your Knock integration
+
+When you're working in your codebase or wiring AI into your own product, Knock gives you two primitives that are designed to be used together: skills for IDE-based local development, and the MCP server for external clients and applications.
+
+### Skills (recommended for IDE-based local development)
+
+[Skills](/ai/skills) are packaged instructions and rules that AI coding agents auto-activate when you ask them to work on related tasks. Reach for skills when you're editing code in Cursor, Claude Code, or Copilot and want the agent to know how to use the [Knock CLI](/developer-tools/knock-cli) or follow our notification best practices.
+
+Knock publishes an open-source skills package at [github.com/knocklabs/skills](https://github.com/knocklabs/skills).
+
+### MCP server (recommended for external clients and your own apps)
+
+The [MCP server](/ai/mcp-server) at `mcp.knock.app/mcp` exposes Knock primitives to LLMs and AI agents via the Model Context Protocol. Reach for the MCP server when you need Knock as tools inside Claude Desktop, ChatGPT, or any MCP-compatible client, or when you're building a product that needs Knock primitives behind an LLM.
+
+<Callout
+  type="info"
+  title="Need full control over the toolset?"
+  text={
+    <>
+      The MCP server is built on top of the{" "}
+      <a href="/developer-tools/agent-toolkit/overview">Knock Agent Toolkit</a>,
+      a lower-level SDK that lets you choose which tools to expose, configure
+      the auth model, and bring your own framework.
+    </>
+  }
+/>
+
+## MCP server vs. skills: when to use which
+
+The two primitives are complementary. Most teams use both: skills inside the IDE for codebase-aware tasks, and the MCP server for ad-hoc operations and product integrations. Here's how they split:
+
+| Question                                             | Reach for                    |
+| ---------------------------------------------------- | ---------------------------- |
+| Are you working in an IDE on a Knock-aware codebase? | [Skills](/ai/skills)         |
+| Are you using an external GUI like Claude Desktop?   | [MCP server](/ai/mcp-server) |
+| Are you embedding Knock tools in your own product?   | [MCP server](/ai/mcp-server) |
+| Do you need repeatable, codified CLI workflows?      | [Skills](/ai/skills)         |
+| Do you need ad-hoc natural-language operations?      | [MCP server](/ai/mcp-server) |
+
+<Callout
+  type="info"
+  title="Skills and MCP work well together."
+  text="Skills codify how an agent should use the Knock CLI and follow notification best practices in your codebase. The MCP server gives that same agent (or any other) live tool access to your Knock account. Many teams install both."
+/>
+
+## Related
+
+- [Knock Agent Toolkit](/developer-tools/agent-toolkit/overview) — the SDK behind the MCP server, for fully custom AI integrations.
+- [Building with LLMs](/developer-tools/building-with-llms) — patterns and examples for putting Knock behind an LLM.
+- **Settings > AI settings** in the dashboard — configure company context and custom instructions used across Knock AI.
