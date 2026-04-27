@@ -48,7 +48,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     desc: "Use AI in the dashboard, inside workflows, in your IDE, and in external clients.",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/agent", title: "Knock dashboard agent" },
+      { slug: "/agent", title: "Knock agent" },
       { slug: "/agent-function", title: "Agent workflow function" },
       { slug: "/mcp-server", title: "MCP server" },
       { slug: "/skills", title: "Skills" },
