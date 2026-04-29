@@ -137,36 +137,165 @@ The timestamp operators (`is_timestamp_before`, `is_timestamp_on_or_after`, and 
 
 You can use any of the following operators in condition comparisons:
 
-| Operator                   | Description                                                                                                                                         |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `equal_to`                 | `==`                                                                                                                                                |
-| `not_equal_to`             | `!=`                                                                                                                                                |
-| `greater_than`             | `>`                                                                                                                                                 |
-| `greater_than_or_equal_to` | `>=`                                                                                                                                                |
-| `less_than`                | `<`                                                                                                                                                 |
-| `less_than_or_equal_to`    | `<=`                                                                                                                                                |
-| `contains`                 | Checks whether `argument` is in `variable` (works with strings and lists)                                                                           |
-| `contains_all`             | Checks whether all `argument` values are present in `variable` (for comparing lists)                                                                |
-| `not_contains`             | Checks whether `argument` is not in `variable` (works with strings and lists)                                                                       |
-| `not_contains_all`         | Checks whether all `argument` values are not present in `variable` (for comparing lists)                                                            |
-| `empty`                    | Checks whether `variable` is in `["", null, []]`. If the variable is not provided at the path, Knock treats it as empty, so this returns true.      |
-| `not_empty`                | Checks whether `variable` is not in `["", null, []]`. If the variable is not provided at the path, Knock treats it as empty, so this returns false. |
-| `exists`                   | Checks whether `variable` is provided and has a value that is not `null`                                                                            |
-| `not_exists`               | Checks whether `variable` is not provided or has a `null` value                                                                                     |
-| `is_timestamp_before`      | Checks whether `variable` is a timestamp before the `argument` value                                                                                |
-| `is_timestamp_on_or_after` | Checks whether `variable` is a timestamp on or after the `argument` value                                                                           |
-| `is_timestamp_between`     | Checks whether `variable` is a timestamp between the `argument`'s start and end values                                                              |
+<AccordionGroup>
+  <Accordion title="`equal_to`">
+    True if the variable equals the argument (`==`).
 
-<Callout
-  type="info"
-  text={
-    <>
-      The <code>empty</code>, <code>not_empty</code>, <code>exists</code>, and{" "}
-      <code>not_exists</code> operators do not require an argument value. Knock
-      checks for the absence of data at the variable path.
-    </>
-  }
-/>
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `plan is equal_to pro` where `plan` is `pro` |  true |
+    | `plan is equal_to free` where `plan` is `free` |  false |
+
+  </Accordion>
+  <Accordion title="`not_equal_to`">
+    True if the variable does not equal the argument (`!=`).
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `plan is not_equal_to pro` where `plan` is `free` | true |
+    | `plan is not_equal_to pro` where `plan` is `pro` | false |
+
+  </Accordion>
+  <Accordion title="`greater_than`">
+    True if the variable is greater than the argument (`>`).
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `age is greater_than 18` where `age` is `21` | true |
+    | `age is greater_than 18` where `age` is `18` | false |
+
+  </Accordion>
+  <Accordion title="`greater_than_or_equal_to`">
+    True if the variable is greater than or equal to the argument (`>=`).
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `age is greater_than_or_equal_to 18` where `age` is `18` | true |
+    | `age is greater_than_or_equal_to 18` where `age` is `17` | false |
+
+  </Accordion>
+  <Accordion title="`less_than`">
+    True if the variable is less than the argument (`<`).
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `score is less_than 50` where `score` is `49` | true |
+    | `score is less_than 50` where `score` is `50` | false |
+
+  </Accordion>
+  <Accordion title="`less_than_or_equal_to`">
+    True if the variable is less than or equal to the argument (`<=`).
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `score is less_than_or_equal_to 50` where `score` is `50` | true |
+    | `score is less_than_or_equal_to 50` where `score` is `51` | false |
+
+  </Accordion>
+  <Accordion title="`contains`">
+    True if the argument appears in the variable. For text, checks whether the argument is a substring of the variable. For lists, checks whether the argument is an item in the list. When both values are lists, true if they share any items in common. To check whether one list fully contains the other, use `contains_all`.
+
+    | Example condition                                            | Evaluation |
+    | ------------------------------------------------------------ | ---------- |
+    | `role contains engineer` where `role` is `"senior engineer"` | true       |
+    | `role contains engineer` where `role` is `"designer"`    | false      |
+    | `tags contains vip` where `tags` is `["vip", "beta"]`    | true       |
+    | `tags contains vip` where `tags` is `["beta"]`           | false      |
+
+  </Accordion>
+  <Accordion title="`not_contains`">
+    True if the argument does not appear in the variable. For text, checks whether the argument is not a substring of the variable. For lists, checks whether the argument is not an item in the list. When both values are lists, true if they share no items in common.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `role not_contains engineer` where `role` is `"designer"` | true |
+    | `role not_contains engineer` where `role` is `"senior engineer"` | false |
+    | `tags not_contains vip` where `tags` is `["beta"]` | true |
+    | `tags not_contains vip` where `tags` is `["vip", "beta"]` | false |
+
+  </Accordion>
+  <Accordion title="`contains_all`">
+    True if all argument values are present in the variable. Arrays only.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `roles contains_all ["admin", "editor"]` where `roles` is `["admin", "editor", "viewer"]` | true |
+    | `roles contains_all ["admin", "editor"]` where `roles` is `["admin"]` | false |
+
+  </Accordion>
+  <Accordion title="`not_contains_all`">
+    True if not all argument values are present in the variable. Arrays only.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `roles not_contains_all ["admin", "editor"]` where `roles` is `["admin"]` | true |
+    | `roles not_contains_all ["admin", "editor"]` where `roles` is `["admin", "editor"]` | false |
+
+  </Accordion>
+  <Accordion title="`empty`">
+    True if the variable is `""`, `null`, `[]`, or not set. No argument needed.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `name is empty` where `name` is `""` | true |
+    | `name is empty` where `name` is `alice` | false |
+
+  </Accordion>
+  <Accordion title="`not_empty`">
+    True if the variable has a non-empty, non-null value. No argument needed.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `name is not_empty` where `name` is `alice` | true |
+    | `name is not_empty` where `name` is `""` | false |
+
+  </Accordion>
+  <Accordion title="`exists`">
+    True if the variable is set and not `null`. No argument needed.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `metadata.plan exists` where `metadata.plan` is `pro` | true |
+    | `metadata.plan exists` where `metadata.plan` is `null` | false |
+
+  </Accordion>
+  <Accordion title="`not_exists`">
+    True if the variable is not set or is `null`. No argument needed.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `metadata.plan not_exists` where `metadata.plan` is `null` | true |
+    | `metadata.plan not_exists` where `metadata.plan` is `pro` | false |
+
+  </Accordion>
+  <Accordion title="`is_timestamp_before`">
+    True if the variable timestamp is before the argument.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `trial_ends_at is is_timestamp_before 7 days from now` where `trial_ends_at` is `5 days from now` | true |
+    | `trial_ends_at is is_timestamp_before 7 days from now` where `trial_ends_at` is `10 days from now` | false |
+
+  </Accordion>
+  <Accordion title="`is_timestamp_on_or_after`">
+    True if the variable timestamp is on or after the argument.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `activated_at is is_timestamp_on_or_after 30 days ago` where `activated_at` is `10 days ago` | true |
+    | `activated_at is is_timestamp_on_or_after 30 days ago` where `activated_at` is `60 days ago` | false |
+
+  </Accordion>
+  <Accordion title="`is_timestamp_between`">
+    True if the variable timestamp falls between the argument's start and end values. Does not support relative timestamps — use absolute dates or dynamic variables.
+
+    | Example condition | Evaluation |
+    | --- | --- |
+    | `created_at is is_timestamp_between ["2025-01-01", "2025-12-31"]` where `created_at` is `2025-06-15` | true |
+    | `created_at is is_timestamp_between ["2025-01-01", "2025-12-31"]` where `created_at` is `2024-12-31` | false |
+
+  </Accordion>
+</AccordionGroup>
 
 ### Conditions scope
 
