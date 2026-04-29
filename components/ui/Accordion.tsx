@@ -94,26 +94,12 @@ const Accordion = ({
     let resizeObserver: ResizeObserver | null = null;
     let stopWatchingTimeoutId: number | null = null;
 
-    const log = (label: string, extra?: Record<string, unknown>) => {
-      // eslint-disable-next-line no-console
-      console.log(`[Accordion:${anchorSlug}] ${label}`, {
-        time: performance.now().toFixed(1),
-        scrollY: window.scrollY,
-        elementTop: elementRef.current?.getBoundingClientRect().top,
-        bodyHeight: document.body.scrollHeight,
-        ...extra,
-      });
-    };
-
-    const performScroll = (source: string) => {
+    const performScroll = () => {
       if (cancelled) return;
-      const el = elementRef.current;
-      if (!el) return;
-      el.scrollIntoView({
+      elementRef.current?.scrollIntoView({
         block: "start",
-        behavior: "instant" as ScrollBehavior,
+        behavior: "smooth",
       });
-      log(`scroll:${source}`);
     };
 
     const stopWatching = () => {
@@ -127,14 +113,10 @@ const Accordion = ({
       }
     };
 
-    const syncFromHash = (source: string) => {
-      log(`syncFromHash:${source}`);
+    const syncFromHash = () => {
       if (getHashFragment() !== anchorSlug) return;
       setOpen(true);
-
-      // Scroll immediately so the user goes directly from the previous page to
-      // the correct position. This runs in useLayoutEffect, before paint.
-      performScroll("immediate");
+      performScroll();
 
       // Re-scroll whenever layout shifts (images loading, async content, etc.)
       // so the accordion stays anchored to its intended position even as the
@@ -142,7 +124,7 @@ const Accordion = ({
       stopWatching();
       if (typeof ResizeObserver !== "undefined") {
         resizeObserver = new ResizeObserver(() => {
-          performScroll("resize");
+          performScroll();
         });
         resizeObserver.observe(document.body);
       }
@@ -151,13 +133,12 @@ const Accordion = ({
       stopWatchingTimeoutId = window.setTimeout(stopWatching, 1500);
     };
 
-    syncFromHash("mount");
-    const handler = () => syncFromHash("hashchange");
-    window.addEventListener("hashchange", handler);
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
     return () => {
       cancelled = true;
       stopWatching();
-      window.removeEventListener("hashchange", handler);
+      window.removeEventListener("hashchange", syncFromHash);
     };
   }, [anchorSlug]);
 
