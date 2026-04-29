@@ -51,7 +51,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/agent", title: "Knock agent" },
       { slug: "/agent-function", title: "Agent workflow function" },
       { slug: "/mcp-server", title: "MCP server" },
-      { slug: "/skills", title: "Skills" },
+      { slug: "/cli-and-skills", title: "CLI and skills" },
     ],
   },
   {
