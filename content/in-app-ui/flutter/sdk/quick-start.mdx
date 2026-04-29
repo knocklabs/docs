@@ -12,6 +12,13 @@ The Knock Flutter SDK is a client-side SDK for interacting with the Knock API an
 - [Full reference documentation](/in-app-ui/flutter/sdk/reference)
 - [Example application](https://github.com/knocklabs/knock-flutter/tree/main/example)
 
+## Requirements
+
+- Dart SDK `>=3.8.0`
+- Flutter `>=3.32.0`
+
+(These match the `environment` constraints in the package <a href="https://github.com/knocklabs/knock-flutter/blob/main/pubspec.yaml" target="_blank" rel="noopener"><code>pubspec.yaml</code></a>.)
+
 ## Installation
 
 You can find `knock_flutter` on <a href="https://pub.dev/packages/knock_flutter" target="_blank" rel="noopener">pub.dev</a>.
@@ -20,11 +27,69 @@ You can find `knock_flutter` on <a href="https://pub.dev/packages/knock_flutter"
 flutter pub add knock_flutter
 ```
 
+That command resolves to the current 1.x line. If you are upgrading from `0.1.x`, use the <a href="https://github.com/knocklabs/knock-flutter/blob/main/README.md#migrating-from-01x-to-100" target="_blank" rel="noopener">migration table</a> in the SDK README.
+
 ## Setup the SDK
 
 ```dart
 import 'package:knock_flutter/knock_flutter.dart';
 
-late Knock knock = Knock(const String.fromEnvironment("KNOCK_API_KEY"));
-knock.authenticate("your-user-id");
+final knock = Knock(
+  const String.fromEnvironment('KNOCK_API_KEY'),
+  // Optional: override the API host (e.g. for staging).
+  // options: KnockOptions(host: 'https://api.knock.app'),
+);
+
+knock.authenticate('your-user-id', 'optional-signed-user-token');
+
+// When you are done with the Knock instance (e.g. logout / app teardown):
+knock.dispose();
 ```
+
+<Callout
+  type="info"
+  title="Push notifications"
+  text={
+    <>
+      Earlier versions shipped a native plugin for token helpers; 1.0.0 does not.
+      Add push dependencies yourself (commonly{" "}
+      <a
+        href="https://pub.dev/packages/firebase_messaging"
+        target="_blank"
+        rel="noopener"
+      >
+        firebase_messaging
+      </a>
+      ), obtain the device token in your app, then register it with{" "}
+      <a href="/in-app-ui/flutter/sdk/reference#registertokenforchannel">
+        <code>registerTokenForChannel</code>
+      </a>
+      . See the README{" "}
+      <a
+        href="https://github.com/knocklabs/knock-flutter/blob/main/README.md#push-notifications"
+        target="_blank"
+        rel="noopener"
+      >
+        push notifications
+      </a>{" "}
+      section for patterns and caveats.
+    </>
+  }
+/>
+
+<Callout
+  type="info"
+  title="Building a feed"
+  text={
+    <>
+      Each <code>knock.feed(...)</code> call returns a new{" "}
+      <code>FeedClient</code>. When you no longer need it (for example when a
+      screen is disposed), call <code>feedClient.dispose()</code> to release
+      sockets and streams. See the{" "}
+      <a href="/in-app-ui/flutter/sdk/reference#feedclient-lifecycle">
+        FeedClient lifecycle
+      </a>{" "}
+      notes on the reference page.
+    </>
+  }
+/>
