@@ -4819,12 +4819,12 @@ components:
           x-struct: null
           x-validate: null
         actor:
-          description: The actor who triggered the workflow recipient run.
-          oneOf:
-            - $ref: '#/components/schemas/Recipient'
+          anyOf:
+            - $ref: '#/components/schemas/RecipientReference'
             - nullable: true
               x-struct: null
               x-validate: null
+          description: The actor who triggered the workflow recipient run.
           x-struct: null
           x-validate: null
         error_count:
@@ -11618,6 +11618,39 @@ paths:
         - Guides
         - Users
       x-ratelimit-tier: 2
+  /v1/users/{user_id}/guides/engagements/reset:
+    put:
+      callbacks: {}
+      description: Resets the engagement state of a guide for a user, removing the guide's engagement log entry so the next interaction creates a fresh engagement.
+      operationId: resetUserGuideEngagement
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuideActionRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuideActionResponse'
+          description: OK
+      summary: Reset guide engagement
+      tags:
+        - Guides
+        - Users
+      x-ratelimit-tier: 2
   /v1/objects/{collection}/{object_id}/preferences:
     get:
       callbacks: {}
@@ -13200,6 +13233,57 @@ paths:
         - Workflow recipient runs
       x-ratelimit-tier: 2
       x-retention-policy: true
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          const workflowRecipientRunDetail = await client.workflowRecipientRuns.get('id');
+
+          console.log(workflowRecipientRunDetail);
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          workflow_recipient_run_detail = client.workflow_recipient_runs.get(
+              "id",
+          )
+          print(workflow_recipient_run_detail)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-go"
+          	"github.com/knocklabs/knock-go/option"
+          )
+
+          func main() {
+          	client := knock.NewClient(
+          		option.WithAPIKey("My API Key"),
+          	)
+          	workflowRecipientRunDetail, err := client.WorkflowRecipientRuns.Get(context.TODO(), "id")
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", workflowRecipientRunDetail)
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(api_key: "My API Key")
+
+          workflow_recipient_run_detail = knock.workflow_recipient_runs.get("id")
+
+          puts(workflow_recipient_run_detail)
   /v1/users/{user_id}/preferences/{id}/workflows:
     put:
       callbacks: {}
@@ -13790,6 +13874,57 @@ paths:
         - Workflow recipient runs
       x-ratelimit-tier: 2
       x-retention-policy: true
+      x-stainless-snippets:
+        typescript: |-
+          import Knock from '@knocklabs/node';
+
+          const client = new Knock({
+            apiKey: process.env['KNOCK_API_KEY'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const workflowRecipientRun of client.workflowRecipientRuns.list()) {
+            console.log(workflowRecipientRun.id);
+          }
+        python: |-
+          import os
+          from knockapi import Knock
+
+          client = Knock(
+              api_key=os.environ.get("KNOCK_API_KEY"),  # This is the default and can be omitted
+          )
+          page = client.workflow_recipient_runs.list()
+          page = page.items[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-go"
+          	"github.com/knocklabs/knock-go/option"
+          )
+
+          func main() {
+          	client := knock.NewClient(
+          		option.WithAPIKey("My API Key"),
+          	)
+          	page, err := client.WorkflowRecipientRuns.List(context.TODO(), knock.WorkflowRecipientRunListParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
+        ruby: |-
+          require "knockapi"
+
+          knock = Knockapi::Client.new(api_key: "My API Key")
+
+          page = knock.workflow_recipient_runs.list
+
+          puts(page)
   /v1/messages/{message_id}/activities:
     get:
       callbacks: {}
