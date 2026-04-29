@@ -78,12 +78,12 @@ const nextConfig = {
       },
       {
         source: "/developer-tools/skills",
-        destination: "/ai/cli-and-skills",
+        destination: "/ai/skills",
         permanent: true,
       },
       {
-        source: "/ai/skills",
-        destination: "/ai/cli-and-skills",
+        source: "/ai/cli-and-skills",
+        destination: "/ai/skills",
         permanent: true,
       },
       {

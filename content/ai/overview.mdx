@@ -4,7 +4,7 @@ description: Use AI features across Knock — in the dashboard, inside workflows
 section: AI
 ---
 
-Knock exposes AI functionality in four different areas: in the Knock dashboard, inside a workflow run, in your IDE alongside a coding agent, and in external clients or your own apps. Use this page to understand each primitive and which one to reach for.
+Knock exposes AI functionality across several distinct primitives: a conversational assistant in the dashboard, an AI step inside workflows, a local CLI for IDE-based agents, a remote MCP server for external clients and your own apps, and a set of open-source skills that give agents procedural knowledge for working with Knock. Use this page to understand each one and which to reach for.
 
 <ResponsiveTwoColumn pr="6" pb="6">
   <ContentCard
@@ -20,16 +20,22 @@ Knock exposes AI functionality in four different areas: in the Knock dashboard, 
     icon={"Workflow"}
   />
   <ContentCard
-    title="MCP server"
+    title="Knock CLI"
+    description="The local-first surface AI coding agents use to manage Knock resources from your codebase."
+    href="/ai/cli"
+    icon={"Terminal"}
+  />
+  <ContentCard
+    title="Knock MCP server"
     description="A remote MCP server that exposes Knock as tools to external clients and your own apps."
     href="/ai/mcp-server"
     icon={"Plug"}
   />
   <ContentCard
-    title="CLI and skills"
-    description="The local CLI and packaged skills that AI coding agents use to manage Knock from your codebase."
-    href="/ai/cli-and-skills"
-    icon={"Terminal"}
+    title="Skills"
+    description="Packaged procedural knowledge that complements the CLI, the MCP server, and the dashboard agent."
+    href="/ai/skills"
+    icon={"BookUp"}
   />
 </ResponsiveTwoColumn>
 
@@ -50,6 +56,7 @@ Use the Knock agent to:
 - Build workflows, broadcasts, partials, email layouts, audiences, message types, and guides through conversation.
 - Inspect existing resources and ask questions about how your messaging is configured.
 - Pull in account-level company context and custom instructions so responses stay on-brand.
+- Run bulk updates and refactors across resources — for example, update copy across multiple workflow templates, update a partial's content or options, or apply a formatting change across all your email layouts in a single plan.
 
 The Knock agent does not consume AI credits and is configured under **Settings** > **AI settings**.
 
@@ -73,9 +80,17 @@ Common use cases include:
 
 The agent function consumes AI credits and is configured per workflow step. See the [full reference](/designing-workflows/ai-agent-function) for prompt and response format details.
 
+## CLI
+
+**Recommended when you're working in an IDE on a Knock-aware codebase.** The [Knock CLI](/ai/cli) gives a coding agent the local tools it needs to read and write Knock resources from your codebase. Reach for the CLI when you're editing code in Cursor, Claude Code, or Copilot and want the agent to manage workflows, templates, and other resources alongside your application code.
+
+The CLI is the local-first surface and supports the full set of Knock resource operations, including local file scaffolding for new resources, local validation, and committing or promoting changes between environments.
+
 ## MCP server
 
-**Recommended for external clients and your own apps.** The [MCP server](/ai/mcp-server) at `mcp.knock.app/mcp` exposes Knock primitives to LLMs and AI agents via the Model Context Protocol. Reach for the MCP server when you need Knock as tools inside Claude Desktop, ChatGPT, or any MCP-compatible client, or when you're building a product that needs Knock primitives behind an LLM.
+**Recommended for external clients and your own apps.** The [MCP server](/ai/mcp-server) at `mcp.knock.app/mcp` exposes Knock primitives to LLMs and AI agents via the Model Context Protocol. Reach for the MCP server when you need Knock tools available inside Claude Desktop, ChatGPT, or any MCP-compatible client, or when you're building a product that needs Knock primitives behind an LLM.
+
+The MCP server exposes a curated subset of Knock capabilities organized into tool groups (manage resources, commits, debug, manage data, documentation). It does not currently support local file scaffolding, local validation, or deletion — use the CLI for those.
 
 <Callout
   type="info"
@@ -90,28 +105,31 @@ The agent function consumes AI credits and is configured per workflow step. See 
   }
 />
 
-## CLI and skills
+## Skills
 
-**Recommended when you're working in an IDE on a Knock-aware codebase.** The [Knock CLI](/developer-tools/knock-cli) gives a coding agent the local tools it needs to read and write Knock resources from your codebase, and [skills](/ai/cli-and-skills) give the agent the instructions it needs to use those tools correctly. Reach for this combination when you're editing code in Cursor, Claude Code, or Copilot and want the agent to manage workflows, templates, and other resources alongside your application code.
+**Recommended alongside the CLI, the MCP server, or the dashboard agent.** [Skills](/ai/skills) are packaged procedural knowledge that an AI agent loads automatically when relevant. They sit alongside your tool surfaces and teach an agent _how_ to use those tools effectively.
 
-Knock publishes an open-source skills package at <a href="https://github.com/knocklabs/skills" target="_blank" rel="noopener noreferrer">github.com/knocklabs/skills</a>.
+Skills come from two places:
 
-## CLI and skills vs. MCP server
+- **Knock's open-source package** at <a href="https://github.com/knocklabs/skills" target="_blank" rel="noopener noreferrer">github.com/knocklabs/skills</a>, installed into AI coding agents like Cursor or Claude Code. Includes `knock-cli` (pairs with the [CLI](/ai/cli)) and `notification-best-practices` (pairs with any surface).
+- **Skills authored inside the [Knock agent](/ai/agent)** in the dashboard, which the dashboard agent invokes automatically during agent runs. Useful for codifying team-specific conventions and account-level context.
 
-The two primitives are complementary. Most teams use both: the CLI and skills inside the IDE for codebase-aware tasks, and the MCP server for ad-hoc operations and product integrations. Here's how they split:
+## Choosing between the CLI and MCP server
 
-| Question                                             | Reach for                            |
-| ---------------------------------------------------- | ------------------------------------ |
-| Are you working in an IDE on a Knock-aware codebase? | [CLI and skills](/ai/cli-and-skills) |
-| Are you using an external GUI like Claude Desktop?   | [MCP server](/ai/mcp-server)         |
-| Are you embedding Knock tools in your own product?   | [MCP server](/ai/mcp-server)         |
-| Do you need repeatable, codified CLI workflows?      | [CLI and skills](/ai/cli-and-skills) |
-| Do you need ad-hoc natural-language operations?      | [MCP server](/ai/mcp-server)         |
+The CLI and MCP server are different tool for different environments. You can use this table to figure out which one fits your task.
+
+| Question                                                        | Reach for                    |
+| --------------------------------------------------------------- | ---------------------------- |
+| Are you working in an IDE on a Knock-aware codebase?            | [CLI](/ai/cli)               |
+| Do you need to scaffold, validate, or commit resources locally? | [CLI](/ai/cli)               |
+| Are you using an external GUI like Claude Desktop?              | [MCP server](/ai/mcp-server) |
+| Are you embedding Knock tools in your own product?              | [MCP server](/ai/mcp-server) |
+| Do you need ad-hoc natural-language operations?                 | [MCP server](/ai/mcp-server) |
 
 <Callout
   type="info"
-  title="The CLI, skills, and MCP work well together."
-  text="The CLI and skills codify how an agent should manage Knock resources in your codebase. The MCP server gives that same agent (or any other) live tool access to your Knock account. Many teams install both."
+  title="The CLI, MCP server, and skills work well together."
+  text="The CLI and MCP server are tool surfaces that give agents reach into Knock. Skills are procedural knowledge that complements either surface. Many teams install all three."
 />
 
 ## Related

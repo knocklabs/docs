@@ -1,10 +1,10 @@
 ---
-title: Model Context Protocol (MCP) server
+title: Knock MCP server
 description: Use the Knock MCP server to make Knock accessible to LLMs and AI agents via tool calling.
 section: AI
 ---
 
-Knock ships a remote MCP server at `mcp.knock.app/mcp` that exposes the primitives of Knock to LLMs and AI via the <a href="https://modelcontextprotocol.io/" target="_blank">Model Context Protocol (MCP)</a> so that your AI agents can discover and use Knock via tool calling.
+Knock ships a remote MCP server at `mcp.knock.app/mcp` that exposes the primitives of Knock to LLMs and AI via the <a href="https://modelcontextprotocol.io/" target="_blank">Model Context Protocol (MCP)</a> so that your AI agents can discover and use Knock via tool calling. Reach for the MCP server when you need Knock tools available inside Claude Desktop, ChatGPT, or any MCP-compatible client, or when you're building a product that needs Knock primitives behind an LLM.
 
 Here are some examples of how you can use the MCP server in your workflow:
 
@@ -69,7 +69,7 @@ claude mcp add --transport http knock https://mcp.knock.app/mcp
 
 ## Tool groups
 
-When connecting to the Knock MCP server, you can choose exactly which groups of tools to enable. Limiting the active tool groups to only what you need keeps the tool list manageable and reduces the risk of unintended changes.
+When connecting to the Knock MCP server, you can choose exactly which groups of tools to enable. The MCP server exposes a curated subset of Knock capabilities — focused on managing resources and data, inspecting environments, and committing or promoting changes. Limiting the active tool groups to only what you need keeps the tool list manageable and reduces the risk of unintended changes.
 
 | Group                | Description                                                                                                     |
 | -------------------- | --------------------------------------------------------------------------------------------------------------- |
@@ -78,6 +78,8 @@ When connecting to the Knock MCP server, you can choose exactly which groups of 
 | **Debug**            | Inspect environments and view sent message logs                                                                 |
 | **Manage data**      | Manage users, tenants, and object data                                                                          |
 | **Documentation**    | Search Knock documentation                                                                                      |
+
+If you need capabilities the MCP server doesn't expose — such as local file scaffolding for new resources, validating them before push, or working entirely offline against a checked-in repo — reach for the [Knock CLI](/ai/knock-cli) instead.
 
 ## What tools are available?
 
@@ -102,11 +104,26 @@ The Knock MCP server also supports exposing your workflows as individual tools. 
 
 By default, the MCP server will **not** expose any workflows as tools. To opt into this behavior, contact us or refer to your MCP client's tool configuration options.
 
+## Pair with skills
+
+The MCP server gives an agent the tools to operate on Knock. [Skills](/ai/skills) give the agent the procedural knowledge to operate on Knock _well_. The two are complementary, and most teams using MCP install at least one skill alongside it.
+
+Knock's [`notification-best-practices`](/ai/skills) skill pairs naturally with the MCP server. It teaches an agent how to write effective notification copy across email, SMS, push, and in-app channels — guidance that applies regardless of whether the agent reaches Knock through MCP, the CLI, or the dashboard agent.
+
+Install it with:
+
+```bash
+npx skills add knocklabs/skills --skill notification-best-practices
+```
+
+See the [skills page](/ai/skills) for the full catalog of available skills and which surface each one complements.
+
 ## Related links
 
 - [Knock AI overview](/ai/overview)
 - [Knock agent](/ai/agent)
-- [CLI and skills](/ai/cli-and-skills)
+- [CLI](/ai/cli)
+- [Skills](/ai/skills)
 - [Building with LLMs](/developer-tools/building-with-llms)
 - [Knock Agent Toolkit](/developer-tools/agent-toolkit/overview)
 

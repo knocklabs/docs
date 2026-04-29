@@ -1,0 +1,94 @@
+---
+title: Skills
+description: Use skills to give AI agents the procedural knowledge they need to work with Knock effectively, whether they run in your IDE, an external client, or the Knock dashboard.
+section: AI
+---
+
+Skills are packaged instructions and rules that extend an AI agent's capabilities with Knock-specific procedural knowledge. They sit alongside your tool surfaces — the [Knock CLI](/ai/cli), the [MCP server](/ai/mcp-server), and the [Knock agent](/ai/agent) in the dashboard — and teach the agent _how_ to use those tools to accomplish real work.
+
+Once a skill is available to an agent, it auto-activates when you ask the agent to work on a related task. There's no manual prompting required.
+
+Skills come from two places at Knock:
+
+- **The open-source `knocklabs/skills` package** that you install into an AI coding agent (Cursor, Claude Code, and similar). These are the skills covered in [Available skills](#available-skills) below.
+- **Your own skills authored inside the [Knock agent](/ai/agent)** in the dashboard. The dashboard agent supports creating skills directly in your account and invokes them automatically during agent runs, which is useful for codifying team-specific conventions that aren't captured in the open-source package.
+
+<Callout
+  type="info"
+  title="Skills are complementary to your tool surfaces."
+  text="Tools (CLI commands, MCP tool calls, and the dashboard agent's built-in tools) give an agent the raw capabilities to read and write Knock resources. Skills give the agent an opinionated playbook for using those capabilities well — when to reach for each command, how to structure resource files, and what conventions to follow."
+/>
+
+## Install Knock's open-source skills in a coding agent
+
+Knock publishes an open-source skills package on GitHub at <a href="https://github.com/knocklabs/skills" target="_blank" rel="noopener noreferrer">github.com/knocklabs/skills</a>. Install it into any compatible AI coding agent (Cursor, Claude Code, and similar) so the agent can use Knock's skills when working on your codebase.
+
+Install the entire package with a single command:
+
+```bash
+npx skills add knocklabs/skills
+```
+
+Or install specific skills by passing a flag:
+
+```bash
+npx skills add knocklabs/skills --skill knock-cli
+npx skills add knocklabs/skills --skill notification-best-practices
+```
+
+## Author skills in the Knock dashboard agent
+
+The [Knock agent](/ai/agent) in the dashboard also supports skills. You can create skills directly in your Knock account and the dashboard agent invokes them automatically during agent runs.
+
+Use dashboard skills to:
+
+- Codify team-specific conventions that aren't captured in the open-source package (for example, your internal naming standards, copy guidelines, or workflow patterns).
+- Standardize how the agent handles common requests across your account.
+- Layer organizational context on top of Knock's built-in agent behavior.
+
+The open-source package and dashboard-authored skills are complementary. A team might install `notification-best-practices` from the open-source package and also author an internal "transactional email tone of voice" skill in the dashboard.
+
+## Available skills
+
+### `knock-cli`
+
+The `knock-cli` skill teaches AI agents how to use the [Knock CLI](/developer-tools/knock-cli) to manage your Knock resources from your codebase.
+
+**Complements.** The [Knock CLI](/ai/cli).
+
+Use it when you want an agent to:
+
+- Pull workflows, templates, guides, and partials to your local machine.
+- Push local changes back to Knock.
+- Manage Knock resources as part of a development or CI/CD workflow.
+
+### `notification-best-practices`
+
+The `notification-best-practices` skill gives AI agents comprehensive guidelines for notification design and implementation.
+
+**Complements.** Any surface — the [Knock CLI](/ai/cli), the [MCP server](/ai/mcp-server), and the [Knock agent](/ai/agent) in the dashboard. Because this skill is about content and UX rather than how the agent reaches Knock, it applies regardless of which surface the agent uses.
+
+Use it when you want an agent to:
+
+- Write notification copy across channels (email, SMS, push, in-app).
+- Apply best practices for transactional and welcome email templates.
+- Follow channel-specific formatting and content guidelines.
+
+## How skills fit with the CLI, MCP server, and dashboard agent
+
+Skills are not tied to a single tool surface. Different skills complement different surfaces, and many teams install or author more than one:
+
+| Skill                          | Pairs with                                       | What it adds                                                       |
+| ------------------------------ | ------------------------------------------------ | ------------------------------------------------------------------ |
+| `knock-cli`                    | The [Knock CLI](/ai/cli)                         | How to scaffold, edit, and push resource files from your codebase. |
+| `notification-best-practices`  | Any surface (CLI, MCP, dashboard agent)          | How to write effective notifications across channels.              |
+| Dashboard-authored skills      | The [Knock agent](/ai/agent) in the dashboard    | Team-specific conventions and account-level context.               |
+
+When an agent has both a tool surface and the right skill available, it can do more with fewer prompts: the tools give it reach into Knock, and the skill gives it the patterns to use those tools well.
+
+## See also
+
+- [Knock AI overview](/ai/overview) — see how skills fit alongside the dashboard agent, agent function, CLI, and MCP server.
+- [Knock agent](/ai/agent) — the in-dashboard assistant where you can author and invoke skills directly.
+- [Knock CLI](/ai/cli) — the local-first agent surface that pairs with the `knock-cli` skill.
+- [MCP server](/ai/mcp-server) — connect external clients and your own apps to Knock as tools.
