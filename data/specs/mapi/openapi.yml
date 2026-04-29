@@ -1,6 +1,43 @@
 components:
   responses: {}
   schemas:
+    PreviewPartialRequest:
+      description: A request to preview a partial, without requiring a partial to be persisted within Knock.
+      example:
+        data:
+          name: Jane
+        partial:
+          content: <p>Hello, {{ name }}!</p>
+          name: My Partial
+          type: html
+      properties:
+        data:
+          additionalProperties: true
+          description: The data to pass to the partial when rendering. Top-level keys are exposed as variables in the partial template.
+          type: object
+          x-struct: null
+          x-validate: null
+        layout:
+          description: Email layout configuration. Only applicable for `html` partials. When omitted, the rendered partial is returned unwrapped.
+          nullable: true
+          properties:
+            key:
+              description: The key of an existing email layout to use.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        partial:
+          $ref: '#/components/schemas/PartialRequest'
+      required:
+        - partial
+      title: PreviewPartialRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.PreviewPartialRequest
+      x-validate: null
     PreviewTemplateResponse:
       description: A response to a template preview request.
       example:
@@ -9575,6 +9612,68 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PushTemplate
       x-validate: null
+    PreviewPartialResponse:
+      description: A response to a partial preview request.
+      example:
+        content: <p>Hello, Jane!</p>
+        result: success
+        type: html
+      properties:
+        content:
+          description: The rendered partial content. Present when result is `success`.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        errors:
+          description: A list of errors encountered during rendering. Present when result is `error`.
+          items:
+            properties:
+              field:
+                description: The partial field that caused the error, if available.
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              message:
+                description: A human-readable description of the error.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - message
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        result:
+          description: The result of the preview.
+          enum:
+            - success
+            - error
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The partial type that was rendered.
+          enum:
+            - html
+            - text
+            - json
+            - markdown
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - result
+        - type
+      title: PreviewPartialResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.PreviewPartialResponse
+      x-validate: null
     CommitAuthor:
       description: The author of the commit.
       example:
@@ -14764,6 +14863,51 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Partial)
           }
+  /v1/partials/preview:
+    post:
+      callbacks: {}
+      description: |
+        Renders a partial in isolation, without requiring the partial to be persisted in Knock.
+
+        Useful for iterating on a partial locally and seeing how it renders against
+        sample data.
+      operationId: previewPartial
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewPartialRequest'
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewPartialResponse'
+          description: OK
+      summary: Preview a partial
+      tags:
+        - Partials
   /v1/message_types/{message_type_key}/validate:
     put:
       callbacks: {}
