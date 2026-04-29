@@ -2,7 +2,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import { Icon } from "@telegraph/icon";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useMemo, useLayoutEffect } from "react";
+import { useState, useMemo, useLayoutEffect, useRef } from "react";
 import { Text, Code } from "@telegraph/typography";
 import { ChevronRight } from "lucide-react";
 
@@ -85,21 +85,84 @@ const Accordion = ({
 }: AccordionProps) => {
   const [open, setOpen] = useState<boolean>(defaultOpen);
   const titleParts = useMemo(() => parseTitleWithCode(title), [title]);
+  const elementRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     if (!anchorSlug) return;
-    const syncFromHash = () => {
-      if (getHashFragment() === anchorSlug) {
-        setOpen(true);
+
+    let cancelled = false;
+    let resizeObserver: ResizeObserver | null = null;
+    let stopWatchingTimeoutId: number | null = null;
+
+    const log = (label: string, extra?: Record<string, unknown>) => {
+      // eslint-disable-next-line no-console
+      console.log(`[Accordion:${anchorSlug}] ${label}`, {
+        time: performance.now().toFixed(1),
+        scrollY: window.scrollY,
+        elementTop: elementRef.current?.getBoundingClientRect().top,
+        bodyHeight: document.body.scrollHeight,
+        ...extra,
+      });
+    };
+
+    const performScroll = (source: string) => {
+      if (cancelled) return;
+      const el = elementRef.current;
+      if (!el) return;
+      el.scrollIntoView({
+        block: "start",
+        behavior: "instant" as ScrollBehavior,
+      });
+      log(`scroll:${source}`);
+    };
+
+    const stopWatching = () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+      }
+      if (stopWatchingTimeoutId !== null) {
+        clearTimeout(stopWatchingTimeoutId);
+        stopWatchingTimeoutId = null;
       }
     };
-    syncFromHash();
-    window.addEventListener("hashchange", syncFromHash);
-    return () => window.removeEventListener("hashchange", syncFromHash);
+
+    const syncFromHash = (source: string) => {
+      log(`syncFromHash:${source}`);
+      if (getHashFragment() !== anchorSlug) return;
+      setOpen(true);
+
+      // Scroll immediately so the user goes directly from the previous page to
+      // the correct position. This runs in useLayoutEffect, before paint.
+      performScroll("immediate");
+
+      // Re-scroll whenever layout shifts (images loading, async content, etc.)
+      // so the accordion stays anchored to its intended position even as the
+      // document height changes.
+      stopWatching();
+      if (typeof ResizeObserver !== "undefined") {
+        resizeObserver = new ResizeObserver(() => {
+          performScroll("resize");
+        });
+        resizeObserver.observe(document.body);
+      }
+      // Stop correcting after layout has had time to settle so we don't
+      // fight subsequent user-initiated scrolls.
+      stopWatchingTimeoutId = window.setTimeout(stopWatching, 1500);
+    };
+
+    syncFromHash("mount");
+    const handler = () => syncFromHash("hashchange");
+    window.addEventListener("hashchange", handler);
+    return () => {
+      cancelled = true;
+      stopWatching();
+      window.removeEventListener("hashchange", handler);
+    };
   }, [anchorSlug]);
 
   return (
-    <Box role="listitem" id={anchorSlug}>
+    <Box tgphRef={elementRef} role="listitem" id={anchorSlug}>
       <MenuItem
         as="button"
         onClick={() => setOpen(!open)}
