@@ -402,7 +402,7 @@ const Autocomplete = () => {
                   ],
                   transformResponse({ hits: hitsArray }) {
                     const hits = hitsArray as (
-                      | DocsSearchItem[]
+                      | EnhancedDocsSearchItem[]
                       | EndpointSearchItem[]
                     )[];
                     // Add the "Ask AI" item at the top of the results
