@@ -37,6 +37,13 @@ let endpointCount = 0;
 
 const MAX_CONTENT_LENGTH = 2000;
 
+interface StaticContentHeading {
+  level: number;
+  title: string;
+  slug: string;
+  content: string;
+}
+
 async function validateSearchObject(
   object: EnhancedDocsSearchItem | EndpointSearchItem,
 ) {
@@ -82,29 +89,35 @@ function buildApiPageSearchItem({
   objectID,
   path,
   title,
+  pageTitle = title,
   section,
   content = "",
   tags = [],
+  headingLevel = 0,
+  isPageLevel = true,
 }: {
   objectID: string;
   path: string;
   title: string;
+  pageTitle?: string;
   section: string;
   content?: string;
   tags?: string[];
+  headingLevel?: number;
+  isPageLevel?: boolean;
 }): EnhancedDocsSearchItem {
   return {
     objectID,
     path,
     title,
-    pageTitle: title,
+    pageTitle,
     content: content.slice(0, MAX_CONTENT_LENGTH),
     section,
     tags,
-    headingLevel: 0,
+    headingLevel,
     contentType: "api-reference",
     index: "pages",
-    isPageLevel: true,
+    isPageLevel,
   };
 }
 
@@ -135,6 +148,50 @@ function getOverviewSectionTitle(name: "api" | "mapi", path: string): string {
   );
 
   return page?.title ?? "Overview";
+}
+
+function slugify(text: string): string {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+function extractHeadings(content: string): StaticContentHeading[] {
+  const headingRegex = /^(#{2,3})\s+(.+)$/gm;
+  const matches: Array<{ index: number; level: number; title: string }> = [];
+  const headings: StaticContentHeading[] = [];
+  let match;
+
+  while ((match = headingRegex.exec(content)) !== null) {
+    matches.push({
+      index: match.index,
+      level: match[1].length,
+      title: match[2].trim(),
+    });
+  }
+
+  for (let index = 0; index < matches.length; index++) {
+    const current = matches[index];
+    const next = matches[index + 1];
+    const contentStart =
+      current.index + `${"#".repeat(current.level)} ${current.title}`.length;
+    const contentEnd = next ? next.index : content.length;
+    const cleanContent = extractTextContent(
+      content.slice(contentStart, contentEnd),
+    );
+
+    headings.push({
+      level: current.level,
+      title: current.title,
+      slug: slugify(current.title),
+      content: cleanContent,
+    });
+  }
+
+  return headings;
 }
 
 async function indexResource({
@@ -284,8 +341,12 @@ async function indexStaticContent(name: "api" | "mapi") {
 
   // Find all sections in the static content and index them
   function extractSectionInfo(content: string) {
-    const sections: Array<{ title: string; path: string; content: string }> =
-      [];
+    const sections: Array<{
+      title: string;
+      path: string;
+      content: string;
+      headings: StaticContentHeading[];
+    }> = [];
     const parser = new RegExp(/<Section\b([^>]*)>([\s\S]*?)<\/Section>/g);
     const attributeParser = /(\w+)="([^"]*)"/g;
 
@@ -309,6 +370,7 @@ async function indexStaticContent(name: "api" | "mapi") {
         title:
           sectionInfo.title ?? getOverviewSectionTitle(name, sectionInfo.path),
         content: extractTextContent(body),
+        headings: extractHeadings(body),
       });
     }
 
@@ -316,7 +378,7 @@ async function indexStaticContent(name: "api" | "mapi") {
   }
   const sections = extractSectionInfo(staticContent);
   for (const section of sections) {
-    const { title, path, content } = section;
+    const { title, path, content, headings } = section;
     const sectionObject = buildApiPageSearchItem({
       objectID: `page-section-${name}-reference${path}`,
       path: `${name}-reference${path}`,
@@ -325,6 +387,21 @@ async function indexStaticContent(name: "api" | "mapi") {
       content,
     });
     await queuePage(sectionObject);
+
+    for (const heading of headings) {
+      const headingPath = `${name}-reference${path}#${heading.slug}`;
+      const headingObject = buildApiPageSearchItem({
+        objectID: `heading-section-${headingPath}`,
+        path: headingPath,
+        title: heading.title,
+        pageTitle: title,
+        section: name === "api" ? "API Reference" : "mAPI Reference",
+        content: heading.content,
+        headingLevel: heading.level,
+        isPageLevel: false,
+      });
+      await queuePage(headingObject);
+    }
   }
   return staticContent;
 }
