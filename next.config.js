@@ -82,6 +82,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/ai/cli-and-skills",
+        destination: "/ai/skills",
+        permanent: true,
+      },
+      {
         source: "/integrations",
         destination: "/integrations/overview",
         permanent: true,

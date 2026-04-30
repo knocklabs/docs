@@ -21,6 +21,9 @@ import {
   Code,
   ChevronsLeftRightEllipsis,
   Package,
+  Sparkles,
+  Workflow,
+  Plug,
 } from "lucide-react";
 import {
   FaNodeJs,
@@ -169,6 +172,9 @@ const PascalCaseIcons = {
   Code,
   ChevronsLeftRightEllipsis,
   Package,
+  Sparkles,
+  Workflow,
+  Plug,
 };
 
 export const Icons = Object.entries(PascalCaseIcons).reduce(

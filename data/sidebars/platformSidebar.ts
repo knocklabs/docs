@@ -45,11 +45,13 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
   {
     title: "Knock AI",
     slug: "/ai",
-    desc: "Use the Knock Agent in the dashboard, the MCP server in your editor, and skills for coding agents.",
+    desc: "Use AI in the dashboard, inside workflows, in your IDE, and in external clients.",
     pages: [
+      { slug: "/overview", title: "Overview" },
       { slug: "/agent", title: "Knock agent" },
-      { slug: "/agent-function", title: "Agent function" },
-      { slug: "/mcp-server", title: "MCP server" },
+      { slug: "/agent-function", title: "Agent workflow function" },
+      { slug: "/cli", title: "Knock CLI" },
+      { slug: "/mcp-server", title: "Knock MCP server" },
       { slug: "/skills", title: "Skills" },
     ],
   },
