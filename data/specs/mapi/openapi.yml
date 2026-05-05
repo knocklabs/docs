@@ -609,6 +609,167 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowUpdateTenantStep
       x-validate: null
+    SourceRequest:
+      description: A source request for setting a source and its environment-specific configuration.
+      example:
+        custom_image_url: null
+        description: Receives events over HTTP.
+        environment_settings:
+          development:
+            mappings: []
+            settings:
+              enforce_verification: false
+              event_type_path: body.event
+              idempotency_key_path: body.messageId
+              timestamp_path: body.timestamp
+        name: Universal HTTP Source
+        type: universal_http
+      properties:
+        custom_image_url:
+          description: An optional URL for a custom image representing the source.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        description:
+          description: An optional description of the source.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        environment_settings:
+          additionalProperties:
+            description: Environment-specific source settings to configure.
+            properties:
+              mappings:
+                description: Event action mappings to configure for this source in the environment.
+                items:
+                  description: An action mapping to configure for a source event.
+                  properties:
+                    action_parameters:
+                      additionalProperties: true
+                      description: The action-specific parameters for the mapping.
+                      nullable: true
+                      type: object
+                      x-struct: null
+                      x-validate: null
+                    action_type:
+                      description: The action that is performed when this mapping matches a source event.
+                      enum:
+                        - workflows_trigger
+                        - users_identify
+                        - users_delete
+                        - objects_set
+                        - objects_delete
+                        - objects_subscribe
+                        - objects_unsubscribe
+                        - tenants_set
+                        - tenants_delete
+                        - audiences_add_member
+                        - audiences_remove_member
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    event_type:
+                      description: The decoded event type that triggers the action.
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    inactive_at:
+                      description: The timestamp to deactivate the mapping.
+                      format: date-time
+                      nullable: true
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    is_deleted:
+                      description: Whether to delete the mapping. Workflow trigger mappings must be marked deleted before they can be removed.
+                      type: boolean
+                      x-struct: null
+                      x-validate: null
+                  required:
+                    - event_type
+                    - action_type
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
+              settings:
+                additionalProperties: true
+                description: Writable source settings for this environment.
+                properties:
+                  enforce_verification:
+                    type: boolean
+                    x-struct: null
+                    x-validate: null
+                  event_type_path:
+                    nullable: true
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  idempotency_key_path:
+                    nullable: true
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  preprocess_script:
+                    description: The preprocess script to configure for this source environment.
+                    nullable: true
+                    oneOf:
+                      - description: The source preprocess script to configure for this environment.
+                        properties:
+                          script_str:
+                            description: The source code for the preprocess script.
+                            type: string
+                            x-struct: null
+                            x-validate: null
+                        required:
+                          - script_str
+                        type: object
+                        x-struct: null
+                        x-validate: null
+                    x-struct: null
+                    x-validate: null
+                  timestamp_path:
+                    nullable: true
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                type: object
+                x-struct: null
+                x-validate: null
+            type: object
+            x-struct: null
+            x-validate: null
+          description: Per-environment settings keyed by environment slug.
+          type: object
+          x-struct: null
+          x-validate: null
+        name:
+          description: The human-readable name of the source.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of integration source.
+          enum:
+            - cdp_segment
+            - cdp_rudderstack
+            - generic_http
+            - universal_http
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - name
+        - type
+      title: SourceRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceRequest
+      x-validate: null
     WorkflowDelayStep:
       description: A delay function step. Read more in the [docs](https://docs.knock.app/designing-workflows/delay-function).
       example:
@@ -11268,15 +11429,6 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
-          in: query
-          name: branch
-          required: false
-          schema:
-            example: feature-branch
-            type: string
-            x-struct: null
-            x-validate: null
       responses:
         "200":
           content:
@@ -11285,6 +11437,45 @@ paths:
                 $ref: '#/components/schemas/Source'
           description: OK
       summary: Get a source
+      tags:
+        - Sources
+    put:
+      callbacks: {}
+      description: Creates or updates a source with environment-specific settings, preprocess scripts, and event mappings.
+      operationId: setSource
+      parameters:
+        - description: The key of the source to set.
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceRequest'
+        description: Source
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Source'
+          description: OK
+      summary: Set a source
       tags:
         - Sources
   /v1/broadcasts/{broadcast_key}/send:
