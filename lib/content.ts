@@ -37,16 +37,18 @@ export function getInAppSidebar(
         title: selectedSdkContent.title,
         path: `/in-app-ui/${selectedSdkContent.value}`,
       },
-      {
-        slug: `${section?.slug}`,
-        title: section?.title,
-        path: `${section?.slug}`,
-      },
-      {
-        slug: `${section?.slug}${page?.slug}`,
-        title: page?.title,
-        path: `${section?.slug}${page?.slug}`,
-      },
+      ...(section?.slug && section?.title
+        ? [{ slug: section.slug, title: section.title, path: section.slug }]
+        : []),
+      ...(section?.slug && page?.slug && page?.title
+        ? [
+            {
+              slug: `${section.slug}${page.slug}`,
+              title: page.title,
+              path: `${section.slug}${page.slug}`,
+            },
+          ]
+        : []),
     ],
   };
 }
