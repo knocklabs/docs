@@ -1900,6 +1900,106 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.MessageInAppFeedContent.ButtonSetBlock
       x-validate: null
+    PreferenceCenterConfigWithMetadata:
+      description: The preference center configuration for an environment. Controls whether the preference center is enabled and defines the rows displayed in the UI.
+      example:
+        account_name: Acme Inc.
+        branding:
+          icon_url: https://example.com/icon.png
+          logo_url: https://example.com/logo.png
+          primary_color: '#0EA5E9'
+          primary_color_contrast: '#0F172A'
+        config:
+          body: Choose which notifications you want to receive.
+          rows:
+            - description: Opt out of receiving comment and reply notifications
+              mapping:
+                channel_types: []
+                identifier: comments
+                type: category
+              name: Comments and replies
+              system: false
+              type: row
+            - description: Disable all push notifications
+              mapping:
+                channel_types: []
+                identifier: null
+                type: null
+              name: Push notifications
+              system: false
+              type: row
+          title: Notification preferences
+        enabled: true
+        user_email: user@example.com
+      properties:
+        account_name:
+          description: The name of the account that the preference center is associated with.
+          example: Acme Inc.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        branding:
+          description: The branding for the preference center, sourced from public environment variables.
+          properties:
+            icon_url:
+              description: The icon URL for the preference center. Must point to a valid image with an image MIME type.
+              example: https://example.com/icon.png
+              format: uri
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            logo_url:
+              description: The logo URL for the preference center. Must point to a valid image with an image MIME type.
+              example: https://example.com/logo.png
+              format: uri
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            primary_color:
+              description: The primary color for the preference center, provided as a hex value.
+              example: '#0EA5E9'
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            primary_color_contrast:
+              description: The primary color contrast for the preference center, provided as a hex value.
+              example: '#0F172A'
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        config:
+          $ref: '#/components/schemas/PreferenceCenterConfigData'
+        enabled:
+          description: Whether the preference center is enabled for this environment.
+          example: true
+          type: boolean
+          x-struct: null
+          x-validate: null
+        user_email:
+          description: The email address of the user that the preference center is associated with.
+          example: user@example.com
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - enabled
+        - config
+        - branding
+        - account_name
+        - user_email
+      title: PreferenceCenterConfigWithMetadata
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceCenterConfigWithMetadata
+      x-validate: null
     GuideActionResponse:
       description: A response for a guide action.
       example:
@@ -2413,6 +2513,54 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.MessageDeliveryLog
       x-validate: null
+    PreferenceCenterConfigRow:
+      description: A preference row in the preference center configuration.
+      example:
+        description: Opt out of receiving comment and reply notifications
+        mapping:
+          channel_types: []
+          identifier: Comments
+          type: category
+        name: Comments and replies
+        system: false
+        type: row
+      properties:
+        description:
+          description: A description shown below the preference row name.
+          example: Opt out of receiving comment and reply notifications
+          type: string
+          x-struct: null
+          x-validate: null
+        mapping:
+          $ref: '#/components/schemas/PreferenceCenterConfigRowMapping'
+        name:
+          description: The display name of the preference row.
+          example: Comments and replies
+          type: string
+          x-struct: null
+          x-validate: null
+        system:
+          description: Whether this is a system-managed preference row.
+          type: boolean
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the row.
+          enum:
+            - row
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - system
+        - name
+        - description
+        - mapping
+      title: PreferenceCenterConfigRow
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceCenterConfigRow
+      x-validate: null
     ListObjectsResponse:
       description: A paginated list of objects in a collection.
       example:
@@ -2474,6 +2622,64 @@ components:
       title: ObjectReference
       type: object
       x-struct: null
+      x-validate: null
+    PreferenceCenterConfigRowMapping:
+      description: Maps a preference row to the underlying preference (by type and identifier) and channel types.
+      example:
+        channel_types:
+          - email
+          - sms
+        identifier: new-project-mentions
+        type: workflow
+      properties:
+        channel_types:
+          description: The list of channel types this preference is scoped to. An empty list means the preference applies to all channel types.
+          example:
+            - email
+            - sms
+          items:
+            enum:
+              - email
+              - in_app
+              - in_app_feed
+              - in_app_guide
+              - sms
+              - push
+              - chat
+              - http
+              - log
+              - deferred_log
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        identifier:
+          description: The category name or workflow key this row controls (e.g. `marketing`, `new-project-mentions`). `null` for system-managed rows.
+          example: new-project-mentions
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The kind of preference this row controls. `category` targets a preference category, `workflow` targets a workflow. `null` for system-managed rows.
+          enum:
+            - category
+            - workflow
+            - null
+          example: workflow
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - identifier
+        - channel_types
+      title: PreferenceCenterConfigRowMapping
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceCenterConfigRowMapping
       x-validate: null
     PreferenceSetRequestWorkflows:
       additionalProperties:
@@ -4361,6 +4567,48 @@ components:
       title: BulkSetObjectRequest
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.BulkSetObjectRequest
+      x-validate: null
+    PreferenceCenterConfigData:
+      description: The preference center configuration data containing the rows to display.
+      example:
+        body: Choose which notifications you want to receive.
+        rows:
+          - description: Opt out of receiving comment and reply notifications
+            mapping:
+              channel_types: []
+              identifier: comments
+              type: category
+            name: Comments and replies
+            system: false
+            type: row
+        title: Notification preferences
+      properties:
+        body:
+          description: The body text displayed below the title.
+          example: Choose which notifications you want to receive.
+          type: string
+          x-struct: null
+          x-validate: null
+        rows:
+          description: An ordered list of rows to display in the preference center.
+          items:
+            $ref: '#/components/schemas/PreferenceCenterConfigRow'
+          type: array
+          x-struct: null
+          x-validate: null
+        title:
+          description: The title displayed at the top of the preference center.
+          example: Notification preferences
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - title
+        - body
+        - rows
+      title: PreferenceCenterConfigData
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceCenterConfigData
       x-validate: null
     UpdateSchedulesRequest:
       description: A request to update a schedule.
