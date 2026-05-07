@@ -621,6 +621,9 @@ components:
               enforce_verification: false
               event_type_path: body.event
               idempotency_key_path: body.messageId
+              preprocess_script:
+                language: javascript
+                source: return event;
               timestamp_path: body.timestamp
         name: Universal HTTP Source
         type: universal_http
@@ -718,18 +721,7 @@ components:
                     description: The preprocess script to configure for this source environment.
                     nullable: true
                     oneOf:
-                      - description: The source preprocess script to configure for this environment.
-                        properties:
-                          script_str:
-                            description: The source code for the preprocess script.
-                            type: string
-                            x-struct: null
-                            x-validate: null
-                        required:
-                          - script_str
-                        type: object
-                        x-struct: null
-                        x-validate: null
+                      - $ref: '#/components/schemas/SourcePreprocessScript'
                     x-struct: null
                     x-validate: null
                   timestamp_path:
@@ -2932,24 +2924,9 @@ components:
     SourcePreprocessScript:
       description: A script that runs before source events are mapped.
       example:
-        created_at: "2021-01-01T00:00:00Z"
-        hash_sha256: 0d4e93146c4c03f83b2937ac72df9f02ec338fc4bc0c0bf5f5c205e3da27d7e4
         language: javascript
-        plugin_version: null
-        script_str: return event;
-        updated_at: "2021-01-01T00:00:00Z"
+        source: return event;
       properties:
-        created_at:
-          description: The timestamp of when the preprocess script was created.
-          format: date-time
-          type: string
-          x-struct: null
-          x-validate: null
-        hash_sha256:
-          description: The SHA-256 hash of the preprocess script source code.
-          type: string
-          x-struct: null
-          x-validate: null
         language:
           description: The programming language used by the preprocess script.
           enum:
@@ -2957,29 +2934,14 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        plugin_version:
-          description: The version of the runtime plugin used by the preprocess script.
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        script_str:
+        source:
           description: The source code for the preprocess script.
           type: string
           x-struct: null
           x-validate: null
-        updated_at:
-          description: The timestamp of when the preprocess script was last updated.
-          format: date-time
-          type: string
-          x-struct: null
-          x-validate: null
       required:
-        - script_str
-        - hash_sha256
+        - source
         - language
-        - created_at
-        - updated_at
       title: SourcePreprocessScript
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourcePreprocessScript
@@ -3306,6 +3268,9 @@ components:
           event_type_path: body.event
           handle_identifies: true
           idempotency_key_path: body.messageId
+          preprocess_script:
+            language: javascript
+            source: return event;
           timestamp_path: body.timestamp
         updated_at: "2021-01-01T00:00:00Z"
       properties:
@@ -4847,6 +4812,9 @@ components:
               event_type_path: body.event
               handle_identifies: true
               idempotency_key_path: body.messageId
+              preprocess_script:
+                language: javascript
+                source: return event;
               timestamp_path: body.timestamp
             updated_at: "2021-01-01T00:00:00Z"
         key: segment-source
