@@ -2932,20 +2932,13 @@ components:
     SourcePreprocessScript:
       description: A script that runs before source events are mapped.
       example:
-        application_gid: app_123
         created_at: "2021-01-01T00:00:00Z"
         hash_sha256: 0d4e93146c4c03f83b2937ac72df9f02ec338fc4bc0c0bf5f5c205e3da27d7e4
-        id: 550e8400-e29b-41d4-a716-446655440004
         language: javascript
         plugin_version: null
         script_str: return event;
         updated_at: "2021-01-01T00:00:00Z"
       properties:
-        application_gid:
-          description: The application-scoped global identifier for the preprocess script.
-          type: string
-          x-struct: null
-          x-validate: null
         created_at:
           description: The timestamp of when the preprocess script was created.
           format: date-time
@@ -2954,12 +2947,6 @@ components:
           x-validate: null
         hash_sha256:
           description: The SHA-256 hash of the preprocess script source code.
-          type: string
-          x-struct: null
-          x-validate: null
-        id:
-          description: The unique identifier for the preprocess script.
-          format: uuid
           type: string
           x-struct: null
           x-validate: null
@@ -2988,11 +2975,9 @@ components:
           x-struct: null
           x-validate: null
       required:
-        - id
         - script_str
         - hash_sha256
         - language
-        - application_gid
         - created_at
         - updated_at
       title: SourcePreprocessScript
@@ -3313,34 +3298,20 @@ components:
       description: Environment-specific settings for a source.
       example:
         created_at: "2021-01-01T00:00:00Z"
-        environment_id: 550e8400-e29b-41d4-a716-446655440002
-        id: 550e8400-e29b-41d4-a716-446655440001
         mappings: []
         settings:
+          endpoint: https://api.knock.app/integrations/receive/src_123
           enforce_idempotency: true
           enforce_verification: false
           event_type_path: body.event
           handle_identifies: true
           idempotency_key_path: body.messageId
           timestamp_path: body.timestamp
-          token: src_123
         updated_at: "2021-01-01T00:00:00Z"
       properties:
         created_at:
           description: The timestamp of when these environment settings were created.
           format: date-time
-          type: string
-          x-struct: null
-          x-validate: null
-        environment_id:
-          description: The unique identifier for the environment these settings belong to.
-          format: uuid
-          type: string
-          x-struct: null
-          x-validate: null
-        id:
-          description: The unique identifier for these environment settings.
-          format: uuid
           type: string
           x-struct: null
           x-validate: null
@@ -3353,8 +3324,13 @@ components:
           x-validate: null
         settings:
           additionalProperties: true
-          description: Source settings for this environment, including token, verification behavior, and preprocess script.
+          description: Source settings for this environment, including endpoint, verification behavior, and preprocess script.
           properties:
+            endpoint:
+              description: The public endpoint that receives source events for this environment.
+              type: string
+              x-struct: null
+              x-validate: null
             enforce_idempotency:
               nullable: true
               type: boolean
@@ -3391,10 +3367,6 @@ components:
               type: string
               x-struct: null
               x-validate: null
-            token:
-              type: string
-              x-struct: null
-              x-validate: null
           type: object
           x-struct: null
           x-validate: null
@@ -3405,8 +3377,6 @@ components:
           x-struct: null
           x-validate: null
       required:
-        - id
-        - environment_id
         - created_at
         - updated_at
         - settings
@@ -3585,13 +3555,9 @@ components:
         action_parameters: null
         action_type: workflows_trigger
         created_at: "2021-01-01T00:00:00Z"
-        environment_id: 550e8400-e29b-41d4-a716-446655440002
         event_type: Order Created
-        id: 550e8400-e29b-41d4-a716-446655440003
         inactive_at: null
         is_deleted: false
-        reference_entity_key: order-created
-        reference_entity_type: workflow_version
         updated_at: "2021-01-01T00:00:00Z"
       properties:
         action_parameters:
@@ -3624,20 +3590,8 @@ components:
           type: string
           x-struct: null
           x-validate: null
-        environment_id:
-          description: The unique identifier for the environment the mapping belongs to.
-          format: uuid
-          type: string
-          x-struct: null
-          x-validate: null
         event_type:
           description: The decoded event type that triggers the action.
-          type: string
-          x-struct: null
-          x-validate: null
-        id:
-          description: The unique identifier for the action mapping.
-          format: uuid
           type: string
           x-struct: null
           x-validate: null
@@ -3653,20 +3607,6 @@ components:
           type: boolean
           x-struct: null
           x-validate: null
-        reference_entity_key:
-          description: The key of the referenced entity for actions that target an entity.
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        reference_entity_type:
-          description: The type of referenced entity for actions that target an entity.
-          enum:
-            - workflow_version
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
         updated_at:
           description: The timestamp of when the mapping was last updated.
           format: date-time
@@ -3674,11 +3614,9 @@ components:
           x-struct: null
           x-validate: null
       required:
-        - id
         - event_type
         - action_type
         - is_deleted
-        - environment_id
         - created_at
         - updated_at
       title: SourceEventActionMapping
@@ -4901,23 +4839,18 @@ components:
         environment_settings:
           development:
             created_at: "2021-01-01T00:00:00Z"
-            environment_id: 550e8400-e29b-41d4-a716-446655440002
-            id: 550e8400-e29b-41d4-a716-446655440001
             mappings: []
             settings:
+              endpoint: https://api.knock.app/integrations/receive/src_123
               enforce_idempotency: true
               enforce_verification: false
               event_type_path: body.event
               handle_identifies: true
               idempotency_key_path: body.messageId
               timestamp_path: body.timestamp
-              token: src_123
             updated_at: "2021-01-01T00:00:00Z"
-        id: 01234567-89ab-cdef-0123-456789abcdef
         key: segment-source
         name: Segment Source
-        template_id: null
-        template_version: null
         type: cdp_segment
         updated_at: "2021-01-01T00:00:00Z"
       properties:
@@ -4946,12 +4879,6 @@ components:
           type: object
           x-struct: null
           x-validate: null
-        id:
-          description: The unique identifier for the source.
-          format: uuid
-          type: string
-          x-struct: null
-          x-validate: null
         key:
           description: The unique key for the source within the project.
           type: string
@@ -4959,18 +4886,6 @@ components:
           x-validate: null
         name:
           description: The human-readable name of the source.
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        template_id:
-          description: The source template identifier, if the source was created from a template.
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        template_version:
-          description: The source template version, if the source was created from a template.
           nullable: true
           type: string
           x-struct: null
@@ -4992,7 +4907,6 @@ components:
           x-struct: null
           x-validate: null
       required:
-        - id
         - key
         - type
         - created_at
