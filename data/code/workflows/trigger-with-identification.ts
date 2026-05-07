@@ -208,26 +208,28 @@ ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowTriggerParams{
-  Data: map[string]interface{}{"project_name": "My Project"},
-  Actor: map[string]interface{}{
-    "id": "1",
-    "name": "John Hammond",
-    "email": "jhammond@ingen.net"
-  },
-  Recipients: []knock.RecipientRequestUnionParam{
-    map[string]interface{}{
-      "id": "project-1",
-      "collection": "projects",
-      "name": "My project",
-      "total_assets": 10,
-      "tags": []string{"cool", "fun", "project"},
+  Data: knock.F(map[string]interface{}{"project_name": "My Project"}),
+  Actor: knock.F[knock.RecipientRequestUnionParam](knock.InlineIdentifyUserRequestParam{
+    ID:    knock.F("1"),
+    Name:  knock.F("John Hammond"),
+    Email: knock.F("jhammond@ingen.net"),
+  }),
+  Recipients: knock.F([]knock.RecipientRequestUnionParam{
+    knock.InlineObjectRequestParam{
+      ID:         knock.F("project-1"),
+      Collection: knock.F("projects"),
+      ExtraFields: map[string]interface{}{
+        "name":         "My project",
+        "total_assets": 10,
+        "tags":         []string{"cool", "fun", "project"},
+      },
     },
-    map[string]interface{}{
-      "id": "2",
-      "name": "Ellie Sattler",
-      "email": "esattler@ingen.net",
+    knock.InlineIdentifyUserRequestParam{
+      ID:    knock.F("2"),
+      Name:  knock.F("Ellie Sattler"),
+      Email: knock.F("esattler@ingen.net"),
     },
-  },
+  }),
 }
 
 result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)
