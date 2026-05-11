@@ -843,6 +843,31 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowDelayStep
       x-validate: null
+    SourceEvent:
+      description: A known unique event received by a source.
+      example:
+        event: user.created
+        last_received_at: "2024-01-15T12:00:00Z"
+      properties:
+        event:
+          description: The decoded event name.
+          type: string
+          x-struct: null
+          x-validate: null
+        last_received_at:
+          description: The timestamp of when this event was last received.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - event
+        - last_received_at
+      title: SourceEvent
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceEvent
+      x-validate: null
     RequestTemplate:
       description: A request template for a fetch function step.
       example:
@@ -1075,6 +1100,26 @@ components:
       title: GuideScheduledActivationParams
       type: object
       x-struct: null
+      x-validate: null
+    SourceEventsResponse:
+      description: A list of known unique source events.
+      example:
+        entries:
+          - event: user.created
+            last_received_at: "2024-01-15T12:00:00Z"
+      properties:
+        entries:
+          description: The known unique events for the requested source and environment.
+          items:
+            $ref: '#/components/schemas/SourceEvent'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - entries
+      title: SourceEventsResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceEventsResponse
       x-validate: null
     WrappedPartialResponse:
       description: Wraps the Partial response under the `partial` key.
@@ -16545,6 +16590,39 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Guide)
           }
+  /v1/sources/{key}/events:
+    get:
+      callbacks: {}
+      description: Returns known unique events received by a source in the requested environment.
+      operationId: listSourceEvents
+      parameters:
+        - description: The key of the source whose events should be listed.
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceEventsResponse'
+          description: OK
+      summary: List source events
+      tags:
+        - Sources
   /v1/channel_groups/{channel_group_key}:
     delete:
       callbacks: {}
