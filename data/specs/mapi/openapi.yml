@@ -2372,6 +2372,135 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    SourceLogAction:
+      description: An action executed after receiving a source event.
+      example:
+        action_parameters:
+          actor: body.actor_id
+          cancellation_key: headers.message_id
+          data: body.data
+          key: alerts
+          recipients: body.data.email
+          tenant: null
+        action_payload:
+          actor: Sam
+          cancellation_key: "1234567890"
+          data: '{"name": "Sam"}'
+          key: alerts
+          recipients:
+            - collection: $users
+              id: sam
+          tenant: null
+          workflow:
+            active: false
+            categories:
+              - marketing
+              - black-friday
+            conditions:
+              all:
+                - argument: admin
+                  operator: equal_to
+                  variable: recipient.role
+            created_at: "2022-12-16T19:07:50.027113Z"
+            description: This is a dummy workflow for demo purposes.
+            environment: development
+            key: december-16-demo
+            name: december-16-demo
+            settings:
+              override_preferences: true
+            sha: f7e9d3b2a1c8e6m4k5j7h9g0i2l3n4p6q8r0t1u3v5w7x9y
+            steps:
+              - channel_key: in-app-feed
+                channel_type: in_app_feed
+                description: Main in-app feed
+                name: In-app step
+                ref: in_app_feed_1
+                template:
+                  action_url: '{{ data.onboarding_url }}'
+                  markdown_body: Hello **{{ recipient.name }}**. Click here to get started.
+                type: channel
+              - ref: delay_1
+                settings:
+                  delay_for:
+                    unit: hours
+                    value: 1
+                type: delay
+              - channel_key: postmark
+                channel_type: email
+                ref: email_1
+                template:
+                  html_body: <p>Hello, {{ recipient.name }}! Welcome to {{ vars.app_name }} <a href='{{ data.onboarding_url }}'>Get started here</a>.</p>
+                  settings:
+                    layout_key: default
+                  subject: Welcome to {{ vars.app_name }}!
+                type: channel
+            trigger_data_json_schema:
+              properties:
+                onboarding_url:
+                  type: string
+              required:
+                - onboarding_url
+              type: object
+            trigger_frequency: every_trigger
+            updated_at: "2023-02-08T22:15:19.846681Z"
+            valid: true
+        action_result:
+          id: e8b3383f-78a0-5ddc-9c48-f93d115f06cd
+        action_status: success
+        action_type: workflows_trigger
+        id: action_log_123
+        inserted_at: "2024-01-15T12:00:01Z"
+      properties:
+        action_parameters:
+          additionalProperties: true
+          description: The configured mapping parameters used to derive the action payload.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        action_payload:
+          additionalProperties: true
+          description: The parsed values generated from the mapping parameters for this action.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        action_result:
+          additionalProperties: true
+          description: The result returned by the action.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        action_status:
+          description: The status of the action.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        action_type:
+          description: The type of action that was executed.
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The action log ID.
+          type: string
+          x-struct: null
+          x-validate: null
+        inserted_at:
+          description: The timestamp of when the action log was created.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+      title: SourceLogAction
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceLogAction
+      x-validate: null
     PartialRequest:
       description: A partial object with attributes to update or create a partial.
       example:
@@ -4020,6 +4149,39 @@ components:
       title: WorkflowRandomCohortStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowRandomCohortStep
+      x-validate: null
+    SourceLogsResponse:
+      description: A paginated list of source logs. Include `actions` in the `includes` query parameter to return action details for each log.
+      example:
+        entries:
+          - data:
+              invoice_id: inv_123
+            event: invoice.created
+            id: log_123
+            inserted_at: "2024-01-15T12:00:00Z"
+            preprocess_output: null
+            source: null
+            verification_status: enforced:verified
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: The source logs for the requested source and environment.
+          items:
+            $ref: '#/components/schemas/SourceLog'
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: SourceLogsResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceLogsResponse
       x-validate: null
     WorkflowThrottleStep:
       description: A throttle function step. Read more in the [docs](https://docs.knock.app/designing-workflows/throttle-function).
@@ -7300,6 +7462,19 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowSmsStep
       x-validate: null
+    SourceRehearseRequest:
+      additionalProperties: true
+      description: An arbitrary payload to send through the source's parse, preprocess, and mapping pipeline.
+      example:
+        body:
+          event: order.created
+          order_id: ord_123
+        headers:
+          content-type: application/json
+      title: SourceRehearseRequest
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceRehearseRequest
+      x-validate: null
     WorkflowBranchStep:
       description: A branch function step. Read more in the [docs](https://docs.knock.app/designing-workflows/branch-function).
       example:
@@ -8011,6 +8186,75 @@ components:
       title: BrandingOverrides
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.BrandingOverrides
+      x-validate: null
+    SourceLog:
+      description: A log entry for an event received by a source.
+      example:
+        data:
+          invoice_id: inv_123
+        event: invoice.created
+        id: log_123
+        inserted_at: "2024-01-15T12:00:00Z"
+        preprocess_output: null
+        source: null
+        verification_status: enforced:verified
+      properties:
+        actions:
+          description: The actions executed after receiving the source event. Only present when `includes` contains `actions`.
+          items:
+            $ref: '#/components/schemas/SourceLogAction'
+          type: array
+          x-struct: null
+          x-validate: null
+        data:
+          additionalProperties: true
+          description: The data payload parsed by the source.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        event:
+          description: The decoded source event name.
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The source log ID.
+          type: string
+          x-struct: null
+          x-validate: null
+        inserted_at:
+          description: The timestamp of when the source log was created.
+          format: date-time
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        preprocess_output:
+          additionalProperties: true
+          description: The output returned by the preprocess script.
+          nullable: true
+          type: object
+          x-struct: null
+          x-validate: null
+        source:
+          description: Indicates the origin of the log; if the log is a product of a test event. This is typically null for regular source events received from the data source.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        verification_status:
+          description: The verification status for the received event.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - event
+      title: SourceLog
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceLog
       x-validate: null
     DynamicAudience:
       description: A dynamic audience where membership is determined by segment conditions evaluated at runtime.
@@ -9990,6 +10234,77 @@ components:
       title: Audience
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.Audience
+      x-validate: null
+    SourceRehearseResponse:
+      description: The result of a simulated source event rehearsal.
+      example:
+        action_logs_count: 1
+        errors: null
+        failed_action_logs_count: 0
+        log_id: log_123
+        status: ok
+        successful_action_logs_count: 1
+      properties:
+        action_logs_count:
+          description: The total number of action logs produced by the rehearsal.
+          type: integer
+          x-struct: null
+          x-validate: null
+        errors:
+          description: Errors returned while rehearsing the source event.
+          items:
+            properties:
+              field:
+                type: string
+                x-struct: null
+                x-validate: null
+              message:
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - field
+              - message
+            type: object
+            x-struct: null
+            x-validate: null
+          nullable: true
+          type: array
+          x-struct: null
+          x-validate: null
+        failed_action_logs_count:
+          description: The number of failed action logs produced by the rehearsal.
+          type: integer
+          x-struct: null
+          x-validate: null
+        log_id:
+          description: The ID of the source event log created by the rehearsal.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        status:
+          description: Whether the rehearsal completed without action errors.
+          enum:
+            - ok
+            - error
+          type: string
+          x-struct: null
+          x-validate: null
+        successful_action_logs_count:
+          description: The number of successful action logs produced by the rehearsal.
+          type: integer
+          x-struct: null
+          x-validate: null
+      required:
+        - log_id
+        - status
+        - action_logs_count
+        - successful_action_logs_count
+        - failed_action_logs_count
+      title: SourceRehearseResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceRehearseResponse
       x-validate: null
     Condition:
       description: A condition to be evaluated.
@@ -18573,6 +18888,161 @@ paths:
           	}
           	fmt.Printf("%+v\n", page)
           }
+  /v1/sources/{key}/rehearse:
+    post:
+      callbacks: {}
+      description: Sends an arbitrary payload through the source's parse, preprocess, and mapping pipeline in the requested environment. This endpoint cannot be run in production environments.
+      operationId: rehearseSource
+      parameters:
+        - description: The key of the source to rehearse.
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SourceRehearseRequest'
+        description: Payload
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceRehearseResponse'
+          description: OK
+      summary: Rehearse a source event
+      tags:
+        - Sources
+  /v1/sources/{key}/logs:
+    get:
+      callbacks: {}
+      description: Returns event logs received by a source in the requested environment. Supports filtering by date/time, event, and log ID.
+      operationId: listSourceLogs
+      parameters:
+        - description: The key of the source whose logs should be listed.
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page. Default is 25, maximum is 50.
+          in: query
+          name: page_size
+          required: false
+          schema:
+            default: 25
+            maximum: 50
+            type: integer
+            x-struct: null
+            x-validate: null
+        - description: Returns event logs that were produced on this date.
+          in: query
+          name: date
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Only return source logs at or after this timestamp.
+          in: query
+          name: starting_at
+          required: false
+          schema:
+            format: date-time
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Only return source logs at or before this timestamp.
+          in: query
+          name: ending_at
+          required: false
+          schema:
+            format: date-time
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The event name to filter by.
+          in: query
+          name: event
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The log ID to filter by.
+          in: query
+          name: id
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Associated resources to include in the response. Accepts `actions` to include the actions executed after receiving each source event.
+          in: query
+          name: includes
+          required: false
+          schema:
+            items:
+              enum:
+                - actions
+              type: string
+              x-struct: null
+              x-validate: null
+            type: array
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceLogsResponse'
+          description: OK
+      summary: List source logs
+      tags:
+        - Sources
   /v1/api_keys/exchange:
     post:
       callbacks: {}
