@@ -1262,6 +1262,98 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowPushStep
       x-validate: null
+    SourceStatusResponse:
+      description: Status information for a source in an environment.
+      example:
+        events_count: 42
+        last_event_received: "2026-05-11T16:00:00Z"
+        mappings_count: 2
+        mappings_requiring_commit:
+          - action_type: workflows_trigger
+            event_type: invoice.created
+            inactive_at: null
+            is_deleted: false
+            resource_key: invoice-created
+            status: updated
+      properties:
+        events_count:
+          description: The number of source events received in the last 30 days.
+          type: integer
+          x-struct: null
+          x-validate: null
+        last_event_received:
+          description: The timestamp of the most recently received source event.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        mappings_count:
+          description: The total number of event action mappings for the source environment.
+          type: integer
+          x-struct: null
+          x-validate: null
+        mappings_requiring_commit:
+          description: Workflow trigger event action mappings that need a workflow commit before their changes are applied.
+          items:
+            properties:
+              action_type:
+                description: The action that is performed when this mapping matches a source event.
+                enum:
+                  - workflows_trigger
+                type: string
+                x-struct: null
+                x-validate: null
+              event_type:
+                description: The decoded event type that triggers the action.
+                type: string
+                x-struct: null
+                x-validate: null
+              inactive_at:
+                description: The timestamp of when the mapping was deactivated.
+                format: date-time
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              is_deleted:
+                description: Whether the mapping is pending deletion.
+                type: boolean
+                x-struct: null
+                x-validate: null
+              resource_key:
+                description: The key of the workflow resource referenced by the mapping.
+                type: string
+                x-struct: null
+                x-validate: null
+              status:
+                description: Whether the mapping is pending deletion or update.
+                enum:
+                  - deleted
+                  - updated
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - resource_key
+              - action_type
+              - event_type
+              - is_deleted
+              - status
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - mappings_requiring_commit
+        - mappings_count
+        - events_count
+        - last_event_received
+      title: SourceStatusResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceStatusResponse
+      x-validate: null
     BroadcastSendRequest:
       description: A request to send or schedule a broadcast.
       example:
@@ -19679,6 +19771,39 @@ paths:
           	}
           	fmt.Printf("%+v\n", channel.ID)
           }
+  /v1/sources/{key}/status:
+    get:
+      callbacks: {}
+      description: Returns source activity and workflow-trigger mappings that need action in the requested environment.
+      operationId: getSourceStatus
+      parameters:
+        - description: The key of the source whose status should be retrieved.
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceStatusResponse'
+          description: OK
+      summary: Get source status
+      tags:
+        - Sources
   /v1/broadcasts/{broadcast_key}/cancel:
     put:
       callbacks: {}
