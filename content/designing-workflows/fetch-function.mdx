@@ -215,6 +215,8 @@ To create a reusable request, navigate to the **Reusable requests** page in the 
 
 Once the request is created, save and commit the configuration.
 
+Optionally, you can define **request inputs** for the reusable request so each workflow instance can supply its own structured values while sharing the same HTTP configuration. See [Define inputs](#define-inputs) later on this page.
+
 <br />
 
 <figure>
@@ -236,7 +238,7 @@ Once the request is created, save and commit the configuration.
 <Steps>
   <Step title="Create a fetch step in a workflow">
 
-    To use a reusable request in a workflow, first navigate to the workflow where you'd like to use it. Then, create an fetch step by selecting it in the step selection menu.
+    To use a reusable request in a workflow, first navigate to the workflow where you'd like to use it. Then, create a fetch step by selecting it in the step selection menu.
 
     <figure>
       <Image
@@ -249,7 +251,7 @@ Once the request is created, save and commit the configuration.
     </figure>
 
   </Step>
- 
+
   <Step title="Select the request template">
     Within the step panel, you can select the "Apply template" button to select which reusable request to inherit the details of.
 
@@ -284,6 +286,74 @@ Once the request is created, save and commit the configuration.
 
   </Step>
 </Steps>
+
+### Define inputs
+
+Reusable requests can declare an **input schema** so team members know what parameters are available to them when using the request in a workflow.
+
+#### Input schema
+
+On the reusable request, **input schema** is a <a href="https://json-schema.org/" target="_blank">JSON Schema</a> object that describes the allowed input properties (types, required fields, default values, and so on).
+
+To define a schema, navigate to the reusable request editor and click "Define schema" on the left side.
+
+<figure>
+  <Image
+    src="/images/concepts/reusable-steps/define-schema.png"
+    width={1052}
+    height={958}
+    alt="Defining an input schema for a reusable request."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+</figure>
+
+#### Workflow usage
+
+When a schema is present, the dashboard will render structured input fields on linked fetch steps inside the workflow editor. These input fields support Liquid syntax and are unique per workflow run, so they can target all available variable fields like `recipient`, `data`, `actor`, and `vars`.
+
+<figure>
+  <Image
+    src="/images/concepts/reusable-steps/workflow-usage-2.png"
+    width={1052}
+    height={958}
+    alt="Using a reusable request in a workflow."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+</figure>
+
+#### Preview inputs on the reusable request
+
+On the reusable request itself you can set **preview inputs**. These values are used when you preview or test the reusable request in isolation from a workflow.
+
+<figure>
+  <Image
+    src="/images/concepts/reusable-steps/schema-preview.png"
+    width={1052}
+    height={958}
+    alt="Previewing schema inputs for a reusable request."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+</figure>
+
+#### Using values in the request template
+
+Knock resolves values for the fetch step and merges them into the Liquid scope for that step under **`inputs`**. Reference them in the URL, headers, query parameters, or body like any other variable—for example `{{ inputs.order_id }}` alongside `{{ recipient.id }}` or fields from trigger `data`.
+
+<figure>
+  <Image
+    src="/images/concepts/reusable-steps/request-usage.png"
+    width={1052}
+    height={958}
+    alt="Using values in the request template for a reusable request."
+    className="rounded-md mx-auto border border-gray-200"
+  />
+</figure>
+
+<Callout
+  type="warning"
+  title="Note:"
+  text="The reusable request must be committed for any changes to take effect and for inputs to be visible in workflows."
+/>
 
 ### Making changes to a reusable request
 
