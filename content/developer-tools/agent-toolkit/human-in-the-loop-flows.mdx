@@ -54,9 +54,9 @@ The Knock Agent Toolkit exposes a set of helper methods that you can use to powe
 The `requiresHumanInput` helper method allows you to wrap a tool in requiring human input to proceed. When a tool is wrapped with this method, when the LLM tries to invoke the call it will instead delegate the tool call to Knock, passing the tool execution context to the Knock workflow.
 
 ```typescript title="Wrap tool in requiring input"
-import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+import { createKnockToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
 
-const toolkit = await createToolkit();
+const toolkit = await createKnockToolkit();
 
 const { classifyWork: classifyToolRequiringInput } = toolkit.requireHumanInput(
   { classifyWork },
@@ -87,9 +87,9 @@ Calling `requireHumanInput` will return a new tool that you pass in place of the
 The `handleMessageInteracted` helper method allows you to handle an incoming `message.interacted` event from Knock and determine if there's an interaction with the message that should be handled by your agent workflow.
 
 ```typescript title="Handling an incoming interaction"
-import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+import { createKnockToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
 
-const toolkit = await createToolkit();
+const toolkit = await createKnockToolkit();
 
 function handleIncomingInteraction(event) {
   const interactionEvent = toolkit.handleMessageInteracted(event);
@@ -111,9 +111,9 @@ The `resumeToolExecution` helper method allows you to resume tool execution afte
 You pass the `resumeToolExecution` method the `DeferredToolCallInteractionResult` that you've received from Knock via the `handleMessageInteracted` method. Here's an example of how you might use this method:
 
 ```typescript title="Resuming tool execution"
-import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+import { createKnockToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
 
-const toolkit = await createToolkit();
+const toolkit = await createKnockToolkit();
 
 function handleIncomingInteraction(event) {
   const interactionEvent = toolkit.handleMessageInteracted(event);
@@ -150,9 +150,9 @@ This example shows you how to set up an approval flow that sends an in-app notif
     The Agent Toolkit exposes a `requiresHumanInput` helper that you can use to wrap a tool call as one that requires human input to proceed.
  
     ```typescript title="Wrap a tool as requiring human input"
-    import { createToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
+    import { createKnockToolkit } from "@knocklabs/agent-toolkit/ai-sdk";
 
-    const toolkit = await createToolkit();
+    const toolkit = await createKnockToolkit();
 
     const { classificationTool: wrappedClassificationTool } = toolkit.requiresHumanInput({ classificationTool }, {
       // The workflow to use to send the approval request
@@ -175,12 +175,12 @@ This example shows you how to set up an approval flow that sends an in-app notif
     You'll use this method to handle the incoming interaction event and to resume your agent's execution. Depending on which agent framework you're using, you'll need to implement this handler differently. We've left this example fairly abstract as a result.
 
     ```typescript title="Handling the response and resuming tool execution"
-    import { createToolkit, handleMessageInteracted } from "@knocklabs/agent-toolkit/ai-sdk";
+    import { createKnockToolkit, handleMessageInteracted } from "@knocklabs/agent-toolkit/ai-sdk";
 
     const handleMessageInteracted = async (event: MessageInteractedEvent) => {
       const agent = await getAgentInstance();
 
-      const toolkit = await createToolkit();
+      const toolkit = await createKnockToolkit();
 
       const interactionEvent = toolkit.handleMessageInteracted(event);
 
