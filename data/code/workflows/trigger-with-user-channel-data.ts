@@ -153,19 +153,21 @@ knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 // Get this value in your Knock dashboard
 apnsChannelId := "some-channel-id-from-knock"
 
-params := knock.WorkflowTriggerParams{
-  Data: map[string]interface{}{"project_name": "My Project"},
-  Recipients: []knock.RecipientRequestUnionParam{
-    map[string]interface{}{
-      "id": "1",
-      "email": "jhammond@ingen.net",
-      "channel_data": map[string]interface{}{
-        apnsChannelId: map[string]interface{}{
-          "tokens": []string{"apns-push-token"},
-        },
-      },
-    },
+channelData := knock.InlineChannelDataRequestParam{
+  apnsChannelId: knock.PushChannelDataTokensOnlyParam{
+    Tokens: knock.F([]string{"apns-push-token"}),
   },
+}
+
+params := knock.WorkflowTriggerParams{
+  Data: knock.F(map[string]interface{}{"project_name": "My Project"}),
+  Recipients: knock.F([]knock.RecipientRequestUnionParam{
+    knock.InlineIdentifyUserRequestParam{
+      ID:          knock.F("1"),
+      Email:       knock.F("jhammond@ingen.net"),
+      ChannelData: knock.F(channelData),
+    },
+  }),
 }
 
 result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)

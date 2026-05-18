@@ -75,15 +75,14 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 user, _ := knockClient.Users.Update(ctx, "1", knock.UserUpdateParams{
   IdentifyUserRequest: knock.IdentifyUserRequestParam{
-    Name:  param.String("John Hammond"),
-    Email: param.String("jhammond@ingen.net"),
+    Name:  knock.String("John Hammond"),
+    Email: knock.String("jhammond@ingen.net"),
   },
 })
 `,

@@ -106,13 +106,19 @@ $client->users()->bulkSetPreferences([
 ]);
 `,
   go: `
+import (
+  "context"
+
+  "github.com/knocklabs/knock-go"
+  "github.com/knocklabs/knock-go/option"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 result, _ := knockClient.Users.Bulk.SetPreferences(ctx, knock.UserBulkSetPreferencesParams{
-  UserIDs: param.Strings([]string{"jhammond", "dnedry"}),
+  UserIDs: knock.F([]string{"jhammond", "dnedry"}),
   Preferences: knock.PreferenceSetRequestParam{
-    ChannelTypes: param.Raw(map[string]interface{}{
+    ChannelTypes: knock.Raw[knock.PreferenceSetChannelTypesParam](map[string]interface{}{
       "email": true,
       "sms":   false,
     }),

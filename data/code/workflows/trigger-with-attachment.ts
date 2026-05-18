@@ -117,29 +117,28 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
+	"github.com/knocklabs/knock-go/shared"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-params := knock.WorkflowTriggerParams{
-  Data: map[string]interface{}{
+recipients := make([]knock.RecipientRequestUnionParam, len(recipientIds))
+for i, id := range recipientIds {
+  recipients[i] = shared.UnionString(id)
+}
+
+result, _ := knockClient.Workflows.Trigger(ctx, "invoice-paid", knock.WorkflowTriggerParams{
+  Data: knock.F(map[string]interface{}{
     "attachments": []map[string]interface{}{
       {
-        "name": "Invoice.pdf",
-        "content": fileContents,
-        "content_type": "application/pdf"
-      }
+        "name":         "Invoice.pdf",
+        "content":      fileContents,
+        "content_type": "application/pdf",
+      },
     },
-  },
-  Recipients: make([]knock.RecipientRequestUnionParam, len(recipientIds)),
-}
-
-for i, r := range recipientIds {
-  params.Recipients[i] = r
-}
-
-result, _ := knockClient.Workflows.Trigger(ctx, "invoice-paid", params)
+  }),
+  Recipients: knock.F(recipients),
+})
 `,
   java: `
 import app.knock.api.client.KnockClient;

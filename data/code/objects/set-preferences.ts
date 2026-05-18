@@ -154,28 +154,28 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
+	"github.com/knocklabs/knock-go/shared"
 )
 
 ctx := context.Background()
 client := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-preferenceSet, _ := client.Objects.SetPreferences(ctx, &knock.SetObjectPreferencesRequest{
-	Collection: "projects",
-	ObjectID:   "project-1",
-	ID:         "default",
-	ChannelTypes: param.New(knock.PreferenceSetChannelTypesParam{
-		Email: param.New(true),
-		SMS:   param.New(false),
-	}),
-	Workflows: param.New(map[string]knock.PreferenceSetRequestWorkflowsUnionParam{
-		"dinosaurs-loose": knock.PreferenceSetRequestWorkflowsPreferenceSetWorkflowCategorySettingObjectParam{
-			ChannelTypes: param.New(knock.PreferenceSetChannelTypesParam{
-				Email:     param.New(false),
-				InAppFeed: param.New(true),
-				SMS:       param.New(true),
-			}),
-		},
-	}),
+preferenceSet, _ := client.Objects.SetPreferences(ctx, "projects", "project-1", "default", knock.ObjectSetPreferencesParams{
+	PreferenceSetRequest: knock.PreferenceSetRequestParam{
+		ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
+			Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(true)),
+			SMS:   knock.F[knock.PreferenceSetChannelTypesSMSUnionParam](shared.UnionBool(false)),
+		}),
+		Workflows: knock.F(map[string]knock.PreferenceSetRequestWorkflowsUnionParam{
+			"dinosaurs-loose": knock.PreferenceSetRequestWorkflowsPreferenceSetWorkflowCategorySettingObjectParam{
+				ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
+					Email:     knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(false)),
+					InAppFeed: knock.F[knock.PreferenceSetChannelTypesInAppFeedUnionParam](shared.UnionBool(true)),
+					SMS:       knock.F[knock.PreferenceSetChannelTypesSMSUnionParam](shared.UnionBool(true)),
+				}),
+			},
+		}),
+	},
 })
 `,
   java: `

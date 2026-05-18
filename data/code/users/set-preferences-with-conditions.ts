@@ -118,27 +118,24 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
-preferenceSetRequest := &knock.PreferenceSetRequestParam{
-  Workflows: map[string]interface{}{
-    "dinosaurs-loose": map[string]interface{}{
-      "conditions": []map[string]interface{}{
-        {
-          "variable":  "recipient.muted_alert_ids",
-          "operator":  "not_contains",
-          "argument":  "data.alert_id",
+preferenceSet, _ := knockClient.Users.SetPreferences(ctx, user.ID, "default", knock.UserSetPreferencesParams{
+  PreferenceSetRequest: knock.PreferenceSetRequestParam{
+    Workflows: knock.Raw[map[string]knock.PreferenceSetRequestWorkflowsUnionParam](map[string]interface{}{
+      "dinosaurs-loose": map[string]interface{}{
+        "conditions": []map[string]interface{}{
+          {
+            "variable": "recipient.muted_alert_ids",
+            "operator": "not_contains",
+            "argument": "data.alert_id",
+          },
         },
       },
-    },
+    }),
   },
-}
-
-preferenceSet, _ := knockClient.Users.SetPreferences(ctx, user.ID, "default", &knock.UserSetPreferencesParams{
-  PreferenceSetRequest: *preferenceSetRequest,
 })
   `,
   java: `

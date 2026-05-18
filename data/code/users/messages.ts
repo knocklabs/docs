@@ -98,14 +98,13 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 messages, _ := knockClient.Users.ListMessages(ctx, user.ID, knock.UserListMessagesParams{
-  PageSize: param.Int64(20),
-  Tenant:   param.String("my_tenant"),
+  PageSize: knock.F(int64(20)),
+  Tenant:   knock.String("my_tenant"),
 })
 `,
   java: `

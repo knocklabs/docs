@@ -114,7 +114,6 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 
 ctx := context.Background()
@@ -125,7 +124,7 @@ apnsChannelId := "8209f26c-62a5-461d-95e2-a5716a26e652"
 
 _, _ = knockClient.Users.SetChannelData(ctx, user.ID, apnsChannelId, knock.UserSetChannelDataParams{
   ChannelDataRequest: knock.ChannelDataRequestParam{
-    Data: param.Raw(map[string]interface{}{
+    Data: knock.Raw[knock.ChannelDataRequestDataUnionParam](map[string]interface{}{
       "devices": []map[string]interface{}{
         {"token": "user_device_token_1", "locale": "en-US", "timezone": "America/New_York"},
         {"token": "user_device_token_2"},
