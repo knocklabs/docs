@@ -52,11 +52,17 @@ $client = new Client('sk_12345');
 $client->users()->bulkDelete(['user-1', 'user-2']);
 `,
   go: `
+import (
+  "context"
+
+  "github.com/knocklabs/knock-go"
+  "github.com/knocklabs/knock-go/option"
+)
 ctx := context.Background()
-knockClient, _ := knock.NewClient(knock.WithAccessToken("sk_12345"))
+knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 result, _ := knockClient.Users.Bulk.Delete(ctx, knock.UserBulkDeleteParams{
-  UserIDs: param.Strings([]string{"user-1", "user-2"}),
+  UserIDs: knock.F([]string{"user-1", "user-2"}),
 })
 `,
   java: `

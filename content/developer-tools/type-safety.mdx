@@ -330,6 +330,7 @@ import (
     "context"
     "github.com/knocklabs/knock-go"
     "github.com/knocklabs/knock-go/option"
+    "github.com/knocklabs/knock-go/shared"
 )
 
 func main() {
@@ -354,12 +355,10 @@ func main() {
     json.Unmarshal(jsonData, &data)
 
     _, err := client.Workflows.Trigger(context.Background(), "comment-created", knock.WorkflowTriggerParams{
-        Recipients: []knock.WorkflowTriggerParamsRecipientUnion{
-            knock.WorkflowTriggerParamsRecipientUnion{
-                OfString: knock.String("user_789"),
-            },
-        },
-        Data: data, // ✅ Type-safe!
+        Recipients: knock.F([]knock.RecipientRequestUnionParam{
+            shared.UnionString("user_789"),
+        }),
+        Data: knock.F(data), // ✅ Type-safe!
     })
 }
 ```

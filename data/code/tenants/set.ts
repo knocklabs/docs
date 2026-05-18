@@ -123,21 +123,20 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 tenant, _ := knockClient.Tenants.Set(ctx, "tenant-1", knock.TenantSetParams{
-	Name: param.New("Tenant 1"),
-	Settings: param.New(map[string]interface{}{
-		"branding": map[string]interface{}{
-			"primary_color":          "#33FF5B",
-			"primary_color_contrast": "#ffffff",
-			"logo_url":               "https://www.example.com/path-to-logo-asset-url",
-			"icon_url":               "https://www.example.com/path-to-icon-asset-url",
-		},
+	Name: knock.F("Tenant 1"),
+	Settings: knock.F(knock.TenantSetParamsSettings{
+		Branding: knock.F(knock.TenantSetParamsSettingsBranding{
+			PrimaryColor:         knock.F("#33FF5B"),
+			PrimaryColorContrast: knock.F("#ffffff"),
+			LogoURL:              knock.F("https://www.example.com/path-to-logo-asset-url"),
+			IconURL:              knock.F("https://www.example.com/path-to-icon-asset-url"),
+		}),
 	}),
 })
 `,

@@ -91,7 +91,6 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 
 ctx := context.Background()
@@ -99,14 +98,14 @@ knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 // List messages with pagination
 messages, _ := knockClient.Messages.List(ctx, knock.MessageListParams{
-	PageSize: param.New(20),
-	Tenant:   param.New("my-tenant"),
+	PageSize: knock.F(int64(20)),
+	Tenant:   knock.F("my-tenant"),
 })
 
 // Auto-paging version
 messagesPager := knockClient.Messages.ListAutoPaging(ctx, knock.MessageListParams{
-	PageSize: param.New(20),
-	Tenant:   param.New("my-tenant"),
+	PageSize: knock.F(int64(20)),
+	Tenant:   knock.F("my-tenant"),
 })
 
 // Iterate through messages

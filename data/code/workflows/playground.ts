@@ -125,17 +125,17 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
+	"github.com/knocklabs/knock-go/shared"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 params := knock.WorkflowTriggerParams{
-  Recipients: []knock.RecipientRequestUnionParam{"1", "2"},
-  Data: map[string]interface{}{"project_name": "My Project"},
-  Actor: "3",
-  CancellationKey: "cancel_123",
-  Tenant: "jurassic_world_employees",
+  Recipients:      knock.F([]knock.RecipientRequestUnionParam{shared.UnionString("1"), shared.UnionString("2")}),
+  Data:            knock.F(map[string]interface{}{"project_name": "My Project"}),
+  Actor:           knock.F[knock.RecipientRequestUnionParam](shared.UnionString("3")),
+  CancellationKey: knock.F("cancel_123"),
+  Tenant:          knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("jurassic_world_employees")),
 }
 
 result, _ := knockClient.Workflows.Trigger(ctx, "new-comment", params)

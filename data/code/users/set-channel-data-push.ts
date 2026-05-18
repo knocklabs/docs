@@ -64,14 +64,13 @@ import (
 
 	"github.com/knocklabs/knock-go"
 	"github.com/knocklabs/knock-go/option"
-	"github.com/knocklabs/knock-go/param"
 )
 ctx := context.Background()
 knockClient := knock.NewClient(option.WithAPIKey("sk_12345"))
 
 channelData, _ := knockClient.Users.SetChannelData(ctx, user.ID, "5a88728a-3ecb-400d-ba6f-9c0956ab252f", knock.UserSetChannelDataParams{
   ChannelDataRequest: knock.ChannelDataRequestParam{
-    Data: param.Raw(map[string]interface{}{
+    Data: knock.Raw[knock.ChannelDataRequestDataUnionParam](map[string]interface{}{
       "tokens": []string{apnsToken},
     }),
   },
