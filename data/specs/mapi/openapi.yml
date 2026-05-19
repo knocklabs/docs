@@ -2044,6 +2044,66 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowChatStep
       x-validate: null
+    SourceProvidersResponse:
+      description: Source providers available for creating sources.
+      example:
+        entries:
+          - key: segment
+            provider:
+              description: Receive customer events from Segment.
+              name: Segment
+            version: 1.0.0
+      properties:
+        entries:
+          description: Source providers.
+          items:
+            description: A source provider summary.
+            properties:
+              key:
+                description: Provider key.
+                type: string
+                x-struct: null
+                x-validate: null
+              provider:
+                description: Provider display metadata.
+                properties:
+                  description:
+                    description: Provider display description.
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                  name:
+                    description: Provider display name.
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                required:
+                  - name
+                  - description
+                type: object
+                x-struct: null
+                x-validate: null
+              version:
+                description: Provider version.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - key
+              - version
+              - provider
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - entries
+      title: SourceProvidersResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceProvidersResponse
+      x-validate: null
     EmailButtonSetBlock:
       description: A button set block in an email template.
       example:
@@ -3853,6 +3913,300 @@ components:
       title: SourceEventActionMapping
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceEventActionMapping
+      x-validate: null
+    SourceProviderResponse:
+      description: A source provider available for creating sources.
+      example:
+        default_settings:
+          enforce_verification: false
+          event_type_path: body.event
+          idempotency_key_path: body.messageId
+          timestamp_path: body.timestamp
+        key: segment
+        provider:
+          categories:
+            - Analytics
+          description: Receive customer events from Segment.
+          name: Segment
+          webhook_docs_url: https://segment.com/docs/connections/destinations/catalog/webhooks
+          website_url: https://segment.com
+        version: 1.0.0
+      properties:
+        default_action_mappings:
+          description: Default event action mappings for the provider. Only present when `includes` contains `default_action_mappings`.
+          items:
+            properties:
+              action_parameters:
+                additionalProperties: true
+                description: Action-specific data paths and options.
+                type: object
+                x-struct: null
+                x-validate: null
+              action_type:
+                description: The action performed when the mapping matches a source event.
+                enum:
+                  - workflows_trigger
+                  - users_identify
+                  - users_delete
+                  - objects_set
+                  - objects_delete
+                  - objects_subscribe
+                  - objects_unsubscribe
+                  - tenants_set
+                  - tenants_delete
+                  - audiences_add_member
+                  - audiences_remove_member
+                type: string
+                x-struct: null
+                x-validate: null
+              event_type:
+                description: Event type to match.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - event_type
+              - action_type
+              - action_parameters
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+        default_settings:
+          description: Default source settings for this provider.
+          properties:
+            enforce_verification:
+              description: Whether the source should enforce webhook verification.
+              type: boolean
+              x-struct: null
+              x-validate: null
+            event_type_path:
+              description: Path to find the event type from the data.
+              type: string
+              x-struct: null
+              x-validate: null
+            idempotency_key_path:
+              description: Path to find the idempotency key from the data.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            preprocessing_script:
+              description: Verification script source code. Only present when `includes` contains `preprocessing_script`.
+              nullable: true
+              oneOf:
+                - properties:
+                    language:
+                      description: Script language.
+                      enum:
+                        - javascript
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    source:
+                      description: Verification script source code.
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                  required:
+                    - source
+                    - language
+                  type: object
+                  x-struct: null
+                  x-validate: null
+              x-struct: null
+              x-validate: null
+            timestamp_path:
+              description: Path to find the timestamp from the data.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - event_type_path
+            - enforce_verification
+          type: object
+          x-struct: null
+          x-validate: null
+        example_payloads:
+          description: Example payloads keyed by event type. Only present when `includes` contains `example_payloads`.
+          nullable: true
+          oneOf:
+            - additionalProperties:
+                items:
+                  properties:
+                    body:
+                      additionalProperties: true
+                      description: Example payload body.
+                      nullable: true
+                      type: object
+                      x-struct: null
+                      x-validate: null
+                    headers:
+                      additionalProperties: true
+                      description: Example payload headers.
+                      nullable: true
+                      type: object
+                      x-struct: null
+                      x-validate: null
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                type: array
+                x-struct: null
+                x-validate: null
+              description: Example payloads keyed by event type.
+              type: object
+              x-struct: null
+              x-validate: null
+          x-struct: null
+          x-validate: null
+        key:
+          description: Provider key.
+          type: string
+          x-struct: null
+          x-validate: null
+        provider:
+          description: Provider display metadata.
+          properties:
+            branding:
+              description: Provider branding assets. Only present when `includes` contains `branding`.
+              nullable: true
+              oneOf:
+                - properties:
+                    colors:
+                      nullable: true
+                      oneOf:
+                        - properties:
+                            primary:
+                              description: Primary brand color.
+                              type: string
+                              x-struct: null
+                              x-validate: null
+                            secondary:
+                              description: Secondary brand color.
+                              type: string
+                              x-struct: null
+                              x-validate: null
+                          required:
+                            - primary
+                            - secondary
+                          type: object
+                          x-struct: null
+                          x-validate: null
+                      x-struct: null
+                      x-validate: null
+                    icon_image:
+                      description: Provider icon image URL or path.
+                      type: string
+                      x-struct: null
+                      x-validate: null
+                    wordmark_images:
+                      properties:
+                        dark:
+                          description: Wordmark image URL or path for dark backgrounds.
+                          type: string
+                          x-struct: null
+                          x-validate: null
+                        light:
+                          description: Wordmark image URL or path for light backgrounds.
+                          type: string
+                          x-struct: null
+                          x-validate: null
+                      required:
+                        - light
+                        - dark
+                      type: object
+                      x-struct: null
+                      x-validate: null
+                  required:
+                    - icon_image
+                    - wordmark_images
+                  type: object
+                  x-struct: null
+                  x-validate: null
+              x-struct: null
+              x-validate: null
+            categories:
+              description: Provider categories for filtering and grouping.
+              items:
+                enum:
+                  - Billing
+                  - Infrastructure
+                  - Analytics
+                  - CRM
+                  - Ecommerce
+                  - Communications
+                  - Identity
+                type: string
+                x-struct: null
+                x-validate: null
+              type: array
+              x-struct: null
+              x-validate: null
+            description:
+              description: Provider display description.
+              type: string
+              x-struct: null
+              x-validate: null
+            knock_tutorial_url:
+              description: Knock tutorial URL for setting up the provider.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            name:
+              description: Provider display name.
+              type: string
+              x-struct: null
+              x-validate: null
+            webhook_config_deep_link:
+              description: Provider webhook configuration URL.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            webhook_docs_url:
+              description: Provider webhook documentation URL.
+              type: string
+              x-struct: null
+              x-validate: null
+            website_url:
+              description: Provider website URL.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - name
+            - description
+            - categories
+            - website_url
+            - webhook_docs_url
+          type: object
+          x-struct: null
+          x-validate: null
+        static_fields:
+          additionalProperties: true
+          description: JSON Schema fields needed to configure the source. Only present when `includes` contains `static_fields`.
+          type: object
+          x-struct: null
+          x-validate: null
+        version:
+          description: Provider version.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+        - version
+        - provider
+        - default_settings
+      title: SourceProviderResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourceProviderResponse
       x-validate: null
     EmailTemplate:
       description: An email message template.
@@ -15099,6 +15453,22 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Audience)
           }
+  /v1/source_providers:
+    get:
+      callbacks: {}
+      description: Returns the source provider templates available for creating sources.
+      operationId: listSourceProviders
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceProvidersResponse'
+          description: OK
+      summary: List source providers
+      tags:
+        - Sources
   /v1/commits/{id}:
     get:
       callbacks: {}
@@ -19771,6 +20141,48 @@ paths:
           	}
           	fmt.Printf("%+v\n", channel.ID)
           }
+  /v1/source_providers/{key}:
+    get:
+      callbacks: {}
+      description: Returns a source provider template available for creating sources.
+      operationId: getSourceProvider
+      parameters:
+        - description: The source provider key to retrieve.
+          in: path
+          name: key
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: Associated resources to include in the response. Accepts `branding`, `default_action_mappings`, `example_payloads`, `preprocessing_script`, `static_fields`.
+          in: query
+          name: includes
+          required: false
+          schema:
+            items:
+              enum:
+                - branding
+                - default_action_mappings
+                - example_payloads
+                - preprocessing_script
+                - static_fields
+              type: string
+              x-struct: null
+              x-validate: null
+            type: array
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourceProviderResponse'
+          description: OK
+      summary: Get a source provider
+      tags:
+        - Sources
   /v1/sources/{key}/status:
     get:
       callbacks: {}
