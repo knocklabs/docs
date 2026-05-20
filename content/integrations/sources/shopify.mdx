@@ -17,15 +17,20 @@ Knock supports ingesting any of Shopify's <a href="https://shopify.dev/docs/api/
 
 Shopify supports two distinct ways to create webhooks, and Knock works with both. The payload format, headers, and signature verification are identical — only the setup path differs. Pick the option that matches how you operate your Shopify store.
 
-- **From the Shopify admin panel.** A store owner adds webhook destinations manually in the Shopify admin panel under **Settings > Notifications > Webhooks**. The signing secret is displayed in that same section and is shared across every webhook on the store. This path is the best fit for merchants who run their own store and want to forward events to Knock without writing a Shopify app.
-- **From a Shopify app.** A Shopify app developer declares webhook subscriptions in the app's <a href="https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration#webhooks" target="_blank">`shopify.app.toml`</a> configuration, or creates them at runtime using the <a href="https://shopify.dev/docs/api/admin-graphql/latest/mutations/webhookSubscriptionCreate" target="_blank">`webhookSubscriptionCreate`</a> GraphQL mutation on the Admin API. The signing secret is the app's API client secret, so a single secret verifies webhooks from every store that installs the app. This path is the best fit for teams building a Shopify app or managing webhook subscriptions across many stores.
+### From the Shopify admin panel
+
+A store owner adds webhook destinations manually in the Shopify admin panel under **Settings > Notifications > Webhooks**. The signing secret is displayed in that same section and is shared across every webhook on the store. This path is the best fit for merchants who run their own store and want to forward events to Knock without writing a Shopify app.
+
+### From a Shopify app
+
+A Shopify app developer declares webhook subscriptions in the app's <a href="https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration#webhooks" target="_blank">`shopify.app.toml`</a> configuration, or creates them at runtime using the <a href="https://shopify.dev/docs/api/admin-graphql/latest/mutations/webhookSubscriptionCreate" target="_blank">`webhookSubscriptionCreate`</a> GraphQL mutation on the Admin API. The signing secret is the app's API client secret, so a single secret verifies webhooks from every store that installs the app. This path is the best fit for teams building a Shopify app or managing webhook subscriptions across many stores.
 
 Whichever path you choose, the steps for setting up the source in Knock are the same. Once the source exists in Knock, follow the section below that matches your setup.
 
 ## Prerequisites
 
 - A Knock account with at least one [environment](/concepts/environments) configured.
-- Either access to the <a href="https://www.shopify.com/admin" target="_blank">Shopify admin</a> for the store you want to ingest events from (for the admin path), or a Shopify app with permission to create webhook subscriptions on the stores you want to ingest from (for the app path).
+- Either access to the <a href="https://www.shopify.com/admin" target="_blank">Shopify admin panel</a> for the store you want to ingest events from (for the admin path), or a Shopify app with permission to create webhook subscriptions on the stores you want to ingest from (for the app path).
 
 ## Set up the source in Knock
 
@@ -37,62 +42,26 @@ These steps are the same regardless of which Shopify path you use.
     you're in the correct environment. Select the
     **Shopify** template as the source type.
 
-    <Image
-      src="/images/integrations/sources/sources-location.png"
-      alt="The Sources page in the Knock dashboard"
-      width={2912}
-      height={1448}
-
-    />
-
   </Step>
   <Step title="Select default action mappings">
     Once you've selected **Shopify** as a source, you can select your desired action mappings. The defaults identify users for `customers/create` and `customers/update` events, delete users for `customers/delete` events, and trigger workflows for `orders/create`, `orders/paid`, `orders/fulfilled`, and `orders/cancelled` events. These are helpful defaults to get you started, but Knock can ingest any topic Shopify sends and you can adjust your mappings at any time. Click the **Connect Shopify** button to continue.
-
-    <Image
-      src="/images/integrations/sources/shopify/configure-default-mappings.png"
-      alt="The Shopify source creation modal showing default action mappings for incoming events"
-      width={2978}
-      height={1810}
-
-    />
-
   </Step>
   <Step title="Copy the webhook URL">
     After creating the source, copy the webhook URL from the setup wizard for the environment you want to configure. You will use this URL as the destination for the webhooks you create in Shopify.
-
-    <Image
-      src="/images/integrations/sources/shopify/copy-webhook-url.png"
-      alt="The Shopify source setup wizard showing the webhook URL to copy"
-      width={2978}
-      height={1820}
-
-    />
-
   </Step>
 </Steps>
 
-## Send webhooks from the Shopify admin
+## Send webhooks from the Shopify admin panel
 
 Use this path if you're a store owner and want to forward events directly from a single Shopify store without building an app.
 
 <Steps>
   <Step title="Create the webhook in Shopify">
-    In the <a href="https://www.shopify.com/admin" target="_blank">Shopify admin</a>, navigate to
-    **Settings > Notifications** and scroll to the **Webhooks** section.
-    Click "Create webhook," paste the Knock webhook URL into the **URL**
-    field, select the event topic you want to send (for example,
-    `orders/create`), set the format to **JSON**, and save. Repeat this step
-    for each topic you want to send to Knock.
-
-    <Image
-      src="/images/integrations/sources/shopify/shopify-add-webhook-endpoint.png"
-      alt="The Shopify admin Notifications page showing the webhook creation form with the Knock endpoint URL and event topic"
-      width={2974}
-      height={1836}
-
-    />
-
+    In the <a href="https://www.shopify.com/admin" target="_blank">Shopify admin panel</a>, navigate to **Settings > Notifications** and scroll to the **Webhooks**
+    section. Click "Create webhook," paste the Knock webhook URL into the **URL**
+    field, select the event topic you want to send (for example, `orders/create`),
+    set the format to **JSON**, and save. Repeat this step for each topic you want
+    to send to Knock.
   </Step>
   <Step title="Copy the signing secret into Knock">
     After creating your first webhook, Shopify displays a **Signing secret** at
@@ -100,15 +69,6 @@ Use this path if you're a store owner and want to forward events directly from a
     **Signing secret** field in your Knock source environment configuration.
     Shopify uses the same signing secret to sign every webhook from a given
     store, so you only need to copy it once.
-
-    <Image
-      src="/images/integrations/sources/shopify/shopify-signing-secret.png"
-      alt="The Shopify admin Webhooks section showing the signing secret"
-      width={2970}
-      height={1840}
-
-    />
-
   </Step>
 </Steps>
 
