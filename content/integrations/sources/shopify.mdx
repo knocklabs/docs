@@ -9,7 +9,7 @@ layout: integrations
 
 The Shopify source enables you to receive <a href="https://shopify.dev/docs/api/webhooks" target="_blank">Shopify webhook events</a> directly in Knock. Shopify sends webhook callbacks when events occur in your store, such as a new customer signing up, an order being placed, or a fulfillment being shipped. Knock verifies each payload using your Shopify webhook signing secret, identifies the event topic from the `X-Shopify-Topic` header, and executes the actions you configure.
 
-This integration is useful for building ecommerce notifications: triggering order confirmations when customers check out, sending shipping updates when fulfillments are created, alerting customers about cancellations or refunds, and syncing Shopify customer data into Knock when profiles are created or updated.
+This integration is useful for building ecommerce notifications: triggering order confirmations when customers check out, syncing Shopify customer data into Knock when profiles are created or updated, and powering downstream notifications like shipping updates or cancellation alerts as you add the topics you need.
 
 Knock supports ingesting any of Shopify's <a href="https://shopify.dev/docs/api/webhooks?reference=toml" target="_blank">supported webhook topics</a>, so you can map them to actions as your needs evolve.
 
@@ -44,7 +44,7 @@ These steps are the same regardless of which Shopify path you use.
 
   </Step>
   <Step title="Select default action mappings">
-    Once you've selected **Shopify** as a source, you can select your desired action mappings. The defaults identify users for `customers/create` and `customers/update` events, delete users for `customers/delete` events, and trigger workflows for `orders/create`, `orders/paid`, `orders/fulfilled`, and `orders/cancelled` events. These are helpful defaults to get you started, but Knock can ingest any topic Shopify sends and you can adjust your mappings at any time. Click the **Connect Shopify** button to continue.
+    Once you've selected **Shopify** as a source, you can select your desired action mappings. The defaults identify Knock users from `customers/create` and `customers/update` events, identify the customer attached to an `orders/create` event, and trigger an `order-confirmation` workflow for that customer. These are helpful defaults to get you started, but Knock can ingest any topic Shopify sends and you can adjust your mappings at any time. Click the **Connect Shopify** button to continue.
   </Step>
   <Step title="Copy the webhook URL">
     After creating the source, copy the webhook URL from the setup wizard for the environment you want to configure. You will use this URL as the destination for the webhooks you create in Shopify.
@@ -91,12 +91,13 @@ Use this path if you're building a Shopify app and want webhook subscriptions to
     api_version = "2025-01"
 
     [[webhooks.subscriptions]]
-    topics = ["customers/create", "customers/update", "customers/delete"]
+    # Topics that match the source's pre-configured action mappings.
+    topics = ["customers/create", "customers/update", "orders/create"]
     uri = "https://api.knock.app/v1/sources/shopify/..."
 
-    [[webhooks.subscriptions]]
-    topics = ["orders/create", "orders/paid", "orders/fulfilled", "orders/cancelled"]
-    uri = "https://api.knock.app/v1/sources/shopify/..."
+    # Add additional subscriptions for any other topics you want to map in
+    # Knock (e.g. orders/paid, orders/fulfilled, orders/cancelled,
+    # customers/delete).
     ```
 
     Run `shopify app deploy` to register the subscriptions with Shopify. If you'd rather create subscriptions at runtime instead of declaring them in your app config, call the <a href="https://shopify.dev/docs/api/admin-graphql/latest/mutations/webhookSubscriptionCreate" target="_blank">`webhookSubscriptionCreate`</a> mutation on the Admin GraphQL API and pass the Knock webhook URL as the `callbackUrl`.
@@ -115,21 +116,29 @@ Once configured, Shopify sends webhook events to Knock in real time. Knock verif
 
 Shopify sends events for customer and order lifecycle changes. Below are the topics Knock pre-configures with default action mappings. You can enable or disable individual topics, or add new ones, from the source environment configuration.
 
-| Event topic        | Action                                | Description                                             |
+| Event topic        | Action                                | Description                                                                    |
+| ------------------ | ------------------------------------- | ------------------------------------------------------------------------------ |
+| `customers/create` | Identify user                         | A new customer was created in your store                                       |
+| `customers/update` | Identify user                         | A customer's profile details were updated                                      |
+| `orders/create`    | Identify user                         | Identifies the order's customer in Knock before the workflow is triggered      |
+| `orders/create`    | Trigger `order-confirmation` workflow | Triggers a workflow with the customer as the recipient and the order as `data` |
+
+Customer events use the top-level `body.id` as the Knock user ID. The two `orders/create` mappings work together: the identify action upserts the customer from `body.customer.*` (with `body.customer.id` as the user ID) so the workflow trigger that runs right after can address that same customer as the recipient. The full Shopify order payload is sent as the workflow's trigger `data`, so your templates have access to line items, totals, shipping address, and order metadata.
+
+To use the order mapping out of the box, create a workflow in Knock with the key `order-confirmation`. You can rename the workflow key at any time by editing the action mapping.
+
+### Other common topics to add
+
+Most Shopify customers extend the defaults with a few additional notification flows. Common topics worth adding as custom mappings:
+
+| Event topic        | Typical action                        | Description                                             |
 | ------------------ | ------------------------------------- | ------------------------------------------------------- |
-| `customers/create` | Identify user                         | A new customer was created in your store                |
-| `customers/update` | Identify user                         | A customer's profile details were updated               |
-| `customers/delete` | Delete user                           | A customer was deleted from your store                  |
-| `orders/create`    | Trigger `order-confirmation` workflow | A new order was placed                                  |
-| `orders/paid`      | Trigger `payment-received` workflow   | An order's payment was captured                         |
-| `orders/fulfilled` | Trigger `order-shipped` workflow      | An order was fulfilled, often with tracking information |
-| `orders/cancelled` | Trigger `order-cancelled` workflow    | An order was canceled, often with associated refunds    |
+| `orders/paid`      | Trigger a `payment-received` workflow | An order's payment was captured                         |
+| `orders/fulfilled` | Trigger an `order-shipped` workflow   | An order was fulfilled, often with tracking information |
+| `orders/cancelled` | Trigger an `order-cancelled` workflow | An order was canceled, often with associated refunds    |
+| `customers/delete` | Delete the user in Knock              | A customer was deleted from your store                  |
 
-Customer events use the top-level `body.id` as the Knock user ID. Order events use the nested `body.customer.id` so that the workflow's recipient is the customer who placed the order. Each order event sends the full Shopify order payload as the workflow trigger data, so your templates have access to line items, totals, fulfillment details, and refund records.
-
-To use the order event mappings out of the box, create workflows in Knock with the keys `order-confirmation`, `payment-received`, `order-shipped`, and `order-cancelled`. You can rename these workflow keys at any time by editing the action mapping.
-
-See the <a href="https://shopify.dev/docs/api/webhooks?reference=toml" target="_blank">Shopify webhook topics documentation</a> for the full list of available events.
+For order topics, use `body.customer.id` as the workflow recipient and send `body` as the workflow data, matching the pattern of the pre-configured `orders/create` mapping. See the <a href="https://shopify.dev/docs/api/webhooks?reference=toml" target="_blank">Shopify webhook topics documentation</a> for the full list of available events.
 
 ## Customization
 
