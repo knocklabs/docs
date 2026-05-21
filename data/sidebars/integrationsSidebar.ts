@@ -21,6 +21,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/supabase", title: "Supabase" },
       { slug: "/workos", title: "WorkOS" },
       { slug: "/segment", title: "Segment" },
+      { slug: "/shopify", title: "Shopify" },
       { slug: "/rudderstack", title: "RudderStack" },
       { slug: "/hightouch", title: "Hightouch" },
       { slug: "/census", title: "Census" },

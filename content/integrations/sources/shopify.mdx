@@ -1,0 +1,157 @@
+---
+title: Shopify source
+description: Receive Shopify webhook events in Knock to trigger workflows and automate actions based on customer and order lifecycle events.
+metaTitle: Shopify source integration
+metaDescription: Connect Shopify webhooks to Knock to trigger notification workflows from customer and order lifecycle events in your store.
+section: Integrations > Sources
+layout: integrations
+---
+
+The Shopify source enables you to receive <a href="https://shopify.dev/docs/api/webhooks" target="_blank">Shopify webhook events</a> directly in Knock. Shopify sends webhook callbacks when events occur in your store, such as a new customer signing up, an order being placed, or a fulfillment being shipped. Knock verifies each payload using your Shopify webhook signing secret, identifies the event topic from the `X-Shopify-Topic` header, and executes the actions you configure.
+
+This integration is useful for building ecommerce notifications: triggering order confirmations when customers check out, syncing Shopify customer data into Knock when profiles are created or updated, and powering downstream notifications like shipping updates or cancellation alerts as you add the topics you need.
+
+Knock supports ingesting any of Shopify's <a href="https://shopify.dev/docs/api/webhooks?reference=toml" target="_blank">supported webhook topics</a>, so you can map them to actions as your needs evolve.
+
+## Two ways to configure Shopify webhooks
+
+Shopify supports two distinct ways to create webhooks, and Knock works with both. The payload format, headers, and signature verification are identical — only the setup path differs. Pick the option that matches how you operate your Shopify store.
+
+### From the Shopify admin panel
+
+A store owner adds webhook destinations manually in the Shopify admin panel under **Settings > Notifications > Webhooks**. The signing secret is displayed in that same section and is shared across every webhook on the store. This path is the best fit for merchants who run their own store and want to forward events to Knock without writing a Shopify app. [Learn more.](#send-webhooks-from-the-shopify-admin-panel)
+
+### From a Shopify app
+
+A Shopify app developer declares webhook subscriptions in the app's <a href="https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration#webhooks" target="_blank">`shopify.app.toml`</a> configuration, or creates them at runtime using the <a href="https://shopify.dev/docs/api/admin-graphql/latest/mutations/webhookSubscriptionCreate" target="_blank">`webhookSubscriptionCreate`</a> GraphQL mutation on the Admin API. The signing secret is the app's API client secret, so a single secret verifies webhooks from every store that installs the app. This path is the best fit for teams building a Shopify app or managing webhook subscriptions across many stores. [Learn more.](#send-webhooks-from-a-shopify-app)
+
+Whichever path you choose, the steps for setting up the source in Knock are the same. Once the source exists in Knock, follow the section below that matches your setup.
+
+## Prerequisites
+
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- Either access to the <a href="https://www.shopify.com/admin" target="_blank">Shopify admin panel</a> for the store you want to ingest events from (for the admin path), or a Shopify app with permission to create webhook subscriptions on the stores you want to ingest from (for the app path).
+
+## Set up the source in Knock
+
+These steps are the same regardless of which Shopify path you use.
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the
+    **Shopify** template as the source type.
+
+  </Step>
+  <Step title="Select default action mappings">
+    Once you've selected **Shopify** as a source, you can select your desired action mappings. The defaults identify Knock users from `customers/create` and `customers/update` events, identify the customer attached to an `orders/create` event, and trigger an `order-confirmation` workflow for that customer. These are helpful defaults to get you started, but Knock can ingest any topic Shopify sends and you can adjust your mappings at any time. Click the **Connect Shopify** button to continue.
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, copy the webhook URL from the setup wizard for the environment you want to configure. You will use this URL as the destination for the webhooks you create in Shopify.
+  </Step>
+</Steps>
+
+## Send webhooks from the Shopify admin panel
+
+Use this path if you're a store owner and want to forward events directly from a single Shopify store without building an app.
+
+<Steps>
+  <Step title="Create the webhook in Shopify">
+    In the [Shopify admin panel](https://www.shopify.com/admin), navigate to
+    **Settings > Notifications** and scroll to the **Webhooks** section. Click
+    "Create webhook," paste the Knock webhook URL into the **URL** field, select
+    the event topic you want to send (for example, `orders/create`), set the
+    format to **JSON**, and save. Repeat this step for each topic you want to
+    send to Knock.
+  </Step>
+  <Step title="Copy the signing secret into Knock">
+    After creating your first webhook, Shopify displays a **Signing secret** at
+    the bottom of the Webhooks section. Copy this value and paste it into the
+    **Signing secret** field in your Knock source environment configuration.
+    Shopify uses the same signing secret to sign every webhook from a given
+    store, so you only need to copy it once.
+  </Step>
+</Steps>
+
+## Send webhooks from a Shopify app
+
+Use this path if you're building a Shopify app and want webhook subscriptions to be installed automatically on every store the app runs on. You can declare subscriptions in your app's configuration file with the Shopify CLI, or create them at runtime with the Admin GraphQL API.
+
+<Steps>
+  <Step title="Subscribe to webhook topics">
+    Declare your subscriptions in `shopify.app.toml` using the Shopify CLI
+    (3.63.0 or later). Set each subscription's `uri` to the Knock webhook URL
+    you copied earlier and include the topics you want to send.
+
+    ```toml
+    # shopify.app.toml
+    [webhooks]
+    api_version = "2025-01"
+
+    [[webhooks.subscriptions]]
+    # Topics that match the source's pre-configured action mappings.
+    topics = ["customers/create", "customers/update", "orders/create"]
+    uri = "https://api.knock.app/v1/sources/shopify/..."
+
+    # Add additional subscriptions for any other topics you want to map in
+    # Knock (e.g. orders/paid, orders/fulfilled, orders/cancelled,
+    # customers/delete).
+    ```
+
+    Run `shopify app deploy` to register the subscriptions with Shopify. If you'd rather create subscriptions at runtime instead of declaring them in your app config, call the <a href="https://shopify.dev/docs/api/admin-graphql/latest/mutations/webhookSubscriptionCreate" target="_blank">`webhookSubscriptionCreate`</a> mutation on the Admin GraphQL API and pass the Knock webhook URL as the `callbackUrl`.
+
+    See Shopify's <a href="https://shopify.dev/docs/apps/build/webhooks/subscribe" target="_blank">subscribe to webhooks</a> docs for the full subscription syntax and filtering options.
+
+  </Step>
+  <Step title="Copy the app client secret into Knock">
+    Open your app in the <a href="https://partners.shopify.com" target="_blank">Shopify Partner dashboard</a> and copy the **Client secret** from the app's API credentials page. Paste it into the **Signing secret** field in your Knock source environment configuration. Shopify uses this client secret to sign every webhook your app delivers, regardless of which store installed the app, so a single Knock source can verify events from every install.
+  </Step>
+</Steps>
+
+Once configured, Shopify sends webhook events to Knock in real time. Knock verifies each payload by computing an HMAC-SHA256 of the raw request body using your signing secret and comparing it to the base64-encoded value in the `X-Shopify-Hmac-Sha256` header. You can verify that events are arriving by checking the event logs on the source environment page.
+
+## Pre-configured events
+
+Shopify sends events for customer and order lifecycle changes. Below are the topics Knock pre-configures with default action mappings. You can enable or disable individual topics, or add new ones, from the source environment configuration.
+
+| Event topic        | Action                                | Description                                                                    |
+| ------------------ | ------------------------------------- | ------------------------------------------------------------------------------ |
+| `customers/create` | Identify user                         | A new customer was created in your store                                       |
+| `customers/update` | Identify user                         | A customer's profile details were updated                                      |
+| `orders/create`    | Identify user                         | Identifies the order's customer in Knock before the workflow is triggered      |
+| `orders/create`    | Trigger `order-confirmation` workflow | Triggers a workflow with the customer as the recipient and the order as `data` |
+
+Customer events use the top-level `body.id` as the Knock user ID. The two `orders/create` mappings work together: the identify action upserts the customer from `body.customer.*` (with `body.customer.id` as the user ID) so the workflow trigger that runs right after can address that same customer as the recipient. The full Shopify order payload is sent as the workflow's trigger `data`, so your templates have access to line items, totals, shipping address, and order metadata.
+
+To use the order mapping out of the box, create a workflow in Knock with the key `order-confirmation`. You can rename the workflow key at any time by editing the action mapping.
+
+### Other common topics to add
+
+Most Shopify customers extend the defaults with a few additional notification flows. Common topics worth adding as custom mappings:
+
+| Event topic        | Typical action                        | Description                                             |
+| ------------------ | ------------------------------------- | ------------------------------------------------------- |
+| `orders/paid`      | Trigger a `payment-received` workflow | An order's payment was captured                         |
+| `orders/fulfilled` | Trigger an `order-shipped` workflow   | An order was fulfilled, often with tracking information |
+| `orders/cancelled` | Trigger an `order-cancelled` workflow | An order was canceled, often with associated refunds    |
+| `customers/delete` | Delete the user in Knock              | A customer was deleted from your store                  |
+
+For order topics, use `body.customer.id` as the workflow recipient and send `body` as the workflow data, matching the pattern of the pre-configured `orders/create` mapping. See the <a href="https://shopify.dev/docs/api/webhooks?reference=toml" target="_blank">Shopify webhook topics documentation</a> for the full list of available events.
+
+## Customization
+
+You can modify the default action mappings or add new ones for any topic Knock receives from Shopify. For details on how field mapping works with dot-notation paths, see the [custom source](/integrations/sources/custom) page.
+
+Shopify puts the event topic in the `X-Shopify-Topic` HTTP header instead of the JSON body, so the Shopify source extracts the event type from `headers.x-shopify-topic`. You can reference other Shopify headers in your mappings using the same dot-notation — for example, `headers.x-shopify-shop-domain` to differentiate between stores when a single Knock environment ingests events from multiple Shopify stores or from many installs of the same Shopify app.
+
+If a single topic maps to multiple actions, Knock executes those actions in a fixed order. See [execution order for multiple mappings](/integrations/sources/overview#execution-order-for-multiple-mappings).
+
+If you need to map Shopify events to actions beyond triggering workflows, see the full list of [available actions](/integrations/sources/overview#triggering-actions-from-source-events) in the sources overview.
+
+## Event idempotency
+
+Knock automatically configures idempotency for the Shopify source so duplicate events are not processed twice. By default, Knock uses `headers.x-shopify-webhook-id` from the Shopify webhook payload as the idempotency key. Shopify generates a unique ID per webhook delivery and includes it in the `X-Shopify-Webhook-Id` header, which makes it a reliable way to deduplicate retries.
+
+You can change the idempotency key field or disable idempotency checks from the **Settings** tab in your source environment configuration. Events without an idempotency key attribute are processed normally.
+
+For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.
