@@ -185,8 +185,58 @@ Before enabling delivery status webhooks, you need:
     2. Enable the Event Webhook if it's not already enabled
     3. In the "HTTP POST URL" field, paste the webhook URL from Knock
     4. Under "Select Actions", enable these event types:
-       - **Delivered** - Tracks successful delivery
-       - **Bounce** - Tracks bounce events (both hard and soft bounces)
+
+<ul style={{ marginLeft: "var(--tgph-spacing-8)" }}>
+  <Text as="li" size="2" ml="4" data-tgph-list-item>
+    {
+      <>
+        <strong>
+          <a
+            href="https://www.twilio.com/docs/sendgrid/for-developers/tracking-events/event#delivered-events"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Delivered
+          </a>
+        </strong>
+        {" - Tracks successful delivery"}
+      </>
+    }
+  </Text>
+  <Text as="li" size="2" ml="4" data-tgph-list-item>
+    {
+      <>
+        <strong>
+          <a
+            href="https://www.twilio.com/docs/sendgrid/for-developers/tracking-events/event#bounce-and-blocked-events"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Bounce
+          </a>
+        </strong>
+        {" - Tracks bounce events"}
+      </>
+    }
+  </Text>
+  <Text as="li" size="2" ml="4" data-tgph-list-item>
+    {
+      <>
+        <strong>
+          <a
+            href="https://www.twilio.com/docs/sendgrid/for-developers/tracking-events/event#dropped-events"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Dropped
+          </a>
+        </strong>
+        {" - Tracks dropped events"}
+      </>
+    }
+  </Text>
+</ul>
+
     5. Click "Save" to activate the webhook
     6. SendGrid will begin sending events to Knock immediately
 
@@ -197,10 +247,11 @@ Before enabling delivery status webhooks, you need:
 
 When delivery status webhooks are enabled for SendGrid, Knock will update message statuses based on these SendGrid webhook events:
 
-| SendGrid Event Type | Knock Status | Description                                                         |
-| ------------------- | ------------ | ------------------------------------------------------------------- |
-| delivered           | `delivered`  | The email was successfully delivered to the recipient's mail server |
-| bounce              | `bounced`    | The email bounced due to invalid recipient, domain, or mailbox full |
+| SendGrid Event Type | Knock Status | Description                                                                                                                                                                                                                                                        |
+| ------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| delivered           | `delivered`  | The email was successfully delivered to the recipient's mail server.                                                                                                                                                                                               |
+| bounce              | `bounced`    | The email bounced due to invalid recipient, domain, or mailbox full. Only hard bounces with type `"bounce"` will be updated to the `bounced` status in Knock. Bounce events with type `"blocked"` are considered soft bounces in SendGrid and will not be updated. |
+| dropped             | `bounced`    | The email was not delivered due to invalid or previously-bounced recipient.                                                                                                                                                                                        |
 
 ### Troubleshooting
 
