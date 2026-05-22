@@ -1,0 +1,159 @@
+---
+title: Clay source
+description: Sync enriched lead and contact data from Clay tables into Knock to identify users and trigger workflows from CRM enrichment events.
+metaTitle: Clay source integration
+metaDescription: Connect Clay HTTP API columns to Knock to identify users and trigger notification workflows from enriched lead and contact data.
+section: Integrations > Sources
+layout: integrations
+---
+
+The Clay source enables you to send enriched lead and contact data from your <a href="https://www.clay.com" target="_blank">Clay</a> tables directly into Knock. Clay's <a href="https://university.clay.com/docs/webhook-integration-guide" target="_blank">HTTP API column</a> lets you POST a row of enriched data to an external URL whenever a row finishes running, which makes it a natural fit for syncing newly enriched leads into Knock as users and kicking off downstream notification workflows.
+
+This integration is useful for sales and marketing notifications: identifying enriched leads in Knock as soon as Clay finishes researching them, triggering Slack or email alerts to your sales team when a high-fit account lands, and keeping user profile data in sync with the enrichment work happening in your Clay tables.
+
+Because Clay's HTTP API column lets you define an arbitrary JSON body and custom headers, you can map any Clay column to any field in your Knock action mappings as your needs evolve.
+
+## How verification works
+
+Clay does not sign webhook payloads with a built-in signature scheme. Instead, Knock verifies a shared secret that you send as a Bearer token in the `Authorization` header from your Clay HTTP API column. Knock checks that the value of the `Authorization` header matches `Bearer <your-signing-secret>` before processing the event.
+
+This means the signing secret you configure in Knock must match the token you send in the `Authorization` header from Clay. Treat this value like an API key: store it somewhere safe and rotate it if it leaks.
+
+## Prerequisites
+
+- A Knock account with at least one [environment](/concepts/environments) configured.
+- A Clay workspace with a table you want to send enriched data from.
+
+## Set up the source in Knock
+
+<Steps>
+  <Step title="Create the source in Knock">
+    Navigate to **Platform** > **Sources** in the Knock dashboard. Make sure
+    you're in the correct environment. Select the
+    **Clay** template as the source type.
+
+    <Image
+      src="/images/integrations/sources/sources-location.png"
+      alt="The Sources page in the Knock dashboard"
+      width={2912}
+      height={1448}
+    />
+
+  </Step>
+  <Step title="Select default action mappings">
+    Once you've selected **Clay** as a source, you can review the default action mappings. The default identifies a Knock user from a `lead.enriched` event using `body.email` as the user ID and maps common contact fields (`full_name`, `email`, `phone_number`, `avatar_url`) into the identify payload, plus the full row as `properties`. These are helpful defaults to get you started, but Knock can ingest any event you POST from Clay and you can adjust your mappings at any time. Click the **Connect Clay** button to continue.
+
+    <Image
+      src="/images/integrations/sources/clay/configure-default-mappings.png"
+      alt="The Clay source creation modal showing default action mappings for incoming events"
+      width={2976}
+      height={1648}
+    />
+
+  </Step>
+  <Step title="Copy the webhook URL">
+    After creating the source, copy the event ingestion URL from the setup wizard for the environment you want to configure. You will use this URL as the destination URL in your Clay HTTP API column.
+
+    <Image
+      src="/images/integrations/sources/clay/copy-webhook-url.png"
+      alt="The Clay source setup wizard showing the event ingestion URL to copy"
+      width={2974}
+      height={1660}
+    />
+
+  </Step>
+  <Step title="Set a signing secret in Knock">
+    Generate a strong random string to use as your shared secret (for example, with `openssl rand -hex 32`) and paste it into the **Signing secret** field in your Knock source environment configuration. You will send this same value as a Bearer token in the `Authorization` header from Clay in the next steps.
+  </Step>
+</Steps>
+
+## Send data from Clay
+
+Use Clay's <a href="https://university.clay.com/docs/webhook-integration-guide" target="_blank">HTTP API column</a> to POST enriched rows from a Clay table to your new Knock source.
+
+<Steps>
+  <Step title="Add an HTTP API column to your Clay table">
+    In your Clay table, click **Add column** and choose **HTTP API** from the action menu. Set the request method to **POST** and paste the Knock event ingestion URL you copied earlier into the **URL** field.
+
+    <Image
+      src="/images/integrations/sources/clay/clay-http-api-column.png"
+      alt="The Clay HTTP API column configuration with the Knock event ingestion URL"
+      width={2964}
+      height={1842}
+    />
+
+  </Step>
+  <Step title="Add the Authorization header">
+    Add a custom header to the request with key `Authorization` and value `Bearer <your-signing-secret>`, replacing `<your-signing-secret>` with the value you set in Knock. This is the credential Knock uses to verify that the request came from your Clay table.
+
+    <Image
+      src="/images/integrations/sources/clay/clay-authorization-header.png"
+      alt="The Clay HTTP API column headers configuration with the Authorization Bearer token"
+      width={2966}
+      height={1836}
+    />
+
+  </Step>
+  <Step title="Build the request body">
+    Configure the JSON body to include the fields you want Knock to receive. At minimum, set an `event` field that names the event (for example, `lead.enriched`) so Knock can match it to an action mapping, plus the contact attributes you want to map to a Knock user.
+
+    ```json
+    {
+      "event": "lead.enriched",
+      "full_name": "{{ Full Name }}",
+      "email": "{{ Work Email }}",
+      "phone_number": "{{ Phone Number }}",
+      "avatar_url": "{{ Profile Picture URL }}",
+      "job_title": "{{ Job Title }}",
+      "company_name": "{{ Company Name }}",
+      "company_domain": "{{ Company Domain }}"
+    }
+    ```
+
+    Use Clay's templating to drop in values from other columns in your table. The event name (`lead.enriched` in this example) is what Knock looks for in `body.event` to decide which action mappings to run.
+
+  </Step>
+  <Step title="Run the column">
+    Run the HTTP API column on a row (or on the full table) to send the request to Knock. You can verify that events are arriving by checking the event logs on the source environment page in Knock.
+  </Step>
+</Steps>
+
+Once configured, every time the HTTP API column runs on a row, Clay POSTs the enriched data to Knock. Knock verifies the `Authorization` header against your signing secret, extracts the event name from `body.event`, and executes the actions you've mapped for that event.
+
+## Pre-configured events
+
+Clay's HTTP API column lets you define any event name in `body.event`, so the event types you send are up to you. The default action mapping below identifies enriched leads as Knock users; add additional mappings for any other event names you decide to send.
+
+| Event type       | Action        | Description                                                                       |
+| ---------------- | ------------- | --------------------------------------------------------------------------------- |
+| `lead.enriched` | Identify user | Identifies a user in Knock from an enriched Clay row, keyed off `body.email` |
+
+The default identify mapping uses `body.email` as the Knock user ID and maps `body.full_name`, `body.email`, `body.phone_number`, and `body.avatar_url` to the corresponding user fields. The full row is sent as `properties`, so any additional columns you include in the request body (job title, company domain, ICP score, and so on) are stored on the Knock user and available in your templates.
+
+### Other common events to add
+
+Clay tables run a wide range of enrichment and research workflows. Common events worth adding as custom mappings:
+
+| Event type           | Typical action                       | Description                                                                  |
+| -------------------- | ------------------------------------ | ---------------------------------------------------------------------------- |
+| `account.enriched`   | Identify [object](/concepts/objects) | Sync an enriched company or account as a Knock object                        |
+| `lead.high_intent`   | Trigger a `new-high-intent-lead` workflow | Notify your sales team when an enriched row crosses an ICP or intent threshold |
+| `contact.updated`    | Identify user                        | Re-identify a user when Clay re-runs enrichment on an existing contact       |
+
+For each new event you send from Clay, add a corresponding mapping in the Knock source environment so the event is routed to the right action.
+
+## Customization
+
+You can modify the default action mapping or add new ones for any event you POST from Clay. For details on how field mapping works with dot-notation paths, see the [custom source](/integrations/sources/custom) page.
+
+Because Clay's HTTP API column lets you set arbitrary headers, you can also reference custom headers in your mappings using dot-notation — for example, `headers.x-clay-table-id` if you want to differentiate between events from different Clay tables when one Knock environment ingests from many tables.
+
+If a single event maps to multiple actions, Knock executes those actions in a fixed order. See [execution order for multiple mappings](/integrations/sources/overview#execution-order-for-multiple-mappings).
+
+If you need to map Clay events to actions beyond identifying users, see the full list of [available actions](/integrations/sources/overview#triggering-actions-from-source-events) in the sources overview.
+
+## Event idempotency
+
+Clay does not send a built-in delivery ID in its HTTP API column requests, so Knock does not configure idempotency for the Clay source by default. If you want to deduplicate events — for example, when a Clay column is re-run on the same row — include a stable identifier in your request body or headers (such as the Clay row ID or a hash of the row's content) and configure that field as the idempotency key from the **Settings** tab in your source environment configuration.
+
+For details on how Knock handles idempotent events, key validation rules, and the default 24-hour idempotency window, see the [source event idempotency](/integrations/sources/overview#source-event-idempotency) section of the sources overview.
