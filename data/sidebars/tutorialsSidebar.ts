@@ -18,7 +18,7 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
   },
   {
     slug: `${baseSlug}/integrating-into-cicd`,
-    title: "Integrating into CI/CD"
+    title: "Integrating into CI/CD",
   },
   {
     slug: `${baseSlug}/alerting`,
