@@ -1,5 +1,3 @@
-import Cookies from "js-cookie";
-
 const FIRST_TOUCH_COOKIE = "knock_ft";
 const LAST_TOUCH_COOKIE = "knock_lt";
 const SESSION_COOKIE = "knock_session";
@@ -7,6 +5,38 @@ const ATTRIBUTION_EXPIRY_DAYS = 90;
 const SESSION_EXPIRY_MINUTES = 30;
 const COOKIE_DOMAIN_PROD = ".knock.app";
 const COOKIE_DOMAIN_DEV = ".knock-dev.app";
+
+interface CookieOptions {
+  expires?: number | Date;
+  domain?: string;
+  sameSite?: string;
+  secure?: boolean;
+}
+
+function getCookie(name: string): string | undefined {
+  const match = document.cookie.match(
+    new RegExp(
+      `(?:^|; )${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}=([^;]*)`,
+    ),
+  );
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
+function setCookie(name: string, value: string, options: CookieOptions): void {
+  let cookie = `${name}=${encodeURIComponent(value)}`;
+  if (options.expires != null) {
+    const date =
+      options.expires instanceof Date
+        ? options.expires
+        : new Date(Date.now() + options.expires * 864e5);
+    cookie += `; expires=${date.toUTCString()}`;
+  }
+  if (options.domain) cookie += `; domain=${options.domain}`;
+  if (options.sameSite) cookie += `; SameSite=${options.sameSite}`;
+  if (options.secure) cookie += `; Secure`;
+  cookie += "; path=/";
+  document.cookie = cookie;
+}
 
 const UTM_PARAMS = [
   "utm_source",
@@ -90,7 +120,7 @@ function createAttributionData(): AttributionData | null {
 export function initAttribution(): void {
   if (typeof window === "undefined") return;
 
-  const cookieOptions: Cookies.CookieAttributes = {
+  const cookieOptions: CookieOptions = {
     expires: ATTRIBUTION_EXPIRY_DAYS,
     sameSite: "lax",
     secure: window.location.protocol === "https:",
@@ -99,18 +129,16 @@ export function initAttribution(): void {
   if (domain) cookieOptions.domain = domain;
 
   const attributionData = createAttributionData();
-  const isNewSession = !Cookies.get(SESSION_COOKIE);
+  const isNewSession = !getCookie(SESSION_COOKIE);
 
   // Refresh session cookie
-  const sessionOptions: Cookies.CookieAttributes = { ...cookieOptions };
   const sessionExpiry = new Date();
   sessionExpiry.setMinutes(sessionExpiry.getMinutes() + SESSION_EXPIRY_MINUTES);
-  sessionOptions.expires = sessionExpiry;
-  Cookies.set(SESSION_COOKIE, "1", sessionOptions);
+  setCookie(SESSION_COOKIE, "1", { ...cookieOptions, expires: sessionExpiry });
 
   // Set first touch only if it doesn't exist and we have attribution data
-  if (!Cookies.get(FIRST_TOUCH_COOKIE) && attributionData) {
-    Cookies.set(
+  if (!getCookie(FIRST_TOUCH_COOKIE) && attributionData) {
+    setCookie(
       FIRST_TOUCH_COOKIE,
       JSON.stringify(attributionData),
       cookieOptions,
@@ -119,7 +147,7 @@ export function initAttribution(): void {
 
   // Update last touch on new sessions if we have attribution data
   if (isNewSession && attributionData) {
-    Cookies.set(
+    setCookie(
       LAST_TOUCH_COOKIE,
       JSON.stringify(attributionData),
       cookieOptions,
