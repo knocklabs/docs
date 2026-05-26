@@ -626,7 +626,6 @@ components:
                 source: return event;
               timestamp_path: body.timestamp
         name: Universal HTTP Source
-        type: universal_http
       properties:
         custom_image_url:
           description: An optional URL for a custom image representing the source.
@@ -741,23 +740,12 @@ components:
           x-validate: null
         name:
           description: The human-readable name of the source.
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        type:
-          description: The type of integration source.
-          enum:
-            - cdp_segment
-            - cdp_rudderstack
-            - generic_http
-            - universal_http
+          nullable: false
           type: string
           x-struct: null
           x-validate: null
       required:
         - name
-        - type
       title: SourceRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceRequest
@@ -5472,7 +5460,6 @@ components:
             updated_at: "2021-01-01T00:00:00Z"
         key: segment-source
         name: Segment Source
-        type: cdp_segment
         updated_at: "2021-01-01T00:00:00Z"
       properties:
         created_at:
@@ -5507,17 +5494,7 @@ components:
           x-validate: null
         name:
           description: The human-readable name of the source.
-          nullable: true
-          type: string
-          x-struct: null
-          x-validate: null
-        type:
-          description: The type of integration source.
-          enum:
-            - cdp_segment
-            - cdp_rudderstack
-            - generic_http
-            - universal_http
+          nullable: false
           type: string
           x-struct: null
           x-validate: null
@@ -5528,8 +5505,8 @@ components:
           x-struct: null
           x-validate: null
       required:
+        - name
         - key
-        - type
         - created_at
         - updated_at
         - environment_settings
@@ -6169,6 +6146,33 @@ components:
         - entries
         - page_info
       title: PaginatedTranslationResponse
+      type: object
+      x-struct: null
+      x-validate: null
+    WrappedSourceRequestRequest:
+      description: Wraps the SourceRequest request under the source key.
+      example:
+        source:
+          custom_image_url: null
+          description: Receives events over HTTP.
+          environment_settings:
+            development:
+              mappings: []
+              settings:
+                enforce_verification: false
+                event_type_path: body.event
+                idempotency_key_path: body.messageId
+                preprocess_script:
+                  language: javascript
+                  source: return event;
+                timestamp_path: body.timestamp
+          name: Universal HTTP Source
+      properties:
+        source:
+          $ref: '#/components/schemas/SourceRequest'
+      required:
+        - source
+      title: WrappedSourceRequestRequest
       type: object
       x-struct: null
       x-validate: null
@@ -7909,14 +7913,23 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowSmsStep
       x-validate: null
     SourceRehearseRequest:
-      additionalProperties: true
-      description: An arbitrary payload to send through the source's parse, preprocess, and mapping pipeline.
+      description: Request body for rehearsing a source event.
       example:
-        body:
-          event: order.created
-          order_id: ord_123
-        headers:
-          content-type: application/json
+        payload:
+          body:
+            event: order.created
+            order_id: ord_123
+          headers:
+            content-type: application/json
+      properties:
+        payload:
+          additionalProperties: true
+          description: An arbitrary payload to send through the source's parse, preprocess, and mapping pipeline.
+          type: object
+          x-struct: null
+          x-validate: null
+      required:
+        - payload
       title: SourceRehearseRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceRehearseRequest
@@ -10859,6 +10872,41 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PushTemplate
       x-validate: null
+    WrappedSourceResponse:
+      description: Wraps the Source response under the `source` key.
+      example:
+        source:
+          created_at: "2021-01-01T00:00:00Z"
+          custom_image_url: null
+          description: Receives events from Segment.
+          environment_settings:
+            development:
+              created_at: "2021-01-01T00:00:00Z"
+              mappings: []
+              settings:
+                endpoint: https://api.knock.app/integrations/receive/src_123
+                enforce_idempotency: true
+                enforce_verification: false
+                event_type_path: body.event
+                handle_identifies: true
+                idempotency_key_path: body.messageId
+                preprocess_script:
+                  language: javascript
+                  source: return event;
+                timestamp_path: body.timestamp
+              updated_at: "2021-01-01T00:00:00Z"
+          key: segment-source
+          name: Segment Source
+          updated_at: "2021-01-01T00:00:00Z"
+      properties:
+        source:
+          $ref: '#/components/schemas/Source'
+      required:
+        - source
+      title: WrappedSourceResponse
+      type: object
+      x-struct: null
+      x-validate: null
     PreviewPartialResponse:
       description: A response to a partial preview request.
       example:
@@ -12130,9 +12178,9 @@ paths:
     put:
       callbacks: {}
       description: Creates or updates a source with environment-specific settings, preprocess scripts, and event mappings.
-      operationId: setSource
+      operationId: upsertSource
       parameters:
-        - description: The key of the source to set.
+        - description: The key of the source to upsert.
           in: path
           name: key
           required: true
@@ -12153,17 +12201,75 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SourceRequest'
-        description: Source
+              description: Wraps the SourceRequest request under the source key.
+              example:
+                source:
+                  custom_image_url: null
+                  description: Receives events over HTTP.
+                  environment_settings:
+                    development:
+                      mappings: []
+                      settings:
+                        enforce_verification: false
+                        event_type_path: body.event
+                        idempotency_key_path: body.messageId
+                        preprocess_script:
+                          language: javascript
+                          source: return event;
+                        timestamp_path: body.timestamp
+                  name: Universal HTTP Source
+              properties:
+                source:
+                  $ref: '#/components/schemas/SourceRequest'
+              required:
+                - source
+              title: WrappedSourceRequestRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
         required: false
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Source'
+                description: Wraps the Source response under the `source` key.
+                example:
+                  source:
+                    created_at: "2021-01-01T00:00:00Z"
+                    custom_image_url: null
+                    description: Receives events from Segment.
+                    environment_settings:
+                      development:
+                        created_at: "2021-01-01T00:00:00Z"
+                        mappings: []
+                        settings:
+                          endpoint: https://api.knock.app/integrations/receive/src_123
+                          enforce_idempotency: true
+                          enforce_verification: false
+                          event_type_path: body.event
+                          handle_identifies: true
+                          idempotency_key_path: body.messageId
+                          preprocess_script:
+                            language: javascript
+                            source: return event;
+                          timestamp_path: body.timestamp
+                        updated_at: "2021-01-01T00:00:00Z"
+                    key: segment-source
+                    name: Segment Source
+                    updated_at: "2021-01-01T00:00:00Z"
+                properties:
+                  source:
+                    $ref: '#/components/schemas/Source'
+                required:
+                  - source
+                title: WrappedSourceResponse
+                type: object
+                x-struct: null
+                x-validate: null
           description: OK
-      summary: Set a source
+      summary: Upsert a source
       tags:
         - Sources
   /v1/broadcasts/{broadcast_key}/send:
@@ -19413,32 +19519,6 @@ paths:
             type: string
             x-struct: null
             x-validate: null
-        - description: The cursor to fetch entries after.
-          in: query
-          name: after
-          required: false
-          schema:
-            type: string
-            x-struct: null
-            x-validate: null
-        - description: The cursor to fetch entries before.
-          in: query
-          name: before
-          required: false
-          schema:
-            type: string
-            x-struct: null
-            x-validate: null
-        - description: The number of entries to fetch per-page. Default is 25, maximum is 50.
-          in: query
-          name: page_size
-          required: false
-          schema:
-            default: 25
-            maximum: 50
-            type: integer
-            x-struct: null
-            x-validate: null
         - description: Returns event logs that were produced on this date.
           in: query
           name: date
@@ -19493,6 +19573,30 @@ paths:
               x-struct: null
               x-validate: null
             type: array
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
             x-struct: null
             x-validate: null
       responses:
