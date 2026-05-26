@@ -72,6 +72,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/developer-tools/integrating-into-cicd",
+        destination: "/tutorials/integrating-into-cicd",
+        permanent: true,
+      },
+      {
         source: "/developer-tools/mcp-server",
         destination: "/ai/mcp-server",
         permanent: true,

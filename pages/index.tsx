@@ -251,7 +251,7 @@ export default function Home() {
                 icon={Infinity}
                 title="CI/CD"
                 description="Add Knock to your deployment pipeline with our CLI."
-                href="/developer-tools/integrating-into-cicd"
+                href="/tutorials/integrating-into-cicd"
               />
             </Section.Content>
           </Section.Container>

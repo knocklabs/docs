@@ -17,6 +17,10 @@ export const TUTORIALS_SIDEBAR: SidebarContent[] = [
     title: "Implementing Knock",
   },
   {
+    slug: `${baseSlug}/integrating-into-cicd`,
+    title: "Integrating into CI/CD",
+  },
+  {
     slug: `${baseSlug}/alerting`,
     title: "Alerting",
   },

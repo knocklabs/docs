@@ -1,0 +1,264 @@
+---
+title: Adding Knock to your CI/CD pipeline
+description: Learn how to add Knock to your deployment pipeline with our command line interface.
+tags:
+  [
+    "CI/CD",
+    "cicd",
+    "integration",
+    "deployment",
+    "automation",
+    "testing",
+    "commit",
+    "branches",
+    "GitHub Actions",
+  ]
+section: Tutorials
+---
+
+With the [Knock CLI](/developer-tools/knock-cli), you can add Knock directly into your existing CI/CD pipeline to automate how notification changes move through your Knock environments alongside your application code.
+
+This tutorial walks through a GitHub Actions setup built around [Knock branches](/version-control/branches), Knock's way of isolating in-progress changes. The workflow mirrors a standard development cycle:
+
+1. A feature branch in Git maps to a Knock branch. When you push changes to `.knock/`, they sync automatically to the matching Knock branch.
+2. When a pull request is merged, the Knock branch merges into your development environment and changes are promoted to staging.
+3. When you're ready to ship, a production deploy promotes changes from staging to production in Knock.
+
+This tutorial assumes you have [installed the Knock CLI](/cli/overview/installation) and have your Knock resources checked in to a `.knock` directory in your repository. It also assumes that you have [created](/version-control/environments#create-additional-environments) a "Staging" environment in Knock in addition to the Development and Production environments that are provided by default.
+
+## Local development
+
+Use the `knock pull` [command](/cli/pull) to download your current Knock resources from the dashboard and develop them locally.
+
+When starting a new feature, create a matching Knock branch and switch to it:
+
+```bash title="Switching to a new Knock branch"
+knock branch switch my-feature --create
+```
+
+As you make changes, push and commit them to your Knock branch:
+
+```bash title="Committing changes to a Knock branch"
+knock push --branch=my-feature --commit -m "Update welcome email template"
+```
+
+<Callout
+  type="warning"
+  title="Note:"
+  text={
+    <>
+      As with working directly in your dashboard, any uncommitted changes pushed
+      to Knock can be overwritten by another user working on the same resource.
+      Always <code>commit</code> changes you want to persist, even when working
+      on a branch.
+    </>
+  }
+/>
+
+## Automating with GitHub Actions
+
+The following workflows automate your Knock updates throughout the full development lifecycle: syncing changes as you push, merging and promoting when a PR lands, promoting to production on deploy, and cleaning up branches when they're removed.
+
+### Setting up credentials
+
+Each GitHub Action below requires a `KNOCK_SERVICE_TOKEN` secret. You can generate a service token in the Knock dashboard under <a href="https://dashboard.knock.app/~/settings/service-tokens" target="_blank">**Settings > Service tokens**</a>. Add it to your GitHub repository under **Settings > Secrets and variables > Actions**.
+
+### Sync changes on push to a feature branch
+
+This workflow runs whenever you push changes to a non-`main` branch that touch your `.knock` directory. It creates the matching Knock branch if it doesn't already exist, then pushes and commits your changes to it. The Git commit SHA is included in the Knock commit message, so you can correlate Knock commits back to your Git history using [`knock commit list`](/cli/commit/list).
+
+```yaml title="Sync changes to a Knock branch on push"
+name: Sync Knock branch
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - ".knock/**"
+
+jobs:
+  sync-knock-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # The Knock CLI requires a Node.js version >= 20.19.0
+
+      - name: Install Knock CLI
+        run: npm install -g @knocklabs/cli
+
+      - name: Switch to Knock branch
+        env:
+          KNOCK_SERVICE_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN }}
+        run: knock branch switch ${{ github.ref_name }} --create --force
+
+      - name: Push and commit changes
+        env:
+          KNOCK_SERVICE_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN }}
+        run: |
+          knock push --branch=${{ github.ref_name }} --knock-dir=.knock --commit \
+            -m "Sync with git commit ${GITHUB_SHA:0:7}"
+```
+
+### Merge to development and promote to staging on PR merge
+
+This workflow runs when a pull request targeting `main` that includes changes to `.knock` is merged. It merges the corresponding Knock branch into your development environment, then promotes those changes to staging in the same job. Running both steps sequentially in a single workflow ensures your Knock resources reach staging along with your application deployment.
+
+<Callout
+  type="info"
+  text={
+    <>
+      By default, <code>knock branch merge</code> deletes the Knock branch after
+      merging. Alternatively, you can pass the <code>--no-delete</code> flag to
+      preserve branches until the Git branch is explicitly removed, then use the{" "}
+      <a href="#clean-up-deleted-branches">cleanup workflow</a> below to delete
+      the Knock branch after it's merged.
+    </>
+  }
+/>
+
+```yaml title="Merge Knock branch and promote changes to staging on PR merge"
+name: Merge Knock branch and promote to staging
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+    paths:
+      - ".knock/**"
+
+jobs:
+  merge-and-promote:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # The Knock CLI requires a Node.js version >= 20.19.0
+
+      - name: Install Knock CLI
+        run: npm install -g @knocklabs/cli
+
+      - name: Merge Knock branch into development
+        env:
+          KNOCK_SERVICE_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN }}
+        run: knock branch merge ${{ github.event.pull_request.head.ref }} --force
+
+      - name: Promote to staging
+        env:
+          KNOCK_SERVICE_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN }}
+        run: knock commit promote --to=staging
+```
+
+### Promote to production on deploy
+
+Once you've verified staging, promote your Knock changes to production. Tie this to whatever event represents a production deploy in your pipeline: a published release, a manual workflow dispatch, or a push to a release branch are all common choices. Using a deliberate trigger (rather than promoting automatically on PR merge) gives you a chance to verify staging before changes reach production.
+
+```yaml title="Promote changes to your Knock production environment on deploy"
+name: Promote Knock changes to production
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  promote-to-production:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # The Knock CLI requires a Node.js version >= 20.19.0
+
+      - name: Install Knock CLI
+        run: npm install -g @knocklabs/cli
+
+      - name: Promote to production
+        env:
+          KNOCK_SERVICE_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN }}
+        run: knock commit promote --to=production
+```
+
+<Callout
+  type="info"
+  text={
+    <>
+      The <code>knock commit promote</code>{" "}
+      <a href="/cli/commit/promote">command</a> promotes <em>all</em> committed
+      changes from the environment immediately below the target in your
+      environment order. Keep this in mind if you have teams working in the
+      dashboard in addition to your codebase. It's possible to scope promotion
+      to a single commit using the <code>--only</code> flag.
+      <br />
+      <br />
+      To view the current order of your environments, navigate to <strong>
+        <a
+          href="https://dashboard.knock.app/~/settings/environments"
+          target="_blank"
+        >
+          Settings &gt; Environments
+        </a>
+      </strong> in your Knock dashboard.
+    </>
+  }
+/>
+
+### Clean up deleted branches
+
+This workflow deletes a Knock branch when its corresponding Git branch is removed, keeping your Knock account in sync with your repository.
+
+```yaml title="Delete Knock branch when a Git branch is removed"
+name: Delete Knock branch
+
+on:
+  delete:
+
+jobs:
+  delete-knock-branch:
+    runs-on: ubuntu-latest
+    # Only run for branch deletions, not tag deletions
+    if: github.event.ref_type == 'branch'
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # The Knock CLI requires a Node.js version >= 20.19.0
+
+      - name: Install Knock CLI
+        run: npm install -g @knocklabs/cli
+
+      - name: Delete Knock branch
+        env:
+          KNOCK_SERVICE_TOKEN: ${{ secrets.KNOCK_SERVICE_TOKEN }}
+        # Use `|| true` to avoid failing the workflow if the branch doesn't exist
+        run: knock branch delete ${{ github.event.ref }} --force || true
+```
+
+## Handling reverts
+
+The standard Git revert flow works naturally with the branch-based setup above. When a developer runs `git revert` and opens a pull request, the sync workflow pushes the reverted `.knock/` state to a new Knock branch. Merging that PR triggers the merge-and-promote workflow, landing the corrected state in development and staging automatically.
+
+For situations where something has already reached production and you need to recover before a revert PR can land, you can use Knock's [revert feature](/version-control/commits#reverting-a-commit) directly in the dashboard from the <a href="https://dashboard.knock.app/~/commits?tab=commits" target="_blank">**Commits**</a> page, then promote the resulting commit through your environments. Alternatively, you can force-push a known good state from the command line using the Git SHA recorded in your Knock commit messages:
+
+```bash title="Reverting to a known good state"
+# Check out the last known good .knock/ state from git history
+git checkout <last-good-sha> -- .knock/
+
+# Overwrite the current state in Knock and promote
+knock push --force --commit -m "Revert to git commit <last-good-sha>"
+knock commit promote --to=staging
+knock commit promote --to=production
+```
