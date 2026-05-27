@@ -17,6 +17,7 @@ export const RESOURCE_ORDER = [
   "variables",
   "branches",
   "members",
+  "data_sources",
   "api_keys",
   "auth",
   "$shared",
