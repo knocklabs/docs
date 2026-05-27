@@ -7978,6 +7978,57 @@ components:
       type: object
       x-struct: null
       x-validate: null
+    SourcesResponse:
+      description: Sources connected to the project.
+      example:
+        entries:
+          - custom_image_url: null
+            description: Receives webhook events
+            key: webhook
+            name: Webhook
+      properties:
+        entries:
+          description: Sources.
+          items:
+            description: A source summary.
+            properties:
+              custom_image_url:
+                description: Custom image URL for the source.
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              description:
+                description: Source description.
+                nullable: true
+                type: string
+                x-struct: null
+                x-validate: null
+              key:
+                description: Source key.
+                type: string
+                x-struct: null
+                x-validate: null
+              name:
+                description: Source display name.
+                type: string
+                x-struct: null
+                x-validate: null
+            required:
+              - key
+              - name
+            type: object
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - entries
+      title: SourcesResponse
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.SourcesResponse
+      x-validate: null
     WorkflowBranchStep:
       description: A branch function step. Read more in the [docs](https://docs.knock.app/designing-workflows/branch-function).
       example:
@@ -11797,6 +11848,31 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.UserID)
           }
+  /v1/sources:
+    get:
+      callbacks: {}
+      description: Returns connected sources for the project.
+      operationId: listSources
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: false
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SourcesResponse'
+          description: OK
+      summary: List sources
+      tags:
+        - Sources
   /v1/workflows/{workflow_key}/validate:
     put:
       callbacks: {}
