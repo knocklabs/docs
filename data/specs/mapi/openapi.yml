@@ -638,6 +638,15 @@ components:
           type: array
           x-struct: null
           x-validate: null
+        tags:
+          description: Use tags to organize resources internally within your account. For example, by team or product area.
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
         target_audience_id:
           description: The ID of the target audience for the guide. When not set, will default to targeting all users.
           nullable: true
@@ -805,6 +814,15 @@ components:
           type: array
           x-struct: null
           x-validate: null
+        tags:
+          description: Use tags to organize resources internally within your account. For example, by team or product area.
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
         trigger_data_json_schema:
           additionalProperties: true
           description: A JSON schema for the expected structure of the workflow trigger's `data` payload (available in templates as `{{ data.field_name }}`). Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
@@ -923,6 +941,9 @@ components:
                 layout_key: default
               subject: Welcome to {{ vars.app_name }}!
             type: channel
+        tags:
+          - onboarding
+          - growth
         trigger_data_json_schema:
           properties:
             onboarding_url:
@@ -1017,6 +1038,15 @@ components:
           description: A list of workflow step objects in the workflow.
           items:
             $ref: '#/components/schemas/WorkflowStep'
+          type: array
+          x-struct: null
+          x-validate: null
+        tags:
+          description: Use tags to organize resources internally within your account. For example, by team or product area.
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
           type: array
           x-struct: null
           x-validate: null
@@ -4358,6 +4388,15 @@ components:
           type: array
           x-struct: null
           x-validate: null
+        tags:
+          description: Use tags to organize resources internally within your account. For example, by team or product area.
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
+          x-struct: null
+          x-validate: null
         trigger_data_json_schema:
           additionalProperties: true
           description: A JSON schema for the expected structure of the workflow trigger's `data` payload (available in templates as `{{ data.field_name }}`). Used to validate trigger requests. Read more in the [docs](https://docs.knock.app/developer-tools/validating-trigger-data).
@@ -6267,6 +6306,12 @@ components:
               type: string
               x-struct: null
               x-validate: null
+            override_preferences:
+              description: Whether to ignore recipient preferences for a given type of notification. If true, will send for every channel in the workflow even if the recipient has opted out of a certain kind. Defaults to false.
+              nullable: true
+              type: boolean
+              x-struct: null
+              x-validate: null
           required:
             - key
           type: object
@@ -6367,6 +6412,9 @@ components:
                     layout_key: default
                   subject: Welcome to {{ vars.app_name }}!
                 type: channel
+            tags:
+              - onboarding
+              - growth
             trigger_data_json_schema:
               properties:
                 onboarding_url:
@@ -7042,6 +7090,9 @@ components:
                   layout_key: default
                 subject: Welcome to {{ vars.app_name }}!
               type: channel
+          tags:
+            - onboarding
+            - growth
           trigger_data_json_schema:
             properties:
               onboarding_url:
@@ -7812,6 +7863,9 @@ components:
                     layout_key: default
                   subject: Welcome to {{ vars.app_name }}!
                 type: channel
+            tags:
+              - onboarding
+              - growth
             trigger_data_json_schema:
               properties:
                 onboarding_url:
@@ -9613,6 +9667,9 @@ components:
                 schema_variant_key: default
                 values:
                   text_field: value
+            tags:
+              - onboarding
+              - growth
             target_audience_id: null
             target_property_conditions:
               all:
@@ -9686,6 +9743,9 @@ components:
               schema_variant_key: default
               values:
                 text_field: value
+          tags:
+            - onboarding
+            - growth
           target_audience_id: null
           target_property_conditions:
             all:
@@ -10137,6 +10197,9 @@ components:
             schema_variant_key: default
             values:
               text_field: value
+        tags:
+          - onboarding
+          - growth
         target_audience_id: null
         target_property_conditions:
           all:
@@ -10220,6 +10283,15 @@ components:
           description: A list of guide step objects in the guide.
           items:
             $ref: '#/components/schemas/GuideStep'
+          type: array
+          x-struct: null
+          x-validate: null
+        tags:
+          description: Use tags to organize resources internally within your account. For example, by team or product area.
+          items:
+            type: string
+            x-struct: null
+            x-validate: null
           type: array
           x-struct: null
           x-validate: null
@@ -11408,6 +11480,9 @@ paths:
                             layout_key: default
                           subject: Welcome to {{ vars.app_name }}!
                         type: channel
+                    tags:
+                      - onboarding
+                      - growth
                     trigger_data_json_schema:
                       properties:
                         onboarding_url:
@@ -11616,6 +11691,53 @@ paths:
       summary: Get source status
       tags:
         - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const sourceStatusResponse = await client.dataSources.retrieveStatus('key');
+
+          console.log(sourceStatusResponse.events_count);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          source_status_response = client.data_sources.retrieve_status(
+              key="key",
+          )
+          print(source_status_response.events_count)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	sourceStatusResponse, err := client.DataSources.GetStatus(
+          		context.TODO(),
+          		"key",
+          		knockmapi.DataSourceGetStatusParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", sourceStatusResponse.EventsCount)
+          }
   /v1/partials/{partial_key}/validate:
     put:
       callbacks: {}
@@ -11873,6 +11995,47 @@ paths:
       summary: List sources
       tags:
         - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const sourcesResponse = await client.dataSources.listSources();
+
+          console.log(sourcesResponse.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          sources_response = client.data_sources.list_sources()
+          print(sources_response.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	sourcesResponse, err := client.DataSources.ListSources(context.TODO(), knockmapi.DataSourceListSourcesParams{})
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", sourcesResponse.Entries)
+          }
   /v1/workflows/{workflow_key}/validate:
     put:
       callbacks: {}
@@ -11985,6 +12148,9 @@ paths:
                             layout_key: default
                           subject: Welcome to {{ vars.app_name }}!
                         type: channel
+                    tags:
+                      - onboarding
+                      - growth
                     trigger_data_json_schema:
                       properties:
                         onboarding_url:
@@ -12739,75 +12905,6 @@ paths:
       summary: Preview a template
       tags:
         - Templates
-      x-stainless-snippets:
-        typescript: |-
-          import KnockMgmt from '@knocklabs/mgmt';
-
-          const client = new KnockMgmt({
-            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
-          });
-
-          const response = await client.templates.preview({
-            environment: 'development',
-            channel_type: 'email',
-            recipient: 'user_123',
-            template: {
-              settings: {},
-              subject: 'Hello {{ recipient.name }}',
-            },
-          });
-
-          console.log(response.content_type);
-        python: |-
-          import os
-          from knock_mapi import KnockMgmt
-
-          client = KnockMgmt(
-              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
-          )
-          response = client.templates.preview(
-              environment="development",
-              channel_type="email",
-              recipient="user_123",
-              template={
-                  "settings": {},
-                  "subject": "Hello {{ recipient.name }}",
-              },
-          )
-          print(response.content_type)
-        go: |
-          package main
-
-          import (
-          	"context"
-          	"fmt"
-
-          	"github.com/knocklabs/knock-mgmt-go"
-          	"github.com/knocklabs/knock-mgmt-go/option"
-          )
-
-          func main() {
-          	client := knockmapi.NewClient(
-          		option.WithServiceToken("My Service Token"),
-          	)
-          	response, err := client.Templates.Preview(context.TODO(), knockmapi.TemplatePreviewParams{
-          		Environment: "development",
-          		ChannelType: knockmapi.TemplatePreviewParamsChannelTypeEmail,
-          		Recipient: knockmapi.TemplatePreviewParamsRecipientUnion{
-          			OfString: knockmapi.String("user_123"),
-          		},
-          		Template: knockmapi.TemplatePreviewParamsTemplateUnion{
-          			OfEmailTemplate: &knockmapi.EmailTemplateParam{
-          				Settings: knockmapi.EmailTemplateSettingsParam{},
-          				Subject:  "Hello {{ recipient.name }}",
-          			},
-          		},
-          	})
-          	if err != nil {
-          		panic(err.Error())
-          	}
-          	fmt.Printf("%+v\n", response.ContentType)
-          }
   /v1/guides/{guide_key}/activate:
     put:
       callbacks: {}
@@ -12879,6 +12976,9 @@ paths:
                         schema_variant_key: default
                         values:
                           text_field: value
+                    tags:
+                      - onboarding
+                      - growth
                     target_audience_id: null
                     target_property_conditions:
                       all:
@@ -13187,6 +13287,9 @@ paths:
                           schema_variant_key: default
                           values:
                             text_field: value
+                      tags:
+                        - onboarding
+                        - growth
                       target_audience_id: null
                       target_property_conditions:
                         all:
@@ -14012,6 +14115,69 @@ paths:
       summary: Rehearse a source event
       tags:
         - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const sourceRehearseResponse = await client.dataSources.rehearse('key', {
+            environment: 'development',
+            payload: { body: 'bar', headers: 'bar' },
+          });
+
+          console.log(sourceRehearseResponse.log_id);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          source_rehearse_response = client.data_sources.rehearse(
+              key="key",
+              environment="development",
+              payload={
+                  "body": "bar",
+                  "headers": "bar",
+              },
+          )
+          print(source_rehearse_response.log_id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	sourceRehearseResponse, err := client.DataSources.Rehearse(
+          		context.TODO(),
+          		"key",
+          		knockmapi.DataSourceRehearseParams{
+          			Environment: "development",
+          			SourceRehearseRequest: knockmapi.SourceRehearseRequestParam{
+          				Payload: map[string]any{
+          					"body":    "bar",
+          					"headers": "bar",
+          				},
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", sourceRehearseResponse.LogID)
+          }
   /v1/channel_groups:
     get:
       callbacks: {}
@@ -14926,6 +15092,9 @@ paths:
                         schema_variant_key: default
                         values:
                           text_field: value
+                    tags:
+                      - onboarding
+                      - growth
                     target_audience_id: null
                     target_property_conditions:
                       all:
@@ -15065,6 +15234,56 @@ paths:
       summary: Get a source
       tags:
         - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const source = await client.dataSources.retrieve('key', { environment: 'development' });
+
+          console.log(source.created_at);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          source = client.data_sources.retrieve(
+              key="key",
+              environment="development",
+          )
+          print(source.created_at)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	source, err := client.DataSources.Get(
+          		context.TODO(),
+          		"key",
+          		knockmapi.DataSourceGetParams{
+          			Environment: "development",
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", source.CreatedAt)
+          }
     put:
       callbacks: {}
       description: Creates or updates a source with environment-specific settings, preprocess scripts, and event mappings.
@@ -15162,6 +15381,65 @@ paths:
       summary: Upsert a source
       tags:
         - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const response = await client.dataSources.upsert('key', {
+            environment: 'development',
+            source: { name: 'Universal HTTP Source' },
+          });
+
+          console.log(response.source);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          response = client.data_sources.upsert(
+              key="key",
+              environment="development",
+              source={
+                  "name": "Universal HTTP Source"
+              },
+          )
+          print(response.source)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	response, err := client.DataSources.Upsert(
+          		context.TODO(),
+          		"key",
+          		knockmapi.DataSourceUpsertParams{
+          			Environment: "development",
+          			Source: knockmapi.SourceRequestParam{
+          				Name: "Universal HTTP Source",
+          			},
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", response.Source)
+          }
   /v1/commits/{id}/promote:
     put:
       callbacks: {}
@@ -18438,6 +18716,9 @@ paths:
                               layout_key: default
                             subject: Welcome to {{ vars.app_name }}!
                           type: channel
+                      tags:
+                        - onboarding
+                        - growth
                       trigger_data_json_schema:
                         properties:
                           onboarding_url:
@@ -18623,6 +18904,9 @@ paths:
                         schema_variant_key: default
                         values:
                           text_field: value
+                    tags:
+                      - onboarding
+                      - growth
                     target_audience_id: null
                     target_property_conditions:
                       all:
@@ -19470,6 +19754,53 @@ paths:
       summary: List source events
       tags:
         - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const sourceEventsResponse = await client.dataSources.listEvents('key');
+
+          console.log(sourceEventsResponse.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          source_events_response = client.data_sources.list_events(
+              key="key",
+          )
+          print(source_events_response.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	sourceEventsResponse, err := client.DataSources.ListEvents(
+          		context.TODO(),
+          		"key",
+          		knockmapi.DataSourceListEventsParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", sourceEventsResponse.Entries)
+          }
   /v1/source_providers:
     get:
       callbacks: {}
@@ -19486,6 +19817,47 @@ paths:
       summary: List source providers
       tags:
         - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const sourceProvidersResponse = await client.dataSources.listProviders();
+
+          console.log(sourceProvidersResponse.entries);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          source_providers_response = client.data_sources.list_providers()
+          print(source_providers_response.entries)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	sourceProvidersResponse, err := client.DataSources.ListProviders(context.TODO())
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", sourceProvidersResponse.Entries)
+          }
   /v1/audiences/{audience_key}/validate:
     put:
       callbacks: {}
@@ -19829,6 +20201,9 @@ paths:
                             layout_key: default
                           subject: Welcome to {{ vars.app_name }}!
                         type: channel
+                    tags:
+                      - onboarding
+                      - growth
                     trigger_data_json_schema:
                       properties:
                         onboarding_url:
@@ -20178,6 +20553,53 @@ paths:
       summary: Get a source provider
       tags:
         - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          const sourceProviderResponse = await client.dataSources.retrieveProvider('key');
+
+          console.log(sourceProviderResponse.provider);
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          source_provider_response = client.data_sources.retrieve_provider(
+              key="key",
+          )
+          print(source_provider_response.provider)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	sourceProviderResponse, err := client.DataSources.GetProvider(
+          		context.TODO(),
+          		"key",
+          		knockmapi.DataSourceGetProviderParams{},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", sourceProviderResponse.Provider)
+          }
   /v1/branches/{branch_slug}:
     delete:
       callbacks: {}
@@ -20532,6 +20954,58 @@ paths:
       summary: List source logs
       tags:
         - Sources
+      x-stainless-snippets:
+        typescript: |-
+          import KnockMgmt from '@knocklabs/mgmt';
+
+          const client = new KnockMgmt({
+            serviceToken: process.env['KNOCK_SERVICE_TOKEN'], // This is the default and can be omitted
+          });
+
+          // Automatically fetches more pages as needed.
+          for await (const sourceLog of client.dataSources.listLogs('key', { environment: 'development' })) {
+            console.log(sourceLog.id);
+          }
+        python: |-
+          import os
+          from knock_mapi import KnockMgmt
+
+          client = KnockMgmt(
+              service_token=os.environ.get("KNOCK_SERVICE_TOKEN"),  # This is the default and can be omitted
+          )
+          page = client.data_sources.list_logs(
+              key="key",
+              environment="development",
+          )
+          page = page.entries[0]
+          print(page.id)
+        go: |
+          package main
+
+          import (
+          	"context"
+          	"fmt"
+
+          	"github.com/knocklabs/knock-mgmt-go"
+          	"github.com/knocklabs/knock-mgmt-go/option"
+          )
+
+          func main() {
+          	client := knockmapi.NewClient(
+          		option.WithServiceToken("My Service Token"),
+          	)
+          	page, err := client.DataSources.ListLogs(
+          		context.TODO(),
+          		"key",
+          		knockmapi.DataSourceListLogsParams{
+          			Environment: "development",
+          		},
+          	)
+          	if err != nil {
+          		panic(err.Error())
+          	}
+          	fmt.Printf("%+v\n", page)
+          }
 security:
   - BearerAuth: []
 servers:
