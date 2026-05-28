@@ -1948,19 +1948,19 @@ components:
             - message.read
             - message.sent
             - message.seen
-            - message.created
+            - message.archived
             - message.queued
             - message.delivered
+            - message.not_sent
             - message.bounced
             - message.undelivered
-            - message.not_sent
             - message.delivery_attempted
-            - message.archived
             - message.link_clicked
             - message.interacted
+            - message.unarchived
             - message.unseen
             - message.unread
-            - message.unarchived
+            - message.created
           example: message.sent
           type: string
           x-struct: null
@@ -2466,7 +2466,7 @@ components:
           x-struct: null
           x-validate: null
         user_email:
-          description: The email address of the user that the preference center is associated with.
+          description: A display label for the user that the preference center is associated with, resolved as email, then user id.
           example: user@example.com
           nullable: true
           type: string
@@ -4291,11 +4291,18 @@ components:
       description: The response from a Microsoft Teams auth check request.
       example:
         connection:
+          ms_teams_tenant_id: a Microsoft Teams tenant ID
           ok: true
       properties:
         connection:
           description: A Microsoft Teams connection object.
           properties:
+            ms_teams_tenant_id:
+              description: The Microsoft Teams tenant ID for the connected tenant.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
             ok:
               description: Whether the Microsoft Teams connection is valid.
               nullable: false
@@ -6621,6 +6628,7 @@ components:
             - exists
             - not_exists
             - contains_all
+            - not_contains_all
             - is_timestamp
             - is_not_timestamp
             - is_timestamp_on_or_after
