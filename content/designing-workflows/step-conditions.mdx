@@ -39,7 +39,24 @@ For all function and channel steps, step conditions will be evaluated when the s
 
 ## Message status conditions
 
-Message status conditions allow you to build a check for one workflow step that evaluates against the [delivery or engagement status](/send-notifications/message-statuses) of a message sent from a preceding step. When building a step message status condition, you'll use the conditions editor to select:
+Message status conditions allow you to build a check for one workflow step that evaluates against the [delivery or engagement status](/send-notifications/message-statuses) of a message sent from a preceding step.
+
+<Callout
+  type="warning"
+  title="Message delivery is asynchronous from workflow execution."
+  text={
+    <>
+      This means that message status conditions are most effective when used in
+      combination with workflow steps (like a{" "}
+      <a href="/designing-workflows/delay-function">delay function</a>) that
+      pause workflow execution. See the section on{" "}
+      <a href="#evaluation-timing">evaluation timing</a> below for more
+      information.
+    </>
+  }
+/>
+
+When building a step message status condition, you'll use the conditions editor to select:
 
 - Any preceding channel step that may produce a message, using it's `ref`.
 - An asserting (`"has"`) or negating (`"has not"`) condition operator.
@@ -83,7 +100,11 @@ Message state used to evaluate status conditions is subject to the Knock data re
 
 ### Evaluation timing
 
-Knock evaluates message status conditions, like all conditions, immediately when executing a workflow step. This means that you may need to account for time between steps when building these conditions, especially those that require some amount of recipient engagement or delivery confirmation. [See below](#example-conditionally-sending-an-email-if-an-in-app-notification-was-not-seen) for an example of using a delay step for this purpose.
+A workflow [channel step](/designing-workflows/channel-step) that produces a `Message` will enqueue an asynchronous downstream message send to the recipient and proceed directly to the next workflow step. Knock evaluates message status conditions (like all other step conditions) immediately when executing a workflow step.
+
+This means that you will need to account for time between workflow steps when building message status conditions, especially for messages that require delivery confirmation, recipient engagement, or which utilize [send windows](/designing-workflows/send-windows) that can delay the sending of the message. For example, if you want to send an SMS message as a fallback for a `bounced` push notification, you will need to leave time for Knock to send the push notification and receive the bounced response from the downstream provider prior to the SMS channel step.
+
+[See below](#example-conditionally-sending-an-email-if-an-in-app-notification-was-not-seen) for an example of using a delay step in combination with a message status condition.
 
 ### Multiple messages
 
