@@ -156,6 +156,7 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
       { slug: "/delivering-notifications", title: "Delivering notifications" },
       { slug: "/message-statuses", title: "Message statuses" },
       { slug: "/tracking", title: "Link & open tracking" },
+      { slug: "/analytics", title: "Analytics" },
       { slug: "/testing-workflows", title: "Testing workflows" },
       { slug: "/debugging-workflows", title: "Debugging workflows" },
     ],
