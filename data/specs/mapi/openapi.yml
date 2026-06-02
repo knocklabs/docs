@@ -152,6 +152,39 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SmsChannelSettings
       x-validate: null
+    PaginatedAssetResponse:
+      description: A paginated list of Asset. Contains a list of entries and page information.
+      example:
+        entries:
+          - asset_type: library_asset
+            created_at: "2021-01-01T00:00:00Z"
+            filename: logo.png
+            id: 018f02cd-9230-71d2-8f70-b40e5e2a4f6d
+            mime_type: image/png
+            updated_at: "2021-01-01T00:00:00Z"
+            url: https://assets.example.com/acc_123/proj_123/asset.png
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/Asset'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedAssetResponse
+      type: object
+      x-struct: null
+      x-validate: null
     PushTemplate:
       description: A push notification template.
       example:
@@ -277,8 +310,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeNumberField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -589,7 +622,6 @@ components:
             schema_variant_key: default
             values:
               text_field: value
-        target_audience_id: null
         target_property_conditions:
           all:
             - argument: some_property
@@ -649,8 +681,8 @@ components:
           type: array
           x-struct: null
           x-validate: null
-        target_audience_id:
-          description: The ID of the target audience for the guide. When not set, will default to targeting all users.
+        target_audience_key:
+          description: The key of the target audience for the guide. When not set, will default to targeting all users.
           nullable: true
           type: string
           x-struct: null
@@ -2612,7 +2644,6 @@ components:
               schema_variant_key: default
               values:
                 text_field: value
-          target_audience_id: null
           target_property_conditions:
             all:
               - argument: some_property
@@ -8688,8 +8719,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeNumberField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -9646,8 +9677,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeNumberField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -9843,7 +9874,7 @@ components:
             tags:
               - onboarding
               - growth
-            target_audience_id: null
+            target_audience_key: null
             target_property_conditions:
               all:
                 - argument: some_property
@@ -9919,7 +9950,7 @@ components:
           tags:
             - onboarding
             - growth
-          target_audience_id: null
+          target_audience_key: null
           target_property_conditions:
             all:
               - argument: some_property
@@ -10372,7 +10403,7 @@ components:
         tags:
           - onboarding
           - growth
-        target_audience_id: null
+        target_audience_key: null
         target_property_conditions:
           all:
             - argument: some_property
@@ -10467,8 +10498,8 @@ components:
           type: array
           x-struct: null
           x-validate: null
-        target_audience_id:
-          description: The ID of the target audience for the guide. When not set, will default to targeting all users.
+        target_audience_key:
+          description: The key of the target audience for the guide. When not set, will default to targeting all users.
           nullable: true
           type: string
           x-struct: null
@@ -10622,6 +10653,67 @@ components:
       title: SourceEvent
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceEvent
+      x-validate: null
+    Asset:
+      description: An uploaded asset file for an account.
+      example:
+        asset_type: library_asset
+        created_at: "2021-01-01T00:00:00Z"
+        filename: logo.png
+        id: 018f02cd-9230-71d2-8f70-b40e5e2a4f6d
+        mime_type: image/png
+        updated_at: "2021-01-01T00:00:00Z"
+        url: https://assets.example.com/acc_123/proj_123/asset.png
+      properties:
+        asset_type:
+          description: The type of asset.
+          type: string
+          x-struct: null
+          x-validate: null
+        created_at:
+          description: The timestamp of when this asset was created.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        filename:
+          description: The human-readable filename for this asset.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        id:
+          description: The unique ID for this asset.
+          format: uuid
+          type: string
+          x-struct: null
+          x-validate: null
+        mime_type:
+          description: The MIME type for this asset.
+          type: string
+          x-struct: null
+          x-validate: null
+        updated_at:
+          description: The timestamp of when this asset was last updated.
+          format: date-time
+          type: string
+          x-struct: null
+          x-validate: null
+        url:
+          description: The public URL for this asset.
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - id
+        - mime_type
+        - asset_type
+        - url
+        - created_at
+        - updated_at
+      title: Asset
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.Asset
       x-validate: null
     WrappedCommitResponse:
       description: Wraps the Commit response under the `commit` key.
@@ -12837,6 +12929,77 @@ paths:
           	}
           	fmt.Printf("%+v\n", page)
           }
+  /v1/assets:
+    get:
+      callbacks: {}
+      description: Returns a paginated list of active account assets. Assets are account-wide and do not require an environment parameter.
+      operationId: listAssets
+      parameters:
+        - description: The cursor to fetch entries after.
+          in: query
+          name: after
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The cursor to fetch entries before.
+          in: query
+          name: before
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The number of entries to fetch per-page.
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of Asset. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - asset_type: library_asset
+                      created_at: "2021-01-01T00:00:00Z"
+                      filename: logo.png
+                      id: 018f02cd-9230-71d2-8f70-b40e5e2a4f6d
+                      mime_type: image/png
+                      updated_at: "2021-01-01T00:00:00Z"
+                      url: https://assets.example.com/acc_123/proj_123/asset.png
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/Asset'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedAssetResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List assets
+      tags:
+        - Assets
   /v1/broadcasts/{broadcast_key}:
     get:
       callbacks: {}
@@ -13270,7 +13433,7 @@ paths:
                     tags:
                       - onboarding
                       - growth
-                    target_audience_id: null
+                    target_audience_key: null
                     target_property_conditions:
                       all:
                         - argument: some_property
@@ -13581,7 +13744,7 @@ paths:
                       tags:
                         - onboarding
                         - growth
-                      target_audience_id: null
+                      target_audience_key: null
                       target_property_conditions:
                         all:
                           - argument: some_property
@@ -13626,7 +13789,7 @@ paths:
 
           // Automatically fetches more pages as needed.
           for await (const guide of client.guides.list({ environment: 'development' })) {
-            console.log(guide.target_audience_id);
+            console.log(guide.valid);
           }
         python: |-
           import os
@@ -13639,7 +13802,7 @@ paths:
               environment="development",
           )
           page = page.entries[0]
-          print(page.target_audience_id)
+          print(page.valid)
         go: |
           package main
 
@@ -15210,7 +15373,7 @@ paths:
 
           const guide = await client.guides.retrieve('guide_key', { environment: 'development' });
 
-          console.log(guide.target_audience_id);
+          console.log(guide.valid);
         python: |-
           import os
           from knock_mapi import KnockMgmt
@@ -15222,7 +15385,7 @@ paths:
               guide_key="guide_key",
               environment="development",
           )
-          print(guide.target_audience_id)
+          print(guide.valid)
         go: |
           package main
 
@@ -15248,7 +15411,7 @@ paths:
           	if err != nil {
           		panic(err.Error())
           	}
-          	fmt.Printf("%+v\n", guide.TargetAudienceID)
+          	fmt.Printf("%+v\n", guide.Valid)
           }
     put:
       callbacks: {}
@@ -15337,7 +15500,6 @@ paths:
                       schema_variant_key: default
                       values:
                         text_field: value
-                  target_audience_id: null
                   target_property_conditions:
                     all:
                       - argument: some_property
@@ -15386,7 +15548,7 @@ paths:
                     tags:
                       - onboarding
                       - growth
-                    target_audience_id: null
+                    target_audience_key: null
                     target_property_conditions:
                       all:
                         - argument: some_property
@@ -19164,7 +19326,6 @@ paths:
                       schema_variant_key: default
                       values:
                         text_field: value
-                  target_audience_id: null
                   target_property_conditions:
                     all:
                       - argument: some_property
@@ -19213,7 +19374,7 @@ paths:
                     tags:
                       - onboarding
                       - growth
-                    target_audience_id: null
+                    target_audience_key: null
                     target_property_conditions:
                       all:
                         - argument: some_property
@@ -21342,3 +21503,5 @@ tags:
     name: Guides
   - description: Audiences define sets of users that can be targeted for notifications.
     name: Audiences
+  - description: Assets are uploaded files available to your Knock account.
+    name: Assets
