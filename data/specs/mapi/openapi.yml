@@ -273,11 +273,14 @@ components:
           description: The field types available for the partial.
           items:
             anyOf:
+              - $ref: '#/components/schemas/MessageTypeListField'
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
+              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
+              - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
               - $ref: '#/components/schemas/MessageTypeMarkdownField'
               - $ref: '#/components/schemas/MessageTypeMultiSelectField'
@@ -537,7 +540,6 @@ components:
           description: Receives events from Segment.
           environment_settings:
             development:
-              created_at: "2021-01-01T00:00:00Z"
               mappings: []
               settings:
                 endpoint: https://api.knock.app/integrations/receive/src_123
@@ -3001,7 +3003,7 @@ components:
         version: 1.0.0
       properties:
         default_action_mappings:
-          description: Default event action mappings for the provider. Only present when `includes` contains `default_action_mappings`.
+          description: Default event action mappings for the provider. Only present when `include` contains `default_action_mappings`.
           items:
             properties:
               action_parameters:
@@ -3062,7 +3064,7 @@ components:
               x-struct: null
               x-validate: null
             preprocessing_script:
-              description: Verification script source code. Only present when `includes` contains `preprocessing_script`.
+              description: Verification script source code. Only present when `include` contains `preprocessing_script`.
               nullable: true
               oneOf:
                 - properties:
@@ -3099,7 +3101,7 @@ components:
           x-struct: null
           x-validate: null
         example_payloads:
-          description: Example payloads keyed by event type. Only present when `includes` contains `example_payloads`.
+          description: Example payloads keyed by event type. Only present when `include` contains `example_payloads`.
           nullable: true
           oneOf:
             - additionalProperties:
@@ -3140,7 +3142,7 @@ components:
           description: Provider display metadata.
           properties:
             branding:
-              description: Provider branding assets. Only present when `includes` contains `branding`.
+              description: Provider branding assets. Only present when `include` contains `branding`.
               nullable: true
               oneOf:
                 - properties:
@@ -3258,7 +3260,7 @@ components:
           x-validate: null
         static_fields:
           additionalProperties: true
-          description: JSON Schema fields needed to configure the source. Only present when `includes` contains `static_fields`.
+          description: JSON Schema fields needed to configure the source. Only present when `include` contains `static_fields`.
           type: object
           x-struct: null
           x-validate: null
@@ -4171,7 +4173,7 @@ components:
         verification_status: enforced:verified
       properties:
         actions:
-          description: The actions executed after receiving the source event. Only present when `includes` contains `actions`.
+          description: The actions executed after receiving the source event. Only present when `include` contains `actions`.
           items:
             $ref: '#/components/schemas/SourceLogAction'
           type: array
@@ -5088,7 +5090,7 @@ components:
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewTemplateResponse
       x-validate: null
     SourceLogsResponse:
-      description: A paginated list of source logs. Include `actions` in the `includes` query parameter to return action details for each log.
+      description: A paginated list of source logs. Include `actions` in the `include` query parameter to return action details for each log.
       example:
         entries:
           - data:
@@ -6325,6 +6327,78 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewTemplateRequest
       x-validate: null
+    MessageTypeColorField:
+      description: 'A hex color field (#RGB or #RRGGBB) used in a message type or partial input schema.'
+      example:
+        key: accent_color
+        label: Accent color
+        settings:
+          default: '#FF0000'
+          description: A hex color for the accent
+          placeholder: '#000000'
+          required: true
+        type: color
+      properties:
+        key:
+          description: The unique key of the field.
+          example: key
+          type: string
+          x-struct: null
+          x-validate: null
+        label:
+          description: The label of the field.
+          example: Label
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: Settings for the color field.
+          properties:
+            default:
+              description: The default hex color value.
+              example: '#FF0000'
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            description:
+              example: A description of the field, used in the UI as a hint text.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            placeholder:
+              example: A placeholder for the field.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            required:
+              description: Whether the field is required.
+              example: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the field.
+          enum:
+            - color
+          example: color
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - key
+        - label
+      title: MessageTypeColorField
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.ColorField
+      x-validate: null
     UserRecipientReference:
       description: A user ID.
       example: user_1
@@ -6556,6 +6630,99 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.ChannelGroupRuleRequest
       x-validate: null
+    MessageTypeNumberField:
+      description: A numeric field used in a message type or partial input schema, with optional min/max bounds and a unit label for display.
+      example:
+        key: ship_number
+        label: Ship number
+        settings:
+          default: 42
+          description: Displayed next to the hull ID
+          max: 999999
+          min: 0
+          placeholder: "0"
+          required: true
+          unit_label: TEU
+        type: number
+      properties:
+        key:
+          description: The unique key of the field.
+          example: key
+          type: string
+          x-struct: null
+          x-validate: null
+        label:
+          description: The label of the field.
+          example: Label
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: Settings for the number field.
+          properties:
+            default:
+              description: The default numeric value.
+              example: 42
+              nullable: true
+              type: number
+              x-struct: null
+              x-validate: null
+            description:
+              example: A description of the field, used in the UI as a hint text.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            max:
+              description: Optional inclusive maximum allowed value.
+              nullable: true
+              type: number
+              x-struct: null
+              x-validate: null
+            min:
+              description: Optional inclusive minimum allowed value.
+              nullable: true
+              type: number
+              x-struct: null
+              x-validate: null
+            placeholder:
+              example: A placeholder for the field.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            required:
+              description: Whether the field is required.
+              example: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+            unit_label:
+              description: Optional short label shown after the input (e.g. px, kg).
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the field.
+          enum:
+            - number
+          example: number
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - key
+        - label
+      title: MessageTypeNumberField
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.NumberField
+      x-validate: null
     EmailLayoutRequest:
       description: A request to update or create an email layout.
       example:
@@ -6634,7 +6801,6 @@ components:
     SourceEnvironmentSettings:
       description: Environment-specific settings for a source.
       example:
-        created_at: "2021-01-01T00:00:00Z"
         mappings: []
         settings:
           endpoint: https://api.knock.app/integrations/receive/src_123
@@ -6649,12 +6815,6 @@ components:
           timestamp_path: body.timestamp
         updated_at: "2021-01-01T00:00:00Z"
       properties:
-        created_at:
-          description: The timestamp of when these environment settings were created.
-          format: date-time
-          type: string
-          x-struct: null
-          x-validate: null
         mappings:
           description: Event action mappings configured for this source in the environment.
           items:
@@ -6717,7 +6877,6 @@ components:
           x-struct: null
           x-validate: null
       required:
-        - created_at
         - updated_at
         - settings
         - mappings
@@ -8058,6 +8217,14 @@ components:
                 type: string
                 x-struct: null
                 x-validate: null
+              environment_settings:
+                additionalProperties:
+                  $ref: '#/components/schemas/SourceEnvironmentSettings'
+                description: Per-environment settings keyed by environment slug. Present only when requested via `include`.
+                nullable: true
+                type: object
+                x-struct: null
+                x-validate: null
               key:
                 description: Source key.
                 type: string
@@ -8517,11 +8684,14 @@ components:
           description: The field types available for the partial.
           items:
             anyOf:
+              - $ref: '#/components/schemas/MessageTypeListField'
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
+              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
+              - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
               - $ref: '#/components/schemas/MessageTypeMarkdownField'
               - $ref: '#/components/schemas/MessageTypeMultiSelectField'
@@ -9472,11 +9642,14 @@ components:
           description: The field types available for the variant.
           items:
             anyOf:
+              - $ref: '#/components/schemas/MessageTypeListField'
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
+              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
+              - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
               - $ref: '#/components/schemas/MessageTypeMarkdownField'
               - $ref: '#/components/schemas/MessageTypeMultiSelectField'
@@ -9908,7 +10081,6 @@ components:
         description: Receives events from Segment.
         environment_settings:
           development:
-            created_at: "2021-01-01T00:00:00Z"
             mappings: []
             settings:
               endpoint: https://api.knock.app/integrations/receive/src_123
@@ -10788,6 +10960,103 @@ components:
       title: WorkflowUpdateObjectStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowUpdateObjectStep
+      x-validate: null
+    MessageTypeListField:
+      description: A list field used in a message type.
+      example:
+        key: faqs
+        label: FAQs
+        settings:
+          default: []
+          description: Frequently asked questions
+          item_schema:
+            properties:
+              answer:
+                type: string
+              question:
+                type: string
+            required:
+              - question
+              - answer
+            type: object
+          placeholder: null
+          required: true
+        type: list
+      properties:
+        key:
+          description: The unique key of the field.
+          example: key
+          type: string
+          x-struct: null
+          x-validate: null
+        label:
+          description: The label of the field.
+          example: Label
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: Settings for the list field.
+          properties:
+            default:
+              description: The default value of the list field.
+              example:
+                - answer: A notification platform
+                  question: What is Knock?
+              nullable: true
+              type: array
+              x-struct: null
+              x-validate: null
+            description:
+              example: A description of the field, used in the UI as a hint text.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            item_schema:
+              description: A JSON schema used to validate the structure of each item in the list. Must be a valid JSON schema.
+              example:
+                properties:
+                  answer:
+                    type: string
+                  question:
+                    type: string
+                type: object
+              nullable: true
+              type: object
+              x-struct: null
+              x-validate: null
+            placeholder:
+              example: A placeholder for the field.
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+            required:
+              description: Whether the field is required.
+              example: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the field.
+          enum:
+            - list
+          example: list
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - key
+        - label
+      title: MessageTypeListField
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.ListField
       x-validate: null
     Duration:
       description: A duration of time, represented as a unit and a value.
@@ -11983,6 +12252,28 @@ paths:
           schema:
             example: development
             type: string
+            x-struct: null
+            x-validate: null
+        - description: Associated resources to include in each source. Accepts `environment_settings`.
+          in: query
+          name: include
+          required: false
+          schema:
+            items:
+              enum:
+                - environment_settings
+              type: string
+              x-struct: null
+              x-validate: null
+            type: array
+            x-struct: null
+            x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
             x-struct: null
             x-validate: null
       responses:
@@ -15224,6 +15515,14 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
       responses:
         "200":
           content:
@@ -15306,6 +15605,14 @@ paths:
             type: string
             x-struct: null
             x-validate: null
+        - description: Whether to annotate the resource. Only used in the Knock CLI.
+          in: query
+          name: annotate
+          required: false
+          schema:
+            type: boolean
+            x-struct: null
+            x-validate: null
       requestBody:
         content:
           application/json:
@@ -15351,7 +15658,6 @@ paths:
                     description: Receives events from Segment.
                     environment_settings:
                       development:
-                        created_at: "2021-01-01T00:00:00Z"
                         mappings: []
                         settings:
                           endpoint: https://api.knock.app/integrations/receive/src_123
@@ -20527,7 +20833,7 @@ paths:
             x-validate: null
         - description: Associated resources to include in the response. Accepts `branding`, `default_action_mappings`, `example_payloads`, `preprocessing_script`, `static_fields`.
           in: query
-          name: includes
+          name: include
           required: false
           schema:
             items:
@@ -20908,7 +21214,7 @@ paths:
             x-validate: null
         - description: Associated resources to include in the response. Accepts `actions` to include the actions executed after receiving each source event.
           in: query
-          name: includes
+          name: include
           required: false
           schema:
             items:
