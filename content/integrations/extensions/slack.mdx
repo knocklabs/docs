@@ -55,3 +55,18 @@ As an example, you can specify the environment in a prompt like this:
 ### Viewing an agent session
 
 In each agent session, you can click the "Open agent" button to view the full conversation history in the Knock dashboard. Any user within your Slack workspace can click the "Open agent" button to view that thread's conversation history.
+
+## Permissions
+
+Knock requests these Slack permissions for the Knock Slack extension to work within your workspace:
+
+| Permission          | Why we need it                                                                                                                                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app_mentions:read` | Lets the Knock agent respond when a user @mentions the app in a channel. This is the primary way users start a conversation with the agent in shared channels.                                                            |
+| `assistant:write`   | Powers the Slack Assistant experience: shows thread status (e.g. "Thinking…") while the agent runs, and uses Slack's Assistant thread APIs so responses feel native in Slack.                                             |
+| `chat:write`        | Sends the agent's replies in Slack threads and DMs, including streamed responses (`chat.startStream` / `chat.appendStream` / `chat.stopStream`) and follow-up messages such as run summaries and account-linking prompts. |
+| `channels:history`  | Reads recent messages in public channel threads (via `conversations.replies`) so the agent has conversation context when a user continues a thread. Limited to the 25 most recent messages in that thread.                |
+| `groups:history`    | Same as `channels:history`, but for private channels and group DMs (mpim), so thread context works outside public channels.                                                                                               |
+| `im:history`        | Reads recent messages in 1:1 DMs so the agent can follow an ongoing direct-message conversation. DMs don't emit `app_mention` events, so message history is needed for context on follow-ups.                             |
+| `users:read`        | Looks up Slack user display names when building thread transcripts, so prior messages are labeled with human-readable names instead of raw user IDs.                                                                      |
+| `files:read`        | Downloads image files shared in a thread (when users attach screenshots or other images) so the agent can understand visual context in the conversation. Images are capped in size and count.                             |
