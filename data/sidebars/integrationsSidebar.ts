@@ -162,12 +162,13 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
     slug: "/integrations/extensions",
     pages: [
       { slug: "/overview", title: "Overview" },
-      { slug: "/vercel", title: "Vercel" },
+      { slug: "/slack", title: "Slack" },
+      { slug: "/data-sync", title: "Data warehouse sync" },
+      { slug: "/segment", title: "Segment" },
       { slug: "/datadog", title: "Datadog" },
       { slug: "/new-relic", title: "New Relic" },
-      { slug: "/segment", title: "Segment" },
       { slug: "/heap", title: "Heap" },
-      { slug: "/data-sync", title: "Data warehouse sync" },
+      { slug: "/vercel", title: "Vercel" },
     ],
   },
 ];

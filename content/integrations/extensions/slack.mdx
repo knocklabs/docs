@@ -1,0 +1,74 @@
+---
+title: Connecting Knock to your Slack workspace
+description: Use the Knock Slack extension to launch Knock agents from your Slack workspace.
+layout: integrations
+tags: ["slack", "extensions"]
+section: Integrations > Extensions
+---
+
+The Knock Slack extension lets your team launch Knock agents directly in Slack to build, manage, and ship customer messaging. Users can DM the agent or tag `@Knock` in any channel to kick off an agent session.
+
+## Setting up the Knock Slack extension
+
+1. Go to **[Settings > Extensions](https://dashboard.knock.app/~/settings/integrations/extensions)** in the Knock dashboard.
+2. Click "Connect" next to the Slack extension or go to the [installation page](https://control.knock.app/slack/install) here.
+3. You'll be prompted to install the Knock app for Slack in your workspace.
+4. After installing, you'll be redirected to Knock to finalize the installation.
+5. Prompt the Knock agent in a direct message or tag `@Knock` in any channel.
+
+## Authenticating users
+
+In order to use the Knock Slack extension, users will need to link their Slack user account to their Knock account.
+
+Users within your Slack workspace can authenticate by prompting the Knock agent in a direct message or tagging `@Knock` in any channel. They will receive a DM with a button to authenticate. Clicking the button will take them to the Knock dashboard where they can authenticate their account.
+
+## Using the Knock Slack extension
+
+### Kicking off an agent
+
+Users can kick off an agent session by prompting the Knock agent in a direct message or tagging `@Knock` in any channel. The agent will respond with a message indicating that it has started and will begin processing the user's request.
+
+The Knock app will only be available in the public channels that it has been invited to. You can invite the Knock app to a channel by at-mentioning it in the channel, or using the "Add to channel" button in Slack.
+
+Here are some example prompts you can use to kick off an agent session:
+
+- `@Knock create a new onboarding workflow that sends a welcome campaign to new users`
+- `@Knock draft our May newsletter using the most recent changelogs from our website`
+- `@Knock build a new in-app guide promoting a customer discount for our upcoming event`
+- `@Knock create a new audience of paid subscribers`
+- `@Knock find all of my workflows that are sending emails`
+
+### Modified resources
+
+For every resource that the agent modifies, it will return a link to each resource, visible in the conversation history. Clicking a link will open the resource in the Knock dashboard.
+
+### Specifying an environment
+
+By default, the Knock Slack extension will operate in the `development` environment. You can specify a different environment by referencing it within your prompt. The Knock agent will attempt to automatically determine the environment based on the context of the prompt.
+
+As an example, you can specify the environment in a prompt like this:
+
+`@Knock in the production environment, update the subject line of the welcome email to 'Welcome to our platform!'`
+
+### Viewing an agent session
+
+In each agent session, you can click the "Open agent" button to view the full conversation history in the Knock dashboard. Any user within your Slack workspace can click the "Open agent" button to view that thread's conversation history.
+
+## Disconnecting Slack
+
+Users can disconnect their linked Slack account from their user settings under "Settings > Profile > Overview" at any time. Once disconnected, they will no longer be able to use the Knock Slack extension.
+
+## Permissions
+
+Knock requests these Slack permissions for the Knock Slack extension to work within your workspace:
+
+| Permission          | Why we need it                                                                                                                                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app_mentions:read` | Lets the Knock agent respond when a user @mentions the app in a channel. This is the primary way users start a conversation with the agent in shared channels.                                                            |
+| `assistant:write`   | Powers the Slack Assistant experience: shows thread status (e.g. "Thinking…") while the agent runs, and uses Slack's Assistant thread APIs so responses feel native in Slack.                                             |
+| `chat:write`        | Sends the agent's replies in Slack threads and DMs, including streamed responses (`chat.startStream` / `chat.appendStream` / `chat.stopStream`) and follow-up messages such as run summaries and account-linking prompts. |
+| `channels:history`  | Reads recent messages in public channel threads (via `conversations.replies`) so the agent has conversation context when a user continues a thread. Limited to the 25 most recent messages in that thread.                |
+| `groups:history`    | Same as `channels:history`, but for private channels and group DMs (mpim), so thread context works outside public channels.                                                                                               |
+| `im:history`        | Reads recent messages in 1:1 DMs so the agent can follow an ongoing direct-message conversation. DMs don't emit `app_mention` events, so message history is needed for context on follow-ups.                             |
+| `users:read`        | Looks up Slack user display names when building thread transcripts, so prior messages are labeled with human-readable names instead of raw user IDs.                                                                      |
+| `files:read`        | Downloads image files shared in a thread (when users attach screenshots or other images) so the agent can understand visual context in the conversation. Images are capped in size and count.                             |
