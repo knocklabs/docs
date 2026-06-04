@@ -1,0 +1,137 @@
+---
+title: "Hosted preference center"
+description: "Learn how to use Knock's hosted preference center to let your users manage notification preferences without writing any code."
+tags:
+  ["preferences", "preference center", "hosted", "unsubscribe", "commercial"]
+section: Preferences
+---
+
+Knock's hosted preference center is a page where your users manage their notification preferences. Knock hosts and renders the page, you configure it from the dashboard, so you can launch a preference center without building or hosting any UI yourself.
+
+This is the fastest way to give your users a preference center. If you need more control over the experience, you can still [build your own preference center UI](/preferences/overview#build-your-preference-center) on top of Knock's preferences API.
+
+<Callout
+  type="info"
+  title="Users only."
+  text="The hosted preference center currently supports user recipients only. It doesn't support managing preferences for objects or tenants."
+/>
+
+## How it works
+
+Knock hosts the preference center at `p.knock.app`. Each user accesses their own preferences through a signed link that looks like this:
+
+```
+https://p.knock.app/?t=<token>
+```
+
+The token identifies the recipient, so users don't need to log in to your product to view or update their preferences. When a user opens the link, they see their preference settings based on the environment-level preference center configuration shape. When the user clicks **Save preferences**, Knock writes their changes back to the recipient's `default` preference set. The link never expires.
+
+The page reflects the recipient it was generated for, including the account branding, the preference options you've configured, and a row for commercial messages opt-out.
+
+<Callout
+  type="info"
+  title="Preferences managed by conditions."
+  text={
+    <>
+      If a preference row, or a channel type within a row, currently has{" "}
+      <a href="/preferences/preference-conditions">condition-managed</a>{" "}
+      preferences for a given user, the preference center renders that key but
+      the user can't modify their preference for it.
+    </>
+  }
+/>
+
+## Enable and configure your preference center
+
+You configure the preference center from the Knock dashboard under **Platform** > **Preferences** > **Preference center**. Your configuration is environment-specific.
+
+When the preference center is saved and enabled, changes go live in the environment right away. When the preference center is disabled, users can only edit their commercial messages opt-out preference.
+
+<Steps titleSize="h3">
+  <Step title="Enable the preference center">
+    Toggle **Enabled** to turn the preference center on for the environment. When it's disabled, users can still reach the page but can only edit their commercial messages opt-out preference.
+  </Step>
+  <Step title="Show the account name">
+    Toggle **Show account name** to display your account name alongside your logo at the top of the page.
+  </Step>
+  <Step title="Set the title and body">
+    Set the **title** and **body** copy that appear at the top of the page. Use these to tell your users what the page does, for example "Notification preferences" and "Manage your preferred notification channels and categories."
+  </Step>
+  <Step title="Add preference options">
+    Each preference option is a row that your users can toggle. For each row, you configure:
+
+    - **Type.** Map the row to a [category](/preferences/overview#how-preferences-work), a [workflow](/concepts/workflows), or a [channel](/concepts/channels). For categories and workflows you can select an existing key or create a new one.
+    - **Display name and description.** The label your users see for this row, for example "Comments and replies," and an optional line of supporting text shown beneath it.
+    - **Channel types.** For category or workflow rows, limit the row to specific channel types, such as email, in-app, push, or SMS. When you select one or more channel types, the row renders a toggle per channel type so users can opt in or out of each one. This doesn't apply to channel rows, which already map to a single channel type.
+
+  </Step>
+  <Step title="Configure commercial messages">
+    The commercial messages row gives your users a single place to opt out of promotional or non-essential notifications. This is backed by the same `commercial_subscribed` preference used for [commercial unsubscribe](/preferences/commercial-unsubscribe), so opting out here also satisfies one-click CAN-SPAM requirements for your commercial messaging.
+
+    The commercial messages row is mandatory and always renders in the preference center, whether the preference center is enabled or disabled. You can change the title and body copy for the row, but you can't remove it.
+
+  </Step>
+  <Step title="Set your branding">
+    The preference center uses the branding configured for your account, including your logo, icon, and primary color. See [branding](/template-editor/branding) for more on how branding works in Knock.
+  </Step>
+  <Step title="Preview as a user">
+    Before you save, you can preview the preference center as a specific user. This loads that user's literal preference center, rendering the page exactly as they would see it with their current preferences and your latest configuration, so you can confirm the experience before it goes live.
+  </Step>
+</Steps>
+
+## How configuration maps to preferences
+
+Each row in your preference center maps to a key in the recipient's `PreferenceSet`. A row can point at a `category`, a `workflow`, or a `channel`, and can scope to one or more channel types.
+
+<Callout
+  type="info"
+  title="Channel type preferences aren't supported."
+  text={
+    <>
+      The hosted preference center doesn't support top-level{" "}
+      <a href="/preferences/overview#channels-vs-channel-types">channel type</a>{" "}
+      preferences. Channel types can only be configured as part of a category or
+      workflow row.
+    </>
+  }
+/>
+
+When a user saves their preferences, Knock updates the corresponding keys on the recipient's `default` preference set. These changes are merged with any environment or tenant defaults during [preference evaluation](/preferences/overview#preference-evaluation-rules), with the recipient's preferences taking precedence according to the [merge hierarchy](/preferences/overview#merging-preferences).
+
+<Callout
+  type="info"
+  title="Multiple rows can affect one notification."
+  text={
+    <>
+      A single notification can be affected by preferences set across several
+      preference center rows. If a user sets any of those preferences to{" "}
+      <code>false</code>, the notification won't be delivered. See{" "}
+      <a href="/preferences/overview#preference-evaluation-rules">
+        preference evaluation rules
+      </a>{" "}
+      for how Knock resolves conflicts.
+    </>
+  }
+/>
+
+For example, imagine the `new-comment` workflow belongs to the `collaboration` category, and your preference center has a row for the `collaboration` category and a separate row for the `new-comment` workflow. If a user opts out of either the `collaboration` category row or the `new-comment` workflow row, the comment notification won't be delivered, because both preferences must evaluate to `true` for the notification to send.
+
+## Linking users to the preference center
+
+To send users to their preference center, include the manage-preferences URL in your email templates using the built-in variable:
+
+```liquid title="Link to the hosted preference center"
+<a href="{{vars.manage_preferences_url}}">Manage your preferences</a>
+```
+
+This sits alongside the existing `vars.commercial_unsubscribe_url` variable, which links to the one-click [commercial unsubscribe](/preferences/commercial-unsubscribe) flow. Use `vars.manage_preferences_url` when you want to give users full control over their preferences, and `vars.commercial_unsubscribe_url` for a single-click opt-out of commercial messages.
+
+You can also add the preference center link to your emails without editing template code by configuring footer links in your [email layout settings](/integrations/email/layouts).
+
+## Copying configuration between environments
+
+Your preference center configuration is environment-specific, just like your [preference defaults](/preferences/overview#create-a-default-preferenceset). You can copy the configuration from one environment to another to keep your environments in sync as you move from development to production.
+
+## Learn more
+
+To learn more about the preferences model behind the preference center, see the [preferences overview](/preferences/overview). To set up one-click unsubscribe for commercial messaging, see [commercial unsubscribe](/preferences/commercial-unsubscribe).

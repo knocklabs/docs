@@ -193,6 +193,10 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     desc: "Learn how to power notification preferences with Knock.",
     pages: [
       { slug: "/overview", title: "Overview" },
+      {
+        slug: "/hosted-preference-center",
+        title: "Hosted preference center",
+      },
       { slug: "/object-preferences", title: "Object preferences" },
       { slug: "/preference-conditions", title: "Preferences conditions" },
       {
