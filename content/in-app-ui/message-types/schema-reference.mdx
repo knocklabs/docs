@@ -217,6 +217,114 @@ A checkbox that returns either true or false (checked or unchecked).
 }
 ```
 
+### Number
+
+A numeric input field with optional min/max bounds and a unit label shown next to the input.
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+  <Attribute
+    name="placeholder"
+    type="string"
+    description="An optional placeholder to display in the input"
+  />
+  <Attribute
+    name="default"
+    type="number"
+    description="The default numeric value"
+  />
+  <Attribute
+    name="min"
+    type="number"
+    description="The inclusive minimum allowed value"
+  />
+  <Attribute
+    name="max"
+    type="number"
+    description="The inclusive maximum allowed value"
+  />
+  <Attribute
+    name="unitLabel"
+    type="string"
+    description="A short label shown after the input (e.g. `px`, `kg`)"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "number",
+  "key": "ship_number",
+  "label": "Ship number",
+  "settings": {
+    "description": "Displayed next to the hull ID",
+    "placeholder": "0",
+    "required": true,
+    "default": 42,
+    "min": 0,
+    "max": 999999,
+    "unitLabel": "TEU"
+  }
+}
+```
+
+### Color
+
+A hex color input field that accepts values in `#RGB` or `#RRGGBB` format. Editors can also pick a color from the [branding variables](/template-editor/branding) defined on the environment, in which case the value is stored as a reference to that variable (e.g. `{{ vars.branding.primary_color }}`).
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+  <Attribute
+    name="placeholder"
+    type="string"
+    description="An optional placeholder to display in the input"
+  />
+  <Attribute
+    name="default"
+    type="string"
+    description="The default hex color value"
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "color",
+  "key": "accent_color",
+  "label": "Accent color",
+  "settings": {
+    "description": "A hex color for the accent",
+    "placeholder": "#000000",
+    "required": true,
+    "default": "#FF0000"
+  }
+}
+```
+
 ### Select
 
 A single select box that defines a static list of options for editors to pick from.
@@ -550,4 +658,79 @@ A JSON input field with schema validation.
     }
   }
 }
+```
+
+### List
+
+A list of items, with an optional <a href="https://json-schema.org/" target="_blank">JSON Schema</a> that validates the structure of each item in the list.
+
+#### Settings
+
+<Attributes>
+  <Attribute
+    name="required"
+    type="boolean"
+    description="Indicates this field is required"
+  />
+  <Attribute
+    name="description"
+    type="string"
+    description="An optional friendly description"
+  />
+  <Attribute name="default" type="array" description="The default list value" />
+  <Attribute
+    name="itemSchema"
+    type="object"
+    description="A JSON Schema object that validates the structure of each item in the list."
+  />
+</Attributes>
+
+#### Example
+
+```json
+{
+  "type": "list",
+  "key": "faqs",
+  "label": "FAQs",
+  "settings": {
+    "description": "Frequently asked questions",
+    "required": true,
+    "default": [],
+    "itemSchema": {
+      "type": "object",
+      "properties": {
+        "question": { "type": "string", "title": "Question" },
+        "answer": { "type": "string", "title": "Answer" }
+      },
+      "required": ["question", "answer"]
+    }
+  }
+}
+```
+
+#### Usage
+
+When a list input is referenced in a template, its value is decoded into a Liquid array so you can iterate over it and access each item's fields.
+
+The most common pattern is to loop over the items:
+
+```liquid title="Iterating over a list field"
+<dl>
+  {% for faq in faqs %}
+    <dt>{{ faq.question }}</dt>
+    <dd>{{ faq.answer }}</dd>
+  {% endfor %}
+</dl>
+```
+
+You can also access a single item by index:
+
+```liquid title="Accessing a list item by index"
+{{ faqs[0].question }}
+```
+
+Note that printing the array directly with `{{ faqs }}` only works when the items are primitives (strings, numbers). For lists of objects, use the `json` filter to render the full value:
+
+```liquid title="Rendering a list of objects"
+{{ faqs | json }}
 ```
