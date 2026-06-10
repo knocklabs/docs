@@ -2952,6 +2952,8 @@ components:
           - dr_grant
           - dr_sattler
           - dr_malcolm
+        settings:
+          sandbox_mode: true
         tenant: ingen_isla_nublar
       properties:
         actor:
@@ -2981,6 +2983,19 @@ components:
           items:
             $ref: '#/components/schemas/RecipientRequest'
           type: array
+          x-struct: null
+          x-validate: null
+        settings:
+          description: Optional settings that control how this workflow trigger is executed.
+          nullable: true
+          properties:
+            sandbox_mode:
+              description: When set to true, overrides the sandbox mode for all channels in this workflow run, messages are not delivered to the underlying providers. If false or not set, the workflow delivers messages normally.
+              nullable: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+          type: object
           x-struct: null
           x-validate: null
         tenant:
@@ -13261,6 +13276,8 @@ paths:
                 - dr_grant
                 - dr_sattler
                 - dr_malcolm
+              settings:
+                sandbox_mode: true
               tenant: ingen_isla_nublar
             schema:
               $ref: '#/components/schemas/TriggerWorkflowRequest'
@@ -13298,6 +13315,7 @@ paths:
               severity: 'critical',
               system_status: 'fences_failing',
             },
+            settings: { sandbox_mode: true },
             tenant: 'ingen_isla_nublar',
           });
 
@@ -13321,6 +13339,9 @@ paths:
                   "message": "Life finds a way",
                   "severity": "critical",
                   "system_status": "fences_failing",
+              },
+              settings={
+                  "sandbox_mode": True
               },
               tenant="ingen_isla_nublar",
           )
@@ -13359,6 +13380,9 @@ paths:
           				"message":             "Life finds a way",
           				"severity":            "critical",
           				"system_status":       "fences_failing",
+          			}),
+          			Settings: knock.F(knock.WorkflowTriggerParamsSettings{
+          				SandboxMode: knock.F(true),
           			}),
           			Tenant: knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("ingen_isla_nublar")),
           		},
