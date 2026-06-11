@@ -87,7 +87,7 @@ await knock.tenants.set("tenant-id", {
 
 You can update the per-tenant default `PreferenceSet` by calling the `tenants.set` method with the same `tenant_id` and the updated preferences that you'd like to set.
 
-The default behavior for this action is to merge the new preferences with any existing preferences. This means that any existing preferences will only have their values updated but not removed. See the [frequently asked questions](#frequently-asked-questions) section below for more information on how you can use a "replace" persistence strategy to overwrite existing preferences instead.
+The default behavior for this action is to merge the new preferences with any existing preferences. This means that any existing preferences will only have their values updated but not removed. See the [frequently asked questions](#frequently-asked-questions) section below for more information on how you can use a "replace" persistence strategy to overwrite existing preferences instead, or how you can remove a tenant's default preference set entirely.
 
 ## Set a per-tenant user `PreferenceSet`
 
@@ -206,6 +206,21 @@ Here are a few things to keep in mind when using tenant preferences. You can lea
     await knock.tenants.set("tenant-id", {
       settings: {
         preference_set: preferences,
+      },
+    });
+    ```
+
+  </Accordion>
+  <Accordion title="How can I remove a tenant's default preference set after it has been set?">
+    To remove a tenant's default `PreferenceSet` entirely, call the `tenants.set` method with `settings.preference_set` set to `null`. This clears the tenant's default preferences.
+
+    ```javascript title="Remove a tenant's default preference set using the Node SDK"
+    import Knock from "@knocklabs/node";
+    const knock = new Knock({ apiKey: process.env.KNOCK_API_KEY });
+
+    await knock.tenants.set("tenant-id", {
+      settings: {
+        preference_set: null,
       },
     });
     ```
