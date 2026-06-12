@@ -310,8 +310,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeNumberField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -1770,6 +1770,9 @@ components:
           provider: sendgrid
           type: email
           updated_at: "2021-01-01T00:00:00Z"
+          visible_in:
+            - workflow
+            - broadcast
         created_at: "2021-01-01T00:00:00Z"
         index: 0
         rule_type: always
@@ -1816,6 +1819,8 @@ components:
             - exists
             - not_exists
             - is_timestamp
+            - is_timestamp_before_now
+            - is_timestamp_on_or_after_now
             - is_audience_member
             - is_not_audience_member
           example: equal_to
@@ -3739,6 +3744,9 @@ components:
         provider: sendgrid
         type: email
         updated_at: "2021-01-01T00:00:00Z"
+        visible_in:
+          - workflow
+          - broadcast
       properties:
         archived_at:
           description: The timestamp of when the channel was deleted.
@@ -3811,6 +3819,18 @@ components:
           description: The timestamp of when the channel was last updated.
           format: date-time
           type: string
+          x-struct: null
+          x-validate: null
+        visible_in:
+          description: The resources where this channel is visible as a step destination (e.g. workflow, broadcast).
+          items:
+            enum:
+              - workflow
+              - broadcast
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
           x-struct: null
           x-validate: null
       required:
@@ -4585,6 +4605,8 @@ components:
             - exists
             - not_exists
             - is_timestamp
+            - is_timestamp_before_now
+            - is_timestamp_on_or_after_now
             - is_audience_member
             - is_not_audience_member
           example: equal_to
@@ -5256,6 +5278,9 @@ components:
                 provider: sendgrid
                 type: email
                 updated_at: "2021-01-01T00:00:00Z"
+                visible_in:
+                  - workflow
+                  - broadcast
               created_at: "2021-01-01T00:00:00Z"
               index: 0
               rule_type: always
@@ -5267,6 +5292,9 @@ components:
           operator: any
           source: user
           updated_at: "2021-01-01T00:00:00Z"
+          visible_in:
+            - workflow
+            - broadcast
       properties:
         channel_group:
           $ref: '#/components/schemas/ChannelGroup'
@@ -6632,6 +6660,8 @@ components:
             - exists
             - not_exists
             - is_timestamp
+            - is_timestamp_before_now
+            - is_timestamp_on_or_after_now
             - is_audience_member
             - is_not_audience_member
           example: equal_to
@@ -7478,6 +7508,9 @@ components:
               provider: sendgrid
               type: email
               updated_at: "2021-01-01T00:00:00Z"
+              visible_in:
+                - workflow
+                - broadcast
             created_at: "2021-01-01T00:00:00Z"
             index: 0
             rule_type: always
@@ -7489,6 +7522,9 @@ components:
         operator: any
         source: user
         updated_at: "2021-01-01T00:00:00Z"
+        visible_in:
+          - workflow
+          - broadcast
       properties:
         archived_at:
           description: The timestamp of when the channel group was archived (soft deleted).
@@ -7554,6 +7590,18 @@ components:
           description: The timestamp of when the channel group was last updated.
           format: date-time
           type: string
+          x-struct: null
+          x-validate: null
+        visible_in:
+          description: The resources where this channel group is visible as a step destination (e.g. workflow, broadcast).
+          items:
+            enum:
+              - workflow
+              - broadcast
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
           x-struct: null
           x-validate: null
       required:
@@ -7663,11 +7711,23 @@ components:
           x-struct: null
           x-validate: null
         operator:
-          description: Determines how the channel rules are applied ('any' means any rule can match, 'all' means all rules must match).
+          description: Determines how the channel rules are applied ('any' means any rule can match, 'all' means all rules must match). Defaults to 'any'.
           enum:
             - any
             - all
           type: string
+          x-struct: null
+          x-validate: null
+        visible_in:
+          description: Optional. Where the channel group is visible as a step destination. Defaults to both workflow and broadcast when creating; omitted on update preserves the existing value.
+          items:
+            enum:
+              - workflow
+              - broadcast
+            type: string
+            x-struct: null
+            x-validate: null
+          type: array
           x-struct: null
           x-validate: null
       required:
@@ -8719,8 +8779,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeNumberField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -9086,6 +9146,9 @@ components:
                   provider: sendgrid
                   type: email
                   updated_at: "2021-01-01T00:00:00Z"
+                  visible_in:
+                    - workflow
+                    - broadcast
                 created_at: "2021-01-01T00:00:00Z"
                 index: 0
                 rule_type: always
@@ -9097,6 +9160,9 @@ components:
             operator: any
             source: user
             updated_at: "2021-01-01T00:00:00Z"
+            visible_in:
+              - workflow
+              - broadcast
         page_info:
           after: null
           before: null
@@ -9677,8 +9743,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeNumberField'
+              - $ref: '#/components/schemas/MessageTypeTextField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -10304,6 +10370,8 @@ components:
             - exists
             - not_exists
             - is_timestamp
+            - is_timestamp_before_now
+            - is_timestamp_on_or_after_now
             - is_audience_member
             - is_not_audience_member
           example: equal_to
@@ -11438,6 +11506,9 @@ components:
             provider: sendgrid
             type: email
             updated_at: "2021-01-01T00:00:00Z"
+            visible_in:
+              - workflow
+              - broadcast
         page_info:
           after: null
           before: null
@@ -14681,6 +14752,9 @@ paths:
                             provider: sendgrid
                             type: email
                             updated_at: "2021-01-01T00:00:00Z"
+                            visible_in:
+                              - workflow
+                              - broadcast
                           created_at: "2021-01-01T00:00:00Z"
                           index: 0
                           rule_type: always
@@ -14692,6 +14766,9 @@ paths:
                       operator: any
                       source: user
                       updated_at: "2021-01-01T00:00:00Z"
+                      visible_in:
+                        - workflow
+                        - broadcast
                   page_info:
                     after: null
                     before: null
@@ -16249,6 +16326,9 @@ paths:
                       provider: sendgrid
                       type: email
                       updated_at: "2021-01-01T00:00:00Z"
+                      visible_in:
+                        - workflow
+                        - broadcast
                   page_info:
                     after: null
                     before: null
@@ -20106,6 +20186,9 @@ paths:
                           provider: sendgrid
                           type: email
                           updated_at: "2021-01-01T00:00:00Z"
+                          visible_in:
+                            - workflow
+                            - broadcast
                         created_at: "2021-01-01T00:00:00Z"
                         index: 0
                         rule_type: always
@@ -20117,6 +20200,9 @@ paths:
                     operator: any
                     source: user
                     updated_at: "2021-01-01T00:00:00Z"
+                    visible_in:
+                      - workflow
+                      - broadcast
                 properties:
                   channel_group:
                     $ref: '#/components/schemas/ChannelGroup'
