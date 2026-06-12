@@ -40,10 +40,7 @@ export function page(pageName?: string, properties: Record<string, any> = {}) {
   }
 }
 
-export function identify(
-  userId: string,
-  properties: Record<string, any> = {},
-) {
+export function identify(userId: string, properties: Record<string, any> = {}) {
   if (typeof window !== "undefined" && initialized) {
     posthog.identify(userId, properties);
   }
