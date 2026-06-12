@@ -2215,6 +2215,9 @@ components:
               external_id: 123e4567-e89b-12d3-a456-426614174000
             read_at: "1993-06-11T21:30:00Z"
             recipient: dr_grant
+            recipient_snapshot:
+              email: user@example.com
+              name: John Doe
             scheduled_at: null
             seen_at: "1993-06-11T21:29:45Z"
             source:
@@ -2949,6 +2952,8 @@ components:
           - dr_grant
           - dr_sattler
           - dr_malcolm
+        settings:
+          sandbox_mode: true
         tenant: ingen_isla_nublar
       properties:
         actor:
@@ -2978,6 +2983,19 @@ components:
           items:
             $ref: '#/components/schemas/RecipientRequest'
           type: array
+          x-struct: null
+          x-validate: null
+        settings:
+          description: Optional settings that control how this workflow trigger is executed.
+          nullable: true
+          properties:
+            sandbox_mode:
+              description: When set to true, overrides the sandbox mode for all channels in this workflow run, messages are not delivered to the underlying providers. If false or not set, the workflow delivers messages normally.
+              nullable: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+          type: object
           x-struct: null
           x-validate: null
         tenant:
@@ -4178,17 +4196,26 @@ components:
     SlackIncomingWebhookConnection:
       description: A Slack connection incoming webhook.
       example:
-        url: https://hooks.slack.com/services/T01234567890/B01234567890/1234567890
+        incoming_webhook:
+          url: https://hooks.slack.com/services/T01234567890/B01234567890/1234567890
       properties:
-        url:
-          description: The URL of the incoming webhook for a Slack connection.
-          example: https://hooks.slack.com/services/T01234567890/B01234567890/1234567890
-          nullable: false
-          type: string
+        incoming_webhook:
+          description: A Slack connection incoming webhook.
+          properties:
+            url:
+              description: The URL of the incoming webhook for a Slack connection.
+              example: https://hooks.slack.com/services/T01234567890/B01234567890/1234567890
+              nullable: false
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - url
+          type: object
           x-struct: null
           x-validate: null
       required:
-        - url
+        - incoming_webhook
       title: SlackIncomingWebhookConnection
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.SlackChannelData.IncomingWebhookConnection
@@ -5702,6 +5729,9 @@ components:
           external_id: 123e4567-e89b-12d3-a456-426614174000
         read_at: "1993-06-11T21:30:00Z"
         recipient: dr_grant
+        recipient_snapshot:
+          email: user@example.com
+          name: John Doe
         scheduled_at: null
         seen_at: "1993-06-11T21:29:45Z"
         source:
@@ -5890,6 +5920,24 @@ components:
           x-validate: null
         recipient:
           $ref: '#/components/schemas/RecipientReference'
+        recipient_snapshot:
+          description: Recipient contact information captured at email send time. Null for non-email channels.
+          nullable: true
+          properties:
+            email:
+              description: The email address the message was delivered to
+              type: string
+              x-struct: null
+              x-validate: null
+            name:
+              description: The recipient name at send time
+              nullable: true
+              type: string
+              x-struct: null
+              x-validate: null
+          type: object
+          x-struct: null
+          x-validate: null
         scheduled_at:
           description: Timestamp when the message was scheduled to be sent.
           format: date-time
@@ -13228,6 +13276,8 @@ paths:
                 - dr_grant
                 - dr_sattler
                 - dr_malcolm
+              settings:
+                sandbox_mode: true
               tenant: ingen_isla_nublar
             schema:
               $ref: '#/components/schemas/TriggerWorkflowRequest'
@@ -13265,6 +13315,7 @@ paths:
               severity: 'critical',
               system_status: 'fences_failing',
             },
+            settings: { sandbox_mode: true },
             tenant: 'ingen_isla_nublar',
           });
 
@@ -13288,6 +13339,9 @@ paths:
                   "message": "Life finds a way",
                   "severity": "critical",
                   "system_status": "fences_failing",
+              },
+              settings={
+                  "sandbox_mode": True
               },
               tenant="ingen_isla_nublar",
           )
@@ -13326,6 +13380,9 @@ paths:
           				"message":             "Life finds a way",
           				"severity":            "critical",
           				"system_status":       "fences_failing",
+          			}),
+          			Settings: knock.F(knock.WorkflowTriggerParamsSettings{
+          				SandboxMode: knock.F(true),
           			}),
           			Tenant: knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("ingen_isla_nublar")),
           		},
