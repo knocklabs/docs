@@ -92,7 +92,7 @@ export default function Home() {
             <ContentCard
               title="Quick start"
               description="Integrate Knock with your backend web app and send your first notification."
-              href="/getting-started/quick-start"
+              href="/getting-started/quick-start/general"
               icon={Rabbit}
             />
             <ContentCard
