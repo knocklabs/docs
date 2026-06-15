@@ -11,7 +11,7 @@ import { InkeepModalProvider } from "../components/AiChatButton";
 import { AskAiProvider } from "../components/AskAiContext";
 import AskAiSidebar from "../components/AskAiSidebar";
 import { ThemeProvider } from "../components/theme/ThemeProvider";
-import * as analytics from "../lib/analytics";
+import * as posthog from "../lib/posthog";
 import { initAttribution } from "../lib/attribution";
 import { setClearbitPath } from "../lib/clearbit";
 import * as gtag from "../lib/gtag";
@@ -31,8 +31,9 @@ function MyApp({ Component, pageProps }) {
   // Refresh when content pages change
   useRemoteRefresh();
 
-  // Initialize attribution tracking on mount
+  // Initialize analytics and attribution tracking on mount
   useEffect(() => {
+    posthog.init();
     initAttribution();
   }, []);
 
@@ -40,7 +41,7 @@ function MyApp({ Component, pageProps }) {
     const handleRouteChange = (url: URL) => {
       gtag.pageview(url);
       setClearbitPath(url);
-      analytics.page();
+      posthog.page();
       initAttribution();
     };
 
@@ -58,7 +59,6 @@ function MyApp({ Component, pageProps }) {
             <EventEmitterContext.Provider value={eventEmitter}>
               <Component {...pageProps} />
             </EventEmitterContext.Provider>
-            {analytics.SEGMENT_WRITE_KEY && <analytics.Snippet />}
           </main>
           <AskAiSidebar />
         </InkeepModalProvider>
