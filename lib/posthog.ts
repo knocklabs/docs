@@ -20,14 +20,20 @@ export function init(): void {
   initialized = true;
 }
 
-export function track(eventName: string, properties: Record<string, unknown> = {}): void {
+export function track(
+  eventName: string,
+  properties: Record<string, unknown> = {},
+): void {
   if (typeof window === "undefined") return;
   if (!initialized) return;
 
   posthog.capture(eventName, properties);
 }
 
-export function page(pageName?: string, properties: Record<string, unknown> = {}): void {
+export function page(
+  pageName?: string,
+  properties: Record<string, unknown> = {},
+): void {
   if (typeof window === "undefined") return;
   if (!initialized) return;
 
@@ -39,7 +45,7 @@ export function page(pageName?: string, properties: Record<string, unknown> = {}
 
 export function identify(
   userId: string,
-  traits: Record<string, unknown> = {}
+  traits: Record<string, unknown> = {},
 ): void {
   if (typeof window === "undefined") return;
   if (!initialized) return;
