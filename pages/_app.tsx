@@ -35,6 +35,7 @@ function MyApp({ Component, pageProps }) {
   // Initialize analytics and attribution tracking on mount
   useEffect(() => {
     posthog.init();
+    posthog.page(); // Track initial pageview
     initAttribution();
   }, []);
 
