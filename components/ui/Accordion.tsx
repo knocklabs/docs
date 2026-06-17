@@ -2,7 +2,7 @@ import { Box, Stack } from "@telegraph/layout";
 import { MenuItem } from "@telegraph/menu";
 import { Icon } from "@telegraph/icon";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useLayoutEffect, useRef } from "react";
 import { Text, Code } from "@telegraph/typography";
 import { ChevronRight } from "lucide-react";
 
@@ -15,11 +15,24 @@ const AccordionGroup = ({ children }) => (
   </div>
 );
 
+function getHashFragment(): string {
+  if (typeof window === "undefined") return "";
+  const { hash } = window.location;
+  if (!hash || hash === "#") return "";
+  try {
+    return decodeURIComponent(hash.slice(1));
+  } catch {
+    return hash.slice(1);
+  }
+}
+
 type AccordionProps = {
   children: React.ReactNode;
   title: string;
   description?: string;
   defaultOpen?: boolean;
+  /** When set, this slug is used as the element `id` and the accordion opens if the URL hash matches (for deep links). Use a URL-safe hyphenated fragment, e.g. `my-section`. */
+  anchorSlug?: string;
 };
 
 // Helper function to parse title and split into text and code parts
@@ -68,12 +81,69 @@ const Accordion = ({
   title,
   description,
   defaultOpen = false,
+  anchorSlug,
 }: AccordionProps) => {
   const [open, setOpen] = useState<boolean>(defaultOpen);
   const titleParts = useMemo(() => parseTitleWithCode(title), [title]);
+  const elementRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!anchorSlug) return;
+
+    let cancelled = false;
+    let resizeObserver: ResizeObserver | null = null;
+    let stopWatchingTimeoutId: number | null = null;
+
+    const performScroll = () => {
+      if (cancelled) return;
+      elementRef.current?.scrollIntoView({
+        block: "start",
+        behavior: "smooth",
+      });
+    };
+
+    const stopWatching = () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+      }
+      if (stopWatchingTimeoutId !== null) {
+        clearTimeout(stopWatchingTimeoutId);
+        stopWatchingTimeoutId = null;
+      }
+    };
+
+    const syncFromHash = () => {
+      if (getHashFragment() !== anchorSlug) return;
+      setOpen(true);
+      performScroll();
+
+      // Re-scroll whenever layout shifts (images loading, async content, etc.)
+      // so the accordion stays anchored to its intended position even as the
+      // document height changes.
+      stopWatching();
+      if (typeof ResizeObserver !== "undefined") {
+        resizeObserver = new ResizeObserver(() => {
+          performScroll();
+        });
+        resizeObserver.observe(document.body);
+      }
+      // Stop correcting after layout has had time to settle so we don't
+      // fight subsequent user-initiated scrolls.
+      stopWatchingTimeoutId = window.setTimeout(stopWatching, 1500);
+    };
+
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => {
+      cancelled = true;
+      stopWatching();
+      window.removeEventListener("hashchange", syncFromHash);
+    };
+  }, [anchorSlug]);
 
   return (
-    <Box role="listitem">
+    <Box tgphRef={elementRef} role="listitem" id={anchorSlug}>
       <MenuItem
         as="button"
         onClick={() => setOpen(!open)}
