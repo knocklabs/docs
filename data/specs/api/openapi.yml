@@ -1955,19 +1955,19 @@ components:
             - message.read
             - message.sent
             - message.seen
-            - message.created
+            - message.archived
             - message.queued
             - message.delivered
+            - message.not_sent
             - message.bounced
             - message.undelivered
-            - message.not_sent
             - message.delivery_attempted
-            - message.archived
             - message.link_clicked
             - message.interacted
+            - message.unarchived
             - message.unseen
             - message.unread
-            - message.unarchived
+            - message.created
           example: message.sent
           type: string
           x-struct: null
@@ -2402,6 +2402,11 @@ components:
       example:
         account_name: Acme Inc.
         branding:
+          dark:
+            icon_url: https://example.com/icon-dark.png
+            logo_url: https://example.com/logo-dark.png
+            primary_color: '#C02727'
+            primary_color_contrast: '#11E2EC'
           icon_url: https://example.com/icon.png
           logo_url: https://example.com/logo.png
           primary_color: '#0EA5E9'
@@ -2434,38 +2439,20 @@ components:
           x-struct: null
           x-validate: null
         branding:
+          allOf:
+            - $ref: '#/components/schemas/PreferenceCenterBrandingConfig'
+            - properties:
+                dark:
+                  allOf:
+                    - $ref: '#/components/schemas/PreferenceCenterBrandingConfig'
+                  description: Optional branding overrides to apply when the preference center is rendered in dark mode. Falls back to the base branding for any unset keys.
+                  type: object
+                  x-struct: null
+                  x-validate: null
+              type: object
+              x-struct: null
+              x-validate: null
           description: The branding for the preference center, sourced from public environment variables.
-          properties:
-            icon_url:
-              description: The icon URL for the preference center. Must point to a valid image with an image MIME type.
-              example: https://example.com/icon.png
-              format: uri
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
-            logo_url:
-              description: The logo URL for the preference center. Must point to a valid image with an image MIME type.
-              example: https://example.com/logo.png
-              format: uri
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
-            primary_color:
-              description: The primary color for the preference center, provided as a hex value.
-              example: '#0EA5E9'
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
-            primary_color_contrast:
-              description: The primary color contrast for the preference center, provided as a hex value.
-              example: '#0F172A'
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
           type: object
           x-struct: null
           x-validate: null
@@ -2723,6 +2710,48 @@ components:
       title: SetObjectRequest
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.SetObjectRequest
+      x-validate: null
+    PreferenceCenterBrandingConfig:
+      description: The branding for the preference center, sourced from public environment variables.
+      example:
+        icon_url: https://example.com/icon.png
+        logo_url: https://example.com/logo.png
+        primary_color: '#0EA5E9'
+        primary_color_contrast: '#0F172A'
+      properties:
+        icon_url:
+          description: The icon URL for the preference center. Must point to a valid image with an image MIME type.
+          example: https://example.com/icon.png
+          format: uri
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        logo_url:
+          description: The logo URL for the preference center. Must point to a valid image with an image MIME type.
+          example: https://example.com/logo.png
+          format: uri
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        primary_color:
+          description: The primary color for the preference center, provided as a hex value.
+          example: '#0EA5E9'
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        primary_color_contrast:
+          description: The primary color contrast for the preference center, provided as a hex value.
+          example: '#0F172A'
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      title: PreferenceCenterBrandingConfig
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceCenterBrandingConfig
       x-validate: null
     BulkUpdateMessagesForChannelRequest:
       description: Updates message statuses in a specified channel. Use the `channel_id` parameter to target the channel and the `status` parameter to define what the status should be changed to (e.g. `archive`, `unarchive`). Apply to all messages or use filters to target a subset. For in-app channels, messages can be updated indefinitely via this operation. For all other channel types, messages outside the account's retention window will not be updated as part of this operation.
