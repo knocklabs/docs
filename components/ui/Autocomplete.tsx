@@ -599,6 +599,7 @@ const Autocomplete = () => {
     posthog.track("docs-search-opened-client", {
       trigger: "hotkey",
     });
+    hasTrackedOpenRef.current = true;
 
     setTimeout(() => {
       const ref = inputRef.current;
