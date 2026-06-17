@@ -7,7 +7,7 @@ import remarkParse from "remark-parse";
 import remarkFrontmatter from "remark-frontmatter";
 import yaml from "yaml";
 import { resolveEndpointFromMethod } from "../components/ui/ApiReference/helpers";
-import JSONPointer from "jsonpointer";
+import { getAtPointer } from "../lib/jsonPointer";
 import { readOpenApiSpec, readStainlessSpec } from "../lib/openApiSpec";
 import {
   MAPI_REFERENCE_OVERVIEW_CONTENT,
@@ -412,7 +412,7 @@ function generateSubresourcePages(
   if (subresource.models && Object.keys(subresource.models).length > 0) {
     indexContent += `## Object definitions\n\n`;
     for (const [modelName, modelRef] of Object.entries(subresource.models)) {
-      const schema = JSONPointer.get(
+      const schema = getAtPointer(
         openApiSpec,
         (modelRef as string).replace("#", ""),
       );
@@ -725,7 +725,7 @@ function getSchemaMarkdownContent(
   modelRef: string,
   openApiSpec: any,
 ): string {
-  const schema = JSONPointer.get(
+  const schema = getAtPointer(
     openApiSpec,
     (modelRef as string).replace("#", ""),
   );
