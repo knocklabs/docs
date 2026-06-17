@@ -49,7 +49,7 @@ export function InkeepModalProvider({ children }: { children: ReactNode }) {
   } = useInkeepSettings();
 
   const openWithPrompt = useCallback((prompt: string) => {
-    posthog.track("ask_ai_mobile_modal_opened", {
+    posthog.track("ask-ai-mobile-modal-opened-client", {
       source: "search",
       has_prompt: true,
       prompt_length: prompt.length,
@@ -86,7 +86,7 @@ export function InkeepModalProvider({ children }: { children: ReactNode }) {
       <div className="md-visible">
         <button
           onClick={() => {
-            posthog.track("ask_ai_mobile_modal_opened", {
+            posthog.track("ask-ai-mobile-modal-opened-client", {
               source: "floating_button",
               has_prompt: false,
             });

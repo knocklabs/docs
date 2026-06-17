@@ -150,7 +150,7 @@ const handleSearchNavigation = (
     pathname.startsWith("/api-reference");
   const isSamePageReferenceResult = isMapiReference || isApiReference;
 
-  posthog.track("docs_search_result_selected", {
+  posthog.track("docs-search-result-selected-client", {
     result_type: resultType,
     path: itemUrl,
     query: query || "",
@@ -361,7 +361,7 @@ const Autocomplete = () => {
     ) => {
       const prompt = createAskAiPrompt(query);
 
-      posthog.track("docs_search_result_selected", {
+      posthog.track("docs-search-result-selected-client", {
         result_type: "ask_ai",
         query,
         query_length: query.length,
@@ -398,7 +398,7 @@ const Autocomplete = () => {
           if (state.isOpen && !prevState.isOpen && state.query) {
             if (!hasTrackedOpenRef.current) {
               hasTrackedOpenRef.current = true;
-              posthog.track("docs_search_opened", {
+              posthog.track("docs-search-opened-client", {
                 trigger: "query",
               });
             }
@@ -528,7 +528,7 @@ const Autocomplete = () => {
             if ((item as any).__isAskAiItem) {
               const isMobileDevice = window.innerWidth <= MOBILE_BREAKPOINT;
 
-              posthog.track("docs_search_result_selected", {
+              posthog.track("docs-search-result-selected-client", {
                 result_type: "ask_ai",
                 query: state.query,
                 query_length: state.query.length,
@@ -551,7 +551,7 @@ const Autocomplete = () => {
 
             // Track doc/endpoint selection via keyboard
             const isEndpoint = (item as any).index === "endpoints";
-            posthog.track("docs_search_result_selected", {
+            posthog.track("docs-search-result-selected-client", {
               result_type: isEndpoint ? "endpoint" : "doc",
               path: itemUrl,
               query: state.query,
@@ -596,7 +596,7 @@ const Autocomplete = () => {
     // in "/" being displayed on the input
     e.preventDefault();
 
-    posthog.track("docs_search_opened", {
+    posthog.track("docs-search-opened-client", {
       trigger: "hotkey",
     });
 
@@ -678,7 +678,7 @@ const Autocomplete = () => {
       if (firstItem?.path) {
         const isEndpoint = (firstItem as any).index === "endpoints";
 
-        posthog.track("docs_search_result_selected", {
+        posthog.track("docs-search-result-selected-client", {
           result_type: isEndpoint ? "endpoint" : "doc",
           path: firstItem.path,
           query: autocompleteState?.query || "",

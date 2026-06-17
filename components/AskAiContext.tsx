@@ -236,25 +236,25 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const openSidebar = useCallback(() => {
-    posthog.track("ask_ai_sidebar_opened", {
+    posthog.track("ask-ai-sidebar-opened-client", {
       source: "button",
     });
     setIsOpen(true);
   }, []);
 
   const closeSidebar = useCallback(() => {
-    posthog.track("ask_ai_sidebar_closed");
+    posthog.track("ask-ai-sidebar-closed-client");
     setIsOpen(false);
   }, []);
 
   const toggleSidebar = useCallback(() => {
     setIsOpen((prev) => {
       if (!prev) {
-        posthog.track("ask_ai_sidebar_opened", {
+        posthog.track("ask-ai-sidebar-opened-client", {
           source: "button",
         });
       } else {
-        posthog.track("ask_ai_sidebar_closed");
+        posthog.track("ask-ai-sidebar-closed-client");
       }
       return !prev;
     });
@@ -262,7 +262,7 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
   const openSidebarWithPrompt = useCallback(
     (prompt: string) => {
-      posthog.track("ask_ai_sidebar_opened", {
+      posthog.track("ask-ai-sidebar-opened-client", {
         source: "search",
         has_prompt: true,
         prompt_length: prompt.length,
@@ -282,7 +282,7 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
     (sessionId: string) => {
       const session = chatSessions.find((s) => s.id === sessionId);
       if (session) {
-        posthog.track("ask_ai_session_switched", {
+        posthog.track("ask-ai-session-switched-client", {
           message_count: session.messages.length,
         });
 

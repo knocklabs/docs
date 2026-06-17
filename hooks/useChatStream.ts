@@ -185,7 +185,7 @@ export function useChatStream(): UseChatStreamReturn {
       // A session is "new" if it was just created OR if it has no messages yet
       const isNewSession = wasNewSession || isFirstMessage;
 
-      posthog.track("ask_ai_message_sent", {
+      posthog.track("ask-ai-message-sent-client", {
         message_length: content.trim().length,
         is_first_message: isFirstMessage,
         is_new_session: isNewSession,
@@ -365,7 +365,7 @@ export function useChatStream(): UseChatStreamReturn {
   );
 
   const stopStream = useCallback(() => {
-    posthog.track("ask_ai_stream_stopped", {
+    posthog.track("ask-ai-stream-stopped-client", {
       content_length: contentBufferRef.current.length,
       displayed_length: displayedLengthRef.current,
     });
