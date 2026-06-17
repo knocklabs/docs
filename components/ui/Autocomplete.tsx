@@ -21,6 +21,8 @@ import React, {
 } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
+import * as posthog from "@/lib/posthog";
+
 import { Button } from "@telegraph/button";
 import { Icon } from "@telegraph/icon";
 import { Input } from "@telegraph/input";
@@ -136,6 +138,8 @@ const handleSearchNavigation = (
   router,
   itemUrl,
   onSearch: () => void,
+  resultType: "doc" | "endpoint",
+  query?: string,
 ) => {
   const pathname = router.asPath;
   const isMapiReference =
@@ -145,6 +149,13 @@ const handleSearchNavigation = (
     itemUrl.startsWith("api-reference") &&
     pathname.startsWith("/api-reference");
   const isSamePageReferenceResult = isMapiReference || isApiReference;
+
+  posthog.track("docs_search_result_selected", {
+    result_type: resultType,
+    path: itemUrl,
+    query: query || "",
+    query_length: query?.length || 0,
+  });
 
   // If the item is in the same reference, highlight the item, don't navigate
   if (isSamePageReferenceResult) {
@@ -167,9 +178,11 @@ const handleSearchNavigation = (
 const DocsSearchResult = ({
   item,
   onClick,
+  query,
 }: {
   item: ResultItem;
   onClick: () => void;
+  query: string;
 }) => {
   const router = useRouter();
   const href = `/${item.path}`;
@@ -204,7 +217,9 @@ const DocsSearchResult = ({
     return (
       <a
         href={href}
-        onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
+        onClick={(e) =>
+          handleSearchNavigation(e, router, item.path, onClick, "doc", query)
+        }
       >
         {content}
       </a>
@@ -214,7 +229,9 @@ const DocsSearchResult = ({
   return (
     <Link
       href={href}
-      onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
+      onClick={(e) =>
+        handleSearchNavigation(e, router, item.path, onClick, "doc", query)
+      }
     >
       {content}
     </Link>
@@ -224,9 +241,11 @@ const DocsSearchResult = ({
 const EndpointSearchResult = ({
   item,
   onClick,
+  query,
 }: {
   item: EndpointSearchItem;
   onClick: () => void;
+  query: string;
 }) => {
   const router = useRouter();
   const href = `/${item.path}`;
@@ -282,7 +301,16 @@ const EndpointSearchResult = ({
     return (
       <a
         href={href}
-        onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
+        onClick={(e) =>
+          handleSearchNavigation(
+            e,
+            router,
+            item.path,
+            onClick,
+            "endpoint",
+            query,
+          )
+        }
       >
         {content}
       </a>
@@ -292,7 +320,9 @@ const EndpointSearchResult = ({
   return (
     <Link
       href={href}
-      onClick={(e) => handleSearchNavigation(e, router, item.path, onClick)}
+      onClick={(e) =>
+        handleSearchNavigation(e, router, item.path, onClick, "endpoint", query)
+      }
     >
       {content}
     </Link>
@@ -330,6 +360,14 @@ const Autocomplete = () => {
       autocompleteInstance?: ReturnType<typeof createAutocomplete>,
     ) => {
       const prompt = createAskAiPrompt(query);
+
+      posthog.track("docs_search_result_selected", {
+        result_type: "ask_ai",
+        query,
+        query_length: query.length,
+        device_type: isMobile ? "mobile" : "desktop",
+      });
+
       if (isMobile) {
         openInkeepModal(prompt);
       } else {
@@ -346,12 +384,30 @@ const Autocomplete = () => {
     [],
   );
 
+  // Track search opened - use ref to track if we've already fired the event
+  const hasTrackedOpenRef = useRef(false);
+
   const autocomplete = useMemo(
     () =>
       createAutocomplete({
-        onStateChange({ state }) {
+        onStateChange({ state, prevState }) {
           setIsSearchOpen(state.isOpen);
           setAutocompleteState(state);
+
+          // Track when search panel opens (query becomes non-empty and panel opens)
+          if (state.isOpen && !prevState.isOpen && state.query) {
+            if (!hasTrackedOpenRef.current) {
+              hasTrackedOpenRef.current = true;
+              posthog.track("docs_search_opened", {
+                trigger: "query",
+              });
+            }
+          }
+
+          // Reset tracking when search closes
+          if (!state.isOpen && prevState.isOpen) {
+            hasTrackedOpenRef.current = false;
+          }
         },
         getSources() {
           return [
@@ -470,11 +526,21 @@ const Autocomplete = () => {
           navigate({ itemUrl, item, state }) {
             // Handle Ask AI navigation (check window.innerWidth inline since useMemo can't access isMobile state)
             if ((item as any).__isAskAiItem) {
+              const isMobileDevice = window.innerWidth <= MOBILE_BREAKPOINT;
+
+              posthog.track("docs_search_result_selected", {
+                result_type: "ask_ai",
+                query: state.query,
+                query_length: state.query.length,
+                device_type: isMobileDevice ? "mobile" : "desktop",
+                selection_method: "keyboard",
+              });
+
               closeAutocompleteRef.current?.();
               // Defer opening sidebar/modal to next tick to avoid UI conflicts during close
               setTimeout(() => {
                 const prompt = createAskAiPrompt(state.query);
-                if (window.innerWidth <= MOBILE_BREAKPOINT) {
+                if (isMobileDevice) {
                   openInkeepModal(prompt);
                 } else {
                   openSidebarWithPrompt(prompt);
@@ -482,6 +548,16 @@ const Autocomplete = () => {
               }, 0);
               return;
             }
+
+            // Track doc/endpoint selection via keyboard
+            const isEndpoint = (item as any).index === "endpoints";
+            posthog.track("docs_search_result_selected", {
+              result_type: isEndpoint ? "endpoint" : "doc",
+              path: itemUrl,
+              query: state.query,
+              query_length: state.query.length,
+              selection_method: "keyboard",
+            });
 
             // For API reference items, use window.location for full page reload
             // to ensure the ApiReferenceProvider context is properly initialized
@@ -519,6 +595,11 @@ const Autocomplete = () => {
     // adding small timeout so event doesn't get to the focused input resulting
     // in "/" being displayed on the input
     e.preventDefault();
+
+    posthog.track("docs_search_opened", {
+      trigger: "hotkey",
+    });
+
     setTimeout(() => {
       const ref = inputRef.current;
 
@@ -595,6 +676,16 @@ const Autocomplete = () => {
         | ResultItem
         | undefined;
       if (firstItem?.path) {
+        const isEndpoint = (firstItem as any).index === "endpoints";
+
+        posthog.track("docs_search_result_selected", {
+          result_type: isEndpoint ? "endpoint" : "doc",
+          path: firstItem.path,
+          query: autocompleteState?.query || "",
+          query_length: autocompleteState?.query?.length || 0,
+          selection_method: "keyboard_enter",
+        });
+
         // For API reference items, use window.location for full page reload
         if (isApiReferencePath(firstItem.path)) {
           window.location.href = `/${firstItem.path}`;
@@ -820,11 +911,13 @@ const Autocomplete = () => {
                                   <EndpointSearchResult
                                     item={item as EndpointSearchItem}
                                     onClick={() => autocomplete.setQuery("")}
+                                    query={autocompleteState?.query || ""}
                                   />
                                 ) : (
                                   <DocsSearchResult
                                     item={item as DocsSearchItem}
                                     onClick={() => autocomplete.setQuery("")}
+                                    query={autocompleteState?.query || ""}
                                   />
                                 )}
                               </MenuItem>
