@@ -7,7 +7,7 @@ import { RESOURCE_ORDER as API_RESOURCE_ORDER } from "@/data/sidebars/apiOvervie
 import { RESOURCE_ORDER as MAPI_RESOURCE_ORDER } from "@/data/sidebars/mapiOverviewSidebar";
 import algoliasearch from "algoliasearch";
 import { resolveEndpointFromMethod } from "@/components/ui/ApiReference/helpers";
-import JSONPointer from "jsonpointer";
+import { getAtPointer } from "@/lib/jsonPointer";
 import { loadEnvConfig } from "@next/env";
 import type { DocsSearchItem, EndpointSearchItem } from "@/types";
 import { readFile } from "fs/promises";
@@ -146,7 +146,7 @@ async function indexResource({
   Object.keys(models).forEach(async (modelName) => {
     const modelRef = models[modelName];
     const modelUrl = `${basePath}/schemas/${modelName}`;
-    const schema = JSONPointer.get(openApiSpec, modelRef.replace("#", ""));
+    const schema = getAtPointer(openApiSpec, modelRef.replace("#", ""));
     const title = schema?.title ?? modelName;
     const modelObject: DocsSearchItem = {
       objectID: `page-${staticName}-${modelUrl}`,
