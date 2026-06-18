@@ -143,26 +143,11 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
 
     try {
       const savedSessions = localStorage.getItem(STORAGE_KEYS.chatSessions);
-      const savedCurrentChatId = localStorage.getItem(
-        STORAGE_KEYS.currentChatId,
-      );
 
       if (savedSessions) {
         const sessions = JSON.parse(savedSessions) as ChatSession[];
         const sanitizedSessions = sanitizeChatSessions(sessions);
         setChatSessions(sanitizedSessions);
-
-        if (savedCurrentChatId) {
-          const session = sanitizedSessions.find(
-            (s) => s.id === savedCurrentChatId,
-          );
-          if (session) {
-            setCurrentChatId(savedCurrentChatId);
-            setMessages(session.messages);
-          } else {
-            localStorage.removeItem(STORAGE_KEYS.currentChatId);
-          }
-        }
       }
     } catch {
       // Invalid JSON in localStorage, ignore
@@ -233,9 +218,19 @@ export function AskAiProvider({ children }: { children: ReactNode }) {
     return sessionId;
   }, []);
 
-  const openSidebar = useCallback(() => setIsOpen(true), []);
+  const openSidebar = useCallback(() => {
+    createNewSession();
+    setIsOpen(true);
+  }, [createNewSession]);
   const closeSidebar = useCallback(() => setIsOpen(false), []);
-  const toggleSidebar = useCallback(() => setIsOpen((prev) => !prev), []);
+  const toggleSidebar = useCallback(() => {
+    setIsOpen((prev) => {
+      if (!prev) {
+        createNewSession();
+      }
+      return !prev;
+    });
+  }, [createNewSession]);
   const openSidebarWithPrompt = useCallback(
     (prompt: string) => {
       // Create new session before setting prompt to ensure each query starts fresh
