@@ -229,31 +229,9 @@ The `<!--[if !mso]>` conditional prevents Outlook, which doesn't support `prefer
   }
 />
 
-### Branding-aware buttons
+### Styling buttons
 
 The Knock default email layout automatically styles buttons using your branding colors, with full support for dark mode.
-
-#### Legacy `.button` class
-
-The legacy `.button` class uses `primary_color` for the background and border, and `primary_color_contrast` for the text. In dark mode, these are overridden with `dark_primary_color` and `dark_primary_color_contrast`:
-
-```css title="Legacy button styling"
-.button {
-  background-color: {{ vars.branding.primary_color | default: "#000000" }};
-  border-color: {{ vars.branding.primary_color | default: "#000000" }};
-  color: {{ vars.branding.primary_color_contrast | default: "#FFFFFF" }};
-}
-
-@media (prefers-color-scheme: dark) {
-  .button {
-    background-color: {{ vars.branding.dark_primary_color | default: vars.branding.primary_color | default: "#000000" }} !important;
-    border-color: {{ vars.branding.dark_primary_color | default: vars.branding.primary_color | default: "#000000" }} !important;
-    color: {{ vars.branding.dark_primary_color_contrast | default: vars.branding.primary_color_contrast | default: "#FFFFFF" }} !important;
-  }
-}
-```
-
-#### Visual editor buttons (`.block-button`)
 
 Buttons inserted via the visual editor use the `.block-button` class with `--solid` and `--outline` variants. The default layout styles these using your branding colors:
 
@@ -292,9 +270,7 @@ Each button's individual style attributes from the visual editor (font size, pad
 
 #### Why dark mode uses `!important` overrides
 
-The visual editor renders button colors as static inline `style` attributes, which don't change between light and dark mode. Without layout-level overrides, buttons would appear with their light-mode colors in dark mode, making them unreadable against dark backgrounds.
-
-To solve this, the default layout uses `!important` in dark mode to override the inline styles injected by the visual editor. This means:
+The visual editor renders button colors as static inline `style` attributes, which don't change between light and dark mode. The default layout uses `!important` in dark mode to override the inline styles injected by the visual editor. This means:
 
 - **Light mode.** The button respects per-button colors set in the visual editor.
 - **Dark mode.** The layout forces branding-aware colors to ensure readability.
