@@ -105,10 +105,16 @@ Inject account- and environment-level variables into your layout with the `vars.
 
 Branding properties set in account settings are available under `vars.branding.*`:
 
-- `vars.branding.logo_url`
-- `vars.branding.icon_url`
-- `vars.branding.primary_color`
-- `vars.branding.primary_color_contrast`
+| Variable                                    | Description                                                                                          |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `vars.branding.logo_url`                    | URL of the logo image for your brand.                                                                |
+| `vars.branding.icon_url`                    | URL of the icon image for your brand.                                                                |
+| `vars.branding.dark_logo_url`               | URL of the logo image for dark mode. Defaults to `logo_url` if not set.                              |
+| `vars.branding.dark_icon_url`               | URL of the icon image for dark mode. Defaults to `icon_url` if not set.                              |
+| `vars.branding.primary_color`               | Primary brand color (hex). Defaults to `#000000`.                                                    |
+| `vars.branding.primary_color_contrast`      | Contrast color for text on primary color backgrounds (hex). Defaults to `#FFFFFF`.                   |
+| `vars.branding.dark_primary_color`          | Primary brand color for dark mode (hex). Defaults to `primary_color` if not set.                     |
+| `vars.branding.dark_primary_color_contrast` | Contrast color for text on dark mode primary color backgrounds (hex). Defaults to `primary_color_contrast` if not set. |
 
 With [per-tenant branding](/multi-tenancy/per-tenant-branding), Knock resolves these properties against the `tenant_id` on the workflow run, falling back to account-level branding if the tenant has none set.
 
@@ -222,6 +228,78 @@ The `<!--[if !mso]>` conditional prevents Outlook, which doesn't support `prefer
     </>
   }
 />
+
+### Branding-aware buttons
+
+The Knock default email layout automatically styles buttons using your branding colors, with full support for dark mode.
+
+#### Legacy `.button` class
+
+The legacy `.button` class uses `primary_color` for the background and border, and `primary_color_contrast` for the text. In dark mode, these are overridden with `dark_primary_color` and `dark_primary_color_contrast`:
+
+```css title="Legacy button styling"
+.button {
+  background-color: {{ vars.branding.primary_color | default: "#000000" }};
+  border-color: {{ vars.branding.primary_color | default: "#000000" }};
+  color: {{ vars.branding.primary_color_contrast | default: "#FFFFFF" }};
+}
+
+@media (prefers-color-scheme: dark) {
+  .button {
+    background-color: {{ vars.branding.dark_primary_color | default: vars.branding.primary_color | default: "#000000" }} !important;
+    border-color: {{ vars.branding.dark_primary_color | default: vars.branding.primary_color | default: "#000000" }} !important;
+    color: {{ vars.branding.dark_primary_color_contrast | default: vars.branding.primary_color_contrast | default: "#FFFFFF" }} !important;
+  }
+}
+```
+
+#### Visual editor buttons (`.block-button`)
+
+Buttons inserted via the visual editor use the `.block-button` class with `--solid` and `--outline` variants. The default layout styles these using your branding colors:
+
+- **Solid buttons** (`.block-button--solid`) use `primary_color` as the background and `primary_color_contrast` as the text color.
+- **Outline buttons** (`.block-button--outline`) use a transparent background with `primary_color` as the text and border color.
+
+Each button's individual style attributes from the visual editor (font size, padding, border radius, etc.) are preserved.
+
+```css title="Visual editor button styling"
+/* Light mode */
+.block-row--button_set-v1 .block-button--solid {
+  background-color: {{ vars.branding.primary_color | default: "#000000" }};
+  color: {{ vars.branding.primary_color_contrast | default: "#FFFFFF" }};
+}
+
+.block-row--button_set-v1 .block-button--outline {
+  background-color: transparent;
+  color: {{ vars.branding.primary_color | default: "#000000" }};
+  border-color: {{ vars.branding.primary_color | default: "#000000" }};
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .block-row--button_set-v1 .block-button--solid {
+    background-color: {{ vars.branding.dark_primary_color | default: vars.branding.primary_color | default: "#000000" }} !important;
+    color: {{ vars.branding.dark_primary_color_contrast | default: vars.branding.primary_color_contrast | default: "#FFFFFF" }} !important;
+  }
+
+  .block-row--button_set-v1 .block-button--outline {
+    background-color: transparent !important;
+    color: {{ vars.branding.dark_primary_color | default: vars.branding.primary_color | default: "#000000" }} !important;
+    border-color: {{ vars.branding.dark_primary_color | default: vars.branding.primary_color | default: "#000000" }} !important;
+  }
+}
+```
+
+#### Why dark mode uses `!important` overrides
+
+The visual editor renders button colors as static inline `style` attributes, which don't change between light and dark mode. Without layout-level overrides, buttons would appear with their light-mode colors in dark mode, making them unreadable against dark backgrounds.
+
+To solve this, the default layout uses `!important` in dark mode to override the inline styles injected by the visual editor. This means:
+
+- **Light mode.** The button respects per-button colors set in the visual editor.
+- **Dark mode.** The layout forces branding-aware colors to ensure readability.
+
+If you need full control over button colors in dark mode, you can customize the dark mode styles in your layout or create a custom layout with your own button styling.
 
 ### Injecting workflow run scope into a layout at runtime
 
