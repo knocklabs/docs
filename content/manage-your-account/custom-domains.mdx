@@ -1,15 +1,16 @@
 ---
 title: Custom domains
-description: Learn more about how to configure custom domains for your Knock account to use for link tracking, email open tracking, and more.
-tags: ["custom domains", "domains", "email", "email tracking"]
+description: Learn more about how to configure custom domains for your Knock account to use for link tracking, email open tracking, and the hosted preference center.
+tags:
+  ["custom domains", "domains", "email", "email tracking", "preference center"]
 section: Manage your account
 ---
 
-Knock supports setting up custom domains for your account to use for [link tracking](/send-notifications/tracking#how-it-works) (including short links in SMS and WhatsApp) and [email open tracking](/send-notifications/tracking#email-open-tracking).
+Knock supports setting up custom domains for your account to use for [link tracking](/send-notifications/tracking#how-it-works) (including short links in SMS and WhatsApp), [email open tracking](/send-notifications/tracking#email-open-tracking), and the [hosted preference center](/preferences/hosted-preference-center).
 
 Setting a custom domain is important for deliverability and branding. You run the risk of having your messages marked as spam if the sending domain and the domain you're routing to for links are different.
 
-By default, Knock uses [a variety of domains](/send-notifications/tracking#link-click-tracking-domains) for link tracking, short links in SMS and WhatsApp, and email open tracking. These domains are shared across all accounts and are not configurable. Custom domains enable you to override these defaults and use your own domains.
+By default, Knock uses [a variety of domains](/send-notifications/tracking#link-click-tracking-domains) for link tracking, short links in SMS and WhatsApp, and email open tracking, and hosts the preference center at `p.knock.app`. These domains are shared across all accounts and are not configurable. Custom domains enable you to override these defaults and use your own domains.
 
 ## Setting up a custom domain
 
@@ -26,15 +27,20 @@ By default, Knock uses [a variety of domains](/send-notifications/tracking#link-
   }
 />
 
-To set up a custom domain, you can navigate to the **Custom domains** page under the **Account** section of your account settings in your Knock dashboard and click the "Add domain" button.
+To set up a custom domain, navigate to the **Custom domains** page under **Account** in your Knock dashboard. Add a domain from the tracked links section or the **Preference center** section, depending on what you need.
 
-You'll be prompted to enter the domain you want to use, for example `link.yourcompany.com`. From here, you will need to set DNS records for the domain to verify it.
+You'll be prompted to enter the domain you want to use, for example `link.yourcompany.com` or `prefs.yourcompany.com`. From here, you will need to set DNS records for the domain to verify it.
 
 Please note, we **do not currently support apex domains** (e.g., `yourcompany.com`) as custom domains. You must use a subdomain.
 
 ### Setting DNS records
 
-You'll need to add a CNAME record to your DNS configuration for the domain to verify it. The CNAME record should point to `cname.knock.app`. Here are some examples for common providers:
+You'll need to add a CNAME record to your DNS configuration for the domain to verify it. The CNAME target depends on how you plan to use the domain:
+
+- **Link tracking, short links, and open tracking.** Point the CNAME record to `cname.knock.app`.
+- **Preference center.** Point the CNAME record to `prefs-cname.knock.app`.
+
+Here are some examples for common providers:
 
 <ul>
   <li>
@@ -86,21 +92,44 @@ You'll need to add a CNAME record to your DNS configuration for the domain to ve
 
 Once set, you can click the "Verify domain" button to verify the domain and that the DNS records are pointing to the correct value. Please note that it can take up to 48 hours for the DNS changes to propagate.
 
-Once a domain is verified, you can set how the domain will be used and the environments to which it is applied.
+The **Custom domains** page has two sections: one for tracked links and one for the [hosted preference center](/preferences/hosted-preference-center). The setup flow differs between them.
 
-## Selecting where a custom domain is used
+## Custom domains for tracked links
 
-To select where a custom domain is used, choose the relevant option from the list of use cases and click "Apply and activate."
+After you verify a domain for tracked links, you select a use case and assign the domain to one or more [environments](/concepts/environments).
+
+To select where a tracked link domain is used, choose the relevant option from the list of use cases and click "Apply and activate."
 
 - **Link tracking.** These are links used for tracking link clicks within your notifications. Link tracking is used across many different channels, including email, in-app feed, SMS, and WhatsApp.
 - **Short links.** These are links used for generating short links in SMS and WhatsApp messages.
 - **Open tracking.** These are links used for generating a 1x1 transparent tracking pixel, currently used only within email notifications.
 
-## Assigning a custom domain to an environment
+## Custom domains for the preference center
 
-Custom domains are assigned to one or more [environments](/concepts/environments). This means that you can easily assign the same custom domain to multiple environments, or you can use different custom domains for different environments for testing purposes.
+Preference center domains are managed in a separate section on the **Custom domains** page. They do not use the use case picker for tracked links.
 
-To assign a custom domain to an environment, you can simply select the environment from the list of environments and click the "Apply and activate" button.
+Add a domain from the **Preference center** section, set its DNS records, and verify it. Once verified, assign the domain to one or more [environments](/concepts/environments) and click "Apply." Knock automatically provisions HTTPS for verified preference center domains.
+
+<Callout
+  type="warning"
+  title="Use a separate subdomain for the preference center."
+  text={
+    <>
+      A subdomain used for the preference center can not also be used for
+      tracked links, and vice versa.
+    </>
+  }
+/>
+
+When a domain is assigned to an environment, `{{vars.manage_preferences_url}}` in your templates automatically uses your custom domain instead of `p.knock.app`. This does not affect `{{vars.commercial_unsubscribe_url}}`, which works independently.
+
+Each environment can have at most one preference center custom domain, or none (in which case Knock uses `p.knock.app`). The same preference center domain can be assigned to multiple environments. To switch an environment to a different domain, verify the new domain and assign it. The previous domain is unassigned automatically.
+
+## When assignment changes take effect
+
+Assignment changes take effect immediately for both tracked link and preference center domains. Newly sent messages use the assigned custom domain for that environment. Already-sent messages are not affected.
+
+For more on how custom domains affect preference center links, see [Custom domain for the preference center](/preferences/hosted-preference-center#custom-domain-for-the-preference-center).
 
 ## Rolling out your custom domains
 
@@ -116,7 +145,7 @@ To assign a custom domain to an environment, you can simply select the environme
   }
 />
 
-When you're ready to roll out your custom domains to production, you can simply assign the custom domain to your production environment and you're good to go. The changes will take effect immediately, and any future messages sent will use the custom domain for generated links and open tracking.
+When you're ready to roll out your custom domains to production, assign the custom domain to your production environment.
 
 ## Frequently asked questions
 
@@ -133,5 +162,23 @@ When you're ready to roll out your custom domains to production, you can simply 
     Yes, you can use a brand new domain. However, we recommend that you warm up
     the domain before using it for production traffic so that it has a good
     reputation.
+  </Accordion>
+  <Accordion title="Will preference center links in already-sent messages stop working after I set a custom domain?">
+    No. `p.knock.app` links in already-sent messages continue to work.
+  </Accordion>
+  <Accordion title="Will preference center links stop working if I unassign my custom domain?">
+    No, as long as the domain still exists in Knock and the DNS CNAME record is
+    intact. Links stop working only if you delete the domain in Knock or remove
+    or update the DNS record.
+  </Accordion>
+  <Accordion title="Can I switch from one preference center custom domain to another?">
+    Yes. Verify the new domain and assign it to the environment. The previous
+    domain is unassigned automatically. Links in already-sent messages on the
+    old domain continue to work if that domain still exists in Knock and the DNS
+    CNAME record is intact.
+  </Accordion>
+  <Accordion title="Does a preference center custom domain affect commercial unsubscribe links?">
+    No. `vars.commercial_unsubscribe_url` works independently and is not
+    affected by preference center custom domain configuration.
   </Accordion>
 </AccordionGroup>

@@ -25,11 +25,13 @@ This is the fastest way to let your users update their preferences when they rec
 
 ## How it works
 
-Knock hosts the preference center at `p.knock.app`. Each user accesses their own preferences through a signed link that looks like this:
+Knock hosts the preference center at `p.knock.app` by default. Each user accesses their own preferences through a signed link that looks like this:
 
 ```
 https://p.knock.app/?t=<token>
 ```
+
+You can also serve the preference center from your own subdomain. See [Custom domain for the preference center](#custom-domain-for-the-preference-center) below.
 
 The token identifies the recipient, so users don't need to log in to your product to view or update their preferences.
 
@@ -81,7 +83,7 @@ When the preference center is saved and enabled, changes go live in the environm
     The preference center uses the branding configured for your account, including your logo, icon, and primary color. See [branding](/template-editor/branding) for more on how branding works in Knock.
   </Step>
   <Step title="Preview as a user">
-    Before you save, you can preview the preference center as a specific user. This renders that user's page exactly as they would see it with their current preferences and your latest configuration, so you can confirm the experience before it goes live.
+    Before you save, you can preview the preference center as a specific user. This renders that user's page exactly as they would see it with their current preferences and your latest configuration, so you can confirm the experience before it goes live. When a [custom domain](#custom-domain-for-the-preference-center) is assigned to the environment, the preview uses that domain.
   </Step>
   <Step title="Enable the preference center">
     Toggle **Enabled** to turn the preference center on for the environment.
@@ -117,9 +119,33 @@ To link a user directly to their preference center from a notification, include 
 
 Knock renders the user-specific link in the notification. Use `vars.manage_preferences_url` when you want to give users full control over their preferences via the hosted preference center. For single-click opt-out of commercial messages via the commercial unsubscribe feature, use `vars.commercial_unsubscribe_url` instead.
 
+Custom domains apply only to `vars.manage_preferences_url`. `vars.commercial_unsubscribe_url` works independently and is not affected by preference center custom domain configuration.
+
 ## Copying configuration between environments
 
 Your preference center configuration is environment-specific, just like your [preference defaults](/preferences/overview#create-a-default-preferenceset). You can copy it from one environment to another using the "Copy to..." button in the upper right corner of the preference center settings. This enables you to keep your environments in sync as you move from development to production.
+
+## Custom domain for the preference center
+
+By default, the hosted preference center is served at `p.knock.app`. You can configure a custom domain to serve it from your own subdomain instead, for example `prefs.yourcompany.com`.
+
+Once a custom domain is assigned to an environment, `{{vars.manage_preferences_url}}` automatically uses it in that environment. You don't need to update your templates. For setup steps, see [Custom domains for the preference center](/manage-your-account/custom-domains#custom-domains-for-the-preference-center). Assignment changes [take effect immediately](/manage-your-account/custom-domains#when-assignment-changes-take-effect) for newly sent messages.
+
+To switch an environment to a different custom domain, verify the new domain and assign it. The previous domain is unassigned automatically.
+
+<Callout
+  type="info"
+  title="Existing links keep working."
+  text={
+    <>
+      Already-sent messages are not affected by domain changes. Links in those
+      messages continue to work as long as the domain still exists in Knock and
+      its DNS CNAME record still points to <code>prefs-cname.knock.app</code>.
+      Links stop working if you delete the domain in Knock or remove or update
+      the DNS record.
+    </>
+  }
+/>
 
 ## Learn more
 
