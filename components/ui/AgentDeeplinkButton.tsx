@@ -19,7 +19,8 @@ const GRID_SIZE = 3;
 const CANVAS_SIZE = 16;
 const CELL_SIZE = 4;
 const CELL_GAP = 1;
-const GRID_OFFSET = (CANVAS_SIZE - (GRID_SIZE * CELL_SIZE + (GRID_SIZE - 1) * CELL_GAP)) / 2;
+const GRID_OFFSET =
+  (CANVAS_SIZE - (GRID_SIZE * CELL_SIZE + (GRID_SIZE - 1) * CELL_GAP)) / 2;
 
 type GridCell = {
   opacity: number;
