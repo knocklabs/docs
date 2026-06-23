@@ -10,7 +10,7 @@ Knock supports setting up custom domains for your account to use for [link track
 
 Setting a custom domain is important for deliverability and branding. You run the risk of having your messages marked as spam if the sending domain and the domain you're routing to for links are different.
 
-By default, Knock uses [a variety of domains](/send-notifications/tracking#link-click-tracking-domains) for link tracking, short links in SMS and WhatsApp, and email open tracking, and hosts the preference center at `p.knock.app`. These domains are shared across all accounts and are not configurable. Custom domains enable you to override these defaults and use your own domains.
+By default, Knock uses [a variety of domains](/send-notifications/tracking#link-click-tracking-domains) for link tracking, short links in SMS and WhatsApp, and email open tracking. We also use the `p.knock.app` domain for the hosted preference center. These domains are shared across all accounts and are not configurable. Custom domains enable you to override these defaults and use your own domains.
 
 ## Setting up a custom domain
 
@@ -23,111 +23,132 @@ By default, Knock uses [a variety of domains](/send-notifications/tracking#link-
       email reputation (e.g., <code>link.yourcompany.com</code>) as a custom
       domain. If using a brand new domain, consider warming it first to build
       reputation and avoid deliverability issues.
+      <br />
+      <br />
+      Please note that <strong>
+        we do not currently support apex domains
+      </strong> (e.g., <code>yourcompany.com</code>) as custom domains. You must
+      use a subdomain.
     </>
   }
 />
 
-To set up a custom domain, navigate to the **Custom domains** page under **Account** in your Knock dashboard. Add a domain from the tracked links section or the **Preference center** section, depending on what you need.
+To set up a custom domain, navigate to the <a href="https://dashboard.knock.app/~/settings/domains" target="_blank">**Domains**</a> page under the **Account** section of your Knock dashboard settings.
 
-You'll be prompted to enter the domain you want to use, for example `link.yourcompany.com` or `prefs.yourcompany.com`. From here, you will need to set DNS records for the domain to verify it.
+<Steps titleSize="h3">
+  <Step title="Add a domain">
+    Click "Add domain" under the tracking link or preference center section, depending on what you'd like to configure.
+    
+    You'll be prompted to enter the domain you want to use, such as `link.yourcompany.com` or `prefs.yourcompany.com`. Click "Continue to verification."
+  
+    <Callout
+      type="warning"
+      title="Use a unique subdomain for the preference center."
+      text={
+        <>
+          A subdomain used for the preference center cannot also be used for
+          tracked links, and vice versa.
+        </>
+      }
+    />
+  </Step>
+  <Step title="Configure DNS records">
+    Before you can complete the setup process, you'll need to navigate to your domain registrar and add a CNAME record to the DNS configuration for your domain. The setup modal in your Knock dashboard will display the CNAME record you need to add.
+    
+    The CNAME target depends on how you plan to use the domain:
 
-Please note, we **do not currently support apex domains** (e.g., `yourcompany.com`) as custom domains. You must use a subdomain.
+    - **Link tracking, short links, and open tracking.** Point the CNAME record to `cname.knock.app`.
+    - **Preference center.** Point the CNAME record to `prefs-cname.knock.app`.
 
-### Setting DNS records
+    Here are some DNS configuration instructions for common providers:
 
-You'll need to add a CNAME record to your DNS configuration for the domain to verify it. The CNAME target depends on how you plan to use the domain:
+    <ul style={{ marginBottom: 0 }}>
+      <Text as="li" size="2" ml="4" data-tgph-list-item style={{ marginBottom: 0 }}>
+        {
+          <a
+            href="https://developers.cloudflare.com/dns/manage-dns-records/how-to/create-dns-records/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Cloudflare
+          </a>
+        }
+      </Text>
+      <Text as="li" size="2" ml="4" data-tgph-list-item style={{ marginBottom: 0 }}>
+        {
+          <a
+            href="https://docs.cloud.google.com/dns/docs/set-up-dns-records-domain-name"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google Cloud DNS
+          </a>
+        }
+      </Text>
+      <Text as="li" size="2" ml="4" data-tgph-list-item style={{ marginBottom: 0 }}>
+        {
+          <a
+            href="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-editing.html"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Route 53
+          </a>
+        }
+      </Text>
+      <Text as="li" size="2" ml="4" data-tgph-list-item style={{ marginBottom: 0 }}>
+        {
+          <a
+            href="https://vercel.com/docs/domains/managing-dns-records"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Vercel
+          </a>
+        }
+      </Text>
+      <Text as="li" size="2" ml="4" data-tgph-list-item style={{ marginBottom: 0 }}>
+        {
+          <a
+            href="https://www.godaddy.com/help/add-a-cname-record-19236"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GoDaddy
+          </a>
+        }
+      </Text>
+    </ul>
 
-- **Link tracking, short links, and open tracking.** Point the CNAME record to `cname.knock.app`.
-- **Preference center.** Point the CNAME record to `prefs-cname.knock.app`.
+  </Step>
+  <Step title="Verify the domain">
+    Once you've added the CNAME record, click "Check verification" to verify that the domain's DNS records are pointing to the correct value. Please note that it can take up to 48 hours for the DNS changes to propagate, so you may need to come back later and try again if verification does not succeed immediately.
+  </Step>
+  <Step title="Assign the domain to an environment">
+    Once the domain is verified, you'll assign it to one or more [environments](/concepts/environments). You can assign the same custom domain to multiple environments, or you can use different custom domains across environments for testing purposes.
+  </Step>
+  <Step title="Select where the domain is used">
+    For tracking links only, you will also need to select where the domain is used. Choose the relevant option(s) from the list of use cases:
 
-Here are some examples for common providers:
+    - **Link tracking.** These are links used for tracking link clicks within your notifications. Link tracking is used across many different channels, including email, in-app feed, SMS, and WhatsApp.
+    - **Short links.** These are links used for generating tracked short links in SMS and WhatsApp messages.
+    - **Open tracking.** These are links used for generating a 1x1 transparent tracking pixel, currently used only within email notifications.
 
-<ul>
-  <li>
-    <a
-      href="https://developers.cloudflare.com/dns/manage-dns-records/how-to/create-dns-records/"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Cloudflare
-    </a>
-  </li>
-  <li>
-    <a
-      href="https://docs.cloud.google.com/dns/docs/set-up-dns-records-domain-name"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Google Cloud DNS
-    </a>
-  </li>
-  <li>
-    <a
-      href="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-editing.html"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Route 53
-    </a>
-  </li>
-  <li>
-    <a
-      href="https://vercel.com/docs/domains/managing-dns-records"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Vercel
-    </a>
-  </li>
-  <li>
-    <a
-      href="https://www.godaddy.com/help/add-a-cname-record-19236"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      GoDaddy
-    </a>
-  </li>
-</ul>
-
-Once set, you can click the "Verify domain" button to verify the domain and that the DNS records are pointing to the correct value. Please note that it can take up to 48 hours for the DNS changes to propagate.
-
-The **Custom domains** page has two sections: one for tracked links and one for the [hosted preference center](/preferences/hosted-preference-center). The setup flow differs between them.
-
-## Custom domains for tracked links
-
-After you verify a domain for tracked links, you select a use case and assign the domain to one or more [environments](/concepts/environments).
-
-To select where a tracked link domain is used, choose the relevant option from the list of use cases and click "Apply and activate."
-
-- **Link tracking.** These are links used for tracking link clicks within your notifications. Link tracking is used across many different channels, including email, in-app feed, SMS, and WhatsApp.
-- **Short links.** These are links used for generating short links in SMS and WhatsApp messages.
-- **Open tracking.** These are links used for generating a 1x1 transparent tracking pixel, currently used only within email notifications.
+  </Step>
+  <Step title="Apply your changes">
+    Once you've selected where the domain is used, click "Apply and activate" to save your changes. Assignment changes take effect immediately for both tracked link and preference center domains.
+  </Step>
+</Steps>
 
 ## Custom domains for the preference center
 
-Preference center domains are managed in a separate section on the **Custom domains** page. They do not use the use case picker for tracked links.
+When a custom preference center domain is assigned to an environment, any `{{vars.manage_preferences_url}}` variables in your templates will automatically use your custom domain instead of `p.knock.app`.
 
-Add a domain from the **Preference center** section, set its DNS records, and verify it. Once verified, assign the domain to one or more [environments](/concepts/environments) and click "Apply." Knock automatically provisions HTTPS for verified preference center domains.
-
-<Callout
-  type="warning"
-  title="Use a separate subdomain for the preference center."
-  text={
-    <>
-      A subdomain used for the preference center can not also be used for
-      tracked links, and vice versa.
-    </>
-  }
-/>
-
-When a domain is assigned to an environment, `{{vars.manage_preferences_url}}` in your templates automatically uses your custom domain instead of `p.knock.app`. This does not affect `{{vars.commercial_unsubscribe_url}}`, which works independently.
-
-Each environment can have at most one preference center custom domain, or none (in which case Knock uses `p.knock.app`). The same preference center domain can be assigned to multiple environments. To switch an environment to a different domain, verify the new domain and assign it. The previous domain is unassigned automatically.
+Each environment can have at most one custom preference center domain. The same custom preference center domain can be assigned to multiple environments. To switch an environment to a different domain, verify the new domain and assign it. The previous domain will be automatically unassigned.
 
 ## When assignment changes take effect
 
-Assignment changes take effect immediately for both tracked link and preference center domains. Newly sent messages use the assigned custom domain for that environment. Already-sent messages are not affected.
+Assignment changes take effect immediately for both tracked link and preference center domains. New messages will use the currently-assigned custom domains for that environment. Already-sent messages are not affected.
 
 For more on how custom domains affect preference center links, see [Custom domain for the preference center](/preferences/hosted-preference-center#custom-domain-for-the-preference-center).
 
@@ -152,7 +173,7 @@ When you're ready to roll out your custom domains to production, assign the cust
 <AccordionGroup>
   <Accordion title="I've added the CNAME record successfully. Why isn't my domain marked as verified?">
     Please check that the CNAME record is pointing to the correct value. You can
-    also try to verify the domain again by clicking the "Verify domain" button.
+    also try to verify the domain again by clicking the "Check verification" button.
     It can take up to 48 hours for DNS changes on your domain to propagate. If
     after 48 hours the domain is still not verified, please reach out to our
     support team at
@@ -168,8 +189,7 @@ When you're ready to roll out your custom domains to production, assign the cust
   </Accordion>
   <Accordion title="Will preference center links stop working if I unassign my custom domain?">
     No, as long as the domain still exists in Knock and the DNS CNAME record is
-    intact. Links stop working only if you delete the domain in Knock or remove
-    or update the DNS record.
+    intact. Links stop working only if you delete the domain in Knock or modify the DNS record.
   </Accordion>
   <Accordion title="Can I switch from one preference center custom domain to another?">
     Yes. Verify the new domain and assign it to the environment. The previous
@@ -178,7 +198,7 @@ When you're ready to roll out your custom domains to production, assign the cust
     CNAME record is intact.
   </Accordion>
   <Accordion title="Does a preference center custom domain affect commercial unsubscribe links?">
-    No. `vars.commercial_unsubscribe_url` works independently and is not
+    No. [Commercial unsubscribe](/preferences/commercial-unsubscribe) works independently and is not
     affected by preference center custom domain configuration.
   </Accordion>
 </AccordionGroup>
