@@ -40,6 +40,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { ContentActions } from "@/components/ui/ContentActions";
 import FeaturesMatrix from "@/components/ui/FeaturesMatrix";
 import { PreTextDiagram } from "@/components/ui/PreTextDiagram";
+import { AgentDeeplinkButton } from "@/components/ui/AgentDeeplinkButton";
 
 const Image = ({
   className,
@@ -125,4 +126,5 @@ export const MDX_COMPONENTS = {
   ContentActions,
   FeaturesMatrix,
   PreTextDiagram,
+  AgentDeeplinkButton,
 };
