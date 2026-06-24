@@ -121,6 +121,62 @@ We also recommend that your `.ics` file include the following parameters for the
 - `METHOD:REQUEST`
 - `RSVP=TRUE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION` (on the `ATTENDEE`, to enable RSVPs)
 
+## Sending attachments with batched workflows
+
+<Callout
+  type="warning"
+  title="Batched workflow limitation."
+  text={
+    <>
+      If you trigger a batched workflow with attachment files, email steps after
+      the batch step will only include the attachment file(s) from the first
+      activity in the batch.
+    </>
+  }
+/>
+
+When a workflow includes a [batch step](/designing-workflows/batch-function), only the attachment(s) from the activity that **opened the batch window** will be included in email messages that are sent after the batch window closes. Attachments from subsequent `activities` that are added to the batch will not be included.
+
+To send a single email that includes an attachment file for each batched activity, use a [fetch function](/designing-workflows/fetch-function) step placed after your batch step to collect them once the window closes:
+
+1. **Trigger the workflow per item with identifiers, not file content.** Include a reference to each attachment (such as an ID or URL) in your `data` payload rather than the base64-encoded file content.
+2. **Batch by recipient.** Group the per-item triggers using your batch step as you normally would.
+3. **Add a fetch step after the batch step.** Using the `activities` array to enumerate every batched item, call back to your service to retrieve a single array of attachment objects under one key. The data returned by the fetch step is merged into the workflow run's `data` and made available to the email channel step that follows.
+4. **Point your template's attachment key at the fetched data.** Set the email template's attachment key to [the response path key](/designing-workflows/fetch-function#specifying-the-response-path) that you configured on the fetch step so that all of the collected files are sent with the email. If you don't specify a response path, the fetch step's response data will be merged into the workflow run's `data` at the top level.
+
+The fetch step's request body is a Liquid-compatible input, so you can loop over the `activities` array to build the list of identifiers to send to your service:
+
+```liquid title="Fetch step request body: collecting attachment IDs from the batch"
+{
+  "attachment_ids": [
+    {% for activity in activities %}
+      "{{ activity.attachment_id }}"{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+}
+```
+
+Your service then returns the assembled attachments, which Knock merges into the workflow run's `data`:
+
+```json title="Response data returned by your service"
+{
+  "attachments": [
+    {
+      "name": "invoice-1.pdf",
+      "content_type": "application/pdf",
+      "content": "<base64-encoded content>"
+    },
+    {
+      "name": "invoice-2.pdf",
+      "content_type": "application/pdf",
+      "content": "<base64-encoded content>"
+    }
+  ]
+}
+```
+
+In the example above, if no response path key is specified on the fetch step these returned `attachments` will be available under `data.attachments`. This matches the default attachment key for newly-created email templates.
+
 ## Previewing messages with attachments
 
 The Knock dashboard does not currently support previewing the attachment files that are sent with your email messages. This means that you'll need to send a test message (via the [workflow test runner](/send-notifications/testing-workflows) or the API) to your own email inbox to see what the attachment(s) will look like.
