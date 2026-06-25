@@ -2402,6 +2402,11 @@ components:
       example:
         account_name: Acme Inc.
         branding:
+          dark:
+            icon_url: https://example.com/icon-dark.png
+            logo_url: https://example.com/logo-dark.png
+            primary_color: '#C02727'
+            primary_color_contrast: '#11E2EC'
           icon_url: https://example.com/icon.png
           logo_url: https://example.com/logo.png
           primary_color: '#0EA5E9'
@@ -2434,38 +2439,20 @@ components:
           x-struct: null
           x-validate: null
         branding:
+          allOf:
+            - $ref: '#/components/schemas/PreferenceCenterBrandingConfig'
+            - properties:
+                dark:
+                  allOf:
+                    - $ref: '#/components/schemas/PreferenceCenterBrandingConfig'
+                  description: Optional branding overrides to apply when the preference center is rendered in dark mode. Falls back to the base branding for any unset keys.
+                  type: object
+                  x-struct: null
+                  x-validate: null
+              type: object
+              x-struct: null
+              x-validate: null
           description: The branding for the preference center, sourced from public environment variables.
-          properties:
-            icon_url:
-              description: The icon URL for the preference center. Must point to a valid image with an image MIME type.
-              example: https://example.com/icon.png
-              format: uri
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
-            logo_url:
-              description: The logo URL for the preference center. Must point to a valid image with an image MIME type.
-              example: https://example.com/logo.png
-              format: uri
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
-            primary_color:
-              description: The primary color for the preference center, provided as a hex value.
-              example: '#0EA5E9'
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
-            primary_color_contrast:
-              description: The primary color contrast for the preference center, provided as a hex value.
-              example: '#0F172A'
-              nullable: true
-              type: string
-              x-struct: null
-              x-validate: null
           type: object
           x-struct: null
           x-validate: null
@@ -2724,6 +2711,48 @@ components:
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.SetObjectRequest
       x-validate: null
+    PreferenceCenterBrandingConfig:
+      description: The branding for the preference center, sourced from public environment variables.
+      example:
+        icon_url: https://example.com/icon.png
+        logo_url: https://example.com/logo.png
+        primary_color: '#0EA5E9'
+        primary_color_contrast: '#0F172A'
+      properties:
+        icon_url:
+          description: The icon URL for the preference center. Must point to a valid image with an image MIME type.
+          example: https://example.com/icon.png
+          format: uri
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        logo_url:
+          description: The logo URL for the preference center. Must point to a valid image with an image MIME type.
+          example: https://example.com/logo.png
+          format: uri
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        primary_color:
+          description: The primary color for the preference center, provided as a hex value.
+          example: '#0EA5E9'
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        primary_color_contrast:
+          description: The primary color contrast for the preference center, provided as a hex value.
+          example: '#0F172A'
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+      title: PreferenceCenterBrandingConfig
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceCenterBrandingConfig
+      x-validate: null
     BulkUpdateMessagesForChannelRequest:
       description: Updates message statuses in a specified channel. Use the `channel_id` parameter to target the channel and the `status` parameter to define what the status should be changed to (e.g. `archive`, `unarchive`). Apply to all messages or use filters to target a subset. For in-app channels, messages can be updated indefinitely via this operation. For all other channel types, messages outside the account's retention window will not be updated as part of this operation.
       example:
@@ -2954,6 +2983,7 @@ components:
           - dr_malcolm
         settings:
           sandbox_mode: true
+          skip_delay: true
         tenant: ingen_isla_nublar
       properties:
         actor:
@@ -2991,6 +3021,12 @@ components:
           properties:
             sandbox_mode:
               description: When set to true, overrides the sandbox mode for all channels in this workflow run, messages are not delivered to the underlying providers. If false or not set, the workflow delivers messages normally.
+              nullable: true
+              type: boolean
+              x-struct: null
+              x-validate: null
+            skip_delay:
+              description: When set to true, skips all delay steps in the workflow for this trigger request. If false or not set, delay steps execute normally.
               nullable: true
               type: boolean
               x-struct: null
@@ -13278,6 +13314,7 @@ paths:
                 - dr_malcolm
               settings:
                 sandbox_mode: true
+                skip_delay: true
               tenant: ingen_isla_nublar
             schema:
               $ref: '#/components/schemas/TriggerWorkflowRequest'
@@ -13315,7 +13352,7 @@ paths:
               severity: 'critical',
               system_status: 'fences_failing',
             },
-            settings: { sandbox_mode: true },
+            settings: { sandbox_mode: true, skip_delay: true },
             tenant: 'ingen_isla_nublar',
           });
 
@@ -13341,7 +13378,8 @@ paths:
                   "system_status": "fences_failing",
               },
               settings={
-                  "sandbox_mode": True
+                  "sandbox_mode": True,
+                  "skip_delay": True,
               },
               tenant="ingen_isla_nublar",
           )
@@ -13383,6 +13421,7 @@ paths:
           			}),
           			Settings: knock.F(knock.WorkflowTriggerParamsSettings{
           				SandboxMode: knock.F(true),
+          				SkipDelay:   knock.F(true),
           			}),
           			Tenant: knock.F[knock.InlineTenantRequestUnionParam](shared.UnionString("ingen_isla_nublar")),
           		},
