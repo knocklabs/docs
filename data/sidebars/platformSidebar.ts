@@ -221,6 +221,10 @@ export const PLATFORM_SIDEBAR: SidebarSection[] = [
     desc: "Learn more about the tools available in managing your Knock account.",
     pages: [
       { slug: "/authentication-methods", title: "Authentication methods" },
+      {
+        slug: "/multi-factor-authentication",
+        title: "Multi-factor authentication",
+      },
       { slug: "/saml-sso", title: "SAML SSO" },
       { slug: "/directory-sync", title: "Directory sync (SCIM)" },
       { slug: "/managing-members", title: "Managing members" },
