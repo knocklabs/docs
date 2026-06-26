@@ -3589,15 +3589,13 @@ components:
                       type: string
                       x-struct: null
                       x-validate: null
-                    event_type:
-                      description: The decoded event type that triggers the action.
-                      type: string
+                    active:
+                      description: Whether the mapping is active. Set to false to deactivate the mapping without deleting it. Defaults to true.
+                      type: boolean
                       x-struct: null
                       x-validate: null
-                    inactive_at:
-                      description: The timestamp to deactivate the mapping.
-                      format: date-time
-                      nullable: true
+                    event_type:
+                      description: The decoded event type that triggers the action.
                       type: string
                       x-struct: null
                       x-validate: null
@@ -4663,8 +4661,8 @@ components:
         mappings_count: 2
         mappings_requiring_commit:
           - action_type: workflows_trigger
+            active: true
             event_type: invoice.created
-            inactive_at: null
             is_deleted: false
             resource_key: invoice-created
             status: updated
@@ -4696,15 +4694,13 @@ components:
                 type: string
                 x-struct: null
                 x-validate: null
-              event_type:
-                description: The decoded event type that triggers the action.
-                type: string
+              active:
+                description: Whether the mapping is active. Inactive mappings are skipped during execution.
+                type: boolean
                 x-struct: null
                 x-validate: null
-              inactive_at:
-                description: The timestamp of when the mapping was deactivated.
-                format: date-time
-                nullable: true
+              event_type:
+                description: The decoded event type that triggers the action.
                 type: string
                 x-struct: null
                 x-validate: null
@@ -4730,6 +4726,7 @@ components:
               - resource_key
               - action_type
               - event_type
+              - active
               - is_deleted
               - status
             type: object
@@ -5706,9 +5703,9 @@ components:
       example:
         action_parameters: null
         action_type: workflows_trigger
+        active: true
         created_at: "2021-01-01T00:00:00Z"
         event_type: Order Created
-        inactive_at: null
         is_deleted: false
         updated_at: "2021-01-01T00:00:00Z"
       properties:
@@ -5736,6 +5733,11 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        active:
+          description: Whether the mapping is active. Inactive mappings are skipped during execution.
+          type: boolean
+          x-struct: null
+          x-validate: null
         created_at:
           description: The timestamp of when the mapping was created.
           format: date-time
@@ -5744,13 +5746,6 @@ components:
           x-validate: null
         event_type:
           description: The decoded event type that triggers the action.
-          type: string
-          x-struct: null
-          x-validate: null
-        inactive_at:
-          description: The timestamp of when the mapping was deactivated.
-          format: date-time
-          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -5768,6 +5763,7 @@ components:
       required:
         - event_type
         - action_type
+        - active
         - is_deleted
         - created_at
         - updated_at
