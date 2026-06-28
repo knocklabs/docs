@@ -34,6 +34,107 @@ To include plain HTML within an MJML layout, wrap it in `<mjml-raw>` tags. MJML 
 
 [Learn more about email layouts](/integrations/email/layouts).
 
+### Dark mode support in MJML layouts
+
+The Knock default MJML layout supports dark mode out of the box via the `prefers-color-scheme` CSS media query. To add dark mode support to a custom MJML layout, include the color scheme meta tags and CSS overrides in your `<mj-head>`:
+
+```mjml title="MJML layout with dark mode support"
+<mjml>
+  <mj-head>
+    <mj-raw>
+      <meta name="color-scheme" content="light dark" />
+      <meta name="supported-color-schemes" content="light dark" />
+    </mj-raw>
+    <mj-style>
+      :root { color-scheme: light dark; supported-color-schemes: light dark; }
+      @media (prefers-color-scheme: dark) { .email-wrapper, .email-body {
+      background-color: #262626 !important; color: #ffffff !important; } }
+    </mj-style>
+  </mj-head>
+  <mj-body>
+    <!-- layout content -->
+  </mj-body>
+</mjml>
+```
+
+<Callout
+  emoji="🌠"
+  title="Note:"
+  text={
+    <>
+      Not every email client supports <code>prefers-color-scheme</code>. Clients
+      that don't will fall back to your light mode styles, so treat light mode
+      as the default experience.
+    </>
+  }
+/>
+
+### Branding-aware buttons in MJML layouts
+
+The Knock default MJML layout wires button styles to your [branding colors](/integrations/email/layouts#using-variables-and-brand-attributes-in-a-custom-layout) so buttons match your brand out of the box. This applies to both the legacy `.button` class and the visual editor's `.block-button` components.
+
+#### Button behavior in light and dark mode
+
+- **Solid buttons (`.block-button--solid`).** Background uses `primary_color`, text uses `primary_color_contrast`. In dark mode, these switch to `dark_primary_color` and `dark_primary_color_contrast`.
+
+- **Outline buttons (`.block-button--outline`).** Transparent background with `primary_color` text and border. In dark mode, these switch to `dark_primary_color`.
+
+In light mode, per-button colors set in the visual editor take precedence. In dark mode, the layout applies `!important` to override inline styles and ensure readability on dark backgrounds.
+
+#### Why dark mode uses `!important` overrides
+
+The visual editor renders button colors as static inline styles that do not change between light and dark mode. Without layout-level overrides, buttons would display their light-mode colors on a dark background, making text unreadable. The layout uses `!important` in dark mode to force branding colors on all buttons.
+
+<Callout
+  emoji="🌠"
+  title="Note:"
+  text={
+    <>
+      If your MJML layout was created before April 21, 2026, it does not include
+      branding-aware button styles or dark mode support. Either create a new
+      layout (which starts from Knock's latest default) or add the styles to
+      your existing layout.
+    </>
+  }
+/>
+
+Here's the CSS to add branding-aware buttons to a custom MJML layout:
+
+```mjml title="Branding-aware button styles for MJML"
+<mj-style>
+  /* Legacy button class */ .button { background-color: {{
+  vars.branding.primary_color | default: "#000000" }}; border-color: {{
+  vars.branding.primary_color | default: "#000000" }}; color: {{
+  vars.branding.primary_color_contrast | default: "#FFFFFF" }}; } /* Visual
+  editor solid buttons */ .block-button.block-button--solid { background-color:
+  {{ vars.branding.primary_color | default: "#000000" }}; border-color: {{
+  vars.branding.primary_color | default: "#000000" }}; color: {{
+  vars.branding.primary_color_contrast | default: "#FFFFFF" }}; } /* Visual
+  editor outline buttons */ .block-button.block-button--outline {
+  background-color: transparent; border-color: {{ vars.branding.primary_color |
+  default: "#000000" }}; color: {{ vars.branding.primary_color | default:
+  "#000000" }}; } @media (prefers-color-scheme: dark) { .button {
+  background-color: {{ vars.branding.dark_primary_color | default:
+  vars.branding.primary_color | default: "#000000" }} !important; border-color:
+  {{ vars.branding.dark_primary_color | default: vars.branding.primary_color |
+  default: "#000000" }} !important; color: {{
+  vars.branding.dark_primary_color_contrast | default:
+  vars.branding.primary_color_contrast | default: "#FFFFFF" }} !important; }
+  .block-button.block-button--solid { background-color: {{
+  vars.branding.dark_primary_color | default: vars.branding.primary_color |
+  default: "#000000" }} !important; border-color: {{
+  vars.branding.dark_primary_color | default: vars.branding.primary_color |
+  default: "#000000" }} !important; color: {{
+  vars.branding.dark_primary_color_contrast | default:
+  vars.branding.primary_color_contrast | default: "#FFFFFF" }} !important; }
+  .block-button.block-button--outline { background-color: transparent
+  !important; border-color: {{ vars.branding.dark_primary_color | default:
+  vars.branding.primary_color | default: "#000000" }} !important; color: {{
+  vars.branding.dark_primary_color | default: vars.branding.primary_color |
+  default: "#000000" }} !important; } }
+</mj-style>
+```
+
 ## MJML templates
 
 Email templates can use MJML in two ways:
