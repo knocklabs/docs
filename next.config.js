@@ -69,6 +69,25 @@ const nextConfig = {
     ];
   },
 
+  async rewrites() {
+    return [
+      // PostHog reverse proxy to avoid ad-blocker tracking prevention
+      // See: https://posthog.com/docs/advanced/proxy/nextjs
+      {
+        source: "/ingest/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/ingest/:path*",
+        destination: "https://us.i.posthog.com/:path*",
+      },
+      {
+        source: "/ingest/decide",
+        destination: "https://us.i.posthog.com/decide",
+      },
+    ];
+  },
+
   async redirects() {
     return [
       {
