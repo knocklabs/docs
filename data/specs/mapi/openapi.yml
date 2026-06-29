@@ -310,8 +310,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeTextField'
+              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -2065,6 +2065,7 @@ components:
         - $ref: '#/components/schemas/WorkflowEmailStep'
         - $ref: '#/components/schemas/WorkflowAIAgentStep'
         - $ref: '#/components/schemas/WorkflowDelayStep'
+        - $ref: '#/components/schemas/WorkflowWaitForEventStep'
         - $ref: '#/components/schemas/WorkflowBatchStep'
         - $ref: '#/components/schemas/WorkflowFetchStep'
         - $ref: '#/components/schemas/WorkflowUpdateDataStep'
@@ -6505,6 +6506,41 @@ components:
       type: string
       x-struct: null
       x-validate: null
+    WorkflowWaitForEventIntegrationSourceEvent:
+      description: An integration source event to wait for.
+      example:
+        event_key: order.updated
+        event_type: integration_source
+        integration_source_key: segment
+      properties:
+        event_key:
+          description: The name of the event to wait for.
+          example: order.updated
+          type: string
+          x-struct: null
+          x-validate: null
+        event_type:
+          description: The type of event to wait for.
+          enum:
+            - integration_source
+          example: integration_source
+          type: string
+          x-struct: null
+          x-validate: null
+        integration_source_key:
+          description: The key of the integration source that emits the event to wait for.
+          example: segment
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - event_type
+        - integration_source_key
+        - event_key
+      title: WorkflowWaitForEventIntegrationSourceEvent
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventIntegrationSourceEvent
+      x-validate: null
     ArchiveGuideResponse:
       description: The response from archiving a guide.
       example:
@@ -8875,8 +8911,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeTextField'
+              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -9839,8 +9875,8 @@ components:
               - $ref: '#/components/schemas/MessageTypeSelectField'
               - $ref: '#/components/schemas/MessageTypeBooleanField'
               - $ref: '#/components/schemas/MessageTypeJsonField'
-              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeTextField'
+              - $ref: '#/components/schemas/MessageTypeNumberField'
               - $ref: '#/components/schemas/MessageTypeImageField'
               - $ref: '#/components/schemas/MessageTypeColorField'
               - $ref: '#/components/schemas/MessageTypeUrlField'
@@ -11252,6 +11288,146 @@ components:
       title: WorkflowUpdateObjectStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowUpdateObjectStep
+      x-validate: null
+    WorkflowWaitForEventStep:
+      description: A wait for event function step that pauses a workflow until a matching event is received.
+      example:
+        name: Wait for event
+        ref: wait_for_event_1
+        settings:
+          event:
+            event_key: order.updated
+            event_type: integration_source
+            integration_source_key: segment
+          expires_after:
+            unit: days
+            value: 1
+          match_conditions:
+            - conditions:
+                - argument: some_property
+                  operator: equal_to
+                  variable: recipient.property
+              operator: and
+          on_match: continue
+          on_timeout: halt
+        type: wait_for_event
+      properties:
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A conditions object that describes one or more conditions to be met in order for the step to be executed.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Wait for the order to be updated.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Wait for event
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: wait_for_event_1
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: The settings for the wait for event step.
+          properties:
+            event:
+              description: The event to wait for. The shape depends on `event_type`.
+              discriminator:
+                mapping:
+                  integration_source: '#/components/schemas/WorkflowWaitForEventIntegrationSourceEvent'
+                propertyName: event_type
+              oneOf:
+                - $ref: '#/components/schemas/WorkflowWaitForEventIntegrationSourceEvent'
+              x-struct: null
+              x-validate: null
+            expires_after:
+              anyOf:
+                - $ref: '#/components/schemas/Duration'
+                - nullable: true
+                  x-struct: null
+                  x-validate: null
+              description: A duration object that describes how long to wait for a matching event before timing out.
+              type: object
+              x-struct: null
+              x-validate: null
+            match_conditions:
+              description: A list of condition groups the incoming event must match to resolve the wait.
+              items:
+                properties:
+                  conditions:
+                    description: A list of conditions.
+                    items:
+                      $ref: '#/components/schemas/Condition'
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  operator:
+                    description: The operator used to join the conditions in the group.
+                    enum:
+                      - and
+                    example: and
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                type: object
+                x-struct: null
+                x-validate: null
+              type: array
+              x-struct: null
+              x-validate: null
+            on_match:
+              description: The action to take when a matching event is received.
+              enum:
+                - continue
+                - halt
+              example: continue
+              type: string
+              x-struct: null
+              x-validate: null
+            on_timeout:
+              description: The action to take when the wait expires before a match.
+              enum:
+                - continue
+                - halt
+              example: halt
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - event
+          type: object
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the workflow step.
+          enum:
+            - wait_for_event
+          example: wait_for_event
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - settings
+      title: WorkflowWaitForEventStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventStep
       x-validate: null
     MessageTypeListField:
       description: A list field used in a message type.
