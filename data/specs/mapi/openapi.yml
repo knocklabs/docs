@@ -2305,6 +2305,49 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewPartialResponse
       x-validate: null
+    ItemSchema:
+      description: A managed schema configuration for users, tenants, or objects.
+      example:
+        item_id: accounts
+        item_type: object
+        properties:
+          - description: The user's current billing plan.
+            item_type: null
+            key: plan
+            label: Plan
+            preview_text: Enterprise
+            type: string
+            visible: true
+      properties:
+        item_id:
+          description: The object collection key. Only present for object schemas.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        item_type:
+          description: The item type the schema applies to.
+          enum:
+            - user
+            - tenant
+            - object
+          type: string
+          x-struct: null
+          x-validate: null
+        properties:
+          description: The managed properties for the schema.
+          items:
+            $ref: '#/components/schemas/ItemSchemaProperty'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - item_type
+        - properties
+      title: ItemSchema
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.ItemSchema
+      x-validate: null
     BroadcastSendRequest:
       description: A request to send or schedule a broadcast.
       example:
@@ -7119,6 +7162,63 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.MultiSelectField
       x-validate: null
+    ItemSchemaProperty:
+      description: A property definition within an item schema.
+      example:
+        description: The user's current billing plan.
+        item_type: null
+        key: plan
+        label: Plan
+        preview_text: Enterprise
+        type: string
+        visible: true
+      properties:
+        description:
+          description: The description of the property.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        item_type:
+          description: The referenced item type when the property stores an item reference.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The property key.
+          type: string
+          x-struct: null
+          x-validate: null
+        label:
+          description: The display label for the property.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        preview_text:
+          description: The property preview text.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The primitive or referenced item type for the property.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        visible:
+          description: Whether the property is visible in the schema management UI.
+          type: boolean
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+      title: ItemSchemaProperty
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.ItemSchemaProperty
+      x-validate: null
     BrandingOverrides:
       additionalProperties: false
       description: Overrides to apply against account branding variables in an email layout, including dark mode-specific values.
@@ -9879,6 +9979,42 @@ components:
       title: TranslationRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.TranslationRequest
+      x-validate: null
+    PaginatedItemSchemaResponse:
+      description: A paginated list of ItemSchema. Contains a list of entries and page information.
+      example:
+        entries:
+          - item_id: accounts
+            item_type: object
+            properties:
+              - description: The user's current billing plan.
+                item_type: null
+                key: plan
+                label: Plan
+                preview_text: Enterprise
+                type: string
+                visible: true
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/ItemSchema'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedItemSchemaResponse
+      type: object
+      x-struct: null
       x-validate: null
     WrappedMessageTypeRequestRequest:
       description: Wraps the MessageTypeRequest request under the message_type key.
@@ -14699,6 +14835,82 @@ paths:
           	}
           	fmt.Printf("%+v\n", sourceRehearseResponse.LogID)
           }
+  /v1/schemas:
+    get:
+      callbacks: {}
+      description: Retrieve the configuration for all managed item schemas (`user`, `tenant`, and `object`) in a given environment. Branch-qualified reads return the schemas inherited from the parent environment.
+      operationId: listSchemas
+      parameters:
+        - description: Filter schemas by item type (`user`, `tenant`, or `object`).
+          in: query
+          name: item_type
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of ItemSchema. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - item_id: accounts
+                      item_type: object
+                      properties:
+                        - description: The user's current billing plan.
+                          item_type: null
+                          key: plan
+                          label: Plan
+                          preview_text: Enterprise
+                          type: string
+                          visible: true
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/ItemSchema'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedItemSchemaResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List item schemas
+      tags:
+        - Schemas
   /v1/channel_groups:
     get:
       callbacks: {}
@@ -17798,6 +18010,118 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Result)
           }
+  /v1/schemas/{item_type}:
+    get:
+      callbacks: {}
+      description: Retrieve the configuration for an item schema (`user`, `tenant`, or `object`) in a given environment, including all of its configured properties.
+      operationId: getSchema
+      parameters:
+        - description: The item schema type to retrieve (`user`, `tenant`, or `object`).
+          in: path
+          name: item_type
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The object collection, required when `item_type` is `object`.
+          in: query
+          name: collection
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Get an item schema
+      tags:
+        - Schemas
+    put:
+      callbacks: {}
+      description: 'Applies changes for the item schema properties in the request. Omitted properties are left unchanged; hide a property with `visible: false` rather than removing it. The required permissions depend on what changes: changing a property''s display settings (`visible`/`label`/`description`) requires `item_schemas:manage`; changing a property''s type or example, or adding a property, requires `item_schemas:edit`. Adding a property that is already hidden or already has a label or description requires both.'
+      operationId: upsertSchema
+      parameters:
+        - description: The item schema type to upsert (`user`, `tenant`, or `object`).
+          in: path
+          name: item_type
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The object collection, required when `item_type` is `object`.
+          in: query
+          name: collection
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert item schema properties
+      tags:
+        - Schemas
   /v1/broadcasts/{broadcast_key}/cancel:
     put:
       callbacks: {}
@@ -19999,6 +20323,67 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Broadcast)
           }
+  /v1/schemas/{item_type}/validate:
+    put:
+      callbacks: {}
+      description: Checks an item schema configuration payload and reports which permissions it would require, without saving any changes.
+      operationId: validateSchema
+      parameters:
+        - description: The item schema type to validate (`user`, `tenant`, or `object`).
+          in: path
+          name: item_type
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The object collection, required when `item_type` is `object`.
+          in: query
+          name: collection
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Validate an item schema's configuration
+      tags:
+        - Schemas
   /v1/channel_groups/{channel_group_key}:
     delete:
       callbacks: {}
