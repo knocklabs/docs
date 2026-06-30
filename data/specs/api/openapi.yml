@@ -6495,7 +6495,6 @@ components:
       description: A request to set preferences for a set of users in bulk.
       example:
         preferences:
-          __persistence_strategy__: merge
           categories:
             marketing: false
             transactional:
@@ -6511,6 +6510,7 @@ components:
                   variable: recipient.country_code
             aef6e715-df82-4ab6-b61e-b743e249f7b6: true
           commercial_subscribed: true
+          id: default
           workflows:
             dinosaurs-loose:
               channel_types:
@@ -6520,7 +6520,7 @@ components:
           - user_2
       properties:
         preferences:
-          $ref: '#/components/schemas/PreferenceSetRequest'
+          $ref: '#/components/schemas/BulkPreferenceSetRequest'
         user_ids:
           description: A list of user IDs.
           items:
@@ -6537,6 +6537,105 @@ components:
       title: BulkSetUserPreferencesRequest
       type: object
       x-struct: Elixir.SwitchboardWeb.V1.Specs.BulkSetUserPreferencesRequest
+      x-validate: null
+    BulkPreferenceSetRequest:
+      description: A preference set to apply in a bulk operation. Always replaces existing preferences for the specified set.
+      example:
+        categories:
+          marketing: false
+          transactional:
+            channel_types:
+              email: false
+        channel_types:
+          email: true
+        channels:
+          2f641633-95d3-4555-9222-9f1eb7888a80:
+            conditions:
+              - argument: US
+                operator: equal_to
+                variable: recipient.country_code
+          aef6e715-df82-4ab6-b61e-b743e249f7b6: true
+        commercial_subscribed: true
+        id: default
+        workflows:
+          dinosaurs-loose:
+            channel_types:
+              email: false
+      properties:
+        categories:
+          anyOf:
+            - additionalProperties:
+                $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
+              description: An object where the key is the category and the values are the preference settings for that category.
+              example:
+                marketing:
+                  channel_types:
+                    email: false
+                transactional: true
+              title: PreferenceSetRequestCategories
+              type: object
+              x-struct: null
+              x-validate: null
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the category and the values are the preference settings for that category.
+          x-struct: null
+          x-validate: null
+        channel_types:
+          anyOf:
+            - $ref: '#/components/schemas/PreferenceSetChannelTypes'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the channel type and the values are the preference settings for that channel type.
+          x-struct: null
+          x-validate: null
+        channels:
+          anyOf:
+            - $ref: '#/components/schemas/PreferenceSetChannels'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the channel ID and the values are the preference settings for that channel ID.
+          x-struct: null
+          x-validate: null
+        commercial_subscribed:
+          description: Whether the recipient is subscribed to commercial communications. When false, the recipient will not receive commercial workflow notifications.
+          nullable: true
+          type: boolean
+          x-struct: null
+          x-validate: null
+        id:
+          description: Identifier for the preference set to update. Can be `default` or a tenant ID.
+          example: default
+          type: string
+          x-struct: null
+          x-validate: null
+        workflows:
+          anyOf:
+            - additionalProperties:
+                $ref: '#/components/schemas/PreferenceSetWorkflowCategorySetting'
+              description: An object where the key is the workflow key and the values are the preference settings for that workflow.
+              example:
+                dinosaurs-loose:
+                  channel_types:
+                    email: false
+                    sms: true
+                welcome-sequence: true
+              title: PreferenceSetRequestWorkflows
+              type: object
+              x-struct: null
+              x-validate: null
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: An object where the key is the workflow key and the values are the preference settings for that workflow.
+          x-struct: null
+          x-validate: null
+      title: BulkPreferenceSetRequest
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.BulkPreferenceSetRequest
       x-validate: null
     BulkSetTenantsRequest:
       description: A request to set tenants in bulk.
@@ -18268,7 +18367,6 @@ paths:
           application/json:
             example:
               preferences:
-                __persistence_strategy__: merge
                 categories:
                   marketing: false
                   transactional:
@@ -18284,6 +18382,7 @@ paths:
                         variable: recipient.country_code
                   aef6e715-df82-4ab6-b61e-b743e249f7b6: true
                 commercial_subscribed: true
+                id: default
                 workflows:
                   dinosaurs-loose:
                     channel_types:
@@ -18317,7 +18416,6 @@ paths:
 
           const bulkOperation = await client.users.bulk.setPreferences({
             preferences: {
-              __persistence_strategy__: 'merge',
               categories: {
                 marketing: false,
                 transactional: { channel_types: { email: false } },
@@ -18336,6 +18434,7 @@ paths:
                 'aef6e715-df82-4ab6-b61e-b743e249f7b6': true,
               },
               commercial_subscribed: true,
+              id: 'default',
               workflows: { 'dinosaurs-loose': { channel_types: { email: false } } },
             },
             user_ids: ['user_1', 'user_2'],
@@ -18351,7 +18450,6 @@ paths:
           )
           bulk_operation = client.users.bulk.set_preferences(
               preferences={
-                  "_persistence_strategy": "merge",
                   "categories": {
                       "marketing": False,
                       "transactional": {
@@ -18374,6 +18472,7 @@ paths:
                       "aef6e715-df82-4ab6-b61e-b743e249f7b6": True,
                   },
                   "commercial_subscribed": True,
+                  "id": "default",
                   "workflows": {
                       "dinosaurs-loose": {
                           "channel_types": {
@@ -18402,11 +18501,10 @@ paths:
           		option.WithAPIKey("My API Key"),
           	)
           	bulkOperation, err := client.Users.Bulk.SetPreferences(context.TODO(), knock.UserBulkSetPreferencesParams{
-          		Preferences: knock.F(knock.PreferenceSetRequestParam{
-          			PersistenceStrategy: knock.F(knock.PreferenceSetRequest_PersistenceStrategyMerge),
-          			Categories: knock.F(map[string]knock.PreferenceSetRequestCategoriesUnionParam{
+          		Preferences: knock.F(knock.UserBulkSetPreferencesParamsPreferences{
+          			Categories: knock.F(map[string]knock.UserBulkSetPreferencesParamsPreferencesCategoriesUnion{
           				"marketing": shared.UnionBool(false),
-          				"transactional": knock.PreferenceSetRequestCategoriesPreferenceSetWorkflowCategorySettingObjectParam{
+          				"transactional": knock.UserBulkSetPreferencesParamsPreferencesCategoriesPreferenceSetWorkflowCategorySettingObject{
           					ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
           						Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(false)),
           					}),
@@ -18415,7 +18513,7 @@ paths:
           			ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
           				Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(true)),
           			}),
-          			Channels: knock.F(map[string]knock.PreferenceSetRequestChannelsUnionParam{
+          			Channels: knock.F(map[string]knock.UserBulkSetPreferencesParamsPreferencesChannelsUnion{
           				"2f641633-95d3-4555-9222-9f1eb7888a80": knock.PreferenceSetChannelSettingParam{
           					Conditions: knock.F([]shared.ConditionParam{{
           						Argument: knock.F("US"),
@@ -18426,8 +18524,9 @@ paths:
           				"aef6e715-df82-4ab6-b61e-b743e249f7b6": shared.UnionBool(true),
           			}),
           			CommercialSubscribed: knock.F(true),
-          			Workflows: knock.F(map[string]knock.PreferenceSetRequestWorkflowsUnionParam{
-          				"dinosaurs-loose": knock.PreferenceSetRequestWorkflowsPreferenceSetWorkflowCategorySettingObjectParam{
+          			ID:                   knock.F("default"),
+          			Workflows: knock.F(map[string]knock.UserBulkSetPreferencesParamsPreferencesWorkflowsUnion{
+          				"dinosaurs-loose": knock.UserBulkSetPreferencesParamsPreferencesWorkflowsPreferenceSetWorkflowCategorySettingObject{
           					ChannelTypes: knock.F(knock.PreferenceSetChannelTypesParam{
           						Email: knock.F[knock.PreferenceSetChannelTypesEmailUnionParam](shared.UnionBool(false)),
           					}),
