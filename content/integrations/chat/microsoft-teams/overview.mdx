@@ -17,27 +17,110 @@ Today, Knock supports sending notifications to Microsoft Teams using two differe
 
 How you configure your Microsoft Teams channel in Knock depends on the method you choose.
 
-## How to connect to Teams with Knock
+## Prerequisites
 
-### Prerequisites
+If you're using an incoming webhook URL, there are no prerequisites. If you're using a Microsoft Teams bot, you'll need to follow the steps below to enable your users to connect your Teams app to their Microsoft Teams workspaces. Knock does not manage deploying and configuring your bot.
 
-If you're using an incoming webhook URL, there are no prerequisites.
+Additionally, if you intend to use our [TeamsKit](/in-app-ui/react/teams-kit) SDK or Knock's [Microsoft Teams-related React hooks](/in-app-ui/react/teams-kit#using-teamskit-headless), you'll need to [configure your bot as a Graph API-enabled application in the Microsoft Entra admin center](#configure-graph-api-in-microsoft-entra).
 
-If you're using a Microsoft Teams bot, make sure your bot has been registered and deployed with Azure. Knock does not manage deploying and configuring your bot. To set up Knock to send notifications as your bot, you'll need your bot's ID and password. These are sometimes called the App ID and App Password, and were provided to you when you registered your bot with Azure or the <a href="https://dev.teams.microsoft.com/" target="_blank">Microsoft Teams Developer Portal</a>.
+### Register a new bot
 
-Additionally, if you intend to use [TeamsKit](/in-app-ui/react/teams-kit) or Knock's [Microsoft Teams-related React hooks](/in-app-ui/react/teams-kit#using-teamskit-headless), you'll need to [configure a Graph API-enabled application in the Microsoft Entra admin center](#configuring-a-graph-api-enabled-application-in-microsoft-entra).
+<Callout
+  type="warning"
+  title="Multi-tenant bot deprecation."
+  text={
+    <>
+      As of July 31, 2025, Microsoft no longer allows the creation of
+      multi-tenant bots in Azure. If you're registering a new bot, you'll need
+      to register it as single-tenant and{" "}
+      <a href="#publish-your-app-to-the-microsoft-teams-store">
+        publish it to the Microsoft Teams app store
+      </a>{" "}
+      within a cross-tenant app so that it can be installed across customer
+      workspaces.
+    </>
+  }
+/>
 
-#### Registering a new bot
+If you haven't already, you'll need to <a href="https://learn.microsoft.com/en-us/azure/bot-service/bot-service-quickstart-create-bot?view=azure-bot-service-4.0&tabs=csharp%2Cvs" target="_blank" rel="noreferrer noopener">create a bot</a> with the Bot Framework SDK and <a href="https://learn.microsoft.com/en-us/azure/bot-service/abs-quickstart?view=azure-bot-service-4.0&tabs=userassigned" target="_blank" rel="noreferrer noopener">register it</a> in Azure. Once your bot is created, you'll need to <a href="https://learn.microsoft.com/en-us/azure/bot-service/provision-and-publish-a-bot?view=azure-bot-service-4.0&tabs=userassigned%2Ccsharp" target="_blank" rel="noreferrer noopener">deploy it</a> to Azure so that it can be used by your customers.
 
-As of July 31, 2025, Microsoft no longer allows the creation of multi-tenant bots in Azure. If you're registering a new bot, you'll need to register it as single-tenant and publish it to the Microsoft Teams app store as a cross-tenant app so it can be installed across customer workspaces.
+### Configure Graph API in Microsoft Entra
 
-The app store submission process is managed entirely by Microsoft and typically takes 4–6 weeks to complete. We recommend reviewing Microsoft's <a href="https://learn.microsoft.com/en-us/partner-center/marketplace-offers/add-in-submission-guide" target="_blank" rel="noreferrer noopener">app submission guide</a> ahead of time to understand what's required, as there are several steps involved.
+To use TeamsKit, you'll also need to configure the API permissions and OAuth redirect URL associated with a Graph API-enabled application in the Microsoft Entra admin center. If your bot has been registered with Azure as a multi-tenant bot, you can use your bot's app registration.
+
+<Steps>
+  <Step title="Find your bot's application in the Microsoft Entra admin center">
+    Log in to the <a href="https://entra.microsoft.com/" target="_blank">Microsoft Entra admin center</a>. In the sidebar, navigate to **Entra ID** > **App registrations**, and locate your bot's application.
+  </Step>
+  <Step title="Configure OAuth">
+    On your app's registration page, click **Authentication**. Under **Platform configurations**, click **Add a platform** and select **Web**.
+
+    Copy and paste the following URL into the **Redirect URI** text field:
+
+    <CopyableText
+      label="https://api.knock.app/providers/ms-teams/authenticate"
+      content="https://api.knock.app/providers/ms-teams/authenticate"
+    />
+
+    This will allow Knock to handle the OAuth redirect on behalf of your bot, and manage connecting a Microsoft Entra tenant to a Knock tenant.
+
+    Under **Supported account types**, select **Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant)**.
+
+    Click **Configure** to save your changes.
+
+  </Step>
+  <Step title="Add API permissions">
+    In the top-level sidebar, navigate to **API permissions** and click **Add a permission**. Select **Microsoft Graph** > **Application permissions**.
+
+    Under **Select permissions**, add the following permissions:
+
+    - `Team.ReadBasic.All`: This permission allows your bot to read a list of all teams within a Microsoft Entra tenant.
+    - `Channel.ReadBasic.All`: This permission allows your bot to read a list of all channels within a team.
+    - `AppCatalog.Read.All`: This permission allows your bot to locate itself in the Microsoft Teams app catalog.
+    - `TeamsAppInstallation.ReadWriteSelfForTeam.All`: This permission allows your bot to install itself into a team.
+    - `TeamsAppInstallation.ReadWriteSelfForUser.All`: This permission allows your bot to install itself into a user's personal scope.
+
+    Click **Add permissions** to save your changes.
+
+  </Step>
+</Steps>
+
+### Publish your app to the Microsoft Teams Store
+
+<Callout
+  type="info"
+  title="Teams Store submission timeline."
+  text={
+    <>
+      The Microsoft Teams Store submission process is managed entirely by
+      Microsoft and typically takes 4–6 weeks to complete. We recommend
+      reviewing Microsoft's{" "}
+      <a
+        href="https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/publish"
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        app submission guide
+      </a>{" "}
+      ahead of time to understand what's required, as there are several steps
+      involved.
+    </>
+  }
+/>
+
+Before you can start sending production notifications to your customers, you'll need to <a href="https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-publish-overview" target="_blank" rel="noreferrer noopener">publish an app package</a> to the Microsoft Teams Store.
+
+The Teams app package includes a `manifest.json` <a href="https://learn.microsoft.com/en-us/microsoft-365/extensibility/schema/root?view=m365-app-1.29&tabs=syntax" target="_blank" rel="noreferrer noopener">file</a> that contains the configuration for your bot. The required `scopes` will depend on the specific use case that you're targeting; see the documentation on [sending messages to public channels](/integrations/chat/microsoft-teams/sending-a-message-to-channels#adding-required-scopes-to-your-apps-manifest) and [sending direct messages](/integrations/chat/microsoft-teams/sending-a-direct-message#adding-required-scopes-to-your-apps-manifest) for more details.
 
 While your submission is under review, you can test your integration end-to-end by sideloading your app into a tenant directly. Download your Teams app as a `.zip` package from the <a href="https://dev.teams.microsoft.com/" target="_blank" rel="noreferrer noopener">Teams Developer Portal</a>, then upload it to the Teams Admin Center of the tenant you want to test in under **Teams apps** > **Manage app** > **Upload**. This makes your app available in that tenant's catalog without needing to wait for store approval.
 
+## How to connect to Teams with Knock
+
+To set up Knock to send notifications as your bot, you'll need your bot's ID and password. These are sometimes called the App ID and App Password, and were provided to you when you registered your bot with Azure or the <a href="https://dev.teams.microsoft.com/" target="_blank">Microsoft Teams Developer Portal</a>.
+
 ### Add Teams to Knock as a channel
 
-First you'll need to add Teams as a channel in Knock. Navigate to **Channels and sources** in your Knock dashboard account settings and click “Create channel” to add Microsoft Teams.
+First you'll need to add Teams as a channel in Knock. Navigate to <a href="https://dashboard.knock.app/~/settings/integrations/channels" target="_blank"><strong>Channels and sources</strong></a> in your Knock dashboard account settings and click “Create channel” to add Microsoft Teams.
 
 If you're using an incoming webhook URL, no additional environment configuration is required.
 
@@ -110,47 +193,6 @@ Now you're ready to notify Teams. [Trigger the workflow](/send-notifications/tri
 />
 
 Your Teams channel should have received a notification. If you need to debug your integration, you can view the logs page in the Knock dashboard.
-
-## Configuring a Graph API-enabled application in Microsoft Entra
-
-To use TeamsKit, you'll need to configure the API permissions and OAuth redirect URL associated with a Graph API-enabled application in the Microsoft Entra admin center. If your bot has been registered with Azure as a multi-tenant bot, you can use your bot's app registration.
-
-<Steps titleSize="h3">
-  <Step title="Find your application in the Microsoft Entra admin center">
-    Log in to the <a href="https://entra.microsoft.com/" target="_blank">Microsoft Entra admin center</a>. In the sidebar, navigate to **Entra ID** > **App registrations**, and locate your application.
-  </Step>
-  <Step title="Configure OAuth">
-    On your app's registration page, click **Authentication**. Under **Platform configurations**, click **Add a platform** and select **Web**.
-
-    Copy and paste the following URL into the **Redirect URI** text field:
-
-    <CopyableText
-      label="https://api.knock.app/providers/ms-teams/authenticate"
-      content="https://api.knock.app/providers/ms-teams/authenticate"
-    />
-
-    This will allow Knock to handle the OAuth redirect on behalf of your application, and manage connecting a Microsoft Entra tenant to a Knock tenant.
-
-    Under **Supported account types**, select **Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant)**.
-
-    Click **Configure** to save your changes.
-
-  </Step>
-  <Step title="Add API permissions">
-    In the top-level sidebar, navigate to **API permissions** and click **Add a permission**. Select **Microsoft Graph** > **Application permissions**.
-
-    Under **Select permissions**, add the following permissions:
-
-    - `Team.ReadBasic.All`: This permission allows your bot to read a list of all teams within a Microsoft Entra tenant.
-    - `Channel.ReadBasic.All`: This permission allows your bot to read a list of all channels within a team.
-    - `AppCatalog.Read.All`: This permission allows your bot to locate itself in the Microsoft Teams app catalog.
-    - `TeamsAppInstallation.ReadWriteSelfForTeam.All`: This permission allows your bot to install itself into a team.
-    - `TeamsAppInstallation.ReadWriteSelfForUser.All`: This permission allows your bot to install itself into a user's personal scope.
-
-    Click **Add permissions** to save your changes.
-
-  </Step>
-</Steps>
 
 ## How to set channel data for a Microsoft Teams integration in Knock
 
