@@ -337,6 +337,142 @@ Below is a description of the columns included in the table and the data type of
   </Accordion>
 </AccordionGroup>
 
+### Message events table
+
+Our data warehouse connector syncs data from our `message_events` table. Each row represents a delivery or engagement event emitted for a message. You can read more about [message events](/send-notifications/message-statuses#message-events).
+
+Below is a description of the columns included in the table and the data type of each. To see how this data type will map onto the data types of your destination table, check the <a href="https://docs.prequel.co/docs/data-types#destination-type-mapping" target="_blank">destination type mapping table</a>.
+
+<AccordionGroup>
+<Accordion title="Table definition example">
+    Please note that the table name will vary based on the name of the schema provided when filling out the form.
+    ```sql
+        CREATE TABLE <name of schema>.message_events (
+          id character varying(65535) NOT NULL,
+            environment_id character varying(65535),
+            message_id character varying(65535),
+            channel_id character varying(65535),
+            channel_type character varying(65535),
+            channel_provider character varying(65535),
+            type character varying(65535),
+            data super,
+            inserted_at timestamp with time zone,
+            recipient_type character varying(65535),
+            object_collection_name character varying(65535),
+            recipient_id character varying(65535),
+            exec_mode character varying(65535),
+            tenant_id character varying(65535),
+            workflow_key character varying(65535),
+            workflow_id character varying(65535),
+            step_ref character varying(65535),
+            guide_key character varying(65535),
+            guide_id character varying(65535),
+            PRIMARY KEY (id)
+        );
+    ```
+  </Accordion>
+  <Accordion title="Message events table structure">
+    <Table
+      headers={["Name", "Type", "Description"]}
+      rows={[
+        ["id", "string", "Unique event ID. Can be used to deduplicate events."],
+        [
+          "environment_id",
+          "string",
+          "The UUID of the environment for the message event",
+        ],
+        [
+          "message_id",
+          "string",
+          "The unique identifier for the message associated with this event",
+        ],
+        [
+          "channel_id",
+          "string",
+          "The UUID of the channel the message was sent on",
+        ],
+        [
+          "channel_type",
+          "string",
+          "The type of channel the message was sent on",
+        ],
+        [
+          "channel_provider",
+          "string",
+          "The provider for the channel the message was sent on",
+        ],
+        ["type", "string", "The message event type"],
+        ["data", "json", "The payload data for the message event"],
+        [
+          "inserted_at",
+          "timestamp",
+          "The timestamp of when the message event was created",
+        ],
+        [
+          "recipient_type",
+          "string",
+          <div key="message_events_recipient_type_body">
+            The{" "}
+            <a
+              href="/concepts/recipients"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                color: "var(--tgph-accent-11)",
+                textDecoration: "underline",
+              }}
+            >
+              type of recipient for the message event
+            </a>, such as <code>users</code>, <code>tenants</code>, or{" "}
+            <code>objects</code>
+          </div>,
+        ],
+        [
+          "object_collection_name",
+          "string",
+          <div key="message_events_object_collection_name_body">
+            The object collection name when <code>recipient_type</code> is{" "}
+            <code>objects</code>. Blank for user and tenant recipients.
+          </div>,
+        ],
+        [
+          "recipient_id",
+          "string",
+          "The ID of the recipient for the message event",
+        ],
+        ["exec_mode", "string", "The execution mode of the workflow"],
+        ["tenant_id", "string", "The tenant associated with this message event"],
+        [
+          "workflow_key",
+          "string",
+          "The unique key of the workflow the message event belongs to",
+        ],
+        [
+          "workflow_id",
+          "string",
+          "The UUID of the version of the workflow the message event belongs to",
+        ],
+        [
+          "step_ref",
+          "string",
+          "The reference of the workflow step the message event belongs to",
+        ],
+        [
+          "guide_key",
+          "string",
+          "The key of the guide, if the message event was emitted for a guide",
+        ],
+        [
+          "guide_id",
+          "string",
+          "The UUID of the version of the guide, if the message event was emitted for a guide",
+        ],
+      ]}
+    />
+
+  </Accordion>
+</AccordionGroup>
+
 ### Recipient change stream table
 
 <Callout
