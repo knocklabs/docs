@@ -116,137 +116,35 @@ The `PreferenceSet` above models this preference grid in your application:
   }
 />
 
-## Build your preference center
+A preference center is a place where users can manage their notification preferences. For a no-code option, use the [hosted preference center](/preferences/hosted-preference-center). To build and host your own UI, see [Build your preference center](/preferences/build-your-preference-center) and the [Preference center API reference](/api-reference/preference_center).
 
-A preference center is a place where users can manage their notification preferences.
+## Create a default PreferenceSet
+
+A default preference set is the `PreferenceSet` users default to using when they first sign up for your product. Any users who don't have a preference set will default to using the default preference set. You can create a default preference set in the Knock dashboard under **Platform** > **Preferences**.
+
+<Image
+  src="/images/concepts/preferences/preferences default set environment.png"
+  alt="Creating a default preference set in Knock dashboard"
+  width={1331}
+  height={737}
+  className="mx-auto"
+/>
+
+The default preference set is environment-specific for testing purposes. You can copy the default preference set from one environment to another to keep your environments in sync.
 
 <Callout
   type="info"
-  title="Use the hosted preference center."
+  title="A note on merging preferences."
   text={
     <>
-      The fastest way to give your users a preference center is Knock's{" "}
-      <a href="/preferences/hosted-preference-center">
-        hosted preference center
-      </a>
-      , a no-code page you configure from the dashboard. Use the steps below when
-      you want to build and host your own UI within your application, or when you
-      need to support <a href="/preferences/tenant-preferences">
-        per-tenant preferences
-      </a>.
+      If you create either an environment or tenant default{" "}
+      <code>PreferenceSet</code>, those preferences will be merged with changes
+      a user makes in the UI, with the user-specified changes taking precedence.
+      See <a href="#merging-preferences">Merging preferences</a> for more
+      information.
     </>
   }
 />
-
-If you need more control over the experience, you can build your own preference center in your application. There are four steps to building a preference center with Knock:
-
-<Steps titleSize="h3">
-  <Step title="Create a default PreferenceSet">
-    A default preference set is the `PreferenceSet` users default to using when they first sign up for your product. Any users who don't have a preference set will default to using the default preference set. You can create a default preference set in the Knock dashboard under **Platform** > **Preferences**.
-
-    <Image
-      src="/images/concepts/preferences/preferences default set environment.png"
-      alt="Creating a default preference set in Knock dashboard"
-      width={1331}
-      height={737}
-      className="rounded-md mx-auto border border-gray-200"
-    />
-
-
-    The default preference set is environment-specific for testing purposes. You can copy the default preference set from one environment to another to keep your environments in sync.
-    <Callout
-
-type="info"
-title="A note on merging preferences."
-text={
-
-<>
-  If you create either an environment or tenant default{" "}
-  <code>PreferenceSet</code> those preferences will be merged with changes a
-  user makes in the UI, with the user-specified changes taking precedence. See{" "}
-  <a href="#merging-preferences">Merging preferences</a> for more information.
-</>
-} />
-
-  </Step>
-  {/* TODO: We need to scope and build this with Chris then can add this step.
-  <Step title="Create a PreferenceView">
-
-    A `PreferenceView` defines the user-facing labels for any workflows or categories in your default preference set. This enables you to introduce new keys into your default preference set and have them update in your preference center, without needing to make changes within your codebase.
-
-    You can create your `PreferenceView` in the Knock dashboard under **Platform** > **Preferences**. Your `PreferenceView` will be environment-specific for testing purposes. You can copy the `PreferenceView` from one environment to another to keep them in sync.
-
-  </Step> */}
-  <Step title="Get a user's preferences">
-    {/* TODO add once we have pre-built react component for prefs
-    You can use our pre-built React component to render your preference center in your application. Here's an example of how you can use the component:
-
-    ```jsx
-    TODO: We need this component built and documented.
-    ``` */}
-
-    Once you have your default `PreferenceSet` created, you will use the `getPreferences` method to retrieve a user's preferences for rendering in your application. If no preferences are set, this method will return the default preference set you created in the step above.
-
-    <MultiLangCodeBlock
-      title="Get preferences for a user"
-      snippet="users.getPreferences"
-    />
-
-  </Step>
-  <Step title="Render your preference center">
-    {/* TODO add once we have pre-built react component for prefs
-    You can use our pre-built React component to render your preference center in your application. Here's an example of how you can use the component:
-
-    ```jsx
-    TODO: We need this component built and documented.
-    ``` */}
-
-    Once you have loaded a user's preference, you'll need to render an interface in your application so they can update their notification preferences. Typically you encapsulate all of the getting and setting of preferences in a single component.
-
-    You can see an example of this below, but our [quickstart documentation on building preferences UI](/in-app-ui/react/preferences) provides an in-depth walkthrough of how to build a functional `PreferenceCenter` component.
-
-```jsx title="A basic preference center"
-<PreferenceCenter />
-```
-
-<Image
-  src="/images/concepts/preferences/preference-center.png"
-  alt="A basic preference center"
-  width={1184}
-  height={714}
-  className="rounded-md mx-auto border border-gray-200"
-/>
-
-  </Step>
-  <Step title="Set a user's preferences">
-    When a user makes changes to their preferences in your application, you will use the `setPreferences` method to save those changes back to Knock.
-
-    By default, the `setPreferences` method will overwrite any existing `PreferenceSet` with the new preferences provided. You can learn more about how to update a single preference in the [frequently asked questions](#frequently-asked-questions) section below.
-
-    <MultiLangCodeBlock
-      title="Set preferences for a user"
-      snippet="users.setPreferences"
-    />
-
-  </Step>
-</Steps>
-    You can learn more about rendering preferences to users in your application in the [Building In-app UI](/in-app-ui/overview) section of our documentation:
-<SdkCardGroup>
-  <SdkCard
-    title="Quickstart: Preference UIs in React"
-    linkUrl="/in-app-ui/react/preferences"
-    icon="react"
-    languages={["React"]}
-    isExternal={false}
-  />
-  <SdkCard
-    title="Javascript SDK preference reference"
-    linkUrl="/in-app-ui/javascript/sdk/reference#recipients/preferences"
-    icon="javascript"
-    languages={["JavaScript"]}
-    isExternal={false}
-  />
-</SdkCardGroup>
 
 ## Merging preferences
 

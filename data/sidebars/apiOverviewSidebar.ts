@@ -6,6 +6,7 @@ export const RESOURCE_ORDER = [
   "messages",
   "channels",
   "users",
+  "preference_center",
   "objects",
   "tenants",
   "schedules",
