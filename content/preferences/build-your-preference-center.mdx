@@ -1,0 +1,153 @@
+---
+title: "Build your preference center"
+description: "Learn how to build a custom preference center in your application using Knock's token based preferences APIs."
+tags: ["preferences", "preference center", "token", "api"]
+section: Preferences
+---
+
+A preference center is a place where users can manage their notification preferences. Use this approach when you want to configure preference rows, labels, and branding in the Knock dashboard, but need visual control beyond what the [hosted preference center](/preferences/hosted-preference-center) provides in your own application.
+
+<Callout
+  type="info"
+  title="Use the hosted preference center."
+  text={
+    <>
+      The fastest way to give your users a preference center is Knock's{" "}
+      <a href="/preferences/hosted-preference-center">
+        hosted preference center
+      </a>
+      , a no-code page you configure from the dashboard. Use the steps below when
+      you want to build and host your own UI within your application.
+    </>
+  }
+/>
+
+Knock's token based preferences APIs authenticate requests with a single-purpose signed token rather than a user token. Because the token is scoped to preference center operations only, you can call these endpoints directly from the browser.
+
+<Callout
+  type="info"
+  title="No tenant preferences."
+  text={
+    <>
+      Knock's token based preferences APIs support user recipients only. They
+      don't support managing{" "}
+      <a href="/multi-tenancy/per-tenant-preferences">per-tenant preferences</a>
+      . To build a preference center for tenant-scoped preferences, use the
+      preferences API with a secret or public API key instead, as shown in the{" "}
+      <a href="/in-app-ui/react/preferences">React preferences tutorial</a>.
+    </>
+  }
+/>
+
+<Callout
+  type="info"
+  title="Config is optional."
+  text={
+    <>
+      The preference center config is not required to use the token based get
+      and update preference APIs. You can drive your UI from your own
+      application logic and call the list and update endpoints directly. Fetch
+      the config when you want to reuse the rows, labels, and branding you
+      configured in the dashboard.
+    </>
+  }
+/>
+
+<Callout
+  type="info"
+  title="Same token as hosted links."
+  text={
+    <>
+      The preference center token returned by this API is the same token
+      embedded in <code>vars.manage_preferences_url</code> links sent in
+      notifications.
+    </>
+  }
+/>
+
+<Steps titleSize="h3">
+  <Step title="Generate a preference center token">
+    From your server, call the signed URL endpoint with your secret API key to generate a preference center token for a user. Keep this call server-side, then pass the <code>token</code> to your client.
+
+```bash title="Generate a preference center token"
+curl -X POST "https://api.knock.app/v1/users/user_123/preference_center/signed_url" \
+  -H "Authorization: Bearer $KNOCK_API_KEY"
+```
+
+```json title="Response"
+{
+  "url": "https://p.knock.app/p/eyJhbGciOiJIUzI1NiJ9...",
+  "token": "eyJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+    Your application only needs the <code>token</code>. The <code>url</code> field is for linking users to the hosted preference center.
+
+  </Step>
+  <Step title="Fetch the preference center config (optional)">
+    If you configured a preference center in the dashboard, you can use the token to fetch that environment-level configuration for the token holder. This returns the title, body, preference rows, and branding you configured for that environment. See [configure your preference center](/preferences/hosted-preference-center#configure-your-preference-center) for details on what each field represents.
+
+```javascript title="Fetch preference center config"
+const response = await fetch(
+  "https://api.knock.app/v1/preference_center/config",
+  {
+    headers: {
+      "x-knock-preference-center-token": token,
+    },
+  },
+);
+
+const config = await response.json();
+```
+
+  </Step>
+  <Step title="Get the user's preference sets">
+    Fetch the token holder's preference sets to render their current settings in your UI.
+
+```javascript title="List preference sets"
+const response = await fetch(
+  "https://api.knock.app/v1/preference_center/preferences",
+  {
+    headers: {
+      "x-knock-preference-center-token": token,
+    },
+  },
+);
+
+const preferenceSets = await response.json();
+```
+
+    The response is an array of <a href="/api-reference/recipients/preferences">`PreferenceSet`</a> objects. The preference center supports the <code>default</code> set only—the same set the hosted preference center writes to when a user saves their preferences.
+
+  </Step>
+  <Step title="Update the user's preferences">
+    When a user saves their changes, update their <code>default</code> preference set. Send only the keys you want to update. Knock's token based preferences APIs merge the provided preferences into the existing set, unlike the standard <a href="/api-reference/users/set_preferences">set preferences</a> endpoint, which overwrites by default.
+
+```javascript title="Update a preference set"
+const response = await fetch(
+  "https://api.knock.app/v1/preference_center/preferences/default",
+  {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-knock-preference-center-token": token,
+    },
+    body: JSON.stringify({
+      categories: {
+        collaboration: {
+          channel_types: {
+            email: false,
+          },
+        },
+      },
+    }),
+  },
+);
+
+const updatedPreferenceSet = await response.json();
+```
+
+  </Step>
+</Steps>
+
+This gives you visual control over the preference center experience. When you fetch the config, your dashboard configuration remains the source of truth for labels, rows, and branding.
