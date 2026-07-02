@@ -2315,7 +2315,6 @@ components:
           - description: The user's current billing plan.
             item_type: null
             key: plan
-            label: Plan
             preview_text: Enterprise
             type: string
             visible: true
@@ -3542,6 +3541,35 @@ components:
       title: SourceRehearseRequest
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceRehearseRequest
+      x-validate: null
+    PreferenceCenterRequest:
+      description: A preference center configuration payload.
+      example:
+        config:
+          body: Select which communications you’d like to receive from us.
+          rows:
+            - description: Receive promotional and non-essential notifications.
+              name: Commercial messages
+              type: commercial_subscribed
+          show_account_name: true
+          title: Manage preferences
+        enabled: true
+      properties:
+        config:
+          description: The preference center configuration document.
+          type: object
+          x-struct: null
+          x-validate: null
+        enabled:
+          description: Whether the preference center is enabled for recipients.
+          type: boolean
+          x-struct: null
+          x-validate: null
+      required:
+        - config
+      title: PreferenceCenterRequest
+      type: object
+      x-struct: null
       x-validate: null
     WrappedSourceRequestRequest:
       description: Wraps the SourceRequest request under the source key.
@@ -7204,7 +7232,6 @@ components:
         description: The user's current billing plan.
         item_type: null
         key: plan
-        label: Plan
         preview_text: Enterprise
         type: string
         visible: true
@@ -7223,12 +7250,6 @@ components:
           x-validate: null
         key:
           description: The property key.
-          type: string
-          x-struct: null
-          x-validate: null
-        label:
-          description: The display label for the property.
-          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -10026,7 +10047,6 @@ components:
               - description: The user's current billing plan.
                 item_type: null
                 key: plan
-                label: Plan
                 preview_text: Enterprise
                 type: string
                 visible: true
@@ -15057,7 +15077,6 @@ paths:
                         - description: The user's current billing plan.
                           item_type: null
                           key: plan
-                          label: Plan
                           preview_text: Enterprise
                           type: string
                           visible: true
@@ -17854,6 +17873,137 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Audience)
           }
+  /v1/preference_center:
+    get:
+      callbacks: {}
+      description: Returns the preference center configuration for the given environment.
+      operationId: getPreferenceCenter
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The preference center configuration for a single environment.
+                example:
+                  config:
+                    body: Select which communications you’d like to receive from us.
+                    rows:
+                      - description: Receive promotional and non-essential notifications.
+                        name: Commercial messages
+                        type: commercial_subscribed
+                    show_account_name: true
+                    title: Manage preferences
+                  enabled: true
+                properties:
+                  config:
+                    description: The preference center configuration document.
+                    type: object
+                    x-struct: null
+                    x-validate: null
+                  enabled:
+                    description: Whether the preference center is enabled for recipients.
+                    type: boolean
+                    x-struct: null
+                    x-validate: null
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Get preference center configuration
+      tags:
+        - Preference center
+    put:
+      callbacks: {}
+      description: Creates or updates the preference center configuration for the given environment.
+      operationId: upsertPreferenceCenter
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: A preference center configuration payload.
+              example:
+                config:
+                  body: Select which communications you’d like to receive from us.
+                  rows:
+                    - description: Receive promotional and non-essential notifications.
+                      name: Commercial messages
+                      type: commercial_subscribed
+                  show_account_name: true
+                  title: Manage preferences
+                enabled: true
+              properties:
+                config:
+                  description: The preference center configuration document.
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                enabled:
+                  description: Whether the preference center is enabled for recipients.
+                  type: boolean
+                  x-struct: null
+                  x-validate: null
+              required:
+                - config
+              title: PreferenceCenterRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The preference center configuration for a single environment.
+                example:
+                  config:
+                    body: Select which communications you’d like to receive from us.
+                    rows:
+                      - description: Receive promotional and non-essential notifications.
+                        name: Commercial messages
+                        type: commercial_subscribed
+                    show_account_name: true
+                    title: Manage preferences
+                  enabled: true
+                properties:
+                  config:
+                    description: The preference center configuration document.
+                    type: object
+                    x-struct: null
+                    x-validate: null
+                  enabled:
+                    description: Whether the preference center is enabled for recipients.
+                    type: boolean
+                    x-struct: null
+                    x-validate: null
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert preference center configuration
+      tags:
+        - Preference center
   /v1/commits:
     get:
       callbacks: {}
@@ -18240,7 +18390,7 @@ paths:
         - Schemas
     put:
       callbacks: {}
-      description: 'Applies changes for the item schema properties in the request. Omitted properties are left unchanged; hide a property with `visible: false` rather than removing it. The required permissions depend on what changes: changing a property''s display settings (`visible`/`label`/`description`) requires `item_schemas:manage`; changing a property''s type or example, or adding a property, requires `item_schemas:edit`. Adding a property that is already hidden or already has a label or description requires both.'
+      description: 'Applies changes for the item schema properties in the request. Omitted properties are left unchanged; hide a property with `visible: false` rather than removing it. The required permissions depend on what changes: changing a property''s display settings (`visible`/`description`) requires `item_schemas:manage`; changing a property''s type or example, or adding a property, requires `item_schemas:edit`. Adding a property that is already hidden or already has a description requires both.'
       operationId: upsertSchema
       parameters:
         - description: The item schema type to upsert (`user`, `tenant`, or `object`).
@@ -21122,6 +21272,55 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Audience)
           }
+  /v1/preference_center/reset:
+    put:
+      callbacks: {}
+      description: Resets the preference center configuration for the given environment to the built-in default content. The `enabled` flag is preserved.
+      operationId: resetPreferenceCenter
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The preference center configuration for a single environment.
+                example:
+                  config:
+                    body: Select which communications you’d like to receive from us.
+                    rows:
+                      - description: Receive promotional and non-essential notifications.
+                        name: Commercial messages
+                        type: commercial_subscribed
+                    show_account_name: true
+                    title: Manage preferences
+                  enabled: true
+                properties:
+                  config:
+                    description: The preference center configuration document.
+                    type: object
+                    x-struct: null
+                    x-validate: null
+                  enabled:
+                    description: Whether the preference center is enabled for recipients.
+                    type: boolean
+                    x-struct: null
+                    x-validate: null
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Reset preference center configuration to default
+      tags:
+        - Preference center
   /v1/api_keys/exchange:
     post:
       callbacks: {}
