@@ -2065,6 +2065,7 @@ components:
         - $ref: '#/components/schemas/WorkflowEmailStep'
         - $ref: '#/components/schemas/WorkflowAIAgentStep'
         - $ref: '#/components/schemas/WorkflowDelayStep'
+        - $ref: '#/components/schemas/WorkflowWaitForEventStep'
         - $ref: '#/components/schemas/WorkflowBatchStep'
         - $ref: '#/components/schemas/WorkflowFetchStep'
         - $ref: '#/components/schemas/WorkflowUpdateDataStep'
@@ -2304,6 +2305,48 @@ components:
       title: PreviewPartialResponse
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.PreviewPartialResponse
+      x-validate: null
+    ItemSchema:
+      description: A managed schema configuration for users, tenants, or objects.
+      example:
+        item_id: accounts
+        item_type: object
+        properties:
+          - description: The user's current billing plan.
+            item_type: null
+            key: plan
+            preview_text: Enterprise
+            type: string
+            visible: true
+      properties:
+        item_id:
+          description: The object collection key. Only present for object schemas.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        item_type:
+          description: The item type the schema applies to.
+          enum:
+            - user
+            - tenant
+            - object
+          type: string
+          x-struct: null
+          x-validate: null
+        properties:
+          description: The managed properties for the schema.
+          items:
+            $ref: '#/components/schemas/ItemSchemaProperty'
+          type: array
+          x-struct: null
+          x-validate: null
+      required:
+        - item_type
+        - properties
+      title: ItemSchema
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.ItemSchema
       x-validate: null
     BroadcastSendRequest:
       description: A request to send or schedule a broadcast.
@@ -3499,6 +3542,35 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.SourceRehearseRequest
       x-validate: null
+    PreferenceCenterRequest:
+      description: A preference center configuration payload.
+      example:
+        config:
+          body: Select which communications you’d like to receive from us.
+          rows:
+            - description: Receive promotional and non-essential notifications.
+              name: Commercial messages
+              type: commercial_subscribed
+          show_account_name: true
+          title: Manage preferences
+        enabled: true
+      properties:
+        config:
+          description: The preference center configuration document.
+          type: object
+          x-struct: null
+          x-validate: null
+        enabled:
+          description: Whether the preference center is enabled for recipients.
+          type: boolean
+          x-struct: null
+          x-validate: null
+      required:
+        - config
+      title: PreferenceCenterRequest
+      type: object
+      x-struct: null
+      x-validate: null
     WrappedSourceRequestRequest:
       description: Wraps the SourceRequest request under the source key.
       example:
@@ -3589,15 +3661,13 @@ components:
                       type: string
                       x-struct: null
                       x-validate: null
-                    event_type:
-                      description: The decoded event type that triggers the action.
-                      type: string
+                    active:
+                      description: Whether the mapping is active. Set to false to deactivate the mapping without deleting it. Defaults to true.
+                      type: boolean
                       x-struct: null
                       x-validate: null
-                    inactive_at:
-                      description: The timestamp to deactivate the mapping.
-                      format: date-time
-                      nullable: true
+                    event_type:
+                      description: The decoded event type that triggers the action.
                       type: string
                       x-struct: null
                       x-validate: null
@@ -4663,8 +4733,8 @@ components:
         mappings_count: 2
         mappings_requiring_commit:
           - action_type: workflows_trigger
+            active: true
             event_type: invoice.created
-            inactive_at: null
             is_deleted: false
             resource_key: invoice-created
             status: updated
@@ -4696,15 +4766,13 @@ components:
                 type: string
                 x-struct: null
                 x-validate: null
-              event_type:
-                description: The decoded event type that triggers the action.
-                type: string
+              active:
+                description: Whether the mapping is active. Inactive mappings are skipped during execution.
+                type: boolean
                 x-struct: null
                 x-validate: null
-              inactive_at:
-                description: The timestamp of when the mapping was deactivated.
-                format: date-time
-                nullable: true
+              event_type:
+                description: The decoded event type that triggers the action.
                 type: string
                 x-struct: null
                 x-validate: null
@@ -4730,6 +4798,7 @@ components:
               - resource_key
               - action_type
               - event_type
+              - active
               - is_deleted
               - status
             type: object
@@ -5706,9 +5775,9 @@ components:
       example:
         action_parameters: null
         action_type: workflows_trigger
+        active: true
         created_at: "2021-01-01T00:00:00Z"
         event_type: Order Created
-        inactive_at: null
         is_deleted: false
         updated_at: "2021-01-01T00:00:00Z"
       properties:
@@ -5736,6 +5805,11 @@ components:
           type: string
           x-struct: null
           x-validate: null
+        active:
+          description: Whether the mapping is active. Inactive mappings are skipped during execution.
+          type: boolean
+          x-struct: null
+          x-validate: null
         created_at:
           description: The timestamp of when the mapping was created.
           format: date-time
@@ -5744,13 +5818,6 @@ components:
           x-validate: null
         event_type:
           description: The decoded event type that triggers the action.
-          type: string
-          x-struct: null
-          x-validate: null
-        inactive_at:
-          description: The timestamp of when the mapping was deactivated.
-          format: date-time
-          nullable: true
           type: string
           x-struct: null
           x-validate: null
@@ -5768,6 +5835,7 @@ components:
       required:
         - event_type
         - action_type
+        - active
         - is_deleted
         - created_at
         - updated_at
@@ -6466,6 +6534,41 @@ components:
       type: string
       x-struct: null
       x-validate: null
+    WorkflowWaitForEventIntegrationSourceEvent:
+      description: An integration source event to wait for.
+      example:
+        event_key: order.updated
+        event_type: integration_source
+        integration_source_key: segment
+      properties:
+        event_key:
+          description: The name of the event to wait for.
+          example: order.updated
+          type: string
+          x-struct: null
+          x-validate: null
+        event_type:
+          description: The type of event to wait for.
+          enum:
+            - integration_source
+          example: integration_source
+          type: string
+          x-struct: null
+          x-validate: null
+        integration_source_key:
+          description: The key of the integration source that emits the event to wait for.
+          example: segment
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - event_type
+        - integration_source_key
+        - event_key
+      title: WorkflowWaitForEventIntegrationSourceEvent
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventIntegrationSourceEvent
+      x-validate: null
     ArchiveGuideResponse:
       description: The response from archiving a guide.
       example:
@@ -6865,10 +6968,8 @@ components:
         mappings: []
         settings:
           endpoint: https://api.knock.app/integrations/receive/src_123
-          enforce_idempotency: true
           enforce_verification: false
           event_type_path: body.event
-          handle_identifies: true
           idempotency_key_path: body.messageId
           preprocess_script:
             language: javascript
@@ -6893,6 +6994,7 @@ components:
               x-struct: null
               x-validate: null
             enforce_idempotency:
+              description: Whether the source processes events idempotently (CDP legacy sources only).
               nullable: true
               type: boolean
               x-struct: null
@@ -6907,6 +7009,7 @@ components:
               x-struct: null
               x-validate: null
             handle_identifies:
+              description: Whether the source processes identify calls (CDP legacy sources only).
               nullable: true
               type: boolean
               x-struct: null
@@ -7122,6 +7225,56 @@ components:
       title: MessageTypeMultiSelectField
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.MessageTypes.MultiSelectField
+      x-validate: null
+    ItemSchemaProperty:
+      description: A property definition within an item schema.
+      example:
+        description: The user's current billing plan.
+        item_type: null
+        key: plan
+        preview_text: Enterprise
+        type: string
+        visible: true
+      properties:
+        description:
+          description: The description of the property.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        item_type:
+          description: The referenced item type when the property stores an item reference.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        key:
+          description: The property key.
+          type: string
+          x-struct: null
+          x-validate: null
+        preview_text:
+          description: The property preview text.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        type:
+          description: The primitive or referenced item type for the property.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        visible:
+          description: Whether the property is visible in the schema management UI.
+          type: boolean
+          x-struct: null
+          x-validate: null
+      required:
+        - key
+      title: ItemSchemaProperty
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.ItemSchemaProperty
       x-validate: null
     BrandingOverrides:
       additionalProperties: false
@@ -9884,6 +10037,41 @@ components:
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.TranslationRequest
       x-validate: null
+    PaginatedItemSchemaResponse:
+      description: A paginated list of ItemSchema. Contains a list of entries and page information.
+      example:
+        entries:
+          - item_id: accounts
+            item_type: object
+            properties:
+              - description: The user's current billing plan.
+                item_type: null
+                key: plan
+                preview_text: Enterprise
+                type: string
+                visible: true
+        page_info:
+          after: null
+          before: null
+          page_size: 25
+      properties:
+        entries:
+          description: A list of entries.
+          items:
+            $ref: '#/components/schemas/ItemSchema'
+          nullable: false
+          type: array
+          x-struct: null
+          x-validate: null
+        page_info:
+          $ref: '#/components/schemas/PageInfo'
+      required:
+        - entries
+        - page_info
+      title: PaginatedItemSchemaResponse
+      type: object
+      x-struct: null
+      x-validate: null
     WrappedMessageTypeRequestRequest:
       description: Wraps the MessageTypeRequest request under the message_type key.
       example:
@@ -11120,6 +11308,146 @@ components:
       title: WorkflowUpdateObjectStep
       type: object
       x-struct: Elixir.ControlWeb.V1.Specs.WorkflowUpdateObjectStep
+      x-validate: null
+    WorkflowWaitForEventStep:
+      description: A wait for event function step that pauses a workflow until a matching event is received.
+      example:
+        name: Wait for event
+        ref: wait_for_event_1
+        settings:
+          event:
+            event_key: order.updated
+            event_type: integration_source
+            integration_source_key: segment
+          expires_after:
+            unit: days
+            value: 1
+          match_conditions:
+            - conditions:
+                - argument: some_property
+                  operator: equal_to
+                  variable: recipient.property
+              operator: and
+          on_match: continue
+          on_timeout: halt
+        type: wait_for_event
+      properties:
+        conditions:
+          anyOf:
+            - $ref: '#/components/schemas/ConditionGroup'
+            - nullable: true
+              x-struct: null
+              x-validate: null
+          description: A conditions object that describes one or more conditions to be met in order for the step to be executed.
+          type: object
+          x-struct: null
+          x-validate: null
+        description:
+          description: An arbitrary string attached to a workflow step. Useful for adding notes about the workflow for internal purposes.
+          example: Wait for the order to be updated.
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        name:
+          description: A name for the workflow step.
+          example: Wait for event
+          nullable: true
+          type: string
+          x-struct: null
+          x-validate: null
+        ref:
+          description: The reference key of the workflow step. Must be unique per workflow.
+          example: wait_for_event_1
+          type: string
+          x-struct: null
+          x-validate: null
+        settings:
+          description: The settings for the wait for event step.
+          properties:
+            event:
+              description: The event to wait for. The shape depends on `event_type`.
+              discriminator:
+                mapping:
+                  integration_source: '#/components/schemas/WorkflowWaitForEventIntegrationSourceEvent'
+                propertyName: event_type
+              oneOf:
+                - $ref: '#/components/schemas/WorkflowWaitForEventIntegrationSourceEvent'
+              x-struct: null
+              x-validate: null
+            expires_after:
+              anyOf:
+                - $ref: '#/components/schemas/Duration'
+                - nullable: true
+                  x-struct: null
+                  x-validate: null
+              description: A duration object that describes how long to wait for a matching event before timing out.
+              type: object
+              x-struct: null
+              x-validate: null
+            match_conditions:
+              description: A list of condition groups the incoming event must match to resolve the wait.
+              items:
+                properties:
+                  conditions:
+                    description: A list of conditions.
+                    items:
+                      $ref: '#/components/schemas/Condition'
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  operator:
+                    description: The operator used to join the conditions in the group.
+                    enum:
+                      - and
+                    example: and
+                    type: string
+                    x-struct: null
+                    x-validate: null
+                type: object
+                x-struct: null
+                x-validate: null
+              type: array
+              x-struct: null
+              x-validate: null
+            on_match:
+              description: The action to take when a matching event is received.
+              enum:
+                - continue
+                - halt
+              example: continue
+              type: string
+              x-struct: null
+              x-validate: null
+            on_timeout:
+              description: The action to take when the wait expires before a match.
+              enum:
+                - continue
+                - halt
+              example: halt
+              type: string
+              x-struct: null
+              x-validate: null
+          required:
+            - event
+          type: object
+          x-struct: null
+          x-validate: null
+        type:
+          description: The type of the workflow step.
+          enum:
+            - wait_for_event
+          example: wait_for_event
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - type
+        - ref
+        - settings
+      title: WorkflowWaitForEventStep
+      type: object
+      x-struct: Elixir.ControlWeb.V1.Specs.WorkflowWaitForEventStep
       x-validate: null
     MessageTypeListField:
       description: A list field used in a message type.
@@ -14703,6 +15031,81 @@ paths:
           	}
           	fmt.Printf("%+v\n", sourceRehearseResponse.LogID)
           }
+  /v1/schemas:
+    get:
+      callbacks: {}
+      description: Retrieve the configuration for all managed item schemas (`user`, `tenant`, and `object`) in a given environment. Branch-qualified reads return the schemas inherited from the parent environment.
+      operationId: listSchemas
+      parameters:
+        - description: Filter schemas by item type (`user`, `tenant`, or `object`).
+          in: query
+          name: item_type
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A paginated list of ItemSchema. Contains a list of entries and page information.
+                example:
+                  entries:
+                    - item_id: accounts
+                      item_type: object
+                      properties:
+                        - description: The user's current billing plan.
+                          item_type: null
+                          key: plan
+                          preview_text: Enterprise
+                          type: string
+                          visible: true
+                  page_info:
+                    after: null
+                    before: null
+                    page_size: 25
+                properties:
+                  entries:
+                    description: A list of entries.
+                    items:
+                      $ref: '#/components/schemas/ItemSchema'
+                    nullable: false
+                    type: array
+                    x-struct: null
+                    x-validate: null
+                  page_info:
+                    $ref: '#/components/schemas/PageInfo'
+                required:
+                  - entries
+                  - page_info
+                title: PaginatedItemSchemaResponse
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List item schemas
+      tags:
+        - Schemas
   /v1/channel_groups:
     get:
       callbacks: {}
@@ -17470,6 +17873,137 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Audience)
           }
+  /v1/preference_center:
+    get:
+      callbacks: {}
+      description: Returns the preference center configuration for the given environment.
+      operationId: getPreferenceCenter
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The preference center configuration for a single environment.
+                example:
+                  config:
+                    body: Select which communications you’d like to receive from us.
+                    rows:
+                      - description: Receive promotional and non-essential notifications.
+                        name: Commercial messages
+                        type: commercial_subscribed
+                    show_account_name: true
+                    title: Manage preferences
+                  enabled: true
+                properties:
+                  config:
+                    description: The preference center configuration document.
+                    type: object
+                    x-struct: null
+                    x-validate: null
+                  enabled:
+                    description: Whether the preference center is enabled for recipients.
+                    type: boolean
+                    x-struct: null
+                    x-validate: null
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Get preference center configuration
+      tags:
+        - Preference center
+    put:
+      callbacks: {}
+      description: Creates or updates the preference center configuration for the given environment.
+      operationId: upsertPreferenceCenter
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: A preference center configuration payload.
+              example:
+                config:
+                  body: Select which communications you’d like to receive from us.
+                  rows:
+                    - description: Receive promotional and non-essential notifications.
+                      name: Commercial messages
+                      type: commercial_subscribed
+                  show_account_name: true
+                  title: Manage preferences
+                enabled: true
+              properties:
+                config:
+                  description: The preference center configuration document.
+                  type: object
+                  x-struct: null
+                  x-validate: null
+                enabled:
+                  description: Whether the preference center is enabled for recipients.
+                  type: boolean
+                  x-struct: null
+                  x-validate: null
+              required:
+                - config
+              title: PreferenceCenterRequest
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The preference center configuration for a single environment.
+                example:
+                  config:
+                    body: Select which communications you’d like to receive from us.
+                    rows:
+                      - description: Receive promotional and non-essential notifications.
+                        name: Commercial messages
+                        type: commercial_subscribed
+                    show_account_name: true
+                    title: Manage preferences
+                  enabled: true
+                properties:
+                  config:
+                    description: The preference center configuration document.
+                    type: object
+                    x-struct: null
+                    x-validate: null
+                  enabled:
+                    description: Whether the preference center is enabled for recipients.
+                    type: boolean
+                    x-struct: null
+                    x-validate: null
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert preference center configuration
+      tags:
+        - Preference center
   /v1/commits:
     get:
       callbacks: {}
@@ -17802,6 +18336,118 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Result)
           }
+  /v1/schemas/{item_type}:
+    get:
+      callbacks: {}
+      description: Retrieve the configuration for an item schema (`user`, `tenant`, or `object`) in a given environment, including all of its configured properties.
+      operationId: getSchema
+      parameters:
+        - description: The item schema type to retrieve (`user`, `tenant`, or `object`).
+          in: path
+          name: item_type
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The object collection, required when `item_type` is `object`.
+          in: query
+          name: collection
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Get an item schema
+      tags:
+        - Schemas
+    put:
+      callbacks: {}
+      description: 'Applies changes for the item schema properties in the request. Omitted properties are left unchanged; hide a property with `visible: false` rather than removing it. The required permissions depend on what changes: changing a property''s display settings (`visible`/`description`) requires `item_schemas:manage`; changing a property''s type or example, or adding a property, requires `item_schemas:edit`. Adding a property that is already hidden or already has a description requires both.'
+      operationId: upsertSchema
+      parameters:
+        - description: The item schema type to upsert (`user`, `tenant`, or `object`).
+          in: path
+          name: item_type
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The object collection, required when `item_type` is `object`.
+          in: query
+          name: collection
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Upsert item schema properties
+      tags:
+        - Schemas
   /v1/broadcasts/{broadcast_key}/cancel:
     put:
       callbacks: {}
@@ -20003,6 +20649,67 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Broadcast)
           }
+  /v1/schemas/{item_type}/validate:
+    put:
+      callbacks: {}
+      description: Checks an item schema configuration payload and reports which permissions it would require, without saving any changes.
+      operationId: validateSchema
+      parameters:
+        - description: The item schema type to validate (`user`, `tenant`, or `object`).
+          in: path
+          name: item_type
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The object collection, required when `item_type` is `object`.
+          in: query
+          name: collection
+          required: false
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+        - description: The slug of a branch to use. This option can only be used when `environment` is `"development"`.
+          in: query
+          name: branch
+          required: false
+          schema:
+            example: feature-branch
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-struct: null
+              x-validate: null
+        description: Params
+        required: false
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Validate an item schema's configuration
+      tags:
+        - Schemas
   /v1/channel_groups/{channel_group_key}:
     delete:
       callbacks: {}
@@ -20565,6 +21272,55 @@ paths:
           	}
           	fmt.Printf("%+v\n", response.Audience)
           }
+  /v1/preference_center/reset:
+    put:
+      callbacks: {}
+      description: Resets the preference center configuration for the given environment to the built-in default content. The `enabled` flag is preserved.
+      operationId: resetPreferenceCenter
+      parameters:
+        - description: The environment slug.
+          in: query
+          name: environment
+          required: true
+          schema:
+            example: development
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: The preference center configuration for a single environment.
+                example:
+                  config:
+                    body: Select which communications you’d like to receive from us.
+                    rows:
+                      - description: Receive promotional and non-essential notifications.
+                        name: Commercial messages
+                        type: commercial_subscribed
+                    show_account_name: true
+                    title: Manage preferences
+                  enabled: true
+                properties:
+                  config:
+                    description: The preference center configuration document.
+                    type: object
+                    x-struct: null
+                    x-validate: null
+                  enabled:
+                    description: Whether the preference center is enabled for recipients.
+                    type: boolean
+                    x-struct: null
+                    x-validate: null
+                type: object
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: Reset preference center configuration to default
+      tags:
+        - Preference center
   /v1/api_keys/exchange:
     post:
       callbacks: {}
