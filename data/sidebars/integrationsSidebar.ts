@@ -25,6 +25,7 @@ export const INTEGRATIONS_SIDEBAR: SidebarContent[] = [
       { slug: "/rudderstack", title: "RudderStack" },
       { slug: "/hightouch", title: "Hightouch" },
       { slug: "/census", title: "Census" },
+      { slug: "/clay", title: "Clay" },
       { slug: "/polytomic", title: "Polytomic" },
       { slug: "/jitsu", title: "Jitsu" },
       { slug: "/freshpaint", title: "Freshpaint" },
