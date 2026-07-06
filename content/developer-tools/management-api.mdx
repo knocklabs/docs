@@ -64,3 +64,44 @@ curl -X POST https://control.knock.app/v1/workflows/my-workflow/steps/my-step/pr
   }
 }
 ```
+
+### Committing changes
+
+You can commit and promote changes between your Knock environments using the management API. This includes [empty commits](/version-control/commits#empty-commits), which let you publish a versioned resource without changing its content.
+
+#### Targeted empty commit
+
+Use `PUT /v1/commits` with `allow_empty=true` to create an empty commit for a single resource that is already published with no unpublished changes. You must specify both `resource_type` and `resource_id`.
+
+```bash title="An example request to create an empty commit"
+curl -X PUT "https://control.knock.app/v1/commits?environment=development&allow_empty=true&resource_type=workflow&resource_id=my-workflow-key&commit_message=Empty%20touch" \
+  -H "Authorization: Bearer $SERVICE_TOKEN"
+```
+
+<br />
+
+```json title="An example response from the commit endpoint"
+{
+  "result": "success"
+}
+```
+
+See the [commit all changes endpoint](/mapi-reference/commits/commit_all) for the full list of query parameters.
+
+#### Upsert and empty commit
+
+You can also create an empty commit when upserting a resource by passing `commit=true` and `allow_empty=true` as query parameters on the resource PUT route. This is useful when you re-upsert an unchanged resource payload and want to produce a new commit log entry.
+
+```bash title="An example request to upsert and create an empty commit"
+curl -X PUT "https://control.knock.app/v1/workflows/my-workflow?environment=development&commit=true&allow_empty=true&commit_message=Empty%20touch" \
+  -H "Authorization: Bearer $SERVICE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d @workflow.json
+```
+
+Query parameters:
+
+- **`allow_empty`** — Optional boolean. On `PUT /v1/commits`, requires a single `resource_type` and `resource_id`. On versioned resource PUT routes, use alongside `commit=true`.
+- **`commit_message`** — Optional message stored in commit audit metadata. Your account may require a commit message.
+
+This pattern applies to PUT routes for workflows, partials, email layouts, guides, audiences, message types, and translations.

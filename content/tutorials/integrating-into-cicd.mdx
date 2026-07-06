@@ -164,6 +164,16 @@ jobs:
 
 Once you've verified staging, promote your Knock changes to production. Tie this to whatever event represents a production deploy in your pipeline: a published release, a manual workflow dispatch, or a push to a release branch are all common choices. Using a deliberate trigger (rather than promoting automatically on PR merge) gives you a chance to verify staging before changes reach production.
 
+If you need to re-promote an unchanged resource across environments (for example, to unblock a stale promotion diff), you can create an [empty commit](/version-control/commits#empty-commits) before promoting:
+
+```bash title="Create an empty commit for a workflow"
+knock commit \
+  --resource-type=workflow \
+  --resource-id=my-workflow \
+  --allow-empty \
+  -m "Empty touch for promotion"
+```
+
 ```yaml title="Promote changes to your Knock production environment on deploy"
 name: Promote Knock changes to production
 

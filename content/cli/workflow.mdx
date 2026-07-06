@@ -290,6 +290,7 @@ Note:
 - The `workflow push` command only pushes workflows into the `development` environment by default. Use `--force` to bypass this restriction and overwrite content in any environment.
 - You must be directly above the target workflow directory when running the `workflow push` command, so the CLI can locate the `workflow.json` file.
 - You can also pass in the `--commit` flag (with an optional `--commit-message` flag) to commit the upserted changes immediately.
+- You can pass `--allow-empty` with `--commit` to create an empty commit when re-upserting an unchanged resource. See [empty commits](/version-control/commits#empty-commits).
 
 See the [Workflow file structure](/cli/workflow/file-structure) section for details on how workflow files are organized.
 
@@ -310,6 +311,11 @@ See the [Workflow file structure](/cli/workflow/file-structure) section for deta
     name="-m, --commit-message"
     type="string"
     description="The commit message to pass when using the `--commit` flag."
+  />
+  <Attribute
+    name="--allow-empty"
+    type="boolean"
+    description="Only meaningful with `--commit`. When the resource is already published with no unpublished changes, create an empty commit instead of a no-op publish. Defaults to false."
   />
   <Attribute
     name="--all"
@@ -339,6 +345,13 @@ knock workflow push my-workflow
 knock workflow push my-workflow \
   --commit \
   -m "Commit message"
+```
+
+```bash title="Empty commit on an unchanged workflow"
+knock workflow push my-workflow \
+  --commit \
+  --allow-empty \
+  -m "Empty touch"
 ```
 
 ```bash title="Pushing all workflows from ./workflows directory"
