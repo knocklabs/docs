@@ -761,6 +761,31 @@ components:
       type: array
       x-struct: null
       x-validate: null
+    PreferenceCenterSignedUrlResponse:
+      description: A signed preference center URL and token for a user.
+      example:
+        token: eyJhbGciOiJIUzI1NiJ9...
+        url: https://p.knock.app/p/eyJhbGciOiJIUzI1NiJ9...
+      properties:
+        token:
+          description: The signed JWT token for the preference center, usable as the `/p/{token}` path segment.
+          example: eyJhbGciOiJIUzI1NiJ9...
+          type: string
+          x-struct: null
+          x-validate: null
+        url:
+          description: The full URL to the preference center for the user.
+          example: https://p.knock.app/p/eyJhbGciOiJIUzI1NiJ9...
+          type: string
+          x-struct: null
+          x-validate: null
+      required:
+        - url
+        - token
+      title: PreferenceCenterSignedUrlResponse
+      type: object
+      x-struct: Elixir.SwitchboardWeb.V1.Specs.PreferenceCenterSignedUrlResponse
+      x-validate: null
     CancelWorkflowRequest:
       description: When invoked using a specific workflow key and cancellation key, will cancel any queued workflow runs associated with that key/cancellation key pair. Can optionally provide one or more recipients to scope the request to.
       example:
@@ -3478,6 +3503,31 @@ components:
           x-validate: null
       title: ObjectReference
       type: object
+      x-struct: null
+      x-validate: null
+    ListPreferenceCenterPreferenceSetsResponse:
+      description: A list of preference sets for the user.
+      example:
+        - categories:
+            marketing: false
+            transactional:
+              channel_types:
+                email: false
+          channel_types:
+            email: true
+            push: false
+            sms:
+              conditions:
+                - argument: US
+                  operator: equal_to
+                  variable: recipient.country_code
+          commercial_subscribed: true
+          id: default
+          workflows: null
+      items:
+        $ref: '#/components/schemas/PreferenceSet'
+      title: ListPreferenceCenterPreferenceSetsResponse
+      type: array
       x-struct: null
       x-validate: null
     AuthenticationError:
@@ -9880,6 +9930,46 @@ paths:
         - Objects
         - Preferences
       x-ratelimit-tier: 3
+  /v1/preference_center/preferences:
+    get:
+      callbacks: {}
+      description: Lists all preference sets for the token holder.
+      operationId: listPreferenceCenterPreferenceSets
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: A list of preference sets for the user.
+                example:
+                  - categories:
+                      marketing: false
+                      transactional:
+                        channel_types:
+                          email: false
+                    channel_types:
+                      email: true
+                      push: false
+                      sms:
+                        conditions:
+                          - argument: US
+                            operator: equal_to
+                            variable: recipient.country_code
+                    commercial_subscribed: true
+                    id: default
+                    workflows: null
+                items:
+                  $ref: '#/components/schemas/PreferenceSet'
+                title: ListPreferenceCenterPreferenceSetsResponse
+                type: array
+                x-struct: null
+                x-validate: null
+          description: OK
+      summary: List preference center preference sets
+      tags:
+        - Preference center
+      x-ratelimit-tier: 4
   /v1/users/{user_id}/preferences/{id}/categories/{key}:
     put:
       callbacks: {}
@@ -16681,6 +16771,23 @@ paths:
           )
 
           puts(response)
+  /v1/preference_center/config:
+    get:
+      callbacks: {}
+      description: Returns the preference center config with environment metadata for the token holder.
+      operationId: getPreferenceCenterConfig
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceCenterConfigWithMetadata'
+          description: OK
+      summary: Get preference center config
+      tags:
+        - Preference center
+      x-ratelimit-tier: 4
   /v1/objects/{collection}/bulk/set:
     post:
       callbacks: {}
@@ -18870,6 +18977,60 @@ paths:
           response = knock.messages.batch.get_content(message_ids: ["string"])
 
           puts(response)
+  /v1/preference_center/preferences/{id}:
+    put:
+      callbacks: {}
+      description: Updates a preference set for the token holder, merging the given preferences with the existing set.
+      operationId: upsertPreferenceCenterPreferenceSet
+      parameters:
+        - description: Unique identifier for the preference set.
+          example: default
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      requestBody:
+        content:
+          application/json:
+            example:
+              __persistence_strategy__: merge
+              categories:
+                marketing: false
+                transactional:
+                  channel_types:
+                    email: false
+              channel_types:
+                email: true
+              channels:
+                2f641633-95d3-4555-9222-9f1eb7888a80:
+                  conditions:
+                    - argument: US
+                      operator: equal_to
+                      variable: recipient.country_code
+                aef6e715-df82-4ab6-b61e-b743e249f7b6: true
+              commercial_subscribed: true
+              workflows:
+                dinosaurs-loose:
+                  channel_types:
+                    email: false
+            schema:
+              $ref: '#/components/schemas/PreferenceSetRequest'
+        description: Params
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceSet'
+          description: OK
+      summary: Update preference center preference set
+      tags:
+        - Preference center
+      x-ratelimit-tier: 3
   /v1/messages/{message_id}/delivery_logs:
     get:
       callbacks: {}
@@ -20049,6 +20210,32 @@ paths:
           )
 
           puts(bulk_operation)
+  /v1/users/{user_id}/preference_center/signed_url:
+    post:
+      callbacks: {}
+      description: Generates a signed preference center URL and token for the given user in the current environment.
+      operationId: generatePreferenceCenterSignedUrl
+      parameters:
+        - description: The unique identifier of the user.
+          in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            x-struct: null
+            x-validate: null
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferenceCenterSignedUrlResponse'
+          description: OK
+      summary: Create preference center signed URL
+      tags:
+        - Users
+        - Preference center
+      x-ratelimit-tier: 3
 security:
   - BearerAuth: []
 servers:
@@ -20065,6 +20252,8 @@ tags:
     name: Messages
   - description: An object represents a resource in your system that you want to map into Knock.
     name: Objects
+  - description: The preference center is a hosted page where users can manage their notification preferences.
+    name: Preference center
   - description: Preferences are a way to configure how notifications are sent to recipients. They are a set of configuration that determines whether a recipient should receive a notification for a given workflow on a specific channel.
     name: Preferences
   - description: A provider represents a third-party service that Knock integrates with and is configured via a channel.
