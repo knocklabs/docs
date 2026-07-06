@@ -4,7 +4,13 @@ import { Text, Heading } from "@telegraph/typography";
 
 type TitleSize = "p" | "h2" | "h3" | "h4";
 
-const Steps = ({ titleSize = "p", children }: { titleSize?: TitleSize; children: React.ReactElement<any> | React.ReactElement<any>[] }) => (
+const Steps = ({
+  titleSize = "p",
+  children,
+}: {
+  titleSize?: TitleSize;
+  children: React.ReactElement<any> | React.ReactElement<any>[];
+}) => (
   <Box role="list" ml="4" mt="10" mb="6">
     {React.Children.map(children, (child, i) =>
       React.cloneElement(child, { titleSize, stepNumber: i + 1 }),
@@ -71,7 +77,17 @@ function TitleTag({ size, title }: { size: TitleSize; title: string }) {
   }
 }
 
-const Step = ({ titleSize = "p", title, children, stepNumber }: { titleSize?: TitleSize; title: string; children: React.ReactNode; stepNumber?: number }) => (
+const Step = ({
+  titleSize = "p",
+  title,
+  children,
+  stepNumber,
+}: {
+  titleSize?: TitleSize;
+  title: string;
+  children: React.ReactNode;
+  stepNumber?: number;
+}) => (
   <Stack position="relative" alignItems="flex-start" pb="4" role="listitem">
     <Box
       position="absolute"
