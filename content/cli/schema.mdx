@@ -1,0 +1,157 @@
+---
+title: Schemas
+description: Commands for managing recipient schemas in the Knock CLI.
+---
+
+<Section path="/schema">
+<ContentColumn>
+
+Schema commands enable you to sync your [recipient schemas](/managing-recipients/schemas)—for users, tenants, and object collections—between a Knock environment and your local file system, so you can keep your schema configuration in version control.
+
+</ContentColumn>
+</Section>
+
+<Section title="Schema file structure" path="/schema/file-structure">
+<ContentColumn>
+
+When schemas are pulled from Knock, they are stored in a `schemas/` directory. User and tenant schemas are stored at the top level, and object collection schemas are stored under an `objects/` subdirectory, named by their collection key.
+
+{/* prettier-ignore */}
+<PreTextDiagram description="Local schema files structure">
+{`schemas/
+├── user.json
+├── tenant.json
+└── objects/
+    └── projects.json`}
+</PreTextDiagram>
+
+Each file describes the schema's properties, including the curated `visible`, `label`, `description`, and example (`preview_text`) values. A property's inferred `type` and `source` are read-only.
+
+</ContentColumn>
+</Section>
+
+<Section title="knock schema pull [itemType] [flags]" path="/schema/pull">
+<ContentColumn>
+
+Pull one or more recipient schemas from an environment into your local file system. Pass an item type (`user`, `tenant`, or `object`) to pull a single schema, or use `--all` to pull every schema in the environment.
+
+Use an `--environment` flag to specify the target environment; if omitted, the Knock CLI defaults to the development environment.
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Pull all schemas from the environment. Cannot be combined with an item type."
+  />
+  <Attribute
+    name="--collection"
+    type="string"
+    description="The object collection key. Required when the item type is object."
+  />
+  <Attribute
+    name="--schemas-dir"
+    type="string"
+    description="The target schemas directory path."
+  />
+  <Attribute
+    name="--force"
+    type="boolean"
+    description="Overwrite local schema files without prompting for confirmation. Defaults to false."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Pull all schemas"
+knock schema pull --all
+```
+
+```bash title="Pull the user schema"
+knock schema pull user
+```
+
+```bash title="Pull an object collection schema"
+knock schema pull object --collection projects
+```
+
+</ExampleColumn>
+</Section>
+
+<Section title="knock schema push [itemType] [flags]" path="/schema/push">
+<ContentColumn>
+
+Push one or more local recipient schemas to an environment. Pass an item type (`user`, `tenant`, or `object`) to push a single schema, or use `--all` to push every schema in your local schemas directory.
+
+Pushing a schema applies your curation—hidden properties, labels, descriptions, and example values—to the target environment immediately. A property's inferred type and source are read-only and are not changed by a push.
+
+<Callout
+  type="info"
+  title="Schemas cannot be pushed to a branch"
+  text={
+    <>
+      Branch environments inherit their schema from the parent environment and
+      are read-only for schema changes. Push to the parent environment instead.
+    </>
+  }
+/>
+
+### Flags
+
+<Attributes>
+  <Attribute
+    name="--environment"
+    type="string"
+    description="The environment to use. Defaults to development."
+  />
+  <Attribute
+    name="--branch"
+    type="string"
+    description="The branch to use. Defaults to the main branch."
+  />
+  <Attribute
+    name="--all"
+    type="boolean"
+    description="Push all schemas from the local schemas directory. Cannot be combined with an item type."
+  />
+  <Attribute
+    name="--collection"
+    type="string"
+    description="The object collection key. Required when the item type is object."
+  />
+  <Attribute
+    name="--schemas-dir"
+    type="string"
+    description="The target schemas directory path."
+  />
+</Attributes>
+
+</ContentColumn>
+<ExampleColumn>
+
+```bash title="Push all schemas to production"
+knock schema push --all --environment production
+```
+
+```bash title="Push the user schema"
+knock schema push user --environment production
+```
+
+```bash title="Push an object collection schema"
+knock schema push object --collection projects --environment production
+```
+
+</ExampleColumn>
+</Section>
