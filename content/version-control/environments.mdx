@@ -11,6 +11,9 @@ tags:
     "staging",
     "production write access",
     "production member role",
+    "clone",
+    "cloning",
+    "duplicate",
   ]
 section: Concepts
 ---
@@ -126,6 +129,57 @@ These rules enable two ways of working with content and shipping it to your end 
   }
 />
 
+## Clone resources across environments
+
+You can clone supported resources from one environment to another in the Knock dashboard. Cloning creates a new copy of the resource in the destination environment. The clone gets a new key by default (with a `-copy` suffix) and is independent from the original.
+
+Open a resource's action menu and select **Clone** (or **Duplicate** for email layouts) to start a clone. When your account has more than one writable destination environment, you can choose which environment to clone into.
+
+Cloning is a dashboard-only feature. It is not available through the [Knock CLI](/cli/overview) or [Management API](/developer-tools/management-api) at this time.
+
+### Supported resources
+
+You can clone the following resources across environments:
+
+- Workflows
+- Broadcasts
+- Guides
+- Message types
+- Email layouts
+- Audiences
+- Partials
+- Translations
+- Reusable requests
+- Source event mappings
+
+Archived resources cannot be cloned.
+
+### Clone vs promote
+
+Clone and promote solve different problems:
+
+1. **Clone.** Creates a new resource in another environment. Use this when you want a copy to exist in both environments, or when you need to copy content to an environment lower in the promotion chain (for example, from production to development).
+2. **Promote.** Moves committed changes for an existing resource up through your environment chain, keeping the same key. Use this when you are following the development-to-production workflow and want the same resource to exist across environments.
+
+When you clone a workflow, Knock also copies its channel step templates and workflow schema into the destination environment.
+
+### Environment targeting
+
+Which environments you can clone into depends on your account's **production write access** setting on the **Permissions** page in your account settings:
+
+1. **Production write access enabled.** You can clone into any environment in your project.
+2. **Production write access disabled.** You can only clone into your Development environment.
+
+This follows the same rules as creating and editing content in an environment. If production write access is disabled, environments other than Development are read-only and cannot be selected as a clone destination.
+
+Branch environments cannot be used as clone targets.
+
+### Common use cases
+
+1. **Copy a broadcast from development to production.** Create and test a broadcast in development, then clone it to production when you are ready to send it to real users.
+2. **Copy production content back to development.** If you created a workflow directly in production and want to edit it using the promotion model, clone it into your development environment. You can give the clone the same key as the production resource if you plan to promote it back and overwrite the production version later.
+3. **Duplicate a workflow for experimentation.** Clone a workflow within the same environment (or into another environment) to try changes without affecting the original.
+
 ## Create additional environments
 
 <Callout
@@ -163,9 +217,11 @@ There are two tools you can use to control access to your data in the Knock dash
     create and delete environments through the Knock dashboard at this time.
   </Accordion>
   <Accordion title="I accidentally created a resource in my production environment, but I want to move it to development so that I can use the promotion model. Is this possible?">
-    Yes, but you'll need to move it manually. You can create a new resource in
-    your development environment that uses the same `key` that you used in
-    production. When you promote it to production later on, it will overwrite
-    the existing version that was previously created directly in production.
+    Yes. Use [cloning resources across
+    environments](/version-control/environments#clone-resources-across-environments)
+    to copy the resource into your development environment. By default a `-copy`
+    suffix will be added to the key of the cloned resource. Set the key to match
+    the production resource that you're cloning if you want promotions from the
+    lower environment to overwrite the production version later on.
   </Accordion>
 </AccordionGroup>
