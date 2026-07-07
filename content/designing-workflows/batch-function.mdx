@@ -14,9 +14,10 @@ Commenting is a common use case. If a user leaves ten comments in a page in fift
 
 Here's a step-by-step breakdown of how a batch function works:
 
-- When a given per-recipient workflow run hits a batch step, the batch function will stay open for an interval of time which you define (the [batch window](#setting-the-batch-window)).
-- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient**. If a [batch key](#selecting-a-batch-key) is provided in your batch step, the incoming triggers **for that recipient** will be grouped into **separate batches based on batch key.**
-- When the batch window interval closes, the workflow continues to the next step, with the data collected in the batch available as [variables](#using-batch-variables) in the workflow run scope.
+- When a given recipient's workflow run hits a batch step, a batch is opened for an interval of time which you define (the [batch window](#setting-the-batch-window)).
+- While that interval is open, the batch function aggregates any additional incoming triggers **for that recipient** as `activities`. If a [batch key](#selecting-a-batch-key) is provided in your batch step, the incoming triggers **for that recipient** will be grouped into **separate batches based on the batch key.**
+- As subsequent `activities` are added to an open batch, their underlying workflow runs are terminated.
+- When the batch window interval closes, the original workflow run which opened the batch continues to the next step, with the data collected in the batch available as [variables](#using-batch-variables) in the workflow run scope.
 
 <Callout
   type="enterprise"
@@ -323,6 +324,8 @@ For this reason, we recommend referencing the `activities` array to access data 
 
 If you want to remove an item from a batch (example: a user deletes a comment), you can use our [workflow cancellation API](/send-notifications/canceling-workflows) to cancel a batched item, thereby removing it from the batch.
 
+If a batch is empty when its window closes because all of its `activities` were canceled, no subsequent channel steps in the workflow will generate messages.
+
 <Callout
   type="alert"
   title="Important:"
@@ -344,7 +347,13 @@ If you want to remove an item from a batch (example: a user deletes a comment), 
   }
 />
 
----
+### Canceling runs after a batch closes
+
+If you need to cancel an in-flight workflow run after its batch window has closed and it has proceeded to the next workflow step, you must use the `cancellation_key` from the workflow trigger which originally opened the batch window. The original key can be used to cancel the run even if it was previously used to remove the initial `activity` from the batch while it was still open.
+
+After a batch window has closed, specific `activities` are no longer eligible to be removed from a batch or otherwise canceled. Because each activity's individual workflow run is terminated when it is added to an open batch, any `cancellation_key` which is not associated with the original workflow run will have no effect.
+
+Keep this behavior in mind when deciding whether to include delay steps after a batch step in your workflows.
 
 ## Frequently asked questions
 
