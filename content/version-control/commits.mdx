@@ -40,7 +40,11 @@ A few additional notes:
 
 An empty commit lets you commit (publish) a versioned resource without changing its content. This is similar to `git commit --allow-empty`.
 
-Promotion diffing keys off `ref` and `version_id`. When a resource is already committed (`current_version_id == published_version_id`), a normal commit is a no-op and nothing new is promotable. An empty commit clones the current version into a new version row (with a new `version_id` but identical content), then publishes that row. The result is a new commit log entry that you can promote downstream, even though the resource content is unchanged.
+Empty commits are useful when you need to promote a resource to another environment, but the resource has no unpublished changes in the current environment.
+
+Knock tracks promotable changes by comparing each resource's identifier (`ref`) and version (`version_id`). If a resource already points to the published version (`current_version_id == published_version_id`), a standard commit does not create a new promotable change.
+
+An empty commit solves this by creating a new version with the same content, then publishing that version. This gives Knock a new `version_id` to include in promotion diffs, so you can promote the commit downstream even though the resource content has not changed.
 
 ```mermaid
 flowchart LR
@@ -49,9 +53,9 @@ flowchart LR
   publish --> promotable["New commit appears in promotion diffs"]
 ```
 
-**When the resource has unpublished changes**, the empty-clone step is skipped and a normal publish happens instead.
+When the resource has **unpublished changes**, the empty-clone step is skipped and a normal publish happens instead.
 
-**When the resource is already published with no changes**, an empty commit creates a new version with identical content.
+When the resource is **already published with no changes**, an empty commit creates a new version with identical content.
 
 Commit log entries for empty commits include audit metadata with `empty: true` and an optional message.
 
@@ -67,7 +71,7 @@ Supported resource types on the bulk commit endpoint (`PUT /v1/commits`):
 - `guide`
 - `audience`
 
-`reusable_step` is not supported on the bulk commit endpoint. To create an empty commit for a reusable step, use a resource upsert with `commit=true` and `allow_empty=true`, or publish via the dashboard.
+The bulk commit endpoint does not support `reusable_step`. To create an empty commit for a reusable step, use a resource upsert with `commit=true` and `allow_empty=true`, or publish via the dashboard.
 
 For translations, the `resource_id` can be a locale (`es`), a locale and namespace (`es/courses`), or a locale, namespace, and tenant (`es/courses~tenant`).
 
