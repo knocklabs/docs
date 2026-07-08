@@ -7,6 +7,22 @@ tags: ["hooks", "headless", "usePreferences", "preferences"]
 
 Using our `@knocklabs/react` library, you can create custom notification preference interfaces that are backed by Knock's preferences API. The `usePreferences` hook enables you to fetch and update user preferences with real-time caching, making it easy to build responsive preference centers.
 
+<Callout
+  type="info"
+  title="Authenticate with a public API key."
+  text={
+    <>
+      Custom preference centers authenticate with your public API key and a
+      signed user token from your backend. You don't need a secret API key in
+      the browser. See{" "}
+      <a href="/preferences/overview#build-your-preference-center">
+        Build your preference center
+      </a>{" "}
+      for the full walkthrough.
+    </>
+  }
+/>
+
 In this documentation, we'll walk through creating a custom preferences interface in your application using the `usePreferences` hook.
 
 ## Getting started
@@ -14,6 +30,7 @@ In this documentation, we'll walk through creating a custom preferences interfac
 To use this example, you'll need [an account on Knock](https://dashboard.knock.app) and an [identified user](/concepts/users). You'll also need:
 
 - A public API key for the Knock environment (set as `KNOCK_PUBLIC_API_KEY`)
+- A signed user token from your backend (required in production with enhanced security mode enabled; see [Authentication with enhanced security](/in-app-ui/security-and-authentication#authentication-with-enhanced-security))
 - A default preference set configured in your Knock dashboard
 
 <Callout
@@ -37,7 +54,7 @@ npm install @knocklabs/react
 
 ## Implement `KnockProvider`
 
-First, we'll need to implement the `KnockProvider` component somewhere in your component tree and authenticate against the Knock API using a user id and API key.
+First, we'll need to implement the `KnockProvider` component somewhere in your component tree and authenticate against the Knock API using a user id, public API key, and signed user token.
 
 ```jsx title="Implement KnockProvider in your app"
 import { KnockProvider } from "@knocklabs/react";
@@ -46,11 +63,14 @@ const App = ({ user }) => (
   <KnockProvider
     apiKey={process.env.KNOCK_PUBLIC_API_KEY}
     user={{ id: user.id }}
+    userToken={user.knockUserToken}
   >
     <PreferencesPage />
   </KnockProvider>
 );
 ```
+
+In development environments without enhanced security mode enabled, you can omit the `userToken` prop and pass only the user id.
 
 ## Setup the usePreferences hook
 
@@ -639,6 +659,6 @@ You now have the building blocks to create sophisticated preference interfaces w
 
 ## Related links
 
-- [Preferences overview](/preferences/overview)
+- Preferences overview
 - [Preferences API reference](/api-reference/recipients/preferences)
 - [React SDK reference](/in-app-ui/react/sdk/reference)
